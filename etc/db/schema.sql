@@ -1,6 +1,6 @@
 /*
 Created     23.05.2009
-Modified    25.11.2010
+Modified    09.12.2010
 Project     Forex
 Model       
 Company     
