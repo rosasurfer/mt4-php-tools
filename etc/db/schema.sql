@@ -1,7 +1,7 @@
 /*
 Created     23.05.2009
-Modified    09.12.2010
-Project     Forex
+Modified    12.12.2010
+Project     Forex web
 Model       
 Company     
 Author      Peter Walther
@@ -18,8 +18,9 @@ use fxtrader;
 create table t_account (
    id int unsigned not null auto_increment,
    created datetime not null,
-   company varchar(100) not null comment 'account company',
    number int unsigned not null comment 'account number',
+   company varchar(100) not null comment 'account company',
+   timezone varchar(20) not null,
    currency char(3) not null comment 'base currency',
    lotsize int unsigned not null comment 'lotsize in base units',
    mtiaccount varchar(50) comment 'MTi account id',
@@ -27,7 +28,6 @@ create table t_account (
    unique key u_company_number (company,number),
    unique key u_mtiaccount (mtiaccount)
 ) engine = InnoDB;
-
 
 create table t_order (
    id int unsigned not null auto_increment,
@@ -53,7 +53,7 @@ create table t_order (
    primary key (id),
    unique key u_account_id_ticket (account_id,ticket),
    index i_account_id (account_id),
-   constraint order_account_id foreign key (account_id) references t_account (id) on delete restrict on update cascade
+   constraint order_account_id foreign key (account_id) references t_account (id) on delete  restrict on update cascade
 ) engine = InnoDB;
 
 
