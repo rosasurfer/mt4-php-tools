@@ -1,6 +1,6 @@
 /*
 Created     23.05.2009
-Modified    12.12.2010
+Modified    22.12.2010
 Project     Forex web
 Model       
 Company     
@@ -18,15 +18,15 @@ use fxtrader;
 create table t_account (
    id int unsigned not null auto_increment,
    created datetime not null,
-   number int unsigned not null comment 'account number',
    company varchar(100) not null comment 'account company',
+   type enum('demo','live') not null comment 'demo | live',
+   number int unsigned not null comment 'account number',
    timezone varchar(20) not null,
    currency char(3) not null comment 'base currency',
-   lotsize int unsigned not null comment 'lotsize in base units',
-   mtiaccount varchar(50) comment 'MTi account id',
+   mtiaccount_id varchar(50) comment 'MTi account id',
    primary key (id),
    unique key u_company_number (company,number),
-   unique key u_mtiaccount (mtiaccount)
+   unique key u_mtiaccount_id (mtiaccount_id)
 ) engine = InnoDB;
 
 create table t_order (
