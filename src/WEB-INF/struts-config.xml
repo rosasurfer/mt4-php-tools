@@ -1,6 +1,29 @@
 <?xml version="1.0" encoding="iso-8859-15"?>
 <!DOCTYPE struts-config SYSTEM "dtd/php-struts-config.dtd">
 
-<struts-config>
+<struts-config doc-base="include">
+
+
+   <!-- ============================================= Global Forwards ============================================= -->
+   <global-forwards>
+      <forward name="home"          include=".default"   />
+      <forward name="redirect.home" redirect="/index.php"/>
+   </global-forwards>
+
+
+   <!-- ============================================= Action Mappings ============================================= -->
+   <action-mappings>
+      <mapping path="/index.php"  forward="home"/>
+
+      <mapping path="/uploadAccountHistory.php"  form="UploadAccountHistoryActionForm"  action="UploadAccountHistoryAction"  methods="get,post">
+         <forward name="error"  forward="home"/>
+      </mapping>
+   </action-mappings>
+
+
+   <!-- ================================================== Tiles ================================================== -->
+   <tiles>
+      <tile name=".default" path="html/default.html"/>
+   </tiles>
 
 </struts-config>
