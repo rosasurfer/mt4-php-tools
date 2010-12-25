@@ -1,6 +1,6 @@
 /*
 Created     23.05.2009
-Modified    22.12.2010
+Modified    25.12.2010
 Project     Forex web
 Model       
 Company     
@@ -29,17 +29,20 @@ create table t_account (
    unique key u_mtiaccount_id (mtiaccount_id)
 ) engine = InnoDB;
 
+
 create table t_order (
    id int unsigned not null auto_increment,
    created datetime not null,
    ticket int unsigned not null,
    type enum('buy','sell','balance','credit','vendormatching') not null comment 'buy | sell | balance | credit | vendor matching',
-   lots decimal(10,2) unsigned not null,
+   units int unsigned not null comment 'traded amount',
    symbol char(12),
    opentime datetime not null,
    openprice decimal(10,5) unsigned not null,
+   openslippage decimal(4,1) not null,
    closetime datetime not null,
    closeprice decimal(10,5) unsigned not null,
+   closeslippage decimal(4,1) not null,
    commission decimal(10,2) not null,
    swap decimal(10,2) not null,
    netprofit decimal(10,2) not null,
@@ -53,7 +56,7 @@ create table t_order (
    primary key (id),
    unique key u_account_id_ticket (account_id,ticket),
    index i_account_id (account_id),
-   constraint order_account_id foreign key (account_id) references t_account (id) on delete  restrict on update cascade
+   constraint order_account_id foreign key (account_id) references t_account (id) on delete restrict on update cascade
 ) engine = InnoDB;
 
 
