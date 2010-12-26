@@ -27,7 +27,6 @@ class UploadAccountHistoryAction extends Action {
       $form = $this->form;
 
       if ($form->validate()) {
-         //set_time_limit(0);
          try {
             //EncashmentHelper ::updateEncashmentKeys($form->getFileTmpName());
             echo(HttpResponse ::SC_OK) ;

@@ -39,7 +39,8 @@ class UploadAccountHistoryActionForm extends ActionForm {
       $lines    = explode("\n", $content);
       $sections = array();
       $section  = null;
-      date_default_timezone_set('GMT');
+      date_default_timezone_set('GMT');      // MetaTrader kennt keine Zeitzonen und interpretiert alle Zeitangaben als GMT
+
 
       // Inhalt der Datei syntaktisch validieren und dabei gleichzeitig die Rohdaten einlesen
       foreach ($lines as $i => &$line) {
@@ -51,7 +52,7 @@ class UploadAccountHistoryActionForm extends ActionForm {
             $section = strToLower($matches[1]);
             if (($section=='account' || $section=='data') && !isSet($sections[$section])) {
                $sections[$section] = array();
-               echo("\n[$section] section\n");
+               //echo("\n[$section] section\n");
                continue;
             }
             $section = null;                                   // unbekannte Abschnitte und mehrfache Vorkommen gültiger Abschnitte überspringen
@@ -62,7 +63,7 @@ class UploadAccountHistoryActionForm extends ActionForm {
          // Abschnitt [account]
          if ($section == 'account') {
             $sections['account'][] = $line;
-            echo("$line\n");
+            //echo("$line\n");
             continue;
          }
 
@@ -95,17 +96,49 @@ class UploadAccountHistoryActionForm extends ActionForm {
             $magicNumber         = $values[18];
             $comment             = $values[19];
 
-            /*
-            Ticket   OpenTime             OpenTimestamp  TypeStr  Type  Size  Symbol   OpenPrice   StopLoss    TakeProfit  ExpirationTime ExpirationTimestamp  CloseTime            CloseTimestamp ClosePrice  Commission  Swap  Profit   MagicNumber Comment
-            3137915  2010.11.30 19:06:12  1291143972     Buy      0     11    GBPJPY   130.246     130.196                                                     2010.11.30 19:50:31  1291146631     130.196     -88.00      0.00  -657.74              [tp]
-            */
+            if (!cType_digit($ticket)) {
+               $request->setActionError('', '400: invalid file format (unexpected value in line '.($i+1).',1)');
+               return false;
+            }
+            $ticket = (int) $ticket;
 
-            if (cType_digit($values[2])) {
-               echo(date('Y-m-d H:i:s', $values[2]).'   '."$line\n");
+            if (!cType_digit($openTimestamp)) {
+               $request->setActionError('', '400: invalid file format (unexpected value in line '.($i+1).',3)');
+               return false;
             }
-            else {
-               echo(date('Y-m-d H:i:s', 0).'   '."$line\n");
+            $openTimestamp = (int) $openTimestamp;
+
+            if ($openTime != date('Y.m.d H:i:s', $openTimestamp)) {
+               $request->setActionError('', '400: invalid file format (unexpected value in line '.($i+1).',2)');
+               return false;
             }
+
+            if (!cType_digit($type) || !Validator ::isOperationType((int) $type)) {
+               $request->setActionError('', '400: invalid file format (unexpected value in line '.($i+1).',5)');
+               return false;
+            }
+            $type = (int) $type;
+
+            if ($typeStr != ViewHelper ::$operationTypes[$type]) {
+               $request->setActionError('', '400: invalid file format (unexpected value in line '.($i+1).',4)');
+               return false;
+            }
+
+            if (!cType_digit($size)) {
+               $request->setActionError('', '400: invalid file format (unexpected value in line '.($i+1).',6)');
+               return false;
+            }
+            $size = (int) $size;
+
+
+            /*
+            Size  Symbol   OpenPrice   StopLoss    TakeProfit  ExpirationTime ExpirationTimestamp  CloseTime            CloseTimestamp ClosePrice  Commission  Swap  Profit   MagicNumber Comment
+            11    GBPJPY   130.246     130.196                                                     2010.11.30 19:50:31  1291146631     130.196     -88.00      0.00  -657.74              [tp]
+
+            if (cType_digit($values[2])) echo(date('Y-m-d H:i:s', $values[2]).'   '."$line\n");
+            else                         echo(date('Y-m-d H:i:s',          0).'   '."$line\n");
+            */
+            echo("$line\n");
          }
       }
       return !$request->isActionError();

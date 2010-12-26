@@ -1,6 +1,6 @@
 /*
 Created     23.05.2009
-Modified    25.12.2010
+Modified    26.12.2010
 Project     Forex web
 Model       
 Company     
@@ -35,7 +35,7 @@ create table t_order (
    created datetime not null,
    ticket int unsigned not null,
    type enum('buy','sell','balance','credit','vendormatching') not null comment 'buy | sell | balance | credit | vendor matching',
-   units int unsigned not null comment 'traded amount',
+   units int unsigned not null comment 'traded units (not lots)',
    symbol char(12),
    opentime datetime not null,
    openprice decimal(10,5) unsigned not null,
