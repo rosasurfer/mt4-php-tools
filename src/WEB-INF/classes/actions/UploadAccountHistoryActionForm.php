@@ -96,24 +96,24 @@ class UploadAccountHistoryActionForm extends ActionForm {
             $magicNumber         = $values[18];
             $comment             = $values[19];
 
-            if (!cType_digit($ticket)) {
+            if ($ticket !== (string)(int)$ticket) {
                $request->setActionError('', '400: invalid file format (unexpected value in line '.($i+1).',1)');
                return false;
             }
             $ticket = (int) $ticket;
 
-            if (!cType_digit($openTimestamp)) {
+            if ($openTimestamp !== (string)(int)$openTimestamp) {
                $request->setActionError('', '400: invalid file format (unexpected value in line '.($i+1).',3)');
                return false;
             }
             $openTimestamp = (int) $openTimestamp;
 
-            if ($openTime != date('Y.m.d H:i:s', $openTimestamp)) {
+            if ($openTime != date('Y.m.d H:i:s', $openTimestamp)) {  // $openTime 1 x prüfen, um Abweichungen der MT4-Timezone-Implementierung zu erkennen
                $request->setActionError('', '400: invalid file format (unexpected value in line '.($i+1).',2)');
                return false;
             }
 
-            if (!cType_digit($type) || !Validator ::isOperationType((int) $type)) {
+            if ($type!==(string)(int)$type || !Validator ::isOperationType((int) $type)) {
                $request->setActionError('', '400: invalid file format (unexpected value in line '.($i+1).',5)');
                return false;
             }
@@ -126,16 +126,45 @@ class UploadAccountHistoryActionForm extends ActionForm {
                return false;
             }
 
-            if (!cType_digit($units)) {
+            if ($units !== (string)(int)$units) {
                $request->setActionError('', '400: invalid file format (unexpected value in line '.($i+1).',6)');
                return false;
             }
             $units = (int) $units;
 
+            if ($closeTimestamp !== (string)(int)$closeTimestamp) {
+               $request->setActionError('', '400: invalid file format (unexpected value in line '.($i+1).',14)');
+               return false;
+            }
+            $closeTimestamp = (int) $closeTimestamp;
+
+            if ($commission != (string)(float)$commission) {
+               $request->setActionError('', '400: invalid file format (unexpected value in line '.($i+1).',16)');
+               return false;
+            }
+            $commission = (float) $commission;
+
+            if ($swap != (string)(float)$swap) {
+               $request->setActionError('', '400: invalid file format (unexpected value in line '.($i+1).',17)');
+               return false;
+            }
+            $swap = (float) $swap;
+
+            if ($profit != (string)(float)$profit) {
+               $request->setActionError('', '400: invalid file format (unexpected value in line '.($i+1).',18)');
+               return false;
+            }
+            $profit = (float) $profit;
+
             if ($type==OP_BALANCE || $type==OP_CREDIT) {
-               $symbol    = null;
-               $openPrice = null;
-               $stopLoss  = null;
+               $symbol              = null;
+               $openPrice           = null;
+               $stopLoss            = null;
+               $takeProfit          = null;
+               $closePrice          = null;
+               $expirationTime      = null;
+               $expirationTimestamp = null;
+               $magicNumber         = null;
             }
             else {
                if (!Validator ::isInstrument($symbol)) {
@@ -143,30 +172,44 @@ class UploadAccountHistoryActionForm extends ActionForm {
                   return false;
                }
 
-               if ($openPrice != (float)$openPrice) {
+               if ($openPrice != (string)(float)$openPrice) {
                   $request->setActionError('', '400: invalid file format (unexpected value in line '.($i+1).',8)');
                   return false;
                }
                $openPrice = (float) $openPrice;
 
-               if (strLen($stopLoss) && $stopLoss!=(float)$stopLoss) {
+               if (strLen($stopLoss) && $stopLoss!=(string)(float)$stopLoss) {
                   $request->setActionError('', '400: invalid file format (unexpected value in line '.($i+1).',9)');
                   return false;
                }
-               $stopLoss = strLen($stopLoss) ? (float)$stopLoss : null;
+               $stopLoss = strLen($stopLoss) ? (float) $stopLoss : null;
 
-               if (strLen($takeProfit) && $takeProfit!=(float)$takeProfit) {
+               if (strLen($takeProfit) && $takeProfit!=(string)(float)$takeProfit) {
                   $request->setActionError('', '400: invalid file format (unexpected value in line '.($i+1).',10)');
                   return false;
                }
-               $takeProfit = strLen($takeProfit) ? (float)$takeProfit : null;
+               $takeProfit = strLen($takeProfit) ? (float) $takeProfit : null;
+
+               if (strLen($expirationTimestamp) && $expirationTimestamp!==(string)(int)$expirationTimestamp) {
+                  $request->setActionError('', '400: invalid file format (unexpected value in line '.($i+1).',12)');
+                  return false;
+               }
+               $expirationTimestamp = strLen($expirationTimestamp) ? (int) $expirationTimestamp : null;
+
+               if ($closePrice != (string)(float)$closePrice) {
+                  $request->setActionError('', '400: invalid file format (unexpected value in line '.($i+1).',15)');
+                  return false;
+               }
+               $closePrice = (float) $closePrice;
+
+               if (strLen($magicNumber) && $magicNumber!==(string)(int)$magicNumber) {
+                  $request->setActionError('', '400: invalid file format (unexpected value in line '.($i+1).',19)');
+                  return false;
+               }
+               $magicNumber = strLen($magicNumber) ? (int) $magicNumber : null;
             }
 
-            /*
-            ExpirationTime ExpirationTimestamp  CloseTime            CloseTimestamp ClosePrice  Commission  Swap  Profit   MagicNumber Comment
-                                                2010.11.30 19:50:31  1291146631     130.196     -88.00      0.00  -657.74              [tp]
-            */
-            echo("$line\n");
+            $comment = trim($comment);
          }
       }
       return !$request->isActionError();
