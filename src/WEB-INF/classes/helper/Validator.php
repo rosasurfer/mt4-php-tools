@@ -15,5 +15,17 @@ class Validator extends CommonValidator {
    public static function isOperationType($type) {
       return (is_int($type) && isSet(ViewHelper ::$operationTypes[$type]));
    }
+
+
+   /**
+    * Ob der übergebene String ein gültiger Instrumentbezeichner ist.
+    *
+    * @param  string $string - zu prüfender Sring
+    *
+    * @return bool
+    */
+   public static function isInstrument($string) {
+      return (is_string($string) && isSet(ViewHelper ::$instruments[$string]));
+   }
 }
 ?>

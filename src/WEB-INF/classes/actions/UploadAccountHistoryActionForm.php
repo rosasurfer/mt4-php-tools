@@ -80,7 +80,7 @@ class UploadAccountHistoryActionForm extends ActionForm {
             $openTimestamp       = $values[ 2];
             $typeStr             = $values[ 3];
             $type                = $values[ 4];
-            $size                = $values[ 5];
+            $units               = $values[ 5];
             $symbol              = $values[ 6];
             $openPrice           = $values[ 7];
             $stopLoss            = $values[ 8];
@@ -118,25 +118,53 @@ class UploadAccountHistoryActionForm extends ActionForm {
                return false;
             }
             $type = (int) $type;
+            if ($type==OP_BUYLIMIT || $type==OP_SELLLIMIT || $type==OP_BUYSTOP || $type==OP_SELLSTOP)
+               continue;
 
             if ($typeStr != ViewHelper ::$operationTypes[$type]) {
                $request->setActionError('', '400: invalid file format (unexpected value in line '.($i+1).',4)');
                return false;
             }
 
-            if (!cType_digit($size)) {
+            if (!cType_digit($units)) {
                $request->setActionError('', '400: invalid file format (unexpected value in line '.($i+1).',6)');
                return false;
             }
-            $size = (int) $size;
+            $units = (int) $units;
 
+            if ($type==OP_BALANCE || $type==OP_CREDIT) {
+               $symbol    = null;
+               $openPrice = null;
+               $stopLoss  = null;
+            }
+            else {
+               if (!Validator ::isInstrument($symbol)) {
+                  $request->setActionError('', '400: invalid file format (unexpected value in line '.($i+1).',7)');
+                  return false;
+               }
+
+               if ($openPrice != (float)$openPrice) {
+                  $request->setActionError('', '400: invalid file format (unexpected value in line '.($i+1).',8)');
+                  return false;
+               }
+               $openPrice = (float) $openPrice;
+
+               if (strLen($stopLoss) && $stopLoss!=(float)$stopLoss) {
+                  $request->setActionError('', '400: invalid file format (unexpected value in line '.($i+1).',9)');
+                  return false;
+               }
+               $stopLoss = strLen($stopLoss) ? (float)$stopLoss : null;
+
+               if (strLen($takeProfit) && $takeProfit!=(float)$takeProfit) {
+                  $request->setActionError('', '400: invalid file format (unexpected value in line '.($i+1).',10)');
+                  return false;
+               }
+               $takeProfit = strLen($takeProfit) ? (float)$takeProfit : null;
+            }
 
             /*
-            Size  Symbol   OpenPrice   StopLoss    TakeProfit  ExpirationTime ExpirationTimestamp  CloseTime            CloseTimestamp ClosePrice  Commission  Swap  Profit   MagicNumber Comment
-            11    GBPJPY   130.246     130.196                                                     2010.11.30 19:50:31  1291146631     130.196     -88.00      0.00  -657.74              [tp]
-
-            if (cType_digit($values[2])) echo(date('Y-m-d H:i:s', $values[2]).'   '."$line\n");
-            else                         echo(date('Y-m-d H:i:s',          0).'   '."$line\n");
+            ExpirationTime ExpirationTimestamp  CloseTime            CloseTimestamp ClosePrice  Commission  Swap  Profit   MagicNumber Comment
+                                                2010.11.30 19:50:31  1291146631     130.196     -88.00      0.00  -657.74              [tp]
             */
             echo("$line\n");
          }
