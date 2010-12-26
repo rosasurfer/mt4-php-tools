@@ -32,70 +32,82 @@ class UploadAccountHistoryActionForm extends ActionForm {
       $content = $this->content;
 
       if (strLen($content) == 0) {
-         $request->setActionError('', '400: invalid request, file content missing');
+         $request->setActionError('', '400: file content missing');
          return false;
       }
 
-      // Inhalt der Datei syntaktisch validieren
-      $lines   = explode("\n", $content);
-      $section = null;                       // Abschnittsname
+      $lines    = explode("\n", $content);
+      $sections = array();
+      $section  = null;
+      date_default_timezone_set('GMT');
 
+      // Inhalt der Datei syntaktisch validieren und dabei gleichzeitig die Rohdaten einlesen
       foreach ($lines as $i => &$line) {
          $line = trim($line, " \r\n");
-         // Leerzeilen und Kommentare überspringen
-         if ($line==='' || $line{0}=='#')
+         if ($line==='' || $line{0}=='#')                      // Leerzeilen und Kommentare überspringen
             continue;
 
-         // Abschnitt erkennen
-         if (!$section) {
-            if      (String ::startsWith($line, '[account]', true)) $section = '[account]';
-            else if (String ::startsWith($line, '[data]'   , true)) $section = '[data]';
-            else {
-               $request->setActionError('', '400: validation error in line '.($i+1).' (invalid section header found: '.$line.')');
-               return false;
-            }
-         }
-         else {
-         }
-
-
-
-
-         if ($i === 0) {
-            if ($line !== "invoice_id\taktenzeichen") {
-               $request->setActionError('', '400: Formatfehler in Datei: ungültiger Header (Zeile '.($i+1).')');
-               return false;
-            }
-            continue;
-         }
-
-         $values = explode("\t", $line);
-         if (sizeOf($values) != 2) {
-            $request->setActionError('', '400: Formatfehler in Datei: ungültiger Datensatz (Zeile '.($i+1).')');
-            return false;
-         }
-         else {
-            $invoice       = trim($values[0]);
-            $encashmentKey = trim($values[1]);
-
-            if ($invoice=='' || $encashmentKey=='')
+         if (preg_match('/^\[(\w+)\]/i', $line, $matches)) {   // Abschnittsnamen analysieren
+            $section = strToLower($matches[1]);
+            if (($section=='account' || $section=='data') && !isSet($sections[$section])) {
+               $sections[$section] = array();
+               echo("\n[$section] section\n");
                continue;
+            }
+            $section = null;                                   // unbekannte Abschnitte und mehrfache Vorkommen gültiger Abschnitte überspringen
+         }
+         if (!$section)                                        // alle Zeilen außerhalb gültiger Abschnitte überspringen
+            continue;
 
-            if (!Validator ::isInvoiceNo($invoice) || !Validator ::isEncashmentKey($encashmentKey)) {
-               $request->setActionError('', '400: Formatfehler in Datei: ungültiger Datensatz (Zeile '.($i+1).')');
+         // Abschnitt [account]
+         if ($section == 'account') {
+            $sections['account'][] = $line;
+            echo("$line\n");
+            continue;
+         }
+
+         // Abschnitt [data]
+         if ($section == 'data') {
+            $values = explode("\t", $line);
+            if (sizeOf($values) != 20) {
+               $request->setActionError('', '400: invalid file format (unexpected number of columns in line '.($i+1).')');
                return false;
             }
-            $data[] = subStr($invoice, 2)."\t".$encashmentKey;
+
+            $ticket              = $values[ 0];
+            $openTime            = $values[ 1];
+            $openTimestamp       = $values[ 2];
+            $typeStr             = $values[ 3];
+            $type                = $values[ 4];
+            $size                = $values[ 5];
+            $symbol              = $values[ 6];
+            $openPrice           = $values[ 7];
+            $stopLoss            = $values[ 8];
+            $takeProfit          = $values[ 9];
+            $expirationTime      = $values[10];
+            $expirationTimestamp = $values[11];
+            $closeTime           = $values[12];
+            $closeTimestamp      = $values[13];
+            $closePrice          = $values[14];
+            $commission          = $values[15];
+            $swap                = $values[16];
+            $profit              = $values[17];
+            $magicNumber         = $values[18];
+            $comment             = $values[19];
+
+            /*
+            Ticket   OpenTime             OpenTimestamp  TypeStr  Type  Size  Symbol   OpenPrice   StopLoss    TakeProfit  ExpirationTime ExpirationTimestamp  CloseTime            CloseTimestamp ClosePrice  Commission  Swap  Profit   MagicNumber Comment
+            3137915  2010.11.30 19:06:12  1291143972     Buy      0     11    GBPJPY   130.246     130.196                                                     2010.11.30 19:50:31  1291146631     130.196     -88.00      0.00  -657.74              [tp]
+            */
+
+            if (cType_digit($values[2])) {
+               echo(date('Y-m-d H:i:s', $values[2]).'   '."$line\n");
+            }
+            else {
+               echo(date('Y-m-d H:i:s', 0).'   '."$line\n");
+            }
          }
       }
-
-      // Daten in die temporäre Datei zurückschreiben
-      $fH = fOpen($file['tmp_name'], 'wb');
-      fWrite($fH, join("\n", $data)."\n");
-      fClose($fH);
-
-      unset($lines, $data);
-
       return !$request->isActionError();
    }
 }
