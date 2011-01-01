@@ -12,11 +12,9 @@ include(dirName(__FILE__).'/../../classes/classes.php');
 define('APPLICATION_NAME', 'fx.pewasoft');
 
 
-date_default_timezone_set('UTC');         // Zeitzone der Dukascopy-Dateien ist GMT+0000 ohne Sommerzeit
-
-
 // Beginn der Tickdaten der einzelnen Pairs
-$pairs = array('AUDJPY' => strToTime('2007-03-30 16:01:15'),      // 2007-03-30 16:01:15
+date_default_timezone_set('GMT');                                 // Zeitzone der Dateien ist durchgehend GMT+0000 (keine Sommerzeit)
+$pairs = array('AUDJPY' => strToTime('2010-12-24 16:01:15'),      // 2007-03-30 16:01:15
                'AUDNZD' => strToTime('2008-12-22 16:16:02'),
                'AUDUSD' => strToTime('2007-03-30 16:01:15'),
                'CADJPY' => strToTime('2007-03-30 16:01:15'),
@@ -42,25 +40,24 @@ $pairs = array('AUDJPY' => strToTime('2007-03-30 16:01:15'),      // 2007-03-30 
 $now         = time();
 $currentHour = $now - $now % HOUR;
 
-$n = 0;
 foreach ($pairs as $pair => $firstTick) {
    $firstHour = $firstTick - $firstTick % HOUR;
 
-   for ($i=$firstHour; $i < $currentHour; $i+=HOUR) {       // Daten der aktuellen Stunde können noch nicht existieren
-      $yyyy = date('Y', $i);
-      $mm   = date('m', $i);
-      $dd   = date('d', $i);
-      $hh   = date('H', $i);
-      $dow  = date('w', $i);
+   for ($time=$firstHour; $time < $currentHour; $time+=HOUR) {    // Daten der aktuellen Stunde können noch nicht existieren
+      date_default_timezone_set('America/New_York');
+      $dow  = date('w', $time + 7*HOURS);
+      if ($dow==SATURDAY || $dow==SUNDAY)                         // Wochenenden überspringen, Maßstab ist America/New_York+7000
+         continue;
 
-      if ($dow==SATURDAY || ($dow==SUNDAY && $hh < 22))     // Wochenenden überspringen, Montag beginnt um "Sun 22:00 GMT"
-         continue;                                          // TODO: Welche Sommerzeit verwendet Dukascopy???
+      date_default_timezone_set('GMT');
+      $yyyy = date('Y', $time);
+      $mm   = date('m', $time);
+      $dd   = date('d', $time);
+      $hh   = date('H', $time);
 
       $url  = "http://www.dukascopy.com/datafeed/$pair/$yyyy/$mm/$dd/{$hh}h_ticks.bin";
       echoPre($url);
-      ++$n;
    }
-   //break;
+   break;
 }
-echoPre($n.' urls');
 ?>
