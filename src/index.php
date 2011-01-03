@@ -19,6 +19,11 @@ echoPre('GMT(DATE_RFC1123) = '.date(DATE_RFC1123, $date));
 
 date_default_timezone_set('America/New_York');
 echoPre('New York(DATE_RFC1123) = '.date(DATE_RFC1123, $date));
+
+echoPre('GMT    = '.date(DATE_RFC1123, strToTime('2007-01-30 16:01:15 GMT')));
+echoPre('London = '.date(DATE_RFC1123, strToTime('2007-01-30 16:01:15 Europe/London')));
+echoPre('Berlin = '.date(DATE_RFC1123, strToTime('2007-01-30 16:01:15 Europe/Berlin')));
+echoPre('Sofia  = '.date(DATE_RFC1123, strToTime('2007-01-30 16:01:15 Europe/Sofia')));
 */
 
 FrontController ::processRequest();
