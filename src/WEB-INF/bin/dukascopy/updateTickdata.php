@@ -45,8 +45,8 @@ foreach ($pairs as $pair => $firstTick) {
 
    for ($time=$firstHour; $time < $currentHour; $time+=HOUR) {    // Daten der aktuellen Stunde können noch nicht existieren
       date_default_timezone_set('America/New_York');
-      $dow  = date('w', $time + 7*HOURS);
-      if ($dow==SATURDAY || $dow==SUNDAY)                         // Wochenenden überspringen, Maßstab ist America/New_York+7000
+      $dow = date('w', $time + 7*HOURS);
+      if ($dow==SATURDAY || $dow==SUNDAY)                         // Wochenenden überspringen, Sessionbeginn/-ende ist America/New_York+0700
          continue;
 
       date_default_timezone_set('GMT');
@@ -54,7 +54,6 @@ foreach ($pairs as $pair => $firstTick) {
       $mm   = date('m', $time);
       $dd   = date('d', $time);
       $hh   = date('H', $time);
-
       $url  = "http://www.dukascopy.com/datafeed/$pair/$yyyy/$mm/$dd/{$hh}h_ticks.bin";
       echoPre($url);
    }
