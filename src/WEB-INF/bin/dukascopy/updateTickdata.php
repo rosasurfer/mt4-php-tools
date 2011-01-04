@@ -13,7 +13,7 @@ define('APPLICATION_NAME', 'fx.pewasoft');
 
 
 // Beginn der Tickdaten der einzelnen Pairs                          // Zeitzone der Dateien ist durchgehend GMT+0000 (keine Sommerzeit)
-$pairs = array('AUDJPY' => strToTime('2011-01-04 00:01:15 GMT'),     // 2007-03-30 16:01:15 GMT
+$pairs = array('AUDJPY' => strToTime('2007-03-30 16:01:15 GMT'),     // 2007-03-30 16:01:15 GMT
                'AUDNZD' => strToTime('2008-12-22 16:16:02 GMT'),
                'AUDUSD' => strToTime('2007-03-30 16:01:16 GMT'),
                'CADJPY' => strToTime('2007-03-30 16:01:16 GMT'),
@@ -36,39 +36,64 @@ $pairs = array('AUDJPY' => strToTime('2011-01-04 00:01:15 GMT'),     // 2007-03-
                'USDNOK' => strToTime('2008-09-28 22:04:55 GMT'),
                'USDSEK' => strToTime('2008-09-28 23:30:31 GMT'));
 
+
+// Downloadverzeichnis bestimmen
+$downloadDirectory = Config ::get('dukascopy.download_directory');
+
+
 $thisHour  = time();
 $thisHour -= $thisHour % HOUR;
 
 foreach ($pairs as $pair => $firstTick) {
    $firstHour = $firstTick - $firstTick % HOUR;
 
-   for ($time=$firstHour; $time < $thisHour; $time+=HOUR) {    // Daten der aktuellen Stunde können noch nicht existieren
+   for ($time=$firstHour; $time < $thisHour; $time+=HOUR) {          // Daten der aktuellen Stunde können noch nicht existieren
       date_default_timezone_set('America/New_York');
       $dow = date('w', $time + 7*HOURS);
-      if ($dow==SATURDAY || $dow==SUNDAY)                      // Wochenenden überspringen, Sessionbeginn/-ende ist America/New_York+0700
+      if ($dow==SATURDAY || $dow==SUNDAY)                            // Wochenenden überspringen, Sessionbeginn/-ende ist America/New_York+0700
          continue;
 
+      // URL zusammenstellen
       date_default_timezone_set('GMT');
-      $yyyy = date('Y', $time);
-      $mm   = subStr(date('n', $time)+99, 1);                  // Januar = 00
-      $dd   = date('d', $time);
-      $hh   = date('H', $time);
-      $url  = "http://www.dukascopy.com/datafeed/$pair/$yyyy/$mm/$dd/{$hh}h_ticks.bin";
+      $year  = date('Y', $time);
+      $month = subStr(date('n', $time)+99, 1);                       // Januar = 00
+      $day   = date('d', $time);
+      $hour  = date('H', $time);
+      $path  = "$pair/$year/$month/$day";
+      $file  = "{$hour}h_ticks.bin";
 
+      $url = "http://www.dukascopy.com/datafeed/$path/$file";
 
+      // lokale Datei bestimmen und bereits heruntergeladene Dateien überspringen
+      $localPath = "$downloadDirectory/$path";
+      $localFile = "$downloadDirectory/$path/$file";
+      if (is_file($localFile) || is_file($localFile.'.404')) {       // .404 = bereits abgerufene Datei, für die 404 zurückgegeben wurde
+         echoPre("[Info]: Skipping url \"$url\", local file already exists.");
+         continue;
+      }
+
+      // HTTP-Request abschicken und auswerten
       $request  = HttpRequest ::create()->setUrl($url);
       $response = CurlHttpClient ::create()->send($request);
-      $status   = $response->getStatus();
 
+      $status = $response->getStatus();
+      if ($status!=200 && $status!=404) throw new RuntimeException("Unexpected HTTP status $status (".HttpResponse ::$sc[$status].") for url \"$url\"\n".printFormatted($response, true));
+
+      // ggf. Zielverzeichnis erzeugen
+      if (is_file($localPath) || (!is_writable($localPath) && !mkDir($localPath, 0700, true))) throw new RuntimeException("Can not write to directory \"$localPath\"");
+
+      // Dateiinhalt speichern ...
       if ($status == 200) {
-         $content = $response->getContent();
-         echoPre("ok: $url");
+         echoPre("[Ok]: $url");
+         $hFile = fOpen($localFile, 'xb');
+         fWrite($hFile, $response->getContent());
+         fClose($hFile);
       }
-      elseif ($status == 404) {
-         Logger ::log("File at \"$url\" doesn't exist (HTTP status $status)", L_WARN, __CLASS__);
+      else {   // ... oder 404-Status mit leerer .404-Datei merken
+         echoPre("[Info]: $status - File not found: \"$url\"");
+         fClose(fOpen($localFile.'.404', 'x'));
       }
-      else throw new RuntimeException("Unexpected HTTP status $status (".HttpResponse ::$sc[$status].") for url \"$url\"\n".printFormatted($response, true));
    }
-   break;
+   //break;
 }
 ?>
