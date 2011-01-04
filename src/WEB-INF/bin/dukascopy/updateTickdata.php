@@ -1,5 +1,8 @@
 #!/usr/bin/php -Cq
 <?php
+/**
+ * Aktualisiert die vorhandenen Dukascopy-Tickdaten
+ */
 set_time_limit(0);
 ini_set('include_path', realPath(dirName(__FILE__).'/../..'));       // WEB-INF-Verzeichnis einbinden, damit Konfigurationsdatei gefunden wird
 
@@ -12,8 +15,8 @@ include(dirName(__FILE__).'/../../classes/classes.php');
 define('APPLICATION_NAME', 'fx.pewasoft');
 
 
-// Beginn der Tickdaten der einzelnen Pairs                          // Zeitzone der Dateien ist durchgehend GMT+0000 (keine Sommerzeit)
-$pairs = array('AUDJPY' => strToTime('2007-03-30 16:01:15 GMT'),     // 2007-03-30 16:01:15 GMT
+// Beginn der Tickdaten der einzelnen Pairs
+$pairs = array('AUDJPY' => strToTime('2007-03-30 16:01:15 GMT'),     // Zeitzone der Daten ist GMT+0000 (keine Sommerzeit)
                'AUDNZD' => strToTime('2008-12-22 16:16:02 GMT'),
                'AUDUSD' => strToTime('2007-03-30 16:01:16 GMT'),
                'CADJPY' => strToTime('2007-03-30 16:01:16 GMT'),
