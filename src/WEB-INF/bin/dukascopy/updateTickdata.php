@@ -61,13 +61,12 @@ foreach ($pairs as $pair => $firstTick) {
       $hour  = date('H', $time);
       $path  = "$pair/$year/$month/$day";
       $file  = "{$hour}h_ticks.bin";
-
-      $url = "http://www.dukascopy.com/datafeed/$path/$file";
+      $url   = "http://www.dukascopy.com/datafeed/$path/$file";
 
       // lokale Datei bestimmen und bereits heruntergeladene Dateien überspringen
       $localPath = "$downloadDirectory/$path";
       $localFile = "$downloadDirectory/$path/$file";
-      if (is_file($localFile) || is_file($localFile.'.404')) {       // .404 = bereits abgerufene Datei, für die 404 zurückgegeben wurde
+      if (is_file($localFile) || is_file($localFile.'.404')) {       // Datei, für die 404 zurückgegeben wurde
          echoPre("[Info]: Skipping url \"$url\", local file already exists.");
          continue;
       }
@@ -75,14 +74,13 @@ foreach ($pairs as $pair => $firstTick) {
       // HTTP-Request abschicken und auswerten
       $request  = HttpRequest ::create()->setUrl($url);
       $response = CurlHttpClient ::create()->send($request);
-
-      $status = $response->getStatus();
+      $status   = $response->getStatus();
       if ($status!=200 && $status!=404) throw new RuntimeException("Unexpected HTTP status $status (".HttpResponse ::$sc[$status].") for url \"$url\"\n".printFormatted($response, true));
 
-      // ggf. Zielverzeichnis erzeugen
+      // ggf. Zielverzeichnis anlegen
       if (is_file($localPath) || (!is_writable($localPath) && !mkDir($localPath, 0700, true))) throw new RuntimeException("Can not write to directory \"$localPath\"");
 
-      // Dateiinhalt speichern ...
+      // Datei speichern ...
       if ($status == 200) {
          echoPre("[Ok]: $url");
          $hFile = fOpen($localFile, 'xb');
@@ -94,6 +92,5 @@ foreach ($pairs as $pair => $firstTick) {
          fClose(fOpen($localFile.'.404', 'x'));
       }
    }
-   //break;
 }
 ?>
