@@ -41,29 +41,28 @@ $data = array('S10' => array('AUDJPY' => strToTime(''),
                              'USDNOK' => strToTime(''),
                              'USDSEK' => strToTime(''),
               ),
-              'M1'  => array('AUDJPY' => strToTime('2007-03-30 16:01:15 GMT'),
-                             'AUDNZD' => strToTime('2008-12-22 16:16:02 GMT'),
-                             'AUDUSD' => strToTime('2007-03-30 16:01:16 GMT'),
-                             'CADJPY' => strToTime('2007-03-30 16:01:16 GMT'),
-                             'CHFJPY' => strToTime('2007-03-30 16:01:15 GMT'),
-                             'EURAUD' => strToTime('2007-03-30 16:01:19 GMT'),
-                             'EURCAD' => strToTime('2008-09-23 11:32:09 GMT'),
-                             'EURCHF' => strToTime('2007-03-30 16:01:15 GMT'),
-                             'EURGBP' => strToTime('2007-03-30 16:01:17 GMT'),
-                             'EURJPY' => strToTime('2007-03-30 16:01:16 GMT'),
-                             'EURNOK' => strToTime('2007-03-30 16:01:19 GMT'),
-                             'EURSEK' => strToTime('2007-03-30 16:01:31 GMT'),
-                             'EURUSD' => strToTime('2007-03-30 16:01:15 GMT'),
-                             'GBPCHF' => strToTime('2007-03-30 16:01:15 GMT'),
-                             'GBPJPY' => strToTime('2007-03-30 16:01:15 GMT'),
-                             'GBPUSD' => strToTime('2007-03-30 16:01:15 GMT'),
-                             'NZDUSD' => strToTime('2007-03-30 16:01:53 GMT'),
-                             'USDCAD' => strToTime('2007-03-30 16:01:16 GMT'),
-                             'USDCHF' => strToTime('2007-03-30 16:01:15 GMT'),
-                             'USDDKK' => strToTime('2007-03-30 16:01:15 GMT'),
-                             'USDJPY' => strToTime('2007-03-30 16:01:15 GMT'),
-                             'USDNOK' => strToTime('2008-09-28 22:04:55 GMT'),
-                             'USDSEK' => strToTime('2008-09-28 23:30:31 GMT'),
+              'M1'  => array('AUDJPY' => strToTime('2003-11-30 00:00:00 GMT'),
+                             'AUDNZD' => strToTime('2009-01-08 00:00:00 GMT'),
+                             'AUDUSD' => strToTime('2003-08-08 00:00:00 GMT'),
+                             'CADJPY' => strToTime('2005-04-17 00:00:00 GMT'),
+                             'CHFJPY' => strToTime('2003-08-08 00:00:00 GMT'),
+                             'EURAUD' => strToTime('2007-04-02 00:00:00 GMT'),
+                             'EURCAD' => strToTime('2008-09-24 00:00:00 GMT'),
+                             'EURCHF' => strToTime('2003-08-08 00:00:00 GMT'),
+                             'EURGBP' => strToTime('2003-08-08 00:00:00 GMT'),
+                             'EURJPY' => strToTime('2003-08-08 00:00:00 GMT'),
+                             'EURNOK' => strToTime('2007-04-02 00:00:00 GMT'),
+                             'EURSEK' => strToTime('2004-11-16 00:00:00 GMT'),
+                             'EURUSD' => strToTime('2003-08-08 00:00:00 GMT'),
+                             'GBPCHF' => strToTime('2003-08-08 00:00:00 GMT'),
+                             'GBPJPY' => strToTime('2003-08-08 00:00:00 GMT'),
+                             'GBPUSD' => strToTime('2003-08-08 00:00:00 GMT'),
+                             'NZDUSD' => strToTime('2003-08-08 00:00:00 GMT'),
+                             'USDCAD' => strToTime('2003-08-08 00:00:00 GMT'),
+                             'USDCHF' => strToTime('2003-08-08 00:00:00 GMT'),
+                             'USDJPY' => strToTime('2003-08-08 00:00:00 GMT'),
+                             'USDNOK' => strToTime('2003-08-08 00:00:00 GMT'),
+                             'USDSEK' => strToTime('2003-08-08 00:00:00 GMT'),
               ),
               'M5'  => array('AUDJPY' => strToTime(''),
                              'AUDNZD' => strToTime(''),
@@ -186,7 +185,6 @@ $data = array('S10' => array('AUDJPY' => strToTime(''),
                              'USDSEK' => strToTime(''),
               ));
 
-
 $today  = time();
 $today -= $today % DAY;
 
@@ -204,7 +202,7 @@ foreach ($data['M1'] as $symbol => $start) {
       // URLs zusammenstellen und laden
       date_default_timezone_set('GMT');
       $year  = date('Y', $time);
-      $month = subStr(date('n', $time)+99, 1);                       // Januar = 00
+      $month = subStr(date('n', $time)+99, 1);              // Januar = 00
       $day   = date('d', $time);
       $path  = "$symbol/$year/$month/$day";
       $file  = 'BID_candles_min_1.bin';
@@ -215,7 +213,6 @@ foreach ($data['M1'] as $symbol => $start) {
       $url   = "http://www.dukascopy.com/datafeed/$path/$file";
       download($url, $path, $file);
    }
-   break;
 }
 
 
@@ -230,9 +227,6 @@ function download($url, $path, $filename) {
    if (!is_string($url))      throw new IllegalTypeException('Illegal type of argument $url: '.getType($url));
    if (!is_string($path))     throw new IllegalTypeException('Illegal type of argument $path: '.getType($path));
    if (!is_string($filename)) throw new IllegalTypeException('Illegal type of argument $filename: '.getType($filename));
-
-   echoPre("url = $url");
-   return;
 
    // Downloadverzeichnis bestimmen
    static $downloadDirectory = null;
