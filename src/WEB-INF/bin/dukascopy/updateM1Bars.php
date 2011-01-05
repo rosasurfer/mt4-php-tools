@@ -3,6 +3,7 @@
 /**
  * Lädt periodische Dukascopy-Daten (Candles).
  */
+
 set_time_limit(0);
 ini_set('include_path', realPath(dirName(__FILE__).'/../..'));       // WEB-INF-Verzeichnis einbinden, damit Konfigurationsdatei gefunden wird
 
@@ -40,7 +41,7 @@ $pairs = array('AUDJPY' => strToTime('2007-03-30 16:01:15 GMT'),
                'USDSEK' => strToTime('2008-09-28 23:30:31 GMT'));
 
 // Downloadverzeichnis bestimmen
-$downloadDirectory = Config ::get('dukascopy.download_directory');
+$downloadDirectory = realPath(PROJECT_DIRECTORY.'/'.Config ::get('dukascopy.download_directory'));
 
 echoPre("downloadDirectory = $downloadDirectory");
 ?>

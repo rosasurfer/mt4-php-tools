@@ -41,7 +41,7 @@ $pairs = array('AUDJPY' => strToTime('2007-03-30 16:01:15 GMT'),     // Zeitzone
 
 
 // Downloadverzeichnis bestimmen
-$downloadDirectory = Config ::get('dukascopy.download_directory');
+$downloadDirectory = realPath(PROJECT_DIRECTORY.'/'.Config ::get('dukascopy.download_directory'));
 
 
 $thisHour  = time();
@@ -67,8 +67,8 @@ foreach ($pairs as $pair => $firstTick) {
       $url   = "http://www.dukascopy.com/datafeed/$path/$file";
 
       // lokale Datei bestimmen und bereits heruntergeladene Dateien überspringen
-      $localPath = "$downloadDirectory/$path";
-      $localFile = "$downloadDirectory/$path/$file";
+      $localPath = $downloadDirectory.PATH_SEPARATOR.$path;
+      $localFile = $downloadDirectory.PATH_SEPARATOR.$path.PATH_SEPARATOR.$file;
       if (is_file($localFile) || is_file($localFile.'.404')) {       // Datei, für die 404 zurückgegeben wurde
          echoPre("[Info]: Skipping url \"$url\", local file already exists.");
          continue;

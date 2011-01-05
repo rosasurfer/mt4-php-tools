@@ -2,6 +2,8 @@
 /**
  * Globale Konstanten.
  */
+define('PROJECT_DIRECTORY', realPath(dirName(__FILE__).'/../../..'));
+
 
 // Wochentage
 define('SUNDAY'   ,      0);
