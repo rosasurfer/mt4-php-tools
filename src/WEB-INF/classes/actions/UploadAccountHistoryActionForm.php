@@ -15,9 +15,15 @@ class UploadAccountHistoryActionForm extends ActionForm {
     * Liest die übergebenen Request-Parameter in das Form-Objekt ein.
     */
    protected function populate(Request $request) {
-      if ($request->isPost() && $request->getContentType()=='application/x-www-form-urlencoded') {
-         $this->content = $request->getContent();        // Wir erwarten *nicht* den Content-Type "multipart/form-data",
-      }                                                  // sondern lesen stattdessen direkt den Request-Body aus.
+      if ($request->isPost()) {
+         if ($request->getContentType() == 'text/plain') {
+            $this->content = $request->getContent();
+         }
+         else if ($request->getContentType() == 'multipart/form-data') {
+            // TODO: ret-value = $_FILES
+            $this->content = $request->getContent();
+         }
+      }
    }
 
 
@@ -32,14 +38,14 @@ class UploadAccountHistoryActionForm extends ActionForm {
       $content = $this->content;
 
       if (strLen($content) == 0) {
-         $request->setActionError('', '400: file content missing');
+         $request->setActionError('', '400: data content missing');
          return false;
       }
 
       $lines    = explode("\n", $content);
       $sections = array();
       $section  = null;
-      date_default_timezone_set('GMT');      // MetaTrader kennt keine Zeitzonen und interpretiert alle Zeitangaben als GMT
+      date_default_timezone_set('GMT');      // MetaTrader kennt keine Zeitzonen, alle Zeitangaben sind in GMT
 
 
       // Inhalt der Datei syntaktisch validieren und dabei gleichzeitig die Rohdaten einlesen
@@ -52,7 +58,6 @@ class UploadAccountHistoryActionForm extends ActionForm {
             $section = strToLower($matches[1]);
             if (($section=='account' || $section=='data') && !isSet($sections[$section])) {
                $sections[$section] = array();
-               //echo("\n[$section] section\n");
                continue;
             }
             $section = null;                                   // unbekannte Abschnitte und mehrfache Vorkommen gültiger Abschnitte überspringen
@@ -63,7 +68,6 @@ class UploadAccountHistoryActionForm extends ActionForm {
          // Abschnitt [account]
          if ($section == 'account') {
             $sections['account'][] = $line;
-            //echo("$line\n");
             continue;
          }
 
