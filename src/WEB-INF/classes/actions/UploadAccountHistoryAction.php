@@ -14,7 +14,7 @@ class UploadAccountHistoryAction extends Action {
       if ($request->isPost())
          return $this->onPost($request, $response);
 
-      return 'error';
+      return 'default';
    }
 
 
@@ -29,12 +29,12 @@ class UploadAccountHistoryAction extends Action {
       if ($form->validate()) {
          try {
             //EncashmentHelper ::updateEncashmentKeys($form->getFileTmpName());
-            echo(HttpResponse ::SC_OK) ;
+            echo('200');
             return null;
          }
          catch (Exception $ex) {
             Logger ::log('System not available', $ex, L_ERROR, __CLASS__);
-            $request->setActionError('', '503: server error, try again later');
+            $request->setActionError('', '500: server error, try again later');
          }
       }
 

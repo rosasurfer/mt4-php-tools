@@ -16,14 +16,15 @@
       <mapping path="/index.php"  forward="home"/>
 
       <mapping path="/uploadAccountHistory.php"  form="UploadAccountHistoryActionForm"  action="UploadAccountHistoryAction"  methods="get,post">
-         <forward name="error"  forward="home"/>
+         <forward name="default"  include=".uploadAccountHistory"/>
       </mapping>
    </action-mappings>
 
 
    <!-- ================================================== Tiles ================================================== -->
    <tiles>
-      <tile name=".default" path="html/default.html"/>
+      <tile name=".default" 					path="html/default.html"/>
+		<tile name=".uploadAccountHistory"  path="html/uploadAccountHistory.html"/>
    </tiles>
 
 </struts-config>
