@@ -36,4 +36,30 @@ define('OP_BUYSTOP'  ,   4);     // stop buy order
 define('OP_SELLSTOP' ,   5);     // stop sell order
 define('OP_BALANCE'  ,   6);     // account credit or withdrawel transaction
 define('OP_CREDIT'   ,   7);     // credit facility, no transaction
+
+
+// Spalten-ID's Abschnitt [data] in UploadAccountHistory
+define('HC_TICKET'        ,  0);
+define('HC_OPENTIME'      ,  1);
+define('HC_TYPE'          ,  2);
+define('HC_UNITS'         ,  3);
+define('HC_SYMBOL'        ,  4);
+define('HC_OPENPRICE'     ,  5);
+define('HC_STOPLOSS'      ,  6);
+define('HC_TAKEPROFIT'    ,  7);
+define('HC_EXPIRATIONTIME',  8);
+define('HC_CLOSETIME'     ,  9);
+define('HC_CLOSEPRICE'    , 10);
+define('HC_COMMISSION'    , 11);
+define('HC_SWAP'          , 12);
+define('HC_PROFIT'        , 13);
+define('HC_MAGICNUMBER'   , 14);
+define('HC_COMMENT'       , 15);
+
+
+// Spalten-ID's Abschnitt [account] in UploadAccountHistory
+define('HC_ACCOUNTCOMPANY', 0);
+define('HC_ACCOUNTNUMBER' , 1);
+define('HC_ACCOUNTNAME'   , 2);
+define('HC_ACCOUNTBALANCE', 3);
 ?>
