@@ -128,15 +128,14 @@ class UploadAccountHistoryActionForm extends ActionForm {
          // Abschnitt [account]
          if ($section == 'account') {
             $values = explode("\t", $line);
-            if (sizeOf($values) != 4) {
+            if (sizeOf($values) != 3) {
                $request->setActionError('', '100: invalid file format (unexpected number of columns in line '.($i+1).')');
                return false;
             }
 
             $accountCompany = trim($values[0]);
             $accountNumber  =      $values[1];
-            $accountName    = trim($values[2]);
-            $accountBalance =      $values[3];
+            $accountBalance =      $values[2];
 
             if ($accountNumber !== (string)(int)$accountNumber) {
                $request->setActionError('', '100: invalid file format (unexpected value in line '.($i+1).',2)');
@@ -153,8 +152,7 @@ class UploadAccountHistoryActionForm extends ActionForm {
             // Datenfelder zwischenspeichern
             $sections['account'][] = array(HC_ACCOUNTCOMPANY => $accountCompany,    //  0
                                            HC_ACCOUNTNUMBER  => $accountNumber,     //  1
-                                           HC_ACCOUNTNAME    => $accountName,       //  2
-                                           HC_ACCOUNTBALANCE => $accountBalance,    //  3
+                                           HC_ACCOUNTBALANCE => $accountBalance,    //  2
                                           );
             // Abschnitt [account] nach der ersten Datenzeile abbrechen
             $section = null;

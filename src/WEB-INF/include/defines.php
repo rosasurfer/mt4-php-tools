@@ -60,6 +60,5 @@ define('HC_COMMENT'       , 15);
 // Spalten-ID's Abschnitt [account] in UploadAccountHistory
 define('HC_ACCOUNTCOMPANY', 0);
 define('HC_ACCOUNTNUMBER' , 1);
-define('HC_ACCOUNTNAME'   , 2);
-define('HC_ACCOUNTBALANCE', 3);
+define('HC_ACCOUNTBALANCE', 2);
 ?>
