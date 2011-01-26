@@ -1,12 +1,19 @@
 <?php
 /**
  * UploadAccountHistoryActionForm
+ *
+ * Verarbeitet sowohl Uploads per HTML-Formular (multipart/form-data) als auch per MQL-Schnittstelle (text/plain).
+ * Verarbeitet noch keine komprimierten Daten.
  */
 class UploadAccountHistoryActionForm extends ActionForm {
 
 
-   private /*mixed[]*/ $file;          // die hochgeladene Datei
-   private /*string*/  $content;       // Inhalt der hochgeladenen Datei
+   private /*mixed[]*/ $file = array('name'     => null,    // die hochgeladene Datei
+                                     'type'     => null,
+                                     'tmp_name' => null,
+                                     'error'    => null,
+                                     'size'     => null);
+   private /*string*/  $content;                            // Inhalt
 
 
    // Getter
@@ -24,12 +31,27 @@ class UploadAccountHistoryActionForm extends ActionForm {
     */
    protected function populate(Request $request) {
       if ($request->isPost()) {
+         // HTML-Formular
          if ($request->getContentType() == 'multipart/form-data') {
             if (isSet($_FILES['file']))
                $this->file = $_FILES['file'];
          }
+
+         // MQL-API
          else if ($request->getContentType() == 'text/plain') {
-            $this->content = $request->getContent();
+            // Daten in temporäre Datei schreiben und $_FILES-Array emulieren
+            $content = $request->getContent();
+
+            $tmpFile = tempNam(ini_get('upload_tmp_dir'), 'php.tmp');
+            $hFile   = fOpen($tmpFile, 'wb');
+            fWrite($hFile, $content);
+            fClose($hFile);
+
+            $this->file['name'    ] = null;
+            $this->file['type'    ] = $request->getContentType();
+            $this->file['tmp_name'] = $tmpFile;
+            $this->file['error'   ] = 0;
+            $this->file['size'    ] = strLen($content);
          }
       }
    }
@@ -44,51 +66,46 @@ class UploadAccountHistoryActionForm extends ActionForm {
    public function validate() {
       $request = $this->request;
 
-      // Content-Type "multipart/form-data"
-      if ($request->getContentType() == 'multipart/form-data') {
-         $file =& $this->file;
-         if (empty($file)) {
-            $request->setActionError('', '101: Bitte wähle eine hochzuladende Datei aus.');
-         }
-         elseif ($file['error'] > 0) {
-            $errors = array(UPLOAD_ERR_OK         => '101: success (UPLOAD_ERR_OK)'                                          ,
-                            UPLOAD_ERR_INI_SIZE   => '101: upload error, file too big (UPLOAD_ERR_INI_SIZE)'                 ,
-                            UPLOAD_ERR_FORM_SIZE  => '101: upload error, file too big (UPLOAD_ERR_FORM_SIZE)'                ,
-                            UPLOAD_ERR_PARTIAL    => '101: partial file upload error, try again (UPLOAD_ERR_PARTIAL)'        ,
-                            UPLOAD_ERR_NO_FILE    => '101: error while uploading the file (UPLOAD_ERR_NO_FILE)'              ,
-                            UPLOAD_ERR_NO_TMP_DIR => '101: read/write error while uploading the file (UPLOAD_ERR_NO_TMP_DIR)',
-                            UPLOAD_ERR_CANT_WRITE => '101: read/write error while uploading the file (UPLOAD_ERR_CANT_WRITE)',
-                            UPLOAD_ERR_EXTENSION  => '101: error while uploading the file (UPLOAD_ERR_EXTENSION)'            ,
-            );
-            $request->setActionError('', $errors[$file['error']]);
-         }
-         elseif (!is_uploaded_file($file['tmp_name'])) {
-            Logger ::log('Possible file upload attack:  is_uploaded_file("'.$file['tmp_name'].'") => false', L_WARN, __CLASS__);
-            $request->setActionError('', '101: error while uploading the file');
-         }
-         elseif ($file['size'] == 0) {
-            $request->setActionError('', '100: data content missing');
-         }
-         else {
-            // Dateiinhalt einlesen
-            $this->content = file_get_contents($file['tmp_name']);
-         }
-         if ($request->isActionError())
-            return false;
+      $file =& $this->file;
+      if (empty($file)) {
+         $request->setActionError('', '100: data file missing');
       }
+      elseif ($file['error'] > 0) {
+         $errors = array(UPLOAD_ERR_OK         => '101: success (UPLOAD_ERR_OK)'                                          ,
+                         UPLOAD_ERR_INI_SIZE   => '101: upload error, file too big (UPLOAD_ERR_INI_SIZE)'                 ,
+                         UPLOAD_ERR_FORM_SIZE  => '101: upload error, file too big (UPLOAD_ERR_FORM_SIZE)'                ,
+                         UPLOAD_ERR_PARTIAL    => '101: partial file upload error, try again (UPLOAD_ERR_PARTIAL)'        ,
+                         UPLOAD_ERR_NO_FILE    => '101: error while uploading the file (UPLOAD_ERR_NO_FILE)'              ,
+                         UPLOAD_ERR_NO_TMP_DIR => '101: read/write error while uploading the file (UPLOAD_ERR_NO_TMP_DIR)',
+                         UPLOAD_ERR_CANT_WRITE => '101: read/write error while uploading the file (UPLOAD_ERR_CANT_WRITE)',
+                         UPLOAD_ERR_EXTENSION  => '101: error while uploading the file (UPLOAD_ERR_EXTENSION)'            ,
+         );
+         $request->setActionError('', $errors[$file['error']]);
+      }
+      elseif ($request->getContentType()=='multipart/form-data' && !is_uploaded_file($file['tmp_name'])) {
+         Logger ::log('Possible file upload attack:  is_uploaded_file("'.$file['tmp_name'].'") => false', L_WARN, __CLASS__);
+         $request->setActionError('', '101: error while uploading the file');
+      }
+      elseif ($file['size'] == 0) {
+         $request->setActionError('', '100: data file empty');
+      }
+      if ($request->isActionError())
+         return false;
+
+      $this->content = file_get_contents($file['tmp_name']);
 
 
-      // Dateiinhalt syntaktisch validieren
+      // Datei einlesen und syntaktisch validieren
       $content = $this->content;
       if (strLen($content) == 0) {
-         $request->setActionError('', '100: data content missing');
+         $request->setActionError('', '100: data file empty');
          return false;
       }
 
       $lines    = explode("\n", $content);
       $sections = array();
       $section  = null;
-      date_default_timezone_set('GMT');      // MetaTrader kennt keine Zeitzonen, alle Zeitangaben sind in GMT
+      date_default_timezone_set('GMT');                        // MetaTrader kennt keine Zeitzonen, alle Zeitangaben sind in GMT
 
 
       // Inhalt der Datei syntaktisch validieren und dabei gleichzeitig die Rohdaten einlesen
@@ -260,6 +277,22 @@ class UploadAccountHistoryActionForm extends ActionForm {
          }
       }
       return !$request->isActionError();
+   }
+
+
+   /**
+    * Destructor
+    */
+   public function __destruct() {
+      try {
+         // tmp. Datei manuell löschen, da $FILES-Array u.U. emuliert sein kann
+         if (isSet($this->file['tmp_name']))
+            unlink($this->file['tmp_name']);
+      }
+      catch (Exception $ex) {
+         Logger ::handleException($ex, true);
+         throw $ex;
+      }
    }
 }
 ?>

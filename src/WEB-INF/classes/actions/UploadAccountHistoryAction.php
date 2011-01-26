@@ -29,7 +29,7 @@ class UploadAccountHistoryAction extends Action {
       if ($form->validate()) {
          try {
             //EncashmentHelper ::updateEncashmentKeys($form->getFileTmpName());
-            echo('200');
+            echo("200\n");
             return null;
          }
          catch (Exception $ex) {
