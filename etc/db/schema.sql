@@ -1,6 +1,6 @@
 /*
 Created     23.05.2009
-Modified    26.12.2010
+Modified    29.01.2011
 Project     Forex web
 Model       
 Company     
@@ -21,7 +21,7 @@ create table t_account (
    company varchar(100) not null comment 'account company',
    type enum('demo','live') not null comment 'demo | live',
    number int unsigned not null comment 'account number',
-   timezone varchar(20) not null,
+   timezone varchar(50) not null comment 'format: timezone_name[+/-offset]',
    currency char(3) not null comment 'base currency',
    mtiaccount_id varchar(50) comment 'MTi account id',
    primary key (id),
@@ -61,7 +61,7 @@ create table t_order (
 
 
 -- Daten einlesen
--- source data.sql;
+source data.sql;
 
 commit;
 
