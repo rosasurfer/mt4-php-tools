@@ -39,22 +39,21 @@ define('OP_CREDIT'   ,   7);     // credit facility, no transaction
 
 
 // Spalten-ID's Abschnitt [data] in UploadAccountHistory
-define('HC_TICKET'        ,  0);
-define('HC_OPENTIME'      ,  1);
-define('HC_TYPE'          ,  2);
-define('HC_UNITS'         ,  3);
-define('HC_SYMBOL'        ,  4);
-define('HC_OPENPRICE'     ,  5);
-define('HC_STOPLOSS'      ,  6);
-define('HC_TAKEPROFIT'    ,  7);
-define('HC_EXPIRATIONTIME',  8);
-define('HC_CLOSETIME'     ,  9);
-define('HC_CLOSEPRICE'    , 10);
-define('HC_COMMISSION'    , 11);
-define('HC_SWAP'          , 12);
-define('HC_PROFIT'        , 13);
-define('HC_MAGICNUMBER'   , 14);
-define('HC_COMMENT'       , 15);
+define('HC_TICKET'     ,  0);
+define('HC_OPENTIME'   ,  1);
+define('HC_TYPE'       ,  2);
+define('HC_UNITS'      ,  3);
+define('HC_SYMBOL'     ,  4);
+define('HC_OPENPRICE'  ,  5);
+define('HC_STOPLOSS'   ,  6);
+define('HC_TAKEPROFIT' ,  7);
+define('HC_CLOSETIME'  ,  8);
+define('HC_CLOSEPRICE' ,  9);
+define('HC_COMMISSION' , 10);
+define('HC_SWAP'       , 11);
+define('HC_PROFIT'     , 12);
+define('HC_MAGICNUMBER', 13);
+define('HC_COMMENT'    , 14);
 
 
 // Spalten-ID's Abschnitt [account] in UploadAccountHistory

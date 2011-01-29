@@ -13,17 +13,26 @@ class UploadAccountHistoryActionForm extends ActionForm {
                                      'tmp_name' => null,
                                      'error'    => null,
                                      'size'     => null);
-   private /*string*/  $content;                            // Inhalt
+
+   private /*string*/  $accountCompany;
+   private /*int*/     $accountNumber;
+   private /*float*/   $accountBalance;
+   private /*mixed[]*/ $data;
 
 
    // Getter
-   public function getFile()        { return $this->file;             }
-   public function getFileName()    { return $this->file['name'    ]; }
-   public function getFileType()    { return $this->file['type'    ]; }
-   public function getFileTmpName() { return $this->file['tmp_name']; }
-   public function getFileError()   { return $this->file['error'   ]; }
-   public function getFileSize()    { return $this->file['size'    ]; }
-   public function getContent()     { return $this->content;          }
+   public function  getFile()           { return $this->file;             }
+   public function  getFileName()       { return $this->file['name'    ]; }
+   public function  getFileType()       { return $this->file['type'    ]; }
+   public function  getFileTmpName()    { return $this->file['tmp_name']; }
+   public function  getFileError()      { return $this->file['error'   ]; }
+   public function  getFileSize()       { return $this->file['size'    ]; }
+
+   public function  getAccountCompany() { return $this->accountCompany;   }
+   public function  getAccountNumber()  { return $this->accountNumber;    }
+   public function  getAccountBalance() { return $this->accountBalance;   }
+   public function &getData()           { return $this->data;             }
+
 
 
    /**
@@ -92,23 +101,18 @@ class UploadAccountHistoryActionForm extends ActionForm {
       if ($request->isActionError())
          return false;
 
-      $this->content = file_get_contents($file['tmp_name']);
-
 
       // Datei einlesen und syntaktisch validieren
-      $content = $this->content;
-      if (strLen($content) == 0) {
+      $lines = file($file['tmp_name']);
+      if (sizeOf($lines) == 0) {
          $request->setActionError('', '100: data file empty');
          return false;
       }
-
-      $lines    = explode("\n", $content);
-      $sections = array('account'=> null, 'data'=> null);
+      $sections = array('account'=> false, 'data'=> false);
       $section  = null;
+      $data     = array();
       date_default_timezone_set('GMT');                        // MetaTrader kennt keine Zeitzonen, alle Zeitangaben sind in GMT
 
-
-      // Inhalt der Datei syntaktisch validieren und dabei gleichzeitig die Rohdaten einlesen
       foreach ($lines as $i => &$line) {
          $line = trim($line, " \r\n");
          if ($line==='' || $line{0}=='#')                      // Leerzeilen und Kommentare überspringen
@@ -116,8 +120,8 @@ class UploadAccountHistoryActionForm extends ActionForm {
 
          if (preg_match('/^\[(\w+)\]/i', $line, $matches)) {   // Abschnittsnamen analysieren
             $section = strToLower($matches[1]);
-            if (($section=='account' || $section=='data') && !isSet($sections[$section])) {
-               $sections[$section] = array();
+            if (($section=='account' || $section=='data') && !$sections[$section]) {
+               $sections[$section] = true;
                continue;
             }
             $section = null;                                   // unbekannte Abschnitte und mehrfache Vorkommen gültiger Abschnitte überspringen
@@ -133,27 +137,22 @@ class UploadAccountHistoryActionForm extends ActionForm {
                return false;
             }
 
-            $accountCompany = trim($values[0]);
-            $accountNumber  =      $values[1];
-            $accountBalance =      $values[2];
+            $this->accountCompany = trim($values[0]);
 
+            $accountNumber = $values[1];
             if ($accountNumber !== (string)(int)$accountNumber) {
                $request->setActionError('', '100: invalid file format (unexpected value in line '.($i+1).',2)');
                return false;
             }
-            $accountNumber = (int) $accountNumber;
+            $this->accountNumber = (int) $accountNumber;
 
+            $accountBalance = $values[2];
             if ($accountBalance != (string)(float)$accountBalance) {
                $request->setActionError('', '100: invalid file format (unexpected value in line '.($i+1).',4)');
                return false;
             }
-            $accountBalance = (float) $accountBalance;
+            $this->accountBalance = (float) $accountBalance;
 
-            // Datenfelder zwischenspeichern
-            $sections['account'][] = array(HC_ACCOUNTCOMPANY => $accountCompany,    //  0
-                                           HC_ACCOUNTNUMBER  => $accountNumber,     //  1
-                                           HC_ACCOUNTBALANCE => $accountBalance,    //  2
-                                          );
             // Abschnitt [account] nach der ersten Datenzeile abbrechen
             $section = null;
             continue;
@@ -162,31 +161,29 @@ class UploadAccountHistoryActionForm extends ActionForm {
          // Abschnitt [data]
          if ($section == 'data') {
             $values = explode("\t", $line);
-            if (sizeOf($values) != 20) {
+            if (sizeOf($values) != 18) {
                $request->setActionError('', '100: invalid file format (unexpected number of columns in line '.($i+1).')');
                return false;
             }
 
-            $ticket              =      $values[ 0];
-            $openTime            =      $values[ 1];
-            $openTimestamp       =      $values[ 2];
-            $description         =      $values[ 3];
-            $type                =      $values[ 4];
-            $units               =      $values[ 5];
-            $symbol              =      $values[ 6];
-            $openPrice           =      $values[ 7];
-            $stopLoss            =      $values[ 8];
-            $takeProfit          =      $values[ 9];
-            $expirationTime      =      $values[10];
-            $expirationTimestamp =      $values[11];
-            $closeTime           =      $values[12];
-            $closeTimestamp      =      $values[13];
-            $closePrice          =      $values[14];
-            $commission          =      $values[15];
-            $swap                =      $values[16];
-            $profit              =      $values[17];
-            $magicNumber         =      $values[18];
-            $comment             = trim($values[19]);
+            $ticket         =      $values[ 0];
+            $openTime       =      $values[ 1];
+            $openTimestamp  =      $values[ 2];
+            $description    =      $values[ 3];
+            $type           =      $values[ 4];
+            $units          =      $values[ 5];
+            $symbol         =      $values[ 6];
+            $openPrice      =      $values[ 7];
+            $stopLoss       =      $values[ 8];
+            $takeProfit     =      $values[ 9];
+            $closeTime      =      $values[10];
+            $closeTimestamp =      $values[11];
+            $closePrice     =      $values[12];
+            $commission     =      $values[13];
+            $swap           =      $values[14];
+            $profit         =      $values[15];
+            $magicNumber    =      $values[16];
+            $comment        = trim($values[17]);
 
             if ($ticket !== (string)(int)$ticket) {
                $request->setActionError('', '100: invalid file format (unexpected value in line '.($i+1).',1)');
@@ -244,14 +241,12 @@ class UploadAccountHistoryActionForm extends ActionForm {
             $profit = (float) $profit;
 
             if ($type==OP_BALANCE || $type==OP_CREDIT) { // für Balance und Credit-Werte nichtzutreffende Felder auf NULL setzen
-               $symbol              = null;
-               $openPrice           = null;
-               $stopLoss            = null;
-               $takeProfit          = null;
-               $closePrice          = null;
-               $expirationTime      = null;
-               $expirationTimestamp = null;
-               $magicNumber         = null;
+               $symbol      = null;
+               $openPrice   = null;
+               $stopLoss    = null;
+               $takeProfit  = null;
+               $closePrice  = null;
+               $magicNumber = null;
             }
             else {
                if (!Validator ::isInstrument($symbol)) {
@@ -277,12 +272,6 @@ class UploadAccountHistoryActionForm extends ActionForm {
                }
                $takeProfit = strLen($takeProfit) ? (float) $takeProfit : null;
 
-               if (strLen($expirationTimestamp) && $expirationTimestamp!==(string)(int)$expirationTimestamp) {
-                  $request->setActionError('', '100: invalid file format (unexpected value in line '.($i+1).',12)');
-                  return false;
-               }
-               $expirationTimestamp = strLen($expirationTimestamp) ? (int) $expirationTimestamp : null;
-
                if ($closePrice != (string)(float)$closePrice) {
                   $request->setActionError('', '100: invalid file format (unexpected value in line '.($i+1).',15)');
                   return false;
@@ -297,28 +286,31 @@ class UploadAccountHistoryActionForm extends ActionForm {
             }
 
             // Datenfelder zwischenspeichern
-            $sections['data'][] = array(HC_TICKET         => $ticket,               //  0
-                                        HC_OPENTIME       => $openTimestamp,        //  1
-                                        HC_TYPE           => $type,                 //  2
-                                        HC_UNITS          => $units,                //  3
-                                        HC_SYMBOL         => $symbol,               //  4
-                                        HC_OPENPRICE      => $openPrice,            //  5
-                                        HC_STOPLOSS       => $stopLoss,             //  6
-                                        HC_TAKEPROFIT     => $takeProfit,           //  7
-                                        HC_EXPIRATIONTIME => $expirationTimestamp,  //  8
-                                        HC_CLOSETIME      => $closeTimestamp,       //  9
-                                        HC_CLOSEPRICE     => $closePrice,           // 10
-                                        HC_COMMISSION     => $commission,           // 11
-                                        HC_SWAP           => $swap,                 // 12
-                                        HC_PROFIT         => $profit,               // 13
-                                        HC_MAGICNUMBER    => $magicNumber,          // 14
-                                        HC_COMMENT        => $comment,              // 15
-                                       );
+            $data[] = array(HC_TICKET      => $ticket,            //  0
+                            HC_OPENTIME    => $openTimestamp,     //  1
+                            HC_TYPE        => $type,              //  2
+                            HC_UNITS       => $units,             //  3
+                            HC_SYMBOL      => $symbol,            //  4
+                            HC_OPENPRICE   => $openPrice,         //  5
+                            HC_STOPLOSS    => $stopLoss,          //  6
+                            HC_TAKEPROFIT  => $takeProfit,        //  7
+                            HC_CLOSETIME   => $closeTimestamp,    //  8
+                            HC_CLOSEPRICE  => $closePrice,        //  9
+                            HC_COMMISSION  => $commission,        // 10
+                            HC_SWAP        => $swap,              // 11
+                            HC_PROFIT      => $profit,            // 12
+                            HC_MAGICNUMBER => $magicNumber,       // 13
+                            HC_COMMENT     => $comment,           // 14
+                           );
          }
       }
+      $this->data =& $data;
 
-      //echoPre(sizeOf($sections['account']).' account info row');
-      //echoPre(sizeOf($sections['data'   ]).' data rows'       );
+      // Daten für SQL-Import formatiert in die temporäre Datei zurückschreiben
+      $hFile = fOpen($file['tmp_name'], 'wb');
+      foreach ($data as &$set)
+         fWrite($hFile, join("\t", $set)."\n");
+      fClose($hFile);
 
       return !$request->isActionError();
    }
@@ -330,7 +322,7 @@ class UploadAccountHistoryActionForm extends ActionForm {
    public function __destruct() {
       try {
          // tmp. Dateien manuell löschen, da $FILES-Array u.U. emuliert sein kann
-         if (isSet($this->file['tmp_name']) && is_file($this->file['tmp_name']))
+         if (is_file($this->file['tmp_name']))
             unlink($this->file['tmp_name']);
       }
       catch (Exception $ex) {
