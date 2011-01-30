@@ -8,7 +8,7 @@
 class UploadAccountHistoryActionForm extends ActionForm {
 
 
-   private /*mixed[]*/ $file = array('name'     => null,    // die hochgeladene Datei
+   private /*mixed[]*/ $file = array('name'     => null,    // Daten der hochgeladenen Datei
                                      'type'     => null,
                                      'tmp_name' => null,
                                      'error'    => null,
@@ -17,7 +17,7 @@ class UploadAccountHistoryActionForm extends ActionForm {
    private /*string*/  $accountCompany;
    private /*int*/     $accountNumber;
    private /*float*/   $accountBalance;
-   private /*mixed[]*/ $data;
+   private /*mixed[]*/ $data;                               // geparster Inhalt der Datei
 
 
    // Getter
@@ -27,11 +27,11 @@ class UploadAccountHistoryActionForm extends ActionForm {
    public function  getFileTmpName()    { return $this->file['tmp_name']; }
    public function  getFileError()      { return $this->file['error'   ]; }
    public function  getFileSize()       { return $this->file['size'    ]; }
+   public function &getFileData()       { return $this->data;             }
 
    public function  getAccountCompany() { return $this->accountCompany;   }
    public function  getAccountNumber()  { return $this->accountNumber;    }
    public function  getAccountBalance() { return $this->accountBalance;   }
-   public function &getData()           { return $this->data;             }
 
 
 
@@ -111,7 +111,6 @@ class UploadAccountHistoryActionForm extends ActionForm {
       $sections = array('account'=> false, 'data'=> false);
       $section  = null;
       $data     = array();
-      date_default_timezone_set('GMT');                        // MetaTrader kennt keine Zeitzonen, alle Zeitangaben sind in GMT
 
       foreach ($lines as $i => &$line) {
          $line = trim($line, " \r\n");
@@ -185,13 +184,13 @@ class UploadAccountHistoryActionForm extends ActionForm {
             $magicNumber    =      $values[16];
             $comment        = trim($values[17]);
 
-            if ($ticket !== (string)(int)$ticket) {
+            if ($ticket!==(string)(int)$ticket || (int)$ticket <= 0) {
                $request->setActionError('', '100: invalid file format (unexpected value in line '.($i+1).',1)');
                return false;
             }
             $ticket = (int) $ticket;
 
-            if ($openTimestamp !== (string)(int)$openTimestamp) {
+            if ($openTimestamp!==(string)(int)$openTimestamp || (int)$openTimestamp <= 0) {
                $request->setActionError('', '100: invalid file format (unexpected value in line '.($i+1).',3)');
                return false;
             }
@@ -210,13 +209,13 @@ class UploadAccountHistoryActionForm extends ActionForm {
                return false;
             }
 
-            if ($units !== (string)(int)$units) {
+            if ($units!==(string)(int)$units || (int)$units < 0) {
                $request->setActionError('', '100: invalid file format (unexpected value in line '.($i+1).',6)');
                return false;
             }
             $units = (int) $units;
 
-            if ($closeTimestamp !== (string)(int)$closeTimestamp) {
+            if ($closeTimestamp!==(string)(int)$closeTimestamp || (int)$closeTimestamp <= 0) {
                $request->setActionError('', '100: invalid file format (unexpected value in line '.($i+1).',14)');
                return false;
             }
@@ -247,6 +246,10 @@ class UploadAccountHistoryActionForm extends ActionForm {
                $takeProfit  = null;
                $closePrice  = null;
                $magicNumber = null;
+               if ($units > 0) {
+                  $request->setActionError('', '100: invalid file format (unexpected value in line '.($i+1).',6)');
+                  return false;
+               }
             }
             else {
                if (!Validator ::isInstrument($symbol)) {
@@ -254,31 +257,31 @@ class UploadAccountHistoryActionForm extends ActionForm {
                   return false;
                }
 
-               if ($openPrice != (string)(float)$openPrice) {
+               if ($openPrice!=(string)(float)$openPrice || (float)$openPrice <= 0) {
                   $request->setActionError('', '100: invalid file format (unexpected value in line '.($i+1).',8)');
                   return false;
                }
                $openPrice = (float) $openPrice;
 
-               if (strLen($stopLoss) && $stopLoss!=(string)(float)$stopLoss) {
+               if (strLen($stopLoss) && ($stopLoss!=(string)(float)$stopLoss || (float)$stopLoss <= 0)) {
                   $request->setActionError('', '100: invalid file format (unexpected value in line '.($i+1).',9)');
                   return false;
                }
                $stopLoss = strLen($stopLoss) ? (float) $stopLoss : null;
 
-               if (strLen($takeProfit) && $takeProfit!=(string)(float)$takeProfit) {
+               if (strLen($takeProfit) && ($takeProfit!=(string)(float)$takeProfit || (float)$takeProfit <= 0)) {
                   $request->setActionError('', '100: invalid file format (unexpected value in line '.($i+1).',10)');
                   return false;
                }
                $takeProfit = strLen($takeProfit) ? (float) $takeProfit : null;
 
-               if ($closePrice != (string)(float)$closePrice) {
+               if ($closePrice!=(string)(float)$closePrice || (float)$closePrice <= 0) {
                   $request->setActionError('', '100: invalid file format (unexpected value in line '.($i+1).',15)');
                   return false;
                }
                $closePrice = (float) $closePrice;
 
-               if (strLen($magicNumber) && $magicNumber!==(string)(int)$magicNumber) {
+               if (strLen($magicNumber) && ($magicNumber!==(string)(int)$magicNumber || (int)$magicNumber <= 0)) {
                   $request->setActionError('', '100: invalid file format (unexpected value in line '.($i+1).',19)');
                   return false;
                }
@@ -286,21 +289,21 @@ class UploadAccountHistoryActionForm extends ActionForm {
             }
 
             // Datenfelder zwischenspeichern
-            $data[] = array(HC_TICKET      => $ticket,            //  0
-                            HC_OPENTIME    => $openTimestamp,     //  1
-                            HC_TYPE        => $type,              //  2
-                            HC_UNITS       => $units,             //  3
-                            HC_SYMBOL      => $symbol,            //  4
-                            HC_OPENPRICE   => $openPrice,         //  5
-                            HC_STOPLOSS    => $stopLoss,          //  6
-                            HC_TAKEPROFIT  => $takeProfit,        //  7
-                            HC_CLOSETIME   => $closeTimestamp,    //  8
-                            HC_CLOSEPRICE  => $closePrice,        //  9
-                            HC_COMMISSION  => $commission,        // 10
-                            HC_SWAP        => $swap,              // 11
-                            HC_PROFIT      => $profit,            // 12
-                            HC_MAGICNUMBER => $magicNumber,       // 13
-                            HC_COMMENT     => $comment,           // 14
+            $data[] = array(AH_TICKET      => $ticket,            //  0
+                            AH_OPENTIME    => $openTimestamp,     //  1
+                            AH_TYPE        => $type,              //  2
+                            AH_UNITS       => $units,             //  3
+                            AH_SYMBOL      => $symbol,            //  4
+                            AH_OPENPRICE   => $openPrice,         //  5
+                            AH_STOPLOSS    => $stopLoss,          //  6
+                            AH_TAKEPROFIT  => $takeProfit,        //  7
+                            AH_CLOSETIME   => $closeTimestamp,    //  8
+                            AH_CLOSEPRICE  => $closePrice,        //  9
+                            AH_COMMISSION  => $commission,        // 10
+                            AH_SWAP        => $swap,              // 11
+                            AH_PROFIT      => $profit,            // 12
+                            AH_MAGICNUMBER => $magicNumber,       // 13
+                            AH_COMMENT     => $comment,           // 14
                            );
          }
       }

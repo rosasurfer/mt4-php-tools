@@ -1,6 +1,6 @@
 /*
 Created     23.05.2009
-Modified    29.01.2011
+Modified    30.01.2011
 Project     Forex web
 Model       
 Company     
@@ -30,11 +30,11 @@ create table t_account (
 ) engine = InnoDB;
 
 
-create table t_order (
+create table t_transaction (
    id int unsigned not null auto_increment,
    created datetime not null,
    ticket int unsigned not null,
-   type enum('buy','sell','balance','credit','vendormatching') not null comment 'buy | sell | balance | credit | vendor matching',
+   type enum('buy','sell','vendormatching','transfer') not null comment 'buy | sell | vendor matching | transfer',
    units int unsigned not null comment 'traded units (not lots)',
    symbol char(12),
    opentime datetime not null,
@@ -51,12 +51,12 @@ create table t_order (
    pips decimal(5,1) not null comment 'normalized result',
    duration int unsigned not null comment 'trade duration in minutes',
    magicnumber int unsigned,
-   comment varchar(100),
+   comment varchar(255) not null,
    account_id int unsigned not null,
    primary key (id),
    unique key u_account_id_ticket (account_id,ticket),
    index i_account_id (account_id),
-   constraint order_account_id foreign key (account_id) references t_account (id) on delete restrict on update cascade
+   constraint transaction_account_id foreign key (account_id) references t_account (id) on delete restrict on update cascade
 ) engine = InnoDB;
 
 

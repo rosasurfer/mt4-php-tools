@@ -28,7 +28,7 @@ class UploadAccountHistoryAction extends Action {
 
       if ($form->validate()) {
          try {
-            //EncashmentHelper ::updateEncashmentKeys($form->getFileTmpName());
+            ImportHelper ::updateAccountHistory($form);
             echo("200\n");
             return null;
          }

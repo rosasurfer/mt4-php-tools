@@ -27,7 +27,7 @@ define('PERIOD_W1' , 10080);     // weekly
 define('PERIOD_MN1', 43200);     // monthly
 
 
-// Operation-Types
+// MT4-Operation-Types
 define('OP_BUY'      ,   0);     // long position
 define('OP_SELL'     ,   1);     // short position
 define('OP_BUYLIMIT' ,   2);     // buy limit order
@@ -38,26 +38,25 @@ define('OP_BALANCE'  ,   6);     // account credit or withdrawel transaction
 define('OP_CREDIT'   ,   7);     // credit facility, no transaction
 
 
+// Custom Operation-Types
+define('OP_TRANSFER', OP_BALANCE);  // Balance-Änderung durch Kunden (Ein-/Auszahlung)
+define('OP_VENDORMATCHING',    8);  // Balance-Änderung durch Criminal (Swap, sonstige)
+
+
 // Spalten-ID's Abschnitt [data] in UploadAccountHistory
-define('HC_TICKET'     ,  0);
-define('HC_OPENTIME'   ,  1);
-define('HC_TYPE'       ,  2);
-define('HC_UNITS'      ,  3);
-define('HC_SYMBOL'     ,  4);
-define('HC_OPENPRICE'  ,  5);
-define('HC_STOPLOSS'   ,  6);
-define('HC_TAKEPROFIT' ,  7);
-define('HC_CLOSETIME'  ,  8);
-define('HC_CLOSEPRICE' ,  9);
-define('HC_COMMISSION' , 10);
-define('HC_SWAP'       , 11);
-define('HC_PROFIT'     , 12);
-define('HC_MAGICNUMBER', 13);
-define('HC_COMMENT'    , 14);
-
-
-// Spalten-ID's Abschnitt [account] in UploadAccountHistory
-define('HC_ACCOUNTCOMPANY', 0);
-define('HC_ACCOUNTNUMBER' , 1);
-define('HC_ACCOUNTBALANCE', 2);
+define('AH_TICKET'     ,  0);
+define('AH_OPENTIME'   ,  1);
+define('AH_TYPE'       ,  2);
+define('AH_UNITS'      ,  3);
+define('AH_SYMBOL'     ,  4);
+define('AH_OPENPRICE'  ,  5);
+define('AH_STOPLOSS'   ,  6);
+define('AH_TAKEPROFIT' ,  7);
+define('AH_CLOSETIME'  ,  8);
+define('AH_CLOSEPRICE' ,  9);
+define('AH_COMMISSION' , 10);
+define('AH_SWAP'       , 11);
+define('AH_PROFIT'     , 12);
+define('AH_MAGICNUMBER', 13);
+define('AH_COMMENT'    , 14);
 ?>
