@@ -10,6 +10,9 @@ Database    MySQL 5
 */
 
 
+set sql_mode             = 'TRADITIONAL';
+set collation_connection = 'latin1_german1_ci';
+
 drop database if exists fxtrader;
 create database fxtrader character set latin1;
 use fxtrader;
@@ -17,13 +20,15 @@ use fxtrader;
 
 create table t_account (
    id int unsigned not null auto_increment,
+   version timestamp not null default current_timestamp on update current_timestamp,
    created datetime not null,
-   company varchar(100) not null comment 'account company',
-   type enum('demo','live') not null comment 'demo | live',
-   number int unsigned not null comment 'account number',
-   timezone varchar(50) not null comment 'format: timezone_name[+/-offset]',
-   currency char(3) not null comment 'base currency',
-   mtiaccount_id varchar(50) comment 'MTi account id',
+   company varchar(100) not null comment 'the criminal',
+   timezone varchar(50) not null comment 'Tradeserverzeitzone',
+   type enum('demo','live') not null comment 'Kontotyp: demo | live',
+   number int unsigned not null comment 'Kontonummer',
+   currency char(3) not null comment 'Kontowährung',
+   balance decimal(10,2) not null comment 'aktueller Kontostand',
+   mtiaccount_id varchar(50) comment 'MTi Account-ID',
    primary key (id),
    unique key u_company_number (company,number),
    unique key u_mtiaccount_id (mtiaccount_id)
@@ -32,9 +37,10 @@ create table t_account (
 
 create table t_transaction (
    id int unsigned not null auto_increment,
+   version timestamp not null default current_timestamp on update current_timestamp,
    created datetime not null,
-   ticket int unsigned not null,
-   type enum('buy','sell','vendormatching','transfer') not null comment 'buy | sell | vendor matching | transfer',
+   ticket varchar(50) not null,
+   type enum('buy','sell','transfer','vendormatching') not null comment 'buy | sell | transfer | vendor matching',
    units int unsigned not null comment 'traded units (not lots)',
    symbol char(12),
    opentime datetime not null,
@@ -46,7 +52,7 @@ create table t_transaction (
    commission decimal(10,2) not null,
    swap decimal(10,2) not null,
    netprofit decimal(10,2) not null,
-   grossprofit decimal(10,2) not null,
+   grossprofit decimal(10,2) not null comment 'commission + swap + netprofit',
    result enum('win','loss','breakeven','n/a') not null comment 'win | loss | breakeven | n/a',
    pips decimal(5,1) not null comment 'normalized result',
    duration int unsigned not null comment 'trade duration in minutes',
