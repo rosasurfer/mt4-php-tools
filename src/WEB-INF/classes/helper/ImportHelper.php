@@ -14,7 +14,8 @@ class ImportHelper extends StaticClass {
     */
    public static function updateAccountHistory(UploadAccountHistoryActionForm $form) {
       // Account holen
-      $account = Account ::dao()->getByCompanyAndNumber($form->getAccountCompany(), $form->getAccountNumber());
+      $company = Account ::normalizeCompanyName($form->getAccountCompany());
+      $account = Account ::dao()->getByCompanyAndNumber($company, $form->getAccountNumber());
       if (!$account) throw new InvalidArgumentException('unknown account');
 
       // Transaktionen und Credits trennen
@@ -88,16 +89,27 @@ class ImportHelper extends StaticClass {
       }
 
       // (1.3) Transaktionen für SQL-Import formatieren und in die temporäre Datei zurückschreiben
+      $accountId       = $account->getId();
+      $accountTimezone = new DateTimeZone($account->getTimezone());
+      $newYorkTimezone = new DateTimeZone('America/New_York');
+
       $fileName = $form->getFileTmpName();
       $fileName = 'E:/Projekte/fx.web/etc/tmp/tmp_accounthistory.sql.txt';
       $hFile = fOpen($fileName, 'wb');
+
       foreach ($transactions as &$row) {
          if ($row[AH_OPENTIME] == 0)
             continue;
-         $row[AH_TYPE     ] = strToLower(ViewHelper ::$operationTypes[$row[AH_TYPE]]);
-         $row[AH_OPENTIME ] = gmDate('Y-m-d H:i:s', $row[AH_OPENTIME ]);
-         $row[AH_CLOSETIME] = gmDate('Y-m-d H:i:s', $row[AH_CLOSETIME]);
-         fWrite($hFile, join("\t", $row)."\n");
+         $row[AH_TYPE] = strToLower(ViewHelper ::$operationTypes[$row[AH_TYPE]]);
+
+         // MT4-Serverzeiten in Forex-Standardzeit (America/New_York+0700) umrechnen
+         foreach (array(AH_OPENTIME, AH_CLOSETIME) as $time) {
+            $date = new DateTime(gmDate('Y-m-d H:i:s', $row[$time]), $accountTimezone);
+            $date->setTimezone($newYorkTimezone);
+            $date->modify('+7 hours');
+            $row[$time] = $date->format('Y-m-d H:i:s');
+         }
+         fWrite($hFile, $accountId."\t".join("\t", $row)."\n");
       }
       fClose($hFile);
 
@@ -105,32 +117,8 @@ class ImportHelper extends StaticClass {
       if (WINDOWS)
          $fileName = str_replace('\\', '/', $fileName);
 
+      // (1.5) AccountBalance überprüfen
 
-
-
-
-      // (1.4) neue AccountBalance überprüfen
-
-
-
-      /*
-      echoPre("\n\ncorrected transactions:");
-      foreach ($transactions as $i => $row) {
-         echoPre(str_pad($row[AH_TICKET     ], 12).
-                 str_pad($row[AH_OPENTIME   ], 12).
-                 str_pad($row[AH_TYPE       ], 12).
-                 str_pad($row[AH_UNITS      ], 12).
-                 str_pad($row[AH_SYMBOL     ], 12).
-                 str_pad($row[AH_OPENPRICE  ], 12).
-                 str_pad($row[AH_CLOSETIME  ], 12).
-                 str_pad($row[AH_CLOSEPRICE ], 12).
-                 str_pad($row[AH_COMMISSION ], 12).
-                 str_pad($row[AH_SWAP       ], 12).
-                 str_pad($row[AH_PROFIT     ], 12).
-                 str_pad($row[AH_MAGICNUMBER], 12).
-                 str_pad($row[AH_COMMENT    ], 12));
-      }
-      */
 
       // (2.1) Credits sortieren
       // (2.1) Daten importieren
@@ -183,12 +171,6 @@ class ImportHelper extends StaticClass {
 
       $db->begin();
       try {
-         // letztes Buchungsimportdatum ermitteln
-         $sql = "set @lastImport = (select max(p.date)
-                                       from t_payment p
-                                       where p.account = 'olta')";
-         $db->executeSql($sql);
-
          // Rechnungen aktualisieren
          $sql = "update t_invoice i
                     join t_tmp    t on i.id = t.invoice_id

@@ -10,5 +10,8 @@ $__classes['ImportHelper'                  ] = $dir.'helper/ImportHelper';
 $__classes['Validator'                     ] = $dir.'helper/Validator';
 $__classes['ViewHelper'                    ] = $dir.'helper/ViewHelper';
 
+$__classes['Account'                       ] = $dir.'model/Account';
+$__classes['AccountDAO'                    ] = $dir.'model/AccountDAO';
+
 unset($dir);
 ?>
