@@ -13,15 +13,17 @@ class ImportHelper extends StaticClass {
     * @return int - Anzahl der importierten Datensätze
     */
    public static function updateAccountHistory(UploadAccountHistoryActionForm $form) {
-      $transactions = $credits = null;
+      // Account holen
+      $account = Account ::dao()->getByCompanyAndNumber($form->getAccountCompany(), $form->getAccountNumber());
+      if (!$account) throw new InvalidArgumentException('unknown account');
 
-      // (0) Transaktionen und Credits trennen
+      // Transaktionen und Credits trennen
+      $transactions = $credits = null;
       $data =& $form->getFileData();
       foreach ($data as &$row) {
          if      ($row[AH_TYPE]==OP_BUY || $row[AH_TYPE]==OP_SELL || $row[AH_TYPE]==OP_BALANCE) $transactions[] =& $row;
          else if ($row[AH_TYPE]==OP_CREDIT)                                                     $credits[]      =& $row;
       }
-
 
       // (1.1) Transaktionen sortieren (by CloseTime ASC, OpenTime ASC, Ticket ASC)
       foreach ($transactions as $i => &$row) {
@@ -30,7 +32,6 @@ class ImportHelper extends StaticClass {
          $tickets   [$i] = $row[AH_TICKET];
       }
       array_multisort($closeTimes, SORT_ASC, $openTimes, SORT_ASC, $tickets, SORT_ASC, $transactions);
-
 
       // (1.2) Transaktionen korrigieren
       foreach ($transactions as $i => &$row) {
@@ -50,7 +51,7 @@ class ImportHelper extends StaticClass {
                $row[AH_TYPE] = OP_VENDORMATCHING;
             }
             else {
-               $row[AH_TYPE] = OP_TRANSFER;                          // ändert effektiv nichts: OP_TRANSFER == OP_BALANCE (hier nur der Vollständigkeit halber)
+               $row[AH_TYPE] = OP_TRANSFER;
             }
             if ($row[AH_OPENTIME] != $row[AH_CLOSETIME]) throw new InvalidArgumentException('ticket #'.$row[AH_TICKET].' - illegal balance times: open = "'.gmDate('Y.m.d H:i:s', $row[AH_OPENTIME]).'", close = "'.gmDate('Y.m.d H:i:s', $row[AH_CLOSETIME]).'"');
             continue;
@@ -86,32 +87,50 @@ class ImportHelper extends StaticClass {
          if ($row[AH_OPENTIME] >= $row[AH_CLOSETIME]) throw new InvalidArgumentException('ticket #'.$row[AH_TICKET].' - illegal order times: open = "'.gmDate('Y.m.d H:i:s', $row[AH_OPENTIME]).'", close = "'.gmDate('Y.m.d H:i:s', $row[AH_CLOSETIME]).'"');
       }
 
+      // (1.3) Transaktionen für SQL-Import formatieren und in die temporäre Datei zurückschreiben
+      $fileName = $form->getFileTmpName();
+      $fileName = 'E:/Projekte/fx.web/etc/tmp/tmp_accounthistory.sql.txt';
+      $hFile = fOpen($fileName, 'wb');
+      foreach ($transactions as &$row) {
+         if ($row[AH_OPENTIME] == 0)
+            continue;
+         $row[AH_TYPE     ] = strToLower(ViewHelper ::$operationTypes[$row[AH_TYPE]]);
+         $row[AH_OPENTIME ] = gmDate('Y-m-d H:i:s', $row[AH_OPENTIME ]);
+         $row[AH_CLOSETIME] = gmDate('Y-m-d H:i:s', $row[AH_CLOSETIME]);
+         fWrite($hFile, join("\t", $row)."\n");
+      }
+      fClose($hFile);
 
-      // (1.3) letzte gespeicherte Order und AccountBalance ermitteln
-      // (1.4) erste neu zu speichernde Order ermitteln
-      // (1.5) neue AccountBalance überprüfen
-      // (1.6) Daten importieren (dabei Ticketreferenzen in Kommentaren korrigieren)
+      // (1.4) Transaktionen importieren
+      if (WINDOWS)
+         $fileName = str_replace('\\', '/', $fileName);
 
 
 
+
+
+      // (1.4) neue AccountBalance überprüfen
+
+
+
+      /*
       echoPre("\n\ncorrected transactions:");
       foreach ($transactions as $i => $row) {
-         echoPre(str_pad($row[AH_TICKET      ], 12).
-                 str_pad($row[AH_OPENTIME    ], 12).
-                 str_pad($row[AH_TYPE        ], 12).
-                 str_pad($row[AH_UNITS       ], 12).
-                 str_pad($row[AH_SYMBOL      ], 12).
-                 str_pad($row[AH_OPENPRICE   ], 12).
-                 str_pad($row[AH_STOPLOSS    ], 12).
-                 str_pad($row[AH_TAKEPROFIT  ], 12).
-                 str_pad($row[AH_CLOSETIME   ], 12).
-                 str_pad($row[AH_CLOSEPRICE  ], 12).
-                 str_pad($row[AH_COMMISSION  ], 12).
-                 str_pad($row[AH_SWAP        ], 12).
-                 str_pad($row[AH_PROFIT      ], 12).
-                 str_pad($row[AH_MAGICNUMBER ], 12).
-                 str_pad($row[AH_COMMENT     ], 12));
+         echoPre(str_pad($row[AH_TICKET     ], 12).
+                 str_pad($row[AH_OPENTIME   ], 12).
+                 str_pad($row[AH_TYPE       ], 12).
+                 str_pad($row[AH_UNITS      ], 12).
+                 str_pad($row[AH_SYMBOL     ], 12).
+                 str_pad($row[AH_OPENPRICE  ], 12).
+                 str_pad($row[AH_CLOSETIME  ], 12).
+                 str_pad($row[AH_CLOSEPRICE ], 12).
+                 str_pad($row[AH_COMMISSION ], 12).
+                 str_pad($row[AH_SWAP       ], 12).
+                 str_pad($row[AH_PROFIT     ], 12).
+                 str_pad($row[AH_MAGICNUMBER], 12).
+                 str_pad($row[AH_COMMENT    ], 12));
       }
+      */
 
       // (2.1) Credits sortieren
       // (2.1) Daten importieren
@@ -122,7 +141,7 @@ class ImportHelper extends StaticClass {
       if (WINDOWS)
          $fileName = str_replace('\\', '/', $fileName);
 
-            $db = Invoice ::dao()->getDB();
+      $db = Invoice ::dao()->getDB();
 
       // Rohdaten in temporäre Tabelle laden
       $sql = "create temporary table t_tmp_raw (
@@ -168,20 +187,6 @@ class ImportHelper extends StaticClass {
          $sql = "set @lastImport = (select max(p.date)
                                        from t_payment p
                                        where p.account = 'olta')";
-         $db->executeSql($sql);
-
-         // Historyeinträge anlegen
-         $sql = "insert into t_historyentry (version, created, createdby, value, customer_id)
-                 select now()                                                                                                                 as 'version',
-                        now()                                                                                                                 as 'created',
-                        'system'                                                                                                              as 'createdby',
-                        concat('Meldung vorläufiger Zahlungseingang zu ', i.period, '. Rechnung am ', date_format(t.paymentdate, '%d.%m.%Y')) as 'value',
-                        i.customer_id                                                                                                         as 'customer_id'
-                    from t_tmp     t
-                    join t_invoice i on t.invoice_id = i.id
-                    where t.paymentdate > @lastImport             -- nur Daten speichern, die nach dem letzten Buchungsimport gemeldet wurden
-                      and i.encashment is not null
-                      and (i.temporarypayment is null or i.temporarypayment != t.paymentdate)";
          $db->executeSql($sql);
 
          // Rechnungen aktualisieren

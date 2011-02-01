@@ -1,6 +1,6 @@
 /*
 Created     23.05.2009
-Modified    30.01.2011
+Modified    01.02.2011
 Project     Forex web
 Model       
 Company     
@@ -23,9 +23,10 @@ create table t_account (
    version timestamp not null default current_timestamp on update current_timestamp,
    created datetime not null,
    company varchar(100) not null comment 'the criminal',
-   timezone varchar(50) not null comment 'Tradeserverzeitzone',
-   type enum('demo','live') not null comment 'Kontotyp: demo | live',
    number int unsigned not null comment 'Kontonummer',
+   demo tinyint(1) unsigned not null comment 'TRUE=demo, FALSE=live',
+   type enum('mt4','fix') not null comment 'MT4 | FIX',
+   timezone varchar(100) not null comment 'Tradeserverzeitzone',
    currency char(3) not null comment 'Kontowährung',
    balance decimal(10,2) not null comment 'aktueller Kontostand',
    mtiaccount_id varchar(50) comment 'MTi Account-ID',
@@ -43,12 +44,10 @@ create table t_transaction (
    type enum('buy','sell','transfer','vendormatching') not null comment 'buy | sell | transfer | vendor matching',
    units int unsigned not null comment 'traded units (not lots)',
    symbol char(12),
-   opentime datetime not null,
-   openprice decimal(10,5) unsigned not null,
-   openslippage decimal(4,1) not null,
-   closetime datetime not null,
-   closeprice decimal(10,5) unsigned not null,
-   closeslippage decimal(4,1) not null,
+   opentime datetime not null comment 'Timezone: America/New_York+0700',
+   openprice decimal(10,5) unsigned,
+   closetime datetime not null comment 'Timezone: America/New_York+0700',
+   closeprice decimal(10,5) unsigned,
    commission decimal(10,2) not null,
    swap decimal(10,2) not null,
    netprofit decimal(10,2) not null,

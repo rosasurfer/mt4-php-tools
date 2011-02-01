@@ -5,15 +5,17 @@
 class ViewHelper extends StaticClass {
 
 
-   // MT4 operation types
-   public static /*string[]*/ $operationTypes = array(OP_BUY       => 'Buy'       ,
-                                                      OP_SELL      => 'Sell'      ,
-                                                      OP_BUYLIMIT  => 'Buy Limit' ,
-                                                      OP_SELLLIMIT => 'Sell Limit',
-                                                      OP_BUYSTOP   => 'Stop Buy'  ,
-                                                      OP_SELLSTOP  => 'Stop Sell' ,
-                                                      OP_BALANCE   => 'Balance'   ,
-                                                      OP_CREDIT    => 'Credit'    );
+   // operation types
+   public static /*string[]*/ $operationTypes = array(OP_BUY            => 'Buy'            ,   // 0
+                                                      OP_SELL           => 'Sell'           ,   // 1
+                                                      OP_BUYLIMIT       => 'Buy Limit'      ,   // 2
+                                                      OP_SELLLIMIT      => 'Sell Limit'     ,   // 3
+                                                      OP_BUYSTOP        => 'Stop Buy'       ,   // 4
+                                                      OP_SELLSTOP       => 'Stop Sell'      ,   // 5
+                                                      OP_BALANCE        => 'Balance'        ,   // 6
+                                                      OP_CREDIT         => 'Credit'         ,   // 7
+                                                      OP_TRANSFER       => 'Transfer'       ,   // 8
+                                                      OP_VENDORMATCHING => 'VendorMatching');   // 9
 
    // instruments and their names
    public static /*string[]*/ $instruments = array('AUDCAD' => 'AUD/CAD',

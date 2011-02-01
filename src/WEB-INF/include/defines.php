@@ -27,20 +27,17 @@ define('PERIOD_W1' , 10080);     // weekly
 define('PERIOD_MN1', 43200);     // monthly
 
 
-// MT4-Operation-Types
-define('OP_BUY'      ,   0);     // long position
-define('OP_SELL'     ,   1);     // short position
-define('OP_BUYLIMIT' ,   2);     // buy limit order
-define('OP_SELLLIMIT',   3);     // sell limit order
-define('OP_BUYSTOP'  ,   4);     // stop buy order
-define('OP_SELLSTOP' ,   5);     // stop sell order
-define('OP_BALANCE'  ,   6);     // account credit or withdrawel transaction
-define('OP_CREDIT'   ,   7);     // credit facility, no transaction
-
-
-// Custom Operation-Types
-define('OP_TRANSFER', OP_BALANCE);  // Balance-Änderung durch Kunden (Ein-/Auszahlung)
-define('OP_VENDORMATCHING',    8);  // Balance-Änderung durch Criminal (Swap, sonstige)
+// Operation-Types
+define('OP_BUY'           , 0);  //    MT4: long position
+define('OP_SELL'          , 1);  //         short position
+define('OP_BUYLIMIT'      , 2);  //         buy limit order
+define('OP_SELLLIMIT'     , 3);  //         sell limit order
+define('OP_BUYSTOP'       , 4);  //         stop buy order
+define('OP_SELLSTOP'      , 5);  //         stop sell order
+define('OP_BALANCE'       , 6);  //         account credit or withdrawel transaction
+define('OP_CREDIT'        , 7);  //         credit facility, no transaction
+define('OP_TRANSFER'      , 8);  // custom: Balance-Änderung durch Kunden (Ein-/Auszahlung)
+define('OP_VENDORMATCHING', 9);  //         Balance-Änderung durch Criminal (Swap, sonstige)
 
 
 // Spalten-ID's Abschnitt [data] in UploadAccountHistory
@@ -50,13 +47,11 @@ define('AH_TYPE'       ,  2);
 define('AH_UNITS'      ,  3);
 define('AH_SYMBOL'     ,  4);
 define('AH_OPENPRICE'  ,  5);
-define('AH_STOPLOSS'   ,  6);
-define('AH_TAKEPROFIT' ,  7);
-define('AH_CLOSETIME'  ,  8);
-define('AH_CLOSEPRICE' ,  9);
-define('AH_COMMISSION' , 10);
-define('AH_SWAP'       , 11);
-define('AH_PROFIT'     , 12);
-define('AH_MAGICNUMBER', 13);
-define('AH_COMMENT'    , 14);
+define('AH_CLOSETIME'  ,  6);
+define('AH_CLOSEPRICE' ,  7);
+define('AH_COMMISSION' ,  8);
+define('AH_SWAP'       ,  9);
+define('AH_PROFIT'     , 10);
+define('AH_MAGICNUMBER', 11);
+define('AH_COMMENT'    , 12);
 ?>
