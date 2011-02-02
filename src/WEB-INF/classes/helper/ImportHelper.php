@@ -88,7 +88,7 @@ class ImportHelper extends StaticClass {
          if ($row[AH_OPENTIME] >= $row[AH_CLOSETIME]) throw new InvalidArgumentException('ticket #'.$row[AH_TICKET].' - illegal order times: open = "'.gmDate('Y.m.d H:i:s', $row[AH_OPENTIME]).'", close = "'.gmDate('Y.m.d H:i:s', $row[AH_CLOSETIME]).'"');
       }
 
-      // (1.3) Transaktionen für SQL-Import formatieren und in die temporäre Datei zurückschreiben
+      // (1.3) Transaktionen für SQL-Import formatieren und in die hochgeladene Datei zurückschreiben
       $accountId       = $account->getId();
       $accountTimezone = new DateTimeZone($account->getTimezone());
       $newYorkTimezone = new DateTimeZone('America/New_York');
@@ -117,79 +117,75 @@ class ImportHelper extends StaticClass {
       if (WINDOWS)
          $fileName = str_replace('\\', '/', $fileName);
 
-      // (1.5) AccountBalance überprüfen
-
-
-      // (2.1) Credits sortieren
-      // (2.1) Daten importieren
-      // (2.2) Logische Validierung (Units > 0, OpenTime < CloseTime) in DB-Trigger
-
-      /*
-      $fileName = $form->getFileTmpName();
-      if (WINDOWS)
-         $fileName = str_replace('\\', '/', $fileName);
-
-      $db = Invoice ::dao()->getDB();
+      $db = Account ::dao()->getDB();
 
       // Rohdaten in temporäre Tabelle laden
-      $sql = "create temporary table t_tmp_raw (
-                 docid       varchar(10) not null,
-                 paymentdate date not null
+      $sql = "create temporary table t_tmp (
+                 account_id  int           unsigned  not null,
+                 ticket      varchar(255)            not null,
+                 opentime    datetime                not null,
+                 type        varchar(255)            not null,
+                 units       int           unsigned  not null,
+                 symbol      varchar(255),
+                 openprice   decimal(10,5) unsigned,
+                 closetime   datetime                not null,
+                 closeprice  decimal(10,5) unsigned,
+                 commission  decimal(10,2)           not null,
+                 swap        decimal(10,2)           not null,
+                 netprofit   decimal(10,2)           not null,
+                 magicnumber int           unsigned,
+                 comment     varchar(255)            not null,
+                 unique index u_account_id_ticket (account_id, ticket)
               )";
       $db->executeSql($sql);
 
       $sql = "load data local infile '$fileName'
-                 into table t_tmp_raw
+                 into table t_tmp
                  fields
                     terminated by '\\t'
                  lines
                     terminated by '\\n'
-                 (docid, paymentdate)";
+                 (account_id, ticket, opentime, type, units, symbol, openprice, closetime, closeprice, commission, swap, netprofit, magicnumber, comment)";
       $db->executeSql($sql);
 
-      // Dubletten entfernen
-      $sql = "create temporary table t_tmp (
-                 docid       varchar(10) not null,
-                 paymentdate date not null,
-                 invoice_id  int unsigned,
-
-                 unique index u_docid (docid),
-                 index i_paymentdate  (paymentdate)
-              )
-              select distinct docid,
-                              paymentdate,
-                              null as 'invoice_id'
-                 from t_tmp_raw";
-      $db->executeSql($sql);
-
-      // invoice_id ermitteln und abspeichern
-      $sql = "update t_tmp      t
-                 join t_invoice i on i.docid = t.docid
-                 set t.invoice_id = i.id";
-      $db->executeSql($sql);
-
-
+      // Tickets einfügen und bereits vorhandene ignorieren (die Trigger validieren strikter als IGNORE es ermöglicht)
       $db->begin();
       try {
-         // Rechnungen aktualisieren
-         $sql = "update t_invoice i
-                    join t_tmp    t on i.id = t.invoice_id
-                    set i.temporarypayment = t.paymentdate
-                    where t.paymentdate > @lastImport             -- nur Daten speichern, die nach dem letzten Buchungsimport gemeldet wurden
-                      and i.encashment is not null
-                      and (i.temporarypayment is null or i.temporarypayment != t.paymentdate)";
+         $sql = "insert ignore into t_transaction (ticket, type, units, symbol, opentime, openprice, closetime, closeprice, commission, swap, netprofit, magicnumber, comment, account_id)
+                 select ticket                 as 'ticket',
+                        type                   as 'type',
+                        units                  as 'units',
+                        nullIf(symbol, '')     as 'symbol',
+                        opentime               as 'opentime',
+                        nullIf(openprice, 0)   as 'openprice',
+                        closetime              as 'closetime',
+                        nullIf(closeprice, 0)  as 'closeprice',
+                        commission             as 'commission',
+                        swap                   as 'swap',
+                        netprofit              as 'netprofit',
+                        nullIf(magicnumber, 0) as 'magicnumber',
+                        comment                as 'comment',
+                        account_id             as 'account_id'
+                    from t_tmp";
          $result = $db->executeSql($sql);
 
-         // alles speichern
-         $db->commit();
+         echoPre($result);
 
+         $db->commit();
          return $result['rows'];
       }
       catch (Exception $ex) {
          $db->rollback();
          throw new InfrastructureException($ex);
       }
-      */
+
+
+      // (1.5) AccountBalance überprüfen
+
+
+      // (2.1) Credits sortieren
+      // (2.1) Daten importieren
+      // (2.2) Logische Validierung (Units > 0, OpenTime < CloseTime) in DB-Trigger
    }
 }
 ?>

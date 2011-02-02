@@ -10,7 +10,7 @@ Database    MySQL 5
 */
 
 
-set sql_mode             = 'TRADITIONAL';
+set sql_mode             = 'traditional';
 set collation_connection = 'latin1_german1_ci';
 
 drop database if exists myfx;
