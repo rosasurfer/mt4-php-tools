@@ -6,16 +6,16 @@ class ViewHelper extends StaticClass {
 
 
    // operation types
-   public static /*string[]*/ $operationTypes = array(OP_BUY            => 'Buy'            ,   // 0
-                                                      OP_SELL           => 'Sell'           ,   // 1
-                                                      OP_BUYLIMIT       => 'Buy Limit'      ,   // 2
-                                                      OP_SELLLIMIT      => 'Sell Limit'     ,   // 3
-                                                      OP_BUYSTOP        => 'Stop Buy'       ,   // 4
-                                                      OP_SELLSTOP       => 'Stop Sell'      ,   // 5
-                                                      OP_BALANCE        => 'Balance'        ,   // 6
-                                                      OP_CREDIT         => 'Credit'         ,   // 7
-                                                      OP_TRANSFER       => 'Transfer'       ,   // 8
-                                                      OP_VENDORMATCHING => 'VendorMatching');   // 9
+   public static /*string[]*/ $operationTypes = array(OP_BUY       => 'buy'       ,   // 0
+                                                      OP_SELL      => 'sell'      ,   // 1
+                                                      OP_BUYLIMIT  => 'buy limit' ,   // 2
+                                                      OP_SELLLIMIT => 'sell limit',   // 3
+                                                      OP_BUYSTOP   => 'stop buy'  ,   // 4
+                                                      OP_SELLSTOP  => 'stop sell' ,   // 5
+                                                      OP_BALANCE   => 'balance'   ,   // 6
+                                                      OP_CREDIT    => 'credit'    ,   // 7
+                                                      OP_TRANSFER  => 'transfer'  ,   // 8
+                                                      OP_VENDOR    => 'vendor'   );   // 9
 
    // instruments and their names
    public static /*string[]*/ $instruments = array('AUDCAD' => 'AUD/CAD',

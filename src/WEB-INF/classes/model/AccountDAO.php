@@ -8,18 +8,19 @@ class AccountDAO extends CommonDAO {
    // Datenbankmapping
    public $mapping = array('link'   => 'myfx',
                            'table'  => 't_account',
-                           'fields' => array('id'            => array('id'            , self ::T_INT   , self ::T_NOT_NULL),     // int
-                                             'version'       => array('version'       , self ::T_STRING, self ::T_NOT_NULL),     // timestamp
-                                             'created'       => array('created'       , self ::T_STRING, self ::T_NOT_NULL),     // datetime
+                           'fields' => array('id'           => array('id'           , self ::T_INT   , self ::T_NOT_NULL),     // int
+                                             'version'      => array('version'      , self ::T_STRING, self ::T_NOT_NULL),     // timestamp
+                                             'created'      => array('created'      , self ::T_STRING, self ::T_NOT_NULL),     // datetime
 
-                                             'company'       => array('company'       , self ::T_STRING, self ::T_NOT_NULL),     // string
-                                             'number'        => array('number'        , self ::T_INT   , self ::T_NOT_NULL),     // int
-                                             'demo'          => array('demo'          , self ::T_BOOL  , self ::T_NOT_NULL),     // tinyint
-                                             'type'          => array('type'          , self ::T_STRING, self ::T_NOT_NULL),     // enum
-                                             'timezone'      => array('timezone'      , self ::T_STRING, self ::T_NOT_NULL),     // string
-                                             'currency'      => array('currency'      , self ::T_STRING, self ::T_NOT_NULL),     // string
-                                             'balance'       => array('balance'       , self ::T_FLOAT , self ::T_NOT_NULL),     // decimal
-                                             'mtiAccount_id' => array('mti_account_id', self ::T_STRING, self ::T_NULL    ),     // string
+                                             'company'      => array('company'      , self ::T_STRING, self ::T_NOT_NULL),     // string
+                                             'number'       => array('number'       , self ::T_INT   , self ::T_NOT_NULL),     // int
+                                             'demo'         => array('demo'         , self ::T_BOOL  , self ::T_NOT_NULL),     // tinyint
+                                             'type'         => array('type'         , self ::T_STRING, self ::T_NOT_NULL),     // enum
+                                             'timezone'     => array('timezone'     , self ::T_STRING, self ::T_NOT_NULL),     // string
+                                             'currency'     => array('currency'     , self ::T_STRING, self ::T_NOT_NULL),     // string
+                                             'balance'      => array('balance'      , self ::T_FLOAT , self ::T_NOT_NULL),     // decimal
+                                             'lastUpdated'  => array('lastupdated'  , self ::T_STRING, self ::T_NULL    ),     // datetime
+                                             'mtiAccountId' => array('mtiaccount_id', self ::T_STRING, self ::T_NULL    ),     // string
                                             ));
 
    /**

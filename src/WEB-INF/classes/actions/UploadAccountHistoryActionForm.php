@@ -201,11 +201,6 @@ class UploadAccountHistoryActionForm extends ActionForm {
             if ($type==OP_BUYLIMIT || $type==OP_SELLLIMIT || $type==OP_BUYSTOP || $type==OP_SELLSTOP)
                continue;
 
-            if ($description != ViewHelper ::$operationTypes[$type]) {
-               $request->setActionError('', '100: invalid file format (unexpected value in line '.($i+1).',4)');
-               return false;
-            }
-
             if ($units!==(string)(int)$units || (int)$units < 0) {
                $request->setActionError('', '100: invalid file format (unexpected value in line '.($i+1).',6)');
                return false;

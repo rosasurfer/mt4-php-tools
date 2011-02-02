@@ -28,19 +28,19 @@ define('PERIOD_MN1', 43200);     // monthly
 
 
 // Operation-Types
-define('OP_BUY'           , 0);  //    MT4: long position
-define('OP_SELL'          , 1);  //         short position
-define('OP_BUYLIMIT'      , 2);  //         buy limit order
-define('OP_SELLLIMIT'     , 3);  //         sell limit order
-define('OP_BUYSTOP'       , 4);  //         stop buy order
-define('OP_SELLSTOP'      , 5);  //         stop sell order
-define('OP_BALANCE'       , 6);  //         account credit or withdrawel transaction
-define('OP_CREDIT'        , 7);  //         credit facility, no transaction
-define('OP_TRANSFER'      , 8);  // custom: Balance-Änderung durch Kunden (Ein-/Auszahlung)
-define('OP_VENDORMATCHING', 9);  //         Balance-Änderung durch Criminal (Swap, sonstige)
+define('OP_BUY'      ,   0);     //    MT4: long position
+define('OP_SELL'     ,   1);     //         short position
+define('OP_BUYLIMIT' ,   2);     //         buy limit order
+define('OP_SELLLIMIT',   3);     //         sell limit order
+define('OP_BUYSTOP'  ,   4);     //         stop buy order
+define('OP_SELLSTOP' ,   5);     //         stop sell order
+define('OP_BALANCE'  ,   6);     //         account credit or withdrawel transaction
+define('OP_CREDIT'   ,   7);     //         credit facility, no transaction
+define('OP_TRANSFER' ,   8);     // custom: Balance-Änderung durch Kunden (Ein-/Auszahlung)
+define('OP_VENDOR'   ,   9);     //         Balance-Änderung durch Criminal (Swap, sonstiges)
 
 
-// Spalten-ID's Abschnitt [data] in UploadAccountHistory
+// Spalten der internen History-Daten in UploadAccountHistoryForm
 define('AH_TICKET'     ,  0);
 define('AH_OPENTIME'   ,  1);
 define('AH_TYPE'       ,  2);

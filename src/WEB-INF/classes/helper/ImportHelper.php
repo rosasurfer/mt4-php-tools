@@ -39,17 +39,17 @@ class ImportHelper extends StaticClass {
          if ($row[AH_OPENTIME] == 0)                                 // markierte Orders ignorieren (werden verworfen)
             continue;
 
-         // Swaps und Vendor Matchings korrigieren
+         // Swaps und Vendor-Matchings korrigieren
          if ($row[AH_TYPE] == OP_BALANCE) {
             if (String ::startsWith($row[AH_COMMENT], 'swap', true)) {
                if ($row[AH_SWAP] == 0) {
                   $row[AH_SWAP]   = $row[AH_PROFIT];
                   $row[AH_PROFIT] = 0;
                }
-               $row[AH_TYPE] = OP_VENDORMATCHING;
+               $row[AH_TYPE] = OP_VENDOR;
             }
             else if (String ::startsWith($row[AH_COMMENT], 'vendor matching', true)) {
-               $row[AH_TYPE] = OP_VENDORMATCHING;
+               $row[AH_TYPE] = OP_VENDOR;
             }
             else {
                $row[AH_TYPE] = OP_TRANSFER;
