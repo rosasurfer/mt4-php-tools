@@ -28,9 +28,12 @@ class UploadAccountHistoryAction extends Action {
 
       if ($form->validate()) {
          try {
-            ImportHelper ::updateAccountHistory($form);
-            echo("200\n");
+            $updates = ImportHelper ::updateAccountHistory($form);
+            echo('200: '.($updates ? 'History successfully updated.':'History is up to date.')."\n");
             return null;
+         }
+         catch (BusinessRuleException $ex) {
+            $request->setActionError('', '500: '.$ex->getMessage());
          }
          catch (Exception $ex) {
             Logger ::log('System not available', $ex, L_ERROR, __CLASS__);

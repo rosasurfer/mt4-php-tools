@@ -13,7 +13,7 @@ class ImportHelper extends StaticClass {
     * @return int - Anzahl der importierten Datensätze
     */
    public static function updateAccountHistory(UploadAccountHistoryActionForm $form) {
-      // Account holen
+      // Account suchen
       $company = Account ::normalizeCompanyName($form->getAccountCompany());
       $account = Account ::dao()->getByCompanyAndNumber($company, $form->getAccountNumber());
       if (!$account) throw new InvalidArgumentException('unknown account');
@@ -94,7 +94,6 @@ class ImportHelper extends StaticClass {
       $newYorkTimezone = new DateTimeZone('America/New_York');
 
       $fileName = $form->getFileTmpName();
-      $fileName = 'E:/Projekte/fx.web/etc/tmp/tmp_accounthistory.sql.txt';
       $hFile = fOpen($fileName, 'wb');
 
       foreach ($transactions as &$row) {
@@ -114,9 +113,6 @@ class ImportHelper extends StaticClass {
       fClose($hFile);
 
       // (1.4) Transaktionen importieren
-      if (WINDOWS)
-         $fileName = str_replace('\\', '/', $fileName);
-
       $db = Account ::dao()->getDB();
 
       // Rohdaten in temporäre Tabelle laden
@@ -138,6 +134,9 @@ class ImportHelper extends StaticClass {
                  unique index u_account_id_ticket (account_id, ticket)
               )";
       $db->executeSql($sql);
+
+      if (WINDOWS)
+         $fileName = str_replace('\\', '/', $fileName);
 
       $sql = "load data local infile '$fileName'
                  into table t_tmp
@@ -168,24 +167,24 @@ class ImportHelper extends StaticClass {
                         account_id             as 'account_id'
                     from t_tmp";
          $result = $db->executeSql($sql);
-
-         echoPre($result);
-
          $db->commit();
-         return $result['rows'];
       }
       catch (Exception $ex) {
          $db->rollback();
          throw new InfrastructureException($ex);
       }
+      //echoPre($result);
 
-
-      // (1.5) AccountBalance überprüfen
-
+      // (1.5) neue AccountBalance gegenprüfen
+      if ($result['rows'] > 0)
+         $account = Account ::dao()->refresh($account);
+      if ($form->getAccountBalance() != $account->getBalance())
+         throw new BusinessRuleException('Balance mismatch, more history data needed.');
 
       // (2.1) Credits sortieren
       // (2.1) Daten importieren
       // (2.2) Logische Validierung (Units > 0, OpenTime < CloseTime) in DB-Trigger
+      return $result['rows'];
    }
 }
 ?>
