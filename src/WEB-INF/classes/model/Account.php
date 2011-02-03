@@ -6,13 +6,14 @@ class Account extends PersistableObject {
 
 
    protected /*string*/ $company;
-   protected /*int*/    $number;
+   protected /*string*/ $number;
    protected /*bool*/   $demo;
    protected /*string*/ $type;
    protected /*string*/ $timezone;
    protected /*string*/ $currency;
    protected /*float*/  $balance;
-   protected /*string*/ $lastUpdated;
+   protected /*float*/  $lastReportedBalance;
+   protected /*string*/ $lastUpdate;
    protected /*string*/ $mtiAccountId;
 
 
@@ -53,20 +54,53 @@ class Account extends PersistableObject {
 
 
    /**
-    * Gibt den Zeitpunkt des letzten AccountHistory-Updates zurück.
+    * Gibt den letzten gemeldeten Kontostand des Accounts zurück.
+    *
+    * @param  int    $decimals  - Anzahl der Nachkommastellen
+    * @param  string $separator - Dezimaltrennzeichen
+    *
+    * @return float|string - Kontostand
+    */
+   public function getLastReportedBalance($decimals = 2, $separator = ',') {
+      if (is_null($this->lastReportedBalance) || func_num_args()==0)
+         return $this->lastReportedBalance;
+
+      return formatMoney($this->lastReportedBalance, $decimals, $separator);
+   }
+
+
+   /**
+    * Setzt den letzten gemeldeten Kontostand des Accounts.
+    *
+    * @param  float $balance - Kontostand
+    *
+    * @return Account
+    */
+   public function setLastReportedBalance($balance) {
+      if (!is_float($balance)) throw new IllegalTypeException('Illegal type of parameter $balance: '.getType($balance));
+
+      if ($this->lastReportedBalance === $balance)
+         return $this;
+
+      $this->lastReportedBalance = $balance;
+      $this->modified = true;
+
+      return $this;
+   }
+
+
+   /**
+    * Gibt den Zeitpunkt des letzten History-Updates zurück.
     *
     * @param  string $format - Zeitformat
     *
     * @return string - Zeitpunkt oder NULL, wenn noch kein Update erfolgte
     */
-   public function getLastUpdated($format = 'Y-m-d H:i:s')  {
-      if (!$this->lastUpdated)
-         return null;
+   public function getLastUpdate($format = 'Y-m-d H:i:s')  {
+      if (!$this->lastUpdate || $format=='Y-m-d H:i:s')
+         return $this->lastUpdate;
 
-      if ($format == 'Y-m-d H:i:s')
-         return $this->lastUpdated;
-
-      return formatDate($format, $this->lastUpdated);
+      return formatDate($format, $this->lastUpdate);
    }
 
 
@@ -118,6 +152,52 @@ class Account extends PersistableObject {
          case 'straighthold investment group, inc.': return 'Straighthold Investment';
       }
       return $name;
+   }
+
+
+   /**
+    * Aktualisiert diese Instanz in der Datenbank.
+    *
+    * @return Invoice
+    */
+   protected function update() {
+      $id         = $this->id;
+      $oldVersion = $this->version;
+      $newVersion = $this->touch();
+
+      $lastreportedbalance = ($this->lastReportedBalance === null) ? 'null' : $this->lastReportedBalance;
+      $mtiaccount_id       = ($this->mtiAccountId        === null) ? 'null' : addSlashes($this->mtiAccountId);
+
+      $db = self ::dao()->getDB();
+      $db->begin();
+
+      try {
+         // Account updaten
+         $sql = "update t_account
+                    set lastreportedbalance = $lastreportedbalance,
+                        mtiaccount_id       = $mtiaccount_id,
+                        version             = '$newVersion'
+                    where id = $id
+                      and version = '$oldVersion'";
+         $sql = str_replace("'null'", 'null', $sql);
+         $result = $db->executeSql($sql);
+
+         if ($result['rows'] != 1) {
+            $this->version  = $oldVersion;
+            $found = self ::dao()->refresh($this);
+            throw new ConcurrentModificationException('Error updating '.__CLASS__." ($id), expected version: \"$oldVersion\", found version: \"".$found->getVersion().'"');
+         }
+
+         // alles speichern
+         $db->commit();
+
+         $this->modifications = null;
+      }
+      catch (Exception $ex) {
+         $db->rollback();
+         throw $ex;
+      }
+      return $this;
    }
 }
 ?>

@@ -16,7 +16,7 @@ class ImportHelper extends StaticClass {
       // Account suchen
       $company = Account ::normalizeCompanyName($form->getAccountCompany());
       $account = Account ::dao()->getByCompanyAndNumber($company, $form->getAccountNumber());
-      if (!$account) throw new InvalidArgumentException('unknown account');
+      if (!$account) throw new InvalidArgumentException('unknown_account');
 
       // Transaktionen und Credits trennen
       $transactions = $credits = null;
@@ -64,7 +64,7 @@ class ImportHelper extends StaticClass {
             if (!String ::startsWith($row[AH_COMMENT], 'close hedge by #', true)) throw new InvalidArgumentException('ticket #'.$row[AH_TICKET].' - unknown comment for assumed hedged position: "'.$row[AH_COMMENT].'"');
 
             // Gegenstück suchen und alle Orderdaten in der 1. Order speichern
-            $ticket = (int) subStr($row[AH_COMMENT], 16);
+            $ticket = (int) subStr($row[AH_COMMENT], 16);            // (int) schneidet ggf. auf die Ticket# folgende nicht-numerische Zeichen ab
             if ($ticket == 0)                                        throw new InvalidArgumentException('ticket #'.$row[AH_TICKET].' - unknown comment for assumed hedged position: "'.$row[AH_COMMENT].'"');
             if (($n=array_search($ticket, $tickets, true)) == false) throw new InvalidArgumentException('cannot find counterpart for hedged position #'.$row[AH_TICKET].': "'.$row[AH_COMMENT].'"');
 
@@ -118,7 +118,7 @@ class ImportHelper extends StaticClass {
       // Rohdaten in temporäre Tabelle laden
       $sql = "create temporary table t_tmp (
                  account_id  int           unsigned  not null,
-                 ticket      varchar(255)            not null,
+                 ticket      varchar(50)             not null,
                  opentime    datetime                not null,
                  type        varchar(255)            not null,
                  units       int           unsigned  not null,
@@ -167,18 +167,28 @@ class ImportHelper extends StaticClass {
                         account_id             as 'account_id'
                     from t_tmp";
          $result = $db->executeSql($sql);
+
+         // (1.5) neue AccountBalance gegenprüfen und speichern
+         $reportedBalance = $form->getAccountBalance();
+         if ($result['rows'] > 0)
+            $account = Account ::dao()->refresh($account);
+         if ($account->getBalance() != $reportedBalance) throw new BusinessRuleException('balance_mismatch');
+
+         $account->setLastReportedBalance($reportedBalance)
+                 ->save();
+
+         // alles speichern
          $db->commit();
+      }
+      catch (BusinessRuleException $ex) {
+         $db->rollback();
+         throw $ex;
       }
       catch (Exception $ex) {
          $db->rollback();
          throw new InfrastructureException($ex);
       }
-      //echoPre($result);
 
-      // (1.5) neue AccountBalance gegenprüfen
-      if ($result['rows'] > 0)
-         $account = Account ::dao()->refresh($account);
-      if ($form->getAccountBalance() != $account->getBalance()) throw new BusinessRuleException("Balance mismatch, more history data needed ($result[rows])");
 
       // (2.1) Credits sortieren
       // (2.1) Daten importieren

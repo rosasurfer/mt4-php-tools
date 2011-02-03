@@ -15,7 +15,7 @@ class UploadAccountHistoryActionForm extends ActionForm {
                                      'size'     => null);
 
    private /*string*/  $accountCompany;
-   private /*int*/     $accountNumber;
+   private /*string*/  $accountNumber;
    private /*float*/   $accountBalance;
    private /*mixed[]*/ $data;                               // geparster Inhalt der Datei
 
@@ -77,26 +77,26 @@ class UploadAccountHistoryActionForm extends ActionForm {
 
       $file =& $this->file;
       if (empty($file)) {
-         $request->setActionError('', '100: data file missing');
+         $request->setActionError('', '100: Data file missing');
       }
       elseif ($file['error'] > 0) {
-         $errors = array(UPLOAD_ERR_OK         => '101: success (UPLOAD_ERR_OK)'                                          ,
-                         UPLOAD_ERR_INI_SIZE   => '101: upload error, file too big (UPLOAD_ERR_INI_SIZE)'                 ,
-                         UPLOAD_ERR_FORM_SIZE  => '101: upload error, file too big (UPLOAD_ERR_FORM_SIZE)'                ,
-                         UPLOAD_ERR_PARTIAL    => '101: partial file upload error, try again (UPLOAD_ERR_PARTIAL)'        ,
-                         UPLOAD_ERR_NO_FILE    => '101: error while uploading the file (UPLOAD_ERR_NO_FILE)'              ,
-                         UPLOAD_ERR_NO_TMP_DIR => '101: read/write error while uploading the file (UPLOAD_ERR_NO_TMP_DIR)',
-                         UPLOAD_ERR_CANT_WRITE => '101: read/write error while uploading the file (UPLOAD_ERR_CANT_WRITE)',
-                         UPLOAD_ERR_EXTENSION  => '101: error while uploading the file (UPLOAD_ERR_EXTENSION)'            ,
+         $errors = array(UPLOAD_ERR_OK         => '101: Success (UPLOAD_ERR_OK)'                                          ,
+                         UPLOAD_ERR_INI_SIZE   => '101: Upload error, file too big (UPLOAD_ERR_INI_SIZE)'                 ,
+                         UPLOAD_ERR_FORM_SIZE  => '101: Upload error, file too big (UPLOAD_ERR_FORM_SIZE)'                ,
+                         UPLOAD_ERR_PARTIAL    => '101: Partial file upload error, try again (UPLOAD_ERR_PARTIAL)'        ,
+                         UPLOAD_ERR_NO_FILE    => '101: Error while uploading the file (UPLOAD_ERR_NO_FILE)'              ,
+                         UPLOAD_ERR_NO_TMP_DIR => '101: Read/write error while uploading the file (UPLOAD_ERR_NO_TMP_DIR)',
+                         UPLOAD_ERR_CANT_WRITE => '101: Read/write error while uploading the file (UPLOAD_ERR_CANT_WRITE)',
+                         UPLOAD_ERR_EXTENSION  => '101: Error while uploading the file (UPLOAD_ERR_EXTENSION)'            ,
          );
          $request->setActionError('', $errors[$file['error']]);
       }
       elseif ($request->getContentType()=='multipart/form-data' && !is_uploaded_file($file['tmp_name'])) {
          Logger ::log('Possible file upload attack:  is_uploaded_file("'.$file['tmp_name'].'") => false', L_WARN, __CLASS__);
-         $request->setActionError('', '101: error while uploading the file');
+         $request->setActionError('', '101: Error while uploading the file');
       }
       elseif ($file['size'] == 0) {
-         $request->setActionError('', '100: data file empty');
+         $request->setActionError('', '100: Data file empty');
       }
       if ($request->isActionError())
          return false;
@@ -105,7 +105,7 @@ class UploadAccountHistoryActionForm extends ActionForm {
       // Datei einlesen und syntaktisch validieren
       $lines = file($file['tmp_name']);
       if (sizeOf($lines) == 0) {
-         $request->setActionError('', '100: data file empty');
+         $request->setActionError('', '100: Data file empty');
          return false;
       }
       $sections = array('account'=> false, 'data'=> false);
@@ -132,21 +132,21 @@ class UploadAccountHistoryActionForm extends ActionForm {
          if ($section == 'account') {
             $values = explode("\t", $line);
             if (sizeOf($values) != 3) {
-               $request->setActionError('', '100: invalid file format (unexpected number of columns in line '.($i+1).')');
+               $request->setActionError('', '102: Invalid file format (unexpected number of columns in line '.($i+1).')');
                return false;
             }
             $this->accountCompany = trim($values[0]);
 
             $accountNumber = $values[1];
             if ($accountNumber !== (string)(int)$accountNumber) {
-               $request->setActionError('', '100: invalid file format (unexpected value in line '.($i+1).',2)');
+               $request->setActionError('', '103: Invalid file format (unexpected value in line '.($i+1).',2)');
                return false;
             }
-            $this->accountNumber = (int) $accountNumber;
+            $this->accountNumber = $accountNumber;
 
             $accountBalance = $values[2];
             if ($accountBalance != (string)(float)$accountBalance) {
-               $request->setActionError('', '100: invalid file format (unexpected value in line '.($i+1).',4)');
+               $request->setActionError('', '103: Invalid file format (unexpected value in line '.($i+1).',4)');
                return false;
             }
             $this->accountBalance = (float) $accountBalance;
@@ -160,7 +160,7 @@ class UploadAccountHistoryActionForm extends ActionForm {
          if ($section == 'data') {
             $values = explode("\t", $line);
             if (sizeOf($values) != 16) {
-               $request->setActionError('', '100: invalid file format (unexpected number of columns in line '.($i+1).')');
+               $request->setActionError('', '102: Invalid file format (unexpected number of columns in line '.($i+1).')');
                return false;
             }
 
@@ -182,19 +182,19 @@ class UploadAccountHistoryActionForm extends ActionForm {
             $comment        = trim($values[15]);
 
             if ($ticket!==(string)(int)$ticket || (int)$ticket <= 0) {
-               $request->setActionError('', '100: invalid file format (unexpected value in line '.($i+1).',1)');
+               $request->setActionError('', '103: Invalid file format (unexpected value in line '.($i+1).',1)');
                return false;
             }
             $ticket = (int) $ticket;
 
             if ($openTimestamp!==(string)(int)$openTimestamp || (int)$openTimestamp <= 0) {
-               $request->setActionError('', '100: invalid file format (unexpected value in line '.($i+1).',3)');
+               $request->setActionError('', '103: Invalid file format (unexpected value in line '.($i+1).',3)');
                return false;
             }
             $openTimestamp = (int) $openTimestamp;
 
             if ($type!==(string)(int)$type || !Validator ::isMT4OperationType((int) $type)) {
-               $request->setActionError('', '100: invalid file format (unexpected value in line '.($i+1).',5)');
+               $request->setActionError('', '103: Invalid file format (unexpected value in line '.($i+1).',5)');
                return false;
             }
             $type = (int) $type;
@@ -202,31 +202,31 @@ class UploadAccountHistoryActionForm extends ActionForm {
                continue;
 
             if ($units!==(string)(int)$units || (int)$units < 0) {
-               $request->setActionError('', '100: invalid file format (unexpected value in line '.($i+1).',6)');
+               $request->setActionError('', '103: Invalid file format (unexpected value in line '.($i+1).',6)');
                return false;
             }
             $units = (int) $units;
 
             if ($closeTimestamp!==(string)(int)$closeTimestamp || (int)$closeTimestamp <= 0) {
-               $request->setActionError('', '100: invalid file format (unexpected value in line '.($i+1).',10)');
+               $request->setActionError('', '103: Invalid file format (unexpected value in line '.($i+1).',10)');
                return false;
             }
             $closeTimestamp = (int) $closeTimestamp;
 
             if ($commission != (string)(float)$commission) {
-               $request->setActionError('', '100: invalid file format (unexpected value in line '.($i+1).',12)');
+               $request->setActionError('', '103: Invalid file format (unexpected value in line '.($i+1).',12)');
                return false;
             }
             $commission = (float) $commission;
 
             if ($swap != (string)(float)$swap) {
-               $request->setActionError('', '100: invalid file format (unexpected value in line '.($i+1).',13)');
+               $request->setActionError('', '103: Invalid file format (unexpected value in line '.($i+1).',13)');
                return false;
             }
             $swap = (float) $swap;
 
             if ($profit != (string)(float)$profit) {
-               $request->setActionError('', '100: invalid file format (unexpected value in line '.($i+1).',14)');
+               $request->setActionError('', '103: Invalid file format (unexpected value in line '.($i+1).',14)');
                return false;
             }
             $profit = (float) $profit;
@@ -237,30 +237,30 @@ class UploadAccountHistoryActionForm extends ActionForm {
                $closePrice  = null;
                $magicNumber = null;
                if ($units > 0) {
-                  $request->setActionError('', '100: invalid file format (unexpected value in line '.($i+1).',6)');
+                  $request->setActionError('', '103: Invalid file format (unexpected value in line '.($i+1).',6)');
                   return false;
                }
             }
             else {
                if (!Validator ::isInstrument($symbol)) {
-                  $request->setActionError('', '100: invalid file format (unexpected value in line '.($i+1).',7)');
+                  $request->setActionError('', '103: Invalid file format (unexpected value in line '.($i+1).',7)');
                   return false;
                }
 
                if ($openPrice!=(string)(float)$openPrice || (float)$openPrice <= 0) {
-                  $request->setActionError('', '100: invalid file format (unexpected value in line '.($i+1).',8)');
+                  $request->setActionError('', '103: Invalid file format (unexpected value in line '.($i+1).',8)');
                   return false;
                }
                $openPrice = (float) $openPrice;
 
                if ($closePrice!=(string)(float)$closePrice || (float)$closePrice <= 0) {
-                  $request->setActionError('', '100: invalid file format (unexpected value in line '.($i+1).',11)');
+                  $request->setActionError('', '103: Invalid file format (unexpected value in line '.($i+1).',11)');
                   return false;
                }
                $closePrice = (float) $closePrice;
 
                if (strLen($magicNumber) && ($magicNumber!==(string)(int)$magicNumber || (int)$magicNumber <= 0)) {
-                  $request->setActionError('', '100: invalid file format (unexpected value in line '.($i+1).',15)');
+                  $request->setActionError('', '103: Invalid file format (unexpected value in line '.($i+1).',15)');
                   return false;
                }
                $magicNumber = strLen($magicNumber) ? (int) $magicNumber : null;
