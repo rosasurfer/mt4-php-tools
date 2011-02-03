@@ -29,7 +29,7 @@ class UploadAccountHistoryAction extends Action {
       if ($form->validate()) {
          try {
             $updates = ImportHelper ::updateAccountHistory($form);
-            echo('200: '.($updates ? 'History successfully updated.':'History is up to date.')."\n");
+            echo('200: '.($updates ? "History successfully updated ($updates)":'History is up to date')."\n");
             return null;
          }
          catch (BusinessRuleException $ex) {

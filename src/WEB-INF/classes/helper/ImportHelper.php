@@ -178,8 +178,7 @@ class ImportHelper extends StaticClass {
       // (1.5) neue AccountBalance gegenprüfen
       if ($result['rows'] > 0)
          $account = Account ::dao()->refresh($account);
-      if ($form->getAccountBalance() != $account->getBalance())
-         throw new BusinessRuleException('Balance mismatch, more history data needed.');
+      if ($form->getAccountBalance() != $account->getBalance()) throw new BusinessRuleException("Balance mismatch, more history data needed ($result[rows])");
 
       // (2.1) Credits sortieren
       // (2.1) Daten importieren
