@@ -8,7 +8,7 @@ ini_set('include_path', realPath(dirName(__FILE__).'/../..'));       // WEB-INF-
 
 // PHPLib und Klassendefinitionen einbinden
 require(dirName(__FILE__).'/../../../../../php-lib/src/phpLib.php');
-include(dirName(__FILE__).'/../../include/defines.php');
+include(dirName(__FILE__).'/../../classes/defines.php');
 include(dirName(__FILE__).'/../../classes/classes.php');
 
 
