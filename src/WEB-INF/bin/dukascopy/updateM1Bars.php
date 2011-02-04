@@ -13,7 +13,7 @@ include(dirName(__FILE__).'/../../classes/defines.php');
 include(dirName(__FILE__).'/../../classes/classes.php');
 
 
-define('APPLICATION_NAME', 'fx.pewasoft');
+define('APPLICATION_NAME', 'myfx.pewasoft');
 
 
 // Beginn der Daten der einzelnen Pairs in den einzelnen Perioden (Zeitzone ist durchgehend GMT+0000, ohne Sommerzeit)

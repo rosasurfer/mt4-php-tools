@@ -12,7 +12,7 @@ include(dirName(__FILE__).'/../../classes/defines.php');
 include(dirName(__FILE__).'/../../classes/classes.php');
 
 
-define('APPLICATION_NAME', 'fx.pewasoft');
+define('APPLICATION_NAME', 'myfx.pewasoft');
 
 
 // Beginn der Tickdaten der einzelnen Pairs
