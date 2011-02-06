@@ -45,11 +45,13 @@ array_multisort($symbols, SORT_ASC, $periods, SORT_ASC, $matches);
 $files = $matches;
 
 
-// Dateien öffnen und Daten auslesen
+// Tabellenheader ausgeben und Zeilenformat definieren
 echoPre("File                   Symbol           Digits  Timesign             LastSync               Bars  From                 To");
 echoPre("-----------------------------------------------------------------------------------------------------------------------------------------");
 $lineFormat = '%-21s  %-15s    %d     %-19s  %-19s%8s  %-19s  %-19s';
 
+
+// Dateien öffnen und auslesen
 foreach ($files as $i => $filename) {
    $filesize = fileSize($filename);
    if ($filesize < 148) {
@@ -77,7 +79,6 @@ foreach ($files as $i => $filename) {
       $ratesTo      = gmDate('Y.m.d H:i:s', $rateinfoTo  ['time']);
       echoPre(sprintf($lineFormat, $filename, $symbolperiod, $digits, $timesign, $lastsync, number_format($bars), $ratesFrom, $ratesTo));
    }
-   //if ($i > 65) break;
 }
 exit();
 
