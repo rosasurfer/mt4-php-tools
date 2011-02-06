@@ -60,7 +60,7 @@ foreach ($files as $i => $filename) {
       $bars = floor(($filesize-148)/44);
 
       $hFile  = fOpen($filename, 'rb');
-      $header = unpack('Vversion/a64copyright/a12symbol/Vperiod/Vdigits/Vtimesign/Vlastsync/V13reserved', fRead($hFile, 148));
+      $header = unpack('Vversion/a64copyright/a12symbol/Vperiod/Vdigits/Vtimesign/Vlastsync/a13reserved', fRead($hFile, 148));
       $header['copyright'] = current(explode("\0", $header['copyright'], 2));
       $header['symbol'   ] = current(explode("\0", $header['symbol'   ], 2));
 
