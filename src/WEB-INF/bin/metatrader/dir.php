@@ -63,7 +63,7 @@ foreach ($files as $i => $filename) {
       $header['symbol'   ] = current(explode("\0", $header['symbol'   ], 2));
 
       $bars = floor(($filesize-148)/44);
-      fSeek($hFile, 148);
+
       $rateinfoFrom = unpack('Vtime/dopen/dlow/dhigh/dclose/dvol', fRead($hFile, 44));
       fSeek($hFile, 148 + 44*($bars-1));
       $rateinfoTo   = unpack('Vtime/dopen/dlow/dhigh/dclose/dvol', fRead($hFile, 44));
