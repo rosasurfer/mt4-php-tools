@@ -31,28 +31,24 @@ $files = glob($args[0], GLOB_ERR);
 // gefundene Dateien sortieren (by Symbol ASC, Periode ASC)
 $matches = array();
 foreach ($files as $name) {
-   if (preg_match('/^([^.]*\D)(\d+)(\.hst)$/i', $name, $match)) {
-      $match[1] = strToUpper($match[1]);
-      $match[3] = strToLower($match[3]);
-
-      $matches[] = $match[1].$match[2].$match[3];
-      $symbols[] =       $match[1];
+   if (preg_match('/^([^.]*\D)(\d+)(\.[^.]*)*\.hst$/i', $name, $match)) {
+      $symbols[] = strToUpper($match[1]);
       $periods[] = (int) $match[2];
+      $matches[] = $name;
    }
 }
 if (!$matches) exit("No history files found for \"$args[0]\"\n");
 array_multisort($symbols, SORT_ASC, $periods, SORT_ASC, $matches);
-$files = $matches;
 
 
 // Tabellenheader ausgeben und Zeilenformat definieren
 echoPre("File                   Symbol           Digits  Timesign             LastSync               Bars  From                 To");
-echoPre("-----------------------------------------------------------------------------------------------------------------------------------------");
+echoPre("------------------------------------------------------------------------------------------------------------------------------------------");
 $lineFormat = '%-21s  %-15s    %d     %-19s  %-19s%8s  %-19s  %-19s';
 
 
 // Dateien öffnen und auslesen
-foreach ($files as $i => $filename) {
+foreach ($matches as $i => $filename) {
    $filesize = fileSize($filename);
    if ($filesize < 148) {
       $invalid = true;
