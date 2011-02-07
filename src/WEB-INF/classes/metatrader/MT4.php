@@ -2,7 +2,7 @@
 /**
  * MT4HistoryFile
  *
- * Representiert ein HistoryFile im MT4-Format mit erweiterten Eigenschaften.
+ * Repräsentiert ein HistoryFile im MT4-Format mit erweiterten Eigenschaften.
  */
 class MT4HistoryFile extends Object {
 
