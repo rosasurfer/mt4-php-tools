@@ -12,6 +12,7 @@ $__classes['ViewHelper'                    ] = $dir.'helper/ViewHelper';
 
 $__classes['Account'                       ] = $dir.'model/Account';
 $__classes['AccountDAO'                    ] = $dir.'model/AccountDAO';
+$__classes['MT4HistoryFile'                ] = $dir.'model/MT4HistoryFile';
 
 unset($dir);
 ?>

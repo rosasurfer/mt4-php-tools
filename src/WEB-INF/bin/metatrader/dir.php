@@ -1,7 +1,7 @@
 #!/usr/bin/php -Cq
 <?php
 /**
- * Listed die Headerinformationen der in der Befehlszeile übergebenen History-Dateien auf.
+ * Listed die Headerinformationen der in der Befehlszeile angebenen History-Dateien auf.
  */
 set_time_limit(0);
 ini_set('include_path', realPath(dirName(__FILE__).'/..'));          // WEB-INF-Verzeichnis einbinden, damit Konfiguration gefunden wird
@@ -14,7 +14,6 @@ include(dirName(__FILE__).'/../classes/classes.php');
 define('APPLICATION_NAME', 'myfx.pewasoft');
 
 
-// -------------------------------------------------------------------------------------------------------------------------------------------------
 
 // Befehlszeilenparameter holen
 $args = getArgvArray();
@@ -58,9 +57,9 @@ foreach ($matches as $i => $filename) {
       $bars = floor(($filesize-148)/44);
 
       $hFile  = fOpen($filename, 'rb');
-      $header = unpack('Vversion/a64copyright/a12symbol/Vperiod/Vdigits/Vtimesign/Vlastsync/a13reserved', fRead($hFile, 148));
-      $header['copyright'] = current(explode("\0", $header['copyright'], 2));
-      $header['symbol'   ] = current(explode("\0", $header['symbol'   ], 2));
+      $header = unpack('Vversion/a64description/a12symbol/Vperiod/Vdigits/Vtimesign/Vlastsync/a13reserved', fRead($hFile, 148));
+      $header['description'] = current(explode("\0", $header['description'], 2));
+      $header['symbol'     ] = current(explode("\0", $header['symbol'     ], 2));
 
       $rateinfoFrom = unpack('Vtime/dopen/dlow/dhigh/dclose/dvol', fRead($hFile, 44));
       fSeek($hFile, 148 + 44*($bars-1));
@@ -76,13 +75,13 @@ foreach ($matches as $i => $filename) {
       echoPre(sprintf($lineFormat, $filename, $symbolperiod, $digits, $timesign, $lastsync, number_format($bars), $ratesFrom, $ratesTo));
    }
 }
-exit();
+exit(0);
 
 
 /*
 typedef struct _HISTORY_HEADER {
   int  version;            //     4      => hh[ 0]    // database version
-  char copyright[64];      //    64      => hh[ 1]    // copyright info
+  char description[64];    //    64      => hh[ 1]    // ie. copyright info
   char symbol[12];         //    12      => hh[17]    // symbol name
   int  period;             //     4      => hh[20]    // symbol timeframe
   int  digits;             //     4      => hh[21]    // amount of digits after decimal point
@@ -101,7 +100,8 @@ typedef struct _RATEINFO {
 } RATEINFO, ri;            //  = 44 byte = int[11]
 */
 
-// -------------------------------------------------------------------------------------------------------------------------------------------------
+
+// -- Funktionen -----------------------------------------------------------------------------------------------------------------------------------
 
 
 /**
@@ -127,10 +127,6 @@ function periodToString($period) {
  * Syntax error, print help screen.
  */
 function printUsage() {
-   print <<<EOD
-
-  Syntax: listHistoryFiles <file-pattern>
-
-EOD;
+   echo("\n  Syntax: mt4History <file-pattern>\n");
 }
 ?>
