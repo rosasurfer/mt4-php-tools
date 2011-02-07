@@ -13,29 +13,6 @@ include(dirName(__FILE__).'/../classes/classes.php');
 
 define('APPLICATION_NAME', 'myfx.pewasoft');
 
-// define('AH_TICKET             ',  0);
-// define('AH_OPENTIME           ',  1);
-// define('AH_OPENTIMESTAMP      ',  2);
-// define('AH_TYPEDESCRIPTION    ',  3);
-// define('AH_TYPE               ',  4);
-// define('AH_SIZE               ',  5);
-// define('AH_SYMBOL             ',  6);
-// define('AH_OPENPRICE          ',  7);
-// define('AH_STOPLOSS           ',  8);
-// define('AH_TAKEPROFIT         ',  9);
-// define('AH_CLOSETIME          ', 10);
-// define('AH_CLOSETIMESTAMP     ', 11);
-// define('AH_CLOSEPRICE         ', 12);
-// define('AH_EXPIRATIONTIME     ', 13);
-// define('AH_EXPIRATIONTIMESTAMP', 14);
-// define('AH_MAGICNUMBER        ', 15);
-// define('AH_COMMISSION         ', 16);
-// define('AH_SWAP               ', 17);
-// define('AH_NETPROFIT          ', 18);
-// define('AH_GROSSPROFIT        ', 19);
-// define('AH_BALANCE            ', 20);
-// define('AH_COMMENT            ', 21);
-
 
 // -- Funktionen -----------------------------------------------------------------------------------------------------------------------------------
 
@@ -93,19 +70,28 @@ foreach ($lines as $i => &$line) {
    $values = explode("\t", $line);                             // Spaltenanzahl prüfen
    if (sizeOf($values) != 22)
       exit("Invalid file format (unexpected number of columns in line ".($i+1).")\n");
-
                       // ServerTime , FxTime, Balance
-   $csvHistory[] = array($values[11], null  , $values[20]);    // alles Strings
+   $csvHistory[] = array($values[11], null  , $values[20]);    // Daten auslesen (alles Strings)
 }
 
 
-// existierende HST-M1-Datei öffnen bzw. neu anlegen
-$hstFile = $serverDirectory.DIRECTORY_SEPARATOR.$account.'.BA'.PERIOD_M1.'.hst';
-$hFile = fOpen($hstFile, 'ab+');
+$symbol   = $account.'.AB';                     // AB = AccountBalance
 
-$fileSize = fileSize($hstFile);
-echoPre($fileSize);
+
+// M1-HistoryFile öffnen bzw. neu anlegen
+$filename = $serverDirectory.DIRECTORY_SEPARATOR.$symbol.PERIOD_M1.'.hst';
+$hFile = fOpen($filename, 'ab+');
+
+if (fileSize($filename) < 148) {
+   $hh = array('description' => 'mt4.rosasurfer.com',
+               'symbol'      => $symbol,
+               'period'      => PERIOD_M1,
+               'digits'      => 2,
+               'timezone'    => 'America/New_York');
+   $bytes = MT4HistoryFileHelper ::writeHeader($hFile, $hh);
+   echoPre($bytes.' bytes written');
+}
 
 fClose($hFile);
-unlink($hstFile);
+//unlink($filename);
 ?>

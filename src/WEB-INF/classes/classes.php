@@ -7,12 +7,12 @@ $__classes['UploadAccountHistoryAction'    ] = $dir.'actions/UploadAccountHistor
 $__classes['UploadAccountHistoryActionForm'] = $dir.'actions/UploadAccountHistoryActionForm';
 
 $__classes['ImportHelper'                  ] = $dir.'helper/ImportHelper';
+$__classes['MT4HistoryFileHelper'          ] = $dir.'helper/MT4HistoryFileHelper';
 $__classes['Validator'                     ] = $dir.'helper/Validator';
 $__classes['ViewHelper'                    ] = $dir.'helper/ViewHelper';
 
 $__classes['Account'                       ] = $dir.'model/Account';
 $__classes['AccountDAO'                    ] = $dir.'model/AccountDAO';
-$__classes['MT4HistoryFile'                ] = $dir.'model/MT4HistoryFile';
 
 unset($dir);
 ?>
