@@ -7,7 +7,7 @@ $__classes['UploadAccountHistoryAction'    ] = $dir.'actions/UploadAccountHistor
 $__classes['UploadAccountHistoryActionForm'] = $dir.'actions/UploadAccountHistoryActionForm';
 
 $__classes['ImportHelper'                  ] = $dir.'helper/ImportHelper';
-$__classes['MT4HistoryFileHelper'          ] = $dir.'helper/MT4HistoryFileHelper';
+$__classes['MT4Helper'                     ] = $dir.'helper/MT4Helper';
 $__classes['Validator'                     ] = $dir.'helper/Validator';
 $__classes['ViewHelper'                    ] = $dir.'helper/ViewHelper';
 

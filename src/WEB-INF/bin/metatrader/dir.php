@@ -88,12 +88,15 @@ foreach ($matches as $i => $filename) {
       $header['description'] = current(explode("\0", $header['description'], 2));
       $header['symbol'     ] = current(explode("\0", $header['symbol'     ], 2));
 
+      $rateinfoFrom = $rateinfoTo = array('time' => 0);
+
       if ($bars) {
          $rateinfoFrom = unpack('Vtime/dopen/dlow/dhigh/dclose/dvol', fRead($hFile, 44));
-         fSeek($hFile, 148 + 44*($bars-1));
-         $rateinfoTo   = unpack('Vtime/dopen/dlow/dhigh/dclose/dvol', fRead($hFile, 44));
+         if ($bars > 1) {
+            fSeek($hFile, 148 + 44*($bars-1));
+            $rateinfoTo   = unpack('Vtime/dopen/dlow/dhigh/dclose/dvol', fRead($hFile, 44));
+         }
       }
-      else $rateinfoFrom = $rateinfoTo = array('time' => 0);
       fClose($hFile);
 
       extract($header);
