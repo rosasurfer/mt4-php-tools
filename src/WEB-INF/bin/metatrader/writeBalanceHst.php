@@ -50,14 +50,14 @@ switch (strToLower($parts[1])) {
 $serverDirectory = $parts[0].DIRECTORY_SEPARATOR.'history'.DIRECTORY_SEPARATOR.$serverDirectory;
 
 
-// Quelldaten einlesen
-$csvHistory = array();
-
+// Quelldaten aus CSV-Datei einlesen
+$csvHistory      = array();
 $serverTimezone  = new DateTimeZone($serverTimezone);
 $newYorkTimezone = new DateTimeZone('America/New_York');
 
-$lines = file($sourceFile);
+$lines         = file($sourceFile);
 $headerChecked = false;
+
 foreach ($lines as $i => &$line) {
    if ($line{0}=='#')                                                   // Kommentare überspringen
       continue;
@@ -79,10 +79,10 @@ foreach ($lines as $i => &$line) {
                          strToTime($date->format('Y-m-d H:i:s').' GMT'),   // GMT-Timestamp der FXT der ServerTime; FXT = America/New_York+0700
                          (float) $values[20]);                             // Balance
 }
-if (!$csvHistory)                                                       exit("Empty history file - nothing to do.\n");
+if (!$csvHistory)                                                       exit("Empty CSV history file - nothing to do.\n");
 
 
-// HistoryFile öffnen bzw. neu anlegen
+// MT4-HistoryFile öffnen bzw. neu anlegen
 $symbol   = $account.'.AB';                                             // AB = AccountBalance
 $filename = $serverDirectory.DIRECTORY_SEPARATOR.$symbol.PERIOD_M5.'.hst';
 

@@ -15,7 +15,7 @@ class MT4Helper extends StaticClass {
     *   int  digits;             //     4      => hh[21]    // amount of digits after decimal point
     *   int  syncMark;           //     4      => hh[22]    // server database sync marker (timestamp)
     *   int  prevSyncMark;       //     4      => hh[23]    // previous server database sync marker (timestamp)
-    *   int  periodFlag;         //     4      => hh[24]    // whether hh.period is a minute or a seconds timeframe
+    *   int  periodFlag;         //     4      => hh[24]    // whether hh.period is a minutes or a seconds timeframe
     *   int  timezone;           //     4      => hh[25]    // timezone id
     *   int  reserved[12];       //    44      => hh[26]
     * } HISTORY_HEADER, hh;      // = 148 byte = int[37]
