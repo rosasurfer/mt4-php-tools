@@ -146,7 +146,7 @@ for ($i=$n=0, $time=$startBar; $time <= $currentBar; $time+=$period) {
    }
    else {
       $O = $H = $L = $C;         // keine neuen Ticks, Close-Daten der Vorgängerbar übernehmen
-      $V = 1;
+      $V = 0;
    }
 
    // Bar schreiben
