@@ -5,16 +5,6 @@
 define('PROJECT_DIRECTORY', realPath(dirName(__FILE__).'/../../..'));
 
 
-// Wochentage
-define('SUNDAY'   ,      0);
-define('MONDAY'   ,      1);
-define('TUESDAY'  ,      2);
-define('WEDNESDAY',      3);
-define('THURSDAY' ,      4);
-define('FRIDAY'   ,      5);
-define('SATURDAY' ,      6);
-
-
 // Timeframe-Identifier
 define('PERIOD_M1' ,     1);     // 1 minute
 define('PERIOD_M5' ,     5);     // 5 minutes

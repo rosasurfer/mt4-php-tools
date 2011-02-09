@@ -63,7 +63,7 @@ class MT4Helper extends StaticClass {
    /**
     * Schreibt einen HistoryHeader mit den angegebenen Daten in die zum Handle gehörende Datei.
     *
-    * @param  resource $hFile - File-Handle, muß Schreibzugriff erlauben
+    * @param  resource $hFile - File-Handle eines History-Files, muß Schreibzugriff erlauben
     * @param  mixed[]  $hh    - zu setzende Headerdaten (fehlende Werte werden ggf. durch Defaultwerte ergänzt)
     *
     * @return int - Anzahl der geschriebenen Bytes
@@ -90,6 +90,29 @@ class MT4Helper extends StaticClass {
                                                      $hh['periodFlag'  ],     // V
                                                      $hh['timezone'    ],     // V
                                                      $hh['reserved'    ]));   // a44
+   }
+
+
+   /**
+    * Fügt eine einzelne Bar an die zum Handle gehörende Datei an.
+    *
+    * @param  resource $hFile - File-Handle eines History-Files, muß Schreibzugriff erlauben
+    * @param  int      $time  - Timestamp der Bar
+    * @param  float    $open
+    * @param  float    $high
+    * @param  float    $low
+    * @param  float    $close
+    * @param  int      $vol
+    *
+    * @return int - Anzahl der geschriebenen Bytes
+    */
+   public static function addHistoryBar($hFile, $time, $open, $high, $low, $close, $vol) {
+      if (getType($hFile) != 'resource') {
+         if (getType($hFile) == 'unknown type') throw new InvalidArgumentException('Invalid file handle in parameter $hFile: '.(int)$hFile);
+                                                throw new IllegalTypeException('Illegal type of argument $hFile: '.getType($hFile));
+      }
+
+      return fWrite($hFile, pack('Vddddd', $time, $open, $low, $high, $close, $vol));
    }
 }
 ?>
