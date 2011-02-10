@@ -121,6 +121,8 @@ echoPre('currentBar = '.gmDate('d.m.Y H:i:s', $currentBar));
 
 
 // Schleife über alle zu schreibenden Bars
+$O = $H = $L = $C = $V = 0;
+
 for ($i=$n=0, $time=$startBar; $time <= $currentBar; $time+=$period) {
    $dow = gmDate('w', $time);
    if ($dow==SATURDAY || $dow==SUNDAY)       // Wochenenden überspringen
@@ -138,14 +140,16 @@ for ($i=$n=0, $time=$startBar; $time <= $currentBar; $time+=$period) {
 
    // Bar formen
    if ($ticks) {
-      $O = $ticks[0];
-      $H = max($ticks);
-      $L = min($ticks);
       $V = sizeOf($ticks);
-      $C = $ticks[$V-1];
+      if ($C)
+         array_unshift($ticks, $C);          // korrekt: Open = prevClose (nicht wie MetaTrader, speichert nur Ticks)
+      $O = $ticks[0];                        // Die Bar muß den Zeitraum (nicht die Ticks) korrekt abbilden (z.B. 1 H1-Bar
+      $H = max($ticks);                      // versus 4 M15-Bars und ein einziger Tick in den letzten 10 Minuten).
+      $L = min($ticks);
+      $C = $ticks[sizeOf($ticks)-1];
    }
    else {
-      $O = $H = $L = $C;         // keine neuen Ticks, Close-Daten der Vorgängerbar übernehmen
+      $O = $H = $L = $C;                     // keine neuen Ticks, prevClose übernehmen
       $V = 0;
    }
 
