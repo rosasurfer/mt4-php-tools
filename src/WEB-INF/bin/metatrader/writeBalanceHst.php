@@ -33,21 +33,21 @@ $parts = explode(DIRECTORY_SEPARATOR.'experts'.DIRECTORY_SEPARATOR.'files'.DIREC
 if (sizeOf($parts) != 2)                                             exit("\n  Syntax: mt4WriteBalanceHst <history-file.csv>\n");
 
 switch (strToLower($parts[1])) {
-   case "alpari - demo (jacko) - 52256": { $account =     52256; $serverDirectory = 'AlpariUK-Demo'        ; $serverTimezone = 'Europe/Berlin'   ; break; }
-   case "alpari - demo - 839407"       : { $account =    839407; $serverDirectory = 'AlpariUK-Demo'        ; $serverTimezone = 'Europe/Berlin'   ; break; }
-   case "alpari - live - 818497"       : { $account =    818497; $serverDirectory = 'AlpariUK-Micro-2'     ; $serverTimezone = 'Europe/Berlin'   ; break; }
-   case "alpari - live - 860960"       : { $account =    860960; $serverDirectory = 'AlpariUK-Micro-1'     ; $serverTimezone = 'Europe/Berlin'   ; break; }
-   case "apbg - demo - 1106906"        : { $account =   1106906; $serverDirectory = 'APBGTrading-Server'   ; $serverTimezone = 'Europe/Berlin'   ; break; }
-   case "atc - demo - 8199"            : { $account =      8199; $serverDirectory = 'ATCBrokers-Demo'      ; $serverTimezone = 'America/New_York'; break; }
-   case "atc - live - 21529"           : { $account =     21529; $serverDirectory = 'ATCBrokers-Live'      ; $serverTimezone = 'America/New_York'; break; }
-   case "fb capital - demo - 9947"     : { $account =      9947; $serverDirectory = 'ForexBaltic-Server'   ; $serverTimezone = 'Europe/London'   ; break; }
-   case "mb trading - demo - 500452864": { $account = 500452864; $serverDirectory = 'MBTrading-Demo Server'; $serverTimezone = 'America/New_York'; break; }
-   case "sig - live - 52464"           : { $account =     52464; $serverDirectory = 'SIG-Real.com'         ; $serverTimezone = 'Europe/Sofia'    ; break; }
-   case "forex ltd - demo - 444868"    : { $account =    444868; $serverDirectory = 'FOREX-Server'         ; $serverTimezone = 'GMT'             ; break; }
+ //case 'alpariuk-demo'        : { $serverTimezone = 'Europe/Berlin'   ; $account =     52256; break; } // Jacko
+   case 'alpariuk-demo'        : { $serverTimezone = 'Europe/Berlin'   ; $account =    839407; break; }
+   case 'alpariuk-micro-2'     : { $serverTimezone = 'Europe/Berlin'   ; $account =    818497; break; }
+   case 'alpariuk-micro-1'     : { $serverTimezone = 'Europe/Berlin'   ; $account =    860960; break; }
+   case 'apbgtrading-server'   : { $serverTimezone = 'Europe/Berlin'   ; $account =   1106906; break; }
+   case 'atcbrokers-demo'      : { $serverTimezone = 'America/New_York'; $account =      8199; break; }
+   case 'atcbrokers-live'      : { $serverTimezone = 'America/New_York'; $account =     21529; break; }
+   case 'forexbaltic-server'   : { $serverTimezone = 'Europe/London'   ; $account =      9947; break; }
+   case 'mbtrading-demo server': { $serverTimezone = 'America/New_York'; $account = 500452864; break; }
+   case 'sig-real.com'         : { $serverTimezone = 'Europe/Kiev'     ; $account =     52464; break; }
+   case 'forex-server'         : { $serverTimezone = 'GMT'             ; $account =    444868; break; }
    default:
       exit("\n  Syntax: mt4WriteBalanceHst <history-file.csv>\n");
 }
-$serverDirectory = $parts[0].DIRECTORY_SEPARATOR.'history'.DIRECTORY_SEPARATOR.$serverDirectory;
+$serverDirectory = $parts[0].DIRECTORY_SEPARATOR.'history'.DIRECTORY_SEPARATOR.$parts[1];
 
 
 // Quelldaten aus CSV-Datei einlesen
