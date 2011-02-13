@@ -86,7 +86,7 @@ if (!$csvHistory)                                                          exit(
 
 // MT4-HistoryFile öffnen bzw. neu anlegen
 $symbol   = $account.'.AB';                                             // AB = AccountBalance
-$period   = PERIOD_H4;
+$period   = PERIOD_D1;
 $filename = $serverDirectory.DIRECTORY_SEPARATOR.$symbol.$period.'.hst';
 
 $hFile = fOpen($filename, 'ab+');
@@ -142,9 +142,9 @@ for ($i=$n=0, $time=$startBar; $time <= $currentBar; $time+=$period) {
    if ($ticks) {
       $V = sizeOf($ticks);
       if ($C)
-         array_unshift($ticks, $C);          // korrekt: Open = prevClose (nicht wie MetaTrader, speichert nur Ticks)
-      $O = $ticks[0];                        // Die Bar muß den Zeitraum (nicht die Ticks) korrekt abbilden (z.B. 1 H1-Bar
-      $H = max($ticks);                      // versus 4 M15-Bars und ein einziger Tick in den letzten 10 Minuten).
+         array_unshift($ticks, $C);          // korrekt: Open = prevClose (nicht wie MetaTrader, das nur Ticks speichert)
+      $O = $ticks[0];                        // Die Bar muß den Zeitraum und nicht die Ticks korrekt abbilden.
+      $H = max($ticks);                      // Zur Veranschaulichung: 1 H1-Bar versus 4 M15-Bars und ein einziger Tick in den letzten 10 Minuten
       $L = min($ticks);
       $C = $ticks[sizeOf($ticks)-1];
    }
