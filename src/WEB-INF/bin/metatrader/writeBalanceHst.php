@@ -86,7 +86,7 @@ if (!$csvHistory)                                                          exit(
 
 // MT4-HistoryFile öffnen bzw. neu anlegen
 $symbol   = $account.'.AB';                                             // AB = AccountBalance
-$period   = PERIOD_D1;
+$period   = PERIOD_M1;
 $filename = $serverDirectory.DIRECTORY_SEPARATOR.$symbol.$period.'.hst';
 
 $hFile = fOpen($filename, 'ab+');
