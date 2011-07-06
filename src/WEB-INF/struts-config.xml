@@ -18,12 +18,15 @@
       <mapping path="/uploadAccountHistory.php"  form="UploadAccountHistoryActionForm"  action="UploadAccountHistoryAction"  methods="get,post">
          <forward name="default"  include=".uploadAccountHistory"/>
       </mapping>
+
+      <mapping path="/uploadFTPConfiguration.php"  form="UploadFTPConfigurationActionForm"  action="UploadFTPConfigurationAction"  methods="post">
+      </mapping>
    </action-mappings>
 
 
    <!-- ================================================== Tiles ================================================== -->
    <tiles>
-      <tile name=".default" 					path="html/default.html"/>
+      <tile name=".default" 					path="html/default.html"             />
 		<tile name=".uploadAccountHistory"  path="html/uploadAccountHistory.html"/>
    </tiles>
 
