@@ -24,7 +24,7 @@ class UploadFTPConfigurationActionForm extends ActionForm {
     * Liest die übergebenen Request-Parameter in das Form-Objekt ein.
     */
    protected function populate(Request $request) {
-         // Hochgeladene Datei in temporäre Datei schreiben und dabei $_FILES-Array emulieren
+         // Hochgeladene Datei in temporäre Datei schreiben und $_FILES-Array emulieren
       if ($request->isPost() && $request->getContentType()=='text/plain') {
          $tmpName = tempNam(ini_get('upload_tmp_dir'), 'php.tmp');
          $hFile   = fOpen($tmpName, 'wb');
@@ -57,7 +57,7 @@ class UploadFTPConfigurationActionForm extends ActionForm {
          $request->setActionError('', '100: data file empty');
       }
       elseif (!preg_match('/^FTP\.\d{4,}\.set$/', $file['name'], $matches)) {
-         $request->setActionError('', '100: illegal file name');
+         $request->setActionError('name', '100: illegal file name');
       }
 
       return !$request->isActionError();

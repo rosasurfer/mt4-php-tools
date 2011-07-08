@@ -14,7 +14,14 @@ class UploadFTPConfigurationAction extends Action {
 
       if ($form->validate()) {
          try {
-            //$updates = ImportHelper ::updateAccountHistory($form);
+            // Dateinamen bestimmen
+            //PROJECT_DIRECTORY
+            $directory = Config ::get('strategies.ftp.directory');
+            $file      = $directory.DIRECTORY_SEPARATOR.$form->getFileName();
+
+
+
+
             echo("200\n");
             return null;
          }
