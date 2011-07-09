@@ -21,6 +21,8 @@
 
       <mapping path="/uploadFTPConfiguration.php"  form="UploadFTPConfigurationActionForm"  action="UploadFTPConfigurationAction"  methods="post">
       </mapping>
+      <mapping path="/downloadFTPConfiguration.php"  form="DownloadFTPConfigurationActionForm"  action="DownloadFTPConfigurationAction">
+      </mapping>
    </action-mappings>
 
 
