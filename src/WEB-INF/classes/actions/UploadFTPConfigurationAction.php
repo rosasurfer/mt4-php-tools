@@ -15,12 +15,19 @@ class UploadFTPConfigurationAction extends Action {
       if ($form->validate()) {
          try {
             // Dateinamen bestimmen
-            //PROJECT_DIRECTORY
-            $directory = Config ::get('strategies.ftp.directory');
-            $file      = $directory.DIRECTORY_SEPARATOR.$form->getFileName();
+            $company   = $form->getCompany();
+            $account   = $form->getAccount();
+            $symbol    = $form->getSymbol();
+            $directory = PROJECT_DIRECTORY.'/'.Config ::get('strategies.ftp.directory').'/'.$company.'/'.$account.'/'.$symbol;
+            $filename  = $directory.'/'.$form->getFileName();
 
+            // ggf. Zielverzeichnis erzeugen
+            if (is_file($directory) || (!is_writable($directory) && !mkDir($directory, 0700, true)))
+               throw new InvalidArgumentException('Can not write to directory: '.$directory);
 
-
+            // Datei speichern
+            if (!copy($form->getFileTmpName(), $filename))
+               throw new IOException('Error copying src="'.$form->getFileTmpName().'" to dest="'.$filename.'"');
 
             echo("200\n");
             return null;
