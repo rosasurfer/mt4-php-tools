@@ -30,11 +30,11 @@ class UploadFTPConfigurationActionForm extends ActionForm {
     * Liest die übergebenen Request-Parameter in das Form-Objekt ein.
     */
    protected function populate(Request $request) {
-         // Hochgeladene Datei in temporäre Datei schreiben und $_FILES-Array emulieren
+      // Hochgeladene Datei in temporäre Datei schreiben und $_FILES-Array emulieren
       if ($request->isPost() && $request->getContentType()=='text/plain') {
-         if (isSet($_REQUEST['company']) &&   is_string($_REQUEST['company'])) $this->company =  trim($_REQUEST['company']);
+         if (isSet($_REQUEST['company']) &&   is_string($_REQUEST['company'])) $this->company =       $_REQUEST['company'];
          if (isSet($_REQUEST['account']) && cType_digit($_REQUEST['account'])) $this->account = (int) $_REQUEST['account'];
-         if (isSet($_REQUEST['symbol' ]) &&   is_string($_REQUEST['symbol' ])) $this->symbol  =  trim($_REQUEST['symbol' ]);
+         if (isSet($_REQUEST['symbol' ]) &&   is_string($_REQUEST['symbol' ])) $this->symbol  =       $_REQUEST['symbol' ];
 
          $tmpName = tempNam(ini_get('upload_tmp_dir'), 'php.tmp');
          $hFile   = fOpen($tmpName, 'wb');

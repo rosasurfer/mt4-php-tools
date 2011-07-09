@@ -4,6 +4,7 @@
  */
 class DownloadFTPConfigurationAction extends Action {
 
+
    /**
     * Führt die Action aus.
     *
@@ -14,16 +15,28 @@ class DownloadFTPConfigurationAction extends Action {
 
       if ($form->validate()) {
          try {
-            // Dateinamen bestimmen
-            //PROJECT_DIRECTORY
-            $directory = Config ::get('strategies.ftp.directory');
-            $file      = $directory.DIRECTORY_SEPARATOR.$form->getFileName();
+            $company   = $form->getCompany();
+            $account   = $form->getAccount();
+            $symbol    = $form->getSymbol();
+            $sequence  = $form->getSequence();
+            $directory = PROJECT_DIRECTORY.'/'.Config ::get('strategies.ftp.directory').'/'.$company.'/'.$account.'/'.$symbol;
+            $file      = 'FTP.'.$sequence.'.set';
 
+            if (is_file($directory.'/'.$file)) {
+               $content = file_get_contents($directory.'/'.$file, false);
 
+               header('Content-Type: text/plain');
+               header('Content-Length: '.strLen($content));
+               header('Accept-Ranges: bytes');
+               header('Content-Disposition: attachment; filename="'.$file.'"');
+               header('Content-Description: '.$file);
+               header('Cache-Control: private');
+               header('Pragma: private');
 
-
-            echo("200\n");
-            return null;
+               echo($content);
+               return null;
+            }
+            $request->setActionError('', '404: File not found');
          }
          catch (Exception $ex) {
             Logger ::log('System not available', $ex, L_ERROR, __CLASS__);
