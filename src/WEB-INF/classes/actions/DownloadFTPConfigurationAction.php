@@ -19,7 +19,7 @@ class DownloadFTPConfigurationAction extends Action {
             $account   = $form->getAccount();
             $symbol    = $form->getSymbol();
             $sequence  = $form->getSequence();
-            $directory = PROJECT_DIRECTORY.'/'.Config ::get('strategies.ftp.directory').'/'.$company.'/'.$account.'/'.$symbol;
+            $directory = PROJECT_DIRECTORY.'/'.Config ::get('strategies.config.ftp').'/'.$company.'/'.$account.'/'.$symbol;
             $file      = 'FTP.'.$sequence.'.set';
 
             if (is_file($directory.'/'.$file)) {

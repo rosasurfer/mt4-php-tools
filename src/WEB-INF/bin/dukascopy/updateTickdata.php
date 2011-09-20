@@ -41,7 +41,7 @@ $data = array('AUDJPY' => strToTime('2007-03-30 16:01:15 GMT'),      // Zeitzone
 
 
 // Downloadverzeichnis bestimmen
-$downloadDirectory = realPath(PROJECT_DIRECTORY.'/'.Config ::get('dukascopy.download_directory'));
+$downloadDirectory = realPath(PROJECT_DIRECTORY.'/'.Config ::get('history.dukascopy'));
 
 
 $thisHour  = time();

@@ -231,7 +231,7 @@ function download($url, $path, $filename) {
    // Downloadverzeichnis bestimmen
    static $downloadDirectory = null;
    if ($downloadDirectory === null)
-      $downloadDirectory = realPath(PROJECT_DIRECTORY.'/'.Config ::get('dukascopy.download_directory'));
+      $downloadDirectory = realPath(PROJECT_DIRECTORY.'/'.Config ::get('history.dukascopy'));
 
    // bereits heruntergeladene Dateien überspringen
    $path = $downloadDirectory.PATH_SEPARATOR.$path;
