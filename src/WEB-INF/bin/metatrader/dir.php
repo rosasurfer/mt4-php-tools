@@ -50,8 +50,8 @@ if (!$args) {
 }
 
 
-// Dateien einlesen
-$files = glob($args[0], GLOB_ERR);
+// Dateien einlesen                    // TODO: glob() unterscheidet beim Patternmatching unter Windows fälschlich Groß-/Kleinschreibung
+$files = glob($args[0], GLOB_ERR);     //       Solution: glob() mit Directory-Funktionen emulieren
 
 
 // gefundene Dateien sortieren (order by Symbol ASC, Periode ASC)
