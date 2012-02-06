@@ -78,10 +78,10 @@ foreach ($data as $symbol => $start) {
       $request  = HttpRequest ::create()->setUrl($url);
       $response = CurlHttpClient ::create()->send($request);
       $status   = $response->getStatus();
-      if ($status!=200 && $status!=404) throw new RuntimeException("Unexpected HTTP status $status (".HttpResponse ::$sc[$status].") for url \"$url\"\n".printFormatted($response, true));
+      if ($status!=200 && $status!=404) throw new plRuntimeException("Unexpected HTTP status $status (".HttpResponse ::$sc[$status].") for url \"$url\"\n".printFormatted($response, true));
 
       // ggf. Zielverzeichnis anlegen
-      if (is_file($localPath) || (!is_writable($localPath) && !mkDir($localPath, 0700, true))) throw new RuntimeException("Can not write to directory \"$localPath\"");
+      if (is_file($localPath) || (!is_writable($localPath) && !mkDir($localPath, 0700, true))) throw new plRuntimeException("Can not write to directory \"$localPath\"");
 
       // Datei speichern ...
       if ($status == 200) {

@@ -245,10 +245,10 @@ function download($url, $path, $filename) {
    $request  = HttpRequest ::create()->setUrl($url);
    $response = CurlHttpClient ::create()->send($request);
    $status   = $response->getStatus();
-   if ($status!=200 && $status!=404) throw new RuntimeException("Unexpected HTTP status $status (".HttpResponse ::$sc[$status].") for url \"$url\"\n".printFormatted($response, true));
+   if ($status!=200 && $status!=404) throw new plRuntimeException("Unexpected HTTP status $status (".HttpResponse ::$sc[$status].") for url \"$url\"\n".printFormatted($response, true));
 
    // ggf. Zielverzeichnis anlegen
-   if (is_file($path) || (!is_writable($path) && !mkDir($path, 0700, true))) throw new RuntimeException("Can not write to directory \"$path\"");
+   if (is_file($path) || (!is_writable($path) && !mkDir($path, 0700, true))) throw new plRuntimeException("Can not write to directory \"$path\"");
 
    // Datei speichern ...
    if ($status == 200) {
