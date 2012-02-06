@@ -75,7 +75,7 @@ foreach ($lines as $i => &$line) {
    $date->setTimezone($newYorkTimezone);
    $date->modify('+7 hours');
    $dow = $date->format('w');
-   if ($dow==SATURDAY || $dow==SUNDAY) throw new RuntimeException('Timestamp error for ticket #'.$values[0].': '.gmDate('"Y-m-d H:i:s \F\X\T" \i\s \a l', $values[11]));
+   if ($dow==SATURDAY || $dow==SUNDAY) throw new plRuntimeException('Timestamp error for ticket #'.$values[0].': '.gmDate('"Y-m-d H:i:s \F\X\T" \i\s \a l', $values[11]));
 
    $csvHistory[] = array((int) $values[11],                                // ServerTime
                          strToTime($date->format('Y-m-d H:i:s \G\M\T')),   // GMT-Timestamp der FXT der ServerTime; FXT = America/New_York+0700

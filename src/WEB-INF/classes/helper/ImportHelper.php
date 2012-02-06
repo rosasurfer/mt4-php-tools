@@ -16,7 +16,7 @@ class ImportHelper extends StaticClass {
       // Account suchen
       $company = Account ::normalizeCompanyName($form->getAccountCompany());
       $account = Account ::dao()->getByCompanyAndNumber($company, $form->getAccountNumber());
-      if (!$account) throw new InvalidArgumentException('unknown_account');
+      if (!$account) throw new plInvalidArgumentException('unknown_account');
 
       // Transaktionen und Credits trennen
       $transactions = $credits = null;
@@ -54,19 +54,19 @@ class ImportHelper extends StaticClass {
             else {
                $row[AH_TYPE] = OP_TRANSFER;
             }
-            if ($row[AH_OPENTIME] != $row[AH_CLOSETIME]) throw new InvalidArgumentException('ticket #'.$row[AH_TICKET].' - illegal balance times: open = "'.gmDate('Y.m.d H:i:s', $row[AH_OPENTIME]).'", close = "'.gmDate('Y.m.d H:i:s', $row[AH_CLOSETIME]).'"');
+            if ($row[AH_OPENTIME] != $row[AH_CLOSETIME]) throw new plInvalidArgumentException('ticket #'.$row[AH_TICKET].' - illegal balance times: open = "'.gmDate('Y.m.d H:i:s', $row[AH_OPENTIME]).'", close = "'.gmDate('Y.m.d H:i:s', $row[AH_CLOSETIME]).'"');
             continue;
          }
 
          // Hedges korrigieren
          if ($row[AH_UNITS] == 0) {
             // TODO: Prüfen, wie sich OrderComment() bei partiellem Close und/oder custom comments verhält.
-            if (!String ::startsWith($row[AH_COMMENT], 'close hedge by #', true)) throw new InvalidArgumentException('ticket #'.$row[AH_TICKET].' - unknown comment for assumed hedged position: "'.$row[AH_COMMENT].'"');
+            if (!String ::startsWith($row[AH_COMMENT], 'close hedge by #', true)) throw new plInvalidArgumentException('ticket #'.$row[AH_TICKET].' - unknown comment for assumed hedged position: "'.$row[AH_COMMENT].'"');
 
             // Gegenstück suchen und alle Orderdaten in der 1. Order speichern
             $ticket = (int) subStr($row[AH_COMMENT], 16);            // (int) schneidet ggf. auf die Ticket# folgende nicht-numerische Zeichen ab
-            if ($ticket == 0)                                        throw new InvalidArgumentException('ticket #'.$row[AH_TICKET].' - unknown comment for assumed hedged position: "'.$row[AH_COMMENT].'"');
-            if (($n=array_search($ticket, $tickets, true)) == false) throw new InvalidArgumentException('cannot find counterpart for hedged position #'.$row[AH_TICKET].': "'.$row[AH_COMMENT].'"');
+            if ($ticket == 0)                                        throw new plInvalidArgumentException('ticket #'.$row[AH_TICKET].' - unknown comment for assumed hedged position: "'.$row[AH_COMMENT].'"');
+            if (($n=array_search($ticket, $tickets, true)) == false) throw new plInvalidArgumentException('cannot find counterpart for hedged position #'.$row[AH_TICKET].': "'.$row[AH_COMMENT].'"');
 
             $first  = min($i, $n);
             $second = max($i, $n);
@@ -85,7 +85,7 @@ class ImportHelper extends StaticClass {
             if ($i == $second)
                continue;
          }
-         if ($row[AH_OPENTIME] >= $row[AH_CLOSETIME]) throw new InvalidArgumentException('ticket #'.$row[AH_TICKET].' - illegal order times: open = "'.gmDate('Y.m.d H:i:s', $row[AH_OPENTIME]).'", close = "'.gmDate('Y.m.d H:i:s', $row[AH_CLOSETIME]).'"');
+         if ($row[AH_OPENTIME] >= $row[AH_CLOSETIME]) throw new plInvalidArgumentException('ticket #'.$row[AH_TICKET].' - illegal order times: open = "'.gmDate('Y.m.d H:i:s', $row[AH_OPENTIME]).'", close = "'.gmDate('Y.m.d H:i:s', $row[AH_CLOSETIME]).'"');
       }
 
       // (1.3) Transaktionen für SQL-Import formatieren und in die hochgeladene Datei zurückschreiben

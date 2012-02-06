@@ -38,7 +38,7 @@ class UploadAccountHistoryAction extends Action {
                else           echo("201: History successfully updated.\n");         // 201
                return null;
             }
-            catch (InvalidArgumentException $ex) {}
+            catch (plInvalidArgumentException $ex) {}
             catch (BusinessRuleException    $ex) {}
             $key = $ex->getMessage();
             if (!isSet(self::$messages[$key]))

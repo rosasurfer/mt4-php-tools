@@ -23,7 +23,7 @@ class UploadFTPConfigurationAction extends Action {
 
             // ggf. Zielverzeichnis erzeugen
             if (is_file($directory) || (!is_writable($directory) && !mkDir($directory, 0700, true)))
-               throw new InvalidArgumentException('Can not write to directory: '.$directory);
+               throw new plInvalidArgumentException('Can not write to directory: '.$directory);
 
             // Datei speichern
             if (!copy($form->getFileTmpName(), $filename))
