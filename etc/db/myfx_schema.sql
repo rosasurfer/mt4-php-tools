@@ -1,6 +1,6 @@
 /*
 Created     23.05.2009
-Modified    04.02.2011
+Modified    11.03.2012
 Project     MyFX
 Model       
 Company     
@@ -208,7 +208,7 @@ delimiter ;
 
 
 -- Daten einlesen
-source data.sql;
+source myfx_data.sql;
 
 commit;
 
