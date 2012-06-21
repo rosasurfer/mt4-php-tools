@@ -248,7 +248,9 @@ function download($url, $path, $filename) {
    if ($status!=200 && $status!=404) throw new plRuntimeException("Unexpected HTTP status $status (".HttpResponse ::$sc[$status].") for url \"$url\"\n".printFormatted($response, true));
 
    // ggf. Zielverzeichnis anlegen
-   if (is_file($path) || (!is_writable($path) && !mkDir($path, 0700, true))) throw new plRuntimeException("Can not write to directory \"$path\"");
+   if (is_file($path))                              throw new plInvalidArgumentException('Cannot write to directory "'.$path.'" (is file)');
+   if (!is_dir($path) && !mkDir($path, 0700, true)) throw new plInvalidArgumentException('Cannot create directory "'.$path.'"');
+   if (!is_writable($path))                         throw new plInvalidArgumentException('Cannot write to directory "'.$path.'"');
 
    // Datei speichern ...
    if ($status == 200) {

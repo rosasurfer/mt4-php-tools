@@ -22,12 +22,12 @@ class UploadFTPConfigurationAction extends Action {
             $filename  = $directory.'/'.$form->getFileName();
 
             // ggf. Zielverzeichnis erzeugen
-            if (is_file($directory) || (!is_writable($directory) && !mkDir($directory, 0700, true)))
-               throw new plInvalidArgumentException('Can not write to directory: '.$directory);
+            if (is_file($directory))                                   throw new plInvalidArgumentException('Cannot write to directory "'.$directory.'" (is file)');
+            if (!is_dir($directory) && !mkDir($directory, 0700, true)) throw new plInvalidArgumentException('Cannot create directory "'.$directory.'"');
+            if (!is_writable($directory))                              throw new plInvalidArgumentException('Cannot write to directory "'.$directory.'"');
 
             // Datei speichern
-            if (!copy($form->getFileTmpName(), $filename))
-               throw new IOException('Error copying src="'.$form->getFileTmpName().'" to dest="'.$filename.'"');
+            if (!copy($form->getFileTmpName(), $filename)) throw new IOException('Error copying src="'.$form->getFileTmpName().'" to dest="'.$filename.'"');
 
             echo("200\n");
             return null;
