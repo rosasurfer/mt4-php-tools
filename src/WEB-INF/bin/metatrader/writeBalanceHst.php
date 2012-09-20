@@ -1,7 +1,7 @@
 #!/usr/bin/php -Cq
 <?php
 /**
- * Listed die Headerinformationen der in der Befehlszeile übergebenen History-Dateien auf.
+ *
  */
 set_time_limit(0);
 ini_set('include_path', realPath(dirName(__FILE__).'/..'));          // WEB-INF-Verzeichnis einbinden, damit Konfiguration gefunden wird
