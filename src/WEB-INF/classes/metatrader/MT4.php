@@ -9,7 +9,7 @@ class MT4Helper extends StaticClass {
     *
     * typedef struct _HISTORY_HEADER {
     *   int  version;            //     4      => hh[ 0]    // database version
-    *   char description[64];    //    64      => hh[ 1]    // ie. copyright info
+    *   char description[64];    //    64      => hh[ 1]    // copyright info
     *   char symbol[12];         //    12      => hh[17]    // symbol name
     *   int  period;             //     4      => hh[20]    // symbol timeframe
     *   int  digits;             //     4      => hh[21]    // amount of digits after decimal point
