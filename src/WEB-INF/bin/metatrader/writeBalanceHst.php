@@ -6,12 +6,13 @@
 set_time_limit(0);
 ini_set('include_path', realPath(dirName(__FILE__).'/..'));          // WEB-INF-Verzeichnis einbinden, damit Konfiguration gefunden wird
 
+define('APPLICATION_NAME', 'myfx.pewasoft');
+define('APPLICATION_ROOT', join(DIRECTORY_SEPARATOR, array_slice(explode(DIRECTORY_SEPARATOR, dirName(__FILE__)), 0, -2)));
+
 // PHPLib und Klassendefinitionen einbinden
 require(dirName(__FILE__).'/../../../../php-lib/src/phpLib.php');
 include(dirName(__FILE__).'/../classes/defines.php');
 include(dirName(__FILE__).'/../classes/classes.php');
-
-define('APPLICATION_NAME', 'myfx.pewasoft');
 
 
 // -- Funktionen -----------------------------------------------------------------------------------------------------------------------------------
@@ -22,7 +23,7 @@ define('APPLICATION_NAME', 'myfx.pewasoft');
 
 
 // Befehlszeilenargumente holen, auswerten und alle notwendigen Pfade und Dateinamen bestimmen
-$args = getArgvArray();
+$args = array_slice($_SERVER['argv'], 1);
 if (!$args || !is_file($args[0]))                                    exit("\n  Syntax: mt4WriteBalanceHst <history-file.csv>\n");
 
 $sourceFile = realPath($args[0]);
