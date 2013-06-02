@@ -1,7 +1,7 @@
 #!/usr/bin/php -Cq
 <?php
 /**
- * Listed die Headerinformationen der in der Befehlszeile angebenen History-Dateien auf.
+ * Listed die Headerinformationen der angebenen MT4-Historydateien auf.
  */
 set_time_limit(0);
 ini_set('include_path', realPath(dirName(__FILE__).'/..'));          // WEB-INF-Verzeichnis einbinden, damit Konfiguration gefunden wird
@@ -68,10 +68,12 @@ if (!$matches) exit("No history files found for \"$args[0]\"\n");
 array_multisort($symbols, SORT_ASC, $periods, SORT_ASC, $matches);
 
 
-// Tabellenheader ausgeben und Zeilenformat definieren
-echoPre("File                   Symbol           Digits  Timesign             LastSync               Bars  From                 To");
-echoPre("------------------------------------------------------------------------------------------------------------------------------------------");
-$lineFormat = '%-21s  %-15s    %d     %-19s  %-19s%8s  %-19s  %-19s';
+// Tabellenheader ausgeben
+echoPre("Symbol           Digits  Timesign             LastSync                  Bars  From                 To");
+echoPre("----------------------------------------------------------------------------------------------------------------------");
+
+// Zeilenformat definieren
+$lineFormat = '%-15s    %d     %-19s  %-19s  %9s  %-19s  %-19s';
 
 
 // Dateien öffnen und auslesen
@@ -106,7 +108,7 @@ foreach ($matches as $i => $filename) {
       $lastsync     = $lastsync ? date('Y.m.d H:i:s', $lastsync):'';
       $ratesFrom    = $rateinfoFrom['time'] ? gmDate('Y.m.d H:i:s', $rateinfoFrom['time']):'';
       $ratesTo      = $rateinfoTo  ['time'] ? gmDate('Y.m.d H:i:s', $rateinfoTo  ['time']):'';
-      echoPre(sprintf($lineFormat, $filename, $symbolperiod, $digits, $timesign, $lastsync, number_format($bars), $ratesFrom, $ratesTo));
+      echoPre(sprintf($lineFormat, $symbolperiod, $digits, $timesign, $lastsync, number_format($bars), $ratesFrom, $ratesTo));
    }
 }
 ?>
