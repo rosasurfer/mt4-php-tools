@@ -16,9 +16,6 @@ include(dirName(__FILE__).'/../include/defines.php');
 include(dirName(__FILE__).'/../classes/classes.php');
 
 
-// -- Funktionen -----------------------------------------------------------------------------------------------------------------------------------
-
-
 /**
  * Gibt die lesbare Version eines Timeframe-Codes zurück.
  *
