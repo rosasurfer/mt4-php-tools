@@ -12,7 +12,7 @@ define('APPLICATION_ROOT', join(DIRECTORY_SEPARATOR, array_slice(explode(DIRECTO
 
 // PHPLib, Definitionen und Klassen einbinden
 require(dirName(__FILE__).'/../../../../php-lib/src/phpLib.php');
-include(dirName(__FILE__).'/../defines.php');
+include(dirName(__FILE__).'/../include/defines.php');
 include(dirName(__FILE__).'/../classes/classes.php');
 
 
