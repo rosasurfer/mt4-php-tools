@@ -1,7 +1,7 @@
 #!/usr/bin/php -Cq
 <?php
 /**
- * Aktualisiert die vorhandenen Dukascopy-Tickdaten.
+ * Aktualisiert die vorhandenen Dukascopy-Tickdaten im aktuellen Verzeichnis.
  *
  */
 set_time_limit(0);

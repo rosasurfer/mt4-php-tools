@@ -1,7 +1,7 @@
 #!/usr/bin/php -Cq
 <?php
 /**
- * Aktualisiert die vorhandenen Dukascopy-M1-Daten.
+ * Aktualisiert die vorhandenen Dukascopy-M1-Daten im aktuellen Verzeichnis.
  *
  */
 set_time_limit(0);

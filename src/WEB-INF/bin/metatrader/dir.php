@@ -11,9 +11,9 @@ define('APPLICATION_NAME', 'myfx.pewasoft');                         // APPLICAT
 define('APPLICATION_ROOT', join(DIRECTORY_SEPARATOR, array_slice(explode(DIRECTORY_SEPARATOR, dirName(__FILE__)), 0, -2)));
 
 // PHPLib, Definitionen und Klassen einbinden
-require(dirName(__FILE__).'/../../../../php-lib/src/phpLib.php');
-include(dirName(__FILE__).'/../include/defines.php');
-include(dirName(__FILE__).'/../classes/classes.php');
+require(APPLICATION_ROOT.'/../../php-lib/src/phpLib.php');
+include(APPLICATION_ROOT.'/WEB-INF/include/defines.php');
+include(APPLICATION_ROOT.'/WEB-INF/classes/classes.php');
 
 
 /**
