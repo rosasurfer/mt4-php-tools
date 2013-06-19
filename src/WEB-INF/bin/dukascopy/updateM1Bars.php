@@ -1,19 +1,19 @@
 #!/usr/bin/php -Cq
 <?php
 /**
- * Lädt periodische Dukascopy-Daten (S10, M1, M5, M10, M15, M30, H1-Candles). Die Dukascopy-Timeframes größer als H1
- * sind wegen fehlerhafter Zeitzoneneinstellung unbrauchbar.
+ * Aktualisiert die vorhandenen Dukascopy-M1-Daten.
+ *
  */
 set_time_limit(0);
-ini_set('include_path', realPath(dirName(__FILE__).'/../..'));       // WEB-INF-Verzeichnis einbinden, damit Konfigurationsdatei gefunden wird
+ini_set('include_path', realPath(dirName(__FILE__).'/../..'));       // Konfiguration im WEB-INF-Verzeichnis einbinden
 
-// PHPLib und Klassendefinitionen einbinden
-require(dirName(__FILE__).'/../../../../../php-lib/src/phpLib.php');
-include(dirName(__FILE__).'/../../classes/defines.php');
-include(dirName(__FILE__).'/../../classes/classes.php');
+define('APPLICATION_NAME', 'myfx.pewasoft');                         // APPLICATION_ROOT: {project}/src
+define('APPLICATION_ROOT', join(DIRECTORY_SEPARATOR, array_slice(explode(DIRECTORY_SEPARATOR, dirName(__FILE__)), 0, -3)));
 
-
-define('APPLICATION_NAME', 'myfx.pewasoft');
+// PHPLib, Definitionen und Klassen einbinden
+require(APPLICATION_ROOT.'/../../php-lib/src/phpLib.php');
+include(APPLICATION_ROOT.'/WEB-INF/include/defines.php');
+include(APPLICATION_ROOT.'/WEB-INF/classes/classes.php');
 
 
 // Beginn der Daten der einzelnen Pairs in den einzelnen Perioden (Zeitzone ist durchgehend GMT+0000, ohne Sommerzeit)
