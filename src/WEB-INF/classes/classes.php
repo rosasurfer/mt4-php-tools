@@ -12,6 +12,7 @@ $__classes['UploadFTPConfigurationActionForm'  ] = $dir.'actions/UploadFTPConfig
 
 $__classes['ImportHelper'                      ] = $dir.'helper/ImportHelper';
 $__classes['MT4Helper'                         ] = $dir.'helper/MT4Helper';
+$__classes['MyFXHelper'                        ] = $dir.'helper/MyFXHelper';
 $__classes['Validator'                         ] = $dir.'helper/Validator';
 $__classes['ViewHelper'                        ] = $dir.'helper/ViewHelper';
 

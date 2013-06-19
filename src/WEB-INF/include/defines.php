@@ -2,8 +2,6 @@
 /**
  * Globale Konstanten.
  */
-define('PROJECT_DIRECTORY', realPath(dirName(__FILE__).'/../../..'));
-
 
 // Timeframe-Identifier
 define('PERIOD_M1' ,     1);     // 1 minute

@@ -18,7 +18,7 @@ class UploadFTPConfigurationAction extends Action {
             $company   = $form->getCompany();
             $account   = $form->getAccount();
             $symbol    = $form->getSymbol();
-            $directory = PROJECT_DIRECTORY.'/'.Config ::get('strategies.config.ftp').'/'.$company.'/'.$account.'/'.$symbol;
+            $directory = MyFXHelper ::getAbsoluteConfigPath('strategies.config.ftp').'/'.$company.'/'.$account.'/'.$symbol;
             $filename  = $directory.'/'.$form->getFileName();
 
             // ggf. Zielverzeichnis erzeugen
