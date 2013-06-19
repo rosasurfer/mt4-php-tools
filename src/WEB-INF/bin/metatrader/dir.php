@@ -27,15 +27,15 @@ include(dirName(__FILE__).'/../classes/classes.php');
  */
 function periodToString($period) {
    switch ($period) {
-      case PERIOD_M1  : return("M1" );     //     1  1 minute
-      case PERIOD_M5  : return("M5" );     //     5  5 minutes
-      case PERIOD_M15 : return("M15");     //    15  15 minutes
-      case PERIOD_M30 : return("M30");     //    30  30 minutes
-      case PERIOD_H1  : return("H1" );     //    60  1 hour
-      case PERIOD_H4  : return("H4" );     //   240  4 hour
-      case PERIOD_D1  : return("D1" );     //  1440  daily
-      case PERIOD_W1  : return("W1" );     // 10080  weekly
-      case PERIOD_MN1 : return("MN1");     // 43200  monthly
+      case PERIOD_M1  : return("M1" );    //     1  1 minute
+      case PERIOD_M5  : return("M5" );    //     5  5 minutes
+      case PERIOD_M15 : return("M15");    //    15  15 minutes
+      case PERIOD_M30 : return("M30");    //    30  30 minutes
+      case PERIOD_H1  : return("H1" );    //    60  1 hour
+      case PERIOD_H4  : return("H4" );    //   240  4 hour
+      case PERIOD_D1  : return("D1" );    //  1440  daily
+      case PERIOD_W1  : return("W1" );    // 10080  weekly
+      case PERIOD_MN1 : return("MN1");    // 43200  monthly
    }
    return("$period");
 }
@@ -47,7 +47,7 @@ function periodToString($period) {
 // Befehlszeilenparameter holen
 $args = array_slice($_SERVER['argv'], 1);
 if (!$args) {
-   exit("\n  Syntax: mt4History <file-pattern>\n");
+   exit("\n  Syntax: ".baseName($_SERVER['PHP_SELF'])." <file-pattern>\n");
 }
 
 
