@@ -2,16 +2,17 @@
 <?php
 /**
  *
+ *
  */
 set_time_limit(0);
-ini_set('include_path', realPath(dirName(__FILE__).'/..'));          // WEB-INF-Verzeichnis einbinden, damit Konfiguration gefunden wird
+ini_set('include_path', realPath(dirName(__FILE__).'/..'));          // Konfiguration im WEB-INF-Verzeichnis einbinden
 
-define('APPLICATION_NAME', 'myfx.pewasoft');
+define('APPLICATION_NAME', 'myfx.pewasoft');                         // APPLICATION_ROOT: {project}/src
 define('APPLICATION_ROOT', join(DIRECTORY_SEPARATOR, array_slice(explode(DIRECTORY_SEPARATOR, dirName(__FILE__)), 0, -2)));
 
-// PHPLib und Klassendefinitionen einbinden
+// PHPLib, Definitionen und Klassen einbinden
 require(dirName(__FILE__).'/../../../../php-lib/src/phpLib.php');
-include(dirName(__FILE__).'/../classes/defines.php');
+include(dirName(__FILE__).'/../defines.php');
 include(dirName(__FILE__).'/../classes/classes.php');
 
 
@@ -24,14 +25,14 @@ include(dirName(__FILE__).'/../classes/classes.php');
 
 // Befehlszeilenargumente holen, auswerten und alle notwendigen Pfade und Dateinamen bestimmen
 $args = array_slice($_SERVER['argv'], 1);
-if (!$args || !is_file($args[0]))                                    exit("\n  Syntax: mt4WriteBalanceHst <history-file.csv>\n");
+if (!$args || !is_file($args[0]))                                    exit("\n  Syntax: ".baseName($_SERVER['PHP_SELF'])." <history-file.csv>\n");
 
 $sourceFile = realPath($args[0]);
 $pathInfo   = pathInfo($sourceFile);
-if (!isSet($pathInfo['extension']) || $pathInfo['extension']!='csv') exit("\n  Syntax: mt4WriteBalanceHst <history-file.csv>\n");
+if (!isSet($pathInfo['extension']) || $pathInfo['extension']!='csv') exit("\n  Syntax: ".baseName($_SERVER['PHP_SELF'])." <history-file.csv>\n");
 
 $parts = explode(DIRECTORY_SEPARATOR.'experts'.DIRECTORY_SEPARATOR.'files'.DIRECTORY_SEPARATOR, $pathInfo['dirname']);
-if (sizeOf($parts) != 2)                                             exit("\n  Syntax: mt4WriteBalanceHst <history-file.csv>\n");
+if (sizeOf($parts) != 2)                                             exit("\n  Syntax: ".baseName($_SERVER['PHP_SELF'])." <history-file.csv>\n");
 
 switch (strToLower($parts[1])) {
  //case 'alpariuk-demo'        : { $serverTimezone = 'Europe/Berlin'   ; $account =     52256; break; } // Jacko
