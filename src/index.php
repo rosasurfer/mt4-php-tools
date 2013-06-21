@@ -1,4 +1,4 @@
-<?php
+<?
 /**
  * Zentraler HTTP-Request-Handler
  */

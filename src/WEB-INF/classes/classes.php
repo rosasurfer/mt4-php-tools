@@ -1,4 +1,4 @@
-<?php
+<?
 // Klassendefinitionen
 // -------------------
 $dir = dirName(__FILE__).DIRECTORY_SEPARATOR;
