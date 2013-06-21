@@ -1,12 +1,8 @@
 <?
-define('APPLICATION_NAME', 'myfx.pewasoft');
-define('APPLICATION_ROOT',  dirName(__FILE__));                      // APPLICATION_ROOT: {project}/src
-
-// PHPLib, Definitionen und Klassen einbinden
-require(dirName(__FILE__).'/../../php-lib/src/phpLib.php');
-include(dirName(__FILE__).'/WEB-INF/include/defines.php');
-include(dirName(__FILE__).'/WEB-INF/classes/classes.php');
-
+/**
+ * Zentraler HTTP-Request-Handler
+ */
+require(dirName(__FILE__).'/WEB-INF/config.php');
 
 FrontController ::processRequest();
 ?>
