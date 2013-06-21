@@ -1,19 +1,9 @@
 #!/usr/bin/php -Cq
 <?php
 /**
- * Gibt ein Verzeichnislisting für MT4-Historydateien aus.
- *
+ * Verzeichnislisting für MT4-Historydateien
  */
-set_time_limit(0);
-ini_set('include_path', realPath(dirName(__FILE__).'/..'));          // Konfiguration im WEB-INF-Verzeichnis einbinden
-
-define('APPLICATION_NAME', 'myfx.pewasoft');                         // APPLICATION_ROOT: {project}/src
-define('APPLICATION_ROOT', join(DIRECTORY_SEPARATOR, array_slice(explode(DIRECTORY_SEPARATOR, dirName(__FILE__)), 0, -2)));
-
-// PHPLib, Definitionen und Klassen einbinden
-require(APPLICATION_ROOT.'/../../php-lib/src/phpLib.php');
-include(APPLICATION_ROOT.'/WEB-INF/include/defines.php');
-include(APPLICATION_ROOT.'/WEB-INF/classes/classes.php');
+require(dirName(__FILE__).'/../config.php');
 
 
 /**

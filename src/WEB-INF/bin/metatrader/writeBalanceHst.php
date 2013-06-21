@@ -2,25 +2,8 @@
 <?php
 /**
  *
- *
  */
-set_time_limit(0);
-ini_set('include_path', realPath(dirName(__FILE__).'/..'));          // Konfiguration im WEB-INF-Verzeichnis einbinden
-
-define('APPLICATION_NAME', 'myfx.pewasoft');                         // APPLICATION_ROOT: {project}/src
-define('APPLICATION_ROOT', join(DIRECTORY_SEPARATOR, array_slice(explode(DIRECTORY_SEPARATOR, dirName(__FILE__)), 0, -2)));
-
-// PHPLib, Definitionen und Klassen einbinden
-require(dirName(__FILE__).'/../../../../php-lib/src/phpLib.php');
-include(dirName(__FILE__).'/../include/defines.php');
-include(dirName(__FILE__).'/../classes/classes.php');
-
-
-// -- Funktionen -----------------------------------------------------------------------------------------------------------------------------------
-
-
-
-// -- Start ----------------------------------------------------------------------------------------------------------------------------------------
+require(dirName(__FILE__).'/../config.php');
 
 
 // Befehlszeilenargumente holen, auswerten und alle notwendigen Pfade und Dateinamen bestimmen
