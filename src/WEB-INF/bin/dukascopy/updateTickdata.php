@@ -3,6 +3,7 @@
 /**
  * Aktualisiert die vorhandenen Dukascopy-Tickdaten.
  *
+ * http://www.dukascopy.com/datafeed/EURUSD/2013/05/10/07h_ticks.bi5
  */
 require(dirName(__FILE__).'/../../config.php');
 
