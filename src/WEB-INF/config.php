@@ -1,6 +1,6 @@
 <?
 define('APPLICATION_NAME', 'myfx.pewasoft');                         // APPLICATION_ROOT: {project}/src
-define('APPLICATION_ROOT', join(DIRECTORY_SEPARATOR, array_slice(explode(DIRECTORY_SEPARATOR, dirName(__FILE__)), 0, -2)));
+define('APPLICATION_ROOT', join(DIRECTORY_SEPARATOR, array_slice(explode(DIRECTORY_SEPARATOR, dirName(__FILE__)), 0, -1)));
 
 if (!isSet($_SERVER['REQUEST_METHOD'])) {                            // kein Time-Limit, falls wir in einer Shell laufen
    set_time_limit(0);
