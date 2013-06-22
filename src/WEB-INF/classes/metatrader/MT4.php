@@ -69,11 +69,8 @@ class MT4Helper extends StaticClass {
     * @return int - Anzahl der geschriebenen Bytes
     */
    public static function writeHistoryHeader($hFile, array $hh) {
-      if (getType($hFile) != 'resource') {
-         if (getType($hFile) == 'unknown type') throw new plInvalidArgumentException('Invalid file handle in parameter $hFile: '.(int)$hFile);
-                                                throw new IllegalTypeException('Illegal type of argument $hFile: '.getType($hFile));
-      }
-      if (!$hh) throw new plInvalidArgumentException('Invalid parameter $hh: '.print_r($hh, true));
+      if (getType($hFile) != 'resource') throw new IllegalTypeException('Illegal type of argument $hFile: '.$hFile.' ('.getType($hFile).')');
+      if (!$hh)                          throw new plInvalidArgumentException('Invalid parameter $hh: '.print_r($hh, true));
 
       $hh = array_merge(self::$tpl_HistoryHeader, $hh);
       $hh['timezone'] = 0;
@@ -107,10 +104,7 @@ class MT4Helper extends StaticClass {
     * @return int - Anzahl der geschriebenen Bytes
     */
    public static function addHistoryBar($hFile, $time, $open, $high, $low, $close, $vol) {
-      if (getType($hFile) != 'resource') {
-         if (getType($hFile) == 'unknown type') throw new plInvalidArgumentException('Invalid file handle in parameter $hFile: '.(int)$hFile);
-                                                throw new IllegalTypeException('Illegal type of argument $hFile: '.getType($hFile));
-      }
+      if (getType($hFile) != 'resource') throw new IllegalTypeException('Illegal type of argument $hFile: '.$hFile.' ('.getType($hFile).')');
 
       return fWrite($hFile, pack('Vddddd', $time, $open, $low, $high, $close, $vol));
    }

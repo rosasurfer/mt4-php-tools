@@ -3,60 +3,78 @@
 /**
  * Aktualisiert die vorhandenen Dukascopy-M1-Daten.
  *
+ * Webseite:      http://www.dukascopy.com/swiss/english/marketwatch/historical/
+ *                http://www.dukascopy.com/free/candelabrum/
+ *
+ * Instrumente:   http://www.dukascopy.com/free/candelabrum/data.json
+ *
+ * History-Start: http://www.dukascopy.com/datafeed/metadata/HistoryStart.bi5  (ungepackt, unbekanntes Format)
+ *
+ * Daten-URLs:    1 Datei je Kalendertag ab History-Start, Januar = 00
+ *                http://www.dukascopy.com/datafeed/GBPUSD/2013/05/10/BID_candles_min_1.bi5
+ *                http://www.dukascopy.com/datafeed/GBPUSD/2013/05/10/ASK_candles_min_1.bi5
+ *
+ * Datenformat:   LZMA-gepackt, Timezone: GMT
  */
 require(dirName(__FILE__).'/../../config.php');
+date_default_timezone_set('GMT');
 
 
-// Beginn der Daten der einzelnen Pairs in den einzelnen Perioden (Zeitzone: GMT)
-$data = array('M1'  => array('AUDJPY' => strToTime('2003-11-30 00:00:00 GMT'),
-                             'AUDNZD' => strToTime('2009-01-08 00:00:00 GMT'),
-                             'AUDUSD' => strToTime('2003-08-08 00:00:00 GMT'),
-                             'CADJPY' => strToTime('2005-04-17 00:00:00 GMT'),
-                             'CHFJPY' => strToTime('2003-08-08 00:00:00 GMT'),
-                             'EURAUD' => strToTime('2007-04-02 00:00:00 GMT'),
-                             'EURCAD' => strToTime('2008-09-24 00:00:00 GMT'),
-                             'EURCHF' => strToTime('2003-08-08 00:00:00 GMT'),
-                             'EURGBP' => strToTime('2003-08-08 00:00:00 GMT'),
-                             'EURJPY' => strToTime('2003-08-08 00:00:00 GMT'),
-                             'EURNOK' => strToTime('2007-04-02 00:00:00 GMT'),
-                             'EURSEK' => strToTime('2004-11-16 00:00:00 GMT'),
-                             'EURUSD' => strToTime('2003-08-08 00:00:00 GMT'),
-                             'GBPCHF' => strToTime('2003-08-08 00:00:00 GMT'),
-                             'GBPJPY' => strToTime('2003-08-08 00:00:00 GMT'),
-                             'GBPUSD' => strToTime('2003-08-08 00:00:00 GMT'),
-                             'NZDUSD' => strToTime('2003-08-08 00:00:00 GMT'),
-                             'USDCAD' => strToTime('2003-08-08 00:00:00 GMT'),
-                             'USDCHF' => strToTime('2003-08-08 00:00:00 GMT'),
-                             'USDJPY' => strToTime('2003-08-08 00:00:00 GMT'),
-                             'USDNOK' => strToTime('2003-08-08 00:00:00 GMT'),
-                             'USDSEK' => strToTime('2003-08-08 00:00:00 GMT'),
-              ));
+// History-Start der einzelnen Instrumente (geprüft am 21.06.2013)
+$startTimes = array('AUDCAD' => strToTime('2005-12-26 00:00:00 GMT'),
+                    'AUDCHF' => strToTime('2005-12-26 00:00:00 GMT'),
+                    'AUDJPY' => strToTime('2003-11-30 00:00:00 GMT'),
+                    'AUDNZD' => strToTime('2006-12-08 00:00:00 GMT'),
+                    'AUDUSD' => strToTime('2003-08-03 00:00:00 GMT'),
+                    'CADCHF' => strToTime('2005-12-26 00:00:00 GMT'),
+                    'CADJPY' => strToTime('2004-10-20 00:00:00 GMT'),
+                    'CHFJPY' => strToTime('2003-08-08 00:00:00 GMT'),
+                    'EURAUD' => strToTime('2005-10-02 00:00:00 GMT'),
+                    'EURCAD' => strToTime('2004-10-20 00:00:00 GMT'),
+                    'EURCHF' => strToTime('2003-08-08 00:00:00 GMT'),
+                    'EURGBP' => strToTime('2003-08-08 00:00:00 GMT'),
+                    'EURJPY' => strToTime('2003-08-08 00:00:00 GMT'),
+                    'EURNOK' => strToTime('2004-10-20 00:00:00 GMT'),
+                    'EURNZD' => strToTime('2005-12-26 00:00:00 GMT'),
+                    'EURSEK' => strToTime('2004-10-27 00:00:00 GMT'),
+                    'EURUSD' => strToTime('2003-07-27 00:00:00 GMT'),
+                    'GBPAUD' => strToTime('2006-01-01 00:00:00 GMT'),
+                    'GBPCAD' => strToTime('2006-01-01 00:00:00 GMT'),
+                    'GBPCHF' => strToTime('2003-08-08 00:00:00 GMT'),
+                    'GBPJPY' => strToTime('2003-08-03 00:00:00 GMT'),
+                    'GBPNZD' => strToTime('2006-01-01 00:00:00 GMT'),
+                    'GBPUSD' => strToTime('2003-08-08 00:00:00 GMT'),
+                    'NZDCAD' => strToTime('2006-01-01 00:00:00 GMT'),
+                    'NZDCHF' => strToTime('2006-01-01 00:00:00 GMT'),
+                    'NZDJPY' => strToTime('2006-01-01 00:00:00 GMT'),
+                    'NZDUSD' => strToTime('2003-08-08 00:00:00 GMT'),
+                    'USDCAD' => strToTime('2003-08-08 00:00:00 GMT'),
+                    'USDCHF' => strToTime('2003-07-27 00:00:00 GMT'),
+                    'USDJPY' => strToTime('2003-07-27 00:00:00 GMT'),
+                    'USDNOK' => strToTime('2003-08-08 00:00:00 GMT'),
+                    'USDSEK' => strToTime('2003-08-08 00:00:00 GMT'),
+                    'USDSGD' => strToTime('2004-11-16 00:00:00 GMT'),
+                    'XAGUSD' => strToTime('1997-08-13 00:00:00 GMT'),
+                    'XAUUSD' => strToTime('1999-09-01 00:00:00 GMT'));
+
 
 $today  = time();
-$today -= $today % DAY;
+$today -= $today % DAY;                                     // Heute 00:00 GMT
 
 
-foreach ($data['M1'] as $symbol => $start) {
-   $start -= $start % DAY;
+foreach ($startTimes as $symbol => $startTime) {
+   $startTime -= $startTime % DAY;                          // 00:00 GMT des Starttages
 
-   for ($time=$start; $time < $today; $time+=DAY) {         // Daten des heutigen Tages können noch nicht existieren
-      date_default_timezone_set('America/New_York');
-      $startDoW = date('w', $time + 7*HOURS);
-      $endDoW   = date('w', $time + 7*HOURS+DAY);
-      if ($startDoW==SATURDAY || $endDoW==SUNDAY)           // Wochenenden überspringen, Sessionbeginn/-ende ist America/New_York+0700
+   for ($time=$startTime; $time < $today; $time+=1*DAY) {   // heutigen Tag überspringen (Daten sind immer unvollständig)
+      if (iDate('w', $time) == SATURDAY)                    // Samstage überspringen
          continue;
 
       // URLs zusammenstellen und laden
-      date_default_timezone_set('GMT');
-      $year  = date('Y', $time);
-      $month = subStr(date('n', $time)+99, 1);              // Januar = 00
-      $day   = date('d', $time);
-      $path  = "$symbol/$year/$month/$day";
-      $file  = 'BID_candles_min_1.bin';
-      $url   = "http://www.dukascopy.com/datafeed/$path/$file";
-      download($url, $path, $file);
-
-      $file  = 'ASK_candles_min_1.bin';
+      $yyyy  = date('Y', $time);
+      $mm    = subStr(iDate('m', $time)+99, 1);             // Januar = 00
+      $dd    = date('d', $time);
+      $path  = "$symbol/$yyyy/$mm/$dd";
+      $file  = 'BID_candles_min_1.bi5';
       $url   = "http://www.dukascopy.com/datafeed/$path/$file";
       download($url, $path, $file);
    }
@@ -64,10 +82,11 @@ foreach ($data['M1'] as $symbol => $start) {
 
 
 /**
- * Lädt eine URL und speichert die Antwort unter dem angegebenen Dateinamen.
+ * Lädt eine URL und speichert die Antwort im Downloadverzeichnis (im angegebenen Unterverzeichnis und unter dem
+ * angegebenen Dateinamen.
  *
  * @param string $url      - URL
- * @param string $path     - Verzeichnis, in dem die Datei gespeichert werden soll
+ * @param string $path     - Unterverzeichnis
  * @param string $filename - Dateiname
  */
 function download($url, $path, $filename) {
@@ -77,14 +96,14 @@ function download($url, $path, $filename) {
 
    // Downloadverzeichnis bestimmen
    static $downloadDirectory = null;
-   if ($downloadDirectory === null)
+   if (is_null($downloadDirectory))
       $downloadDirectory = MyFXHelper ::getAbsoluteConfigPath('history.dukascopy');
 
    // bereits heruntergeladene Dateien überspringen
-   $path = $downloadDirectory.PATH_SEPARATOR.$path;
-   $file = $path.PATH_SEPARATOR.$file;
-   if (is_file($file) || is_file($file.'.404')) {       // Datei, für die 404 zurückgegeben wurde
-      echoPre("[Info]: Skipping url \"$url\", local file already exists.");
+   $path     = $downloadDirectory.'/'.$path;
+   $filename = $path.'/'.$filename;
+   if (is_file($filename) || is_file($filename.'.404')) {            // 404: URL, für die 404 zurückgegeben wurde
+      echoPre("[Info]: Skipping url \"$url\"  (local file exists).");
       return;
    }
 
@@ -102,13 +121,13 @@ function download($url, $path, $filename) {
    // Datei speichern ...
    if ($status == 200) {
       echoPre("[Ok]: $url");
-      $hFile = fOpen($file, 'xb');
+      $hFile = fOpen($filename, 'xb');
       fWrite($hFile, $response->getContent());
       fClose($hFile);
    }
    else {   // ... oder 404-Status mit leerer .404-Datei merken
       echoPre("[Info]: $status - File not found: \"$url\"");
-      fClose(fOpen($file.'.404', 'x'));
+      fClose(fOpen($filename.'.404', 'x'));
    }
 }
 ?>
