@@ -14,17 +14,16 @@
  *                http://www.dukascopy.com/datafeed/GBPUSD/2013/05/10/BID_candles_min_1.bi5
  *                http://www.dukascopy.com/datafeed/GBPUSD/2013/05/10/ASK_candles_min_1.bi5
  *
- * Dateiformat:   LZMA-gepackt, Big-Endian-Format
- *
- *                                           size        offset
- *                struct DUKASCOPY_BAR {     ----        ------
- *                  int    timeDelta;          4            0        // Zeitdifferenz in Sekunden seit Dateibeginn (00:00 GMT)
- *                  int    open;               4            4        // in Points
- *                  int    close;              4            8        // in Points
- *                  int    low;                4           12        // in Points
- *                  int    high;               4           16        // in Points
- *                  int    volume;             4           20
- *                } dukBar;                 = 24 byte
+ * Dateiformat:   LZMA-gepackt
+ *                                                       size        offset
+ *                struct big-endian DUKASCOPY_BAR {      ----        ------
+ *                  int    timeDelta;                      4            0        // Zeitdifferenz in Sekunden seit 00:00 GMT
+ *                  int    open;                           4            4        // in Points
+ *                  int    close;                          4            8        // in Points
+ *                  int    low;                            4           12        // in Points
+ *                  int    high;                           4           16        // in Points
+ *                  int    volume;                         4           20
+ *                } dukBar;                             = 24 byte
  */
 require(dirName(__FILE__).'/../../config.php');
 date_default_timezone_set('GMT');
@@ -79,7 +78,7 @@ foreach ($startTimes as $symbol => $startTime) {
       if (iDate('w', $time) == SATURDAY)                    // Samstage überspringen
          continue;
 
-      // URLs zusammenstellen und laden
+      // URL zusammenstellen und laden
       $yyyy  = date('Y', $time);
       $mm    = subStr(iDate('m', $time)+99, 1);             // Januar = 00
       $dd    = date('d', $time);
@@ -112,7 +111,7 @@ function download($url, $path, $filename) {
    // bereits heruntergeladene Dateien überspringen
    $path     = $downloadDirectory.'/'.$path;
    $filename = $path.'/'.$filename;
-   if (is_file($filename) || is_file($filename.'.404')) {            // 404: URL, für die 404 zurückgegeben wurde
+   if (is_file($filename) || is_file($filename.'.404')) {            // .404-Datei steht für zuvor zurückgegeben Response-Status 404
       echoPre("[Info]: Skipping url \"$url\"  (local file exists).");
       return;
    }
@@ -135,7 +134,8 @@ function download($url, $path, $filename) {
       fWrite($hFile, $response->getContent());
       fClose($hFile);
    }
-   else {   // ... oder 404-Status mit leerer .404-Datei merken
+   else {
+      // ... oder 404-Status merken
       echoPre("[Info]: $status - File not found: \"$url\"");
       fClose(fOpen($filename.'.404', 'x'));
    }

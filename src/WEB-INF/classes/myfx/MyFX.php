@@ -17,7 +17,7 @@ class MyFXHelper extends StaticClass {
    public static function getAbsoluteConfigPath($key) {
       if (!is_string($key)) throw new IllegalTypeException('Illegal type of argument $key: '.getType($key));
 
-      $directory = str_replace('\\', '/', Config ::get($key));       // Backslashes in Config-Wert ersetzen
+      $directory = str_replace('\\', '/', Config ::get($key));       // Backslashes ersetzen
 
       if (WINDOWS) {
          if (!preg_match('/^[a-z]:/i', $directory))
