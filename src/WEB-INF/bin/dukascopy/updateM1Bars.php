@@ -14,7 +14,17 @@
  *                http://www.dukascopy.com/datafeed/GBPUSD/2013/05/10/BID_candles_min_1.bi5
  *                http://www.dukascopy.com/datafeed/GBPUSD/2013/05/10/ASK_candles_min_1.bi5
  *
- * Datenformat:   LZMA-gepackt, Timezone: GMT
+ * Dateiformat:   LZMA-gepackt, Big-Endian-Format
+ *
+ *                                           size        offset
+ *                struct DUKASCOPY_BAR {     ----        ------
+ *                  int    timeDelta;          4            0        // Zeitdifferenz in Sekunden seit Dateibeginn (00:00 GMT)
+ *                  int    open;               4            4        // in Points
+ *                  int    close;              4            8        // in Points
+ *                  int    low;                4           12        // in Points
+ *                  int    high;               4           16        // in Points
+ *                  int    volume;             4           20
+ *                } dukBar;                 = 24 byte
  */
 require(dirName(__FILE__).'/../../config.php');
 date_default_timezone_set('GMT');
