@@ -72,8 +72,7 @@ $startTimes = array('AUDCAD' => strToTime('2005-12-26 00:00:00 GMT'),
 
 // Befehlszeilenparameter holen
 $args = array_slice($_SERVER['argv'], 1);
-if (!$args)
-   echoPre("\n  Syntax: ".baseName($_SERVER['PHP_SELF'])." <symbol>") & exit(1);
+if (!$args) echoPre("\n  Syntax: ".baseName($_SERVER['PHP_SELF'])." <symbol>") & exit(1);
 
 // 1. Argument auswerten
 $symbol = $args[0];
@@ -85,7 +84,7 @@ if ($symbol == '*') {
 else {
    $uSymbol = strToUpper($symbol);
    if (!isSet($startTimes[$uSymbol]))
-      echoPre("unknown symbol \"$symbol\"") & exit(1);
+      echoPre("error: unknown symbol \"$symbol\"") & exit(1);
    processInstrument($uSymbol, $startTimes[$uSymbol]);
 }
 exit();
@@ -117,22 +116,28 @@ function processInstrument($symbol, $startTime) {
          continue;
 
       // URL und Dateinamen zusammenstellen
-      $yyyy  = date('Y', $time);
-      $mm    = subStr(iDate('m', $time)+99, 1);                      // Januar = 00
-      $dd    = date('d', $time);
-      $path  = "$symbol/$yyyy/$mm/$dd";
-      $file  = 'BID_candles_min_1.bi5';
-      $url   = "http://www.dukascopy.com/datafeed/$path/$file";
-      $file  = $downloadDirectory."/$path/$file";
+      $yyyy     = date('Y', $time);
+      $mmL      = subStr(iDate('m', $time)+100, 1);                  // Local:     Januar = 01
+      $mmD      = subStr(iDate('m', $time)+ 99, 1);                  // Dukascopy: Januar = 00
+      $dd       = date('d', $time);
+      $path     = "$symbol/$yyyy/$mmD/$dd";
+      $file     = 'BID_candles_min_1.bi5';
+      $url      = "http://www.dukascopy.com/datafeed/$path/$file";
+      $path     = $downloadDirectory."/$path";
+      $fullName = $path."/$file";
 
-      // bereits vorhandene Dateien überspringen
-      if (is_file($file) || is_file($file.'.404')) {                 // .404-Datei: vorheriger Response-Status 404
-         echoPre("[Info]: Skipping url \"$url\"  (local file exists)");
-         continue;
+      // Existenz der Datei prüfen
+      if (!is_file($fullName)) {
+         if (is_file($fullName.'404')) {                             // .404-Datei: vorheriger Response-Status 404
+            echoPre("[Info]: Skipping $symbol data of $yyyy.$mmL.$dd (404 file exists)");
+            continue;
+         }
+         // URL laden und speichern
+         downloadUrl($url, $fullName);
       }
 
-      // URL laden und speichern
-      downloadUrl($url, $file);
+      // Datei entpacken
+      decompress($symbol, $fullName);
    }
 }
 
@@ -171,5 +176,81 @@ function downloadUrl($url, $filename) {
       echoPre("[Info]: $status - File not found: \"$url\"");
       fClose(fOpen($filename.'.404', 'x'));
    }
+}
+
+
+/**
+ * @param string $symbol
+ * @param string $filename - vollständiger Dateiname
+ */
+function decompress($symbol, $filename) {
+   if (!is_string($symbol))   throw new IllegalTypeException('Illegal type of argument $symbol: '.getType($symbol));
+   if (!is_string($filename)) throw new IllegalTypeException('Illegal type of argument $filename: '.getType($filename));
+
+   static $cmd = null; if (!$cmd) $cmd = getLzmaDecompressorCmd();
+
+   $filename = str_replace('/', DIRECTORY_SEPARATOR, str_replace('\\', '/', $filename));
+   $cmdLine  = sprintf($cmd, $filename);
+
+   // Windows-Bug: Beim Lesen der Standardausgabe bricht shell_exec() bei Auftreten eines DOS-EOF-Characters im Stream (0x1A = ASCII 26) ab.
+   // Workaround:  shell_exec_fix() verwenden
+
+   $output = shell_exec_fix($cmdLine);
+   echoPre('strLen($output) = '.strLen($output));
+   exit();
+}
+
+
+/**
+ * Sucht einen verfügbaren LZMA-Dekompressor und gibt die entsprechende Befehlszeile zum Entpacken zurück.
+ * Bei Mißerfolg bricht das Script ab.
+ *
+ * @return string
+ */
+function getLzmaDecompressorCmd() {
+   $cmd    = null;
+   $output = array();
+
+   if (WINDOWS) {
+      if (!$cmd) {
+         exec(APPLICATION_ROOT.'/../etc/bin/lzmadec -V 2> nul', $output);
+         if ($output) $cmd = APPLICATION_ROOT.'/../etc/bin/lzmadec "%s"';
+      }
+      if (!$cmd) {
+         exec(APPLICATION_ROOT.'/../etc/bin/xz -V 2> nul', $output);
+         if ($output) $cmd = APPLICATION_ROOT.'/../etc/bin/xz -dc "%s"';
+      }
+      if (!$cmd) {
+         exec('lzmadec -V 2> nul', $output);
+         if ($output) $cmd = 'lzmadec "%s"';
+      }
+      if (!$cmd) {
+         exec('xz -V 2> nul', $output);
+         if ($output) $cmd = 'xz -dc "%s"';
+      }
+   }
+   else {
+      if (!$cmd) {
+         exec('lzmadec -V 2> /dev/null', $output);
+         if ($output) $cmd = 'lzmadec %s';
+      }
+      if (!$cmd) {
+         exec('lzma -V 2> /dev/null', $output);
+         if ($output) $cmd = 'lzma -kdc -S bi5 %s';
+      }
+      if (!$cmd) {
+         exec('xzdec -V 2> /dev/null', $output);
+         if ($output) $cmd = 'xzdec %s';
+      }
+      if (!$cmd) {
+         exec('xz -V 2> /dev/null', $output);
+         if ($output) $cmd = 'xz -dc %s';
+      }
+   }
+
+   if (!$cmd) echoPre('error: no LZMA decompressor found') & exit(1);
+   //echoPre("LZMA decompression command: ".$cmd);
+
+   return $cmd;
 }
 ?>
