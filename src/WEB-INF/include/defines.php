@@ -42,4 +42,8 @@ define('AH_SWAP'       ,  9);
 define('AH_PROFIT'     , 10);
 define('AH_MAGICNUMBER', 11);
 define('AH_COMMENT'    , 12);
+
+
+// Struct-Sizes
+define('DUKASCOPY_BAR_SIZE', 24);
 ?>
