@@ -1,8 +1,8 @@
 <?
 /**
- * MyFXHelper
+ * MyFX functions
  */
-class MyFXHelper extends StaticClass {
+class MyFX extends StaticClass {
 
    /**
     * Gibt den absoluten Pfad der unter dem angegebenen Schlüssel konfigurierten Pfadeinstellung zurück.

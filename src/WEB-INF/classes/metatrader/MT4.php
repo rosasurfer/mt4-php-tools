@@ -1,8 +1,8 @@
 <?
 /**
- * MT4Helper
+ * MT4 functions
  */
-class MT4Helper extends StaticClass {
+class MT4 extends StaticClass {
 
    /**
     * Erweiterter History-Header:
