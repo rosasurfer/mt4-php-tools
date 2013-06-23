@@ -1,6 +1,6 @@
 <?
 /**
- * MT4 functions
+ * MT4/MQL related functionality
  */
 class MT4 extends StaticClass {
 

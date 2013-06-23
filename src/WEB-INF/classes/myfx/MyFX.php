@@ -1,6 +1,6 @@
 <?
 /**
- * MyFX functions
+ * MyFX related functionality
  */
 class MyFX extends StaticClass {
 

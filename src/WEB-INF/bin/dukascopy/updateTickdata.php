@@ -34,7 +34,7 @@ $data = array('AUDJPY' => strToTime('2007-03-30 16:01:15 GMT'),      // Zeitzone
 
 
 // Downloadverzeichnis bestimmen
-$downloadDirectory = MyFXHelper ::getAbsoluteConfigPath('history.dukascopy');
+$downloadDirectory = MyFX ::getAbsoluteConfigPath('history.dukascopy');
 
 
 $thisHour  = time();

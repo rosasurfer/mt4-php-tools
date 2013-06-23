@@ -76,12 +76,12 @@ $filename = $serverDirectory.DIRECTORY_SEPARATOR.$symbol.$period.'.hst';
 
 $hFile = fOpen($filename, 'ab+');
 if (fileSize($filename) < 148) {
-   $hh = MT4Helper ::createHistoryHeader();
+   $hh = MT4 ::createHistoryHeader();
       $hh['symbol'  ] = $symbol;
       $hh['period'  ] = $period;
       $hh['digits'  ] = 2;
       $hh['timezone'] = 'FXT';
-   MT4Helper ::writeHistoryHeader($hFile, $hh);
+   MT4 ::writeHistoryHeader($hFile, $hh);
 }
 
 
@@ -139,7 +139,7 @@ for ($i=$n=0, $time=$startBar; $time <= $currentBar; $time+=$period) {
    }
 
    // Bar schreiben
-   MT4Helper ::addHistoryBar($hFile, $time, $O, $H, $L, $C, $V);
+   MT4 ::addHistoryBar($hFile, $time, $O, $H, $L, $C, $V);
 }
 echoPre($n.' bars');
 

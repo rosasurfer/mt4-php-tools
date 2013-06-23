@@ -10,9 +10,11 @@ $__classes['UploadAccountHistoryActionForm'    ] = $dir.'actions/UploadAccountHi
 $__classes['UploadFTPConfigurationAction'      ] = $dir.'actions/UploadFTPConfigurationAction';
 $__classes['UploadFTPConfigurationActionForm'  ] = $dir.'actions/UploadFTPConfigurationActionForm';
 
+$__classes['Dukascopy'                         ] = $dir.'helper/Dukascopy';
+$__classes['LZMA'                              ] = $dir.'helper/LZMA';
 $__classes['ImportHelper'                      ] = $dir.'helper/ImportHelper';
-$__classes['MT4Helper'                         ] = $dir.'helper/MT4Helper';
-$__classes['MyFXHelper'                        ] = $dir.'helper/MyFXHelper';
+$__classes['MT4'                               ] = $dir.'helper/MT4';
+$__classes['MyFX'                              ] = $dir.'helper/MyFX';
 $__classes['Validator'                         ] = $dir.'helper/Validator';
 $__classes['ViewHelper'                        ] = $dir.'helper/ViewHelper';
 

@@ -19,7 +19,7 @@ class DownloadFTPConfigurationAction extends Action {
             $account   = $form->getAccount();
             $symbol    = $form->getSymbol();
             $sequence  = $form->getSequence();
-            $directory = MyFXHelper ::getAbsoluteConfigPath('strategies.config.ftp').'/'.$company.'/'.$account.'/'.$symbol;
+            $directory = MyFX ::getAbsoluteConfigPath('strategies.config.ftp').'/'.$company.'/'.$account.'/'.$symbol;
             $file      = 'FTP.'.$sequence.'.set';
 
             if (is_file($directory.'/'.$file)) {

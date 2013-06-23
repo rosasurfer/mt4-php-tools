@@ -17,7 +17,7 @@
  * Dateiformat:   LZMA-gepackt
  *                                                       size        offset
  *                struct big-endian DUKASCOPY_BAR {      ----        ------
- *                  int    timeDelta;                      4            0        // Zeitdifferenz in Sekunden seit 00:00 GMT
+ *                  int    deltaTime;                      4            0        // Zeitdifferenz in Sekunden seit 00:00 GMT
  *                  int    open;                           4            4        // in Points
  *                  int    close;                          4            8        // in Points
  *                  int    low;                            4           12        // in Points
@@ -70,22 +70,22 @@ $startTimes = array('AUDCAD' => strToTime('2005-12-26 00:00:00 GMT'),
 // -- Start ----------------------------------------------------------------------------------------------------------------------------------------
 
 
-// Befehlszeilenparameter holen
+// (1) Befehlszeilenparameter holen
 $args = array_slice($_SERVER['argv'], 1);
 if (!$args) echoPre("\n  Syntax: ".baseName($_SERVER['PHP_SELF'])." <symbol>") & exit(1);
 
-// 1. Argument auswerten
+// (2) erstes Argument auswerten
 $symbol = $args[0];
 
-if ($symbol == '*') {
-   foreach ($startTimes as $symbol => $startTime)
-      processInstrument($symbol, $startTime);
-}
-else {
+if ($symbol != '*') {
    $uSymbol = strToUpper($symbol);
-   if (!isSet($startTimes[$uSymbol]))
-      echoPre("error: unknown symbol \"$symbol\"") & exit(1);
-   processInstrument($uSymbol, $startTimes[$uSymbol]);
+   if (!isSet($startTimes[$uSymbol])) echoPre("error: unknown symbol \"$symbol\"") & exit(1);
+   $startTimes = array($uSymbol => $startTimes[$uSymbol]);
+}
+
+// (3) Symbol/e verarbeiten
+foreach ($startTimes as $symbol => $startTime) {
+   processInstrument($symbol, $startTime);
 }
 exit();
 
@@ -108,7 +108,7 @@ function processInstrument($symbol, $startTime) {
 
    static $downloadDirectory = null;
    if (is_null($downloadDirectory))
-      $downloadDirectory = MyFXHelper ::getAbsoluteConfigPath('history.dukascopy');
+      $downloadDirectory = MyFX ::getAbsoluteConfigPath('history.dukascopy');
 
 
    for ($time=$startTime; $time < $today; $time+=1*DAY) {            // heutigen Tag überspringen (Daten sind immer unvollständig)
@@ -134,10 +134,15 @@ function processInstrument($symbol, $startTime) {
          }
          // URL laden und speichern
          downloadUrl($url, $fullName);
+         if (is_file($fullName.'404'))                               // Response-Status 404
+            continue;
+         if (!is_file($fullName))
+            echoPre("[Error]: Downloading $symbol data of $yyyy.$mmL.$dd failed") & exit(1);
       }
 
-      // Datei entpacken
-      decompress($symbol, $fullName);
+      // Datei verarbeiten
+      Dukascopy ::processBarFile($fullName);
+      exit();
    }
 }
 
@@ -176,81 +181,5 @@ function downloadUrl($url, $filename) {
       echoPre("[Info]: $status - File not found: \"$url\"");
       fClose(fOpen($filename.'.404', 'x'));
    }
-}
-
-
-/**
- * @param string $symbol
- * @param string $filename - vollständiger Dateiname
- */
-function decompress($symbol, $filename) {
-   if (!is_string($symbol))   throw new IllegalTypeException('Illegal type of argument $symbol: '.getType($symbol));
-   if (!is_string($filename)) throw new IllegalTypeException('Illegal type of argument $filename: '.getType($filename));
-
-   static $cmd = null; if (!$cmd) $cmd = getLzmaDecompressorCmd();
-
-   $filename = str_replace('/', DIRECTORY_SEPARATOR, str_replace('\\', '/', $filename));
-   $cmdLine  = sprintf($cmd, $filename);
-
-   // Windows-Bug: Beim Lesen der Standardausgabe bricht shell_exec() bei Auftreten eines DOS-EOF-Characters im Stream (0x1A = ASCII 26) ab.
-   // Workaround:  shell_exec_fix() verwenden
-
-   $output = shell_exec_fix($cmdLine);
-   echoPre('strLen($output) = '.strLen($output));
-   exit();
-}
-
-
-/**
- * Sucht einen verfügbaren LZMA-Dekompressor und gibt die entsprechende Befehlszeile zum Entpacken zurück.
- * Bei Mißerfolg bricht das Script ab.
- *
- * @return string
- */
-function getLzmaDecompressorCmd() {
-   $cmd    = null;
-   $output = array();
-
-   if (WINDOWS) {
-      if (!$cmd) {
-         exec(APPLICATION_ROOT.'/../etc/bin/lzmadec -V 2> nul', $output);
-         if ($output) $cmd = APPLICATION_ROOT.'/../etc/bin/lzmadec "%s"';
-      }
-      if (!$cmd) {
-         exec(APPLICATION_ROOT.'/../etc/bin/xz -V 2> nul', $output);
-         if ($output) $cmd = APPLICATION_ROOT.'/../etc/bin/xz -dc "%s"';
-      }
-      if (!$cmd) {
-         exec('lzmadec -V 2> nul', $output);
-         if ($output) $cmd = 'lzmadec "%s"';
-      }
-      if (!$cmd) {
-         exec('xz -V 2> nul', $output);
-         if ($output) $cmd = 'xz -dc "%s"';
-      }
-   }
-   else {
-      if (!$cmd) {
-         exec('lzmadec -V 2> /dev/null', $output);
-         if ($output) $cmd = 'lzmadec %s';
-      }
-      if (!$cmd) {
-         exec('lzma -V 2> /dev/null', $output);
-         if ($output) $cmd = 'lzma -kdc -S bi5 %s';
-      }
-      if (!$cmd) {
-         exec('xzdec -V 2> /dev/null', $output);
-         if ($output) $cmd = 'xzdec %s';
-      }
-      if (!$cmd) {
-         exec('xz -V 2> /dev/null', $output);
-         if ($output) $cmd = 'xz -dc %s';
-      }
-   }
-
-   if (!$cmd) echoPre('error: no LZMA decompressor found') & exit(1);
-   //echoPre("LZMA decompression command: ".$cmd);
-
-   return $cmd;
 }
 ?>
