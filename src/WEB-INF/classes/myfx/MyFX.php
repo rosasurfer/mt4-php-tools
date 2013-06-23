@@ -10,7 +10,7 @@ class MyFXHelper extends StaticClass {
     *
     * @param  string $key - Schlüssel
     *
-    * @return string - absoluter Pfad
+    * @return string - absoluter Pfad mit Forward-Slashes (auch unter Windows)
     *
     * @throws plRuntimeException - wenn unter dem angegebenen Schlüssel keine Pfadeinstellung existiert
     */

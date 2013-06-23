@@ -67,54 +67,85 @@ $startTimes = array('AUDCAD' => strToTime('2005-12-26 00:00:00 GMT'),
                     'XAUUSD' => strToTime('1999-09-01 00:00:00 GMT'));
 
 
-$today  = time();
-$today -= $today % DAY;                                     // Heute 00:00 GMT
+// -- Start ----------------------------------------------------------------------------------------------------------------------------------------
 
 
-foreach ($startTimes as $symbol => $startTime) {
-   $startTime -= $startTime % DAY;                          // 00:00 GMT des Starttages
+// Befehlszeilenparameter holen
+$args = array_slice($_SERVER['argv'], 1);
+if (!$args)
+   echoPre("\n  Syntax: ".baseName($_SERVER['PHP_SELF'])." <symbol>") & exit(1);
 
-   for ($time=$startTime; $time < $today; $time+=1*DAY) {   // heutigen Tag überspringen (Daten sind immer unvollständig)
-      if (iDate('w', $time) == SATURDAY)                    // Samstage überspringen
+// 1. Argument auswerten
+$symbol = $args[0];
+
+if ($symbol == '*') {
+   foreach ($startTimes as $symbol => $startTime)
+      processInstrument($symbol, $startTime);
+}
+else {
+   $uSymbol = strToUpper($symbol);
+   if (!isSet($startTimes[$uSymbol]))
+      echoPre("unknown symbol \"$symbol\"") & exit(1);
+   processInstrument($uSymbol, $startTimes[$uSymbol]);
+}
+exit();
+
+
+// -- Ende -----------------------------------------------------------------------------------------------------------------------------------------
+
+
+/**
+ * Verarbeitet ein Instrument.
+ *
+ * @param string $symbol    - Symbol des Instruments
+ * @param string $startTime - Beginn der Kurshistory des Instruments bei Dukascopy
+ */
+function processInstrument($symbol, $startTime) {
+   if (!is_string($symbol)) throw new IllegalTypeException('Illegal type of argument $symbol: '.getType($symbol));
+   if (!is_int($startTime)) throw new IllegalTypeException('Illegal type of argument $startTime: '.getType($startTime));
+   $symbol     = strToUpper($symbol);
+   $startTime -= $startTime % DAY;                                   // 00:00 GMT des Starttages
+   $today      = ($today=time()) - $today % DAY;                     // heute 00:00 GMT
+
+   static $downloadDirectory = null;
+   if (is_null($downloadDirectory))
+      $downloadDirectory = MyFXHelper ::getAbsoluteConfigPath('history.dukascopy');
+
+
+   for ($time=$startTime; $time < $today; $time+=1*DAY) {            // heutigen Tag überspringen (Daten sind immer unvollständig)
+      if (iDate('w', $time) == SATURDAY)                             // Samstage überspringen
          continue;
 
-      // URL zusammenstellen und laden
+      // URL und Dateinamen zusammenstellen
       $yyyy  = date('Y', $time);
-      $mm    = subStr(iDate('m', $time)+99, 1);             // Januar = 00
+      $mm    = subStr(iDate('m', $time)+99, 1);                      // Januar = 00
       $dd    = date('d', $time);
       $path  = "$symbol/$yyyy/$mm/$dd";
       $file  = 'BID_candles_min_1.bi5';
       $url   = "http://www.dukascopy.com/datafeed/$path/$file";
-      download($url, $path, $file);
+      $file  = $downloadDirectory."/$path/$file";
+
+      // bereits vorhandene Dateien überspringen
+      if (is_file($file) || is_file($file.'.404')) {                 // .404-Datei: vorheriger Response-Status 404
+         echoPre("[Info]: Skipping url \"$url\"  (local file exists)");
+         continue;
+      }
+
+      // URL laden und speichern
+      downloadUrl($url, $file);
    }
 }
 
 
 /**
- * Lädt eine URL und speichert die Antwort im Downloadverzeichnis (im angegebenen Unterverzeichnis und unter dem
- * angegebenen Dateinamen.
+ * Lädt eine URL und speichert die Antwort unter dem angegebenen Dateinamen.
  *
  * @param string $url      - URL
- * @param string $path     - Unterverzeichnis
- * @param string $filename - Dateiname
+ * @param string $filename - vollständiger Dateiname
  */
-function download($url, $path, $filename) {
+function downloadUrl($url, $filename) {
    if (!is_string($url))      throw new IllegalTypeException('Illegal type of argument $url: '.getType($url));
-   if (!is_string($path))     throw new IllegalTypeException('Illegal type of argument $path: '.getType($path));
    if (!is_string($filename)) throw new IllegalTypeException('Illegal type of argument $filename: '.getType($filename));
-
-   // Downloadverzeichnis bestimmen
-   static $downloadDirectory = null;
-   if (is_null($downloadDirectory))
-      $downloadDirectory = MyFXHelper ::getAbsoluteConfigPath('history.dukascopy');
-
-   // bereits heruntergeladene Dateien überspringen
-   $path     = $downloadDirectory.'/'.$path;
-   $filename = $path.'/'.$filename;
-   if (is_file($filename) || is_file($filename.'.404')) {            // .404-Datei steht für zuvor zurückgegeben Response-Status 404
-      echoPre("[Info]: Skipping url \"$url\"  (local file exists).");
-      return;
-   }
 
    // HTTP-Request abschicken und auswerten
    $request  = HttpRequest ::create()->setUrl($url);
@@ -123,6 +154,7 @@ function download($url, $path, $filename) {
    if ($status!=200 && $status!=404) throw new plRuntimeException("Unexpected HTTP status $status (".HttpResponse ::$sc[$status].") for url \"$url\"\n".printFormatted($response, true));
 
    // ggf. Zielverzeichnis anlegen
+   $path = dirName($filename);
    if (is_file($path))                              throw new plInvalidArgumentException('Cannot write to directory "'.$path.'" (is file)');
    if (!is_dir($path) && !mkDir($path, 0700, true)) throw new plInvalidArgumentException('Cannot create directory "'.$path.'"');
    if (!is_writable($path))                         throw new plInvalidArgumentException('Cannot write to directory "'.$path.'"');
