@@ -107,32 +107,31 @@ function processInstrument($symbol, $startTime) {
          continue;
 
       // URL und Dateinamen zusammenstellen
-      $yyyy     = date('Y', $time);
-      $mmL      = subStr(iDate('m', $time)+100, 1);                  // Local:     Januar = 01
-      $mmD      = subStr(iDate('m', $time)+ 99, 1);                  // Dukascopy: Januar = 00
-      $dd       = date('d', $time);
-      $path     = "$symbol/$yyyy/$mmD/$dd";
-      $file     = 'BID_candles_min_1.bi5';
-      $url      = "http://www.dukascopy.com/datafeed/$path/$file";
-      $path     = $downloadDirectory."/$path";
-      $fullName = $path."/$file";
+      $yyyy = date('Y', $time);
+      $mmL  = subStr(iDate('m', $time)+100, 1);                      // Local:     Januar = 01
+      $mmD  = subStr(iDate('m', $time)+ 99, 1);                      // Dukascopy: Januar = 00
+      $dd   = date('d', $time);
+      $path = "$symbol/$yyyy/$mmD/$dd";
+      $file = 'BID_candles_min_1.bi5';
+      $url  = "http://www.dukascopy.com/datafeed/$path/$file";
+      $file = "$downloadDirectory/$path/$file";
 
       // Existenz der Datei prüfen
-      if (!is_file($fullName)) {
-         if (is_file($fullName.'404')) {                             // .404-Datei: vorheriger Response-Status 404
+      if (!is_file($file)) {
+         if (is_file($file.'404')) {                                 // .404-Datei: vorheriger Response-Status 404
             echoPre("[Info]: Skipping $symbol data of $yyyy.$mmL.$dd (404 file exists)");
             continue;
          }
          // URL laden und speichern
-         downloadUrl($url, $fullName);
-         if (is_file($fullName.'404'))                               // Response-Status 404
+         downloadUrl($url, $file);
+         if (is_file($file.'404'))                                   // Response-Status 404
             continue;
-         if (!is_file($fullName))
+         if (!is_file($file))
             echoPre("[Error]: Downloading $symbol data of $yyyy.$mmL.$dd failed") & exit(1);
       }
 
       // Datei verarbeiten
-      Dukascopy ::processBarFile($fullName);
+      Dukascopy ::processBarFile($file);
       exit();
    }
 }

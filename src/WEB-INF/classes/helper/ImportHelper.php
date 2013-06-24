@@ -23,7 +23,7 @@ class ImportHelper extends StaticClass {
       $data =& $form->getFileData();
       foreach ($data as &$row) {
          if      ($row[AH_TYPE]==OP_BUY || $row[AH_TYPE]==OP_SELL || $row[AH_TYPE]==OP_BALANCE) $transactions[] =& $row;
-         else if ($row[AH_TYPE]==OP_CREDIT)                                                     $credits[]      =& $row;
+         else if ($row[AH_TYPE]==OP_CREDIT)                                                     $credits     [] =& $row;
       }
 
       // (1.1) Transaktionen sortieren (by CloseTime ASC, OpenTime ASC, Ticket ASC)
