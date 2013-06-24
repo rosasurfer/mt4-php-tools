@@ -1,29 +1,20 @@
 #!/usr/bin/php -Cq
 <?
 /**
- * Aktualisiert die vorhandenen Dukascopy-M1-Daten.
+ * Aktualisiert die vorhandenen Dukascopy-M1-Daten. Es werden nur Bid-Daten geladen (Dukascopy bietet auch Ask-Daten an).
  *
  * Webseite:      http://www.dukascopy.com/swiss/english/marketwatch/historical/
  *                http://www.dukascopy.com/free/candelabrum/
  *
  * Instrumente:   http://www.dukascopy.com/free/candelabrum/data.json
  *
- * History-Start: http://www.dukascopy.com/datafeed/metadata/HistoryStart.bi5  (ungepackt, unbekanntes Format)
+ * History-Start: http://www.dukascopy.com/datafeed/metadata/HistoryStart.bi5  (Format unbekannt)
  *
- * Daten-URLs:    1 Datei je Kalendertag ab History-Start, Januar = 00
+ * URL-Format:    1 Datei je Kalendertag ab History-Start, Januar = 00
  *                http://www.dukascopy.com/datafeed/GBPUSD/2013/05/10/BID_candles_min_1.bi5
  *                http://www.dukascopy.com/datafeed/GBPUSD/2013/05/10/ASK_candles_min_1.bi5
  *
- * Dateiformat:   LZMA-gepackt, kein Header
- *                                                       size        offset
- *                struct big-endian DUKASCOPY_BAR {      ----        ------
- *                  int    deltaTime;                      4            0        // Zeitdifferenz in Sekunden seit 00:00 GMT
- *                  int    open;                           4            4        // in Points
- *                  int    close;                          4            8        // in Points
- *                  int    low;                            4           12        // in Points
- *                  int    high;                           4           16        // in Points
- *                  int    volume;                         4           20
- *                } dukBar;                             = 24 byte
+ * Dateiformat:   siehe Dukascopy::processBarFile()
  */
 require(dirName(__FILE__).'/../../config.php');
 date_default_timezone_set('GMT');
