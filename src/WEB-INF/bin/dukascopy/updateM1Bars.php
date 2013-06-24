@@ -14,7 +14,7 @@
  *                http://www.dukascopy.com/datafeed/GBPUSD/2013/05/10/BID_candles_min_1.bi5
  *                http://www.dukascopy.com/datafeed/GBPUSD/2013/05/10/ASK_candles_min_1.bi5
  *
- * Dateiformat:   LZMA-gepackt
+ * Dateiformat:   LZMA-gepackt, kein Header
  *                                                       size        offset
  *                struct big-endian DUKASCOPY_BAR {      ----        ------
  *                  int    deltaTime;                      4            0        // Zeitdifferenz in Sekunden seit 00:00 GMT
@@ -83,7 +83,7 @@ if ($symbol != '*') {
    $startTimes = array($uSymbol => $startTimes[$uSymbol]);
 }
 
-// (3) Symbol/e verarbeiten
+// (3) Symbole verarbeiten
 foreach ($startTimes as $symbol => $startTime) {
    processInstrument($symbol, $startTime);
 }
