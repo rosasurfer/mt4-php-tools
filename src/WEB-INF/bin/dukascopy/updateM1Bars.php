@@ -88,14 +88,14 @@ exit();
  * Verarbeitet ein Instrument.
  *
  * @param string $symbol    - Symbol des Instruments
- * @param string $startTime - Beginn der Kurshistory des Instruments bei Dukascopy
+ * @param string $startTime - Beginn der Dukascopy-Daten des Instruments
  */
 function processInstrument($symbol, $startTime) {
    if (!is_string($symbol)) throw new IllegalTypeException('Illegal type of argument $symbol: '.getType($symbol));
    if (!is_int($startTime)) throw new IllegalTypeException('Illegal type of argument $startTime: '.getType($startTime));
    $symbol     = strToUpper($symbol);
    $startTime -= $startTime % DAY;                                   // 00:00 GMT des Starttages
-   $today      = ($today=time()) - $today % DAY;                     // heute 00:00 GMT
+   $today      = ($today=time()) - $today%DAY;                       // heute 00:00 GMT
 
    static $downloadDirectory = null;
    if (is_null($downloadDirectory))
