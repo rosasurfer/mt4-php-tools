@@ -10,7 +10,7 @@
  *
  * History-Start: http://www.dukascopy.com/datafeed/metadata/HistoryStart.bi5  (Format unbekannt)
  *
- * URL-Format:    1 Datei je Kalendertag ab History-Start, Januar = 00
+ * URL-Format:    eine Datei je Kalendertag ab History-Start (inkl. Wochenenden, Januar = 00)
  *                http://www.dukascopy.com/datafeed/GBPUSD/2013/05/10/BID_candles_min_1.bi5
  *                http://www.dukascopy.com/datafeed/GBPUSD/2013/05/10/ASK_candles_min_1.bi5
  *
