@@ -68,8 +68,7 @@ $lineFormat = '%-15s    %d     %-19s  %-19s  %9s  %-19s  %-19s';
 foreach ($matches as $i => $filename) {
    $filesize = fileSize($filename);
    if ($filesize < 148) {
-      $invalid = true;
-      echoPre(str_pad($filename, 21).' not a valid history file');
+      echoPre(str_pad($filename, 21).' invalid history file');
    }
    else {
       $bars = floor(($filesize-148)/44);
