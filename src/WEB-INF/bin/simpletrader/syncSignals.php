@@ -38,7 +38,63 @@ function processSignal($signal) {
    if (!is_string($signal)) throw new IllegalTypeException('Illegal type of parameter $signal: '.getType($signal));
    $signal = strToLower($signal);
 
-   echoPre('syncing signal '.$signal.'...');
+   /**
+    * pewa
+    * ----
+    * URL:    https://cp.forexsignals.com/signal/{signal_id}/signal.html                              (mit und ohne SSL)
+    * Cookie: email=address@domain.tld; session=***REMOVED***
+    *
+    *
+    * pewa
+    * ----
+    * URL:    https://www.simpletrader.net/signal/{signal_id}/signal.html                             (nur mit SSL)
+    * Cookie: email=address@domain.tld; session=***REMOVED***
+    *
+    *
+    * Signal-ID's
+    * -----------
+    * SmartTrader:  1081
+    * SmartScalper: 1086
+    * DayFox:       2465
+    */
+
+    //  http://cp.forexsignals.com/signal/2465/signal.html
+    //
+    //  GET /signal/2465/signal.html HTTP/1.1
+    //  Host:            cp.forexsignals.com
+    //  User-Agent:      ***REMOVED***
+    //  Accept:          text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+    //  Accept-Language: en-us
+    //  Accept-Charset:  ISO-8859-1,utf-8;q=0.7,*;q=0.7
+    //  Accept-Encoding: gzip, deflate
+    //  Keep-Alive:      115
+    //  Connection:      keep-alive
+    //  Referer:         http://cp.forexsignals.com/forex-signals.html
+    //  Cookie:          email=address@domain.tld; session=***REMOVED***
+
+   //echoPre('syncing signal '.$signal.'...');
+
+
+   $request = HttpRequest ::create()  // pewa
+                          ->setUrl   ('http://cp.forexsignals.com/signal/2465/signal.html')
+
+
+                          ->setHeader('User-Agent'     , '***REMOVED***')
+                          ->setHeader('Accept'         , 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
+                          ->setHeader('Accept-Language', 'en-us')
+                          ->setHeader('Accept-Charset' , 'ISO-8859-1,utf-8;q=0.7,*;q=0.7')
+                          ->setHeader('Keep-Alive'     , '115')
+                          ->setHeader('Connection'     , 'keep-alive')
+                          ->setHeader('Cookie'         , 'email=address@domain.tld; session=***REMOVED***');
+
+   $response = CurlHttpClient ::create()->send($request);
+   $status   = $response->getStatus();
+   $content  = $response->getContent();
+   if ($status != 200) throw new plRuntimeException('Unexpected HTTP status code from cp.forexsignals.com: '.$status.' ('.HttpResponse ::$sc[$status].')');
+
+   // Antwort auswerten
+   echoPre($content);
+   echoPre($response->getHeaders());
 }
 
 
