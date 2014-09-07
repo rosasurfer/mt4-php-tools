@@ -8,17 +8,21 @@
 require(dirName(__FILE__).'/../config.php');
 
 
+// Daten der zur Zeit unterstützten Signale
+$signals = array('alexprofit'   => array('id'=>2474, 'name'=>'AlexProfit'  ),
+                 'dayfox'       => array('id'=>2465, 'name'=>'DayFox'      ),
+                 'smarttrader'  => array('id'=>1081, 'name'=>'SmartTrader' ),
+                 'smartscalper' => array('id'=>1086, 'name'=>'SmartScalper'),
+                 );
+
+
 // --- Start --------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-// Namen aller zur Zeit unterstützten Signale
-$knownSignals = array('dayfox', 'smarttrader', 'smartscalper');
 
 
 // Befehlszeilenparameter einlesen und validieren
 $args = array_slice($_SERVER['argv'], 1);
-if (sizeOf($args) != 1)                             exit(1|help());
-if (!in_array(strToLower($args[0]), $knownSignals)) exit(1|help('Unknown signal: '.$args[0]));
+(sizeOf($args)!=1 || in_array(strToLower($args[0]), array('-?','/?','-h','/h','-help','/help'))) && exit(1|help());
+(!array_key_exists(strToLower($args[0]), $signals))                                              && exit(1|help('Unknown signal: '.$args[0]));
 
 
 // Signal verarbeiten
@@ -38,19 +42,17 @@ function processSignal($signal) {
    if (!is_string($signal)) throw new IllegalTypeException('Illegal type of parameter $signal: '.getType($signal));
    $signal = strToLower($signal);
 
+   global $signals;
+   $signalID   = $signals[$signal]['id'  ];
+   $signalName = $signals[$signal]['name'];
+
+   echoPre('syncing signal '.$signalName.'...');
    /**
     * URL:    http://cp.forexsignals.com/signal/{signal_id}/signal.html                               (mit und ohne SSL)
     * Cookie: email=address@domain.tld; session=***REMOVED***
     *
     * URL:    https://www.simpletrader.net/signal/{signal_id}/signal.html                             (nur mit SSL)
     * Cookie: email=address@domain.tld; session=***REMOVED***
-    *
-    * Signals:
-    * --------
-    * SmartTrader:  1081
-    * SmartScalper: 1086
-    * DayFox:       2465
-    * AlexProfit:   2474
     */
 
    // GET /signal/2465/signal.html HTTP/1.1
@@ -65,29 +67,31 @@ function processSignal($signal) {
    // Referer:         http://cp.forexsignals.com/forex-signals.html
    // Cookie:          email=address@domain.tld; session=***REMOVED***
 
-   //echoPre('syncing signal '.$signal.'...');
 
-
-   $request = HttpRequest ::create()  // pewa
-                          ->setUrl   ('http://cp.forexsignals.com/signal/2465/signal.html')
-
+   // HTTP-Request definieren
+   $request = HttpRequest ::create()
+                          ->setUrl('http://cp.forexsignals.com/signal/'.$signalID.'/signal.html')
 
                           ->setHeader('User-Agent'     , '***REMOVED***')
                           ->setHeader('Accept'         , 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
                           ->setHeader('Accept-Language', 'en-us')
                           ->setHeader('Accept-Charset' , 'ISO-8859-1,utf-8;q=0.7,*;q=0.7')
                           ->setHeader('Keep-Alive'     , '115')
-                          ->setHeader('Connection'     , 'keep-alive')
-                          ->setHeader('Cookie'         , 'email=address@domain.tld; session=***REMOVED***');
+                          ->setHeader('Connection'     , 'keep-alive');
 
-   $response = CurlHttpClient ::create()->send($request);
+   // Cookies in der angegebenen Datei verwenden/speichern
+   $cookieStore = dirName($_SERVER['PHP_SELF']).DIRECTORY_SEPARATOR.'cookies.txt';
+   $options = array(CURLOPT_COOKIEFILE => $cookieStore,     // The name of a file containing cookie data to use for the request.
+                    CURLOPT_COOKIEJAR  => $cookieStore);    // The name of a file to save cookie data to when the connection closes.
+
+   // HTTP-Request ausführen
+   $response = CurlHttpClient ::create($options)->send($request);
    $status   = $response->getStatus();
    $content  = $response->getContent();
    if ($status != 200) throw new plRuntimeException('Unexpected HTTP status code from cp.forexsignals.com: '.$status.' ('.HttpResponse ::$sc[$status].')');
 
    // Antwort auswerten
    echoPre($content);
-   echoPre($response->getHeaders());
 }
 
 
@@ -99,7 +103,7 @@ function processSignal($signal) {
 function help($message=null) {
    if (!is_null($message))
       echo($message."\n");
-   global $knownSignals;
-   echo("\n  Syntax: ".baseName($_SERVER['PHP_SELF'])."  [".implode('|', $knownSignals)."]\n");
+   global $signals;
+   echo("\n  Syntax: ".baseName($_SERVER['PHP_SELF'])."  [".implode('|', array_keys($signals))."]\n");
 }
 ?>
