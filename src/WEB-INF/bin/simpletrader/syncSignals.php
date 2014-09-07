@@ -39,38 +39,31 @@ function processSignal($signal) {
    $signal = strToLower($signal);
 
    /**
-    * pewa
-    * ----
-    * URL:    https://cp.forexsignals.com/signal/{signal_id}/signal.html                              (mit und ohne SSL)
+    * URL:    http://cp.forexsignals.com/signal/{signal_id}/signal.html                               (mit und ohne SSL)
     * Cookie: email=address@domain.tld; session=***REMOVED***
     *
-    *
-    * pewa
-    * ----
     * URL:    https://www.simpletrader.net/signal/{signal_id}/signal.html                             (nur mit SSL)
     * Cookie: email=address@domain.tld; session=***REMOVED***
     *
-    *
-    * Signal-ID's
-    * -----------
+    * Signals:
+    * --------
     * SmartTrader:  1081
     * SmartScalper: 1086
     * DayFox:       2465
+    * AlexProfit:   2474
     */
 
-    //  http://cp.forexsignals.com/signal/2465/signal.html
-    //
-    //  GET /signal/2465/signal.html HTTP/1.1
-    //  Host:            cp.forexsignals.com
-    //  User-Agent:      ***REMOVED***
-    //  Accept:          text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
-    //  Accept-Language: en-us
-    //  Accept-Charset:  ISO-8859-1,utf-8;q=0.7,*;q=0.7
-    //  Accept-Encoding: gzip, deflate
-    //  Keep-Alive:      115
-    //  Connection:      keep-alive
-    //  Referer:         http://cp.forexsignals.com/forex-signals.html
-    //  Cookie:          email=address@domain.tld; session=***REMOVED***
+   // GET /signal/2465/signal.html HTTP/1.1
+   // Host:            cp.forexsignals.com
+   // User-Agent:      ***REMOVED***
+   // Accept:          text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+   // Accept-Language: en-us
+   // Accept-Charset:  ISO-8859-1,utf-8;q=0.7,*;q=0.7
+   // Accept-Encoding: gzip, deflate
+   // Keep-Alive:      115
+   // Connection:      keep-alive
+   // Referer:         http://cp.forexsignals.com/forex-signals.html
+   // Cookie:          email=address@domain.tld; session=***REMOVED***
 
    //echoPre('syncing signal '.$signal.'...');
 
