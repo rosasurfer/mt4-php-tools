@@ -8,7 +8,7 @@
 require(dirName(__FILE__).'/../config.php');
 
 
-// Daten der zur Zeit unterstützten Signale
+// zur Zeit unterstützte Signale
 $signals = array('alexprofit'   => array('id'=>2474, 'name'=>'AlexProfit'  ),
                  'dayfox'       => array('id'=>2465, 'name'=>'DayFox'      ),
                  'smarttrader'  => array('id'=>1081, 'name'=>'SmartTrader' ),
@@ -107,12 +107,11 @@ function processSignal($signal) {
  * @param  string $html - HTML-String
  */
 function parseHtml(&$html) {
-   $html = str_replace('&nbsp;', ' ', $html);
-
-
    // ggf. RegExp-Stringlimit erhöhen
+   $html = str_replace('&nbsp;', ' ', $html);
    if (strLen($html) > (int)ini_get('pcre.backtrack_limit'))
       ini_set('pcre.backtrack_limit', strLen($html));
+
 
    $matchedTables = $openTradeRows = $closedTradeRows = $matchedOpenTrades = $matchedClosedTrades = 0;
    $tables        = $openTrades    = $closedTrades    = array();
@@ -137,6 +136,20 @@ function parseHtml(&$html) {
             <td class="center">-1.8</td>
             <td class="center">1999552</td>
          </tr>
+
+         Array(
+            [ 0:          ] => {matched html}
+            [ 1:TakeProfit] => 1.319590
+            [ 2:StopLoss  ] => -
+            [ 3:OpenTime  ] => 2014/09/04 08:15:12
+            [ 4:OpenPrice ] => 1.314590
+            [ 5:Lots      ] => 0.16
+            [ 6:Type      ] => Buy
+            [ 7:Symbol    ] => EURUSD
+            [ 8:Profit    ] => -281.42
+            [ 9:Pips      ] => -226.9
+            [10:Comment   ] => 2000641
+         )
          */
          $openTradeRows     = preg_match_all('/<tr\b/is', $table[2], $openTrades);
          $matchedOpenTrades = preg_match_all('/<tr\b[^>]*?(?:"\s*Take\s*Profit:\s*([0-9.-]+)\s*Stop\s*Loss:\s*([0-9.-]+)\s*")?\s*>(?U)\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>/is', $table[2], $openTrades, PREG_SET_ORDER);
@@ -150,7 +163,7 @@ function parseHtml(&$html) {
       // History extrahieren
       if ($table[1] == 'history') {
          /*
-         <tr class="green">                              // Sollten hier doch mal TP und SL angegeben sein, werden sie erkannt.
+         <tr class="green">                              // Sollten TP oder SL angegeben sein, werden sie auch hier erkannt.
             <td class="center">2014/09/05 16:32:52</td>
             <td class="center">2014/09/08 04:57:25</td>
             <td class="center">1.294620</td>
@@ -162,6 +175,22 @@ function parseHtml(&$html) {
             <td class="center">4.9</td>
             <td class="center">1996607</td>
          </tr>
+
+         Array(
+            [ 0:          ] => {matched html}
+            [ 1:TakeProfit] =>
+            [ 2:StopLoss  ] =>
+            [ 3:OpenTime  ] => 2014/09/09 13:05:58
+            [ 4:CloseTime ] => 2014/09/09 13:08:15
+            [ 5:OpenPrice ] => 1.742870
+            [ 6:ClosePrice] => 1.743470
+            [ 7:Lots      ] => 0.12
+            [ 8:Type      ] => Sell
+            [ 9:Symbol    ] => GBPAUD
+            [10:Profit    ] => -7.84
+            [11:Pips      ] => -6
+            [12:Comment   ] => 2002156
+         )
          */
          $closedTradeRows     = preg_match_all('/<tr\b/is', $table[2], $closedTrades);
          $matchedClosedTrades = preg_match_all('/<tr\b[^>]*?(?:"\s*Take\s*Profit:\s*([0-9.-]+)\s*Stop\s*Loss:\s*([0-9.-]+)\s*")?\s*>(?U)\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>/is', $table[2], $closedTrades, PREG_SET_ORDER);
@@ -175,10 +204,20 @@ function parseHtml(&$html) {
    //echoPre($tables);
    //echoPre($matchedTables      .' table'       .($foundTables      ==1 ? '':'s'));
 
-   //echoPre($openTrades);
+
+   // Anzeige $openTrades
+   foreach ($openTrades as $i => $openTrade) {
+      if ($i >= 0) break;
+      echoPre($openTrade);
+   }
    echoPre($matchedOpenTrades  .' open trade'  .($matchedOpenTrades  ==1 ? '':'s').($openTradeRows  ==$matchedOpenTrades   ? '':' (could not match '.($openTradeRows  -$matchedOpenTrades)  .' row'.($openTradeRows-$matchedOpenTrades    ==1 ? '':'s').')'));
 
-   //echoPre($closedTrades);
+
+   // Anzeige $closedTrades
+   foreach ($closedTrades as $i => $closedTrade) {
+      if ($i >= 0) break;
+      echoPre($closedTrade);
+   }
    echoPre($matchedClosedTrades.' closed trade'.($matchedClosedTrades==1 ? '':'s').($closedTradeRows==$matchedClosedTrades ? '':' (could not match '.($closedTradeRows-$matchedClosedTrades).' row'.($closedTradeRows-$matchedClosedTrades==1 ? '':'s').')'));
 }
 
