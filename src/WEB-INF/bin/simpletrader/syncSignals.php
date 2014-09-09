@@ -186,7 +186,7 @@ function parseHtml(&$html) {
 /**
  * Hilfefunktion: Zeigt die Syntax des Aufrufs an.
  *
- * @param  string $message - zusätzlich zur Syntax anzuzeigende Message
+ * @param  string $message - zusätzlich zur Syntax anzuzeigende Message (default: keine)
  */
 function help($message=null) {
    if (!is_null($message))
