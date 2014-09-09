@@ -46,7 +46,8 @@ function processSignal($signal) {
    $signalID   = $signals[$signal]['id'  ];
    $signalName = $signals[$signal]['name'];
 
-   echoPre('syncing signal '.$signalName.'...');
+   echoPre('Syncing signal '.$signalName.'...');
+
    /**
     * URL:    http://cp.forexsignals.com/signal/{signal_id}/signal.html                               (mit und ohne SSL)
     * Cookie: email=address@domain.tld; session=***REMOVED***
@@ -67,7 +68,6 @@ function processSignal($signal) {
    // Referer:         http://cp.forexsignals.com/forex-signals.html
    // Cookie:          email=address@domain.tld; session=***REMOVED***
 
-
    // HTTP-Request definieren
    $request = HttpRequest ::create()
                           ->setUrl('http://cp.forexsignals.com/signal/'.$signalID.'/signal.html')
@@ -85,13 +85,101 @@ function processSignal($signal) {
                     CURLOPT_COOKIEJAR  => $cookieStore);    // The name of a file to save cookie data to when the connection closes.
 
    // HTTP-Request ausführen
-   $response = CurlHttpClient ::create($options)->send($request);
-   $status   = $response->getStatus();
-   $content  = $response->getContent();
-   if ($status != 200) throw new plRuntimeException('Unexpected HTTP status code from cp.forexsignals.com: '.$status.' ('.HttpResponse ::$sc[$status].')');
+   if (true) {
+      $response = CurlHttpClient ::create($options)->send($request);
+      $status   = $response->getStatus();
+      $content  = $response->getContent();
+      if ($status != 200) throw new plRuntimeException('Unexpected HTTP status code from cp.forexsignals.com: '.$status.' ('.HttpResponse ::$sc[$status].')');
+   }
+   else {
+      $filename = dirName($_SERVER['PHP_SELF']).DIRECTORY_SEPARATOR.$signal.'.html';
+      $content  = file_get_contents($filename, false);
+   }
 
    // Antwort auswerten
-   echoPre($content);
+   parseHtml($content);
+}
+
+
+/**
+ * Parst den geladenen HTML-Content.
+ *
+ * @param  string $html - HTML-String
+ */
+function parseHtml(&$html) {
+   $html = str_replace('&nbsp;', ' ', $html);
+
+
+   // ggf. RegExp-Stringlimit erhöhen
+   if (strLen($html) > (int)ini_get('pcre.backtrack_limit'))
+      ini_set('pcre.backtrack_limit', strLen($html));
+
+   $matchedTables = $openTradeRows = $closedTradeRows = $matchedOpenTrades = $matchedClosedTrades = 0;
+   $tables        = $openTrades    = $closedTrades    = array();
+
+
+   // Tabellen <table id="openTrades"> und <table id="history"> extrahieren
+   $matchedTables = preg_match_all('/<table\b.*\bid="(opentrades|history)".*>.*<tbody\b.*>(.*)<\/tbody>.*<\/table>/isU', $html, $tables, PREG_SET_ORDER);
+   foreach ($tables as $i => &$table) {
+      $table[0] = 'table '.($i+1);
+      $table[1] = strToLower($table[1]);
+
+      // offene Positionen extrahieren
+      if ($table[1] == 'opentrades') {
+         /*
+         <tr class="red topDir" title="Take Profit: 1.730990 Stop Loss: -">
+            <td class="center">2014/09/08 13:25:42</td>
+            <td class="center">1.294130</td>
+            <td class="center">1.24</td>
+            <td class="center">Sell</td>
+            <td class="center">EURUSD</td>
+            <td class="center">-32.57</td>
+            <td class="center">-1.8</td>
+            <td class="center">1999552</td>
+         </tr>
+         */
+         $openTradeRows     = preg_match_all('/<tr\b/is', $table[2], $openTrades);
+         $matchedOpenTrades = preg_match_all('/<tr\b[^>]*?(?:"\s*Take\s*Profit:\s*([0-9.-]+)\s*Stop\s*Loss:\s*([0-9.-]+)\s*")?\s*>(?U)\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>/is', $table[2], $openTrades, PREG_SET_ORDER);
+         foreach ($openTrades as $i => &$row) {
+            if (striPos($row[0], 'Take Profit') > 0 && (empty($row[1]) || empty($row[2])))
+               throw new plRuntimeException('Error parsing TakeProfit or StopLoss in open position row '.($i+1).":\n".$row[0]);
+            $row[0] = 'row '.($i+1);
+         }
+      }
+
+      // History extrahieren
+      if ($table[1] == 'history') {
+         /*
+         <tr class="green">                              // Sollten hier doch mal TP und SL angegeben sein, werden sie erkannt.
+            <td class="center">2014/09/05 16:32:52</td>
+            <td class="center">2014/09/08 04:57:25</td>
+            <td class="center">1.294620</td>
+            <td class="center">1.294130</td>
+            <td class="center">1.24</td>
+            <td class="center">Sell</td>
+            <td class="center">EURUSD</td>
+            <td class="center">47.43</td>
+            <td class="center">4.9</td>
+            <td class="center">1996607</td>
+         </tr>
+         */
+         $closedTradeRows     = preg_match_all('/<tr\b/is', $table[2], $closedTrades);
+         $matchedClosedTrades = preg_match_all('/<tr\b[^>]*?(?:"\s*Take\s*Profit:\s*([0-9.-]+)\s*Stop\s*Loss:\s*([0-9.-]+)\s*")?\s*>(?U)\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>/is', $table[2], $closedTrades, PREG_SET_ORDER);
+         foreach ($closedTrades as $i => &$row) {
+            if (striPos($row[0], 'Take Profit') > 0 && (empty($row[1]) || empty($row[2])))
+               throw new plRuntimeException('Error parsing TakeProfit or StopLoss in closed position row '.($i+1).":\n".$row[0]);
+            $row[0] = 'row '.($i+1);
+         }
+      }
+   }
+   //echoPre($tables);
+   //echoPre($matchedTables      .' table'       .($foundTables      ==1 ? '':'s'));
+
+   //echoPre($openTrades);
+   echoPre($matchedOpenTrades  .' open trade'  .($matchedOpenTrades  ==1 ? '':'s').($openTradeRows  ==$matchedOpenTrades   ? '':' (could not match '.($openTradeRows  -$matchedOpenTrades)  .' row'.($openTradeRows-$matchedOpenTrades    ==1 ? '':'s').')'));
+
+   //echoPre($closedTrades);
+   echoPre($matchedClosedTrades.' closed trade'.($matchedClosedTrades==1 ? '':'s').($closedTradeRows==$matchedClosedTrades ? '':' (could not match '.($closedTradeRows-$matchedClosedTrades).' row'.($closedTradeRows-$matchedClosedTrades==1 ? '':'s').')'));
 }
 
 
