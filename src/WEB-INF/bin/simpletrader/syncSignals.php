@@ -207,16 +207,14 @@ function parseHtml(&$html) {
 
    // Anzeige $openTrades
    foreach ($openTrades as $i => $openTrade) {
-      if ($i >= 0) break;
-      echoPre($openTrade);
+      if ($i >= 0) break; echoPre($openTrade);
    }
    echoPre($matchedOpenTrades  .' open trade'  .($matchedOpenTrades  ==1 ? '':'s').($openTradeRows  ==$matchedOpenTrades   ? '':' (could not match '.($openTradeRows  -$matchedOpenTrades)  .' row'.($openTradeRows-$matchedOpenTrades    ==1 ? '':'s').')'));
 
 
    // Anzeige $closedTrades
    foreach ($closedTrades as $i => $closedTrade) {
-      if ($i >= 0) break;
-      echoPre($closedTrade);
+      if ($i >= 0) break; echoPre($closedTrade);
    }
    echoPre($matchedClosedTrades.' closed trade'.($matchedClosedTrades==1 ? '':'s').($closedTradeRows==$matchedClosedTrades ? '':' (could not match '.($closedTradeRows-$matchedClosedTrades).' row'.($closedTradeRows-$matchedClosedTrades==1 ? '':'s').')'));
 }
