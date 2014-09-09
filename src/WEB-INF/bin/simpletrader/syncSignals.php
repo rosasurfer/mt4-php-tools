@@ -141,7 +141,7 @@ function parseHtml(&$html) {
          $openTradeRows     = preg_match_all('/<tr\b/is', $table[2], $openTrades);
          $matchedOpenTrades = preg_match_all('/<tr\b[^>]*?(?:"\s*Take\s*Profit:\s*([0-9.-]+)\s*Stop\s*Loss:\s*([0-9.-]+)\s*")?\s*>(?U)\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>/is', $table[2], $openTrades, PREG_SET_ORDER);
          foreach ($openTrades as $i => &$row) {
-            if (striPos($row[0], 'Take Profit') > 0 && (empty($row[1]) || empty($row[2])))
+            if (is_int(strPos($row[0], 'Take Profit')) && (empty($row[1]) || empty($row[2])))
                throw new plRuntimeException('Error parsing TakeProfit or StopLoss in open position row '.($i+1).":\n".$row[0]);
             $row[0] = 'row '.($i+1);
          }
@@ -166,7 +166,7 @@ function parseHtml(&$html) {
          $closedTradeRows     = preg_match_all('/<tr\b/is', $table[2], $closedTrades);
          $matchedClosedTrades = preg_match_all('/<tr\b[^>]*?(?:"\s*Take\s*Profit:\s*([0-9.-]+)\s*Stop\s*Loss:\s*([0-9.-]+)\s*")?\s*>(?U)\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>/is', $table[2], $closedTrades, PREG_SET_ORDER);
          foreach ($closedTrades as $i => &$row) {
-            if (striPos($row[0], 'Take Profit') > 0 && (empty($row[1]) || empty($row[2])))
+            if (is_int(strPos($row[0], 'Take Profit')) && (empty($row[1]) || empty($row[2])))
                throw new plRuntimeException('Error parsing TakeProfit or StopLoss in closed position row '.($i+1).":\n".$row[0]);
             $row[0] = 'row '.($i+1);
          }
