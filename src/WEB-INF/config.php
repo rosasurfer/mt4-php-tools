@@ -5,7 +5,7 @@ define('APPLICATION_ROOT', join(DIRECTORY_SEPARATOR, array_slice(explode(DIRECTO
 ini_set('include_path',      realPath(APPLICATION_ROOT.'/WEB-INF'));       // WEB-INF-Verzeichnis einbinden
 ini_set('session.save_path', realPath(APPLICATION_ROOT.'/../etc/tmp'));
 ini_set('apd.dumpdir',       realPath(APPLICATION_ROOT.'/../etc/tmp'));
-ini_set('error_log',         realPath(APPLICATION_ROOT.'/../log/php_error_log'));
+ini_set('error_log',         realPath(APPLICATION_ROOT.'/../etc/log/php_error_log'));
 
 require(APPLICATION_ROOT.'/../../php-lib/src/phpLib.php');                 // PHPLib laden
 include(APPLICATION_ROOT.'/WEB-INF/include/defines.php');                  // zusätzliche Definitionen laden

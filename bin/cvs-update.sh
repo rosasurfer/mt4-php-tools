@@ -6,12 +6,12 @@ PROJECTS_ROOT=/var/www
 PROJECT=pewasoft.myfx
 
 
-# update dependencies
+# Update dependencies.
 REQUIRED_PROJECT=/var/www/php-lib
 [ -f $REQUIRED_PROJECT/bin/cvs-update.sh ] && $REQUIRED_PROJECT/bin/cvs-update.sh
 
 
-# update project
+# Update the project.
 echo Updating $PROJECT ...
 
 PASS=`cat ~/.cvs.shadow`
@@ -29,18 +29,19 @@ cvs -d $CVSROOT logout
 export -n CVSROOT
 
 
-# update file modes (may take some time, let's do it in the background)
-find $PROJECT/conf -follow -type f                                                               -print0 2>/dev/null | xargs -0r chmod 0644          && \
-find $PROJECT      -follow -type d \( ! -group apache -o ! -user apache \) ! -name 'CVS'         -print0 2>/dev/null | xargs -0r chown apache:apache && \
-find $PROJECT      -follow -type d                                                               -print0 2>/dev/null | xargs -0r chmod 0755          && \
-find $PROJECT      -follow -type f   -path '*/bin*' -prune -regex '.*\.\(pl\|php\|sh\)'          -print0 2>/dev/null | xargs -0r chmod 0754          && \
-find $PROJECT      -follow -type f ! -path '*/bin*' -prune ! -path '*/tmp*' -prune ! -perm 0644  -print0 2>/dev/null | xargs -0r chmod 0644          && \
-find $PROJECT      -follow \( -name '.ht*' -o -name '*_log' \)                                   -print0 2>/dev/null | xargs -0r chown apache:apache && \
-find $PROJECT      -follow -type f -name '*.sh'                                                  -print0 2>/dev/null | xargs -0r chmod u+x           && \
-find $PROJECT      -follow -name '.#*'                                                           -print0 2>/dev/null | xargs -0r rm                  &
+# Update file modes (this takes some time, so we do it in the background).
+#find $PROJECT/conf -follow -type f                                                               -print0 2>/dev/null | xargs -0r chmod 0644          && \
+#find $PROJECT      -follow -type d \( ! -group apache -o ! -user apache \) ! -name 'CVS'         -print0 2>/dev/null | xargs -0r chown apache:apache && \
+#find $PROJECT      -follow -type d                                                               -print0 2>/dev/null | xargs -0r chmod 0755          && \
+ find $PROJECT      -follow -type f   -path '*/bin*' -prune -regex '.*\.\(pl\|php\|sh\)'          -print0 2>/dev/null | xargs -0r chmod 0754          && \
+#find $PROJECT      -follow -type f ! -path '*/bin*' -prune ! -path '*/tmp*' -prune ! -perm 0644  -print0 2>/dev/null | xargs -0r chmod 0644          && \
+#find $PROJECT      -follow \( -name '.ht*' -o -name '*_log' \)                                   -print0 2>/dev/null | xargs -0r chown apache:apache && \
+ find $PROJECT      -follow -type f -name '*.sh'                                                  -print0 2>/dev/null | xargs -0r chmod u+x           && \
+ find $PROJECT      -follow -name '.#*'                                                           -print0 2>/dev/null | xargs -0r rm                  &
 
 
-# restart Apache if running
-[ -f /var/run/httpd.pid ] && /bin/kill -HUP `cat /var/run/httpd.pid`
+
+# Restart Apache if it's running.
+#[ -f /var/run/httpd.pid ] && /bin/kill -HUP `cat /var/run/httpd.pid`
 
 echo
