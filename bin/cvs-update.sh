@@ -6,7 +6,7 @@ PROJECTS_ROOT=/var/www
 PROJECT=pewasoft.myfx
 
 
-# update required project
+# update dependencies
 REQUIRED_PROJECT=/var/www/php-lib
 [ -f $REQUIRED_PROJECT/bin/cvs-update.sh ] && $REQUIRED_PROJECT/bin/cvs-update.sh
 
