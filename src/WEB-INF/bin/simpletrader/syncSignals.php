@@ -1,7 +1,7 @@
 #!/usr/bin/php -Cq
 <?
 /**
- * Synchronisiert die lokalen Daten mit denen des angegebenen Signals.  Die lokalen Daten können sich in einer Datenbank
+ * Synchronisiert die lokalen Daten mit denen der angegebenen Signale.  Die lokalen Daten können sich in einer Datenbank
  * oder in einer Textdatei befinden. Bei Datenänderung kann ein MT4-Terminal benachrichtigt und eine Mail oder SMS
  * verschickt werden.
  */
@@ -21,12 +21,17 @@ $signals = array('alexprofit'   => array('id'=>2474, 'name'=>'AlexProfit'  ),
 
 // Befehlszeilenparameter einlesen und validieren
 $args = array_slice($_SERVER['argv'], 1);
-(sizeOf($args)!=1 || in_array(strToLower($args[0]), array('-?','/?','-h','/h','-help','/help'))) && exit(1|help());
-(!array_key_exists(strToLower($args[0]), $signals))                                              && exit(1|help('Unknown signal: '.$args[0]));
+foreach ($args as $i => $arg) {
+   $arg = strToLower($arg);
+   in_array($arg, array('-?','/?','-h','/h','-help','/help')) && exit(1|help());
+   !array_key_exists($arg, $signals)                          && exit(1|help('Unknown signal: '.$args[$i]));
+}
 
 
-// Signal verarbeiten
-processSignal($args[0]);
+// Signale verarbeiten
+foreach ($args as $i => $arg) {
+   processSignal($arg);
+}
 exit(0);
 
 
@@ -46,7 +51,7 @@ function processSignal($signal) {
    $signalID   = $signals[$signal]['id'  ];
    $signalName = $signals[$signal]['name'];
 
-   echoPre('Syncing signal '.$signalName.'...');
+   echoPre("\nSyncing signal $signalName...");
 
    /**
     * URL:    http://cp.forexsignals.com/signal/{signal_id}/signal.html                               (mit und ohne SSL)
