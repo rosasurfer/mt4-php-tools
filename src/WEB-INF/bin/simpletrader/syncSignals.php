@@ -9,10 +9,22 @@ require(dirName(__FILE__).'/../config.php');
 
 
 // zur Zeit unterstützte Signale
-$signals = array('alexprofit'   => array('id'=>2474, 'name'=>'AlexProfit'  ),
-                 'dayfox'       => array('id'=>2465, 'name'=>'DayFox'      ),
-                 'smarttrader'  => array('id'=>1081, 'name'=>'SmartTrader' ),
-                 'smartscalper' => array('id'=>1086, 'name'=>'SmartScalper'),
+$signals = array('alexprofit'   => array('id'   => 2474,
+                                         'name' => 'AlexProfit',
+                                         'url'  => 'http://cp.forexsignals.com/signal/2474/signal.html'),   // ohne SSL: komprimiert
+                                       //'url'  => 'https://www.simpletrader.net/signal/2474/signal.html'), // mit SSL: nicht komprimiert
+
+                 'dayfox'       => array('id'   => 2465,
+                                         'name' => 'DayFox',
+                                         'url'  => 'http://cp.forexsignals.com/signal/2465/signal.html'),
+
+                 'smarttrader'  => array('id'   => 1081,
+                                         'name' => 'SmartTrader',
+                                         'url'  => 'http://cp.forexsignals.com/signal/1081/signal.html'),
+
+                 'smartscalper' => array('id'   => 1086,
+                                         'name' => 'SmartScalper',
+                                         'url'  => 'http://cp.forexsignals.com/signal/1086/signal.html'),
                  );
 
 
@@ -50,15 +62,16 @@ function processSignal($signal) {
    global $signals;
    $signalID   = $signals[$signal]['id'  ];
    $signalName = $signals[$signal]['name'];
+   $signalUrl  = $signals[$signal]['url' ];
 
    echoPre("\nSyncing signal $signalName...");
 
    /**
     * URL:    http://cp.forexsignals.com/signal/{signal_id}/signal.html                               (mit und ohne SSL)
-    * Cookie: email=address@domain.tld; session=***REMOVED***
+    * Cookie: email=address@domain.tld; session=***REMOVED***               (ohne SSL komprimiert)
     *
     * URL:    https://www.simpletrader.net/signal/{signal_id}/signal.html                             (nur mit SSL)
-    * Cookie: email=address@domain.tld; session=***REMOVED***
+    * Cookie: email=address@domain.tld; session=***REMOVED***    (nicht komprimiert)
     */
 
    // GET /signal/2465/signal.html HTTP/1.1
@@ -75,7 +88,7 @@ function processSignal($signal) {
 
    // HTTP-Request definieren
    $request = HttpRequest ::create()
-                          ->setUrl('http://cp.forexsignals.com/signal/'.$signalID.'/signal.html')
+                          ->setUrl($signalUrl)
 
                           ->setHeader('User-Agent'     , '***REMOVED***')
                           ->setHeader('Accept'         , 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
@@ -91,6 +104,8 @@ function processSignal($signal) {
 
    // HTTP-Request ausführen
    if (true) {
+      $options[CURLOPT_SSL_VERIFYPEER] = false;             // das SSL-Zertifikat von www.simpletrader.net ist ungültig
+
       $response = CurlHttpClient ::create($options)->send($request);
       $status   = $response->getStatus();
       $content  = $response->getContent();
