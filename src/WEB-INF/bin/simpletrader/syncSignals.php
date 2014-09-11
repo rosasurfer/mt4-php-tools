@@ -123,7 +123,7 @@ function parseHtml(&$html) {
       $table[0] = 'table '.($i+1);
       $table[1] = strToLower($table[1]);
 
-      // offene Positionen extrahieren
+      // offene Positionen extrahieren (Zeitzone: GMT)
       if ($table[1] == 'opentrades') {
          /*
          <tr class="red topDir" title="Take Profit: 1.730990 Stop Loss: -">
@@ -160,7 +160,7 @@ function parseHtml(&$html) {
          }
       }
 
-      // History extrahieren
+      // History extrahieren (Zeitzone: GMT)
       if ($table[1] == 'history') {
          /*
          <tr class="green">                              // Sollten TP oder SL angegeben sein, werden sie auch hier erkannt.
