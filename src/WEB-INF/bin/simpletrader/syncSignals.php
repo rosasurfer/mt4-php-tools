@@ -33,6 +33,7 @@ $signals = array('alexprofit'   => array('id'   => 2474,
 
 // Befehlszeilenparameter einlesen und validieren
 $args = array_slice($_SERVER['argv'], 1);
+!$args                                                        && exit(1|help());
 foreach ($args as $i => $arg) {
    $arg = strToLower($arg);
    in_array($arg, array('-?','/?','-h','/h','-help','/help')) && exit(1|help());

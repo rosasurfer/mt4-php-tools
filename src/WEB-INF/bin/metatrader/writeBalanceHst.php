@@ -3,7 +3,7 @@
 /**
  *
  */
-require(dirName(__FILE__).'/../config.php');
+require(dirName(realPath(__FILE__)).'/../config.php');
 
 
 // Befehlszeilenargumente holen, auswerten und alle notwendigen Pfade und Dateinamen bestimmen

@@ -3,7 +3,7 @@
 /**
  * Verzeichnislisting für MT4-Historydateien
  */
-require(dirName(__FILE__).'/../config.php');
+require(dirName(realPath(__FILE__)).'/../config.php');
 
 
 /**
