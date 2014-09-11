@@ -5,7 +5,7 @@
  * oder in einer Textdatei befinden. Bei Datenänderung kann ein MT4-Terminal benachrichtigt und eine Mail oder SMS
  * verschickt werden.
  */
-require(dirName(__FILE__).'/../config.php');
+require(dirName(realPath(__FILE__)).'/../config.php');
 
 
 // zur Zeit unterstützte Signale
@@ -98,13 +98,13 @@ function processSignal($signal) {
                           ->setHeader('Connection'     , 'keep-alive');
 
    // Cookies in der angegebenen Datei verwenden/speichern
-   $cookieStore = dirName($_SERVER['PHP_SELF']).DIRECTORY_SEPARATOR.'cookies.txt';
+   $cookieStore = dirName(realPath($_SERVER['PHP_SELF'])).DIRECTORY_SEPARATOR.'cookies.txt';
    $options = array(CURLOPT_COOKIEFILE => $cookieStore,     // The name of a file containing cookie data to use for the request.
                     CURLOPT_COOKIEJAR  => $cookieStore);    // The name of a file to save cookie data to when the connection closes.
 
    // HTTP-Request ausführen
    if (true) {
-      $options[CURLOPT_SSL_VERIFYPEER] = false;             // das SSL-Zertifikat von www.simpletrader.net ist ungültig
+      $options[CURLOPT_SSL_VERIFYPEER] = false;             // das SSL-Zertifikat von www.simpletrader.net ist u.U. ungültig
 
       $response = CurlHttpClient ::create($options)->send($request);
       $status   = $response->getStatus();
@@ -112,7 +112,7 @@ function processSignal($signal) {
       if ($status != 200) throw new plRuntimeException('Unexpected HTTP status code from cp.forexsignals.com: '.$status.' ('.HttpResponse ::$sc[$status].')');
    }
    else {
-      $filename = dirName($_SERVER['PHP_SELF']).DIRECTORY_SEPARATOR.$signal.'.html';
+      $filename = dirName(realPath($_SERVER['PHP_SELF'])).DIRECTORY_SEPARATOR.$signal.'.html';
       $content  = file_get_contents($filename, false);
    }
 
