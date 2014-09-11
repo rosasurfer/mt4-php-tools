@@ -87,10 +87,9 @@ function processSignal($signal) {
    // Referer:         http://cp.forexsignals.com/forex-signals.html
    // Cookie:          email=address@domain.tld; session=***REMOVED***
 
-   // HTTP-Request definieren
+   // HTTP-Request definieren und Browser simulieren
    $request = HttpRequest ::create()
                           ->setUrl($signalUrl)
-
                           ->setHeader('User-Agent'     , '***REMOVED***')
                           ->setHeader('Accept'         , 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
                           ->setHeader('Accept-Language', 'en-us')
