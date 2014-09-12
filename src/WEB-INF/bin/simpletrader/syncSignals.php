@@ -11,8 +11,8 @@ require(dirName(realPath(__FILE__)).'/../config.php');
 // zur Zeit unterstützte Signale
 $signals = array('alexprofit'   => array('id'   => 2474,
                                          'name' => 'AlexProfit',
-                                         'url'  => 'http://cp.forexsignals.com/signal/2474/signal.html'),   // ohne SSL: komprimiert
-                                       //'url'  => 'https://www.simpletrader.net/signal/2474/signal.html'), // mit SSL: nicht komprimiert
+                                       //'url'  => 'http://cp.forexsignals.com/signal/2474/signal.html'),   // ohne SSL: komprimiert
+                                         'url'  => 'https://www.simpletrader.net/signal/2474/signal.html'), // mit SSL: nicht komprimiert
 
                  'dayfox'       => array('id'   => 2465,
                                          'name' => 'DayFox',
