@@ -22,10 +22,10 @@ define('OP_BUYLIMIT' ,   2);     //         buy limit order
 define('OP_SELLLIMIT',   3);     //         sell limit order
 define('OP_BUYSTOP'  ,   4);     //         stop buy order
 define('OP_SELLSTOP' ,   5);     //         stop sell order
-define('OP_BALANCE'  ,   6);     //         account credit or withdrawel transaction
+define('OP_BALANCE'  ,   6);     //         account credit or withdrawal transaction
 define('OP_CREDIT'   ,   7);     //         credit facility, no transaction
-define('OP_TRANSFER' ,   8);     // custom: Balance-Änderung durch Kunden (Ein-/Auszahlung)
-define('OP_VENDOR'   ,   9);     //         Balance-Änderung durch Criminal (Swap, sonstiges)
+define('OP_TRANSFER' ,   8);     // custom: Balance-Änderung durch Kunden (Deposit/Withdrawal)
+define('OP_VENDOR'   ,   9);     //         Balance-Änderung durch Criminal (Dividende, Swap, Ausgleich etc.)
 
 
 // Spalten der internen History-Daten in UploadAccountHistoryForm

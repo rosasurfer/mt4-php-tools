@@ -124,36 +124,60 @@ function processSignal($signal) {
 
 
    // Antwort parsen
-   $openTrades = $history = array();
-   parseHtml($signal, $content, $openTrades, $history);
+   $openPositions = $history = array();
+   parseHtml($signal, $content, $openPositions, $history);
 
 
-   // offene Positionen verarbeiten
-   foreach ($openTrades as $i => &$openTrade) {
+   // offene Positionen aktualisieren
+   updateOpenPositions($signal, $openPositions);
+
+
+   // History aktualisieren
+   updateHistory($signal, $history);
+}
+
+
+/**
+ * Aktualisiert die gespeicherten offenen Positionen.
+ *
+ * @param  string $signal    - Signal
+ * @param  array  $positions - Array mit aktuellen offenen Positionsdaten
+ */
+function updateOpenPositions($signal, array $positions) {
+   echoPre(sizeOf($positions).' open position'.(sizeOf($positions)==1 ? '':'s'));
+
+   foreach ($positions as $i => &$position) {
       if ($i >= 0) break;
-      echoPre($openTrade);
+      echoPre($position);
    }
-   echoPre(sizeOf($openTrades).' open trade'.(sizeOf($openTrades)==1 ? '':'s'));
+}
 
 
-   // History verarbeiten
+/**
+ * Aktualisiert die gespeicherten Historydaten.
+ *
+ * @param  string $signal  - Signal
+ * @param  array  $history - Array mit aktuellen Historydaten
+ */
+function updateHistory($signal, array $history) {
+   echoPre(sizeOf($history).' history entr'.(sizeOf($history)==1 ? 'y':'ies'));
+
    foreach ($history as $i => &$entry) {
       if ($i >= 0) break;
       echoPre($entry);
    }
-   echoPre(sizeOf($history).' history entr'.(sizeOf($history)==1 ? 'y':'ies'));
 }
 
 
 /**
  * Parst eine HTML-Seite.
  *
- * @param  string $signal     - Signal-ID
+ * @param  string $signal     - Signal
  * @param  string $html       - Inhalt der HTML-Seite
  * @param  array  $openTrades - Array zur Aufnahme der offenen Positionen
  * @param  array  $history    - Array zur Aufnahme der Accounthistory
  */
-function parseHtml($signal, &$html, &$openTrades, &$history) {
+function parseHtml($signal, &$html, array &$openTrades, array &$history) {
    global $signals;
 
    // ggf. RegExp-Stringlimit erhöhen
@@ -162,7 +186,7 @@ function parseHtml($signal, &$html, &$openTrades, &$history) {
       ini_set('pcre.backtrack_limit', strLen($html));
 
    $matchedTables = $openTradeRows = $historyRows = $matchedOpenTrades = $matchedHistoryEntries = 0;
-   $tables        = $openTrades    = $history     = array();
+   $tables = array();
 
    // Tabellen <table id="openTrades"> und <table id="history"> extrahieren
    $matchedTables = preg_match_all('/<table\b.*\bid="(opentrades|history)".*>.*<tbody\b.*>(.*)<\/tbody>.*<\/table>/isU', $html, $tables, PREG_SET_ORDER);
@@ -170,7 +194,7 @@ function parseHtml($signal, &$html, &$openTrades, &$history) {
       $table[0] = 'table '.($i+1);
       $table[1] = strToLower($table[1]);
 
-      // offene Positionen extrahieren und parsen (Zeitzone: GMT)
+      // offene Positionen extrahieren und parsen (Timezone: GMT)
       if ($table[1] == 'opentrades') {
          /*                                                                   // Array([ 0:          ] => {matched html}
          <tr class="red topDir" title="Take Profit: 1.730990 Stop Loss: -">   //       [ 1:TakeProfit] => 1.319590
@@ -245,7 +269,7 @@ function parseHtml($signal, &$html, &$openTrades, &$history) {
          }
       }
 
-      // History extrahieren (Zeitzone: GMT), sollten TP oder SL angegeben sein, werden sie auch hier erkannt.
+      // History extrahieren und parsen; TP und SL werden, falls angegeben, erkannt (Timezone: GMT)
       if ($table[1] == 'history') {
          /*                                                                   // Array([ 0:          ] => {matched html}
          <tr class="green">                                                   //       [ 1:TakeProfit] =>
