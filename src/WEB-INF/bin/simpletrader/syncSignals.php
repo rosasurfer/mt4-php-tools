@@ -39,11 +39,12 @@ $signals = array('alexprofit'   => array('id'   => 2474,
 // Befehlszeilenparameter einlesen und validieren
 $args = array_slice($_SERVER['argv'], 1);
 !$args                                                        && exit(1|help());
-foreach ($args as $i => $arg) {
+foreach ($args as $i => &$arg) {
    $arg = strToLower($arg);
    in_array($arg, array('-?','/?','-h','/h','-help','/help')) && exit(1|help());
    !array_key_exists($arg, $signals)                          && exit(1|help('Unknown signal: '.$args[$i]));
 }
+$args = array_unique($args);
 
 
 // Signale verarbeiten
@@ -122,12 +123,12 @@ function processSignal($signal) {
    }
 
 
-   // Antwort auswerten
+   // Antwort parsen
    $openTrades = $history = array();
    parseHtml($signal, $content, $openTrades, $history);
 
 
-   // Anzeige $openTrades
+   // offene Positionen verarbeiten
    foreach ($openTrades as $i => &$openTrade) {
       if ($i >= 0) break;
       echoPre($openTrade);
@@ -135,7 +136,7 @@ function processSignal($signal) {
    echoPre(sizeOf($openTrades).' open trade'.(sizeOf($openTrades)==1 ? '':'s'));
 
 
-   // Anzeige $history
+   // History verarbeiten
    foreach ($history as $i => &$entry) {
       if ($i >= 0) break;
       echoPre($entry);
@@ -145,10 +146,10 @@ function processSignal($signal) {
 
 
 /**
- * Parst den geladenen HTML-Content.
+ * Parst eine HTML-Seite.
  *
  * @param  string $signal     - Signal-ID
- * @param  string $html       - HTML-String
+ * @param  string $html       - Inhalt der HTML-Seite
  * @param  array  $openTrades - Array zur Aufnahme der offenen Positionen
  * @param  array  $history    - Array zur Aufnahme der Accounthistory
  */
@@ -292,7 +293,7 @@ function parseHtml($signal, &$html, &$openTrades, &$history) {
             if (!($time=strToTime($sCloseTime.' GMT'))) throw new plRuntimeException('Invalid CloseTime found in history row '.($i+1).': "'.$row[I_STH_CLOSETIME].'"');
             if ($row[I_STH_OPENTIME] > $time) {
                if ($signal=='smarttrader' && ($comment=trim($row[I_STH_COMMENT]))=='1175928') {
-                  //echoPre('Fixing data error in signal history (#'.$comment);
+                  //echoPre("Fixing data error in $signal history (#$comment)");
                   $row[I_STH_OPENTIME] = $time;
                }
                else throw new plRuntimeException('Invalid Open-/CloseTime pair found in history row '.($i+1).': "'.$sOpenTime.'" / "'.$sCloseTime.'"');
