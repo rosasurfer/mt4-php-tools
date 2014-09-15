@@ -6,6 +6,7 @@
  * verschickt werden.
  */
 require(dirName(realPath(__FILE__)).'/../config.php');
+date_default_timezone_set('GMT');
 
 
 // zur Zeit unterstützte Signale
@@ -123,12 +124,12 @@ function processSignal($signal) {
 
    // Antwort auswerten
    $openTrades = $history = array();
-   parseHtml($content, $openTrades, $history);
+   parseHtml($signal, $content, $openTrades, $history);
 
 
    // Anzeige $openTrades
    foreach ($openTrades as $i => &$openTrade) {
-      if ($i >= 1) break;
+      if ($i >= 0) break;
       echoPre($openTrade);
    }
    echoPre(sizeOf($openTrades).' open trade'.(sizeOf($openTrades)==1 ? '':'s'));
@@ -146,11 +147,14 @@ function processSignal($signal) {
 /**
  * Parst den geladenen HTML-Content.
  *
+ * @param  string $signal     - Signal-ID
  * @param  string $html       - HTML-String
  * @param  array  $openTrades - Array zur Aufnahme der offenen Positionen
  * @param  array  $history    - Array zur Aufnahme der Accounthistory
  */
-function parseHtml(&$html, &$openTrades, &$history) {
+function parseHtml($signal, &$html, &$openTrades, &$history) {
+   global $signals;
+
    // ggf. RegExp-Stringlimit erhöhen
    $html = str_replace('&nbsp;', ' ', $html);
    if (strLen($html) > (int)ini_get('pcre.backtrack_limit'))
@@ -201,6 +205,10 @@ function parseHtml(&$html, &$openTrades, &$history) {
             $row[I_STOP_STOPLOSS] = $dValue;
 
             // 3:OpenTime
+            $sOpenTime = trim($row[I_STOP_OPENTIME]);
+            if (!($time=strToTime($sOpenTime.' GMT'))) throw new plRuntimeException('Invalid OpenTime found in open position row '.($i+1).': "'.$row[I_STOP_OPENTIME].'"');
+          //$row[I_STOP_OPENTIME] = date(DATE_RFC822, $time);
+            $row[I_STOP_OPENTIME] = $time;
 
             // 4:OpenPrice
             $sValue = trim($row[I_STOP_OPENPRICE]);
@@ -274,8 +282,23 @@ function parseHtml(&$html, &$openTrades, &$history) {
             $row[I_STH_STOPLOSS] = $dValue;
 
             // 3:OpenTime
+            $sOpenTime = trim($row[I_STH_OPENTIME]);
+            if (!($time=strToTime($sOpenTime.' GMT'))) throw new plRuntimeException('Invalid OpenTime found in history row '.($i+1).': "'.$row[I_STH_OPENTIME].'"');
+          //$row[I_STH_OPENTIME] = date(DATE_RFC822, $time);
+            $row[I_STH_OPENTIME] = $time;
 
             // 4:CloseTime
+            $sCloseTime = trim($row[I_STH_CLOSETIME]);
+            if (!($time=strToTime($sCloseTime.' GMT'))) throw new plRuntimeException('Invalid CloseTime found in history row '.($i+1).': "'.$row[I_STH_CLOSETIME].'"');
+            if ($row[I_STH_OPENTIME] > $time) {
+               if ($signal=='smarttrader' && ($comment=trim($row[I_STH_COMMENT]))=='1175928') {
+                  //echoPre('Fixing data error in signal history (#'.$comment);
+                  $row[I_STH_OPENTIME] = $time;
+               }
+               else throw new plRuntimeException('Invalid Open-/CloseTime pair found in history row '.($i+1).': "'.$sOpenTime.'" / "'.$sCloseTime.'"');
+            }
+          //$row[I_STH_CLOSETIME] = date(DATE_RFC822, $time);
+            $row[I_STH_CLOSETIME] = $time;
 
             // 5:OpenPrice
             $sValue = trim($row[I_STH_OPENPRICE]);
@@ -319,17 +342,8 @@ function parseHtml(&$html, &$openTrades, &$history) {
    //echoPre($tables);
    //echoPre($matchedTables.' table'.($foundTables==1 ? '':'s'));
 
-   // $openTrades
-   foreach ($openTrades as $i => &$openTrade) {
-      if ($i >= 0) break; echoPre($openTrade);
-   }
-   if ($openTradeRows != $matchedOpenTrades) throw new plRuntimeException('Could not match '.($openTradeRows-$matchedOpenTrades).' row'.($openTradeRows-$matchedOpenTrades ==1 ? '':'s'));
-
-   // $history
-   foreach ($history as $i => &$entry) {
-      if ($i >= 0) break; echoPre($entry);
-   }
-   if ($historyRows != $matchedHistoryEntries) throw new plRuntimeException('Could not match '.($historyRows-$matchedHistoryEntries).' row'.($historyRows-$matchedHistoryEntries==1 ? '':'s'));
+   if ($openTradeRows != $matchedOpenTrades    ) throw new plRuntimeException('Could not match '.($openTradeRows-$matchedOpenTrades  ).' row'.($openTradeRows-$matchedOpenTrades  ==1 ? '':'s'));
+   if ($historyRows   != $matchedHistoryEntries) throw new plRuntimeException('Could not match '.($historyRows-$matchedHistoryEntries).' row'.($historyRows-$matchedHistoryEntries==1 ? '':'s'));
 }
 
 
