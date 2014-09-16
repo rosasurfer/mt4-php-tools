@@ -109,6 +109,9 @@ function processSignal($signal) {
    $options = array(CURLOPT_COOKIEFILE => $cookieStore,     // The name of a file containing cookie data to use for the request.
                     CURLOPT_COOKIEJAR  => $cookieStore);    // The name of a file to save cookie data to when the connection closes.
 
+   $start = microtime(true);
+
+
    // HTTP-Request ausführen
    if (true) {
       $options[CURLOPT_SSL_VERIFYPEER] = false;             // das SSL-Zertifikat von www.simpletrader.net ist u.U. ungültig
@@ -123,6 +126,8 @@ function processSignal($signal) {
       $content  = file_get_contents($filename, false);
    }
 
+   $stop = microtime(true);
+   echoPre('download took '.number_format($stop-$start, 3).' sec');
    $start = microtime(true);
 
    // Antwort parsen
