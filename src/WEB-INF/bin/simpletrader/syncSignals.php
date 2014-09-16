@@ -132,9 +132,8 @@ function processSignal($signal) {
    return;
 
 
-   $start = microtime(true);
-   $stop  = microtime(true);
-   echoPre('Parsing took '.number_format($stop-$start, 3).' sec');
+   $start = $stop = microtime(true);
+   echoPre('Execution took '.number_format($stop-$start, 3).' sec');
 }
 
 
