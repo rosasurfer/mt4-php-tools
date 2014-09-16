@@ -39,10 +39,11 @@ $signals = array('alexprofit'   => array('id'   => 2474,
 // Befehlszeilenparameter einlesen und validieren
 $args = array_slice($_SERVER['argv'], 1);
 !$args                                                        && exit(1|help());
-foreach ($args as $i => &$arg) {
+foreach ($args as $i => $arg) {
    $arg = strToLower($arg);
    in_array($arg, array('-?','/?','-h','/h','-help','/help')) && exit(1|help());
    !array_key_exists($arg, $signals)                          && exit(1|help('Unknown signal: '.$args[$i]));
+   $args[$i] = $arg;
 }
 $args = array_unique($args);
 
@@ -128,44 +129,54 @@ function processSignal($signal) {
    parseHtml($signal, $content, $openPositions, $history);
 
 
-   // offene Positionen aktualisieren
-   updateOpenPositions($signal, $openPositions);
-
-
-   // History aktualisieren
-   updateHistory($signal, $history);
+   // offene Positionen und History aktualisieren
+   updateTrades($signal, $openPositions, $history);
 }
 
 
 /**
- * Aktualisiert die gespeicherten offenen Positionen.
+ * Aktualisiert die gespeicherten offenen Positionen und Historydaten.
  *
- * @param  string $signal    - Signal
- * @param  array  $positions - Array mit aktuellen offenen Positionsdaten
+ * @param  string $signal               - Signal
+ * @param  array  $currentOpenPositions - Array mit aktuell offenen Positionen
+ * @param  array  $currentHistory       - Array mit aktuellen Historydaten
  */
-function updateOpenPositions($signal, array $positions) {
-   echoPre(sizeOf($positions).' open position'.(sizeOf($positions)==1 ? '':'s'));
+function updateTrades($signal, array &$currentOpenPositions, array &$currentHistory) {
+   echoPre(sizeOf($currentOpenPositions).' open position'.(sizeOf($currentOpenPositions)==1 ?  '':'s'  ));
+   echoPre(sizeOf($currentHistory)      .' history entr' .(sizeOf($currentHistory)      ==1 ? 'y':'ies'));
 
-   foreach ($positions as $i => &$position) {
-      if ($i >= 0) break;
-      echoPre($position);
+   return;
+
+   // (1) alle gespeicherten offenen Positionen holen
+   $knownOpenPositions = DAO ::listOpenPositions($signal, ASSOC);
+
+   // (2) Schleife über $currentOpenPositions
+   foreach ($currentOpenPositions as $i => &$position) {
+      if (!isSet($knownOpenPositions[$position['ticket']])) {
+         // neue offene Position speichern
+      }
+      else {
+         // vorhandene offene Position auf Änderungen prüfen
+         if ($position['takeprofit'] != $knownOpenPositions[$position['ticket']]->getTakeProfit()) {
+            // modifizierten TP aktualisieren
+         }
+         if ($position['stoploss'] != $knownOpenPositions[$position['ticket']]->getStopLoss()) {
+            // modifizierten SL aktualisieren
+         }
+
+         // offene Position aus Liste entfernen
+         unset($knownOpenPositions[$position['ticket']]);
+      }
    }
-}
 
-
-/**
- * Aktualisiert die gespeicherten Historydaten.
- *
- * @param  string $signal  - Signal
- * @param  array  $history - Array mit aktuellen Historydaten
- */
-function updateHistory($signal, array $history) {
-   echoPre(sizeOf($history).' history entr'.(sizeOf($history)==1 ? 'y':'ies'));
-
-   foreach ($history as $i => &$entry) {
-      if ($i >= 0) break;
-      echoPre($entry);
+   // (3) alle in $knownOpenPositions verbliebenen Positionen müssen geschlossen sein und in der History auftauchen
+   foreach ($currentHistory as $i => &$entry) {
    }
+
+   return;
+
+   foreach ($currentOpenPositions as $i => &$value) { if ($i >= 0) break; echoPre($value); }
+   foreach ($currentHistory       as $i => &$value) { if ($i >= 0) break; echoPre($value); }
 }
 
 
@@ -221,52 +232,60 @@ function parseHtml($signal, &$html, array &$openTrades, array &$history) {
             $sValue = trim($row[I_STOP_TAKEPROFIT]);
             if (empty($sValue) || $sValue=='-') $dValue = null;
             else if (($dValue=(float)$sValue) <= 0 || !is_numeric($sValue)) throw new plRuntimeException('Invalid TakeProfit found in open position row '.($i+1).': "'.$row[I_STOP_TAKEPROFIT].'"');
-            $row[I_STOP_TAKEPROFIT] = $dValue;
+            $row['takeprofit'] = $dValue; unset($row[I_STOP_TAKEPROFIT]);;
 
             // 2:StopLoss
             $sValue = trim($row[I_STOP_STOPLOSS]);
             if (empty($sValue) || $sValue=='-') $dValue = null;
             else if (($dValue=(float)$sValue) <= 0 || !is_numeric($sValue)) throw new plRuntimeException('Invalid StopLoss found in open position row '.($i+1).': "'.$row[I_STOP_STOPLOSS].'"');
-            $row[I_STOP_STOPLOSS] = $dValue;
+            $row['stoploss'] = $dValue; unset($row[I_STOP_STOPLOSS]);
 
             // 3:OpenTime
             $sOpenTime = trim($row[I_STOP_OPENTIME]);
             if (!($time=strToTime($sOpenTime.' GMT'))) throw new plRuntimeException('Invalid OpenTime found in open position row '.($i+1).': "'.$row[I_STOP_OPENTIME].'"');
           //$row[I_STOP_OPENTIME] = date(DATE_RFC822, $time);
-            $row[I_STOP_OPENTIME] = $time;
+            $row['opentime' ] = $time; unset($row[I_STOP_OPENTIME]);
+            $row['closetime'] = null;
 
             // 4:OpenPrice
             $sValue = trim($row[I_STOP_OPENPRICE]);
             if (!is_numeric($sValue) || ($dValue=(float)$sValue) <= 0) throw new plRuntimeException('Invalid OpenPrice found in open position row '.($i+1).': "'.$row[I_STOP_OPENPRICE].'"');
-            $row[I_STOP_OPENPRICE] = $dValue;
+            $row['openprice' ] = $dValue; unset($row[I_STOP_OPENPRICE]);
+            $row['closeprice'] = null;
 
             // 5:LotSize
             $sValue = trim($row[I_STOP_LOTSIZE]);
             if (!is_numeric($sValue) || ($dValue=(float)$sValue) <= 0) throw new plRuntimeException('Invalid LotSize found in open position row '.($i+1).': "'.$row[I_STOP_LOTSIZE].'"');
-            $row[I_STOP_LOTSIZE] = $dValue;
+            $row['lotsize'] = $dValue; unset($row[I_STOP_LOTSIZE]);
 
             // 6:Type
             $sValue = trim(strToLower($row[I_STOP_TYPE]));
             if ($sValue!='buy' && $sValue!='sell') throw new plRuntimeException('Invalid OperationType found in open position row '.($i+1).': "'.$row[I_STOP_TYPE].'"');
-            $row[I_STOP_TYPE] = $sValue;
+            $row['type'] = $sValue; unset($row[I_STOP_TYPE]);
 
             // 7:Symbol
             $sValue = trim($row[I_STOP_SYMBOL]);
             if (empty($sValue)) throw new plRuntimeException('Invalid Symbol found in open position row '.($i+1).': "'.$row[I_STOP_SYMBOL].'"');
-            $row[I_STOP_SYMBOL] = $sValue;
+            $row['symbol'] = $sValue; unset($row[I_STOP_SYMBOL]);
 
             // 8:Profit
             $sValue = trim($row[I_STOP_PROFIT]);
             if (!is_numeric($sValue)) throw new plRuntimeException('Invalid Profit found in open position row '.($i+1).': "'.$row[I_STOP_PROFIT].'"');
-            $row[I_STOP_PROFIT] = (float)$sValue;
+            $row['profit'    ] = (float)$sValue; unset($row[I_STOP_PROFIT]);
+            $row['commission'] = 0;
+            $row['swap'      ] = 0;
 
             // 9:Pips
             unset($row[I_STOP_PIPS]);
 
             // 10:Comment
             $sValue = trim($row[I_STOP_COMMENT]);
-            $row[I_STOP_COMMENT] = empty($sValue) ? null : $sValue;
+            if (!ctype_digit($sValue)) throw new plRuntimeException('Invalid Comment/Ticket found in open position row '.($i+1).': "'.$row[I_STOP_COMMENT].'"');
+            $row['ticket' ] = $sValue; unset($row[I_STOP_COMMENT]);
+            $row['comment'] = null;
          }
+         // offene Positionen sortieren
+         uSort($openTrades, 'compareTradesByOpenTime');
       }
 
       // History extrahieren und parsen; TP und SL werden, falls angegeben, erkannt (Timezone: GMT)
@@ -298,70 +317,74 @@ function parseHtml($signal, &$html, array &$openTrades, array &$history) {
             $sValue = trim($row[I_STH_TAKEPROFIT]);
             if (empty($sValue) || $sValue=='-') $dValue = null;
             else if (($dValue=(float)$sValue) <= 0 || !is_numeric($sValue)) throw new plRuntimeException('Invalid TakeProfit found in history row '.($i+1).': "'.$row[I_STH_TAKEPROFIT].'"');
-            $row[I_STH_TAKEPROFIT] = $dValue;
+            $row['takeprofit'] = $dValue; unset($row[I_STH_TAKEPROFIT]);
 
             // 2:StopLoss
             $sValue = trim($row[I_STH_STOPLOSS]);
             if (empty($sValue) || $sValue=='-') $dValue = null;
             else if (($dValue=(float)$sValue) <= 0 || !is_numeric($sValue)) throw new plRuntimeException('Invalid StopLoss found in history row '.($i+1).': "'.$row[I_STH_STOPLOSS].'"');
-            $row[I_STH_STOPLOSS] = $dValue;
+            $row['stoploss'] = $dValue; unset($row[I_STH_STOPLOSS]);
 
             // 3:OpenTime
             $sOpenTime = trim($row[I_STH_OPENTIME]);
             if (!($time=strToTime($sOpenTime.' GMT'))) throw new plRuntimeException('Invalid OpenTime found in history row '.($i+1).': "'.$row[I_STH_OPENTIME].'"');
-          //$row[I_STH_OPENTIME] = date(DATE_RFC822, $time);
-            $row[I_STH_OPENTIME] = $time;
+            $row['opentime'] = $time; unset($row[I_STH_OPENTIME]);
 
             // 4:CloseTime
             $sCloseTime = trim($row[I_STH_CLOSETIME]);
             if (!($time=strToTime($sCloseTime.' GMT'))) throw new plRuntimeException('Invalid CloseTime found in history row '.($i+1).': "'.$row[I_STH_CLOSETIME].'"');
-            if ($row[I_STH_OPENTIME] > $time) {
+            if ($row['opentime'] > $time) {
                if ($signal=='smarttrader' && ($comment=trim($row[I_STH_COMMENT]))=='1175928') {
                   //echoPre("Fixing data error in $signal history (#$comment)");
-                  $row[I_STH_OPENTIME] = $time;
+                  $row['opentime'] = $time;
                }
                else throw new plRuntimeException('Invalid Open-/CloseTime pair found in history row '.($i+1).': "'.$sOpenTime.'" / "'.$sCloseTime.'"');
             }
-          //$row[I_STH_CLOSETIME] = date(DATE_RFC822, $time);
-            $row[I_STH_CLOSETIME] = $time;
+            $row['closetime'] = $time; unset($row[I_STH_CLOSETIME]);
 
             // 5:OpenPrice
             $sValue = trim($row[I_STH_OPENPRICE]);
             if (!is_numeric($sValue) || ($dValue=(float)$sValue) <= 0) throw new plRuntimeException('Invalid OpenPrice found in history row '.($i+1).': "'.$row[I_STH_OPENPRICE].'"');
-            $row[I_STH_OPENPRICE] = $dValue;
+            $row['openprice'] = $dValue; unset($row[I_STH_OPENPRICE]);
 
             // 6:ClosePrice
             $sValue = trim($row[I_STH_CLOSEPRICE]);
             if (!is_numeric($sValue) || ($dValue=(float)$sValue) <= 0) throw new plRuntimeException('Invalid ClosePrice found in history row '.($i+1).': "'.$row[I_STH_CLOSEPRICE].'"');
-            $row[I_STH_CLOSEPRICE] = $dValue;
+            $row['closeprice'] = $dValue; unset($row[I_STH_CLOSEPRICE]);
 
             // 7:LotSize
             $sValue = trim($row[I_STH_LOTSIZE]);
             if (!is_numeric($sValue) || ($dValue=(float)$sValue) <= 0) throw new plRuntimeException('Invalid LotSize found in history row '.($i+1).': "'.$row[I_STH_LOTSIZE].'"');
-            $row[I_STH_LOTSIZE] = $dValue;
+            $row['lotsize'] = $dValue; unset($row[I_STH_LOTSIZE]);
 
             // 8:Type
             $sValue = trim(strToLower($row[I_STH_TYPE]));
             if ($sValue!='buy' && $sValue!='sell') throw new plRuntimeException('Invalid OperationType found in history row '.($i+1).': "'.$row[I_STH_TYPE].'"');
-            $row[I_STH_TYPE] = $sValue;
+            $row['type'] = $sValue; unset($row[I_STH_TYPE]);
 
             // 9:Symbol
             $sValue = trim($row[I_STH_SYMBOL]);
             if (empty($sValue)) throw new plRuntimeException('Invalid Symbol found in history row '.($i+1).': "'.$row[I_STH_SYMBOL].'"');
-            $row[I_STH_SYMBOL] = $sValue;
+            $row['symbol'] = $sValue; unset($row[I_STH_SYMBOL]);
 
             // 10:Profit
             $sValue = trim($row[I_STH_PROFIT]);
             if (!is_numeric($sValue)) throw new plRuntimeException('Invalid Profit found in history row '.($i+1).': "'.$row[I_STH_PROFIT].'"');
-            $row[I_STH_PROFIT] = (float)$sValue;
+            $row['profit'    ] = (float)$sValue; unset($row[I_STH_PROFIT]);
+            $row['commission'] = 0;
+            $row['swap'      ] = 0;
 
             // 11:Pips
             unset($row[I_STH_PIPS]);
 
             // 12:Comment
             $sValue = trim($row[I_STH_COMMENT]);
-            $row[I_STH_COMMENT] = empty($sValue) ? null : $sValue;
+            if (!ctype_digit($sValue)) throw new plRuntimeException('Invalid Comment/Ticket found in history row '.($i+1).': "'.$row[I_STH_COMMENT].'"');
+            $row['ticket' ] = $sValue; unset($row[I_STH_COMMENT]);
+            $row['comment'] = null;
          }
+         // History sortieren
+         uSort($history, 'compareTradesByOpenCloseTime');
       }
    }
    //echoPre($tables);
@@ -369,6 +392,42 @@ function parseHtml($signal, &$html, array &$openTrades, array &$history) {
 
    if ($openTradeRows != $matchedOpenTrades    ) throw new plRuntimeException('Could not match '.($openTradeRows-$matchedOpenTrades  ).' row'.($openTradeRows-$matchedOpenTrades  ==1 ? '':'s'));
    if ($historyRows   != $matchedHistoryEntries) throw new plRuntimeException('Could not match '.($historyRows-$matchedHistoryEntries).' row'.($historyRows-$matchedHistoryEntries==1 ? '':'s'));
+}
+
+
+/**
+ * Comparator, der zwei Trades anhand ihrer OpenTime vergleicht.
+ *
+ * @param  array $tradeA
+ * @param  array $tradeB
+ *
+ * @return int - positiver Wert, wenn $tradeA nach $tradeB geöffnet wurde;
+ *               negativer Wert, wenn $tradeA vor $tradeB geöffnet wurde;
+ *               0, wenn beide Trades zum selben Zeitpunkt geöffnet wurden
+ */
+function compareTradesByOpenTime(array $tradeA, array $tradeB) {
+   if ($tradeA['opentime'] > $tradeB['opentime']) return  1;
+   if ($tradeA['opentime'] < $tradeB['opentime']) return -1;
+   return 0;
+}
+
+
+/**
+ * Comparator, der zwei Trades zunächst anhand ihrer CloseTime vergleicht. Wurden beide Trades zum selben Zeitpunkt
+ * geschlossen, werden sie anhand ihrer OpenTime verglichen. Beide Trades werden nur dann als "gleich" betrachtet, wenn
+ * sie zum jeweils selben Zeitpunkt geöffnet und geschlossen wurden.
+ *
+ * @param  array $tradeA
+ * @param  array $tradeB
+ *
+ * @return int - positiver Wert, wenn $tradeA nach $tradeB geschlossen wurde;
+ *               negativer Wert, wenn $tradeA vor $tradeB geschlossen wurde;
+ *               0, wenn beide Trades zum selben Zeitpunkt geöffnet und geschlossen wurden
+ */
+function compareTradesByOpenCloseTime(array $tradeA, array $tradeB) {
+   if ($tradeA['closetime'] > $tradeB['closetime']) return  1;
+   if ($tradeA['closetime'] < $tradeB['closetime']) return -1;
+   return compareTradesByOpenTime($tradeA, $tradeB);
 }
 
 
