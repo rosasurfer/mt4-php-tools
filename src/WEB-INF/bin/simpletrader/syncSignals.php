@@ -147,8 +147,8 @@ function updateTrades($signal, array &$currentOpenPositions, array &$currentHist
 
    return;
 
-   // (1) alle gespeicherten offenen Positionen holen
-   $knownOpenPositions = DAO ::listOpenPositions($signal, ASSOC);
+   // (1) gespeicherte offene Positionen holen
+   $knownOpenPositions = DAO ::listOpenPositionsBySignal($signal, ASSOC);
 
    // (2) Schleife über $currentOpenPositions
    foreach ($currentOpenPositions as $i => &$position) {
