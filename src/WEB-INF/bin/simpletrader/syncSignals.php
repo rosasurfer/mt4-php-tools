@@ -127,19 +127,21 @@ function processSignal($signal) {
    }
 
    $stop = microtime(true);
-   echoPre('download took '.number_format($stop-$start, 3).' sec');
-   $start = microtime(true);
+   echoPre('Download took '.number_format($stop-$start, 3).' sec');
+
 
    // Antwort parsen
    $openPositions = $history = array();
    parseHtml($signal, $content, $openPositions, $history);
 
-   $stop = microtime(true);
-   echoPre('parsing took '.number_format($stop-$start, 3).' sec');
-
-
    // offene Positionen und History aktualisieren
    updateTrades($signal, $openPositions, $history);
+
+   return;
+
+   $start = microtime(true);
+   $stop  = microtime(true);
+   echoPre('Parsing took '.number_format($stop-$start, 3).' sec');
 }
 
 
