@@ -123,10 +123,14 @@ function processSignal($signal) {
       $content  = file_get_contents($filename, false);
    }
 
+   $start = microtime(true);
 
    // Antwort parsen
    $openPositions = $history = array();
    parseHtml($signal, $content, $openPositions, $history);
+
+   $stop = microtime(true);
+   echoPre('parsing took '.number_format($stop-$start, 3).' sec');
 
 
    // offene Positionen und History aktualisieren
