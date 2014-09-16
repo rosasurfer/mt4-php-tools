@@ -408,7 +408,7 @@ function parseHtml($signal, &$html, array &$openTrades, array &$history) {
  *               negativer Wert, wenn $tradeA vor $tradeB geöffnet wurde;
  *               0, wenn beide Trades zum selben Zeitpunkt geöffnet wurden
  */
-function compareTradesByOpenTime(array $tradeA, array $tradeB) {
+function compareTradesByOpenTime(array &$tradeA, array &$tradeB) {
    if ($tradeA['opentime'] > $tradeB['opentime']) return  1;
    if ($tradeA['opentime'] < $tradeB['opentime']) return -1;
    return 0;
@@ -427,7 +427,7 @@ function compareTradesByOpenTime(array $tradeA, array $tradeB) {
  *               negativer Wert, wenn $tradeA vor $tradeB geschlossen wurde;
  *               0, wenn beide Trades zum selben Zeitpunkt geöffnet und geschlossen wurden
  */
-function compareTradesByOpenCloseTime(array $tradeA, array $tradeB) {
+function compareTradesByOpenCloseTime(array &$tradeA, array &$tradeB) {
    if ($tradeA['closetime'] > $tradeB['closetime']) return  1;
    if ($tradeA['closetime'] < $tradeB['closetime']) return -1;
    return compareTradesByOpenTime($tradeA, $tradeB);
