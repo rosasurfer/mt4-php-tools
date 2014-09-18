@@ -20,6 +20,12 @@ $__classes['ViewHelper'                        ] = $dir.'helper/ViewHelper';
 
 $__classes['Account'                           ] = $dir.'model/Account';
 $__classes['AccountDAO'                        ] = $dir.'model/AccountDAO';
+$__classes['ClosedPosition'                    ] = $dir.'model/ClosedPosition';
+$__classes['ClosedPositionDAO'                 ] = $dir.'model/ClosedPositionDAO';
+$__classes['OpenPosition'                      ] = $dir.'model/OpenPosition';
+$__classes['OpenPositionDAO'                   ] = $dir.'model/OpenPositionDAO';
+$__classes['Signal'                            ] = $dir.'model/Signal';
+$__classes['SignalDAO'                         ] = $dir.'model/SignalDAO';
 
 unset($dir);
 ?>
