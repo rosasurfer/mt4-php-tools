@@ -168,7 +168,7 @@ function updateTrades($signal, array &$currentOpenPositions, array &$currentHist
          unset($knownOpenPositions[$sTicket]);              // geprüfte Position aus Liste löschen
       }
    }
-   if ($unchangedPositions) echoPre($unchangedPositions.' unchanged position'.($unchangedPositions==1 ? '':'s'));
+   if ($unchangedPositions) echoPre($unchangedPositions.' known position'.($unchangedPositions==1 ? '':'s'));
 
 
    // (3) History abgleichen (ist aufsteigend nach CloseTime+OpenTime+Ticket sortiert)
