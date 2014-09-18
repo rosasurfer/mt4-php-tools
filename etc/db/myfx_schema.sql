@@ -25,11 +25,10 @@ create table t_signal (
    created datetime not null,
    name varchar(100) not null,
    alias varchar(20) not null,
-   refid varchar(20) not null,
+   referenceid varchar(20) not null,
    currency enum('AUD','CAD','CHF','EUR','GBP','JPY','NZD','USD') not null,
    unique index u_name (name),
    unique index u_alias (alias),
-   unique index u_refid (refid),
    primary key (id)
 ) engine = InnoDB;
 
