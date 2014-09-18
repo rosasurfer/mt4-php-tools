@@ -72,6 +72,50 @@ class OpenPosition extends PersistableObject {
 
 
    /**
+    * Setzt den StopLoss dieser Position auf den angegebenen Wert.
+    *
+    * @param  float $value - StopLoss-Value (0 oder NULL löschen den aktuellen Wert)
+    *
+    * @return Customer
+    */
+   public function setStopLoss($value) {
+      if (!is_null($value) && !is_int($value) && !is_float($value)) throw new IllegalTypeException('Illegal type of parameter $value: '.getType($value));
+      if ($value < 0)                                               throw new plInvalidArgumentException('Invalid StopLoss value '.$value);
+
+      if (!$value)
+         $value = null;
+
+      if ($value !== $this->stopLoss) {
+         $this->stopLoss = $value;
+         $this->modified = true;
+      }
+      return $this;
+   }
+
+
+   /**
+    * Setzt den TakeProfit dieser Position auf den angegebenen Wert.
+    *
+    * @param  float $value - TakeProfit-Value (0 oder NULL löschen den aktuellen Wert)
+    *
+    * @return Customer
+    */
+   public function setTakeProfit($value) {
+      if (!is_null($value) && !is_int($value) && !is_float($value)) throw new IllegalTypeException('Illegal type of parameter $value: '.getType($value));
+      if ($value < 0)                                               throw new plInvalidArgumentException('Invalid TakeProfit value '.$value);
+
+      if (!$value)
+         $value = null;
+
+      if ($value !== $this->takeProfit) {
+         $this->takeProfit = $value;
+         $this->modified   = true;
+      }
+      return $this;
+   }
+
+
+   /**
     * Gibt den DAO für diese Klasse zurück.
     *
     * @return CommonDAO
@@ -123,6 +167,76 @@ class OpenPosition extends PersistableObject {
          throw $ex;
       }
 
+      return $this;
+   }
+
+
+   /**
+    * Aktualisiert diese Instanz in der Datenbank.
+    *
+    * @return OpenPosition
+    */
+   protected function update() {
+      $id          = $this->id;
+      $oldVersion  = $this->version;
+      $newVersion  = $this->touch();
+
+      $ticket      = $this->ticket;
+      $type        = $this->type;
+      $lots        = $this->lots;
+      $symbol      = $this->symbol;
+      $opentime    = $this->openTime;
+      $openprice   = $this->openPrice;
+      $stoploss    = $this->stopLoss    === null ? 'null' : $this->stopLoss;
+      $takeprofit  = $this->takeProfit  === null ? 'null' : $this->takeProfit;
+      $commission  = $this->commission;
+      $swap        = $this->swap;
+      $magicnumber = $this->magicNumber === null ? 'null' : $this->magicNumber;
+      $comment     = $this->comment     === null ? 'null' : addSlashes($this->comment);
+      $signal_id   = $this->signal_id;
+
+      $db = self ::dao()->getDB();
+      $db->begin();
+      try {
+         // OpenPosition updaten
+         $sql = "update t_openposition
+                    set ticket      =  $ticket,
+                        type        = '$type',
+                        lots        =  $lots,
+                        symbol      = '$symbol',
+                        opentime    = '$opentime',
+                        openprice   =  $openprice,
+                        stoploss    =  $stoploss,
+                        takeprofit  =  $takeprofit,
+                        commission  =  $commission,
+                        swap        =  $swap,
+                        magicnumber =  $magicnumber,
+                        comment     = '$comment',
+                        version     = '$newVersion'
+                    where id = $id
+                      and version = '$oldVersion'";
+         $sql    = str_replace("'null'", 'null', $sql);
+         $result = $db->executeSql($sql);
+
+         if ($result['rows'] != 1) {
+            $sql = "select version
+                       from t_openposition
+                       where id = $id";
+            $result = $db->executeSql($sql);
+            $found  = mysql_result($result['set'], 0);
+
+            $this->version = $oldVersion;
+            throw new ConcurrentModificationException('Error updating '.__CLASS__.' ('.$this->ticket.'), expected version: '.$oldVersion.', found version: '.$found);
+         }
+         // alles speichern
+         $db->commit();
+
+         $this->modifications = null;
+      }
+      catch (Exception $ex) {
+         $db->rollback();
+         throw $ex;
+      }
       return $this;
    }
 }

@@ -128,11 +128,6 @@ function processSignal($signal) {
 
    // offene Positionen und History aktualisieren
    updateTrades($signal, $openPositions, $history);
-   return;
-
-
-   $start = $stop = microtime(true);
-   echoPre('Execution took '.number_format($stop-$start, 3).' sec');
 }
 
 
@@ -147,33 +142,36 @@ function updateTrades($signal, array &$currentOpenPositions, array &$currentHist
    echoPre(sizeOf($currentOpenPositions).' open position'.(sizeOf($currentOpenPositions)==1 ?  '':'s'  ));
    echoPre(sizeOf($currentHistory)      .' history entr' .(sizeOf($currentHistory)      ==1 ? 'y':'ies'));
 
-   // (1) gespeicherte offene Positionen holen
+   // (1) letzten bekannten Stand der offenen Positionen holen
    $knownOpenPositions = OpenPosition ::dao()->listBySignalAlias($signal, $assocTicket=true);
 
-   // (2) aktuelle offene Positionen abgleichen
+   // (2) aktuelle offene Positionen damit abgleichen
    foreach ($currentOpenPositions as $i => &$data) {
       $sTicket = (string) $data['ticket'];
 
       if (!isSet($knownOpenPositions[$sTicket])) {
-         // neue Position: speichern und per SMS benachrichtigen
-         $position = OpenPosition ::create($signal, $data)->save();
-         echoPre('new open position: '.$position->getType().' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice());
+         // (2.1) neue Position
+         $position = OpenPosition ::create($signal, $data)
+                                  ->save();
+         echoPre('new position: '.$position->getType().' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice());
       }
       else {
-         // vorhandene Positionen auf Änderungen prüfen
-         if ($data['takeprofit'] != $knownOpenPositions[$sTicket]->getTakeProfit()) {
-            echoPre('TakeProfit modified');
+         $sl = $tp = $slMsg = $tpMsg = null;
+         // (2.2) modifiziertes SL- oder TP-Limit
+         if ($data['stoploss'  ] != ($sl=$knownOpenPositions[$sTicket]->getStopLoss())  ) $slMsg = '  StopLoss: '  .(float)$sl.' => '.$data['stoploss'  ];
+         if ($data['takeprofit'] != ($tp=$knownOpenPositions[$sTicket]->getTakeProfit())) $tpMsg = '  TakeProfit: '.(float)$tp.' => '.$data['takeprofit'];
+         if ($slMsg || $tpMsg) {
+            $position = $knownOpenPositions[$sTicket]->setStopLoss  ($data['stoploss'  ])
+                                                     ->setTakeProfit($data['takeprofit'])
+                                                     ->save();
+            echoPre('modified position: '.$position->getType().' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice().$slMsg.$tpMsg);
          }
-         if ($data['stoploss'] != $knownOpenPositions[$sTicket]->getStopLoss()) {
-            echoPre('StopLoss modified');
-         }
-
-         // Position aus Liste entfernen
+         // (2.3) geprüfte Position aus Liste entfernen
          unset($knownOpenPositions[$sTicket]);
       }
    }
 
-   // (3) alle in $knownOpenPositions verbliebenen Positionen müssen geschlossen worden sein
+   // (3) alle in $knownOpenPositions übrig gebliebenen Positionen müssen geschlossen worden sein
    foreach ($currentHistory as $i => &$entry) {
    }
 
@@ -449,4 +447,7 @@ function help($message=null) {
    global $signals;
    echo("\n  Syntax: ".baseName($_SERVER['PHP_SELF'])."  [".implode('|', array_keys($signals))."]\n");
 }
+
+//$start = $stop = microtime(true);
+//echoPre('Execution took '.number_format($stop-$start, 3).' sec');
 ?>
