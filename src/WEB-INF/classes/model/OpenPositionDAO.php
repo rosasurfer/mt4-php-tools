@@ -12,7 +12,7 @@ class OpenPositionDAO extends CommonDAO {
                                              'version'     => array('version'    , self ::T_STRING, self ::T_NOT_NULL),      // datetime
                                              'created'     => array('created'    , self ::T_STRING, self ::T_NOT_NULL),      // datetime
 
-                                             'ticket'      => array('name'       , self ::T_INT   , self ::T_NOT_NULL),      // int
+                                             'ticket'      => array('ticket'     , self ::T_INT   , self ::T_NOT_NULL),      // int
                                              'type'        => array('type'       , self ::T_STRING, self ::T_NOT_NULL),      // string
                                              'lots'        => array('lots'       , self ::T_FLOAT , self ::T_NOT_NULL),      // decimal
                                              'symbol'      => array('symbol'     , self ::T_STRING, self ::T_NOT_NULL),      // string
@@ -22,9 +22,39 @@ class OpenPositionDAO extends CommonDAO {
                                              'takeProfit'  => array('takeprofit' , self ::T_FLOAT , self ::T_NULL    ),      // decimal
                                              'commission'  => array('commission' , self ::T_FLOAT , self ::T_NOT_NULL),      // decimal
                                              'swap'        => array('swap'       , self ::T_FLOAT , self ::T_NOT_NULL),      // decimal
-                                             'magicNumber' => array('magicNumber', self ::T_INT   , self ::T_NULL    ),      // int
+                                             'magicNumber' => array('magicnumber', self ::T_INT   , self ::T_NULL    ),      // int
                                              'comment'     => array('comment'    , self ::T_STRING, self ::T_NULL    ),      // string
                                              'signal_id'   => array('signal_id'  , self ::T_INT   , self ::T_NOT_NULL),      // int
                                             ));
+
+
+   /**
+    * Gibt die offenen Positionen des angegebenen Signals zurück.
+    *
+    * @param  string $alias       - Signalalias
+    * @param  bool   $assocTicket - ob das Ergebnisarray assoziativ nach Tickets organisiert werden soll (default: nein)
+    *
+    * @return OpenPosition[] - Array von OpenPosition-Instanzen
+    */
+   public function listBySignalAlias($alias, $assocTicket=false) {
+      if (!is_string($alias)) throw new IllegalTypeException('Illegal type of parameter $alias: '.getType($alias));
+
+      $alias = addSlashes($alias);
+
+      $sql = "select o.*
+                 from t_openposition o
+                 join t_signal       s on s.id = o.signal_id
+                 where s.alias = '$alias'
+                 order by o.opentime, o.ticket";
+      $results = $this->getListByQuery($sql);
+
+      if ($assocTicket) {
+         foreach ($results as $i => $position) {
+            $results[(string)$position->getTicket()] = $position;
+            unset($results[$i]);
+         }
+      }
+      return $results;
+   }
 }
 ?>

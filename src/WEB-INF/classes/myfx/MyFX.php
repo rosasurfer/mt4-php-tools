@@ -4,6 +4,7 @@
  */
 class MyFX extends StaticClass {
 
+
    /**
     * Gibt den absoluten Pfad der unter dem angegebenen Schlüssel konfigurierten Pfadeinstellung zurück.
     * Ist ein relativer Pfad konfiguriert, wird der Pfad als relativ zu APPLICATION_ROOT interpretiert.
@@ -28,6 +29,28 @@ class MyFX extends StaticClass {
       }
 
       return str_replace('\\', '/', $directory);                     // Backslashes in APPLICATION_ROOT ersetzen
+   }
+
+
+   /**
+    * Formatiert einen Timestamp als FXT-Zeit.
+    *
+    * @param int $timestamp - Zeitpunkt
+    *
+    * @return string - FXT-String
+    */
+   public static function fxtDate($timestamp) {
+      if (!is_int($timestamp)) throw new IllegalTypeException('Illegal type of argument $timestamp: '.getType($timestamp));
+
+      $oldTimezone = date_default_timezone_get();
+      try {
+         date_default_timezone_set('America/New_York');
+         $result = date('Y-m-d H:i:s', $timestamp + 7*HOURS);
+         date_default_timezone_set($oldTimezone);
+      }
+      catch(Exception $ex) { date_default_timezone_set($oldTimezone); throw $ex; }
+
+      return $result;
    }
 }
 ?>

@@ -59,7 +59,6 @@ define('I_STOP_SYMBOL'    ,  7);
 define('I_STOP_PROFIT'    ,  8);
 define('I_STOP_PIPS'      ,  9);
 define('I_STOP_COMMENT'   , 10);
-define('I_STOP_TICKET'    , I_STOP_COMMENT);
 
 
 // SimpleTrader: Spalten der History-Datenarrays
@@ -75,5 +74,4 @@ define('I_STH_SYMBOL'     ,  9);
 define('I_STH_PROFIT'     , 10);
 define('I_STH_PIPS'       , 11);
 define('I_STH_COMMENT'    , 12);
-define('I_STH_TICKET'     , I_STH_COMMENT);
 ?>

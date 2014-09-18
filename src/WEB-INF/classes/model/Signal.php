@@ -7,15 +7,15 @@ class Signal extends PersistableObject {
 
    protected /*string*/ $name;
    protected /*string*/ $alias;
-   protected /*string*/ $refID;
+   protected /*string*/ $referenceID;
    protected /*string*/ $currency;
 
 
    // Getter
-   public function getName()     { return $this->name;     }
-   public function getAlias()    { return $this->alias;    }
-   public function getRefID()    { return $this->refID;    }
-   public function getCurrency() { return $this->currency; }
+   public function getName()        { return $this->name;        }
+   public function getAlias()       { return $this->alias;       }
+   public function getReferenceID() { return $this->referenceID; }
+   public function getCurrency()    { return $this->currency;    }
 
 
    /**
