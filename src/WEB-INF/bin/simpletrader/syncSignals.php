@@ -177,28 +177,28 @@ function updateTrades($signal, array &$currentOpenPositions, array &$currentHist
    $matchingHstEntries = $newHstEntries = 0;                // nach 3 übereinstimmenden Historyeinträgen wird das Update abgebrochen
 
    for ($i=$hstSize-1; $i >= 0; $i--) {                     // History wird rückwärts verarbeitet und bricht bei Übereinstimmung der Daten ab (schnellste Variante)
-      $data            = $currentHistory[$i];
-      $ticket          = $data['ticket'];
-      $position        = null;
-      $wasOpenPosition = false;
+      $data     = $currentHistory[$i];
+      $ticket   = $data['ticket'];
+      $position = null;
+      $wasOpen  = false;
 
       if ($closedPositions) {
          $sTicket = (string) $ticket;
          if (isSet($closedPositions[$sTicket])) {
-            $wasOpenPosition = true;
+            $wasOpen = true;
             // Position aus t_openposition löschen
             echoPre('closed position');
             unset($closedPositions[$sTicket]);
          }
       }
-      if (!$wasOpenPosition && ClosedPosition ::dao()->isTicket($signal, $ticket)) {
+      if (!$wasOpen && ClosedPosition ::dao()->isTicket($signal, $ticket)) {
          $matchingHstEntries++;
          if ($matchingHstEntries >= 3)
             break;
          continue;
       }
       // Position in t_closedposition einfügen
-      if ($wasOpenPosition) {
+      if ($wasOpen) {
          ClosedPosition ::create($position, $data)->save();
       }
       else {
