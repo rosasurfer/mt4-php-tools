@@ -149,34 +149,31 @@ function updateTrades($signal, array &$currentOpenPositions, array &$currentHist
 
    // (1) gespeicherte offene Positionen holen
    $knownOpenPositions = OpenPosition ::dao()->listBySignalAlias($signal, $assocTicket=true);
-   //echoPre($knownOpenPositions);
 
-   // (2) Schleife über $currentOpenPositions
+   // (2) aktuelle offene Positionen abgleichen
    foreach ($currentOpenPositions as $i => &$data) {
       $sTicket = (string) $data['ticket'];
 
       if (!isSet($knownOpenPositions[$sTicket])) {
-         // neue offene Position speichern
+         // neue Position: speichern und per SMS benachrichtigen
          $position = OpenPosition ::create($signal, $data)->save();
          echoPre('new open position: '.$position->getType().' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice());
       }
       else {
-         // vorhandene offene Position auf Änderungen prüfen
+         // vorhandene Positionen auf Änderungen prüfen
          if ($data['takeprofit'] != $knownOpenPositions[$sTicket]->getTakeProfit()) {
-            // modifizierten TP aktualisieren
-            //echoPre('TakeProfit modifiziert');
+            echoPre('TakeProfit modified');
          }
          if ($data['stoploss'] != $knownOpenPositions[$sTicket]->getStopLoss()) {
-            // modifizierten SL aktualisieren
-            //echoPre('StopLoss modifiziert');
+            echoPre('StopLoss modified');
          }
 
-         // offene Position aus Liste entfernen
+         // Position aus Liste entfernen
          unset($knownOpenPositions[$sTicket]);
       }
    }
 
-   // (3) alle in $knownOpenPositions verbliebenen Positionen müssen geschlossen sein und in der History auftauchen
+   // (3) alle in $knownOpenPositions verbliebenen Positionen müssen geschlossen worden sein
    foreach ($currentHistory as $i => &$entry) {
    }
 
