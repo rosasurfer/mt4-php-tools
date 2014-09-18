@@ -168,7 +168,7 @@ function updateTrades($signal, array &$currentOpenPositions, array &$currentHist
          unset($knownOpenPositions[$sTicket]);              // geprüfte Position aus Liste löschen
       }
    }
-   if ($unchangedPositions) echoPre($unchangedPositions.' known position'.($unchangedPositions==1 ? '':'s'));
+   $unchangedPositions && echoPre($unchangedPositions.' known position'.($unchangedPositions==1 ? '':'s'));
 
 
    // (3) History abgleichen (ist aufsteigend nach CloseTime+OpenTime+Ticket sortiert)
@@ -206,9 +206,10 @@ function updateTrades($signal, array &$currentOpenPositions, array &$currentHist
          $newHstEntries++;
       }
    }
-   echoPre($newHstEntries.' new history entr'.($newHstEntries==1 ? 'y':'ies'));
+   $newHstEntries && echoPre($newHstEntries.' new history entr'.($newHstEntries==1 ? 'y':'ies'));
 
    if ($closedPositions) throw new plRuntimeException('Found '.sizeOf($closedPositions)." orphaned open positions:\n".printFormatted($closedPositions, true));
+   echoPre('done');
 }
 
 
