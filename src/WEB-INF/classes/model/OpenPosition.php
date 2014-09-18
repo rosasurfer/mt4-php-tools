@@ -128,7 +128,7 @@ class OpenPosition extends PersistableObject {
    /**
     * Fügt diese Instanz in die Datenbank ein.
     *
-    * @return Payment
+    * @return OpenPosition
     */
    protected function insert() {
       $created = $this->created;
@@ -140,12 +140,12 @@ class OpenPosition extends PersistableObject {
       $symbol      =  $this->symbol;
       $opentime    =  $this->openTime;
       $openprice   =  $this->openPrice;
-      $stoploss    = ($this->stopLoss    === null) ? 'null' : $this->stopLoss;
-      $takeprofit  = ($this->takeProfit  === null) ? 'null' : $this->takeProfit;
+      $stoploss    = !$this->stopLoss          ? 'null' : $this->stopLoss;
+      $takeprofit  = !$this->takeProfit        ? 'null' : $this->takeProfit;
       $commission  =  $this->commission;
       $swap        =  $this->swap;
-      $magicnumber = ($this->magicNumber === null) ? 'null' : $this->magicNumber;
-      $comment     = ($this->comment     === null) ? 'null' : addSlashes($this->comment);
+      $magicnumber = !$this->magicNumber       ? 'null' : $this->magicNumber;
+      $comment     = ($this->comment === null) ? 'null' : addSlashes($this->comment);
       $signal_id   =  $this->signal_id;
 
       $db = self ::dao()->getDB();
@@ -166,7 +166,6 @@ class OpenPosition extends PersistableObject {
          $db->rollback();
          throw $ex;
       }
-
       return $this;
    }
 

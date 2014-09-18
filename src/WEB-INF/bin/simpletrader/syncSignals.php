@@ -139,46 +139,76 @@ function processSignal($signal) {
  * @param  array  $currentHistory       - Array mit aktuellen Historydaten
  */
 function updateTrades($signal, array &$currentOpenPositions, array &$currentHistory) {
-   echoPre(sizeOf($currentOpenPositions).' open position'.(sizeOf($currentOpenPositions)==1 ?  '':'s'  ));
-   echoPre(sizeOf($currentHistory)      .' history entr' .(sizeOf($currentHistory)      ==1 ? 'y':'ies'));
+   $unchangedPositions = 0;
 
    // (1) letzten bekannten Stand der offenen Positionen holen
    $knownOpenPositions = OpenPosition ::dao()->listBySignalAlias($signal, $assocTicket=true);
 
-   // (2) aktuelle offene Positionen damit abgleichen
+   // (2) offene Positionen abgleichen (sind aufsteigend nach OpenTime+Ticket sortiert)
    foreach ($currentOpenPositions as $i => &$data) {
-      $sTicket = (string) $data['ticket'];
+      $sTicket = (string)$data['ticket'];
 
       if (!isSet($knownOpenPositions[$sTicket])) {
-         // (2.1) neue Position
          $position = OpenPosition ::create($signal, $data)
                                   ->save();
-         echoPre('new position: '.$position->getType().' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice());
+         echoPre('new position: '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice().'  StopLoss: '.ifNull($position->getStopLoss(), '-').'  TakeProfit: '.ifNull($position->getTakeProfit(),'-'));
       }
       else {
          $sl = $tp = $slMsg = $tpMsg = null;
-         // (2.2) modifiziertes SL- oder TP-Limit
-         if ($data['stoploss'  ] != ($sl=$knownOpenPositions[$sTicket]->getStopLoss())  ) $slMsg = '  StopLoss: '  .(float)$sl.' => '.$data['stoploss'  ];
-         if ($data['takeprofit'] != ($tp=$knownOpenPositions[$sTicket]->getTakeProfit())) $tpMsg = '  TakeProfit: '.(float)$tp.' => '.$data['takeprofit'];
+         // auf modifiziertes SL- oder TP-Limit prüfen
+         if ($data['stoploss'  ] != ($sl=$knownOpenPositions[$sTicket]->getStopLoss())  ) $slMsg = '  StopLoss: '  .($sl ? $sl.' => ':'').$data['stoploss'  ];
+         if ($data['takeprofit'] != ($tp=$knownOpenPositions[$sTicket]->getTakeProfit())) $tpMsg = '  TakeProfit: '.($tp ? $tp.' => ':'').$data['takeprofit'];
          if ($slMsg || $tpMsg) {
             $position = $knownOpenPositions[$sTicket]->setStopLoss  ($data['stoploss'  ])
                                                      ->setTakeProfit($data['takeprofit'])
                                                      ->save();
-            echoPre('modified position: '.$position->getType().' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice().$slMsg.$tpMsg);
+            echoPre('modified position: '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice().$slMsg.$tpMsg);
          }
-         // (2.3) geprüfte Position aus Liste entfernen
-         unset($knownOpenPositions[$sTicket]);
+         else $unchangedPositions++;
+         unset($knownOpenPositions[$sTicket]);              // geprüfte Position aus Liste löschen
       }
    }
+   if ($unchangedPositions) echoPre($unchangedPositions.' unchanged position'.($unchangedPositions==1 ? '':'s'));
 
-   // (3) alle in $knownOpenPositions übrig gebliebenen Positionen müssen geschlossen worden sein
-   foreach ($currentHistory as $i => &$entry) {
+
+   // (3) History abgleichen (ist aufsteigend nach CloseTime+OpenTime+Ticket sortiert)
+   $closedPositions    = $knownOpenPositions;               // alle in $knownOpenPositions übrig gebliebenen Positionen müssen geschlossen worden sein
+   $hstSize            = sizeOf($currentHistory);
+   $matchingHstEntries = $newHstEntries = 0;                // nach 3 übereinstimmenden Historyeinträgen wird das Update abgebrochen
+
+   for ($i=$hstSize-1; $i >= 0; $i--) {                     // History wird rückwärts verarbeitet und bricht bei Übereinstimmung der Daten ab (schnellste Variante)
+      $data            = $currentHistory[$i];
+      $ticket          = $data['ticket'];
+      $position        = null;
+      $wasOpenPosition = false;
+
+      if ($closedPositions) {
+         $sTicket = (string) $ticket;
+         if (isSet($closedPositions[$sTicket])) {
+            $wasOpenPosition = true;
+            // Position aus t_openposition löschen
+            echoPre('closed position');
+            unset($closedPositions[$sTicket]);
+         }
+      }
+      if (!$wasOpenPosition && ClosedPosition ::dao()->isTicket($signal, $ticket)) {
+         $matchingHstEntries++;
+         if ($matchingHstEntries >= 3)
+            break;
+         continue;
+      }
+      // Position in t_closedposition einfügen
+      if ($wasOpenPosition) {
+         ClosedPosition ::create($position, $data)->save();
+      }
+      else {
+         ClosedPosition ::create($signal, $data)->save();
+         $newHstEntries++;
+      }
    }
+   echoPre($newHstEntries.' new history entr'.($newHstEntries==1 ? 'y':'ies'));
 
-   return;
-
-   foreach ($currentOpenPositions as $i => &$value) { if ($i >= 0) break; echoPre($value); }
-   foreach ($currentHistory       as $i => &$value) { if ($i >= 0) break; echoPre($value); }
+   if ($closedPositions) throw new plRuntimeException('Found '.sizeOf($closedPositions)." orphaned open positions:\n".printFormatted($closedPositions, true));
 }
 
 
@@ -286,7 +316,7 @@ function parseHtml($signal, &$html, array &$openTrades, array &$history) {
             unset($row[0], $row[1], $row[2], $row[3], $row[4], $row[5], $row[6], $row[7], $row[8], $row[9], $row[10]);
          }
          // offene Positionen sortieren
-         uSort($openTrades, 'compareTradesByOpenTime');
+         uSort($openTrades, 'compareTradesByOpenTimeTicket');
       }
 
       // History extrahieren und parsen; TP und SL werden, falls angegeben, erkannt (Timezone: GMT)
@@ -379,12 +409,12 @@ function parseHtml($signal, &$html, array &$openTrades, array &$history) {
             // 12:Comment
             $sValue = trim($row[I_STH_COMMENT]);
             if (!ctype_digit($sValue)) throw new plRuntimeException('Invalid Comment found in history row '.($i+1).': "'.$row[I_STH_COMMENT].'" (non-digits)');
-            $row['ticket'] = $sValue;
+            $row['ticket'] = (int)$sValue;
 
             unset($row[0], $row[1], $row[2], $row[3], $row[4], $row[5], $row[6], $row[7], $row[8], $row[9], $row[10], $row[11], $row[12]);
          }
          // History sortieren
-         uSort($history, 'compareTradesByOpenCloseTime');
+         uSort($history, 'compareTradesByCloseTimeOpenTimeTicket');
       }
    }
    //echoPre($tables);
@@ -396,8 +426,8 @@ function parseHtml($signal, &$html, array &$openTrades, array &$history) {
 
 
 /**
- * Comparator, der zwei Trades anhand ihrer OpenTime vergleicht. Ist die OpenTime beider Trades gleich,
- * werden sie anhand ihres Tickets verglichen
+ * Comparator, der zwei Trades zunächst anhand ihrer OpenTime vergleicht. Ist die OpenTime gleich,
+ * werden die Trades anhand ihres Tickets verglichen.
  *
  * @param  array $tradeA
  * @param  array $tradeB
@@ -406,7 +436,7 @@ function parseHtml($signal, &$html, array &$openTrades, array &$history) {
  *               negativer Wert, wenn $tradeA vor $tradeB geöffnet wurde;
  *               0, wenn beide Trades zum selben Zeitpunkt geöffnet wurden
  */
-function compareTradesByOpenTime(array &$tradeA, array &$tradeB) {
+function compareTradesByOpenTimeTicket(array &$tradeA, array &$tradeB) {
    if ($tradeA['opentime'] > $tradeB['opentime']) return  1;
    if ($tradeA['opentime'] < $tradeB['opentime']) return -1;
 
@@ -418,9 +448,8 @@ function compareTradesByOpenTime(array &$tradeA, array &$tradeB) {
 
 
 /**
- * Comparator, der zwei Trades zunächst anhand ihrer CloseTime vergleicht. Wurden beide Trades zum selben Zeitpunkt
- * geschlossen, werden sie anhand ihrer OpenTime verglichen. Beide Trades werden nur dann als "gleich" betrachtet, wenn
- * sie zum jeweils selben Zeitpunkt geöffnet und geschlossen wurden.
+ * Comparator, der zwei Trades zunächst anhand ihrer CloseTime vergleicht. Ist die CloseTime gleich, werden die Trades
+ * anhand ihrer OpenTime verglichen. Ist auch die OpenTime gleich, werden die Trades anhand ihres Tickets verglichen.
  *
  * @param  array $tradeA
  * @param  array $tradeB
@@ -429,10 +458,10 @@ function compareTradesByOpenTime(array &$tradeA, array &$tradeB) {
  *               negativer Wert, wenn $tradeA vor $tradeB geschlossen wurde;
  *               0, wenn beide Trades zum selben Zeitpunkt geöffnet und geschlossen wurden
  */
-function compareTradesByOpenCloseTime(array &$tradeA, array &$tradeB) {
+function compareTradesByCloseTimeOpenTimeTicket(array &$tradeA, array &$tradeB) {
    if ($tradeA['closetime'] > $tradeB['closetime']) return  1;
    if ($tradeA['closetime'] < $tradeB['closetime']) return -1;
-   return compareTradesByOpenTime($tradeA, $tradeB);
+   return compareTradesByOpenTimeTicket($tradeA, $tradeB);
 }
 
 

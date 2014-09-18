@@ -1,6 +1,6 @@
 /*
 Created     17.09.2014
-Modified    18.09.2014
+Modified    19.09.2014
 Project     myfx
 Model       main model
 Company     pewasoft
@@ -76,7 +76,7 @@ create table t_closedposition (
    swap decimal(10,2) not null default 0.00,
    profit decimal(10,2) not null default 0.00,
    magicnumber int unsigned,
-   comment varchar(255) not null default '',
+   comment varchar(255) default '',
    signal_id int unsigned not null,
    primary key (id),
    unique key u_signal_id_ticket (signal_id,ticket),
