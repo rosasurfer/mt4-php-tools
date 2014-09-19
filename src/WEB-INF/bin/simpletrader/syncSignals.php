@@ -35,7 +35,7 @@ $signals = array('alexprofit'   => array('id'   => 2474,
 // --- Start --------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-// Befehlszeilenparameter einlesen und validieren
+// Befehlszeilenargumente einlesen und validieren
 $args = array_slice($_SERVER['argv'], 1);
 !$args && $args=array_keys($signals);                                // ohne Parameter werden alle Signale synchronisiert
 
