@@ -31,8 +31,6 @@ class OpenPosition extends PersistableObject {
    public function getOpenPrice()   { return $this->openPrice;   }
    public function getStopLoss()    { return $this->stopLoss;    }
    public function getTakeProfit()  { return $this->takeProfit;  }
-   public function getCommission()  { return $this->commission;  }
-   public function getSwap()        { return $this->swap;        }
    public function getMagicNumber() { return $this->magicNumber; }
    public function getComment()     { return $this->comment;     }
    public function getSignal_id()   { return $this->signal_id;   }
@@ -68,6 +66,38 @@ class OpenPosition extends PersistableObject {
       if (!$position->signal_id) throw new plInvalidArgumentException('Invalid signal alias "'.$signalAlias.'"');
 
       return $position;
+   }
+
+
+   /**
+    * Gibt den Commission-Betrag dieser Position zurück.
+    *
+    * @param  int    $decimals  - Anzahl der Nachkommastellen
+    * @param  string $separator - Dezimaltrennzeichen
+    *
+    * @return float|string - Betrag
+    */
+   public function getCommission($decimals=2, $separator='.') {
+      if (func_num_args() == 0)
+         return $this->commission;
+
+      return formatMoney($this->commission, $decimals, $separator);
+   }
+
+
+   /**
+    * Gibt den Swap-Betrag dieser Position zurück.
+    *
+    * @param  int    $decimals  - Anzahl der Nachkommastellen
+    * @param  string $separator - Dezimaltrennzeichen
+    *
+    * @return float|string - Betrag
+    */
+   public function getSwap($decimals=2, $separator='.') {
+      if (func_num_args() == 0)
+         return $this->swap;
+
+      return formatMoney($this->swap, $decimals, $separator);
    }
 
 

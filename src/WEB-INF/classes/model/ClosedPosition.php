@@ -36,9 +36,6 @@ class ClosedPosition extends PersistableObject {
    public function getClosePrice()  { return $this->closePrice;  }
    public function getStopLoss()    { return $this->stopLoss;    }
    public function getTakeProfit()  { return $this->takeProfit;  }
-   public function getCommission()  { return $this->commission;  }
-   public function getSwap()        { return $this->swap;        }
-   public function getProfit()      { return $this->profit;      }
    public function getMagicNumber() { return $this->magicNumber; }
    public function getComment()     { return $this->comment;     }
    public function getSignal_id()   { return $this->signal_id;   }
@@ -50,12 +47,13 @@ class ClosedPosition extends PersistableObject {
     * @return ClosedPosition
     */
    public static function create() {
-      $argc = sizeOf(func_get_args());
+      if (func_num_args() != 2) throw new plRuntimeException('Invalid number of function arguments: '.func_num_args());
+      $arg1 = func_get_arg(0);
+      $arg2 = func_get_arg(1);
 
-      if ($argc == 1) return self::create_1(func_get_arg(0));
-      if ($argc == 2) return self::create_2(func_get_arg(0), func_get_arg(1));
-
-      throw new plRuntimeException('Invalid number of function parameters');
+      if ($arg1 instanceof Object)
+         return self::create_1($arg1, $arg2);
+      return self::create_2($arg1, $arg2);
    }
 
 
@@ -125,6 +123,54 @@ class ClosedPosition extends PersistableObject {
       if (!$position->signal_id) throw new plInvalidArgumentException('Invalid signal alias "'.$signalAlias.'"');
 
       return $position;
+   }
+
+
+   /**
+    * Gibt den Commission-Betrag dieser Position zurück.
+    *
+    * @param  int    $decimals  - Anzahl der Nachkommastellen
+    * @param  string $separator - Dezimaltrennzeichen
+    *
+    * @return float|string - Betrag
+    */
+   public function getCommission($decimals=2, $separator='.') {
+      if (func_num_args() == 0)
+         return $this->commission;
+
+      return formatMoney($this->commission, $decimals, $separator);
+   }
+
+
+   /**
+    * Gibt den Swap-Betrag dieser Position zurück.
+    *
+    * @param  int    $decimals  - Anzahl der Nachkommastellen
+    * @param  string $separator - Dezimaltrennzeichen
+    *
+    * @return float|string - Betrag
+    */
+   public function getSwap($decimals=2, $separator='.') {
+      if (func_num_args() == 0)
+         return $this->swap;
+
+      return formatMoney($this->swap, $decimals, $separator);
+   }
+
+
+   /**
+    * Gibt den Profit-Betrag dieser Position zurück.
+    *
+    * @param  int    $decimals  - Anzahl der Nachkommastellen
+    * @param  string $separator - Dezimaltrennzeichen
+    *
+    * @return float|string - Betrag
+    */
+   public function getProfit($decimals=2, $separator='.') {
+      if (func_num_args() == 0)
+         return $this->profit;
+
+      return formatMoney($this->profit, $decimals, $separator);
    }
 
 

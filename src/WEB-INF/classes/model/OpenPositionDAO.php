@@ -70,6 +70,8 @@ class OpenPositionDAO extends CommonDAO {
       if (!is_string($signalAlias)) throw new IllegalTypeException('Illegal type of parameter $signalAlias: '.getType($signalAlias));
       if (!is_int($ticket))         throw new IllegalTypeException('Illegal type of parameter $ticket: '.getType($ticket));
 
+      $alias = addSlashes($signalAlias);
+
       $sql = "select o.*
                  from t_signal       s
                  join t_openposition o on s.id = o.signal_id

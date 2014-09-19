@@ -43,17 +43,15 @@ class ClosedPositionDAO extends CommonDAO {
       if (!is_string($signalAlias)) throw new IllegalTypeException('Illegal type of parameter $signalAlias: '.getType($signalAlias));
       if (!is_int($ticket))         throw new IllegalTypeException('Illegal type of parameter $ticket: '.getType($ticket));
 
-      if ($ticket > 0) {
-         $alias = addSlashes($signalAlias);
-         $sql = "select 1
-                    from t_signal         s 
-                    join t_closedposition c on s.id = c.signal_id
-                    where s.alias = '$alias'
-                       and c.ticket = $ticket";
-         $result = $this->executeSql($sql);
-         return (bool) $result['rows'];
-      }
-      return false;
+      $alias = addSlashes($signalAlias);
+
+      $sql = "select 1
+                 from t_signal         s
+                 join t_closedposition c on s.id = c.signal_id
+                 where s.alias = '$alias'
+                    and c.ticket = $ticket";
+      $result = $this->executeSql($sql);
+      return (bool) $result['rows'];
    }
 }
 ?>

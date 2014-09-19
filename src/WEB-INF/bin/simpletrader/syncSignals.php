@@ -152,7 +152,7 @@ function updateTrades($signal, array &$currentOpenPositions, array &$currentHist
       if (!isSet($knownOpenPositions[$sTicket])) {
          $position = OpenPosition ::create($signal, $data)
                                   ->save();
-         echoPre('position opened: '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice().'  StopLoss: '.ifNull($position->getStopLoss(), '-').'  TakeProfit: '.ifNull($position->getTakeProfit(),'-'));
+         echoPre('position opened: '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().'  Open: '.$position->getOpenPrice().'  SL: '.ifNull($position->getStopLoss(), '-').'  TP: '.ifNull($position->getTakeProfit(),'-'));
          $updates = true;
       }
       else {
