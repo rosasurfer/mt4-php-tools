@@ -45,14 +45,62 @@ class ClosedPosition extends PersistableObject {
 
 
    /**
-    * Erzeugt eine neue geschlossene Position mit den angegebenen Daten.
+    * Überladene Methode, erzeugt eine neue geschlossene Position.
+    *
+    * @return ClosedPosition
+    */
+   public static function create() {
+      $argc = sizeOf(func_get_args());
+
+      if ($argc == 1) return self::create_1(func_get_arg(0));
+      if ($argc == 2) return self::create_2(func_get_arg(0), func_get_arg(1));
+
+      throw new plRuntimeException('Invalid number of function parameters');
+   }
+
+
+   /**
+    * Erzeugt eine neue geschlossene Position anhand einer vormals offenen Position.
+    *
+    * @param  OpenPosition $openPosition - vormals offene Position
+    * @param  array        $data         - Positionsdaten
+    *
+    * @return ClosedPosition
+    */
+   private static function create_1(OpenPosition $openPosition, array $data) {
+      $position = new self();
+
+      $position->ticket      =                $data['ticket'     ];
+      $position->type        =                $data['type'       ];
+      $position->lots        =                $data['lots'       ];
+      $position->symbol      =                $data['symbol'     ];
+      $position->openTime    = MyFX ::fxtDate($data['opentime'   ]);
+      $position->openPrice   =                $data['openprice'  ];
+      $position->closeTime   = MyFX ::fxtDate($data['closetime'  ]);
+      $position->closePrice  =                $data['closeprice' ];
+      $position->stopLoss    =          isSet($data['stoploss'   ]) ? $data['stoploss'   ] : $openPosition->getStopLoss();
+      $position->takeProfit  =          isSet($data['takeprofit' ]) ? $data['takeprofit' ] : $openPosition->getTakeProfit();
+      $position->commission  =                $data['commission' ];
+      $position->swap        =                $data['swap'       ];
+      $position->profit      =                $data['profit'     ];
+      $position->magicNumber =          isSet($data['magicnumber']) ? $data['magicnumber'] : null;
+      $position->comment     =          isSet($data['comment'    ]) ? $data['comment'    ] : null;
+
+      $position->signal_id = $openPosition->getSignal_id();
+
+      return $position;
+   }
+
+
+   /**
+    * Erzeugt eine neue geschlossene Position anhand der angegebenen Rohdaten.
     *
     * @param  string $signalAlias - Alias des Signals der Position
     * @param  array  $data        - Positionsdaten
     *
     * @return ClosedPosition
     */
-   public static function create($signalAlias, array $data) {
+   private static function create_2($signalAlias, array $data) {
       if (!is_string($signalAlias)) throw new IllegalTypeException('Illegal type of parameter $signalAlias: '.getType($signalAlias));
 
       $position = new self();
@@ -70,7 +118,7 @@ class ClosedPosition extends PersistableObject {
       $position->commission  =                $data['commission' ];
       $position->swap        =                $data['swap'       ];
       $position->profit      =                $data['profit'     ];
-      $position->magicNumber =          isSet($data['magicnumber']) ? $data['magicnumbe' ] : null;
+      $position->magicNumber =          isSet($data['magicnumber']) ? $data['magicnumber'] : null;
       $position->comment     =          isSet($data['comment'    ]) ? $data['comment'    ] : null;
 
       $position->signal_id = Signal ::dao()->getIdByAlias($signalAlias);

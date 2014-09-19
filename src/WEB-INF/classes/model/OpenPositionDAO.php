@@ -42,8 +42,8 @@ class OpenPositionDAO extends CommonDAO {
       $alias = addSlashes($alias);
 
       $sql = "select o.*
-                 from t_openposition o
-                 join t_signal       s on s.id = o.signal_id
+                 from t_signal       s
+                 join t_openposition o on s.id = o.signal_id
                  where s.alias = '$alias'
                  order by o.opentime, o.ticket";
       $results = $this->getListByQuery($sql);
@@ -55,6 +55,27 @@ class OpenPositionDAO extends CommonDAO {
          }
       }
       return $results;
+   }
+
+
+   /**
+    * Gibt zu einem angegebenen Ticket die offene Position zurück.
+    *
+    * @param  string $signalAlias - Signalalias
+    * @param  int    $ticket      - Ticket
+    *
+    * @return OpenPosition instance
+    */
+   public function getByTicket($signalAlias, $ticket) {
+      if (!is_string($signalAlias)) throw new IllegalTypeException('Illegal type of parameter $signalAlias: '.getType($signalAlias));
+      if (!is_int($ticket))         throw new IllegalTypeException('Illegal type of parameter $ticket: '.getType($ticket));
+
+      $sql = "select o.*
+                 from t_signal       s
+                 join t_openposition o on s.id = o.signal_id
+                 where s.alias = '$alias'
+                    and o.ticket = $ticket";
+      return $this->getByQuery($sql);
    }
 }
 ?>

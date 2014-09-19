@@ -46,8 +46,8 @@ class ClosedPositionDAO extends CommonDAO {
       if ($ticket > 0) {
          $alias = addSlashes($signalAlias);
          $sql = "select 1
-                    from t_closedposition c
-                    join t_signal         s on s.id = c.signal_id
+                    from t_signal         s 
+                    join t_closedposition c on s.id = c.signal_id
                     where s.alias = '$alias'
                        and c.ticket = $ticket";
          $result = $this->executeSql($sql);

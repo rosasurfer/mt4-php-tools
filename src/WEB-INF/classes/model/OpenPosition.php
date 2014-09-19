@@ -61,7 +61,7 @@ class OpenPosition extends PersistableObject {
       $position->takeProfit  =          isSet($data['takeprofit' ]) ? $data['takeprofit' ] : null;
       $position->commission  =                $data['commission' ];
       $position->swap        =                $data['swap'       ];
-      $position->magicNumber =          isSet($data['magicnumber']) ? $data['magicnumbe' ] : null;
+      $position->magicNumber =          isSet($data['magicnumber']) ? $data['magicnumber'] : null;
       $position->comment     =          isSet($data['comment'    ]) ? $data['comment'    ] : null;
 
       $position->signal_id = Signal ::dao()->getIdByAlias($signalAlias);
@@ -237,6 +237,33 @@ class OpenPosition extends PersistableObject {
          throw $ex;
       }
       return $this;
+   }
+
+
+   /**
+    * Löscht diese Instanz aus der Datenbank.
+    *
+    * @return NULL
+    */
+   public function delete() {
+      if (!$this->isPersistent()) throw new plInvalidArgumentException('Cannot delete non-persistent '.__CLASS__);
+
+      $db = self ::dao()->getDB();
+      $db->begin();
+      try {
+         $id  = $this->id;
+         $sql = "delete from t_openposition
+                    where id = $id";
+         $db->executeSql($sql);
+         $db->commit();
+      }
+      catch (Exception $ex) {
+         $db->rollback();
+         throw $ex;
+      }
+
+      $this->id = null;
+      return null;
    }
 }
 ?>

@@ -179,30 +179,31 @@ function updateTrades($signal, array &$currentOpenPositions, array &$currentHist
    $matchingHstEntries = $newHstEntries = 0;                // nach 3 übereinstimmenden Historyeinträgen wird das Update abgebrochen
 
    for ($i=$hstSize-1; $i >= 0; $i--) {                     // History wird rückwärts verarbeitet und bricht bei Übereinstimmung der Daten ab (schnellste Variante)
-      $data     = $currentHistory[$i];
-      $ticket   = $data['ticket'];
-      $position = null;
-      $wasOpen  = false;
+      $data         = $currentHistory[$i];
+      $ticket       = $data['ticket'];
+      $openPosition = null;
 
       if ($closedPositions) {
          $sTicket = (string) $ticket;
          if (isSet($closedPositions[$sTicket])) {
-            $wasOpen = true;
-            // Position aus t_openposition löschen
-            echoPre('closed position');
+            $openPosition = OpenPosition ::dao()->getByTicket($signal, $ticket);
             unset($closedPositions[$sTicket]);
             $updates = true;
          }
       }
-      if (!$wasOpen && ClosedPosition ::dao()->isTicket($signal, $ticket)) {
+
+      if (!$openPosition && ClosedPosition ::dao()->isTicket($signal, $ticket)) {
          $matchingHstEntries++;
          if ($matchingHstEntries >= 3)
             break;
          continue;
       }
+
       // Position in t_closedposition einfügen
-      if ($wasOpen) {
-         ClosedPosition ::create($position, $data)->save();
+      if ($openPosition) {
+         $closedPosition = ClosedPosition ::create($openPosition, $data)->save();
+         $openPosition->delete();                           // vormals offene Position aus t_openposition löschen
+         echoPre('closed position: '.ucFirst($closedPosition->getType()).' '.$closedPosition->getLots().' lot '.$closedPosition->getSymbol().'  Open: '.$closedPosition->getOpenPrice().'  Close: '.$closedPosition->getClosePrice().'  Profit: '.$closedPosition->getProfit());
       }
       else {
          ClosedPosition ::create($signal, $data)->save();
@@ -210,11 +211,10 @@ function updateTrades($signal, array &$currentOpenPositions, array &$currentHist
       }
       $updates = true;
    }
-   $newHstEntries && echoPre($newHstEntries.' new history entr'.($newHstEntries==1 ? 'y':'ies'));
+   $newHstEntries                    && echoPre($newHstEntries.' new history entr'.($newHstEntries==1 ? 'y':'ies'));
+   !$unchangedPositions && !$updates && echoPre('done');
 
    if ($closedPositions) throw new plRuntimeException('Found '.sizeOf($closedPositions)." orphaned open positions:\n".printFormatted($closedPositions, true));
-
-   !$unchangedPositions && !$updates && echoPre('done');
 }
 
 
