@@ -48,6 +48,17 @@ foreach ($args as $i => $arg) {
 $args = array_unique($args);
 
 
+// Prüfen, ob die Datenbank erreichbar ist
+try {
+   Signal ::dao()->getDB()->executeSql("select 1 from dual");
+}
+catch (Exception $ex) {
+   if ($ex instanceof InfrastructureException)
+      exit(1|echoPre('error: '.$ex->getMessage()));                  // Can not connect to MySQL server on 'localhost:3306'
+   throw $ex;
+}
+
+
 // Signale verarbeiten
 foreach ($args as $i => $arg) {
    processSignal($arg);
