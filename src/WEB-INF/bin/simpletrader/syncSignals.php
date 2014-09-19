@@ -37,7 +37,8 @@ $signals = array('alexprofit'   => array('id'   => 2474,
 
 // Befehlszeilenparameter einlesen und validieren
 $args = array_slice($_SERVER['argv'], 1);
-!$args                                                        && exit(1|help());
+!$args && $args=array_keys($signals);                                // ohne Parameter werden alle Signale synchronisiert
+
 foreach ($args as $i => $arg) {
    $arg = strToLower($arg);
    in_array($arg, array('-?','/?','-h','/h','-help','/help')) && exit(1|help());
@@ -152,17 +153,17 @@ function updateTrades($signal, array &$currentOpenPositions, array &$currentHist
       if (!isSet($knownOpenPositions[$sTicket])) {
          $position = OpenPosition ::create($signal, $data)
                                   ->save();
-         echoPre('position opened: '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().'  Open: '.$position->getOpenPrice().'  SL: '.ifNull($position->getStopLoss(), '-').'  TP: '.ifNull($position->getTakeProfit(),'-'));
+         echoPre('position opened: '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice().'  TP: '.ifNull($position->getTakeProfit(),'-').'  SL: '.ifNull($position->getStopLoss(), '-'));
          $updates = true;
       }
       else {
-         $sl = $tp = $slMsg = $tpMsg = null;
-         // auf modifiziertes SL- oder TP-Limit prüfen
-         if ($data['stoploss'  ] != ($sl=$knownOpenPositions[$sTicket]->getStopLoss())  ) $slMsg = '  StopLoss: '  .($sl ? $sl.' => ':'').$data['stoploss'  ];
+         $tp = $sl = $tpMsg = $slMsg = null;
+         // auf modifiziertes TP- oder SL-Limit prüfen
          if ($data['takeprofit'] != ($tp=$knownOpenPositions[$sTicket]->getTakeProfit())) $tpMsg = '  TakeProfit: '.($tp ? $tp.' => ':'').$data['takeprofit'];
-         if ($slMsg || $tpMsg) {
-            $position = $knownOpenPositions[$sTicket]->setStopLoss  ($data['stoploss'  ])
-                                                     ->setTakeProfit($data['takeprofit'])
+         if ($data['stoploss'  ] != ($sl=$knownOpenPositions[$sTicket]->getStopLoss())  ) $slMsg = '  StopLoss: '  .($sl ? $sl.' => ':'').$data['stoploss'  ];
+         if ($tpMsg || $slMsg) {
+            $position = $knownOpenPositions[$sTicket]->setTakeProfit($data['takeprofit'])
+                                                     ->setStopLoss  ($data['stoploss'  ])
                                                      ->save();
             echoPre('position modified: '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice().$slMsg.$tpMsg);
             $updates = true;
