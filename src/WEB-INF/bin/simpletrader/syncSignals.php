@@ -164,7 +164,7 @@ function updateTrades($signal, array &$currentOpenPositions, array &$currentHist
       if (!isSet($knownOpenPositions[$sTicket])) {
          $position = OpenPosition ::create($signal, $data)
                                   ->save();
-         echoPre('position opened: '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice().'  TP: '.ifNull($position->getTakeProfit(),'-').'  SL: '.ifNull($position->getStopLoss(), '-'));
+         echoPre('position opened: '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice().'  TP: '.ifNull($position->getTakeProfit(),'-').'  SL: '.ifNull($position->getStopLoss(), '-').'  ('.$position->getOpenTime('H:i:s').')');
          $updates = true;
       }
       else {
@@ -218,7 +218,7 @@ function updateTrades($signal, array &$currentOpenPositions, array &$currentHist
          $closedPosition = ClosedPosition ::create($openPosition, $data)->save();
          $openPosition->delete();                           // vormals offene Position aus t_openposition löschen
          $openToClosed = true;
-         echoPre('position closed: '.ucFirst($closedPosition->getType()).' '.$closedPosition->getLots().' lot '.$closedPosition->getSymbol().'  Open: '.$closedPosition->getOpenPrice().'  Close: '.$closedPosition->getClosePrice().'  Profit: '.$closedPosition->getProfit(2));
+         echoPre('position closed: '.ucFirst($closedPosition->getType()).' '.$closedPosition->getLots().' lot '.$closedPosition->getSymbol().'  Open: '.$closedPosition->getOpenPrice().'  Close: '.$closedPosition->getClosePrice().'  Profit: '.$closedPosition->getProfit(2).'  ('.$closedPosition->getCloseTime('H:i:s').')');
       }
       else {
          ClosedPosition ::create($signal, $data)->save();

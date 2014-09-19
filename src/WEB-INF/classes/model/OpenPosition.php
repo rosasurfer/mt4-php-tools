@@ -27,7 +27,6 @@ class OpenPosition extends PersistableObject {
    public function getType()        { return $this->type;        }
    public function getLots()        { return $this->lots;        }
    public function getSymbol()      { return $this->symbol;      }
-   public function getOpenTime()    { return $this->openTime;    }
    public function getOpenPrice()   { return $this->openPrice;   }
    public function getStopLoss()    { return $this->stopLoss;    }
    public function getTakeProfit()  { return $this->takeProfit;  }
@@ -66,6 +65,21 @@ class OpenPosition extends PersistableObject {
       if (!$position->signal_id) throw new plInvalidArgumentException('Invalid signal alias "'.$signalAlias.'"');
 
       return $position;
+   }
+
+
+   /**
+    * Gibt die OpenTime dieser Position zurück.
+    *
+    * @param string $format - Zeitformat
+    *
+    * @return string - Zeitpunkt
+    */
+   public function getOpenTime($format = 'Y-m-d H:i:s')  {
+      if ($format == 'Y-m-d H:i:s')
+         return $this->openTime;
+
+      return formatDate($format, $this->openTime);
    }
 
 
