@@ -153,6 +153,7 @@ function updateTrades($signal, array &$currentOpenPositions, array &$currentHist
          $position = OpenPosition ::create($signal, $data)
                                   ->save();
          echoPre('new position: '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice().'  StopLoss: '.ifNull($position->getStopLoss(), '-').'  TakeProfit: '.ifNull($position->getTakeProfit(),'-'));
+         $updates = true;
       }
       else {
          $sl = $tp = $slMsg = $tpMsg = null;
@@ -170,7 +171,7 @@ function updateTrades($signal, array &$currentOpenPositions, array &$currentHist
          unset($knownOpenPositions[$sTicket]);              // geprüfte Position aus Liste löschen
       }
    }
-   $unchangedPositions && echoPre($unchangedPositions.' known position'.($unchangedPositions==1 ? '':'s'));
+   $unchangedPositions && echoPre($unchangedPositions.' known open position'.($unchangedPositions==1 ? '':'s'));
 
 
    // (3) History abgleichen (ist aufsteigend nach CloseTime+OpenTime+Ticket sortiert)
