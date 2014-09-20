@@ -60,7 +60,15 @@ class MyFX extends StaticClass {
     * @param  OpenPosition $position - die geöffnete Position
     */
    public static function onPositionOpen(OpenPosition $position) {
-      echoPre('position opened: '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice().'  TP: '.ifNull($position->getTakeProfit(),'-').'  SL: '.ifNull($position->getStopLoss(), '-').'  ('.$position->getOpenTime('H:i:s').')');
+      echoPre($message='position opened: '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice().'  TP: '.ifNull($position->getTakeProfit(),'-').'  SL: '.ifNull($position->getStopLoss(), '-').'  ('.$position->getOpenTime('H:i:s').')');
+
+      $signal = $position->getSignal()->getName();
+
+      // Mail verschicken
+      $sender   = 'default@domain.tld';
+      $receiver = Config ::get('mail.myfx.signalreceivers');
+      $subject  = $signal.' Opened '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol();
+      mail($receiver, $subject, $message);
    }
 
 
@@ -74,24 +82,18 @@ class MyFX extends StaticClass {
       if (($current=$position->getTakeprofit()) != ($previous=$position->getPrevTakeprofit())) $msg .= '  TakeProfit: '.($previous ? $previous.' => ':'').$current;
       if (($current=$position->getStopLoss())   != ($previous=$position->getPrevStopLoss())  ) $msg .= '  StopLoss: '  .($previous ? $previous.' => ':'').$current;
 
-      echoPre('position modified: '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice().$msg);
+      echoPre($message='position modified: '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice().$msg);
 
+      $signal = $position->getSignal()->getName();
 
-      // Mail per Error-Log-Funktion verschicken
+      // Mail verschicken
+      $sender   = 'default@domain.tld';
       $receiver = Config ::get('mail.myfx.signalreceivers');
-      $message  = "test message body";
-      //echoPre('error_log() = '.(int) error_log($message, 1, $receiver, 'Subject: Signal via error_log()'));
-
-
-      // Mail per Mail-Funktion verschicken
-      $receiver = Config ::get('mail.myfx.signalreceivers');
-      $message  = "test message body";
-      echoPre('mail() = '.(int) mail("Paule Panke <$receiver>", 'Signal via mail()', $message));
-
+      $subject  = $signal.' Modified '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol();
+      mail($receiver, $subject, $message);
 
       /*
       // Mail per SMTP-Mailer verschicken
-      $sender   = 'default@domain.tld';
       $receiver = Config ::get('mail.myfx.signalreceivers');
       $subject  = "DayFox signal: Position Modify via Mailer class";
       $message  = "test message body";
@@ -113,7 +115,15 @@ class MyFX extends StaticClass {
     * @param  ClosedPosition $position - die geschlossene Position
     */
    public static function onPositionClose(ClosedPosition $position) {
-      echoPre('position closed: '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().'  Open: '.$position->getOpenPrice().'  Close: '.$position->getClosePrice().'  Profit: '.$position->getProfit(2).'  ('.$position->getCloseTime('H:i:s').')');
+      echoPre($message='position closed: '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().'  Open: '.$position->getOpenPrice().'  Close: '.$position->getClosePrice().'  Profit: '.$position->getProfit(2).'  ('.$position->getCloseTime('H:i:s').')');
+
+      $signal = $position->getSignal()->getName();
+
+      // Mail verschicken
+      $sender   = 'default@domain.tld';
+      $receiver = Config ::get('mail.myfx.signalreceivers');
+      $subject  = $signal.' Closed '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol();
+      mail($receiver, $subject, $message);
    }
 
 
