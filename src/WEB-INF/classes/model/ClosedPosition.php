@@ -209,6 +209,19 @@ class ClosedPosition extends PersistableObject {
 
 
    /**
+    * Gibt das Signal, zu dem diese Position gehört, zurück.
+    *
+    * @return Signal instance
+    */
+   public function getSignal() {
+      if ($this->signal === null)
+         $this->signal = Signal ::dao()->getById($this->signal_id);
+
+      return $this->signal;
+   }
+
+
+   /**
     * Gibt den DAO für diese Klasse zurück.
     *
     * @return CommonDAO
