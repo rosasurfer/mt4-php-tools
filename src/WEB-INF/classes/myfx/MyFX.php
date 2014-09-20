@@ -35,7 +35,7 @@ class MyFX extends StaticClass {
    /**
     * Formatiert einen Timestamp als FXT-Zeit.
     *
-    * @param int $timestamp - Zeitpunkt
+    * @param  int $timestamp - Zeitpunkt
     *
     * @return string - FXT-String
     */
@@ -51,6 +51,33 @@ class MyFX extends StaticClass {
       catch(Exception $ex) { date_default_timezone_set($oldTimezone); throw $ex; }
 
       return $result;
+   }
+
+
+   /**
+    * Verschickt eine Nachricht über eine neue offene Position.
+    *
+    * @param  OpenPosition $position - die geöffnete Position
+    */
+   public static function sendSignalOpenMessage(OpenPosition $position) {
+   }
+
+
+   /**
+    * Verschickt eine Nachricht über eine modifizierte Position.
+    *
+    * @param  OpenPosition $position - die modifizierte Position
+    */
+   public static function sendSignalModifyMessage(OpenPosition $position) {
+   }
+
+
+   /**
+    * Verschickt eine Nachricht über eine geschlossene Position.
+    *
+    * @param  ClosedPosition $position - die geschlossene Position
+    */
+   public static function sendSignalCloseMessage(ClosedPosition $position) {
    }
 }
 ?>
