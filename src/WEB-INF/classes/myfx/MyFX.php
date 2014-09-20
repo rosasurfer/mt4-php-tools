@@ -66,7 +66,7 @@ class MyFX extends StaticClass {
       // Mail verschicken
       $sender   = 'default@domain.tld';
       $receiver = Config ::get('mail.myfx.signalreceivers');
-      $subject  = $signal->getName().' Opened '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol();
+      $subject  = $signal->getName().' Open '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol();
       mail($receiver, $subject, $message);
    }
 
@@ -87,7 +87,7 @@ class MyFX extends StaticClass {
       // Mail verschicken
       $sender   = 'default@domain.tld';
       $receiver = Config ::get('mail.myfx.signalreceivers');
-      $subject  = $signal->getName().' Modified '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol();
+      $subject  = $signal->getName().' Modify '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol();
       mail($receiver, $subject, $message);
 
       /*
@@ -119,7 +119,7 @@ class MyFX extends StaticClass {
       // Mail verschicken
       $sender   = 'default@domain.tld';
       $receiver = Config ::get('mail.myfx.signalreceivers');
-      $subject  = $signal->getName().' Closed '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol();
+      $subject  = $signal->getName().' Close '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol();
       mail($receiver, $subject, $message);
    }
 
