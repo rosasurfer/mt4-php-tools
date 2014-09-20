@@ -75,6 +75,35 @@ class MyFX extends StaticClass {
       if (($current=$position->getStopLoss())   != ($previous=$position->getPrevStopLoss())  ) $msg .= '  StopLoss: '  .($previous ? $previous.' => ':'').$current;
 
       echoPre('position modified: '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice().$msg);
+
+
+      // Mail per Error-Log-Funktion verschicken
+      $receiver = Config ::get('mail.myfx.signalreceivers');
+      $message  = "test message body";
+      //echoPre('error_log() = '.(int) error_log($message, 1, $receiver, 'Subject: Signal via error_log()'));
+
+
+      // Mail per Mail-Funktion verschicken
+      $receiver = Config ::get('mail.myfx.signalreceivers');
+      $message  = "test message body";
+      //echoPre('mail() = '.(int) mail("Paule Panke <$receiver>", 'Signal via mail()', $message));
+
+
+      /*
+      // Mail per SMTP-Mailer verschicken
+      $sender   = 'default@domain.tld';
+      $receiver = Config ::get('mail.myfx.signalreceivers');
+      $subject  = "DayFox signal: Position Modify via Mailer class";
+      $message  = "test message body";
+      $headers  = array("Content-Type: text/plain; charset=iso-8859-1");
+      try {
+         $options = Config ::me()->get('mail.myfx');
+         Mailer ::create($options)->sendMail($sender, $receiver, $subject, $message, $headers);
+      }
+      catch (Exception $ex) {
+         throw new InfrastructureException('Error sending mail to: '.$receiver, $ex);
+      }
+      */
    }
 
 
