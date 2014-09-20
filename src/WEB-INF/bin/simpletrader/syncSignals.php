@@ -168,7 +168,6 @@ function updateTrades($signal, array &$currentOpenPositions, array &$currentHist
          $updates = true;
       }
       else {
-         $tp = $sl = $tpMsg = $slMsg = null;
          // auf modifiziertes TP- oder SL-Limit prüfen
          if ($data['takeprofit'] != $knownOpenPositions[$sTicket]->getTakeProfit()) $position = $knownOpenPositions[$sTicket]->setTakeProfit($data['takeprofit']);
          if ($data['stoploss'  ] != $knownOpenPositions[$sTicket]->getStopLoss()  ) $position = $knownOpenPositions[$sTicket]->setStopLoss  ($data['stoploss'  ]);

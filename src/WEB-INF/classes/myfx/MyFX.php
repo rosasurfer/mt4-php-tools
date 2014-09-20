@@ -71,9 +71,8 @@ class MyFX extends StaticClass {
     */
    public static function onPositionModify(OpenPosition $position) {
       $msg = null;
-
-      if (($tp=$position->getTakeprofit()) != ($prevtp=$position->getPrevTakeprofit())) $msg .= '  TakeProfit: '.($prevtp ? $prevtp.' => ':'').$tp;
-      if (($sl=$position->getStopLoss())   != ($prevsl=$position->getPrevStopLoss())  ) $msg .= '  StopLoss: '  .($prevsl ? $prevsl.' => ':'').$sl;
+      if (($current=$position->getTakeprofit()) != ($previous=$position->getPrevTakeprofit())) $msg .= '  TakeProfit: '.($previous ? $previous.' => ':'').$current;
+      if (($current=$position->getStopLoss())   != ($previous=$position->getPrevStopLoss())  ) $msg .= '  StopLoss: '  .($previous ? $previous.' => ':'').$current;
 
       echoPre('position modified: '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice().$msg);
    }
