@@ -86,7 +86,7 @@ class MyFX extends StaticClass {
       // Mail per Mail-Funktion verschicken
       $receiver = Config ::get('mail.myfx.signalreceivers');
       $message  = "test message body";
-      //echoPre('mail() = '.(int) mail("Paule Panke <$receiver>", 'Signal via mail()', $message));
+      echoPre('mail() = '.(int) mail("Paule Panke <$receiver>", 'Signal via mail()', $message));
 
 
       /*
