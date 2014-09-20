@@ -5,38 +5,42 @@
 class ClosedPosition extends PersistableObject {
 
 
-   protected /*int*/    $ticket;
-   protected /*string*/ $type;
-   protected /*float*/  $lots;
-   protected /*string*/ $symbol;
-   protected /*string*/ $openTime;
-   protected /*float*/  $openPrice;
-   protected /*string*/ $closeTime;
-   protected /*float*/  $closePrice;
-   protected /*float*/  $stopLoss;
-   protected /*float*/  $takeProfit;
-   protected /*float*/  $commission;
-   protected /*float*/  $swap;
-   protected /*float*/  $profit;
-   protected /*int*/    $magicNumber;
-   protected /*string*/ $comment;
-   protected /*int*/    $signal_id;
+   protected /*          int   */ $ticket;
+   protected /*          string*/ $type;
+   protected /*          float */ $lots;
+   protected /*          string*/ $symbol;
+   protected /*          string*/ $openTime;
+   protected /*          float */ $openPrice;
+   protected /*          string*/ $closeTime;
+   protected /*          float */ $closePrice;
+   protected /*          float */ $stopLoss;
+   protected /*          float */ $takeProfit;
+   protected /*transient float */ $prevStopLoss;      // der vorherige StopLoss wird nicht fest gespeichert
+   protected /*transient float */ $prevTakeProfit;    // der vorherige TakeProfit wird nicht fest gespeichert
+   protected /*          float */ $commission;
+   protected /*          float */ $swap;
+   protected /*          float */ $profit;
+   protected /*          int   */ $magicNumber;
+   protected /*          string*/ $comment;
+   protected /*          int   */ $signal_id;
 
-   private   /*Signal*/ $signal;
+   private   /*          Signal*/ $signal;
 
 
    // Getter
-   public function getTicket()      { return $this->ticket;      }
-   public function getType()        { return $this->type;        }
-   public function getLots()        { return $this->lots;        }
-   public function getSymbol()      { return $this->symbol;      }
-   public function getOpenPrice()   { return $this->openPrice;   }
-   public function getClosePrice()  { return $this->closePrice;  }
-   public function getStopLoss()    { return $this->stopLoss;    }
-   public function getTakeProfit()  { return $this->takeProfit;  }
-   public function getMagicNumber() { return $this->magicNumber; }
-   public function getComment()     { return $this->comment;     }
-   public function getSignal_id()   { return $this->signal_id;   }
+   public function getTicket()         { return $this->ticket;         }
+   public function getType()           { return $this->type;           }
+   public function getLots()           { return $this->lots;           }
+   public function getSymbol()         { return $this->symbol;         }
+   public function getOpenPrice()      { return $this->openPrice;      }
+   public function getClosePrice()     { return $this->closePrice;     }
+   public function getStopLoss()       { return $this->stopLoss;       }
+   public function getTakeProfit()     { return $this->takeProfit;     }
+   public function getPrevStopLoss()   { return $this->prevStopLoss;   }
+   public function getPrevTakeProfit() { return $this->prevTakeProfit; }
+   public function getMagicNumber()    { return $this->magicNumber;    }
+   public function getComment()        { return $this->comment;        }
+   public function getSignal_id()      { return $this->signal_id;      }
 
 
    /**
@@ -66,21 +70,23 @@ class ClosedPosition extends PersistableObject {
    private static function create_1(OpenPosition $openPosition, array $data) {
       $position = new self();
 
-      $position->ticket      =                $data['ticket'     ];
-      $position->type        =                $data['type'       ];
-      $position->lots        =                $data['lots'       ];
-      $position->symbol      =                $data['symbol'     ];
-      $position->openTime    = MyFX ::fxtDate($data['opentime'   ]);
-      $position->openPrice   =                $data['openprice'  ];
-      $position->closeTime   = MyFX ::fxtDate($data['closetime'  ]);
-      $position->closePrice  =                $data['closeprice' ];
-      $position->stopLoss    =          isSet($data['stoploss'   ]) ? $data['stoploss'   ] : $openPosition->getStopLoss();
-      $position->takeProfit  =          isSet($data['takeprofit' ]) ? $data['takeprofit' ] : $openPosition->getTakeProfit();
-      $position->commission  =                $data['commission' ];
-      $position->swap        =                $data['swap'       ];
-      $position->profit      =                $data['profit'     ];
-      $position->magicNumber =          isSet($data['magicnumber']) ? $data['magicnumber'] : null;
-      $position->comment     =          isSet($data['comment'    ]) ? $data['comment'    ] : null;
+      $position->ticket          =                $data['ticket'     ];
+      $position->type            =                $data['type'       ];
+      $position->lots            =                $data['lots'       ];
+      $position->symbol          =                $data['symbol'     ];
+      $position->openTime        = MyFX ::fxtDate($data['opentime'   ]);
+      $position->openPrice       =                $data['openprice'  ];
+      $position->closeTime       = MyFX ::fxtDate($data['closetime'  ]);
+      $position->closePrice      =                $data['closeprice' ];
+      $position->stopLoss        =          isSet($data['stoploss'   ]) ? $data['stoploss'   ] : $openPosition->getStopLoss();
+      $position->takeProfit      =          isSet($data['takeprofit' ]) ? $data['takeprofit' ] : $openPosition->getTakeProfit();
+      $position->commission      =                $data['commission' ];
+      $position->swap            =                $data['swap'       ];
+      $position->profit          =                $data['profit'     ];
+      $position->magicNumber     =          isSet($data['magicnumber']) ? $data['magicnumber'] : null;
+      $position->comment         =          isSet($data['comment'    ]) ? $data['comment'    ] : null;
+      $position->prevStopLoss    = $openPosition->getPrevStopLoss();
+      $position->prevTakeProfit  = $openPosition->getPrevTakeProfit();
 
       $position->signal_id = $openPosition->getSignal_id();
 

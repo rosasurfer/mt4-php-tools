@@ -83,8 +83,8 @@ class Account extends PersistableObject {
          return $this;
 
       $this->lastReportedBalance = $balance;
-      $this->modified = true;
 
+      $this->isPersistent() && $this->modified=true;
       return $this;
    }
 

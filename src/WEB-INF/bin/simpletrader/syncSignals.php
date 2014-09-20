@@ -160,40 +160,34 @@ function updateTrades($signal, array &$currentOpenPositions, array &$currentHist
 
    // (2) offene Positionen abgleichen (sind aufsteigend nach OpenTime+Ticket sortiert)
    foreach ($currentOpenPositions as $i => &$data) {
-      $sTicket = (string)$data['ticket'];
+      $sTicket  = (string)$data['ticket'];
+      $position = null;
 
       if (!isSet($knownOpenPositions[$sTicket])) {
-         $position = OpenPosition ::create($signal, $data)
-                                  ->save();
-         echoPre('position opened: '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice().'  TP: '.ifNull($position->getTakeProfit(),'-').'  SL: '.ifNull($position->getStopLoss(), '-').'  ('.$position->getOpenTime('H:i:s').')');
-         MyFX ::sendSignalOpenMessage($position);
+         MyFX ::onPositionOpen(OpenPosition ::create($signal, $data)->save());
          $updates = true;
       }
       else {
          $tp = $sl = $tpMsg = $slMsg = null;
          // auf modifiziertes TP- oder SL-Limit prüfen
-         if ($data['takeprofit'] != ($tp=$knownOpenPositions[$sTicket]->getTakeProfit())) $tpMsg = '  TakeProfit: '.($tp ? $tp.' => ':'').$data['takeprofit'];
-         if ($data['stoploss'  ] != ($sl=$knownOpenPositions[$sTicket]->getStopLoss())  ) $slMsg = '  StopLoss: '  .($sl ? $sl.' => ':'').$data['stoploss'  ];
-         if ($tpMsg || $slMsg) {
-            $position = $knownOpenPositions[$sTicket]->setTakeProfit($data['takeprofit'])
-                                                     ->setStopLoss  ($data['stoploss'  ])
-                                                     ->save();
-            echoPre('position modified: '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice().$slMsg.$tpMsg);
-            MyFX ::sendSignalModifyMessage($position);
+         if ($data['takeprofit'] != $knownOpenPositions[$sTicket]->getTakeProfit()) $position = $knownOpenPositions[$sTicket]->setTakeProfit($data['takeprofit']);
+         if ($data['stoploss'  ] != $knownOpenPositions[$sTicket]->getStopLoss()  ) $position = $knownOpenPositions[$sTicket]->setStopLoss  ($data['stoploss'  ]);
+         if ($position) {
+            MyFX ::onPositionModify($position->save());
             $updates = true;
          }
          else $unchangedPositions++;
          unset($knownOpenPositions[$sTicket]);              // geprüfte Position aus Liste löschen
       }
    }
-   $unchangedPositions && echoPre($unchangedPositions.($updates ? ' known':'').' open position'.($unchangedPositions==1 ? '':'s'));
+   $unchangedPositions && echoPre($unchangedPositions.' unchanged open position'.($unchangedPositions==1 ? '':'s'));
 
 
    // (3) History abgleichen (ist aufsteigend nach CloseTime+OpenTime+Ticket sortiert)
    $closedPositions   = $knownOpenPositions;                // alle in $knownOpenPositions übrig gebliebenen Positionen müssen geschlossen worden sein
    $hstSize           = sizeOf($currentHistory);
    $matchingPositions = $otherPositions = 0;                // nach 3 übereinstimmenden Historyeinträgen wird das Update abgebrochen
-   $openToClosed      = false;
+   $openGotClosed     = false;
 
    for ($i=$hstSize-1; $i >= 0; $i--) {                     // History wird rückwärts verarbeitet und bricht bei Übereinstimmung der Daten ab (schnellste Variante)
       $data         = $currentHistory[$i];
@@ -220,9 +214,8 @@ function updateTrades($signal, array &$currentOpenPositions, array &$currentHist
       if ($openPosition) {
          $closedPosition = ClosedPosition ::create($openPosition, $data)->save();
          $openPosition->delete();                           // vormals offene Position aus t_openposition löschen
-         $openToClosed = true;
-         echoPre('position closed: '.ucFirst($closedPosition->getType()).' '.$closedPosition->getLots().' lot '.$closedPosition->getSymbol().'  Open: '.$closedPosition->getOpenPrice().'  Close: '.$closedPosition->getClosePrice().'  Profit: '.$closedPosition->getProfit(2).'  ('.$closedPosition->getCloseTime('H:i:s').')');
-         MyFX ::sendSignalCloseMessage($closedPosition);
+         MyFX ::onPositionClose($closedPosition);
+         $openGotClosed = true;
       }
       else {
          ClosedPosition ::create($signal, $data)->save();
@@ -230,8 +223,8 @@ function updateTrades($signal, array &$currentOpenPositions, array &$currentHist
       }
       $updates = true;
    }
-   $otherPositions && echoPre($otherPositions.' '.(!$openToClosed ? 'new':'other').' closed position'.($otherPositions==1 ? '':'s'));
-   !$updates       && echoPre('no changes');
+   $otherPositions && echoPre($otherPositions.' '.(!$openGotClosed ? 'new':'other').' closed position'.($otherPositions==1 ? '':'s'));
+   !$updates && !$unchangedPositions && echoPre('no changes');
 
    if ($closedPositions) throw new plRuntimeException('Found '.sizeOf($closedPositions).' orphaned open position'.(sizeOf($closedPositions)==1 ? '':'s').":\n".printFormatted($closedPositions, true));
 }

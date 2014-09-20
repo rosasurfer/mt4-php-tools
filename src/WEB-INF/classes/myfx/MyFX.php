@@ -55,6 +55,41 @@ class MyFX extends StaticClass {
 
 
    /**
+    * Handler für PositionOpen-Events.
+    *
+    * @param  OpenPosition $position - die geöffnete Position
+    */
+   public static function onPositionOpen(OpenPosition $position) {
+      echoPre('position opened: '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice().'  TP: '.ifNull($position->getTakeProfit(),'-').'  SL: '.ifNull($position->getStopLoss(), '-').'  ('.$position->getOpenTime('H:i:s').')');
+   }
+
+
+   /**
+    * Handler für PositionModify-Events.
+    *
+    * @param  OpenPosition $position - die modifizierte Position
+    */
+   public static function onPositionModify(OpenPosition $position) {
+      $msg = null;
+
+      if (($tp=$position->getTakeprofit()) != ($prevtp=$position->getPrevTakeprofit())) $msg .= '  TakeProfit: '.($prevtp ? $prevtp.' => ':'').$tp;
+      if (($sl=$position->getStopLoss())   != ($prevsl=$position->getPrevStopLoss())  ) $msg .= '  StopLoss: '  .($prevsl ? $prevsl.' => ':'').$sl;
+
+      echoPre('position modified: '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice().$msg);
+   }
+
+
+   /**
+    * Handler für PositionClose-Events.
+    *
+    * @param  ClosedPosition $position - die geschlossene Position
+    */
+   public static function onPositionClose(ClosedPosition $position) {
+      echoPre('position closed: '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().'  Open: '.$position->getOpenPrice().'  Close: '.$position->getClosePrice().'  Profit: '.$position->getProfit(2).'  ('.$position->getCloseTime('H:i:s').')');
+   }
+
+
+   /**
     * Verschickt eine Nachricht über eine neue offene Position.
     *
     * @param  OpenPosition $position - die geöffnete Position
