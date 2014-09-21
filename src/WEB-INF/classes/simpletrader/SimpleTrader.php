@@ -269,13 +269,13 @@ class SimpleTrader extends StaticClass {
       $signal = $position->getSignal();
 
       // Ausgabe in Console
-      $consoleMsg = 'position opened: '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice().'  TP: '.ifNull($position->getTakeProfit(),'-').'  SL: '.ifNull($position->getStopLoss(), '-').'  ('.$position->getOpenTime('H:i:s').')';
+      $consoleMsg = 'position opened: '.ucFirst($position->getType()).' '.$position->getLots().' lots '.$position->getSymbol().' @ '.$position->getOpenPrice().'  TP: '.ifNull($position->getTakeProfit(),'-').'  SL: '.ifNull($position->getStopLoss(), '-').'  ('.$position->getOpenTime('H:i:s').')';
       echoPre($consoleMsg);
 
 
       // Benachrichtigung per E-Mail
       try {
-         $mailMsg = $signal->getName().' Open '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice();
+         $mailMsg = $signal->getName().' Open '.ucFirst($position->getType()).' '.$position->getLots().' lots '.$position->getSymbol().' @ '.$position->getOpenPrice();
          foreach (MyFX ::getMailSignalReceivers() as $receiver)
             mail($receiver, $subject=$mailMsg, $msg=$mailMsg);
       }
@@ -284,7 +284,7 @@ class SimpleTrader extends StaticClass {
 
       // Benachrichtigung per SMS
       try {
-         $smsMsg = 'Open '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice();
+         $smsMsg = 'opened '.ucFirst($position->getType()).' '.$position->getLots().' lots '.$position->getSymbol().' @ '.$position->getOpenPrice()."\nTP: ".ifNull($position->getTakeProfit(),'-')."\nSL: ".ifNull($position->getStopLoss(), '-')."\nTicket: #".$position->getTicket();
          foreach (MyFX ::getSmsSignalReceivers() as $receiver)
             MyFX ::sendSms($receiver, $signal, $smsMsg);
       }
@@ -311,13 +311,13 @@ class SimpleTrader extends StaticClass {
       $signal = $position->getSignal();
 
       // Ausgabe in Console
-      $consoleMsg = 'position modified: '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice().$modification;
+      $consoleMsg = 'position modified: '.ucFirst($position->getType()).' '.$position->getLots().' lots '.$position->getSymbol().' @ '.$position->getOpenPrice().$modification;
       echoPre($consoleMsg);
 
 
       // Benachrichtigung per E-Mail
       try {
-         $mailMsg = $signal->getName().' Modify '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().$modification;
+         $mailMsg = $signal->getName().' Modify '.ucFirst($position->getType()).' '.$position->getLots().' lots '.$position->getSymbol().$modification;
          foreach (MyFX ::getMailSignalReceivers() as $receiver)
             mail($receiver, $subject=$mailMsg, $msg=$mailMsg);
       }
@@ -326,7 +326,7 @@ class SimpleTrader extends StaticClass {
 
       // Benachrichtigung per SMS
       try {
-         $smsMsg = 'Modify '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().$modification;
+         $smsMsg = 'modified '.ucFirst($position->getType()).' '.$position->getLots().' lots '.$position->getSymbol().$modification."\nTicket: #".$position->getTicket();
          foreach (MyFX ::getSmsSignalReceivers() as $receiver)
             MyFX ::sendSms($receiver, $signal, $smsMsg);
       }
@@ -343,13 +343,13 @@ class SimpleTrader extends StaticClass {
       $signal = $position->getSignal();
 
       // Ausgabe in Console
-      $consoleMsg = 'position closed: '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().'  Open: '.$position->getOpenPrice().'  Close: '.$position->getClosePrice().'  Profit: '.$position->getProfit(2).'  ('.$position->getCloseTime('H:i:s').')';
+      $consoleMsg = 'position closed: '.ucFirst($position->getType()).' '.$position->getLots().' lots '.$position->getSymbol().'  Open: '.$position->getOpenPrice().'  Close: '.$position->getClosePrice().'  Profit: '.$position->getProfit(2).'  ('.$position->getCloseTime('H:i:s').')';
       echoPre($consoleMsg);
 
 
       // Benachrichtigung per E-Mail
       try {
-         $mailMsg = $signal->getName().' Close '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getClosePrice();
+         $mailMsg = $signal->getName().' Close '.ucFirst($position->getType()).' '.$position->getLots().' lots '.$position->getSymbol().' @ '.$position->getClosePrice();
          foreach (MyFX ::getMailSignalReceivers() as $receiver)
             mail($receiver, $subject=$mailMsg, $msg=$mailMsg);
       }
@@ -358,7 +358,7 @@ class SimpleTrader extends StaticClass {
 
       // Benachrichtigung per SMS
       try {
-         $smsMsg = 'Close '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getClosePrice();
+         $smsMsg = 'closed '.ucFirst($position->getType()).' '.$position->getLots().' lots '.$position->getSymbol()."\nOpen: ".$position->getOpenPrice()."\nClose: ".$position->getClosePrice()."\nTicket: #".$position->getTicket();
          foreach (MyFX ::getSmsSignalReceivers() as $receiver)
             MyFX ::sendSms($receiver, $signal, $smsMsg);
       }
