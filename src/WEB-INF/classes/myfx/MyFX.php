@@ -35,17 +35,19 @@ class MyFX extends StaticClass {
    /**
     * Formatiert einen Timestamp als FXT-Zeit.
     *
-    * @param  int $timestamp - Zeitpunkt
+    * @param  int    $timestamp - Zeitpunkt
+    * @param  string $format    - date()-Formatstring (default: 'Y-m-d H:i:s')
     *
     * @return string - FXT-String
     */
-   public static function fxtDate($timestamp) {
+   public static function fxtDate($timestamp, $format='Y-m-d H:i:s') {
       if (!is_int($timestamp)) throw new IllegalTypeException('Illegal type of argument $timestamp: '.getType($timestamp));
+      if (!is_string($format)) throw new IllegalTypeException('Illegal type of argument $format: '.getType($format));
 
       $oldTimezone = date_default_timezone_get();
       try {
          date_default_timezone_set('America/New_York');
-         $result = date('Y-m-d H:i:s', $timestamp + 7*HOURS);
+         $result = date($format, $timestamp + 7*HOURS);
          date_default_timezone_set($oldTimezone);
       }
       catch(Exception $ex) { date_default_timezone_set($oldTimezone); throw $ex; }

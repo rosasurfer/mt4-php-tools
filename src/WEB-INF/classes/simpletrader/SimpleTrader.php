@@ -284,7 +284,7 @@ class SimpleTrader extends StaticClass {
 
       // Benachrichtigung per SMS
       try {
-         $smsMsg = 'Opened '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice()."\nTP: ".ifNull($position->getTakeProfit(),'-')."\nSL: ".ifNull($position->getStopLoss(), '-')."\n#".$position->getTicket();
+         $smsMsg = 'Opened '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice()."\nTP: ".ifNull($position->getTakeProfit(),'-')."\nSL: ".ifNull($position->getStopLoss(), '-')."\n#".$position->getTicket().' ('.$position->getOpenTime('H:i:s').')';
          foreach (MyFX ::getSmsSignalReceivers() as $receiver)
             MyFX ::sendSms($receiver, $signal, $smsMsg);
       }
@@ -326,7 +326,7 @@ class SimpleTrader extends StaticClass {
 
       // Benachrichtigung per SMS
       try {
-         $smsMsg = 'Modified '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().$modification."\n#".$position->getTicket();
+         $smsMsg = 'Modified '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().$modification."\n#".$position->getTicket().' ('.MyFX ::fxtDate(now(), 'H:i:s').')';
          foreach (MyFX ::getSmsSignalReceivers() as $receiver)
             MyFX ::sendSms($receiver, $signal, $smsMsg);
       }
@@ -358,7 +358,7 @@ class SimpleTrader extends StaticClass {
 
       // Benachrichtigung per SMS
       try {
-         $smsMsg = 'Closed '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getClosePrice()."\nOpen: ".$position->getOpenPrice()."\n#".$position->getTicket();
+         $smsMsg = 'Closed '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getClosePrice()."\nOpen: ".$position->getOpenPrice()."\n#".$position->getTicket().' ('.$position->getCloseTime('H:i:s').')';
          foreach (MyFX ::getSmsSignalReceivers() as $receiver)
             MyFX ::sendSms($receiver, $signal, $smsMsg);
       }
