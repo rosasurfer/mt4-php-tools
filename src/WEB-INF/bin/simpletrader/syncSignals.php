@@ -39,18 +39,20 @@ $signals = array('alexprofit'   => array('id'   => 2474,
 
 // Befehlszeilenargumente einlesen und validieren
 $args = array_slice($_SERVER['argv'], 1);
-!$args && $args=array_keys($signals);                       // ohne Parameter werden alle Signale synchronisiert
-$looping = false;
 
+$looping = false;
+foreach ($args as $i => $arg) {
+   if (in_array(strToLower($arg), array('-l','/l'))) {
+      $looping = true;
+      unset($args[$i]);
+   }
+}
+
+!$args && $args=array_keys($signals);                       // ohne Parameter werden alle Signale synchronisiert
 
 foreach ($args as $i => $arg) {
    $arg = strToLower($arg);
    in_array($arg, array('-?','/?','-h','/h','-help','/help')) && exit(1|help());
-   if (in_array($arg, array('-l','/l'))) {
-      $looping = true;
-      unset($args[$i]);
-      continue;
-   }
    !array_key_exists($arg, $signals)                          && exit(1|help('Unknown signal: '.$args[$i]));
    $args[$i] = $arg;
 }
