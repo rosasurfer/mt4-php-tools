@@ -258,5 +258,94 @@ class SimpleTrader extends StaticClass {
       if ($tradeA['closetime'] < $tradeB['closetime']) return -1;
       return self ::compareTradesByOpenTimeTicket($tradeA, $tradeB);
    }
+
+
+   /**
+    * Handler für PositionOpen-Events eines SimpleTrade-Signals.
+    *
+    * @param  OpenPosition $position - die geöffnete Position
+    */
+   public static function onPositionOpen(OpenPosition $position) {
+      $signal = $position->getSignal();
+
+      // Ausgabe in Console
+      $consoleMsg = 'position opened: '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice().'  TP: '.ifNull($position->getTakeProfit(),'-').'  SL: '.ifNull($position->getStopLoss(), '-').'  ('.$position->getOpenTime('H:i:s').')';
+      echoPre($consoleMsg);
+
+
+      // Benachrichtigung per E-Mail
+      $mailMsg = $signal->getName().' Open '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice();
+      foreach (MyFX ::getMailSignalReceivers() as $receiver) {
+         mail($receiver, $subject=$mailMsg, $msg=$mailMsg);
+      }
+
+
+      // Benachrichtigung per SMS
+      $smsMsg = 'Open '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice();
+      foreach (MyFX ::getSmsSignalReceivers() as $receiver) {
+         sendSms($receiver, $signal, $smsMsg);
+      }
+   }
+
+
+   /**
+    * Handler für PositionModify-Events eines SimpleTrade-Signals.
+    *
+    * @param  OpenPosition $position - die modifizierte Position
+    */
+   public static function onPositionModify(OpenPosition $position, $prevTP, $prevSL) {
+      $modification = null;
+      if (($current=$position->getTakeprofit()) != $prevTP) $modification .= '  TakeProfit: '.($prevTP ? $prevTP:'-').' => '.($current ? $current:'-');
+      if (($current=$position->getStopLoss())   != $prevSL) $modification .= '  StopLoss: '  .($prevSL ? $prevSL:'-').' => '.($current ? $current:'-');
+      if (!$modification) throw new plRuntimeException('No modification found in OpenPosition '.$position);
+
+      $signal = $position->getSignal();
+
+      // Ausgabe in Console
+      $consoleMsg = 'position modified: '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice().$modification;
+      echoPre($consoleMsg);
+
+
+      // Benachrichtigung per E-Mail
+      $mailMsg = $signal->getName().' Modify '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().$modification;
+      foreach (MyFX ::getMailSignalReceivers() as $receiver) {
+         mail($receiver, $subject=$mailMsg, $msg=$mailMsg);
+      }
+
+
+      // Benachrichtigung per SMS
+      $smsMsg = 'Modify '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().$modification;
+      foreach (MyFX ::getSmsSignalReceivers() as $receiver) {
+         sendSms($receiver, $signal, $smsMsg);
+      }
+   }
+
+
+   /**
+    * Handler für PositionClose-Events eines SimpleTrade-Signals.
+    *
+    * @param  ClosedPosition $position - die geschlossene Position
+    */
+   public static function onPositionClose(ClosedPosition $position) {
+      $signal = $position->getSignal();
+
+      // Ausgabe in Console
+      $consoleMsg = 'position closed: '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().'  Open: '.$position->getOpenPrice().'  Close: '.$position->getClosePrice().'  Profit: '.$position->getProfit(2).'  ('.$position->getCloseTime('H:i:s').')';
+      echoPre($consoleMsg);
+
+
+      // Benachrichtigung per E-Mail
+      $mailMsg = $signal->getName().' Close '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getClosePrice();
+      foreach (MyFX ::getMailSignalReceivers() as $receiver) {
+         mail($receiver, $subject=$mailMsg, $msg=$mailMsg);
+      }
+
+
+      // Benachrichtigung per SMS
+      $smsMsg = 'Close '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getClosePrice();
+      foreach (MyFX ::getSmsSignalReceivers() as $receiver) {
+         sendSms($receiver, $signal, $smsMsg);
+      }
+   }
 }
 ?>

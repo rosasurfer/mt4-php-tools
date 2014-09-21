@@ -164,7 +164,7 @@ function updateTrades($signal, array &$currentOpenPositions, array &$currentHist
       $position = null;
 
       if (!isSet($knownOpenPositions[$sTicket])) {
-         MyFX ::onPositionOpen(OpenPosition ::create($signal, $data)->save());
+         SimpleTrader ::onPositionOpen(OpenPosition ::create($signal, $data)->save());
          $updates = true;
       }
       else {
@@ -172,7 +172,7 @@ function updateTrades($signal, array &$currentOpenPositions, array &$currentHist
          if ($data['takeprofit'] != ($prevTP=$knownOpenPositions[$sTicket]->getTakeProfit())) $position = $knownOpenPositions[$sTicket]->setTakeProfit($data['takeprofit']);
          if ($data['stoploss'  ] != ($prevSL=$knownOpenPositions[$sTicket]->getStopLoss())  ) $position = $knownOpenPositions[$sTicket]->setStopLoss  ($data['stoploss'  ]);
          if ($position) {
-            MyFX ::onPositionModify($position->save(), $prevTP, $prevSL);
+            SimpleTrader ::onPositionModify($position->save(), $prevTP, $prevSL);
             $updates = true;
          }
          else $unchangedPositions++;
@@ -213,7 +213,7 @@ function updateTrades($signal, array &$currentOpenPositions, array &$currentHist
       if ($openPosition) {
          $closedPosition = ClosedPosition ::create($openPosition, $data)->save();
          $openPosition->delete();                           // vormals offene Position aus t_openposition löschen
-         MyFX ::onPositionClose($closedPosition);
+         SimpleTrader ::onPositionClose($closedPosition);
          $openGotClosed = true;
       }
       else {
