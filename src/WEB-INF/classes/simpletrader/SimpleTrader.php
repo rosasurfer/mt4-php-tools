@@ -291,9 +291,14 @@ class SimpleTrader extends StaticClass {
    /**
     * Handler für PositionModify-Events eines SimpleTrade-Signals.
     *
-    * @param  OpenPosition $position - die modifizierte Position
+    * @param  OpenPosition $position - die modifizierte Position (nach der Änderung)
+    * @param  float        $prevTP   - der vorherige TakeProfit-Wert
+    * @param  float        $prevSL   - der vorherige StopLoss-Wert
     */
    public static function onPositionModify(OpenPosition $position, $prevTP, $prevSL) {
+      if (!is_float($prevTP)) throw new IllegalTypeException('Illegal type of argument $prevTP: '.getType($prevSL));
+      if (!is_float($prevSL)) throw new IllegalTypeException('Illegal type of argument $prevSL: '.getType($prevSL));
+
       $modification = null;
       if (($current=$position->getTakeprofit()) != $prevTP) $modification .= '  TakeProfit: '.($prevTP ? $prevTP:'-').' => '.($current ? $current:'-');
       if (($current=$position->getStopLoss())   != $prevSL) $modification .= '  StopLoss: '  .($prevSL ? $prevSL:'-').' => '.($current ? $current:'-');
