@@ -169,10 +169,10 @@ function updateTrades($signal, array &$currentOpenPositions, array &$currentHist
       }
       else {
          // auf modifiziertes TP- oder SL-Limit prüfen
-         if ($data['takeprofit'] != $knownOpenPositions[$sTicket]->getTakeProfit()) $position = $knownOpenPositions[$sTicket]->setTakeProfit($data['takeprofit']);
-         if ($data['stoploss'  ] != $knownOpenPositions[$sTicket]->getStopLoss()  ) $position = $knownOpenPositions[$sTicket]->setStopLoss  ($data['stoploss'  ]);
+         if ($data['takeprofit'] != ($prevTP=$knownOpenPositions[$sTicket]->getTakeProfit())) $position = $knownOpenPositions[$sTicket]->setTakeProfit($data['takeprofit']);
+         if ($data['stoploss'  ] != ($prevSL=$knownOpenPositions[$sTicket]->getStopLoss())  ) $position = $knownOpenPositions[$sTicket]->setStopLoss  ($data['stoploss'  ]);
          if ($position) {
-            MyFX ::onPositionModify($position->save());
+            MyFX ::onPositionModify($position->save(), $prevTP, $prevSL);
             $updates = true;
          }
          else $unchangedPositions++;

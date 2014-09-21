@@ -87,10 +87,10 @@ class MyFX extends StaticClass {
     *
     * @param  OpenPosition $position - die modifizierte Position
     */
-   public static function onPositionModify(OpenPosition $position) {
+   public static function onPositionModify(OpenPosition $position, $prevTP, $prevSL) {
       $modification = null;
-      if (($current=$position->getTakeprofit()) != ($previous=$position->getPrevTakeprofit())) $modification .= '  TakeProfit: '.($previous ? $previous.' => ':'').$current;
-      if (($current=$position->getStopLoss())   != ($previous=$position->getPrevStopLoss())  ) $modification .= '  StopLoss: '  .($previous ? $previous.' => ':'').$current;
+      if (($current=$position->getTakeprofit()) != $prevTP) $modification .= '  TakeProfit: '.($prevTP ? $prevTP.' => ':'').$current;
+      if (($current=$position->getStopLoss())   != $prevSL) $modification .= '  StopLoss: '  .($prevSL ? $prevSL.' => ':'').$current;
       if (!$modification) throw new plRuntimeException('No modification found in OpenPosition '.$position);
 
       $signal = $position->getSignal();
@@ -181,7 +181,7 @@ class MyFX extends StaticClass {
          if (!$numbers)
             $numbers = array();
       }
-      return $number;
+      return $numbers;
    }
 }
 ?>
