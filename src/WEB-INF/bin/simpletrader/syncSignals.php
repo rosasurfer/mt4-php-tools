@@ -154,78 +154,89 @@ function updateTrades($signal, array &$currentOpenPositions, array &$currentHist
    $updates            = false;
    $unchangedPositions = 0;
 
-   // (1) letzten bekannten Stand der offenen Positionen holen
-   $knownOpenPositions = OpenPosition ::dao()->listBySignalAlias($signal, $assocTicket=true);
+   $db = OpenPosition ::dao()->getDB();
+   $db->begin();
+   try {
+      // (1) letzten bekannten Stand der offenen Positionen holen
+      $knownOpenPositions = OpenPosition ::dao()->listBySignalAlias($signal, $assocTicket=true);
 
 
-   // (2) offene Positionen abgleichen (sind aufsteigend nach OpenTime+Ticket sortiert)
-   foreach ($currentOpenPositions as $i => &$data) {
-      $sTicket  = (string)$data['ticket'];
-      $position = null;
+      // (2) offene Positionen abgleichen (sind aufsteigend nach OpenTime+Ticket sortiert)
+      foreach ($currentOpenPositions as $i => &$data) {
+         $sTicket  = (string)$data['ticket'];
+         $position = null;
 
-      if (!isSet($knownOpenPositions[$sTicket])) {
-         SimpleTrader ::onPositionOpen(OpenPosition ::create($signal, $data)->save());
+         if (!isSet($knownOpenPositions[$sTicket])) {
+            SimpleTrader ::onPositionOpen(OpenPosition ::create($signal, $data)->save());
+            $updates = true;
+         }
+         else {
+            // auf modifiziertes TP- oder SL-Limit prüfen
+            if ($data['takeprofit'] != ($prevTP=$knownOpenPositions[$sTicket]->getTakeProfit())) $position = $knownOpenPositions[$sTicket]->setTakeProfit($data['takeprofit']);
+            if ($data['stoploss'  ] != ($prevSL=$knownOpenPositions[$sTicket]->getStopLoss())  ) $position = $knownOpenPositions[$sTicket]->setStopLoss  ($data['stoploss'  ]);
+            if ($position) {
+               SimpleTrader ::onPositionModify($position->save(), $prevTP, $prevSL);
+               $updates = true;
+            }
+            else $unchangedPositions++;
+            unset($knownOpenPositions[$sTicket]);              // geprüfte Position aus Liste löschen
+         }
+      }
+      $unchangedPositions && echoPre($unchangedPositions.' unchanged open position'.($unchangedPositions==1 ? '':'s'));
+
+
+      // (3) History abgleichen (ist aufsteigend nach CloseTime+OpenTime+Ticket sortiert)
+      $closedPositions   = $knownOpenPositions;                // alle in $knownOpenPositions übrig gebliebenen Positionen müssen geschlossen worden sein
+      $hstSize           = sizeOf($currentHistory);
+      $matchingPositions = $otherPositions = 0;                // nach 3 übereinstimmenden Historyeinträgen wird das Update abgebrochen
+      $openGotClosed     = false;
+
+      for ($i=$hstSize-1; $i >= 0; $i--) {                     // History wird rückwärts verarbeitet und bricht bei Übereinstimmung der Daten ab (schnellste Variante)
+         $data         = $currentHistory[$i];
+         $ticket       = $data['ticket'];
+         $openPosition = null;
+
+         if ($closedPositions) {
+            $sTicket = (string) $ticket;
+            if (isSet($closedPositions[$sTicket])) {
+               $openPosition = OpenPosition ::dao()->getByTicket($signal, $ticket);
+               unset($closedPositions[$sTicket]);
+               $updates = true;
+            }
+         }
+
+         if (!$openPosition && ClosedPosition ::dao()->isTicket($signal, $ticket)) {
+            $matchingPositions++;
+            if ($matchingPositions >= 3)
+               break;
+            continue;
+         }
+
+         // Position in t_closedposition einfügen
+         if ($openPosition) {
+            $closedPosition = ClosedPosition ::create($openPosition, $data)->save();
+            $openPosition->delete();                           // vormals offene Position aus t_openposition löschen
+            SimpleTrader ::onPositionClose($closedPosition);
+            $openGotClosed = true;
+         }
+         else {
+            ClosedPosition ::create($signal, $data)->save();
+            $otherPositions++;
+         }
          $updates = true;
       }
-      else {
-         // auf modifiziertes TP- oder SL-Limit prüfen
-         if ($data['takeprofit'] != ($prevTP=$knownOpenPositions[$sTicket]->getTakeProfit())) $position = $knownOpenPositions[$sTicket]->setTakeProfit($data['takeprofit']);
-         if ($data['stoploss'  ] != ($prevSL=$knownOpenPositions[$sTicket]->getStopLoss())  ) $position = $knownOpenPositions[$sTicket]->setStopLoss  ($data['stoploss'  ]);
-         if ($position) {
-            SimpleTrader ::onPositionModify($position->save(), $prevTP, $prevSL);
-            $updates = true;
-         }
-         else $unchangedPositions++;
-         unset($knownOpenPositions[$sTicket]);              // geprüfte Position aus Liste löschen
-      }
+      $otherPositions && echoPre($otherPositions.' '.(!$openGotClosed ? 'new':'other').' closed position'.($otherPositions==1 ? '':'s'));
+      !$updates && !$unchangedPositions && echoPre('no changes');
+      if ($closedPositions) throw new plRuntimeException('Found '.sizeOf($closedPositions).' orphaned open position'.(sizeOf($closedPositions)==1 ? '':'s').":\n".printFormatted($closedPositions, true));
+
+
+      // (4) alles speichern
+      $db->commit();
    }
-   $unchangedPositions && echoPre($unchangedPositions.' unchanged open position'.($unchangedPositions==1 ? '':'s'));
-
-
-   // (3) History abgleichen (ist aufsteigend nach CloseTime+OpenTime+Ticket sortiert)
-   $closedPositions   = $knownOpenPositions;                // alle in $knownOpenPositions übrig gebliebenen Positionen müssen geschlossen worden sein
-   $hstSize           = sizeOf($currentHistory);
-   $matchingPositions = $otherPositions = 0;                // nach 3 übereinstimmenden Historyeinträgen wird das Update abgebrochen
-   $openGotClosed     = false;
-
-   for ($i=$hstSize-1; $i >= 0; $i--) {                     // History wird rückwärts verarbeitet und bricht bei Übereinstimmung der Daten ab (schnellste Variante)
-      $data         = $currentHistory[$i];
-      $ticket       = $data['ticket'];
-      $openPosition = null;
-
-      if ($closedPositions) {
-         $sTicket = (string) $ticket;
-         if (isSet($closedPositions[$sTicket])) {
-            $openPosition = OpenPosition ::dao()->getByTicket($signal, $ticket);
-            unset($closedPositions[$sTicket]);
-            $updates = true;
-         }
-      }
-
-      if (!$openPosition && ClosedPosition ::dao()->isTicket($signal, $ticket)) {
-         $matchingPositions++;
-         if ($matchingPositions >= 3)
-            break;
-         continue;
-      }
-
-      // Position in t_closedposition einfügen
-      if ($openPosition) {
-         $closedPosition = ClosedPosition ::create($openPosition, $data)->save();
-         $openPosition->delete();                           // vormals offene Position aus t_openposition löschen
-         SimpleTrader ::onPositionClose($closedPosition);
-         $openGotClosed = true;
-      }
-      else {
-         ClosedPosition ::create($signal, $data)->save();
-         $otherPositions++;
-      }
-      $updates = true;
+   catch (Exception $ex) {
+      $db->rollback();
+      throw $ex;
    }
-   $otherPositions && echoPre($otherPositions.' '.(!$openGotClosed ? 'new':'other').' closed position'.($otherPositions==1 ? '':'s'));
-   !$updates && !$unchangedPositions && echoPre('no changes');
-
-   if ($closedPositions) throw new plRuntimeException('Found '.sizeOf($closedPositions).' orphaned open position'.(sizeOf($closedPositions)==1 ? '':'s').":\n".printFormatted($closedPositions, true));
 }
 
 
