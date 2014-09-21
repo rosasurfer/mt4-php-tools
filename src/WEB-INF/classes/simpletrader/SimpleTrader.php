@@ -284,7 +284,7 @@ class SimpleTrader extends StaticClass {
 
       // Benachrichtigung per SMS
       try {
-         $smsMsg = 'Opened '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice()."\nTP: ".ifNull($position->getTakeProfit(),'-')."\nSL: ".ifNull($position->getStopLoss(), '-')."\n#".$position->getTicket().' ('.$position->getOpenTime('H:i:s').')';
+         $smsMsg = 'Opened '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice()."\nTP: ".ifNull($position->getTakeProfit(),'-').'  SL: '.ifNull($position->getStopLoss(), '-')."\n#".$position->getTicket().'  ('.$position->getOpenTime('H:i:s').')';
          foreach (MyFX ::getSmsSignalReceivers() as $receiver)
             MyFX ::sendSms($receiver, $signal, $smsMsg);
       }
@@ -303,9 +303,9 @@ class SimpleTrader extends StaticClass {
       if (!is_null($prevTP) && !is_float($prevTP)) throw new IllegalTypeException('Illegal type of argument $prevTP: '.getType($prevSL));
       if (!is_null($prevSL) && !is_float($prevSL)) throw new IllegalTypeException('Illegal type of argument $prevSL: '.getType($prevSL));
 
-      $modification = null;
-      if (($current=$position->getTakeprofit()) != $prevTP) $modification .= '  TakeProfit: '.($prevTP ? $prevTP:'-').' => '.($current ? $current:'-');
-      if (($current=$position->getStopLoss())   != $prevSL) $modification .= '  StopLoss: '  .($prevSL ? $prevSL:'-').' => '.($current ? $current:'-');
+      $modification = $tpMsg = $slMsg = null;
+      if (($current=$position->getTakeprofit()) != $prevTP) $modification .= ($tpMsg='  TakeProfit: '.($prevTP ? $prevTP:'-').' => '.($current ? $current:'-'));
+      if (($current=$position->getStopLoss())   != $prevSL) $modification .= ($slMsg='  StopLoss: '  .($prevSL ? $prevSL:'-').' => '.($current ? $current:'-'));
       if (!$modification) throw new plRuntimeException('No modification found in OpenPosition '.$position);
 
       $signal = $position->getSignal();
@@ -326,7 +326,7 @@ class SimpleTrader extends StaticClass {
 
       // Benachrichtigung per SMS
       try {
-         $smsMsg = 'Modified '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().$modification."\n#".$position->getTicket().' ('.MyFX ::fxtDate(time(), 'H:i:s').')';
+         $smsMsg = 'Modified '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().($tpMsg ? "\n".trim($tpMsg):'').($slMsg ? "\n".trim($slMsg):'')."\n#".$position->getTicket().'  ('.MyFX ::fxtDate(time(), 'H:i:s').')';
          foreach (MyFX ::getSmsSignalReceivers() as $receiver)
             MyFX ::sendSms($receiver, $signal, $smsMsg);
       }
@@ -358,7 +358,7 @@ class SimpleTrader extends StaticClass {
 
       // Benachrichtigung per SMS
       try {
-         $smsMsg = 'Closed '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getClosePrice()."\nOpen: ".$position->getOpenPrice()."\n#".$position->getTicket().' ('.$position->getCloseTime('H:i:s').')';
+         $smsMsg = 'Closed '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getClosePrice()."\nOpen: ".$position->getOpenPrice()."\n#".$position->getTicket().'  ('.$position->getCloseTime('H:i:s').')';
          foreach (MyFX ::getSmsSignalReceivers() as $receiver)
             MyFX ::sendSms($receiver, $signal, $smsMsg);
       }
