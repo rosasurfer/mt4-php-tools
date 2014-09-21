@@ -39,11 +39,18 @@ $signals = array('alexprofit'   => array('id'   => 2474,
 
 // Befehlszeilenargumente einlesen und validieren
 $args = array_slice($_SERVER['argv'], 1);
-!$args && $args=array_keys($signals);                                // ohne Parameter werden alle Signale synchronisiert
+!$args && $args=array_keys($signals);                       // ohne Parameter werden alle Signale synchronisiert
+$looping = false;
+
 
 foreach ($args as $i => $arg) {
    $arg = strToLower($arg);
    in_array($arg, array('-?','/?','-h','/h','-help','/help')) && exit(1|help());
+   if (in_array($arg, array('-l','/l'))) {
+      $looping = true;
+      unset($args[$i]);
+      continue;
+   }
    !array_key_exists($arg, $signals)                          && exit(1|help('Unknown signal: '.$args[$i]));
    $args[$i] = $arg;
 }
@@ -56,14 +63,19 @@ try {
 }
 catch (Exception $ex) {
    if ($ex instanceof InfrastructureException)
-      exit(1|echoPre('error: '.$ex->getMessage()));                  // Can not connect to MySQL server on 'localhost:3306'
+      exit(1|echoPre('error: '.$ex->getMessage()));         // Can not connect to MySQL server on 'localhost:3306'
    throw $ex;
 }
 
 
 // Signale verarbeiten
-foreach ($args as $i => $arg) {
-   processSignal($arg);
+$seconds = 30;                                              // vorm nächsten Durchlauf jeweils einige Sek. schlafen
+while (true) {
+   foreach ($args as $i => $arg) {
+      processSignal($arg);
+   }
+   if (!$looping) break;
+   echoPre('sleeping...') || sleep($seconds);
 }
 exit(0);
 
