@@ -94,5 +94,17 @@ class MyFX extends StaticClass {
       }
       return $numbers;
    }
+
+
+   /**
+    * Verschickt eine vom angegebenen Signal ausgelöste SMS.
+    *
+    * @param  string $receiver - Empfänger (internationales Format)
+    * @param  Signal $signal   - Signal, das die SMS auslöste
+    * @param  string $message  - Nachricht
+    */
+   public static function sendSMS($receiver, Signal $signal, $message) {
+      throw new UnimplementedFeatureException('Method '.__METHOD__.'() is not implemented');
+   }
 }
 ?>
