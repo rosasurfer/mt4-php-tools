@@ -284,7 +284,7 @@ class SimpleTrader extends StaticClass {
 
       // Benachrichtigung per SMS
       try {
-         $smsMsg = 'Opened '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice().(($tp=$position->getTakeProfit()) ? "\nTP: $tp":'').($tp ? '  ':"\n").(($sl=$position->getStopLoss()) ? "SL: $sl":'')."\n#".$position->getTicket().'  ('.$position->getOpenTime('H:i:s').')';
+         $smsMsg = 'Opened '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice().(($tp=$position->getTakeProfit()) ? "\nTP: $tp":'').(($sl=$position->getStopLoss()) ? ($tp ? '  ':"\n")."SL: $sl":'')."\n#".$position->getTicket().'  ('.$position->getOpenTime('H:i:s').')';
          foreach (MyFX ::getSmsSignalReceivers() as $receiver)
             MyFX ::sendSms($receiver, $signal, $smsMsg);
       }
