@@ -284,7 +284,7 @@ class SimpleTrader extends StaticClass {
 
       // Benachrichtigung per SMS
       try {
-         $smsMsg = 'Opened '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice().(($tp=$position->getTakeProfit()) ? "\nTP: $tp":'').(($sl=$position->getStopLoss()) ? ($tp ? '  ':"\n")."SL: $sl":'')."\n#".$position->getTicket().'  ('.$position->getOpenTime('H:i:s').')';
+         $smsMsg = 'Opened '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice().(($tp=$position->getTakeProfit()) ? "\nTP: $tp":'').(($sl=$position->getStopLoss()) ? ($tp ? '  ':"\n")."SL: $sl":'')."\n\n#".$position->getTicket().'  ('.$position->getOpenTime('H:i:s').')';
          foreach (MyFX ::getSmsSignalReceivers() as $receiver)
             MyFX ::sendSms($receiver, $signal, $smsMsg);
       }
@@ -326,7 +326,7 @@ class SimpleTrader extends StaticClass {
 
       // Benachrichtigung per SMS
       try {
-         $smsMsg = 'Modified '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().($tpMsg ? "\n".trim($tpMsg):'').($slMsg ? "\n".trim($slMsg):'')."\n#".$position->getTicket().'  ('.MyFX ::fxtDate(time(), 'H:i:s').')';
+         $smsMsg = 'Modified '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().($tpMsg ? "\n".trim($tpMsg):'').($slMsg ? "\n".trim($slMsg):'')."\n\n#".$position->getTicket().'  ('.MyFX ::fxtDate(time(), 'H:i:s').')';
          foreach (MyFX ::getSmsSignalReceivers() as $receiver)
             MyFX ::sendSms($receiver, $signal, $smsMsg);
       }
@@ -358,7 +358,7 @@ class SimpleTrader extends StaticClass {
 
       // Benachrichtigung per SMS
       try {
-         $smsMsg = 'Closed '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getClosePrice()."\nOpen: ".$position->getOpenPrice()."\n#".$position->getTicket().'  ('.$position->getCloseTime('H:i:s').')';
+         $smsMsg = 'Closed '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getClosePrice()."\nOpen: ".$position->getOpenPrice()."\n\n#".$position->getTicket().'  ('.$position->getCloseTime('H:i:s').')';
          foreach (MyFX ::getSmsSignalReceivers() as $receiver)
             MyFX ::sendSms($receiver, $signal, $smsMsg);
       }
