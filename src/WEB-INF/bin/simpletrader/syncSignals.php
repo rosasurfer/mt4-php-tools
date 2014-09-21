@@ -16,6 +16,10 @@ $signals = array('alexprofit'   => array('id'   => 2474,
                                          'name' => 'AlexProfit',
                                          'url'  => 'http://cp.forexsignals.com/signal/2474/signal.html'),
 
+                 'caesar2'      => array('id'   => 1619,
+                                         'name' => 'Caesar2',
+                                         'url'  => 'http://cp.forexsignals.com/signal/1619/signal.html'),
+
                  'dayfox'       => array('id'   => 2465,
                                          'name' => 'DayFox',
                                          'url'  => 'http://cp.forexsignals.com/signal/2465/signal.html'),
@@ -24,13 +28,13 @@ $signals = array('alexprofit'   => array('id'   => 2474,
                                          'name' => 'GoldStar',
                                          'url'  => 'http://cp.forexsignals.com/signal/2622/signal.html'),
 
-                 'smarttrader'  => array('id'   => 1081,
-                                         'name' => 'SmartTrader',
-                                         'url'  => 'http://cp.forexsignals.com/signal/1081/signal.html'),
-
                  'smartscalper' => array('id'   => 1086,
                                          'name' => 'SmartScalper',
                                          'url'  => 'http://cp.forexsignals.com/signal/1086/signal.html'),
+
+                 'smarttrader'  => array('id'   => 1081,
+                                         'name' => 'SmartTrader',
+                                         'url'  => 'http://cp.forexsignals.com/signal/1081/signal.html'),
                  );
 
 
