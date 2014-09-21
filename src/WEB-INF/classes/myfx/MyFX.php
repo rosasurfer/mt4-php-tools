@@ -104,7 +104,34 @@ class MyFX extends StaticClass {
     * @param  string $message  - Nachricht
     */
    public static function sendSMS($receiver, Signal $signal, $message) {
-      throw new UnimplementedFeatureException('Method '.__METHOD__.'() is not implemented');
+      if (!is_string($receiver))   throw new IllegalTypeException('Illegal type of argument $receiver: '.getType($receiver));
+      $receiver = trim($receiver);
+      if (String ::startsWith($receiver, '+' )) $receiver = subStr($receiver, 1);
+      if (String ::startsWith($receiver, '00')) $receiver = subStr($receiver, 2);
+      if (!ctype_digit($receiver)) throw new plInvalidArgumentException('Invalid argument $receiver: "'.$receiver.'"');
+
+      if (!is_string($message))    throw new IllegalTypeException('Illegal type of argument $message: '.getType($message));
+      $message = trim($message);
+      if ($message == '')          throw new plInvalidArgumentException('Invalid argument $message: "'.$message.'"');
+
+
+      $config   = Config ::get('sms.clickatell');
+      $username = $config['username'];
+      $password = $config['password'];
+      $api_id   = $config['api_id'  ];
+      $message  = urlEncode($signal->getName().': '.$message);
+
+      $url = 'https://api.clickatell.com/http/sendmsg?user='.$username.'&password='.$password.'&api_id='.$api_id.'&to='.$receiver.'&text='.$message;
+
+      // HTTP-Request erzeugen und ausführen
+      $request  = HttpRequest ::create()->setUrl($url);
+      $options[CURLOPT_SSL_VERIFYPEER] = false;                // das SSL-Zertifikat kann nicht prüfbar oder ungültig sein
+      $response = CurlHttpClient ::create($options)->send($request);
+      $status   = $response->getStatus();
+      $content  = $response->getContent();
+      if ($status != 200) throw new plRuntimeException('Unexpected HTTP status code from api.clickatell.com: '.$status.' ('.HttpResponse ::$sc[$status].')');
+
+      echoPre('SMS sent: '.$content);
    }
 }
 ?>

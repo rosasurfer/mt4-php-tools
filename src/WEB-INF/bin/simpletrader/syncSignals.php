@@ -121,18 +121,12 @@ function processSignal($signal) {
                     CURLOPT_COOKIEJAR  => $cookieStore);    // The name of a file to save cookie data to when the connection closes.
 
    // HTTP-Request ausführen
-   if (true) {
-      $options[CURLOPT_SSL_VERIFYPEER] = false;             // das SSL-Zertifikat von www.simpletrader.net ist u.U. ungültig
+   $options[CURLOPT_SSL_VERIFYPEER] = false;                // das SSL-Zertifikat von www.simpletrader.net ist u.U. ungültig
 
-      $response = CurlHttpClient ::create($options)->send($request);
-      $status   = $response->getStatus();
-      $content  = $response->getContent();
-      if ($status != 200) throw new plRuntimeException('Unexpected HTTP status code from cp.forexsignals.com: '.$status.' ('.HttpResponse ::$sc[$status].')');
-   }
-   else {
-      $filename = dirName(realPath($_SERVER['PHP_SELF'])).DIRECTORY_SEPARATOR.$signal.'.html';
-      $content  = file_get_contents($filename, false);
-   }
+   $response = CurlHttpClient ::create($options)->send($request);
+   $status   = $response->getStatus();
+   $content  = $response->getContent();
+   if ($status != 200) throw new plRuntimeException('Unexpected HTTP status code from cp.forexsignals.com: '.$status.' ('.HttpResponse ::$sc[$status].')');
 
    // Antwort parsen
    $openPositions = $closedPositions = array();
