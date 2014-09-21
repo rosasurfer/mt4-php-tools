@@ -61,13 +61,24 @@ class MyFX extends StaticClass {
     */
    public static function onPositionOpen(OpenPosition $position) {
       $signal = $position->getSignal();
-      echoPre($message='position opened: '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice().'  TP: '.ifNull($position->getTakeProfit(),'-').'  SL: '.ifNull($position->getStopLoss(), '-').'  ('.$position->getOpenTime('H:i:s').')');
 
-      // Mail verschicken
-      $sender   = 'default@domain.tld';
-      $receiver = Config ::get('mail.myfx.signalreceivers');
-      $subject  = $signal->getName().' Open '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice();
-      mail($receiver, $subject, $message);
+      // Ausgabe in Console
+      $consoleMsg = 'position opened: '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice().'  TP: '.ifNull($position->getTakeProfit(),'-').'  SL: '.ifNull($position->getStopLoss(), '-').'  ('.$position->getOpenTime('H:i:s').')';
+      echoPre($consoleMsg);
+
+
+      // Benachrichtigung per E-Mail
+      $mailMsg = $signal->getName().' Open '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice();
+      foreach (self ::getMailSignalReceivers() as $receiver) {
+         mail($receiver, $subject=$mailMsg, $msg=$mailMsg);
+      }
+
+
+      // Benachrichtigung per SMS
+      $smsMsg = 'Open '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice();
+      foreach (self ::getSmsSignalReceivers() as $receiver) {
+         sendSms($receiver, $signal, $smsMsg);
+      }
    }
 
 
@@ -77,33 +88,30 @@ class MyFX extends StaticClass {
     * @param  OpenPosition $position - die modifizierte Position
     */
    public static function onPositionModify(OpenPosition $position) {
-      $msg = null;
-      if (($current=$position->getTakeprofit()) != ($previous=$position->getPrevTakeprofit())) $msg .= '  TakeProfit: '.($previous ? $previous.' => ':'').$current;
-      if (($current=$position->getStopLoss())   != ($previous=$position->getPrevStopLoss())  ) $msg .= '  StopLoss: '  .($previous ? $previous.' => ':'').$current;
+      $modification = null;
+      if (($current=$position->getTakeprofit()) != ($previous=$position->getPrevTakeprofit())) $modification .= '  TakeProfit: '.($previous ? $previous.' => ':'').$current;
+      if (($current=$position->getStopLoss())   != ($previous=$position->getPrevStopLoss())  ) $modification .= '  StopLoss: '  .($previous ? $previous.' => ':'').$current;
+      if (!$modification) throw new plRuntimeException('No modification found in OpenPosition '.$position);
 
       $signal = $position->getSignal();
-      echoPre($message='position modified: '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice().$msg);
 
-      // Mail verschicken
-      $sender   = 'default@domain.tld';
-      $receiver = Config ::get('mail.myfx.signalreceivers');
-      $subject  = $signal->getName().' Modify '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol();
-      mail($receiver, $subject, $message);
+      // Ausgabe in Console
+      $consoleMsg = 'position modified: '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice().$modification;
+      echoPre($consoleMsg);
 
-      /*
-      // Mail per SMTP-Mailer verschicken
-      $receiver = Config ::get('mail.myfx.signalreceivers');
-      $subject  = "DayFox signal: Position Modify via Mailer class";
-      $message  = "test message body";
-      $headers  = array("Content-Type: text/plain; charset=iso-8859-1");
-      try {
-         $options = Config ::me()->get('mail.myfx');
-         Mailer ::create($options)->sendMail($sender, $receiver, $subject, $message, $headers);
+
+      // Benachrichtigung per E-Mail
+      $mailMsg = $signal->getName().' Modify '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().$modification;
+      foreach (self ::getMailSignalReceivers() as $receiver) {
+         mail($receiver, $subject=$mailMsg, $msg=$mailMsg);
       }
-      catch (Exception $ex) {
-         throw new InfrastructureException('Error sending mail to: '.$receiver, $ex);
+
+
+      // Benachrichtigung per SMS
+      $smsMsg = 'Modify '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().$modification;
+      foreach (self ::getSmsSignalReceivers() as $receiver) {
+         sendSms($receiver, $signal, $smsMsg);
       }
-      */
    }
 
 
@@ -114,40 +122,66 @@ class MyFX extends StaticClass {
     */
    public static function onPositionClose(ClosedPosition $position) {
       $signal = $position->getSignal();
-      echoPre($message='position closed: '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().'  Open: '.$position->getOpenPrice().'  Close: '.$position->getClosePrice().'  Profit: '.$position->getProfit(2).'  ('.$position->getCloseTime('H:i:s').')');
 
-      // Mail verschicken
-      $sender   = 'default@domain.tld';
-      $receiver = Config ::get('mail.myfx.signalreceivers');
-      $subject  = $signal->getName().' Close '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getClosePrice();
-      mail($receiver, $subject, $message);
+      // Ausgabe in Console
+      $consoleMsg = 'position closed: '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().'  Open: '.$position->getOpenPrice().'  Close: '.$position->getClosePrice().'  Profit: '.$position->getProfit(2).'  ('.$position->getCloseTime('H:i:s').')';
+      echoPre($consoleMsg);
+
+
+      // Benachrichtigung per E-Mail
+      $mailMsg = $signal->getName().' Close '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getClosePrice();
+      foreach (self ::getMailSignalReceivers() as $receiver) {
+         mail($receiver, $subject=$mailMsg, $msg=$mailMsg);
+      }
+
+
+      // Benachrichtigung per SMS
+      $smsMsg = 'Close '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getClosePrice();
+      foreach (self ::getSmsSignalReceivers() as $receiver) {
+         sendSms($receiver, $signal, $smsMsg);
+      }
    }
 
 
    /**
-    * Verschickt eine Nachricht über eine neue offene Position.
+    * Gibt die Mailadressen aller konfigurierten Signalempfänger per E-Mail zurück.
     *
-    * @param  OpenPosition $position - die geöffnete Position
+    * @return string[] - Array mit E-Mailadressen
     */
-   public static function sendSignalOpenMessage(OpenPosition $position) {
+   private static function getMailSignalReceivers() {
+      static $addresses = null;
+
+      if (is_null($addresses)) {
+         $values = Config ::get('mail.myfx.signalreceivers');
+         foreach (explode(',', $values) as $address) {
+            if ($address=trim($address))
+               $addresses[] = $address;
+         }
+         if (!$addresses)
+            $addresses = array();
+      }
+      return $addresses;
    }
 
 
    /**
-    * Verschickt eine Nachricht über eine modifizierte Position.
+    * Gibt die Rufnummern aller konfigurierten Signalempfänger per SMS zurück.
     *
-    * @param  OpenPosition $position - die modifizierte Position
+    * @return string[] - Array mit Rufnummern
     */
-   public static function sendSignalModifyMessage(OpenPosition $position) {
-   }
+   private static function getSmsSignalReceivers() {
+      static $numbers = null;
 
-
-   /**
-    * Verschickt eine Nachricht über eine geschlossene Position.
-    *
-    * @param  ClosedPosition $position - die geschlossene Position
-    */
-   public static function sendSignalCloseMessage(ClosedPosition $position) {
+      if (is_null($numbers)) {
+         $values = Config ::get('sms.myfx.signalreceivers', null);
+         foreach (explode(',', $values) as $number) {
+            if ($number=trim($number))
+               $numbers[] = $number;
+         }
+         if (!$numbers)
+            $numbers = array();
+      }
+      return $number;
    }
 }
 ?>
