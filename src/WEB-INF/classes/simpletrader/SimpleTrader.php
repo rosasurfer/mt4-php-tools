@@ -162,10 +162,15 @@ class SimpleTrader extends StaticClass {
                if (!($time=strToTime($sCloseTime.' GMT'))) throw new plRuntimeException('Invalid CloseTime found in history row '.($i+1).': "'.$row[I_STH_CLOSETIME].'"');
                if ($row['opentime'] > $time) {
                   // bekannte Fehler selbständig fixen
-                  if ($signal=='smarttrader' && ($comment=trim($row[I_STH_COMMENT]))=='1175928') {
-                     $row['opentime'] = $time;
-                  }
-                  else throw new plRuntimeException('Invalid Open-/CloseTime pair found in history row '.($i+1).': "'.$sOpenTime.'" / "'.$sCloseTime.'"');
+                  $sTicket = trim($row[I_STH_COMMENT]);
+                  if      ($signal=='smarttrader' && $sTicket=='1175928') $row['opentime'] = $time;
+                  else if ($signal=='caesar21'    && $sTicket=='1897240') $row['opentime'] = $time;
+                  else if ($signal=='caesar21'    && $sTicket=='1803494') $row['opentime'] = $time;
+                  else if ($signal=='caesar21'    && $sTicket=='1803493') $row['opentime'] = $time;
+                  else if ($signal=='caesar21'    && $sTicket=='1680703') $row['opentime'] = $time;
+                  else if ($signal=='caesar21'    && $sTicket=='1617317') $row['opentime'] = $time;
+                  else if ($signal=='caesar21'    && $sTicket=='1602520') $row['opentime'] = $time;
+                  else throw new plRuntimeException('Invalid Open-/CloseTime pair found in history #'.$sTicket.': '.$sOpenTime.'" / "'.$sCloseTime.'"');
                }
                $row['closetime'] = $time;
 
