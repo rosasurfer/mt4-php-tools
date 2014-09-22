@@ -67,7 +67,8 @@ class MyFX extends StaticClass {
       if (is_null($addresses)) {
          $values = Config ::get('mail.signalreceivers');
          foreach (explode(',', $values) as $address) {
-            if ($address=trim($address) && $address!='address@domain.tld')
+            $address = trim($address);
+            if ($address && $address!='address@domain.tld')
                $addresses[] = $address;
          }
          if (!$addresses)
@@ -88,7 +89,8 @@ class MyFX extends StaticClass {
       if (is_null($numbers)) {
          $values = Config ::get('sms.signalreceivers', null);
          foreach (explode(',', $values) as $number) {
-            if ($number=trim($number) && $number!='phone_number')
+            $number = trim($number);
+            if ($number && $number!='phone_number')
                $numbers[] = $number;
          }
          if (!$numbers)
