@@ -67,7 +67,7 @@ class MyFX extends StaticClass {
       if (is_null($addresses)) {
          $values = Config ::get('mail.signalreceivers');
          foreach (explode(',', $values) as $address) {
-            if ($address=trim($address))
+            if ($address=trim($address) && $address!='address@domain.tld')
                $addresses[] = $address;
          }
          if (!$addresses)
@@ -88,7 +88,7 @@ class MyFX extends StaticClass {
       if (is_null($numbers)) {
          $values = Config ::get('sms.signalreceivers', null);
          foreach (explode(',', $values) as $number) {
-            if ($number=trim($number))
+            if ($number=trim($number) && $number!='phone_number')
                $numbers[] = $number;
          }
          if (!$numbers)
@@ -120,9 +120,8 @@ class MyFX extends StaticClass {
       $config   = Config ::get('sms.clickatell');
       $username = $config['username'];
       $password = $config['password'];
-      $api_id   = $config['api_id'  ];
+      $api_id   = $config['api_id'  ]; if ("$username$password$api_id" == 'userpassid') { Logger ::log('Clickatell access data is not configured, skipping...', L_ERROR, __CLASS__); return; }
       $message  = urlEncode($signal->getName().': '.$message);
-
       $url = 'https://api.clickatell.com/http/sendmsg?user='.$username.'&password='.$password.'&api_id='.$api_id.'&to='.$receiver.'&text='.$message;
 
       // HTTP-Request erzeugen und ausführen
