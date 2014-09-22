@@ -20,6 +20,10 @@ $signals = array('alexprofit'   => array('id'   => 2474,
                                          'name' => 'Caesar2',
                                          'url'  => 'http://cp.forexsignals.com/signal/1619/signal.html'),
 
+                 'caesar21'     => array('id'   => 1803,
+                                         'name' => 'Caesar2.1',
+                                         'url'  => 'http://cp.forexsignals.com/signal/1803/signal.html'),
+
                  'dayfox'       => array('id'   => 2465,
                                          'name' => 'DayFox',
                                          'url'  => 'http://cp.forexsignals.com/signal/2465/signal.html'),
