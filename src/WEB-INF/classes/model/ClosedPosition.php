@@ -66,23 +66,21 @@ class ClosedPosition extends PersistableObject {
    private static function create_1(OpenPosition $openPosition, array $data) {
       $position = new self();
 
-      $position->ticket          =                $data['ticket'     ];
-      $position->type            =                $data['type'       ];
-      $position->lots            =                $data['lots'       ];
-      $position->symbol          =                $data['symbol'     ];
-      $position->openTime        = MyFX ::fxtDate($data['opentime'   ]);
-      $position->openPrice       =                $data['openprice'  ];
-      $position->closeTime       = MyFX ::fxtDate($data['closetime'  ]);
-      $position->closePrice      =                $data['closeprice' ];
-      $position->stopLoss        =          isSet($data['stoploss'   ]) ? $data['stoploss'   ] : $openPosition->getStopLoss();
-      $position->takeProfit      =          isSet($data['takeprofit' ]) ? $data['takeprofit' ] : $openPosition->getTakeProfit();
-      $position->commission      =                $data['commission' ];
-      $position->swap            =                $data['swap'       ];
-      $position->profit          =                $data['profit'     ];
-      $position->magicNumber     =          isSet($data['magicnumber']) ? $data['magicnumber'] : null;
-      $position->comment         =          isSet($data['comment'    ]) ? $data['comment'    ] : null;
-      $position->prevStopLoss    = $openPosition->getPrevStopLoss();
-      $position->prevTakeProfit  = $openPosition->getPrevTakeProfit();
+      $position->ticket      =                $data['ticket'     ];
+      $position->type        =                $data['type'       ];
+      $position->lots        =                $data['lots'       ];
+      $position->symbol      =                $data['symbol'     ];
+      $position->openTime    = MyFX ::fxtDate($data['opentime'   ]);
+      $position->openPrice   =                $data['openprice'  ];
+      $position->closeTime   = MyFX ::fxtDate($data['closetime'  ]);
+      $position->closePrice  =                $data['closeprice' ];
+      $position->stopLoss    =          isSet($data['stoploss'   ]) ? $data['stoploss'   ] : $openPosition->getStopLoss();
+      $position->takeProfit  =          isSet($data['takeprofit' ]) ? $data['takeprofit' ] : $openPosition->getTakeProfit();
+      $position->commission  =                $data['commission' ];
+      $position->swap        =                $data['swap'       ];
+      $position->profit      =                $data['profit'     ];
+      $position->magicNumber =          isSet($data['magicnumber']) ? $data['magicnumber'] : null;
+      $position->comment     =          isSet($data['comment'    ]) ? $data['comment'    ] : null;
 
       $position->signal_id = $openPosition->getSignal_id();
 
