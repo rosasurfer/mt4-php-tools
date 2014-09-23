@@ -158,6 +158,20 @@ function processSignal($signal) {
 
    // lokale Daten aktualisieren
    updateTrades($signal, $openPositions, $closedPositions);
+
+/*
+Syncing signal GoldStar...
+[FATAL] Uncaught IOException: cURL error CURLE_OPERATION_TIMEDOUT (Operation timed out after 30 seconds with 2593 bytes received), url: http://cp.forexsignals.com/signal/2622/signal.html
+in /var/www/php-lib/src/php/net/http/CurlHttpClient.php on line 165
+
+Stacktrace:
+-----------
+CurlHttpClient->send()  # line 165, file: /var/www/php-lib/src/php/net/http/CurlHttpClient.php
+processSignal()         # line 150, file: /var/www/mt4.rosasurfer.com/src/WEB-INF/bin/syncSignals.php
+main()                  # line 85,  file: /var/www/mt4.rosasurfer.com/src/WEB-INF/bin/syncSignals.php
+
+PHP [FATAL] Uncaught IOException: cURL error CURLE_OPERATION_TIMEDOUT (Operation timed out after 30 seconds with 2593 bytes received), url: http://cp.forexsignals.com/signal/2622/signal.html in /var/www/php-lib/src/php/net/http/CurlHttpClient.php on line 165
+*/
 }
 
 
