@@ -10,6 +10,8 @@
  */
 require(dirName(realPath(__FILE__)).'/../config.php');
 
+// Länge der Pause zwischen zwei Checks
+$sleepSeconds = 30;
 
 // zur Zeit unterstützte Signale
 $signals = array('alexprofit'   => array('id'   => 2474,
@@ -79,13 +81,12 @@ catch (Exception $ex) {
 
 
 // Signale verarbeiten
-$seconds = 30;                                              // vorm nächsten Durchlauf jeweils einige Sek. schlafen
 while (true) {
    foreach ($args as $i => $arg) {
       processSignal($arg);
    }
    if (!$looping) break;
-   echoPre('sleeping...') || sleep($seconds);
+   sleep($sleepSeconds);                                    // vorm nächsten Durchlauf jeweils einige Sek. schlafen
 }
 exit(0);
 
