@@ -110,7 +110,7 @@ function processSignal($signal) {
    $signalName = $signals[$signal]['name'];
    $signalUrl  = $signals[$signal]['url' ];
 
-   echoPre("\nSyncing signal $signalName...");
+   echo(str_pad($signalName.' ', 16, '.', STR_PAD_RIGHT).' ');
 
    /**
     * URL:    http://cp.forexsignals.com/signal/{signal_id}/signal.html                               (mit und ohne SSL)
@@ -186,8 +186,8 @@ PHP [FATAL] Uncaught IOException: cURL error CURLE_OPERATION_TIMEDOUT (Operation
  * @param  array  $currentHistory       - Array mit aktuellen Historydaten
  */
 function updateTrades($signal, array &$currentOpenPositions, array &$currentHistory) {
-   $updates            = false;
-   $unchangedPositions = 0;
+   $updates                = false;
+   $unchangedOpenPositions = 0;
 
    $db = OpenPosition ::dao()->getDB();
    $db->begin();
@@ -202,32 +202,31 @@ function updateTrades($signal, array &$currentOpenPositions, array &$currentHist
          $position = null;
 
          if (!isSet($knownOpenPositions[$sTicket])) {
+            !$updates && ($updates=true) && echos("\n");
             SimpleTrader ::onPositionOpen(OpenPosition ::create($signal, $data)->save());
-            $updates = true;
          }
          else {
             // auf modifiziertes TP- oder SL-Limit prüfen
             if ($data['takeprofit'] != ($prevTP=$knownOpenPositions[$sTicket]->getTakeProfit())) $position = $knownOpenPositions[$sTicket]->setTakeProfit($data['takeprofit']);
             if ($data['stoploss'  ] != ($prevSL=$knownOpenPositions[$sTicket]->getStopLoss())  ) $position = $knownOpenPositions[$sTicket]->setStopLoss  ($data['stoploss'  ]);
             if ($position) {
+               !$updates && ($updates=true) && echos("\n");
                SimpleTrader ::onPositionModify($position->save(), $prevTP, $prevSL);
-               $updates = true;
             }
-            else $unchangedPositions++;
+            else $unchangedOpenPositions++;
             unset($knownOpenPositions[$sTicket]);              // geprüfte Position aus Liste löschen
          }
       }
-      $unchangedPositions && echoPre($unchangedPositions.' unchanged open position'.($unchangedPositions==1 ? '':'s'));
 
 
       // (3) History abgleichen (ist aufsteigend nach CloseTime+OpenTime+Ticket sortiert)
       $closedPositions   = $knownOpenPositions;                // alle in $knownOpenPositions übrig gebliebenen Positionen müssen geschlossen worden sein
       $hstSize           = sizeOf($currentHistory);
-      $matchingPositions = $otherPositions = 0;                // nach 3 übereinstimmenden Historyeinträgen wird das Update abgebrochen
+      $matchingPositions = $otherClosedPositions = 0;          // nach 3 übereinstimmenden Historyeinträgen wird das Update abgebrochen
       $openGotClosed     = false;
 
-      for ($i=$hstSize-1; $i >= 0; $i--) {                     // History wird rückwärts verarbeitet und bricht bei Übereinstimmung der Daten ab (schnellste Variante)
-         $data         = $currentHistory[$i];
+      for ($i=$hstSize-1; $i >= 0; $i--) {                     // History ist aufsteigend sortiert, wird rückwärts verarbeitet und bricht bei Übereinstimmung
+         $data         = $currentHistory[$i];                  // der Daten ab (schnellste Variante)
          $ticket       = $data['ticket'];
          $openPosition = null;
 
@@ -236,7 +235,6 @@ function updateTrades($signal, array &$currentOpenPositions, array &$currentHist
             if (isSet($closedPositions[$sTicket])) {
                $openPosition = OpenPosition ::dao()->getByTicket($signal, $ticket);
                unset($closedPositions[$sTicket]);
-               $updates = true;
             }
          }
 
@@ -248,6 +246,7 @@ function updateTrades($signal, array &$currentOpenPositions, array &$currentHist
          }
 
          // Position in t_closedposition einfügen
+         !$updates && ($updates=true) && echos("\n");
          if ($openPosition) {
             $closedPosition = ClosedPosition ::create($openPosition, $data)->save();
             $openPosition->delete();                           // vormals offene Position aus t_openposition löschen
@@ -256,12 +255,12 @@ function updateTrades($signal, array &$currentOpenPositions, array &$currentHist
          }
          else {
             ClosedPosition ::create($signal, $data)->save();
-            $otherPositions++;
+            $otherClosedPositions++;
          }
-         $updates = true;
       }
-      $otherPositions && echoPre($otherPositions.' '.(!$openGotClosed ? 'new':'other').' closed position'.($otherPositions==1 ? '':'s'));
-      !$updates && !$unchangedPositions && echoPre('no changes');
+      !$updates             && echoPre('no changes'.($unchangedOpenPositions ? ' ('.$unchangedOpenPositions.' open position'.($unchangedOpenPositions==1 ? '':'s').')':''));
+      $otherClosedPositions && echoPre($otherClosedPositions.' '.(!$openGotClosed ? 'new':'other').' closed position'.($otherClosedPositions==1 ? '':'s'));
+
       if ($closedPositions) throw new plRuntimeException('Found '.sizeOf($closedPositions).' orphaned open position'.(sizeOf($closedPositions)==1 ? '':'s').":\n".printFormatted($closedPositions, true));
 
 
