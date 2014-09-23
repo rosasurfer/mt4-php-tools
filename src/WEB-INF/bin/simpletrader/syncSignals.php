@@ -10,8 +10,10 @@
  */
 require(dirName(realPath(__FILE__)).'/../config.php');
 
+
 // Länge der Pause zwischen zwei Checks
 $sleepSeconds = 30;
+
 
 // zur Zeit unterstützte Signale
 $signals = array('alexprofit'   => array('id'   => 2474,
