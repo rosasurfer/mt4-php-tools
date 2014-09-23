@@ -133,8 +133,6 @@ class MyFX extends StaticClass {
       $status   = $response->getStatus();
       $content  = $response->getContent();
       if ($status != 200) throw new plRuntimeException('Unexpected HTTP status code from api.clickatell.com: '.$status.' ('.HttpResponse ::$sc[$status].')');
-
-      echoPre('SMS sent: '.$content);
    }
 }
 ?>
