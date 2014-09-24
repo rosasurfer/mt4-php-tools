@@ -40,7 +40,7 @@ class ClosedPosition extends PersistableObject {
 
 
    /**
-    * Überladene Methode, erzeugt eine neue geschlossene Position.
+    * Überladene Methode.  Erzeugt eine neue geschlossene Position.
     *
     * @return ClosedPosition
     */
