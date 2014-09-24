@@ -4,11 +4,60 @@
  */
 class SimpleTrader extends StaticClass {
 
+   // URLs
+   private static $urls     = array('http://cp.forexsignals.com/signal/{signal_ref_id}/signal.html',     // mit und ohne SSL
+                                    'https://www.simpletrader.net/signal/{signal_ref_id}/signal.html');  // nur mit SSL
+
+   private static $referers = array('http://cp.forexsignals.com/forex-signals.html',
+                                    'https://www.simpletrader.net/forex-signals.html');
+
+   /**
+    * Lädt die HTML-Seite mit den Tradedaten des angegebenen Signals. Schlägt der Download von der ersten URL fehl,
+    * wird versucht, die Seite von der zweiten URL zu laden.
+    *
+    * @param  string $signalAlias - Signalalias
+    *
+    * @return string - Inhalt der HTML-Seite
+    */
+   public static function getSignalPage($signalAlias) {
+      if (!is_string($signalAlias)) throw new IllegalTypeException('Illegal type of parameter $signalAlias: '.getType($signalAlias));
+
+      $signal      = Signal ::dao()->getByAlias($signalAlias);
+      $referenceId = $signal->getReferenceID();
+      $url         = str_replace('{signal_ref_id}', $referenceId, self ::$urls[0]);
+      $referer     = self ::$referers[0];
+
+      // Standard-Browser simulieren
+      $request = HttpRequest ::create()
+                             ->setUrl($url)
+                             ->setHeader('User-Agent'     , '***REMOVED***')
+                             ->setHeader('Accept'         , 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
+                             ->setHeader('Accept-Language', 'en-us')
+                             ->setHeader('Accept-Charset' , 'ISO-8859-1,utf-8;q=0.7,*;q=0.7')
+                             ->setHeader('Keep-Alive'     , '115')
+                             ->setHeader('Connection'     , 'keep-alive')
+                             ->setHeader('Referer'        , $referer);
+
+      // Cookies in der angegebenen Datei verwenden
+      $cookieFile = dirName(realPath($_SERVER['PHP_SELF'])).DIRECTORY_SEPARATOR.'cookies.txt';
+      $options[CURLOPT_COOKIEFILE    ] = $cookieFile;       // read cookies from
+      $options[CURLOPT_COOKIEJAR     ] = $cookieFile;       // write cookiess to
+      $options[CURLOPT_SSL_VERIFYPEER] = false;             // das SSL-Zertifikat von simpletrader.net ist evt. ungültig
+
+      // HTTP-Request ausführen
+      $response = CurlHttpClient ::create($options)->send($request);
+      $status   = $response->getStatus();
+      $content  = $response->getContent();
+      if ($status != 200) throw new plRuntimeException('Unexpected HTTP status code '.$status.' ('.HttpResponse ::$sc[$status].') for url: '.$request->getUrl());
+
+      return $content;
+   }
+
 
    /**
     * Parst eine simpletrader.net HTML-Seite mit Signaldaten.
     *
-    * @param  string $signal     - Signal
+    * @param  string $signal     - Signalname
     * @param  string $html       - Inhalt der HTML-Seite
     * @param  array  $openTrades - Array zur Aufnahme der offenen Positionen
     * @param  array  $history    - Array zur Aufnahme der Signalhistory
@@ -274,7 +323,7 @@ class SimpleTrader extends StaticClass {
       $signal = $position->getSignal();
 
       // Ausgabe in Console
-      $consoleMsg = $signal->getName().': opened '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice().'  TP: '.ifNull($position->getTakeProfit(),'-').'  SL: '.ifNull($position->getStopLoss(), '-').'  ('.$position->getOpenTime('H:i:s').')';
+      $consoleMsg = $signal->getName().' opened '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice().'  TP: '.ifNull($position->getTakeProfit(),'-').'  SL: '.ifNull($position->getStopLoss(), '-').'  ('.$position->getOpenTime('H:i:s').')';
       echoPre($consoleMsg);
 
 
@@ -318,7 +367,7 @@ class SimpleTrader extends StaticClass {
       $signal = $position->getSignal();
 
       // Ausgabe in Console
-      $consoleMsg = $signal->getName().': modified '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice().$modification;
+      $consoleMsg = $signal->getName().' modified '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice().$modification;
       echoPre($consoleMsg);
 
 
@@ -352,7 +401,7 @@ class SimpleTrader extends StaticClass {
       $signal = $position->getSignal();
 
       // Ausgabe in Console
-      $consoleMsg = $signal->getName().': closed '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().'  Open: '.$position->getOpenPrice().'  Close: '.$position->getClosePrice().'  Profit: '.$position->getProfit(2).'  ('.$position->getCloseTime('H:i:s').')';
+      $consoleMsg = $signal->getName().' closed '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().'  Open: '.$position->getOpenPrice().'  Close: '.$position->getClosePrice().'  Profit: '.$position->getProfit(2).'  ('.$position->getCloseTime('H:i:s').')';
       echoPre($consoleMsg);
 
 

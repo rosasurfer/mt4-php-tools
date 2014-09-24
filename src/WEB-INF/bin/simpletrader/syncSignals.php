@@ -16,42 +16,23 @@ $sleepSeconds = 30;
 
 
 // zur Zeit unterstützte Signale
-$signals = array('alexprofit'   => array('id'   => 2474,
-                                         'name' => 'AlexProfit',
-                                         'url'  => 'http://cp.forexsignals.com/signal/2474/signal.html'),
-
-                 'caesar2'      => array('id'   => 1619,
-                                         'name' => 'Caesar2',
-                                         'url'  => 'http://cp.forexsignals.com/signal/1619/signal.html'),
-
-                 'caesar21'     => array('id'   => 1803,
-                                         'name' => 'Caesar2.1',
-                                         'url'  => 'http://cp.forexsignals.com/signal/1803/signal.html'),
-
-                 'dayfox'       => array('id'   => 2465,
-                                         'name' => 'DayFox',
-                                         'url'  => 'http://cp.forexsignals.com/signal/2465/signal.html'),
-
-                 'goldstar'     => array('id'   => 2622,
-                                         'name' => 'GoldStar',
-                                         'url'  => 'http://cp.forexsignals.com/signal/2622/signal.html'),
-
-                 'smartscalper' => array('id'   => 1086,
-                                         'name' => 'SmartScalper',
-                                         'url'  => 'http://cp.forexsignals.com/signal/1086/signal.html'),
-
-                 'smarttrader'  => array('id'   => 1081,
-                                         'name' => 'SmartTrader',
-                                         'url'  => 'http://cp.forexsignals.com/signal/1081/signal.html'),
-                 );
+$signals = array('alexprofit'   => 'AlexProfit',
+                 'caesar2'      => 'Caesar2',
+                 'caesar21'     => 'Caesar2.1',
+                 'dayfox'       => 'DayFox',
+                 'goldstar'     => 'GoldStar',
+                 'smartscalper' => 'SmartScalper',
+                 'smarttrader'  => 'SmartTrader',
+                );
 
 
 // --- Start --------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-// Befehlszeilenargumente einlesen und validieren
+// (1) Befehlszeilenargumente einlesen und validieren
 $args = array_slice($_SERVER['argv'], 1);
 
+// (1.1) looping
 $looping = false;
 foreach ($args as $i => $arg) {
    if (in_array(strToLower($arg), array('-l','/l'))) {
@@ -60,8 +41,8 @@ foreach ($args as $i => $arg) {
    }
 }
 
+// (1.2) Signalnamen
 !$args && $args=array_keys($signals);                       // ohne Parameter werden alle Signale synchronisiert
-
 foreach ($args as $i => $arg) {
    $arg = strToLower($arg);
    in_array($arg, array('-?','/?','-h','/h','-help','/help')) && exit(1|help());
@@ -71,10 +52,8 @@ foreach ($args as $i => $arg) {
 $args = array_unique($args);
 
 
-// Prüfen, ob die Datenbank erreichbar ist
-try {
-   Signal ::dao()->getDB()->executeSql("select 1 from dual");
-}
+// (2) Erreichbarkeit der Datenbank prüfen
+try { Signal ::dao()->getDB()->executeSql("select 1 from dual"); }
 catch (Exception $ex) {
    if ($ex instanceof InfrastructureException)
       exit(1|echoPre('error: '.$ex->getMessage()));         // Can not connect to MySQL server on 'localhost:3306'
@@ -82,7 +61,7 @@ catch (Exception $ex) {
 }
 
 
-// Signale verarbeiten
+// (3) Signale aktualisieren
 while (true) {
    foreach ($args as $i => $arg) {
       processSignal($arg);
@@ -98,73 +77,30 @@ exit(0);
 
 /**
  *
- * @param  string $signal - Signal-Name
+ * @param  string $signalAlias - Signalalias
  */
-function processSignal($signal) {
+function processSignal($signalAlias) {
    // Parametervalidierung
-   if (!is_string($signal)) throw new IllegalTypeException('Illegal type of parameter $signal: '.getType($signal));
-   $signal = strToLower($signal);
+   if (!is_string($signalAlias)) throw new IllegalTypeException('Illegal type of parameter $signalAlias: '.getType($signalAlias));
+   $signalAlias = strToLower($signalAlias);
 
    global $signals;
-   $signalID   = $signals[$signal]['id'  ];
-   $signalName = $signals[$signal]['name'];
-   $signalUrl  = $signals[$signal]['url' ];
-
+   $signalName = $signals[$signalAlias];
    echo(str_pad($signalName.' ', 16, '.', STR_PAD_RIGHT).' ');
 
-   /**
-    * URL:    http://cp.forexsignals.com/signal/{signal_id}/signal.html                               (mit und ohne SSL)
-    * Cookie: email=address@domain.tld; session=***REMOVED***               (ohne SSL komprimiert)
-    *
-    * URL:    https://www.simpletrader.net/signal/{signal_id}/signal.html                             (nur mit SSL)
-    * Cookie: email=address@domain.tld; session=***REMOVED***    (nicht komprimiert)
-    */
+   // HTML-Seite laden
+   $content = SimpleTrader ::getSignalPage($signalAlias);
 
-   // GET /signal/2465/signal.html HTTP/1.1
-   // Host:            cp.forexsignals.com
-   // User-Agent:      ***REMOVED***
-   // Accept:          text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
-   // Accept-Language: en-us
-   // Accept-Charset:  ISO-8859-1,utf-8;q=0.7,*;q=0.7
-   // Accept-Encoding: gzip, deflate
-   // Keep-Alive:      115
-   // Connection:      keep-alive
-   // Referer:         http://cp.forexsignals.com/forex-signals.html
-   // Cookie:          email=address@domain.tld; session=***REMOVED***
-
-   // HTTP-Request definieren und Browser simulieren
-   $request = HttpRequest ::create()
-                          ->setUrl($signalUrl)
-                          ->setHeader('User-Agent'     , '***REMOVED***')
-                          ->setHeader('Accept'         , 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
-                          ->setHeader('Accept-Language', 'en-us')
-                          ->setHeader('Accept-Charset' , 'ISO-8859-1,utf-8;q=0.7,*;q=0.7')
-                          ->setHeader('Keep-Alive'     , '115')
-                          ->setHeader('Connection'     , 'keep-alive');
-
-   // Cookies in der angegebenen Datei verwenden/speichern
-   $cookieStore = dirName(realPath($_SERVER['PHP_SELF'])).DIRECTORY_SEPARATOR.'cookies.txt';
-   $options = array(CURLOPT_COOKIEFILE => $cookieStore,     // The name of a file containing cookie data to use for the request.
-                    CURLOPT_COOKIEJAR  => $cookieStore);    // The name of a file to save cookie data to when the connection closes.
-
-   // HTTP-Request ausführen
-   $options[CURLOPT_SSL_VERIFYPEER] = false;                // das SSL-Zertifikat von www.simpletrader.net ist u.U. ungültig
-
-   $response = CurlHttpClient ::create($options)->send($request);
-   $status   = $response->getStatus();
-   $content  = $response->getContent();
-   if ($status != 200) throw new plRuntimeException('Unexpected HTTP status code from cp.forexsignals.com: '.$status.' ('.HttpResponse ::$sc[$status].')');
-
-   // Antwort parsen
+   // HTML-Seite parsen
    $openPositions = $closedPositions = array();
-   SimpleTrader ::parseSignalData($signal, $content, $openPositions, $closedPositions);
+   SimpleTrader ::parseSignalData($signalAlias, $content, $openPositions, $closedPositions);
 
-   // lokale Daten aktualisieren
-   updateTrades($signal, $openPositions, $closedPositions);
+   // Datenbank aktualisieren
+   updateTrades($signalAlias, $openPositions, $closedPositions);
 
 /*
 Syncing signal GoldStar...
-[FATAL] Uncaught IOException: cURL error CURLE_OPERATION_TIMEDOUT (Operation timed out after 30 seconds with 2593 bytes received), url: http://cp.forexsignals.com/signal/2622/signal.html
+[FATAL] Uncaught IOException: CURL error CURLE_OPERATION_TIMEDOUT (Operation timed out after 30 seconds with 2593 bytes received), url: http://cp.forexsignals.com/signal/2622/signal.html
 in /var/www/php-lib/src/php/net/http/CurlHttpClient.php on line 165
 
 Stacktrace:
@@ -173,7 +109,7 @@ CurlHttpClient->send()  # line 165, file: /var/www/php-lib/src/php/net/http/Curl
 processSignal()         # line 150, file: /var/www/mt4.rosasurfer.com/src/WEB-INF/bin/syncSignals.php
 main()                  # line 85,  file: /var/www/mt4.rosasurfer.com/src/WEB-INF/bin/syncSignals.php
 
-PHP [FATAL] Uncaught IOException: cURL error CURLE_OPERATION_TIMEDOUT (Operation timed out after 30 seconds with 2593 bytes received), url: http://cp.forexsignals.com/signal/2622/signal.html in /var/www/php-lib/src/php/net/http/CurlHttpClient.php on line 165
+PHP [FATAL] Uncaught IOException: CURL error CURLE_OPERATION_TIMEDOUT (Operation timed out after 30 seconds with 2593 bytes received), url: http://cp.forexsignals.com/signal/2622/signal.html in /var/www/php-lib/src/php/net/http/CurlHttpClient.php on line 165
 */
 }
 

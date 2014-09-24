@@ -38,6 +38,26 @@ class SignalDAO extends CommonDAO {
 
 
    /**
+    * Gibt das Signal mit dem angegebenen Alias zurück.
+    *
+    * @param  string $alias - Signalalias
+    *
+    * @return Signal instance
+    */
+   public function getByAlias($alias) {
+      if (!is_string($alias)) throw new IllegalTypeException('Illegal type of parameter $alias: '.getType($alias));
+      if ($alias === '')      throw new plInvalidArgumentException('Invalid argument $alias: '.$alias);
+
+      $alias = addSlashes($alias);
+
+      $sql = "select *
+                 from t_signal
+                 where alias = '$alias'";
+      return $this->getByQuery($sql);
+   }
+
+
+   /**
     * Gibt die ID des Signals mit dem angegebenen Alias zurück.
     *
     * @param  string $alias - Signalalias
