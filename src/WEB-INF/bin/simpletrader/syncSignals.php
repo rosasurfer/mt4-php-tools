@@ -11,7 +11,7 @@
 require(dirName(realPath(__FILE__)).'/../config.php');
 
 
-// Länge der Pause zwischen den Updates
+// Länge der Pause zwischen zwei Updates
 $sleepSeconds = 30;
 
 

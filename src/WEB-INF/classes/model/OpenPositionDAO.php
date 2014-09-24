@@ -50,7 +50,7 @@ class OpenPositionDAO extends CommonDAO {
 
       if ($assocTicket) {
          foreach ($results as $i => $position) {
-            $results[(string)$position->getTicket()] = $position;
+            $results[(string) $position->getTicket()] = $position;
             unset($results[$i]);
          }
       }
