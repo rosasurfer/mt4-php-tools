@@ -299,7 +299,7 @@ class UploadAccountHistoryActionForm extends ActionForm {
             unlink($this->file['tmp_name']);
       }
       catch (Exception $ex) {
-         Logger ::handleException($ex, true);
+         Logger ::handleException($ex, $ignoreIfNotInShutdown=true);
          throw $ex;
       }
    }
