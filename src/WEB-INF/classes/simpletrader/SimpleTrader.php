@@ -25,18 +25,21 @@ class SimpleTrader extends StaticClass {
       $signal      = Signal ::dao()->getByAlias($signalAlias);
       $referenceId = $signal->getReferenceID();
       $url         = str_replace('{signal_ref_id}', $referenceId, self ::$urls[0]);
-      $referer     = self ::$referers[0];
 
       // Standard-Browser simulieren
-      $request = HttpRequest ::create()
-                             ->setUrl($url)
-                             ->setHeader('User-Agent'     , '***REMOVED***')
-                             ->setHeader('Accept'         , 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
-                             ->setHeader('Accept-Language', 'en-us')
-                             ->setHeader('Accept-Charset' , 'ISO-8859-1,utf-8;q=0.7,*;q=0.7')
-                             ->setHeader('Keep-Alive'     , '115')
-                             ->setHeader('Connection'     , 'keep-alive')
-                             ->setHeader('Referer'        , $referer);
+      $userAgent = Config ::get('myfx.useragent');
+         if (!strLen($userAgent)) throw new plInvalidArgumentException('Invalid user agent configuration: "'.$userAgent.'"');
+      $referer   = self ::$referers[0];
+      $request   = HttpRequest ::create()
+                                 ->setUrl($url)
+                                 ->setHeader('User-Agent'     , $userAgent)
+                                 ->setHeader('Accept'         , 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
+                                 ->setHeader('Accept-Language', 'en-us')
+                                 ->setHeader('Accept-Charset' , 'ISO-8859-1,utf-8;q=0.7,*;q=0.7')
+                                 ->setHeader('Keep-Alive'     , '115')
+                                 ->setHeader('Connection'     , 'keep-alive')
+                                 ->setHeader('Referer'        , $referer)
+                                 ->setHeader('Cache-Control'  , 'max-age=0');
 
       // Cookies in der angegebenen Datei verwenden
       $cookieFile = dirName(realPath($_SERVER['PHP_SELF'])).DIRECTORY_SEPARATOR.'cookies.txt';
