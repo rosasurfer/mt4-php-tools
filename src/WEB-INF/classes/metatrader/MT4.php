@@ -112,7 +112,7 @@ class MT4 extends StaticClass {
 
    /**
     * Aktualisiert die MT4-Accounthistory des angegebenen Signals. Offene Positionen und Accounthistory werden komplett
-    * neugeschrieben. Die Dateien sind Datenbasis für alle Zugriffe aus MQL (nur Lesen, kein Schreiben).
+    * neugeschrieben. Die Dateien stellen die Datenbasis für MQL-Programme (nur Lesen, kein Schreiben).
     *
     * @param  Signal $signal - Signalalias
     */
