@@ -386,8 +386,8 @@ class SimpleTrader extends StaticClass {
       catch (Exception $ex) { Logger ::log($ex, L_ERROR, __CLASS__); }
 
 
-      // Benachrichtigung per SMS (vorerst deaktiviert)
-      if (false) {
+      // Benachrichtigung per SMS
+      if (false) {                                       // für Limitänderungen vorerst deaktiviert
          try {
             $smsMsg = 'Modified '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().($tpMsg ? "\n".trim($tpMsg):'').($slMsg ? "\n".trim($slMsg):'')."\n\n#".$position->getTicket().'  ('.MyFX ::fxtDate(time(), 'H:i:s').')';
             foreach (MyFX ::getSmsSignalReceivers() as $receiver) {
