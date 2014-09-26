@@ -103,11 +103,11 @@ function processSignal($signalAlias) {
 /**
  * Aktualisiert die lokalen offenen und geschlossenen Positionen.
  *
- * @param  string $signal               - Signalalias
+ * @param  string $signalAlias          - Signalalias
  * @param  array  $currentOpenPositions - Array mit aktuell offenen Positionen
  * @param  array  $currentHistory       - Array mit aktuellen Historydaten
  */
-function updateTrades($signal, array &$currentOpenPositions, array &$currentHistory) {
+function updateTrades($signalAlias, array &$currentOpenPositions, array &$currentHistory) {
    $updates                = false;
    $unchangedOpenPositions = 0;
 
@@ -115,7 +115,7 @@ function updateTrades($signal, array &$currentOpenPositions, array &$currentHist
    $db->begin();
    try {
       // (1) lokalen Stand der offenen Positionen holen
-      $knownOpenPositions = OpenPosition ::dao()->listBySignalAlias($signal, $assocTicket=true);
+      $knownOpenPositions = OpenPosition ::dao()->listBySignalAlias($signalAlias, $assocTicket=true);
 
 
       // (2) offene Positionen abgleichen (sind aufsteigend nach OpenTime+Ticket sortiert)
@@ -125,7 +125,7 @@ function updateTrades($signal, array &$currentOpenPositions, array &$currentHist
 
          if (!isSet($knownOpenPositions[$sTicket])) {
             !$updates && ($updates=true) && echos("\n");
-            SimpleTrader ::onPositionOpen(OpenPosition ::create($signal, $data)->save());
+            SimpleTrader ::onPositionOpen(OpenPosition ::create($signalAlias, $data)->save());
          }
          else {
             // auf modifiziertes TP- oder SL-Limit prüfen
@@ -155,12 +155,12 @@ function updateTrades($signal, array &$currentOpenPositions, array &$currentHist
          if ($closedPositions) {
             $sTicket = (string) $ticket;
             if (isSet($closedPositions[$sTicket])) {
-               $openPosition = OpenPosition ::dao()->getByTicket($signal, $ticket);
+               $openPosition = OpenPosition ::dao()->getByTicket($signalAlias, $ticket);
                unset($closedPositions[$sTicket]);
             }
          }
 
-         if (!$openPosition && ClosedPosition ::dao()->isTicket($signal, $ticket)) {
+         if (!$openPosition && ClosedPosition ::dao()->isTicket($signalAlias, $ticket)) {
             $matchingPositions++;
             if ($matchingPositions >= 3)
                break;
@@ -176,7 +176,7 @@ function updateTrades($signal, array &$currentOpenPositions, array &$currentHist
             $openGotClosed = true;
          }
          else {
-            ClosedPosition ::create($signal, $data)->save();
+            ClosedPosition ::create($signalAlias, $data)->save();
             $otherClosedPositions++;
          }
       }
@@ -195,9 +195,10 @@ function updateTrades($signal, array &$currentOpenPositions, array &$currentHist
    }
 
 
-   // (5) MT4-Accounthistory aktualisieren und BitTorrent Sync anstoßen
+   // (5) MT4-Accounthistory aktualisieren
    if ($updates) {
-      //MT4 ::updateHistory($signal);
+      $signal = Signal ::dao()->getByAlias($signalAlias);
+      MT4 ::updateSignalHistory($signal);
    }
 }
 

@@ -89,7 +89,7 @@ class SimpleTrader extends StaticClass {
    /**
     * Parst eine simpletrader.net HTML-Seite mit Signaldaten.
     *
-    * @param  string $signal     - Signalname
+    * @param  string $signal     - Signalalias
     * @param  string $html       - Inhalt der HTML-Seite
     * @param  array  $openTrades - Array zur Aufnahme der offenen Positionen
     * @param  array  $history    - Array zur Aufnahme der Signalhistory

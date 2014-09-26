@@ -108,5 +108,15 @@ class MT4 extends StaticClass {
 
       return fWrite($hFile, pack('Vddddd', $time, $open, $low, $high, $close, $vol));
    }
+
+
+   /**
+    * Aktualisiert die MT4-Accounthistory des angegebenen Signals. Offene Positionen und Accounthistory werden komplett
+    * neugeschrieben. Die Dateien sind Datenbasis für alle Zugriffe aus MQL (nur Lesen, kein Schreiben).
+    *
+    * @param  Signal $signal - Signalalias
+    */
+   public static function updateSignalHistory(Signal $signal) {
+   }
 }
 ?>
