@@ -197,7 +197,7 @@ function updateTrades($signal, array &$currentOpenPositions, array &$currentHist
 
    // (5) MT4-Accounthistory aktualisieren und BitTorrent Sync anstoßen
    if ($updates) {
-      //rewriteMT4History();
+      //MT4 ::updateHistory($signal);
    }
 }
 
@@ -211,6 +211,6 @@ function help($message=null) {
    if (!is_null($message))
       echo($message."\n");
    global $signals;
-   echo("\n  Syntax: ".baseName($_SERVER['PHP_SELF'])."  [".implode('|', array_keys($signals))."]\n");
+   echo("\n  Syntax: ".baseName($_SERVER['PHP_SELF'])."  [-l] [".implode('|', array_keys($signals))."]\n");
 }
 ?>
