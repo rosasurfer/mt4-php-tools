@@ -95,15 +95,15 @@ function processSignal($signalAlias) {
    $openPositions = $closedPositions = array();
    SimpleTrader ::parseSignalData($signalAlias, $content, $openPositions, $closedPositions);
 
-   // Datenbank aktualisieren
+   // lokale Daten aktualisieren
    updateTrades($signalAlias, $openPositions, $closedPositions);
 }
 
 
 /**
- * Aktualisiert die offenen und geschlossenen Positionen.
+ * Aktualisiert die lokalen offenen und geschlossenen Positionen.
  *
- * @param  string $signal               - Signal
+ * @param  string $signal               - Signalalias
  * @param  array  $currentOpenPositions - Array mit aktuell offenen Positionen
  * @param  array  $currentHistory       - Array mit aktuellen Historydaten
  */
@@ -114,7 +114,7 @@ function updateTrades($signal, array &$currentOpenPositions, array &$currentHist
    $db = OpenPosition ::dao()->getDB();
    $db->begin();
    try {
-      // (1) letzten bekannten Stand der offenen Positionen holen
+      // (1) lokalen Stand der offenen Positionen holen
       $knownOpenPositions = OpenPosition ::dao()->listBySignalAlias($signal, $assocTicket=true);
 
 
@@ -192,6 +192,12 @@ function updateTrades($signal, array &$currentOpenPositions, array &$currentHist
    catch (Exception $ex) {
       $db->rollback();
       throw $ex;
+   }
+
+
+   // (5) MT4-Accounthistory aktualisieren und BitTorrent Sync anstoßen
+   if ($updates) {
+      //rewriteMT4History();
    }
 }
 
