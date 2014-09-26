@@ -12,8 +12,8 @@ class SimpleTrader extends StaticClass {
                                     'https://www.simpletrader.net/forex-signals.html');
 
    /**
-    * Lädt die HTML-Seite mit den Tradedaten des angegebenen Signals. Schlägt der Download von der ersten URL fehl,
-    * wird versucht, die Seite von der zweiten URL zu laden.
+    * Lädt die HTML-Seite mit den Tradedaten des angegebenen Signals. Schlägt der Download fehl, wird zwei mal still versucht,
+    * die Seite von beiden alternativen URL's zu laden, bevor der Download ganz abbricht.
     *
     * @param  string $signalAlias - Signalalias
     *
@@ -24,34 +24,67 @@ class SimpleTrader extends StaticClass {
 
       $signal      = Signal ::dao()->getByAlias($signalAlias);
       $referenceId = $signal->getReferenceID();
-      $url         = str_replace('{signal_ref_id}', $referenceId, self ::$urls[0]);
 
-      // Standard-Browser simulieren
+
+      // (1) Standard-Browser simulieren
       $userAgent = Config ::get('myfx.useragent');
          if (!strLen($userAgent)) throw new plInvalidArgumentException('Invalid user agent configuration: "'.$userAgent.'"');
-      $referer   = self ::$referers[0];
-      $request   = HttpRequest ::create()->setUrl($url)
-                                 ->setHeader('User-Agent'     , $userAgent                                                       )
-                                 ->setHeader('Accept'         , 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
-                                 ->setHeader('Accept-Language', 'en-us'                                                          )
-                                 ->setHeader('Accept-Charset' , 'ISO-8859-1,utf-8;q=0.7,*;q=0.7'                                 )
-                                 ->setHeader('Keep-Alive'     , '115'                                                            )
-                                 ->setHeader('Connection'     , 'keep-alive'                                                     )
-                                 ->setHeader('Referer'        , $referer                                                         )
-                                 ->setHeader('Cache-Control'  , 'max-age=0'                                                      );
+      $request = HttpRequest ::create()
+                             ->setHeader('User-Agent'     , $userAgent                                                       )
+                             ->setHeader('Accept'         , 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
+                             ->setHeader('Accept-Language', 'en-us'                                                          )
+                             ->setHeader('Accept-Charset' , 'ISO-8859-1,utf-8;q=0.7,*;q=0.7'                                 )
+                             ->setHeader('Keep-Alive'     , '115'                                                            )
+                             ->setHeader('Connection'     , 'keep-alive'                                                     )
+                             ->setHeader('Cache-Control'  , 'max-age=0'                                                      );
 
       // Cookies in der angegebenen Datei verwenden
       $cookieFile = dirName(realPath($_SERVER['PHP_SELF'])).DIRECTORY_SEPARATOR.'cookies.txt';
-      $options[CURLOPT_COOKIEFILE    ] = $cookieFile;       // read cookies from
-      $options[CURLOPT_COOKIEJAR     ] = $cookieFile;       // write cookiess to
-      $options[CURLOPT_SSL_VERIFYPEER] = false;             // das SSL-Zertifikat von simpletrader.net ist evt. ungültig
+      $options[CURLOPT_COOKIEFILE    ] = $cookieFile;          // read cookies from
+      $options[CURLOPT_COOKIEJAR     ] = $cookieFile;          // write cookiess to
 
-      // HTTP-Request ausführen
-      $response = CurlHttpClient ::create($options)->send($request);
-      $status   = $response->getStatus();
-      $content  = $response->getContent();
-      if ($status != 200) throw new plRuntimeException('Unexpected HTTP status code '.$status.' ('.HttpResponse ::$sc[$status].') for url: '.$request->getUrl());
+      // weitere Optionen
+      $options[CURLOPT_TIMEOUT       ] = 10;                   // Standard-Timeout (30 Sek.) reduzieren
+      $options[CURLOPT_SSL_VERIFYPEER] = false;                // das SSL-Zertifikat von simpletrader.net ist evt. ungültig
 
+
+      // (2) HTTP-Request ausführen
+      $retryCounter = 0;
+      while (true) {
+         $i       = $retryCounter % 2;                         // bei Neuversuchen abwechselnd beide URL's probieren
+         $url     = str_replace('{signal_ref_id}', $referenceId, self ::$urls[$i]);
+         $referer = self ::$referers[$i];
+         $request->setUrl($url)->setHeader('Referer', $referer);
+
+         try {
+            $response = CurlHttpClient ::create($options)->send($request);
+         }
+         catch (IOException $ex) {
+            $msg = $ex->getMessage();
+            if (String ::startsWith($msg, 'CURL error CURLE_OPERATION_TIMEDOUT') || String ::startsWith($msg, 'CURL error CURLE_GOT_NOTHING')) {
+               Logger ::log($msg."\nretrying...", L_WARN, __CLASS__);
+               if ($retryCounter < 2) {                        // bis zu 3 Versuche, eine Seite zu laden
+                  $retryCounter++;
+                  continue;
+               }
+            }
+            throw $ex;
+         }
+         $status  = $response->getStatus();
+         $content = $response->getContent();
+         if ($status != 200) throw new plRuntimeException('Unexpected HTTP status code '.$status.' ('.HttpResponse ::$sc[$status].') for url: '.$request->getUrl());
+
+         if (is_null($content)) {                              // Serverfehler, entspricht CURLE_GOT_NOTHING
+            $msg = 'Empty reply from server, url: '.$request->getUrl();
+            Logger ::log($msg."\nretrying...", L_WARN, __CLASS__);
+            if ($retryCounter < 2) {
+               $retryCounter++;
+               continue;
+            }
+            throw new IOException($msg);
+         }
+         break;
+      }
       return $content;
    }
 
@@ -81,6 +114,8 @@ class SimpleTrader extends StaticClass {
 
       // Tabellen <table id="openTrades"> und <table id="history"> extrahieren
       $matchedTables = preg_match_all('/<table\b.*\bid="(opentrades|history)".*>.*<tbody\b.*>(.*)<\/tbody>.*<\/table>/isU', $html, $tables, PREG_SET_ORDER);
+      if ($matchedTables != 2) throw new plRuntimeException('Tables "openTrades" and/or "history" not found');
+
       foreach ($tables as $i => &$table) {
          $table[0] = 'table '.($i+1);
          $table[1] = strToLower($table[1]);
