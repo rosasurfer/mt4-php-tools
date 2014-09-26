@@ -42,9 +42,6 @@ class SimpleTrader extends StaticClass {
       $cookieFile = dirName(realPath($_SERVER['PHP_SELF'])).DIRECTORY_SEPARATOR.'cookies.txt';
       $options[CURLOPT_COOKIEFILE    ] = $cookieFile;          // read cookies from
       $options[CURLOPT_COOKIEJAR     ] = $cookieFile;          // write cookiess to
-
-      // weitere Optionen
-      $options[CURLOPT_TIMEOUT       ] = 10;                   // Standard-Timeout (30 Sek.) reduzieren
       $options[CURLOPT_SSL_VERIFYPEER] = false;                // das SSL-Zertifikat von simpletrader.net ist evt. ungültig
 
 
