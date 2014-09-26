@@ -33,6 +33,31 @@ class MyFX extends StaticClass {
 
 
    /**
+    * Parst eine FXT-Zeit in einen Unix-Timestamp.
+    *
+    * @param  string $time - FXT-Zeit in einem der Funktion strToTime() verständlichen Format
+    *
+    * @return int - Timestamp
+    */
+   public static function fxtStrToTime($time) {
+      if (!is_string($time)) throw new IllegalTypeException('Illegal type of argument $time: '.getType($time));
+
+      $oldTimezone = date_default_timezone_get();
+      try {
+         date_default_timezone_set('America/New_York');
+
+         $timestamp = strToTime($time);
+         if ($timestamp === false) throw new plInvalidArgumentException('Invalid argument $time: "'.$time.'"');
+         $timestamp -= 7*HOURS;
+         return $timestamp;
+
+         date_default_timezone_set($oldTimezone);
+      }
+      catch(Exception $ex) { date_default_timezone_set($oldTimezone); throw $ex; }
+   }
+
+
+   /**
     * Formatiert einen Timestamp als FXT-Zeit.
     *
     * @param  int    $timestamp - Zeitpunkt
@@ -46,13 +71,14 @@ class MyFX extends StaticClass {
 
       $oldTimezone = date_default_timezone_get();
       try {
+
          date_default_timezone_set('America/New_York');
          $result = date($format, $timestamp + 7*HOURS);
          date_default_timezone_set($oldTimezone);
+         return $result;
+
       }
       catch(Exception $ex) { date_default_timezone_set($oldTimezone); throw $ex; }
-
-      return $result;
    }
 
 

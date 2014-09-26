@@ -127,11 +127,11 @@ class ClosedPosition extends PersistableObject {
    /**
     * Gibt die OpenTime dieser Position zurück.
     *
-    * @param string $format - Zeitformat
+    * @param string $format - Zeitformat (default: 'Y-m-d H:i:s')
     *
     * @return string - Zeitpunkt
     */
-   public function getOpenTime($format = 'Y-m-d H:i:s')  {
+   public function getOpenTime($format='Y-m-d H:i:s')  {
       if ($format == 'Y-m-d H:i:s')
          return $this->openTime;
 
@@ -142,11 +142,11 @@ class ClosedPosition extends PersistableObject {
    /**
     * Gibt die CloseTime dieser Position zurück.
     *
-    * @param string $format - Zeitformat
+    * @param string $format - Zeitformat (default: 'Y-m-d H:i:s')
     *
     * @return string - Zeitpunkt
     */
-   public function getCloseTime($format = 'Y-m-d H:i:s')  {
+   public function getCloseTime($format='Y-m-d H:i:s')  {
       if ($format == 'Y-m-d H:i:s')
          return $this->closeTime;
 

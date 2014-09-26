@@ -71,11 +71,11 @@ class OpenPosition extends PersistableObject {
    /**
     * Gibt die OpenTime dieser Position zurück.
     *
-    * @param string $format - Zeitformat
+    * @param string $format - Zeitformat (default: 'Y-m-d H:i:s')
     *
     * @return string - Zeitpunkt
     */
-   public function getOpenTime($format = 'Y-m-d H:i:s')  {
+   public function getOpenTime($format='Y-m-d H:i:s')  {
       if ($format == 'Y-m-d H:i:s')
          return $this->openTime;
 

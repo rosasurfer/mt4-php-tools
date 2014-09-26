@@ -339,14 +339,17 @@ class SimpleTrader extends StaticClass {
       catch (Exception $ex) { Logger ::log($ex, L_ERROR, __CLASS__); }
 
 
-      // Benachrichtigung per SMS
-      try {
-         $smsMsg = 'Opened '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice().(($tp=$position->getTakeProfit()) ? "\nTP: $tp":'').(($sl=$position->getStopLoss()) ? ($tp ? '  ':"\n")."SL: $sl":'')."\n\n#".$position->getTicket().'  ('.$position->getOpenTime('H:i:s').')';
-         foreach (MyFX ::getSmsSignalReceivers() as $receiver) {
-            MyFX ::sendSms($receiver, $signal, $smsMsg);
+      // Benachrichtigung per SMS, wenn das Event nicht älter als 2 Minuten ist
+      $timestamp = MyFX ::fxtStrToTime($position->getOpenTime());
+      if (time() <= $timestamp+2*MINUTES) {
+         try {
+            $smsMsg = 'Opened '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice().(($tp=$position->getTakeProfit()) ? "\nTP: $tp":'').(($sl=$position->getStopLoss()) ? ($tp ? '  ':"\n")."SL: $sl":'')."\n\n#".$position->getTicket().'  ('.$position->getOpenTime('H:i:s').')';
+            foreach (MyFX ::getSmsSignalReceivers() as $receiver) {
+               MyFX ::sendSms($receiver, $signal, $smsMsg);
+            }
          }
+         catch (Exception $ex) { Logger ::log($ex, L_ERROR, __CLASS__); }
       }
-      catch (Exception $ex) { Logger ::log($ex, L_ERROR, __CLASS__); }
    }
 
 
@@ -417,14 +420,17 @@ class SimpleTrader extends StaticClass {
       catch (Exception $ex) { Logger ::log($ex, L_ERROR, __CLASS__); }
 
 
-      // Benachrichtigung per SMS
-      try {
-         $smsMsg = 'Closed '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getClosePrice()."\nOpen: ".$position->getOpenPrice()."\n\n#".$position->getTicket().'  ('.$position->getCloseTime('H:i:s').')';
-         foreach (MyFX ::getSmsSignalReceivers() as $receiver) {
-            MyFX ::sendSms($receiver, $signal, $smsMsg);
+      // Benachrichtigung per SMS, wenn das Event nicht älter als 2 Minuten ist
+      $timestamp = MyFX ::fxtStrToTime($position->getCloseTime());
+      if (time() <= $timestamp+2*MINUTES) {
+         try {
+            $smsMsg = 'Closed '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getClosePrice()."\nOpen: ".$position->getOpenPrice()."\n\n#".$position->getTicket().'  ('.$position->getCloseTime('H:i:s').')';
+            foreach (MyFX ::getSmsSignalReceivers() as $receiver) {
+               MyFX ::sendSms($receiver, $signal, $smsMsg);
+            }
          }
+         catch (Exception $ex) { Logger ::log($ex, L_ERROR, __CLASS__); }
       }
-      catch (Exception $ex) { Logger ::log($ex, L_ERROR, __CLASS__); }
    }
 }
 ?>
