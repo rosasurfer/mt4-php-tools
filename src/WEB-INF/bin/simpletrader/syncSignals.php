@@ -1,5 +1,5 @@
 #!/usr/bin/php -Cq
-<?
+<?php
 /**
  * Synchronisiert die Daten ein oder mehrerer Signale mit den lokal gespeicherten Daten.  Die lokalen Daten können
  * sich in einer Datenbank oder in einer Textdatei befinden. Bei Datenänderung kann ein MT4-Terminal benachrichtigt

@@ -1,5 +1,5 @@
 #!/usr/bin/php -Cq
-<?
+<?php
 /**
  * Aktualisiert die vorhandenen Dukascopy-Tickdaten.
  *

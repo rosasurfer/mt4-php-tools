@@ -1,4 +1,4 @@
-<?
+<?php
 /**
  * LZMA related functionality
  */

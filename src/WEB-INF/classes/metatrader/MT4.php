@@ -1,4 +1,4 @@
-<?
+<?php
 /**
  * MT4/MQL related functionality
  */

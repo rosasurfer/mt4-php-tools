@@ -1,4 +1,4 @@
-<?
+<?php
 /**
  * MyFX related functionality
  */

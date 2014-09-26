@@ -1,5 +1,5 @@
 #!/usr/bin/php -Cq
-<?
+<?php
 /**
  * Verzeichnislisting für MT4-Historydateien
  */

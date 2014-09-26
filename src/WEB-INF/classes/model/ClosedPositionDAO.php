@@ -1,4 +1,4 @@
-<?
+<?php
 /**
  * DAO zum Zugriff auf ClosedPosition-Instanzen.
  */

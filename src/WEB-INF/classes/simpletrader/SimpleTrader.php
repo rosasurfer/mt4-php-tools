@@ -1,4 +1,4 @@
-<?
+<?php
 /**
  * www.simpletrader.net related functionality
  */
