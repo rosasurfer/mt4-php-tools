@@ -158,5 +158,31 @@ class MyFX extends StaticClass {
       $content  = $response->getContent();
       if ($status != 200) throw new plRuntimeException('Unexpected HTTP status code from api.clickatell.com: '.$status.' ('.HttpResponse ::$sc[$status].')');
    }
+
+
+   /**
+    * Gibt die Beschreibung eines Operation-Types zurück.
+    *
+    * @param  int $type - Operation-Type
+    *
+    * @return string - Beschreibung
+    */
+   public static function operationTypeDescription($type) {
+      if (!is_int($type)) throw new IllegalTypeException('Illegal type of parameter $type: '.getType($type));
+
+      static $operationTypes = array(OP_BUY       => 'Buy'       ,
+                                     OP_SELL      => 'Sell'      ,
+                                     OP_BUYLIMIT  => 'Buy Limit' ,
+                                     OP_SELLLIMIT => 'Sell Limit',
+                                     OP_BUYSTOP   => 'Stop Buy'  ,
+                                     OP_SELLSTOP  => 'Stop Sell' ,
+                                     OP_BALANCE   => 'Balance'   ,
+                                     OP_CREDIT    => 'Credit'    ,
+                                    );
+      if (isSet($operationTypes[$type]))
+         return $operationTypes[$type];
+
+      throw new plInvalidArgumentException('Invalid parameter $type: '.$type.' (not an operation type)');
+   }
 }
 ?>

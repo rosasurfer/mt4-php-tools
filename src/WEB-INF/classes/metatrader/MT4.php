@@ -126,8 +126,10 @@ class MT4 extends StaticClass {
 
 
       // (2) Prüfen, ob die Datei existiert
-      $fileName = $dataDirectory.'/simpletrader/'.$signal->getAlias().'_open_trades.csv';
+      $alias    = $signal->getAlias();
+      $fileName = $dataDirectory.'/simpletrader/'.$alias.'_open.positions.ini';
       $isFile   = is_file($fileName);
+      //$isFile = false;
 
 
       // (3) Datei neu schreiben, wenn DB aktualisiert wurde oder die Datei nicht existiert
@@ -144,9 +146,33 @@ class MT4 extends StaticClass {
          $hFile = $ex = null;
          try {
             $hFile = fOpen($fileName, 'wb');
-            // Header schreiben
-            // Orderdaten schreiben
-            fWrite($hFile, (string)$positions);
+            // (3.1) Header schreiben
+            fWrite($hFile, "[SimpleTrader.$alias]\n");
+            fWrite($hFile, ";Symbol.Ticket   = Type, Lots, OpenTime           , OpenPrice, TakeProfit, StopLoss, Commission, Swap, MagicNumber, Comment\n");
+
+            // (3.2) Daten schreiben
+            foreach ($positions as $position) {
+               /*
+               ;Symbol.Ticket   = Type, Lots, OpenTime           , OpenPrice, TakeProfit, StopLoss, Commission, Swap, MagicNumber, Comment
+               AUDUSD.428259953 = Sell, 1.20, 2014.04.10 07:08:46,   1.62166,           ,         ,          0,    0,            ,
+               AUDUSD.428256273 = Buy , 1.50, 2014.04.23 11:51:32,     1.605,           ,         ,        0.1,    0,            ,
+               AUDUSD.428253857 = Buy , 1.50, 2014.04.24 08:00:25,   1.60417,           ,         ,          0,    0,            ,
+               */
+               $format      = "%-16s = %-4s, %4.2F, %s, %9s, %10s, %8s, %10s, %4s, %11s, %s\n";
+               $key         = $position->getSymbol().'.'.$position->getTicket();
+               $type        = $position->getTypeDescription();
+               $lots        = $position->getLots();
+               $openTime    = $position->getOpenTime('Y.m.d H:i:s');
+               $openPrice   = $position->getOpenPrice();
+               $takeProfit  = $position->getTakeProfit();
+               $stopLoss    = $position->getStopLoss();
+               $commission  = $position->getCommission();
+               $swap        = $position->getSwap();
+               $magicNumber = $position->getMagicNumber();
+               $comment     = $position->getComment();
+
+               fWrite($hFile, sprintf($format, $key, $type, $lots, $openTime, $openPrice, $takeProfit, $stopLoss, $commission, $swap, $magicNumber, $comment));
+            }
             fClose($hFile);
          }
          catch (Exception $ex) {
@@ -157,10 +183,6 @@ class MT4 extends StaticClass {
             if (!$isFile && is_file($fileName)) unlink($fileName);
             throw $ex;
          }
-
-
-         echoPre("\n");
-         echoPre('file "'.$fileName.'" rewritten');
       }
    }
 }

@@ -69,13 +69,23 @@ class OpenPosition extends PersistableObject {
 
 
    /**
+    * Gibt die Beschreibung des OperationTypes dieser Position zurück.
+    *
+    * @return string - Beschreibung
+    */
+   public function getTypeDescription() {
+      return ucFirst($this->type);
+   }
+
+
+   /**
     * Gibt die OpenTime dieser Position zurück.
     *
     * @param string $format - Zeitformat (default: 'Y-m-d H:i:s')
     *
     * @return string - Zeitpunkt
     */
-   public function getOpenTime($format='Y-m-d H:i:s')  {
+   public function getOpenTime($format='Y-m-d H:i:s') {
       if ($format == 'Y-m-d H:i:s')
          return $this->openTime;
 

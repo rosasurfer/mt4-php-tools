@@ -89,7 +89,7 @@ function processSignal($signalAlias) {
    echo(str_pad($signalName.' ', 16, '.', STR_PAD_RIGHT).' ');
 
    $updates = false;                         // ob beim Update Aktualisierungen durchgeführt wurden
-   if (false) {
+   if (1 || false) {
       // HTML-Seite laden
       $content = SimpleTrader ::getSignalPage($signalAlias);
 
@@ -100,7 +100,6 @@ function processSignal($signalAlias) {
       // Datenbank aktualisieren
      $updates = updateDatabase($signalAlias, $openPositions, $closedPositions);
    }
-
 
    // CSV-Files aktualisieren (Datenbasis für MT4-Terminals)
    $signal = Signal ::dao()->getByAlias($signalAlias);
