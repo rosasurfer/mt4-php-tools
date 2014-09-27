@@ -91,15 +91,15 @@ exit();
  * @param string $startTime - Beginn der Dukascopy-Daten des Instruments
  */
 function processInstrument($symbol, $startTime) {
-   if (!is_string($symbol)) throw new IllegalTypeException('Illegal type of argument $symbol: '.getType($symbol));
-   if (!is_int($startTime)) throw new IllegalTypeException('Illegal type of argument $startTime: '.getType($startTime));
+   if (!is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
+   if (!is_int($startTime)) throw new IllegalTypeException('Illegal type of parameter $startTime: '.getType($startTime));
    $symbol     = strToUpper($symbol);
    $startTime -= $startTime % DAY;                                   // 00:00 GMT des Starttages
    $today      = ($today=time()) - $today%DAY;                       // heute 00:00 GMT
 
    static $downloadDirectory = null;
    if (is_null($downloadDirectory))
-      $downloadDirectory = MyFX ::getAbsoluteConfigPath('history.dukascopy');
+      $downloadDirectory = MyFX ::getConfigPath('history.dukascopy');
 
 
    for ($time=$startTime; $time < $today; $time+=1*DAY) {            // heutigen Tag überspringen (Daten sind immer unvollständig)
@@ -144,8 +144,8 @@ function processInstrument($symbol, $startTime) {
  * @param string $filename - vollständiger Dateiname
  */
 function downloadUrl($url, $filename) {
-   if (!is_string($url))      throw new IllegalTypeException('Illegal type of argument $url: '.getType($url));
-   if (!is_string($filename)) throw new IllegalTypeException('Illegal type of argument $filename: '.getType($filename));
+   if (!is_string($url))      throw new IllegalTypeException('Illegal type of parameter $url: '.getType($url));
+   if (!is_string($filename)) throw new IllegalTypeException('Illegal type of parameter $filename: '.getType($filename));
 
    // HTTP-Request abschicken und auswerten
    $request  = HttpRequest ::create()->setUrl($url);
