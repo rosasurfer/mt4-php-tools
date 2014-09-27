@@ -31,10 +31,23 @@ class OpenPositionDAO extends CommonDAO {
    /**
     * Gibt die offenen Positionen des angegebenen Signals zurück.
     *
+    * @param  Signal $signal      - Signal
+    * @param  bool   $assocTicket - ob das Ergebnisarray assoziativ nach Tickets organisiert werden soll (default: nein)
+    *
+    * @return OpenPosition[] - Array von OpenPosition-Instanzen, aufsteigend sortiert nach {OpenTime,Ticket}
+    */
+   public function listBySignal(Signal $signal, $assocTicket=false) {
+      return $this->listBySignalAlias($signal->getAlias(), $assocTicket);
+   }
+
+
+   /**
+    * Gibt die offenen Positionen des angegebenen Signals zurück.
+    *
     * @param  string $alias       - Signalalias
     * @param  bool   $assocTicket - ob das Ergebnisarray assoziativ nach Tickets organisiert werden soll (default: nein)
     *
-    * @return OpenPosition[] - Array von OpenPosition-Instanzen
+    * @return OpenPosition[] - Array von OpenPosition-Instanzen, aufsteigend sortiert nach {OpenTime,Ticket}
     */
    public function listBySignalAlias($alias, $assocTicket=false) {
       if (!is_string($alias)) throw new IllegalTypeException('Illegal type of parameter $alias: '.getType($alias));

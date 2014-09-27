@@ -124,25 +124,56 @@ class MT4 extends StaticClass {
       if (is_null($dataDirectory))
          $dataDirectory = MyFX ::getConfigPath('myfx.data_directory');
 
-      // Prüfen, ob die CSV-Datei existiert
-      $fileName = $dataDirectory.'/open_trades.csv';
+      // Prüfen, ob die Datei existiert
+      $fileName = $dataDirectory.'/simpletrader/'.$signal->getAlias().'_open_trades.csv';
       $isFile   = is_file($fileName);
 
-      echoPre("\n");
-      echoPre('$isFile='.(int)$isFile);
-
-      echoPre('error_log = '.ini_get('error_log'));
-
-
-      /*
-      // (2) Neuschreiben, wenn DB aktualisiert wurde oder die Datei nicht existiert
-      if ($updates || $fileNotExist()) {
-         // Tickets einlesen
-         // CSV-Datei erzeugen
-         // Header schreiben
-         // Orderdaten schreiben
+      if ($isFile) {
+         echoPre('(1)  unlink()='.(int)unlink($fileName));
+         return;
       }
-      */
+
+      // Datei neuschreiben, wenn DB aktualisiert wurde oder die Datei nicht existiert
+      if ($updates || !$isFile) {
+         $positions = OpenPosition ::dao()->listBySignal($signal);
+
+         // Verzeichnis ggf. erzeugen
+         $directory = dirName($fileName);
+         if (is_file($directory))                                   throw new plInvalidArgumentException('Cannot write to directory "'.$directory.'" (is a file)');
+         if (!is_dir($directory) && !mkDir($directory, 0755, true)) throw new plInvalidArgumentException('Cannot create directory "'.$directory.'"');
+         if (!is_writable($directory))                              throw new plInvalidArgumentException('Cannot write to directory "'.$directory.'"');
+
+         // Datei schreiben
+         $hFile = null;
+         try {
+            $hFile = fOpen($fileName, 'wb');
+            // Header schreiben
+            // Orderdaten schreiben
+            fWrite($hFile, $positions);
+            fClose($hFile);
+         }
+         catch (Exception $ex) {
+            if (is_resource($hFile)) {
+               echoPre('(2)  fClose()='.(int)fClose($hFile));
+            }
+            if (!$isFile && is_file($fileName)) {
+               $success = @unlink($fileName); echoPre('(3)  unlink()='.(int)$success);
+            }
+            //throw $ex;
+         }
+
+         if ($ex) {
+            $success = @unlink($fileName);
+            echoPre('(7)  unlink()='.(int)$success);
+            throw $ex;
+         }
+
+
+
+
+         //echoPre("\n");
+         //echoPre('file "'.$fileName.'" rewritten');
+      }
    }
 }
 ?>
