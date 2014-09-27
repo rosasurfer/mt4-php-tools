@@ -119,21 +119,18 @@ class MT4 extends StaticClass {
    public static function updateCSVFiles(Signal $signal, $updates) {
       if (!is_bool($updates)) throw new IllegalTypeException('Illegal type of parameter $updates: '.getType($updates));
 
-      // Datenverzeichnis bestimmen
+      // (1) Datenverzeichnis bestimmen
       static $dataDirectory = null;
       if (is_null($dataDirectory))
          $dataDirectory = MyFX ::getConfigPath('myfx.data_directory');
 
-      // Prüfen, ob die Datei existiert
+
+      // (2) Prüfen, ob die Datei existiert
       $fileName = $dataDirectory.'/simpletrader/'.$signal->getAlias().'_open_trades.csv';
       $isFile   = is_file($fileName);
 
-      if ($isFile) {
-         echoPre('(1)  unlink()='.(int)unlink($fileName));
-         return;
-      }
 
-      // Datei neuschreiben, wenn DB aktualisiert wurde oder die Datei nicht existiert
+      // (3) Datei neu schreiben, wenn DB aktualisiert wurde oder die Datei nicht existiert
       if ($updates || !$isFile) {
          $positions = OpenPosition ::dao()->listBySignal($signal);
 
@@ -144,35 +141,26 @@ class MT4 extends StaticClass {
          if (!is_writable($directory))                              throw new plInvalidArgumentException('Cannot write to directory "'.$directory.'"');
 
          // Datei schreiben
-         $hFile = null;
+         $hFile = $ex = null;
          try {
             $hFile = fOpen($fileName, 'wb');
             // Header schreiben
             // Orderdaten schreiben
-            fWrite($hFile, $positions);
+            fWrite($hFile, (string)$positions);
             fClose($hFile);
          }
          catch (Exception $ex) {
-            if (is_resource($hFile)) {
-               echoPre('(2)  fClose()='.(int)fClose($hFile));
-            }
-            if (!$isFile && is_file($fileName)) {
-               $success = @unlink($fileName); echoPre('(3)  unlink()='.(int)$success);
-            }
-            //throw $ex;
-         }
-
-         if ($ex) {
-            $success = @unlink($fileName);
-            echoPre('(7)  unlink()='.(int)$success);
+            if (is_resource($hFile))            fClose($hFile);   // Unter Windows kann die Datei u.U. nicht im Exception-Handler gelöscht werden (gesperrt).
+         }                                                        // Das File-Handle muß innerhalb UND außerhalb des Exception-Handlers geschlossen werden,
+         if ($ex) {                                               // erst dann läßt sich die Datei unter Windows löschen.
+            if (is_resource($hFile))            fClose($hFile);
+            if (!$isFile && is_file($fileName)) unlink($fileName);
             throw $ex;
          }
 
 
-
-
-         //echoPre("\n");
-         //echoPre('file "'.$fileName.'" rewritten');
+         echoPre("\n");
+         echoPre('file "'.$fileName.'" rewritten');
       }
    }
 }
