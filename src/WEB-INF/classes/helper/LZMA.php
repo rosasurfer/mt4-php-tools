@@ -13,7 +13,7 @@ class LZMA extends StaticClass {
     * @return string - Dateiinhalt
     */
    public static function decompress($file) {
-      if (!is_string($file)) throw new IllegalTypeException('Illegal type of argument $file: '.getType($file));
+      if (!is_string($file)) throw new IllegalTypeException('Illegal type of parameter $file: '.getType($file));
       if (!is_file($file))   throw new FileNotFoundException('File not found "'.$file.'"');
 
       if (!fileSize($file))

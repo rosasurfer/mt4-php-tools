@@ -88,15 +88,23 @@ function processSignal($signalAlias) {
    $signalName = $signals[$signalAlias];
    echo(str_pad($signalName.' ', 16, '.', STR_PAD_RIGHT).' ');
 
-   // HTML-Seite laden
-   $content = SimpleTrader ::getSignalPage($signalAlias);
+   $updates = false;                         // ob beim Update Aktualisierungen durchgeführt wurden
+   if (false) {
+      // HTML-Seite laden
+      $content = SimpleTrader ::getSignalPage($signalAlias);
 
-   // HTML-Seite parsen
-   $openPositions = $closedPositions = array();
-   SimpleTrader ::parseSignalData($signalAlias, $content, $openPositions, $closedPositions);
+      // HTML-Seite parsen
+      $openPositions = $closedPositions = array();
+      SimpleTrader ::parseSignalData($signalAlias, $content, $openPositions, $closedPositions);
 
-   // lokale Daten aktualisieren
-   updateTrades($signalAlias, $openPositions, $closedPositions);
+      // Datenbank aktualisieren
+     $updates = updateDatabase($signalAlias, $openPositions, $closedPositions);
+   }
+
+
+   // CSV-Files aktualisieren (Datenbasis für MT4-Terminals)
+   $signal = Signal ::dao()->getByAlias($signalAlias);
+   MT4 ::updateCSVFiles($signal, $updates);
 }
 
 
@@ -106,8 +114,10 @@ function processSignal($signalAlias) {
  * @param  string $signalAlias          - Signalalias
  * @param  array  $currentOpenPositions - Array mit aktuell offenen Positionen
  * @param  array  $currentHistory       - Array mit aktuellen Historydaten
+ *
+ * @return bool - ob Änderungen detektiert wurden oder nicht
  */
-function updateTrades($signalAlias, array &$currentOpenPositions, array &$currentHistory) {
+function updateDatabase($signalAlias, array &$currentOpenPositions, array &$currentHistory) {
    $updates                = false;
    $unchangedOpenPositions = 0;
 
@@ -194,12 +204,7 @@ function updateTrades($signalAlias, array &$currentOpenPositions, array &$curren
       throw $ex;
    }
 
-
-   // (5) MT4-Accounthistory aktualisieren
-   if ($updates) {
-      $signal = Signal ::dao()->getByAlias($signalAlias);
-      MT4 ::updateSignalHistory($signal);
-   }
+   return $updates;
 }
 
 

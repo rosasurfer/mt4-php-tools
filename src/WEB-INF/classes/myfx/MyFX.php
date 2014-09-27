@@ -15,20 +15,20 @@ class MyFX extends StaticClass {
     *
     * @throws plRuntimeException - wenn unter dem angegebenen Schlüssel keine Pfadeinstellung existiert
     */
-   public static function getAbsoluteConfigPath($key) {
-      if (!is_string($key)) throw new IllegalTypeException('Illegal type of argument $key: '.getType($key));
+   public static function getConfigPath($key) {
+      if (!is_string($key)) throw new IllegalTypeException('Illegal type of parameter $key: '.getType($key));
 
-      $directory = str_replace('\\', '/', Config ::get($key));       // Backslashes ersetzen
+      $directory = str_replace('\\', '/', Config ::get($key));    // Backslashes in Konfiguration ersetzen
 
       if (WINDOWS) {
-         if (!preg_match('/^[a-z]:/i', $directory))
+         if (!preg_match('/^[a-z]:/i', $directory))               // Pfad ist relativ, wenn er nicht mit einem Lw.-Bezeichner beginnt
             $directory = APPLICATION_ROOT.($directory{0}=='/'?'':'/').$directory;
       }
-      else if ($directory{0} != '/') {
+      else if ($directory{0} != '/') {                            // Pfad ist relativ, wenn er nicht mit einem Slash beginnt
          $directory = APPLICATION_ROOT.'/'.$directory;
       }
 
-      return str_replace('\\', '/', $directory);                     // Backslashes in APPLICATION_ROOT ersetzen
+      return str_replace('\\', '/', $directory);                  // Backslashes in APPLICATION_ROOT ersetzen
    }
 
 
@@ -40,7 +40,7 @@ class MyFX extends StaticClass {
     * @return int - Timestamp
     */
    public static function fxtStrToTime($time) {
-      if (!is_string($time)) throw new IllegalTypeException('Illegal type of argument $time: '.getType($time));
+      if (!is_string($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
 
       $oldTimezone = date_default_timezone_get();
       try {
@@ -66,8 +66,8 @@ class MyFX extends StaticClass {
     * @return string - FXT-String
     */
    public static function fxtDate($timestamp, $format='Y-m-d H:i:s') {
-      if (!is_int($timestamp)) throw new IllegalTypeException('Illegal type of argument $timestamp: '.getType($timestamp));
-      if (!is_string($format)) throw new IllegalTypeException('Illegal type of argument $format: '.getType($format));
+      if (!is_int($timestamp)) throw new IllegalTypeException('Illegal type of parameter $timestamp: '.getType($timestamp));
+      if (!is_string($format)) throw new IllegalTypeException('Illegal type of parameter $format: '.getType($format));
 
       $oldTimezone = date_default_timezone_get();
       try {
@@ -132,13 +132,13 @@ class MyFX extends StaticClass {
     * @param  string $message  - Nachricht
     */
    public static function sendSMS($receiver, Signal $signal, $message) {
-      if (!is_string($receiver))   throw new IllegalTypeException('Illegal type of argument $receiver: '.getType($receiver));
+      if (!is_string($receiver))   throw new IllegalTypeException('Illegal type of parameter $receiver: '.getType($receiver));
       $receiver = trim($receiver);
       if (String ::startsWith($receiver, '+' )) $receiver = subStr($receiver, 1);
       if (String ::startsWith($receiver, '00')) $receiver = subStr($receiver, 2);
       if (!ctype_digit($receiver)) throw new plInvalidArgumentException('Invalid argument $receiver: "'.$receiver.'"');
 
-      if (!is_string($message))    throw new IllegalTypeException('Illegal type of argument $message: '.getType($message));
+      if (!is_string($message))    throw new IllegalTypeException('Illegal type of parameter $message: '.getType($message));
       $message = trim($message);
       if ($message == '')          throw new plInvalidArgumentException('Invalid argument $message: "'.$message.'"');
 

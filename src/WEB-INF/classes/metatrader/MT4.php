@@ -69,7 +69,7 @@ class MT4 extends StaticClass {
     * @return int - Anzahl der geschriebenen Bytes
     */
    public static function writeHistoryHeader($hFile, array $hh) {
-      if (getType($hFile) != 'resource') throw new IllegalTypeException('Illegal type of argument $hFile: '.$hFile.' ('.getType($hFile).')');
+      if (getType($hFile) != 'resource') throw new IllegalTypeException('Illegal type of parameter $hFile: '.$hFile.' ('.getType($hFile).')');
       if (!$hh)                          throw new plInvalidArgumentException('Invalid parameter $hh: '.print_r($hh, true));
 
       $hh = array_merge(self::$tpl_HistoryHeader, $hh);
@@ -104,19 +104,45 @@ class MT4 extends StaticClass {
     * @return int - Anzahl der geschriebenen Bytes
     */
    public static function addHistoryBar($hFile, $time, $open, $high, $low, $close, $vol) {
-      if (getType($hFile) != 'resource') throw new IllegalTypeException('Illegal type of argument $hFile: '.$hFile.' ('.getType($hFile).')');
+      if (getType($hFile) != 'resource') throw new IllegalTypeException('Illegal type of parameter $hFile: '.$hFile.' ('.getType($hFile).')');
 
       return fWrite($hFile, pack('Vddddd', $time, $open, $low, $high, $close, $vol));
    }
 
 
    /**
-    * Aktualisiert die MT4-Accounthistory des angegebenen Signals. Offene Positionen und Accounthistory werden komplett
-    * neugeschrieben. Die Dateien stellen die Datenbasis für MQL-Programme (nur Lesen, kein Schreiben).
+    * Aktualisiert die CSV-Files des angegebenen Signals (Datenbasis für MT4-Terminals).
     *
-    * @param  Signal $signal - Signalalias
+    * @param  Signal $signal  - Signalalias
+    * @param  bool   $updates - ob beim letzten Abgleich der Datenbank Änderungen festgestellt wurden
     */
-   public static function updateSignalHistory(Signal $signal) {
+   public static function updateCSVFiles(Signal $signal, $updates) {
+      if (!is_bool($updates)) throw new IllegalTypeException('Illegal type of parameter $updates: '.getType($updates));
+
+      // Datenverzeichnis bestimmen
+      static $dataDirectory = null;
+      if (is_null($dataDirectory))
+         $dataDirectory = MyFX ::getConfigPath('myfx.data_directory');
+
+      // Prüfen, ob die CSV-Datei existiert
+      $fileName = $dataDirectory.'/open_trades.csv';
+      $isFile   = is_file($fileName);
+
+      echoPre("\n");
+      echoPre('$isFile='.(int)$isFile);
+
+      echoPre('error_log = '.ini_get('error_log'));
+
+
+      /*
+      // (2) Neuschreiben, wenn DB aktualisiert wurde oder die Datei nicht existiert
+      if ($updates || $fileNotExist()) {
+         // Tickets einlesen
+         // CSV-Datei erzeugen
+         // Header schreiben
+         // Orderdaten schreiben
+      }
+      */
    }
 }
 ?>

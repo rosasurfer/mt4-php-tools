@@ -393,8 +393,8 @@ class SimpleTrader extends StaticClass {
     * @param  float        $prevSL   - der vorherige StopLoss-Wert
     */
    public static function onPositionModify(OpenPosition $position, $prevTP, $prevSL) {
-      if (!is_null($prevTP) && !is_float($prevTP)) throw new IllegalTypeException('Illegal type of argument $prevTP: '.getType($prevSL));
-      if (!is_null($prevSL) && !is_float($prevSL)) throw new IllegalTypeException('Illegal type of argument $prevSL: '.getType($prevSL));
+      if (!is_null($prevTP) && !is_float($prevTP)) throw new IllegalTypeException('Illegal type of parameter $prevTP: '.getType($prevSL));
+      if (!is_null($prevSL) && !is_float($prevSL)) throw new IllegalTypeException('Illegal type of parameter $prevSL: '.getType($prevSL));
 
       $modification = $tpMsg = $slMsg = null;
       if (($current=$position->getTakeprofit()) != $prevTP) $modification .= ($tpMsg='  TakeProfit: '.($prevTP ? $prevTP:'-').' => '.($current ? $current:'-'));

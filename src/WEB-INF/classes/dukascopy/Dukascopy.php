@@ -22,7 +22,7 @@ class Dukascopy extends StaticClass {
     *              } dukBar;                             = 24 byte
     */
    public static function processBarFile($filename) {
-      if (!is_string($filename)) throw new IllegalTypeException('Illegal type of argument $filename: '.getType($filename));
+      if (!is_string($filename)) throw new IllegalTypeException('Illegal type of parameter $filename: '.getType($filename));
 
       if (!fileSize($filename)) {
          // TODO: Gap speichern
