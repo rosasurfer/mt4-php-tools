@@ -48,7 +48,7 @@ define('AH_COMMENT'    , 12);
 define('DUKASCOPY_BAR_SIZE', 24);
 
 
-// SimpleTrader: Spalten der OpenPosition-Datenarrays
+// SimpleTrader: Indizes der von preg_match_all() zurückgegebenen OpenPosition-Datenarrays
 define('I_STOP_TAKEPROFIT',  1);
 define('I_STOP_STOPLOSS'  ,  2);
 define('I_STOP_OPENTIME'  ,  3);
@@ -61,7 +61,7 @@ define('I_STOP_PIPS'      ,  9);
 define('I_STOP_COMMENT'   , 10);
 
 
-// SimpleTrader: Spalten der History-Datenarrays
+// SimpleTrader: Indizes der von preg_match_all() zurückgegebenen ClosedPosition-Datenarrays
 define('I_STH_TAKEPROFIT' ,  1);
 define('I_STH_STOPLOSS'   ,  2);
 define('I_STH_OPENTIME'   ,  3);
