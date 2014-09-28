@@ -219,7 +219,7 @@ function help($message=null) {
 
    $self = baseName($_SERVER['PHP_SELF']);
 
-   echo <<<END
+echo <<<END
  Syntax:  $self [-l] [-f] [signal_name ...]
 
  Options:  -l  Run in a loop and synchronize every 30 seconds.
