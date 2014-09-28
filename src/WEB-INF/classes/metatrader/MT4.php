@@ -111,12 +111,12 @@ class MT4 extends StaticClass {
 
 
    /**
-    * Aktualisiert die CSV-Files des angegebenen Signals (Datenbasis für MT4-Terminals).
+    * Aktualisiert die Daten-Files des angegebenen Signals (Datenbasis für MT4-Terminals).
     *
     * @param  Signal $signal  - Signalalias
     * @param  bool   $updates - ob beim letzten Abgleich der Datenbank Änderungen festgestellt wurden
     */
-   public static function updateCSVFiles(Signal $signal, $updates) {
+   public static function updateDataFiles(Signal $signal, $updates) {
       if (!is_bool($updates)) throw new IllegalTypeException('Illegal type of parameter $updates: '.getType($updates));
 
       // (1) Datenverzeichnis bestimmen

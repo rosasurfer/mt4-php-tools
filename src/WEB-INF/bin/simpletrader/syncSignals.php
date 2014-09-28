@@ -32,17 +32,16 @@ $signals = array('alexprofit'   => 'AlexProfit',
 // (1) Befehlszeilenargumente einlesen und validieren
 $args = array_slice($_SERVER['argv'], 1);
 
-// (1.1) looping
-$looping = false;
+// (1.1) Options: -l (Looping), -f (FileSyncOnly)
+$looping = $fileSyncOnly = false;
 foreach ($args as $i => $arg) {
-   if (in_array(strToLower($arg), array('-l','/l'))) {
-      $looping = true;
-      unset($args[$i]);
-   }
+   $arg = strToLower($arg);
+   if (in_array($arg, array('-l','/l'))) { $looping     =true; unset($args[$i]); continue; }
+   if (in_array($arg, array('-f','/f'))) { $fileSyncOnly=true; unset($args[$i]); continue; }
 }
 
 // (1.2) Signalnamen
-!$args && $args=array_keys($signals);                       // ohne Parameter werden alle Signale synchronisiert
+!$args && $args=array_keys($signals);                       // ohne konkrete Namen werden alle Signale synchronisiert
 foreach ($args as $i => $arg) {
    $arg = strToLower($arg);
    in_array($arg, array('-?','/?','-h','/h','-help','/help')) && exit(1|help());
@@ -64,7 +63,7 @@ catch (Exception $ex) {
 // (3) Signale aktualisieren
 while (true) {
    foreach ($args as $i => $arg) {
-      processSignal($arg);
+      processSignal($arg, $fileSyncOnly);
    }
    if (!$looping) break;
    sleep($sleepSeconds);                                    // vorm nächsten Durchlauf jeweils einige Sek. schlafen
@@ -77,19 +76,21 @@ exit(0);
 
 /**
  *
- * @param  string $signalAlias - Signalalias
+ * @param  string $signalAlias  - Signalalias
+ * @param  bool   $fileSyncOnly - ob alle Daten oder nur die CSV-Dateien aktualisiert werden sollen
  */
-function processSignal($signalAlias) {
-   // Parametervalidierung
+function processSignal($signalAlias, $fileSyncOnly) {
    if (!is_string($signalAlias)) throw new IllegalTypeException('Illegal type of parameter $signalAlias: '.getType($signalAlias));
-   $signalAlias = strToLower($signalAlias);
+   if (!is_bool($fileSyncOnly)) throw new IllegalTypeException('Illegal type of parameter $fileSyncOnly: '.getType($fileSyncOnly));
 
    global $signals;
-   $signalName = $signals[$signalAlias];
+   $signalAlias = strToLower($signalAlias);
+   $signalName  = $signals[$signalAlias];
    echo(str_pad($signalName.' ', 16, '.', STR_PAD_RIGHT).' ');
 
-   $updates = false;                         // ob beim Update Aktualisierungen durchgeführt wurden
-   if (1 || false) {
+   $updates = false;                         // ob beim Synchronisieren Änderungen festgestellt wurden
+
+   if (!$fileSyncOnly) {
       // HTML-Seite laden
       $content = SimpleTrader ::getSignalPage($signalAlias);
 
@@ -101,9 +102,9 @@ function processSignal($signalAlias) {
      $updates = updateDatabase($signalAlias, $openPositions, $closedPositions);
    }
 
-   // CSV-Files aktualisieren (Datenbasis für MT4-Terminals)
+   // Daten-Files aktualisieren (Datenbasis für MT4)
    $signal = Signal ::dao()->getByAlias($signalAlias);
-   MT4 ::updateCSVFiles($signal, $updates);
+   MT4 ::updateDataFiles($signal, $updates);
 }
 
 
@@ -215,7 +216,15 @@ function updateDatabase($signalAlias, array &$currentOpenPositions, array &$curr
 function help($message=null) {
    if (!is_null($message))
       echo($message."\n");
-   global $signals;
-   echo("\n  Syntax: ".baseName($_SERVER['PHP_SELF'])."  [-l] [".implode('|', array_keys($signals))."]\n");
+
+   $self = baseName($_SERVER['PHP_SELF']);
+
+   echo <<<END
+ Syntax:  $self [-l] [-f] [signal_name ...]
+
+ Options:  -l  Run in a loop and synchronize every 30 seconds.
+           -f  Synchronize local files only, don't go online.
+
+END;
 }
 ?>
