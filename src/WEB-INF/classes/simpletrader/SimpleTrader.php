@@ -72,10 +72,9 @@ class SimpleTrader extends StaticClass {
             }
             throw $ex;
          }
-         $status  = $response->getStatus();
-         $content = $response->getContent();
-         if ($status != 200) throw new plRuntimeException('Unexpected HTTP status code '.$status.' ('.HttpResponse ::$sc[$status].') for url: '.$request->getUrl());
+         if (($status=$response->getStatus()) != 200) throw new plRuntimeException('Unexpected HTTP status code '.$status.' ('.HttpResponse ::$sc[$status].') for url: '.$request->getUrl());
 
+         $content = $response->getContent();
          if (is_null($content)) {                              // Serverfehler, entspricht CURLE_GOT_NOTHING
             $msg = 'Empty reply from server, url: '.$request->getUrl();
             if ($counter < 3) {
