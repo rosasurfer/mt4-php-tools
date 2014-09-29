@@ -371,11 +371,15 @@ class SimpleTrader extends StaticClass {
       catch (Exception $ex) { Logger ::log($ex, L_ERROR, __CLASS__); }
 
 
-      // Benachrichtigung per SMS, wenn das Event nicht älter als 2 Minuten ist
-      $timestamp = MyFX ::fxtStrToTime($position->getOpenTime());
-      if (true || time()<=$timestamp+2*MINUTES) {
+      // SMS-Benachrichtigung, wenn das Ereignis zur Laufzeit des Scriptes eintrat
+      if (true) {
          try {
             $smsMsg = 'Opened '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice().(($tp=$position->getTakeProfit()) ? "\nTP: $tp":'').(($sl=$position->getStopLoss()) ? ($tp ? '  ':"\n")."SL: $sl":'')."\n\n#".$position->getTicket().'  ('.$position->getOpenTime('H:i:s').')';
+
+            // Warnung, wenn das Ereignis älter als 2 Minuten ist (also verzögert angezeigt wurde)
+            $now=time(); $openTime=MyFX ::fxtStrToTime($position->getOpenTime());
+            if ($now > $openTime+2*MINUTES) $smsMsg = 'WARN: '.$smsMsg.' detected at '.MyFX ::fxtDate($now);
+
             foreach (MyFX ::getSmsSignalReceivers() as $receiver) {
                MyFX ::sendSms($receiver, $signal, $smsMsg);
             }
@@ -454,11 +458,15 @@ class SimpleTrader extends StaticClass {
       catch (Exception $ex) { Logger ::log($ex, L_ERROR, __CLASS__); }
 
 
-      // Benachrichtigung per SMS, wenn das Event nicht älter als 2 Minuten ist
-      $timestamp = MyFX ::fxtStrToTime($position->getCloseTime());
-      if (true || time()<=$timestamp+2*MINUTES) {
+      // SMS-Benachrichtigung, wenn das Ereignis zur Laufzeit des Scriptes eintrat
+      if (true) {
          try {
             $smsMsg = 'Closed '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getClosePrice()."\nOpen: ".$position->getOpenPrice()."\n\n#".$position->getTicket().'  ('.$position->getCloseTime('H:i:s').')';
+
+            // Warnung, wenn das Ereignis älter als 2 Minuten ist (also verzögert angezeigt wurde)
+            $now=time(); $closeTime=MyFX ::fxtStrToTime($position->getCloseTime());
+            if ($now > $closeTime+2*MINUTES) $smsMsg = 'WARN: '.$smsMsg.' detected at '.MyFX ::fxtDate($now);
+
             foreach (MyFX ::getSmsSignalReceivers() as $receiver) {
                MyFX ::sendSms($receiver, $signal, $smsMsg);
             }
