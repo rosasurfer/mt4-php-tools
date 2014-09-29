@@ -45,6 +45,9 @@ class SimpleTrader extends StaticClass {
       $options[CURLOPT_SSL_VERIFYPEER] = false;                // das SSL-Zertifikat von simpletrader.net ist evt. ungültig
 
 
+      // TODO: Bei einem Netzwerkausfall am Server muß das Script weiterlaufen und seine Arbeit bei Rückkehr des Netzwerkes fortsetzen.
+
+
       // (2) HTTP-Request ausführen
       $counter = 0;
       while (true) {
