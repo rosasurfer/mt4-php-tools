@@ -222,8 +222,8 @@ function help($message=null) {
 echo <<<END
  Syntax:  $self [-l] [-f] [signal_name ...]
 
- Options:  -l  Run in a loop and synchronize every 30 seconds.
-           -f  Synchronize local files only, don't go online.
+ Options:  -l  Runs in a loop and synchronizes every 30 seconds.
+           -f  Synchronizes files only, not the database (doesn't go online).
 
 END;
 }
