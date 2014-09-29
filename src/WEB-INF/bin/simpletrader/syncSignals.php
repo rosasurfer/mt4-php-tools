@@ -77,7 +77,7 @@ exit(0);
 /**
  *
  * @param  string $signalAlias  - Signalalias
- * @param  bool   $fileSyncOnly - ob alle Daten oder nur die CSV-Dateien aktualisiert werden sollen
+ * @param  bool   $fileSyncOnly - ob alle Daten oder nur die MT4-Dateien aktualisiert werden sollen
  */
 function processSignal($signalAlias, $fileSyncOnly) {
    if (!is_string($signalAlias)) throw new IllegalTypeException('Illegal type of parameter $signalAlias: '.getType($signalAlias));
