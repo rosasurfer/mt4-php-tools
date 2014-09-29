@@ -46,24 +46,24 @@ class SimpleTrader extends StaticClass {
 
 
       // (2) HTTP-Request ausführen
-      $retryCounter = 0;
+      $counter = 0;
       while (true) {
-         $i       = $retryCounter % 2;                         // bei Neuversuchen abwechselnd beide URL's probieren
+         $i       = $counter % 2;                              // bei Neuversuchen abwechselnd beide URL's probieren
          $url     = str_replace('{signal_ref_id}', $referenceId, self ::$urls[$i]);
          $referer = self ::$referers[$i];
          $request->setUrl($url)->setHeader('Referer', $referer);
 
          try {
+            $counter++;
             $response = CurlHttpClient ::create($options)->send($request);
          }
          catch (IOException $ex) {
             $msg = $ex->getMessage();
-            if (String ::startsWith($msg, 'CURL error CURLE_COULDNT_CONNECT')
-             || String ::startsWith($msg, 'CURL error CURLE_OPERATION_TIMEDOUT')
-             || String ::startsWith($msg, 'CURL error CURLE_GOT_NOTHING')) {
-               Logger ::log($msg."\nretrying...", L_WARN, __CLASS__);
-               if ($retryCounter < 2) {                        // bis zu 3 Versuche, eine Seite zu laden
-                  $retryCounter++;
+            if (String ::startsWith($msg, 'CURL error CURLE_COULDNT_CONNECT'   ) ||
+                String ::startsWith($msg, 'CURL error CURLE_OPERATION_TIMEDOUT') ||
+                String ::startsWith($msg, 'CURL error CURLE_GOT_NOTHING'       )) {
+               if ($counter < 3) {                             // bis zu 3 Versuche, eine URL zu laden
+                  Logger ::log($msg."\nretrying...", L_WARN, __CLASS__);
                   continue;
                }
             }
@@ -75,9 +75,8 @@ class SimpleTrader extends StaticClass {
 
          if (is_null($content)) {                              // Serverfehler, entspricht CURLE_GOT_NOTHING
             $msg = 'Empty reply from server, url: '.$request->getUrl();
-            Logger ::log($msg."\nretrying...", L_WARN, __CLASS__);
-            if ($retryCounter < 2) {
-               $retryCounter++;
+            if ($counter < 3) {
+               Logger ::log($msg."\nretrying...", L_WARN, __CLASS__);
                continue;
             }
             throw new IOException($msg);
