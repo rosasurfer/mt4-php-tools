@@ -127,7 +127,7 @@ class MT4 extends StaticClass {
 
       // (2) Prüfen, ob die Datei existiert
       $alias    = $signal->getAlias();
-      $fileName = $dataDirectory.'/simpletrader/'.$alias.'_open.positions.ini';
+      $fileName = $dataDirectory.'/simpletrader/'.$alias.'_open.ini';
       $isFile   = is_file($fileName);
       //$isFile = false;
 
