@@ -62,9 +62,10 @@ class SimpleTrader extends StaticClass {
          }
          catch (IOException $ex) {
             $msg = $ex->getMessage();
-            if (String ::startsWith($msg, 'CURL error CURLE_COULDNT_CONNECT'   ) ||
-                String ::startsWith($msg, 'CURL error CURLE_OPERATION_TIMEDOUT') ||
-                String ::startsWith($msg, 'CURL error CURLE_GOT_NOTHING'       )) {
+            if (String ::startsWith($msg, 'CURL error CURLE_COULDNT_RESOLVE_HOST') ||
+                String ::startsWith($msg, 'CURL error CURLE_COULDNT_CONNECT'     ) ||
+                String ::startsWith($msg, 'CURL error CURLE_OPERATION_TIMEDOUT'  ) ||
+                String ::startsWith($msg, 'CURL error CURLE_GOT_NOTHING'         )) {
                if ($counter < 3) {                             // bis zu 3 Versuche, eine URL zu laden
                   Logger ::log($msg."\nretrying...", L_WARN, __CLASS__);
                   continue;
