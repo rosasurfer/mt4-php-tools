@@ -1,9 +1,8 @@
 #!/usr/bin/php -Cq
 <?php
 /**
- * Synchronisiert die Daten ein oder mehrerer Signale mit den lokal gespeicherten Daten.  Die lokalen Daten können
- * sich in einer Datenbank oder in einer Textdatei befinden. Bei Datenänderung kann ein MT4-Terminal benachrichtigt
- * und eine Mail oder SMS verschickt werden.
+ * Synchronisiert die Daten ein oder mehrerer Signale mit den lokal gespeicherten Daten (Datenbank und MT4-Datenfiles).
+ * Bei Datenänderung wird eine Mail und eine SMS verschickt.
  *
  *
  *
@@ -11,20 +10,8 @@
 require(dirName(realPath(__FILE__)).'/../config.php');
 
 
-// Länge der Pause zwischen zwei Updates
-$sleepSeconds = 30;
-
-
-// zur Zeit unterstützte Signale
-$signals = array('alexprofit'   => 'AlexProfit',
-                 'caesar2'      => 'Caesar2',
-                 'caesar21'     => 'Caesar2.1',
-                 'dayfox'       => 'DayFox',
-                 'fxviper'      => 'FX Viper',
-                 'goldstar'     => 'GoldStar',
-                 'smartscalper' => 'SmartScalper',
-                 'smarttrader'  => 'SmartTrader',
-                );
+$sleepSeconds      = 30;         // Länge der Pause zwischen zwei Updates
+$signalNamePadding = 16;         // Padding der Anzeige des Signalnamens:  @see function processSignal()
 
 
 // --- Start --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -33,23 +20,24 @@ $signals = array('alexprofit'   => 'AlexProfit',
 // (1) Befehlszeilenargumente einlesen und validieren
 $args = array_slice($_SERVER['argv'], 1);
 
-// (1.1) Options: -l (Looping), -f (FileSyncOnly)
+// (1.1) Optionen
 $looping = $fileSyncOnly = false;
 foreach ($args as $i => $arg) {
    $arg = strToLower($arg);
-   if (in_array($arg, array('-l','/l'))) { $looping     =true; unset($args[$i]); continue; }
-   if (in_array($arg, array('-f','/f'))) { $fileSyncOnly=true; unset($args[$i]); continue; }
+   if (in_array($arg, array('-?','/?','-h','/h','-help','/help'))) exit(1|help());              // Hilfe
+   if (in_array($arg, array('-l','/l'))) { $looping     =true; unset($args[$i]); continue; }    // -l=Looping
+   if (in_array($arg, array('-f','/f'))) { $fileSyncOnly=true; unset($args[$i]); continue; }    // -f=FileSyncOnly
 }
 
 // (1.2) Signalnamen
-!$args && $args=array_keys($signals);                       // ohne konkrete Namen werden alle Signale synchronisiert
 foreach ($args as $i => $arg) {
-   $arg = strToLower($arg);
-   in_array($arg, array('-?','/?','-h','/h','-help','/help')) && exit(1|help());
-   !array_key_exists($arg, $signals)                          && exit(1|help('Unknown signal: '.$args[$i]));
-   $args[$i] = $arg;
+   if ($arg == '*') {                                       // * ist Wildcard für alle Signale
+      $args = array('*');
+      break;
+   }
+   $args[$i] = strToLower($arg);
 }
-$args = array_unique($args);
+$args = $args ? array_unique($args) : array('*');           // ohne angegebene Namen werden alle Signale synchronisiert
 
 
 // (2) Erreichbarkeit der Datenbank prüfen
@@ -63,12 +51,14 @@ catch (Exception $ex) {
 
 // (3) Signale aktualisieren
 while (true) {
-   foreach ($args as $i => $arg) {
+   foreach ($args as $i => $arg)
       processSignal($arg, $fileSyncOnly);
-   }
    if (!$looping) break;
    sleep($sleepSeconds);                                    // vorm nächsten Durchlauf jeweils einige Sek. schlafen
 }
+
+
+// (4) Ende
 exit(0);
 
 
@@ -76,35 +66,44 @@ exit(0);
 
 
 /**
+ * Aktualisiert die Daten eines Signals.
  *
- * @param  string $signalAlias  - Signalalias
+ * @param  string $alias        - Signalalias
  * @param  bool   $fileSyncOnly - ob alle Daten oder nur die MT4-Dateien aktualisiert werden sollen
  */
-function processSignal($signalAlias, $fileSyncOnly) {
-   if (!is_string($signalAlias)) throw new IllegalTypeException('Illegal type of parameter $signalAlias: '.getType($signalAlias));
+function processSignal($alias, $fileSyncOnly) {
+   if (!is_string($alias))      throw new IllegalTypeException('Illegal type of parameter $alias: '.getType($alias));
    if (!is_bool($fileSyncOnly)) throw new IllegalTypeException('Illegal type of parameter $fileSyncOnly: '.getType($fileSyncOnly));
 
-   global $signals;
-   $signalAlias = strToLower($signalAlias);
-   $signalName  = $signals[$signalAlias];
-   echo(str_pad($signalName.' ', 16, '.', STR_PAD_RIGHT).' ');
+
+   // Ist ein Wildcard angegeben, wird die Funktion rekursiv für alle Signale aufgerufen.
+   if ($alias == '*') {
+      $self    = __FUNCTION__;
+      foreach (Signal ::dao()->listAll() as $signal)
+         $self($signal->getAlias(), $fileSyncOnly);
+      return;
+   }
+
+
+   $signal = Signal ::dao()->getByAlias($alias);
+   global $signalNamePadding;
+   echo(str_pad($signal->getName().' ', $signalNamePadding, '.', STR_PAD_RIGHT).' ');
 
    $updates = false;                         // ob beim Synchronisieren Änderungen festgestellt wurden
 
    if (!$fileSyncOnly) {
       // HTML-Seite laden
-      $content = SimpleTrader ::getSignalPage($signalAlias);
+      $content = SimpleTrader ::loadSignalPage($signal);
 
       // HTML-Seite parsen
       $openPositions = $closedPositions = array();
-      SimpleTrader ::parseSignalData($signalAlias, $content, $openPositions, $closedPositions);
+      SimpleTrader ::parseSignalData($signal, $content, $openPositions, $closedPositions);
 
       // Datenbank aktualisieren
-     $updates = updateDatabase($signalAlias, $openPositions, $closedPositions);
+     $updates = updateDatabase($signal, $openPositions, $closedPositions);
    }
 
-   // Daten-Files aktualisieren (Datenbasis für MT4)
-   $signal = Signal ::dao()->getByAlias($signalAlias);
+   // Datenbasis für MT4 aktualisieren
    MT4 ::updateDataFiles($signal, $updates);
 }
 
@@ -112,39 +111,47 @@ function processSignal($signalAlias, $fileSyncOnly) {
 /**
  * Aktualisiert die lokalen offenen und geschlossenen Positionen.
  *
- * @param  string $signalAlias          - Signalalias
+ * @param  Signal $signal               - Signal
  * @param  array  $currentOpenPositions - Array mit aktuell offenen Positionen
  * @param  array  $currentHistory       - Array mit aktuellen Historydaten
  *
  * @return bool - ob Änderungen detektiert wurden oder nicht
  */
-function updateDatabase($signalAlias, array &$currentOpenPositions, array &$currentHistory) {
-   $updates                = false;
-   $unchangedOpenPositions = 0;
+function updateDatabase(Signal $signal, array &$currentOpenPositions, array &$currentHistory) {
+   /*
+   TODO: nur eine SMS je Signal und Update verschicken
+   */
+   $unchangedOpenPositions   = 0;
+   $positionChangeStartTimes = null;             // Beginn der Änderungen der Net-Position
+   $modifications            = null;
 
    $db = OpenPosition ::dao()->getDB();
    $db->begin();
    try {
       // (1) lokalen Stand der offenen Positionen holen
-      $knownOpenPositions = OpenPosition ::dao()->listBySignalAlias($signalAlias, $assocTicket=true);
+      $knownOpenPositions = OpenPosition ::dao()->listBySignal($signal, $assocTicket=true);
 
 
       // (2) offene Positionen abgleichen (sind aufsteigend nach OpenTime+Ticket sortiert)
       foreach ($currentOpenPositions as $i => &$data) {
          $sTicket  = (string)$data['ticket'];
-         $position = null;
 
          if (!isSet($knownOpenPositions[$sTicket])) {
-            !$updates && ($updates=true) && echos("\n");
-            SimpleTrader ::onPositionOpen(OpenPosition ::create($signalAlias, $data)->save());
+            $position = OpenPosition ::create($signal, $data)->save();
+            $symbol   = $position->getSymbol();
+            $openTime = $position->getOpenTime();
+            $positionChangeStartTimes[$symbol] = isSet($positionChangeStartTimes[$symbol]) ? min($openTime, $positionChangeStartTimes[$symbol]) : $openTime;
          }
          else {
-            // auf modifiziertes TP- oder SL-Limit prüfen
+            // auf geänderte Limite prüfen
+            $position = null;
             if ($data['takeprofit'] != ($prevTP=$knownOpenPositions[$sTicket]->getTakeProfit())) $position = $knownOpenPositions[$sTicket]->setTakeProfit($data['takeprofit']);
             if ($data['stoploss'  ] != ($prevSL=$knownOpenPositions[$sTicket]->getStopLoss())  ) $position = $knownOpenPositions[$sTicket]->setStopLoss  ($data['stoploss'  ]);
             if ($position) {
-               !$updates && ($updates=true) && echos("\n");
-               SimpleTrader ::onPositionModify($position->save(), $prevTP, $prevSL);
+               $modifications[$position->save()->getSymbol()][] = array('position' => $position,
+                                                                        'prevTP'   => $prevTP,
+                                                                        'prevSL'   => $prevSL);
+               echoPre(MyFX ::fxtDate().' modified position');
             }
             else $unchangedOpenPositions++;
             unset($knownOpenPositions[$sTicket]);              // geprüfte Position aus Liste löschen
@@ -153,25 +160,25 @@ function updateDatabase($signalAlias, array &$currentOpenPositions, array &$curr
 
 
       // (3) History abgleichen (ist aufsteigend nach CloseTime+OpenTime+Ticket sortiert)
-      $closedPositions   = $knownOpenPositions;                // alle in $knownOpenPositions übrig gebliebenen Positionen müssen geschlossen worden sein
-      $hstSize           = sizeOf($currentHistory);
-      $matchingPositions = $otherClosedPositions = 0;          // nach 3 übereinstimmenden Historyeinträgen wird das Update abgebrochen
-      $openGotClosed     = false;
+      $formerOpenPositions = $knownOpenPositions;              // alle in $knownOpenPositions übrig gebliebenen Positionen müssen geschlossen worden sein
+      $hstSize             = sizeOf($currentHistory);
+      $matchingPositions   = $otherClosedPositions = 0;        // nach 3 übereinstimmenden Historyeinträgen wird das Update abgebrochen
+      $openGotClosed       = false;
 
       for ($i=$hstSize-1; $i >= 0; $i--) {                     // History ist aufsteigend sortiert, wird rückwärts verarbeitet und bricht bei Übereinstimmung
          $data         = $currentHistory[$i];                  // der Daten ab (schnellste Variante)
          $ticket       = $data['ticket'];
          $openPosition = null;
 
-         if ($closedPositions) {
+         if ($formerOpenPositions) {
             $sTicket = (string) $ticket;
-            if (isSet($closedPositions[$sTicket])) {
-               $openPosition = OpenPosition ::dao()->getByTicket($signalAlias, $ticket);
-               unset($closedPositions[$sTicket]);
+            if (isSet($formerOpenPositions[$sTicket])) {
+               $openPosition = OpenPosition ::dao()->getByTicket($signal, $ticket);
+               unset($formerOpenPositions[$sTicket]);
             }
          }
 
-         if (!$openPosition && ClosedPosition ::dao()->isTicket($signalAlias, $ticket)) {
+         if (!$openPosition && ClosedPosition ::dao()->isTicket($signal, $ticket)) {
             $matchingPositions++;
             if ($matchingPositions >= 3)
                break;
@@ -179,25 +186,79 @@ function updateDatabase($signalAlias, array &$currentOpenPositions, array &$curr
          }
 
          // Position in t_closedposition einfügen
-         !$updates && ($updates=true) && echos("\n");
          if ($openPosition) {
             $closedPosition = ClosedPosition ::create($openPosition, $data)->save();
+            $symbol         = $closedPosition->getSymbol();
+            $closeTime      = $closedPosition->getCloseTime();
+            $positionChangeStartTimes[$symbol] = isSet($positionChangeStartTimes[$symbol]) ? min($closeTime, $positionChangeStartTimes[$symbol]) : $closeTime;
             $openPosition->delete();                           // vormals offene Position aus t_openposition löschen
-            SimpleTrader ::onPositionClose($closedPosition);
             $openGotClosed = true;
          }
          else {
-            ClosedPosition ::create($signalAlias, $data)->save();
+            $closedPosition = ClosedPosition ::create($signal, $data)->save();
+            $symbol         = $closedPosition->getSymbol();
+            $closeTime      = $closedPosition->getCloseTime();
+            $positionChangeStartTimes[$symbol] = isSet($positionChangeStartTimes[$symbol]) ? min($closeTime, $positionChangeStartTimes[$symbol]) : $closeTime;
             $otherClosedPositions++;
          }
       }
-      !$updates             && echoPre('no changes'.($unchangedOpenPositions ? ' ('.$unchangedOpenPositions.' open position'.($unchangedOpenPositions==1 ? '':'s').')':''));
-      $otherClosedPositions && echoPre($otherClosedPositions.' '.(!$openGotClosed ? 'new':'other').' closed position'.($otherClosedPositions==1 ? '':'s'));
-
-      if ($closedPositions) throw new plRuntimeException('Found '.sizeOf($closedPositions).' orphaned open position'.(sizeOf($closedPositions)==1 ? '':'s').":\n".printFormatted($closedPositions, true));
 
 
-      // (4) alles speichern
+      // (4) ohne Änderungen
+      if (!$positionChangeStartTimes && !$modifications) {
+         echoPre('no changes'.($unchangedOpenPositions ? ' ('.$unchangedOpenPositions.' open position'.($unchangedOpenPositions==1 ? '':'s').')':''));
+      }
+
+
+      // (5) Formatierter und sortierter Report der Änderungen
+      if ($positionChangeStartTimes) {
+         global $signalNamePadding;
+         $n = 0;
+
+         foreach ($positionChangeStartTimes as $symbol => $startTime) {
+            $n++;
+            $report = ReportHelper ::getNetPositionHistory($signal, $symbol, $startTime);
+            $oldNetPosition     = 'Flat';
+            $oldNetPositionDone = false;
+            $iFirstNewRow       = null;
+
+            foreach ($report as $i => $row) {
+               if      ($row['total' ] > 0) $netPosition  = 'Long   '.number_format( $row['total'], 2);
+               else if ($row['total' ] < 0) $netPosition  = 'Short  '.number_format(-$row['total'], 2);
+               else if ($row['hedged'])     $netPosition  = 'Hedged '.str_repeat(' ', strLen(number_format(abs($report[$i-1]['total']), 2)));
+
+               if      ($row['hedged'])     $netPosition .= ' +-'.number_format($row['hedged'], 2).' lots';
+               else if ($row['total' ])     $netPosition .= ' lots';
+               else                         $netPosition  = '-';
+
+               if ($row['time'] >= $startTime) {
+                  if (!$oldNetPositionDone) {
+                     echoPre(($n==1 ? '':str_pad("\n", $signalNamePadding+2)).'                          was:              '.$oldNetPosition);
+                     $oldNetPositionDone = true;
+                     $iFirstNewRow       = $i;
+                  }
+                  echoPre($row['time'].':  '.str_pad($row['trade'], 5).' '. str_pad(ucFirst($row['type']), 4).' '.number_format($row['lots'], 2).' lots '.$row['symbol'].' @ '.str_pad($row['price'], 8).' '.$netPosition);
+               }
+               else $oldNetPosition = $netPosition;
+            }
+            SimpleTrader ::onPositionChange($signal, $symbol, $report, $iFirstNewRow, $oldNetPosition, $netPosition);
+         }
+         if (isSet($modifications[$symbol])) {
+            echoPre('modify');
+            //SimpleTrader ::onPositionModify($position, $prevTP, $prevSL);
+            unset($modifications[$symbol]);
+         }
+      }
+
+      if ($modifications) {
+         echoPre('modify');
+         //SimpleTrader ::onPositionModify($position, $prevTP, $prevSL);
+      }
+
+
+      if ($formerOpenPositions) throw new plRuntimeException('Found '.sizeOf($formerOpenPositions).' orphaned open position'.(sizeOf($formerOpenPositions)==1 ? '':'s').":\n".printFormatted($formerOpenPositions, true));
+
+      // (6) alles speichern
       $db->commit();
    }
    catch (Exception $ex) {
@@ -205,7 +266,7 @@ function updateDatabase($signalAlias, array &$currentOpenPositions, array &$curr
       throw $ex;
    }
 
-   return $updates;
+   return ($positionChangeStartTimes || $modifications);
 }
 
 

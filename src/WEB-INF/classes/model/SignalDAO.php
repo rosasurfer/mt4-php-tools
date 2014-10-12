@@ -79,5 +79,19 @@ class SignalDAO extends CommonDAO {
          return (int) mysql_result($result['set'], 0);
       return null;
    }
+
+
+   /**
+    * Gibt alle Signale zurück.
+    *
+    * @return Signal[] - Array von Signal-Instanzen
+    */
+   public function listAll() {
+      $sql = "select s.*
+                 from t_signal s
+                 where s.alias != 'alexprofit'     -- bei SimpleTrader gelöscht: http://www.myfxbook.com/members/Alexprofit77/alexprofit/956592
+                 order by s.alias";
+      return $this->getListByQuery($sql);
+   }
 }
 ?>

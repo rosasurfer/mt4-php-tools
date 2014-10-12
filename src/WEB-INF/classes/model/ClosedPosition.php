@@ -49,9 +49,9 @@ class ClosedPosition extends PersistableObject {
       $arg1 = func_get_arg(0);
       $arg2 = func_get_arg(1);
 
-      if ($arg1 instanceof Object)
-         return self::create_1($arg1, $arg2);
-      return self::create_2($arg1, $arg2);
+      if ($arg1 instanceof OpenPosition)
+         return self::create_1($arg1, $arg2);      // (OpenPosition $position, array $data)
+      return self::create_2($arg1, $arg2);         // (Signal $signal, array $data)
    }
 
 
@@ -91,13 +91,13 @@ class ClosedPosition extends PersistableObject {
    /**
     * Erzeugt eine neue geschlossene Position anhand der angegebenen Rohdaten.
     *
-    * @param  string $signalAlias - Alias des Signals der Position
-    * @param  array  $data        - Positionsdaten
+    * @param  Signal $signal - Signal der Position
+    * @param  array  $data   - Positionsdaten
     *
     * @return ClosedPosition
     */
-   private static function create_2($signalAlias, array $data) {
-      if (!is_string($signalAlias)) throw new IllegalTypeException('Illegal type of parameter $signalAlias: '.getType($signalAlias));
+   private static function create_2(Signal $signal, array $data) {
+      if (!$signal->isPersistent()) throw new plInvalidArgumentException('Cannot process '.__CLASS__.' for non-persistent '.get_class($signal));
 
       $position = new self();
 
@@ -116,9 +116,7 @@ class ClosedPosition extends PersistableObject {
       $position->profit      =                $data['profit'     ];
       $position->magicNumber =          isSet($data['magicnumber']) ? $data['magicnumber'] : null;
       $position->comment     =          isSet($data['comment'    ]) ? $data['comment'    ] : null;
-
-      $position->signal_id = Signal ::dao()->getIdByAlias($signalAlias);
-      if (!$position->signal_id) throw new plInvalidArgumentException('Invalid signal alias "'.$signalAlias.'"');
+      $position->signal_id   = $signal->getId();
 
       return $position;
    }

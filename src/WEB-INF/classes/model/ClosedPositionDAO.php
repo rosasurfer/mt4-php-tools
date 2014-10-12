@@ -34,22 +34,21 @@ class ClosedPositionDAO extends CommonDAO {
    /**
     * Ob das angegebene Ticket zum angegebenen Signal existiert.
     *
-    * @param  string $signalAlias - Signalalias
-    * @param  int    $ticket      - zu prüfendes Ticket
+    * @param  Signal $signal - Signal
+    * @param  int    $ticket - zu prüfendes Ticket
     *
     * @return bool
     */
-   public function isTicket($signalAlias, $ticket) {
-      if (!is_string($signalAlias)) throw new IllegalTypeException('Illegal type of parameter $signalAlias: '.getType($signalAlias));
+   public function isTicket($signal, $ticket) {
+      if (!$signal->isPersistent()) throw new plInvalidArgumentException('Cannot process non-persistent '.get_class($signal));
       if (!is_int($ticket))         throw new IllegalTypeException('Illegal type of parameter $ticket: '.getType($ticket));
 
-      $alias = addSlashes($signalAlias);
+      $signal_id = $signal->getId();
 
       $sql = "select 1
-                 from t_signal         s
-                 join t_closedposition c on s.id = c.signal_id
-                 where s.alias = '$alias'
-                    and c.ticket = $ticket";
+                 from t_closedposition c
+                 where c.signal_id = $signal_id
+                   and c.ticket    = $ticket";
       $result = $this->executeSql($sql);
       return (bool) $result['rows'];
    }

@@ -15,14 +15,11 @@ class SimpleTrader extends StaticClass {
     * Lädt die HTML-Seite mit den Tradedaten des angegebenen Signals. Schlägt der Download fehl, wird zwei mal still versucht,
     * die Seite von beiden alternativen URL's zu laden, bevor der Download ganz abbricht.
     *
-    * @param  string $signalAlias - Signalalias
+    * @param  Signal $signal
     *
     * @return string - Inhalt der HTML-Seite
     */
-   public static function getSignalPage($signalAlias) {
-      if (!is_string($signalAlias)) throw new IllegalTypeException('Illegal type of parameter $signalAlias: '.getType($signalAlias));
-
-      $signal      = Signal ::dao()->getByAlias($signalAlias);
+   public static function loadSignalPage(Signal $signal) {
       $referenceId = $signal->getReferenceID();
 
 
@@ -93,14 +90,15 @@ class SimpleTrader extends StaticClass {
    /**
     * Parst eine simpletrader.net HTML-Seite mit Signaldaten.
     *
-    * @param  string $signal     - Signalalias
+    * @param  Signal $signal     - Signal
     * @param  string $html       - Inhalt der HTML-Seite
     * @param  array  $openTrades - Array zur Aufnahme der offenen Positionen
     * @param  array  $history    - Array zur Aufnahme der Signalhistory
     */
-   public static function parseSignalData($signal, &$html, array &$openTrades, array &$history) {
-      if (!is_string($signal)) throw new IllegalTypeException('Illegal type of parameter $signal: '.getType($signal));
-      if (!is_string($html))   throw new IllegalTypeException('Illegal type of parameter $html: '.getType($html));
+   public static function parseSignalData(Signal $signal, &$html, array &$openTrades, array &$history) {
+      if (!is_string($html)) throw new IllegalTypeException('Illegal type of parameter $html: '.getType($html));
+
+      $signalAlias = $signal->getAlias();
 
       // HTML-Entities konvertieren
       $html = str_replace('&nbsp;', ' ', $html);
@@ -250,13 +248,13 @@ class SimpleTrader extends StaticClass {
                if ($row['opentime'] > $time) {
                   // bekannte Fehler selbständig fixen
                   $sTicket = trim($row[I_STH_COMMENT]);
-                  if      ($signal=='smarttrader' && $sTicket=='1175928') $row['opentime'] = $time;
-                  else if ($signal=='caesar21'    && $sTicket=='1897240') $row['opentime'] = $time;
-                  else if ($signal=='caesar21'    && $sTicket=='1803494') $row['opentime'] = $time;
-                  else if ($signal=='caesar21'    && $sTicket=='1803493') $row['opentime'] = $time;
-                  else if ($signal=='caesar21'    && $sTicket=='1680703') $row['opentime'] = $time;
-                  else if ($signal=='caesar21'    && $sTicket=='1617317') $row['opentime'] = $time;
-                  else if ($signal=='caesar21'    && $sTicket=='1602520') $row['opentime'] = $time;
+                  if      ($signalAlias=='smarttrader' && $sTicket=='1175928') $row['opentime'] = $time;
+                  else if ($signalAlias=='caesar21'    && $sTicket=='1897240') $row['opentime'] = $time;
+                  else if ($signalAlias=='caesar21'    && $sTicket=='1803494') $row['opentime'] = $time;
+                  else if ($signalAlias=='caesar21'    && $sTicket=='1803493') $row['opentime'] = $time;
+                  else if ($signalAlias=='caesar21'    && $sTicket=='1680703') $row['opentime'] = $time;
+                  else if ($signalAlias=='caesar21'    && $sTicket=='1617317') $row['opentime'] = $time;
+                  else if ($signalAlias=='caesar21'    && $sTicket=='1602520') $row['opentime'] = $time;
                   else throw new plRuntimeException('Invalid Open-/CloseTime pair found in history #'.$sTicket.': '.$sOpenTime.'" / "'.$sCloseTime.'"');
                }
                $row['closetime'] = $time;
@@ -353,7 +351,7 @@ class SimpleTrader extends StaticClass {
 
 
    /**
-    * Handler für PositionOpen-Events eines SimpleTrade-Signals.
+    * Handler für PositionOpen-Events eines SimpleTrader-Signals.
     *
     * @param  OpenPosition $position - die geöffnete Position
     */
@@ -385,7 +383,7 @@ class SimpleTrader extends StaticClass {
             if (($now=time()) > $openTime+2*MINUTES) $smsMsg = 'WARN: '.$smsMsg.' detected at '.MyFX ::fxtDate($now);
 
             foreach (MyFX ::getSmsSignalReceivers() as $receiver) {
-               MyFX ::sendSms($receiver, $signal, $smsMsg);
+               MyFX ::sendSms($receiver, $smsMsg);
             }
          }
          catch (Exception $ex) { Logger ::log($ex, L_ERROR, __CLASS__); }
@@ -394,7 +392,7 @@ class SimpleTrader extends StaticClass {
 
 
    /**
-    * Handler für PositionModify-Events eines SimpleTrade-Signals.
+    * Handler für PositionModify-Events eines SimpleTrader-Signals.
     *
     * @param  OpenPosition $position - die modifizierte Position (nach der Änderung)
     * @param  float        $prevTP   - der vorherige TakeProfit-Wert
@@ -431,7 +429,7 @@ class SimpleTrader extends StaticClass {
          try {
             $smsMsg = 'Modified '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().($tpMsg ? "\n".trim($tpMsg):'').($slMsg ? "\n".trim($slMsg):'')."\n\n#".$position->getTicket().'  ('.MyFX ::fxtDate(time(), 'H:i:s').')';
             foreach (MyFX ::getSmsSignalReceivers() as $receiver) {
-               MyFX ::sendSms($receiver, $signal, $smsMsg);
+               MyFX ::sendSms($receiver, $smsMsg);
             }
          }
          catch (Exception $ex) { Logger ::log($ex, L_ERROR, __CLASS__); }
@@ -440,7 +438,7 @@ class SimpleTrader extends StaticClass {
 
 
    /**
-    * Handler für PositionClose-Events eines SimpleTrade-Signals.
+    * Handler für PositionClose-Events eines SimpleTrader-Signals.
     *
     * @param  ClosedPosition $position - die geschlossene Position
     */
@@ -472,7 +470,58 @@ class SimpleTrader extends StaticClass {
             if (($now=time()) > $closeTime+2*MINUTES) $smsMsg = 'WARN: '.$smsMsg.' detected at '.MyFX ::fxtDate($now);
 
             foreach (MyFX ::getSmsSignalReceivers() as $receiver) {
-               MyFX ::sendSms($receiver, $signal, $smsMsg);
+               MyFX ::sendSms($receiver, $smsMsg);
+            }
+         }
+         catch (Exception $ex) { Logger ::log($ex, L_ERROR, __CLASS__); }
+      }
+   }
+
+
+   /**
+    * Handler für PositionChange-Events eines SimpleTrader-Signals.
+    */
+   public static function onPositionChange(Signal $signal, $symbol, array $report, $iFirstNewRow, $oldNetPosition, $newNetPosition) {
+      if (!$signal->isPersistent())    throw new plInvalidArgumentException('Cannot process non-persistent '.get_class($signal));
+      if (!is_string($symbol))         throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
+      if (!strLen($symbol))            throw new plInvalidArgumentException('Invalid argument $symbol: '.$symbol);
+      if (!is_int($iFirstNewRow))      throw new IllegalTypeException('Illegal type of parameter $iFirstNewRow: '.getType($iFirstNewRow));
+      if ($iFirstNewRow < 0)           throw new plInvalidArgumentException('Invalid argument $iFirstNewRow: '.$iFirstNewRow);
+      $rows = sizeOf($report);
+      if ($iFirstNewRow >= $rows)      throw new plInvalidArgumentException('Invalid argument $iFirstNewRow: '.$iFirstNewRow);
+      $i = $iFirstNewRow;
+      if (!is_string($oldNetPosition)) throw new IllegalTypeException('Illegal type of parameter $oldNetPosition: '.getType($oldNetPosition));
+      if (!strLen($oldNetPosition))    throw new plInvalidArgumentException('Invalid argument $oldNetPosition: '.$oldNetPosition);
+      if (!is_string($newNetPosition)) throw new IllegalTypeException('Illegal type of parameter $newNetPosition: '.getType($newNetPosition));
+      if (!strLen($newNetPosition))    throw new plInvalidArgumentException('Invalid argument $newNetPosition: '.$newNetPosition);
+
+      $msg = $signal->getName().': ';
+      if ($i < $rows-1) $msg .= ($rows-$i).' trades in '.$symbol;
+      else              $msg .= $report[$i]['trade'].' '.ucFirst($report[$i]['type']).' '.number_format($report[$i]['lots'], 2).' lots '.$symbol.' @ '.$report[$i]['price'];
+         $subject = $msg;
+      $msg .= "\nwas: ".str_replace('  ', ' ', $oldNetPosition);
+      $msg .= "\nis:  ".($newNetPosition=='-' ? 'Flat':str_replace('  ', ' ', $newNetPosition));
+         $lastTradeTime = MyFX ::fxtStrToTime($report[$rows-1]['time']);
+      $msg .= "\n".MyFX ::fxtDate($lastTradeTime, 'd.m.Y H:i:s');
+
+
+      // Benachrichtigung per E-Mail
+      try {
+         foreach (MyFX ::getMailSignalReceivers() as $receiver) {
+            mail($receiver, $subject, $msg);
+         }
+      }
+      catch (Exception $ex) { Logger ::log($ex, L_ERROR, __CLASS__); }
+
+
+      // Benachrichtigung per SMS, wenn das Event zur Laufzeit des Scriptes eintrat
+      if ($lastTradeTime >= $_SERVER['REQUEST_TIME']) {
+         try {
+            // Warnung, wenn der letzte Trade älter als 2 Minuten ist (von SimpleTrader also verzögert publiziert wurde)
+            if (($now=time()) > $lastTradeTime+2*MINUTES) $msg = 'WARN: '.$msg.', detected at '.MyFX ::fxtDate($now, 'd.m.Y H:i:s');
+
+            foreach (MyFX ::getSmsSignalReceivers() as $receiver) {
+               MyFX ::sendSms($receiver, $msg);
             }
          }
          catch (Exception $ex) { Logger ::log($ex, L_ERROR, __CLASS__); }

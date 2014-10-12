@@ -74,22 +74,21 @@ class OpenPositionDAO extends CommonDAO {
    /**
     * Gibt zu einem angegebenen Ticket die offene Position zurück.
     *
-    * @param  string $signalAlias - Signalalias
-    * @param  int    $ticket      - Ticket
+    * @param  Signal $signal - Signal
+    * @param  int    $ticket - Ticket
     *
     * @return OpenPosition instance
     */
-   public function getByTicket($signalAlias, $ticket) {
-      if (!is_string($signalAlias)) throw new IllegalTypeException('Illegal type of parameter $signalAlias: '.getType($signalAlias));
+   public function getByTicket(Signal $signal, $ticket) {
+      if (!$signal->isPersistent()) throw new plInvalidArgumentException('Cannot process non-persistent '.get_class($signal));
       if (!is_int($ticket))         throw new IllegalTypeException('Illegal type of parameter $ticket: '.getType($ticket));
 
-      $alias = addSlashes($signalAlias);
+      $signal_id = $signal->getId();
 
-      $sql = "select o.*
-                 from t_signal       s
-                 join t_openposition o on s.id = o.signal_id
-                 where s.alias = '$alias'
-                    and o.ticket = $ticket";
+      $sql = "select *
+                 from t_openposition o
+                 where o.signal_id = $signal_id
+                   and o.ticket    = $ticket";
       return $this->getByQuery($sql);
    }
 }

@@ -38,13 +38,13 @@ class OpenPosition extends PersistableObject {
    /**
     * Erzeugt eine neue offene Position mit den angegebenen Daten.
     *
-    * @param  string $signalAlias - Alias des Signals der Position
-    * @param  array  $data        - Positionsdaten
+    * @param  Signal $signal - Signal, zu dem die Position gehört
+    * @param  array  $data   - Positionsdaten
     *
     * @return OpenPosition
     */
-   public static function create($signalAlias, array $data) {
-      if (!is_string($signalAlias)) throw new IllegalTypeException('Illegal type of parameter $signalAlias: '.getType($signalAlias));
+   public static function create(Signal $signal, array $data) {
+      if (!$signal->isPersistent()) throw new plInvalidArgumentException('Cannot process '.__CLASS__.' for non-persistent '.get_class($signal));
 
       $position = new self();
 
@@ -60,9 +60,7 @@ class OpenPosition extends PersistableObject {
       $position->swap        =                $data['swap'       ];
       $position->magicNumber =          isSet($data['magicnumber']) ? $data['magicnumber'] : null;
       $position->comment     =          isSet($data['comment'    ]) ? $data['comment'    ] : null;
-
-      $position->signal_id = Signal ::dao()->getIdByAlias($signalAlias);
-      if (!$position->signal_id) throw new plInvalidArgumentException('Invalid signal alias "'.$signalAlias.'"');
+      $position->signal_id   = $signal->getId();
 
       return $position;
    }
@@ -88,7 +86,6 @@ class OpenPosition extends PersistableObject {
    public function getOpenTime($format='Y-m-d H:i:s') {
       if ($format == 'Y-m-d H:i:s')
          return $this->openTime;
-
       return formatDate($format, $this->openTime);
    }
 
@@ -104,7 +101,6 @@ class OpenPosition extends PersistableObject {
    public function getCommission($decimals=2, $separator='.') {
       if (func_num_args() == 0)
          return $this->commission;
-
       return formatMoney($this->commission, $decimals, $separator);
    }
 
@@ -120,7 +116,6 @@ class OpenPosition extends PersistableObject {
    public function getSwap($decimals=2, $separator='.') {
       if (func_num_args() == 0)
          return $this->swap;
-
       return formatMoney($this->swap, $decimals, $separator);
    }
 

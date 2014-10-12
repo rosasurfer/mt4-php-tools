@@ -60,13 +60,14 @@ class MyFX extends StaticClass {
    /**
     * Formatiert einen Timestamp als FXT-Zeit.
     *
-    * @param  int    $timestamp - Zeitpunkt
+    * @param  int    $timestamp - Zeitpunkt (default: aktuelle Zeit)
     * @param  string $format    - date()-Formatstring (default: 'Y-m-d H:i:s')
     *
     * @return string - FXT-String
     */
-   public static function fxtDate($timestamp, $format='Y-m-d H:i:s') {
-      if (!is_int($timestamp)) throw new IllegalTypeException('Illegal type of parameter $timestamp: '.getType($timestamp));
+   public static function fxtDate($timestamp=null, $format='Y-m-d H:i:s') {
+      if (!is_int($timestamp) && !is_null($timestamp)) throw new IllegalTypeException('Illegal type of parameter $timestamp: '.getType($timestamp));
+      is_null($timestamp) && $timestamp=time();
       if (!is_string($format)) throw new IllegalTypeException('Illegal type of parameter $format: '.getType($format));
 
       $oldTimezone = date_default_timezone_get();
@@ -125,13 +126,12 @@ class MyFX extends StaticClass {
 
 
    /**
-    * Verschickt eine vom angegebenen Signal ausgelöste SMS.
+    * Verschickt eine SMS.
     *
     * @param  string $receiver - Empfänger (internationales Format)
-    * @param  Signal $signal   - Signal, das die SMS auslöste
     * @param  string $message  - Nachricht
     */
-   public static function sendSMS($receiver, Signal $signal, $message) {
+   public static function sendSMS($receiver, $message) {
       if (!is_string($receiver))   throw new IllegalTypeException('Illegal type of parameter $receiver: '.getType($receiver));
       $receiver = trim($receiver);
       if (String ::startsWith($receiver, '+' )) $receiver = subStr($receiver, 1);
@@ -147,7 +147,7 @@ class MyFX extends StaticClass {
       $username = $config['username'];
       $password = $config['password'];
       $api_id   = $config['api_id'  ];
-      $message  = urlEncode($signal->getName().': '.$message);
+      $message  = urlEncode($message);
       $url = 'https://api.clickatell.com/http/sendmsg?user='.$username.'&password='.$password.'&api_id='.$api_id.'&to='.$receiver.'&text='.$message;
 
       // HTTP-Request erzeugen und ausführen

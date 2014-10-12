@@ -15,6 +15,7 @@ $__classes['LZMA'                              ] = $dir.'helper/LZMA';
 $__classes['ImportHelper'                      ] = $dir.'helper/ImportHelper';
 $__classes['MT4'                               ] = $dir.'helper/MT4';
 $__classes['MyFX'                              ] = $dir.'helper/MyFX';
+$__classes['ReportHelper'                      ] = $dir.'helper/ReportHelper';
 $__classes['SimpleTrader'                      ] = $dir.'helper/SimpleTrader';
 $__classes['Validator'                         ] = $dir.'helper/Validator';
 $__classes['ViewHelper'                        ] = $dir.'helper/ViewHelper';
