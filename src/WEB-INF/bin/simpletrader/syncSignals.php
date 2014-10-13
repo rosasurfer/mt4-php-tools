@@ -237,7 +237,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, array &$cu
 
                if      ($row['hedged'])     $netPosition .= ' +-'.number_format($row['hedged'], 2).' lots';
                else if ($row['total' ])     $netPosition .= ' lots';
-               else                         $netPosition  = '-';
+               else                         $netPosition  = 'Flat';
 
                if ($row['time'] >= $startTime) {
                   if (!$oldNetPositionDone) {
