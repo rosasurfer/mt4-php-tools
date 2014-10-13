@@ -84,12 +84,11 @@ function processSignal($alias, $fileSyncOnly) {
       return;
    }
 
+   static $updates = false;                     // ob beim letzten Aufruf Änderungen eines Signals festgestellt wurden
 
    $signal = Signal ::dao()->getByAlias($alias);
    global $signalNamePadding;
-   echo(str_pad($signal->getName().' ', $signalNamePadding, '.', STR_PAD_RIGHT).' ');
-
-   $updates = false;                         // ob beim Synchronisieren Änderungen festgestellt wurden
+   echo(($updates ? "\n":'').str_pad($signal->getName().' ', $signalNamePadding, '.', STR_PAD_RIGHT).' ');
 
    if (!$fileSyncOnly) {
       // HTML-Seite laden
@@ -101,6 +100,9 @@ function processSignal($alias, $fileSyncOnly) {
 
       // Datenbank aktualisieren
      $updates = updateDatabase($signal, $openPositions, $closedPositions);
+   }
+   else {
+     $updates = false;
    }
 
    // Datenbasis für MT4 aktualisieren
