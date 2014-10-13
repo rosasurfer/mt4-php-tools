@@ -403,22 +403,22 @@ class SimpleTrader extends StaticClass {
       if (!is_null($prevSL) && !is_float($prevSL)) throw new IllegalTypeException('Illegal type of parameter $prevSL: '.getType($prevSL));
 
       $modification = $tpMsg = $slMsg = null;
-      if (($current=$position->getTakeprofit()) != $prevTP) $modification .= ($tpMsg='  TakeProfit: '.($prevTP ? $prevTP:'-').' => '.($current ? $current:'-'));
-      if (($current=$position->getStopLoss())   != $prevSL) $modification .= ($slMsg='  StopLoss: '  .($prevSL ? $prevSL:'-').' => '.($current ? $current:'-'));
+      if (($current=$position->getTakeprofit()) != $prevTP) $modification .= ($tpMsg=' TP: '.($prevTP ? $prevTP.' => ':'').($current ? $current:'-'));
+      if (($current=$position->getStopLoss())   != $prevSL) $modification .= ($slMsg=' SL: '.($prevSL ? $prevSL.' => ':'').($current ? $current:'-'));
       if (!$modification) throw new plRuntimeException('No modification found in OpenPosition '.$position);
 
       $signal = $position->getSignal();
 
       // Ausgabe in Console
-      $consoleMsg = $signal->getName().' modified '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice().$modification;
-      echoPre($consoleMsg);
+      $msg = str_pad(ucFirst($position->getType()), 4).' '.number_format($position->getLots(), 2).' lots '.$position->getSymbol().' @ '.str_pad($position->getOpenPrice(), 8);
+      echoPre(MyFX::fxtDate(time()).':  modify '.$msg.$modification);
 
 
       // Benachrichtigung per E-Mail
+      $mailMsg = $signal->getName().': modify '.$msg.$modification;
       try {
-         $mailMsg = $signal->getName().' Modify '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().$modification;
          foreach (MyFX ::getMailSignalReceivers() as $receiver) {
-            mail($receiver, $subject=$mailMsg, $msg=$mailMsg);
+            mail($receiver, $subject=$mailMsg, $mailMsg);
          }
       }
       catch (Exception $ex) { Logger ::log($ex, L_ERROR, __CLASS__); }
@@ -427,7 +427,7 @@ class SimpleTrader extends StaticClass {
       // Benachrichtigung per SMS
       if (false) {                                       // für Limitänderungen vorerst deaktiviert
          try {
-            $smsMsg = 'Modified '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().($tpMsg ? "\n".trim($tpMsg):'').($slMsg ? "\n".trim($slMsg):'')."\n\n#".$position->getTicket().'  ('.MyFX ::fxtDate(time(), 'H:i:s').')';
+            $smsMsg = $signal->getName().': modified '.str_replace('  ', ' ', $msg)."\n".$modification."\n".MyFX ::fxtDate(time(), '(H:i:s)');
             foreach (MyFX ::getSmsSignalReceivers() as $receiver) {
                MyFX ::sendSms($receiver, $smsMsg);
             }

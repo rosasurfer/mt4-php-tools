@@ -242,25 +242,28 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, array &$cu
 
                if ($row['time'] >= $startTime) {
                   if (!$oldNetPositionDone) {
-                     echoPre(($n==1 ? '':str_pad("\n", $signalNamePadding+2)).'                          was:              '.$oldNetPosition);
+                     echoPre(($n==1 ? '':str_pad("\n", $signalNamePadding+2)).'                                        was  '.$oldNetPosition);
                      $oldNetPositionDone = true;
                      $iFirstNewRow       = $i;
                   }
-                  echoPre($row['time'].':  '.str_pad($row['trade'], 5).' '. str_pad(ucFirst($row['type']), 4).' '.number_format($row['lots'], 2).' lots '.$row['symbol'].' @ '.str_pad($row['price'], 8).' '.$netPosition);
+                  echoPre($row['time'].':  '.str_pad($row['trade'], 6).' '. str_pad(ucFirst($row['type']), 4).' '.number_format($row['lots'], 2).' lots '.$row['symbol'].' @ '.str_pad($row['price'], 8).' '.$netPosition);
                }
                else $oldNetPosition = $netPosition;
             }
             SimpleTrader ::onPositionChange($signal, $symbol, $report, $iFirstNewRow, $oldNetPosition, $netPosition);
          }
          if (isSet($modifications[$symbol])) {
-            echoPre('modify 1');
-            //SimpleTrader ::onPositionModify($position, $prevTP, $prevSL);
+            foreach ($modifications[$symbol] as $modification)
+               SimpleTrader ::onPositionModify($modification['position'], $modification['prevTP'], $modification['prevSL']);
             unset($modifications[$symbol]);
          }
       }
       if ($modifications) {
-         echoPre('modify 2');
-         //SimpleTrader ::onPositionModify($position, $prevTP, $prevSL);
+         foreach ($modifications as $modsPerSymbol) {
+            foreach ($modsPerSymbol as $modification) {
+               SimpleTrader ::onPositionModify($modification['position'], $modification['prevTP'], $modification['prevSL']);
+            }
+         }
       }
 
 
