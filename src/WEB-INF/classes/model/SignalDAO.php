@@ -82,6 +82,41 @@ class SignalDAO extends CommonDAO {
 
 
    /**
+    * Gibt den Zeitpunkt der letzten bekannten Änderung der Net-Position eines Symbols zurück.
+    *
+    * @param  Signal $signal - Signal
+    * @param  string $symbol - Symbol
+    *
+    * @return string - Zeitpunkt
+    */
+   public function getLastKnownPositionChangeTime(Signal $signal, $symbol) {
+      if (!$signal->isPersistent()) throw new plInvalidArgumentException('Cannot process non-persistent '.get_class($signal));
+      if (!is_string($symbol))      throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
+      if (!strLen($symbol))         throw new plInvalidArgumentException('Invalid argument $symbol: '.$symbol);
+
+      $signal_id = $signal->getId();
+      $symbol    = addSlashes($symbol);
+
+      $sql = "select max(time)
+                 from (select max(o.opentime) as 'time'
+                         from t_openposition o
+                         where o.signal_id = $signal_id
+                           and o.symbol    = '$symbol'
+                       union all
+                       select max(c.closetime)
+                         from t_closedposition c
+                         where c.signal_id = $signal_id
+                           and c.symbol    = '$symbol'
+                 ) as r";
+      $result = $this->executeSql($sql);
+
+      if ($result['rows'])
+         return mysql_result($result['set'], 0);
+      return null;
+   }
+
+
+   /**
     * Gibt alle Signale zurück.
     *
     * @return Signal[] - Array von Signal-Instanzen

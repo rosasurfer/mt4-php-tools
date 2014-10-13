@@ -37,6 +37,8 @@ class OpenPositionDAO extends CommonDAO {
     * @return OpenPosition[] - Array von OpenPosition-Instanzen, aufsteigend sortiert nach {OpenTime,Ticket}
     */
    public function listBySignal(Signal $signal, $assocTicket=false) {
+      if (!$signal->isPersistent()) throw new plInvalidArgumentException('Cannot process non-persistent '.get_class($signal));
+
       return $this->listBySignalAlias($signal->getAlias(), $assocTicket);
    }
 

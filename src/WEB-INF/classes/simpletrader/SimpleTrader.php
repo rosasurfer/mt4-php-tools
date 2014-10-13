@@ -495,14 +495,16 @@ class SimpleTrader extends StaticClass {
       if (!is_string($newNetPosition)) throw new IllegalTypeException('Illegal type of parameter $newNetPosition: '.getType($newNetPosition));
       if (!strLen($newNetPosition))    throw new plInvalidArgumentException('Invalid argument $newNetPosition: '.$newNetPosition);
 
+      $lastTradeTime      = $report[$rows-1]['time'];
+      $lastTradeTimestamp = MyFX ::fxtStrToTime($lastTradeTime);
+
       $msg = $signal->getName().': ';
       if ($i < $rows-1) $msg .= ($rows-$i).' trades in '.$symbol;
       else              $msg .= $report[$i]['trade'].' '.ucFirst($report[$i]['type']).' '.number_format($report[$i]['lots'], 2).' lots '.$symbol.' @ '.$report[$i]['price'];
          $subject = $msg;
       $msg .= "\nwas: ".str_replace('  ', ' ', $oldNetPosition);
       $msg .= "\nis:  ".($newNetPosition=='-' ? 'Flat':str_replace('  ', ' ', $newNetPosition));
-         $lastTradeTime = MyFX ::fxtStrToTime($report[$rows-1]['time']);
-      $msg .= "\n".MyFX ::fxtDate($lastTradeTime, 'd.m.Y H:i:s');
+      $msg .= "\n".$lastTradeTime;
 
 
       // Benachrichtigung per E-Mail
@@ -515,10 +517,10 @@ class SimpleTrader extends StaticClass {
 
 
       // Benachrichtigung per SMS, wenn das Event zur Laufzeit des Scriptes eintrat
-      if ($lastTradeTime >= $_SERVER['REQUEST_TIME']) {
+      if ($lastTradeTimestamp >= $_SERVER['REQUEST_TIME']) {
          try {
             // Warnung, wenn der letzte Trade älter als 2 Minuten ist (von SimpleTrader also verzögert publiziert wurde)
-            if (($now=time()) > $lastTradeTime+2*MINUTES) $msg = 'WARN: '.$msg.', detected at '.MyFX ::fxtDate($now, 'd.m.Y H:i:s');
+            if (($now=time()) > $lastTradeTimestamp+2*MINUTES) $msg = 'WARN: '.$msg.', detected at '.MyFX ::fxtDate($now);
 
             foreach (MyFX ::getSmsSignalReceivers() as $receiver) {
                MyFX ::sendSms($receiver, $msg);

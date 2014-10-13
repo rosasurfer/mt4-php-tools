@@ -109,7 +109,8 @@ function processSignal($alias, $fileSyncOnly) {
 
 
 /**
- * Aktualisiert die lokalen offenen und geschlossenen Positionen.
+ * Aktualisiert die lokalen offenen und geschlossenen Positionen. Partielle Closes lassen sich nicht vollständig erkennen
+ * und werden daher wie reguläre Positionen behandelt und gespeichert.
  *
  * @param  Signal $signal               - Signal
  * @param  array  $currentOpenPositions - Array mit aktuell offenen Positionen
@@ -118,11 +119,9 @@ function processSignal($alias, $fileSyncOnly) {
  * @return bool - ob Änderungen detektiert wurden oder nicht
  */
 function updateDatabase(Signal $signal, array &$currentOpenPositions, array &$currentHistory) {
-   /*
-   TODO: nur eine SMS je Signal und Update verschicken
-   */
    $unchangedOpenPositions   = 0;
-   $positionChangeStartTimes = null;             // Beginn der Änderungen der Net-Position
+   $positionChangeStartTimes = null;               // Beginn der Änderungen der Net-Position
+   $lastKnownChangeTimes     = null;
    $modifications            = null;
 
    $db = OpenPosition ::dao()->getDB();
@@ -132,11 +131,14 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, array &$cu
       $knownOpenPositions = OpenPosition ::dao()->listBySignal($signal, $assocTicket=true);
 
 
-      // (2) offene Positionen abgleichen (sind aufsteigend nach OpenTime+Ticket sortiert)
+      // (2) offene Positionen (sortiert nach OpenTime+Ticket) abgleichen
       foreach ($currentOpenPositions as $i => &$data) {
          $sTicket  = (string)$data['ticket'];
 
          if (!isSet($knownOpenPositions[$sTicket])) {
+            if (!isSet($positionChangeStartTimes[$data['symbol']]))
+               $lastKnownChangeTimes[$data['symbol']] = Signal ::dao()->getLastKnownPositionChangeTime($signal, $data['symbol']);
+
             $position = OpenPosition ::create($signal, $data)->save();
             $symbol   = $position->getSymbol();
             $openTime = $position->getOpenTime();
@@ -159,14 +161,14 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, array &$cu
       }
 
 
-      // (3) History abgleichen (ist aufsteigend nach CloseTime+OpenTime+Ticket sortiert)
+      // (3) History abgleichen (ist sortiert nach CloseTime+OpenTime+Ticket)
       $formerOpenPositions = $knownOpenPositions;              // alle in $knownOpenPositions übrig gebliebenen Positionen müssen geschlossen worden sein
       $hstSize             = sizeOf($currentHistory);
-      $matchingPositions   = $otherClosedPositions = 0;        // nach 3 übereinstimmenden Historyeinträgen wird das Update abgebrochen
+      $matchingPositions   = $otherClosedPositions = 0;
       $openGotClosed       = false;
 
-      for ($i=$hstSize-1; $i >= 0; $i--) {                     // History ist aufsteigend sortiert, wird rückwärts verarbeitet und bricht bei Übereinstimmung
-         $data         = $currentHistory[$i];                  // der Daten ab (schnellste Variante)
+      for ($i=$hstSize-1; $i >= 0; $i--) {                     // Die aufsteigende History wird rückwärts verarbeitet (schnellste Variante).
+         $data         = $currentHistory[$i];
          $ticket       = $data['ticket'];
          $openPosition = null;
 
@@ -180,10 +182,13 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, array &$cu
 
          if (!$openPosition && ClosedPosition ::dao()->isTicket($signal, $ticket)) {
             $matchingPositions++;
-            if ($matchingPositions >= 3)
+            if ($matchingPositions >= 3)                       // Nach Übereinstimmung von 3 Datensätzen wird abgebrochen.
                break;
             continue;
          }
+
+         if (!isSet($positionChangeStartTimes[$data['symbol']]))
+            $lastKnownChangeTimes[$data['symbol']] = Signal ::dao()->getLastKnownPositionChangeTime($signal, $data['symbol']);
 
          // Position in t_closedposition einfügen
          if ($openPosition) {
@@ -217,6 +222,9 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, array &$cu
 
          foreach ($positionChangeStartTimes as $symbol => $startTime) {
             $n++;
+            if ($startTime < $lastKnownChangeTimes[$symbol])
+               $startTime = MyFX ::fxtDate(MyFX ::fxtStrToTime($lastKnownChangeTimes[$symbol]) + 1);
+
             $report = ReportHelper ::getNetPositionHistory($signal, $symbol, $startTime);
             $oldNetPosition     = 'Flat';
             $oldNetPositionDone = false;
