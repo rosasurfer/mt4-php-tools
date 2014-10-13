@@ -155,7 +155,6 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, array &$cu
                $modifications[$position->save()->getSymbol()][] = array('position' => $position,
                                                                         'prevTP'   => $prevTP,
                                                                         'prevSL'   => $prevSL);
-               echoPre(MyFX ::fxtDate().' modified position');
             }
             else $unchangedOpenPositions++;
             unset($knownOpenPositions[$sTicket]);              // geprüfte Position aus Liste löschen
