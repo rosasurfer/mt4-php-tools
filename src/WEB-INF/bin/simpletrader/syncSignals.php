@@ -253,14 +253,13 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, array &$cu
             SimpleTrader ::onPositionChange($signal, $symbol, $report, $iFirstNewRow, $oldNetPosition, $netPosition);
          }
          if (isSet($modifications[$symbol])) {
-            echoPre('modify');
+            echoPre('modify 1');
             //SimpleTrader ::onPositionModify($position, $prevTP, $prevSL);
             unset($modifications[$symbol]);
          }
       }
-
       if ($modifications) {
-         echoPre('modify');
+         echoPre('modify 2');
          //SimpleTrader ::onPositionModify($position, $prevTP, $prevSL);
       }
 
