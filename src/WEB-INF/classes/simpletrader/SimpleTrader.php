@@ -503,7 +503,7 @@ class SimpleTrader extends StaticClass {
          $subject = $msg;
       $msg .= "\nwas: ".str_replace('  ', ' ', $oldNetPosition);
       $msg .= "\nis:  ".str_replace('  ', ' ', $newNetPosition);
-      $msg .= "\n".MyFX ::fxtDate($lastTradeTime, 'H:i:s');
+      $msg .= "\n".MyFX ::fxtDate($lastTradeTime, '(H:i:s)');
 
 
       // Benachrichtigung per E-Mail
