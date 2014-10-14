@@ -242,11 +242,12 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, array &$cu
 
                if ($row['time'] >= $startTime) {
                   if (!$oldNetPositionDone) {
-                     echoPre(($n==1 ? '':str_pad("\n", $signalNamePadding+2)).'                                        was  '.$oldNetPosition);
-                     $oldNetPositionDone = true;
                      $iFirstNewRow       = $i;
+                     if (sizeOf($report) == $iFirstNewRow+1) echoPre("\n");      // keine Anzeige von $oldNetPosition bei nur einem neuen Trade
+                     else                                    echoPre(($n==1 ? '':str_pad("\n", $signalNamePadding+2)).'                                             was: '.$oldNetPosition);
+                     $oldNetPositionDone = true;
                   }
-                  echoPre($row['time'].':  '.str_pad($row['trade'], 6).' '. str_pad(ucFirst($row['type']), 4).' '.number_format($row['lots'], 2).' lots '.$row['symbol'].' @ '.str_pad($row['price'], 8).' '.$netPosition);
+                  echoPre($row['time'].':  '.str_pad($row['trade'], 6).' '. str_pad(ucFirst($row['type']), 4).' '.number_format($row['lots'], 2).' lots '.$row['symbol'].' @ '.str_pad($row['price'], 8).' now: '.$netPosition);
                }
                else $oldNetPosition = $netPosition;
             }
