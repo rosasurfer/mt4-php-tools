@@ -229,7 +229,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, array &$cu
             $report = ReportHelper ::getNetPositionHistory($signal, $symbol, $startTime);
             $oldNetPosition     = 'Flat';
             $oldNetPositionDone = false;
-            $iFirstNewRow       = null;
+            $iFirstNewRow       = 0;
 
             foreach ($report as $i => $row) {
                if      ($row['total' ] > 0) $netPosition  = 'Long   '.number_format( $row['total'], 2);

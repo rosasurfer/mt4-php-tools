@@ -110,7 +110,6 @@ class SimpleTrader extends StaticClass {
       $matchedTables = $openTradeRows = $historyRows = $matchedOpenTrades = $matchedHistoryEntries = 0;
       $tables = array();
 
-
       // Tabellen <table id="openTrades"> und <table id="history"> extrahieren
       $matchedTables = preg_match_all('/<table\b.*\bid="(opentrades|history)".*>.*<tbody\b.*>(.*)<\/tbody>.*<\/table>/isU', $html, $tables, PREG_SET_ORDER);
       if ($matchedTables != 2) throw new plRuntimeException('Tables "openTrades" and/or "history" not found');
@@ -135,6 +134,18 @@ class SimpleTrader extends StaticClass {
             */
             $openTradeRows     = preg_match_all('/<tr\b/is', $table[2], $openTrades);
             $matchedOpenTrades = preg_match_all('/<tr\b[^>]*?(?:"\s*Take\s*Profit:\s*([0-9.-]+)\s*Stop\s*Loss:\s*([0-9.-]+)\s*")?\s*>(?U)\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>/is', $table[2], $openTrades, PREG_SET_ORDER);
+
+            if (!$openTradeRows) {
+               if (preg_match('/"sEmptyTable": "No trades currently open/', $html)) {
+                  // keine OpenTrades vorhanden
+               }
+               else if (preg_match('/"sEmptyTable": "(There are currently trades open[^"]*)"/', $html, $matches)) {
+                  // OpenTrades sind gesperrt und können durch unvollständige Subscription freigeschaltet werden.
+                  throw new plRuntimeException($signal->getName().': '.$matches[1]);
+               }
+               else throw new plRuntimeException($signal->getName().': no open tarde rows found (unknown HTML status)');
+            }
+
             foreach ($openTrades as $i => &$row) {
                if (is_int(strPos($row[0], 'Take Profit')) && (empty($row[1]) || empty($row[2]))) throw new plRuntimeException('Error parsing TakeProfit or StopLoss in open position row '.($i+1).":\n".$row[0]);
 
@@ -219,6 +230,14 @@ class SimpleTrader extends StaticClass {
             */
             $historyRows           = preg_match_all('/<tr\b/is', $table[2], $history);
             $matchedHistoryEntries = preg_match_all('/<tr\b[^>]*?(?:"\s*Take\s*Profit:\s*([0-9.-]+)\s*Stop\s*Loss:\s*([0-9.-]+)\s*")?\s*>(?U)\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>/is', $table[2], $history, PREG_SET_ORDER);
+
+            if (!$historyRows) {
+               if (preg_match('/"sEmptyTable": "There is currently no history/', $html)) {
+                  // keine History Trades vorhanden
+               }
+               else throw new plRuntimeException($signal->getName().': no history rows found (unknown HTML status)');
+            }
+
             foreach ($history as $i => &$row) {
                if (is_int(strPos($row[0], 'Take Profit')) && (empty($row[1]) || empty($row[2]))) throw new plRuntimeException('Error parsing TakeProfit or StopLoss in history row '.($i+1).":\n".$row[0]);
 
