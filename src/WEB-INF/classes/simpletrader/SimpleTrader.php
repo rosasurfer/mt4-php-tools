@@ -167,7 +167,6 @@ class SimpleTrader extends StaticClass {
                // 3:OpenTime
                $sOpenTime = trim($row[I_STOP_OPENTIME]);
                if (!($time=strToTime($sOpenTime.' GMT'))) throw new plRuntimeException('Invalid OpenTime found in open position row '.($i+1).': "'.$row[I_STOP_OPENTIME].'"');
-             //$row[I_STOP_OPENTIME] = date(DATE_RFC822, $time);
                $row['opentime' ] = $time;
                $row['closetime'] = null;
 
