@@ -399,7 +399,7 @@ class SimpleTrader extends StaticClass {
             $smsMsg = 'Opened '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice().(($tp=$position->getTakeProfit()) ? "\nTP: $tp":'').(($sl=$position->getStopLoss()) ? ($tp ? '  ':"\n")."SL: $sl":'')."\n\n#".$position->getTicket().'  ('.$position->getOpenTime('H:i:s').')';
 
             // Warnung, wenn das Ereignis älter als 2 Minuten ist (also von SimpleTrader verzögert publiziert wurde)
-            if (($now=time()) > $openTime+2*MINUTES) $smsMsg = 'WARN: '.$smsMsg.' detected at '.MyFX ::fxtDate($now);
+            if (($now=time()) > $openTime+2*MINUTES) $smsMsg = 'WARN: '.$smsMsg.' detected at '.date($now); // MyFX ::fxtDate($now)
 
             foreach (MyFX ::getSmsSignalReceivers() as $receiver) {
                MyFX ::sendSms($receiver, $smsMsg);
@@ -430,7 +430,7 @@ class SimpleTrader extends StaticClass {
 
       // Ausgabe in Console
       $msg = str_pad(ucFirst($position->getType()), 4).' '.number_format($position->getLots(), 2).' lots '.$position->getSymbol().' @ '.str_pad($position->getOpenPrice(), 8);
-      echoPre(MyFX::fxtDate(time()).':  modify '.$msg.$modification);
+      echoPre(date(time()).':  modify '.$msg.$modification);      // MyFX::fxtDate(time())
 
 
       // Benachrichtigung per E-Mail
@@ -446,7 +446,7 @@ class SimpleTrader extends StaticClass {
       // Benachrichtigung per SMS
       if (false) {                                       // für Limitänderungen vorerst deaktiviert
          try {
-            $smsMsg = $signal->getName().': modified '.str_replace('  ', ' ', $msg)."\n".$modification."\n".MyFX ::fxtDate(time(), '(H:i:s)');
+            $smsMsg = $signal->getName().': modified '.str_replace('  ', ' ', $msg)."\n".$modification."\n".date('(H:i:s)', time());   // MyFX ::fxtDate(time(), '(H:i:s)')
             foreach (MyFX ::getSmsSignalReceivers() as $receiver) {
                MyFX ::sendSms($receiver, $smsMsg);
             }
@@ -486,7 +486,7 @@ class SimpleTrader extends StaticClass {
             $smsMsg = 'Closed '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getClosePrice()."\nOpen: ".$position->getOpenPrice()."\n\n#".$position->getTicket().'  ('.$position->getCloseTime('H:i:s').')';
 
             // Warnung, wenn das Ereignis älter als 2 Minuten ist (also von SimpleTrader verzögert publiziert wurde)
-            if (($now=time()) > $closeTime+2*MINUTES) $smsMsg = 'WARN: '.$smsMsg.' detected at '.MyFX ::fxtDate($now);
+            if (($now=time()) > $closeTime+2*MINUTES) $smsMsg = 'WARN: '.$smsMsg.' detected at '.date($now);      // MyFX ::fxtDate($now)
 
             foreach (MyFX ::getSmsSignalReceivers() as $receiver) {
                MyFX ::sendSms($receiver, $smsMsg);
@@ -522,7 +522,7 @@ class SimpleTrader extends StaticClass {
          $subject = $msg;
       $msg .= "\nwas: ".str_replace('  ', ' ', $oldNetPosition);
       $msg .= "\nis:  ".str_replace('  ', ' ', $newNetPosition);
-      $msg .= "\n".MyFX ::fxtDate($lastTradeTime, '(H:i:s)');
+      $msg .= "\n".date('(H:i:s)', $lastTradeTime);               // MyFX ::fxtDate($lastTradeTime, '(H:i:s)')
 
 
       // Benachrichtigung per E-Mail
@@ -538,7 +538,7 @@ class SimpleTrader extends StaticClass {
       if ($lastTradeTime >= $_SERVER['REQUEST_TIME']) {
          try {
             // Warnung, wenn der letzte Trade älter als 2 Minuten ist (von SimpleTrader also verzögert publiziert wurde)
-            if (($now=time()) > $lastTradeTime+2*MINUTES) $msg = 'WARN: '.$msg.', detected at '.MyFX ::fxtDate($now, 'H:i:s');
+            if (($now=time()) > $lastTradeTime+2*MINUTES) $msg = 'WARN: '.$msg.', detected at '.date('H:i:s', $now);    // MyFX ::fxtDate($now, 'H:i:s')
 
             foreach (MyFX ::getSmsSignalReceivers() as $receiver) {
                MyFX ::sendSms($receiver, $msg);
