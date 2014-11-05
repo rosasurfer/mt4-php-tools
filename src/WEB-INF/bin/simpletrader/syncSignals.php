@@ -269,9 +269,15 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, array &$cu
       }
 
 
+      // (6) bekannte Fehler selbständig abfangen
+      if ($formerOpenPositions) {
+         if (Signal ::getAlias()=='asta' && isSet($formerOpenPositions['2111537']))
+            unset($formerOpenPositions['2111537']);
+      }
       if ($formerOpenPositions) throw new plRuntimeException('Found '.sizeOf($formerOpenPositions).' former open position'.(sizeOf($formerOpenPositions)==1 ? '':'s')." now neither showing up in \"openTrades\" nor in \"history\":\n".printFormatted($formerOpenPositions, true));
 
-      // (6) alles speichern
+
+      // (7) alles speichern
       $db->commit();
    }
    catch (Exception $ex) {
