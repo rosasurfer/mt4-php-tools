@@ -122,7 +122,7 @@ function processSignal($alias, $fileSyncOnly) {
  */
 function updateDatabase(Signal $signal, array &$currentOpenPositions, array &$currentHistory) {
    $unchangedOpenPositions   = 0;
-   $positionChangeStartTimes = null;               // Beginn der Änderungen der Net-Position
+   $positionChangeStartTimes = null;                                 // Beginn der Änderungen der Net-Position
    $lastKnownChangeTimes     = null;
    $modifications            = null;
 
@@ -133,11 +133,12 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, array &$cu
       $knownOpenPositions = OpenPosition ::dao()->listBySignal($signal, $assocTicket=true);
 
 
-      // (2) offene Positionen (sortiert nach OpenTime+Ticket) abgleichen
+      // (2) offene Positionen abgleichen
       foreach ($currentOpenPositions as $i => &$data) {
          $sTicket  = (string)$data['ticket'];
 
          if (!isSet($knownOpenPositions[$sTicket])) {
+            // (2.1) neue offene Position
             if (!isSet($positionChangeStartTimes[$data['symbol']]))
                $lastKnownChangeTimes[$data['symbol']] = Signal ::dao()->getLastKnownPositionChangeTime($signal, $data['symbol']);
 
@@ -147,7 +148,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, array &$cu
             $positionChangeStartTimes[$symbol] = isSet($positionChangeStartTimes[$symbol]) ? min($openTime, $positionChangeStartTimes[$symbol]) : $openTime;
          }
          else {
-            // auf geänderte Limite prüfen
+            // (2.2) bekannte offene Position auf geänderte Limite prüfen
             $position = null;
             if ($data['takeprofit'] != ($prevTP=$knownOpenPositions[$sTicket]->getTakeProfit())) $position = $knownOpenPositions[$sTicket]->setTakeProfit($data['takeprofit']);
             if ($data['stoploss'  ] != ($prevSL=$knownOpenPositions[$sTicket]->getStopLoss())  ) $position = $knownOpenPositions[$sTicket]->setStopLoss  ($data['stoploss'  ]);
@@ -157,18 +158,18 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, array &$cu
                                                                         'prevSL'   => $prevSL);
             }
             else $unchangedOpenPositions++;
-            unset($knownOpenPositions[$sTicket]);              // geprüfte Position aus Liste löschen
+            unset($knownOpenPositions[$sTicket]);                    // bekannte offene Position aus Liste löschen
          }
       }
 
 
-      // (3) History abgleichen (ist sortiert nach CloseTime+OpenTime+Ticket)
-      $formerOpenPositions = $knownOpenPositions;              // alle in $knownOpenPositions übrig gebliebenen Positionen müssen geschlossen worden sein
-      $hstSize             = sizeOf($currentHistory);
+      // (3) History abgleichen ($currentHistory ist sortiert nach CloseTime+OpenTime+Ticket)
+      $formerOpenPositions = $knownOpenPositions;                    // Alle in $knownOpenPositions übrig gebliebenen Positionen existierten nicht in $currentOpenPositions
+      $hstSize             = sizeOf($currentHistory);                // und müssen daher geschlossen worden sein.
       $matchingPositions   = $otherClosedPositions = 0;
       $openGotClosed       = false;
 
-      for ($i=$hstSize-1; $i >= 0; $i--) {                     // Die aufsteigende History wird rückwärts verarbeitet (schnellste Variante).
+      for ($i=$hstSize-1; $i >= 0; $i--) {                           // Die aufsteigende History wird rückwärts verarbeitet (schnellste Variante).
          $data         = $currentHistory[$i];
          $ticket       = $data['ticket'];
          $openPosition = null;
@@ -183,7 +184,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, array &$cu
 
          if (!$openPosition && ClosedPosition ::dao()->isTicket($signal, $ticket)) {
             $matchingPositions++;
-            if ($matchingPositions >= 3)                       // Nach Übereinstimmung von 3 Datensätzen wird abgebrochen.
+            if ($matchingPositions >= 3 && !$formerOpenPositions)    // Nach Übereinstimmung von 3 Datensätzen wird abgebrochen.
                break;
             continue;
          }
@@ -197,7 +198,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, array &$cu
             $symbol         = $closedPosition->getSymbol();
             $closeTime      = $closedPosition->getCloseTime();
             $positionChangeStartTimes[$symbol] = isSet($positionChangeStartTimes[$symbol]) ? min($closeTime, $positionChangeStartTimes[$symbol]) : $closeTime;
-            $openPosition->delete();                           // vormals offene Position aus t_openposition löschen
+            $openPosition->delete();                                 // vormals offene Position aus t_openposition löschen
             $openGotClosed = true;
          }
          else {
@@ -243,7 +244,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, array &$cu
                if ($row['time'] >= $startTime) {
                   if (!$oldNetPositionDone) {
                      $iFirstNewRow       = $i;
-                     if (sizeOf($report) == $iFirstNewRow+1) echoPre("\n");      // keine Anzeige von $oldNetPosition bei nur einem neuen Trade
+                     if (sizeOf($report) == $iFirstNewRow+1) echoPre("\n");   // keine Anzeige von $oldNetPosition bei nur einem neuen Trade
                      else                                    echoPre(($n==1 ? '':str_pad("\n", $signalNamePadding+2)).'                                             was: '.$oldNetPosition);
                      $oldNetPositionDone = true;
                   }
@@ -268,7 +269,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, array &$cu
       }
 
 
-      if ($formerOpenPositions) throw new plRuntimeException('Found '.sizeOf($formerOpenPositions).' orphaned open position'.(sizeOf($formerOpenPositions)==1 ? '':'s').":\n".printFormatted($formerOpenPositions, true));
+      if ($formerOpenPositions) throw new plRuntimeException('Found '.sizeOf($formerOpenPositions).' former open position'.(sizeOf($formerOpenPositions)==1 ? '':'s')." now neither showing up in \"openTrades\" nor in \"history\":\n".printFormatted($formerOpenPositions, true));
 
       // (6) alles speichern
       $db->commit();
