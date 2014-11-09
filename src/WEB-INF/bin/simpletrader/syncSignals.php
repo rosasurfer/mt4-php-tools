@@ -84,11 +84,11 @@ function processSignal($alias, $fileSyncOnly) {
       return;
    }
 
-   static $updates = false;                     // ob beim letzten Aufruf Änderungen eines Signals festgestellt wurden
+   static $openUpdates=false, $closedUpdates=false;                  // ob beim letzten Aufruf Änderungen eines Signals festgestellt wurden
 
    $signal = Signal ::dao()->getByAlias($alias);
    global $signalNamePadding;
-   echo(($updates ? "\n":'').str_pad($signal->getName().' ', $signalNamePadding, '.', STR_PAD_RIGHT).' ');
+   echo(($openUpdates ? "\n":'').str_pad($signal->getName().' ', $signalNamePadding, '.', STR_PAD_RIGHT).' ');
 
    if (!$fileSyncOnly) {
       // HTML-Seite laden
@@ -99,14 +99,14 @@ function processSignal($alias, $fileSyncOnly) {
       SimpleTrader ::parseSignalData($signal, $content, $openPositions, $closedPositions);
 
       // Datenbank aktualisieren
-     $updates = updateDatabase($signal, $openPositions, $closedPositions);
+     updateDatabase($signal, $openPositions, $openUpdates, $closedPositions, $closedUpdates);
    }
    else {
-     $updates = false;
+     $openUpdates = $closedUpdates = false;
    }
 
    // Datenbasis für MT4 aktualisieren
-   MT4 ::updateDataFiles($signal, $updates);
+   MT4 ::updateDataFiles($signal, $openUpdates, $closedUpdates);
 }
 
 
@@ -116,11 +116,14 @@ function processSignal($alias, $fileSyncOnly) {
  *
  * @param  Signal $signal               - Signal
  * @param  array  $currentOpenPositions - Array mit aktuell offenen Positionen
+ * @param  bool  &$openUpdates          - Variable, die nach Rückkehr anzeigt, ob Änderungen an den offenen Positionen detektiert wurden oder nicht
  * @param  array  $currentHistory       - Array mit aktuellen Historydaten
- *
- * @return bool - ob Änderungen detektiert wurden oder nicht
+ * @param  bool  &$closedUpdates        - Variable, die nach Rückkehr anzeigt, ob Änderungen an der Trade-History detektiert wurden oder nicht
  */
-function updateDatabase(Signal $signal, array &$currentOpenPositions, array &$currentHistory) {
+function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpdates, array &$currentHistory, &$closedUpdates) {
+   if (!is_bool($openUpdates))   throw new IllegalTypeException('Illegal type of parameter $openUpdates: '.getType($openUpdates));
+   if (!is_bool($closedUpdates)) throw new IllegalTypeException('Illegal type of parameter $closedUpdates: '.getType($closedUpdates));
+
    $unchangedOpenPositions   = 0;
    $positionChangeStartTimes = null;                                 // Beginn der Änderungen der Net-Position
    $lastKnownChangeTimes     = null;
@@ -285,7 +288,8 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, array &$cu
       throw $ex;
    }
 
-   return ($positionChangeStartTimes || $modifications);
+   $openUpdates   = $positionChangeStartTimes || $modifications;
+   $closedUpdates = $openGotClosed || $otherClosedPositions;
 }
 
 

@@ -123,6 +123,16 @@ class ClosedPosition extends PersistableObject {
 
 
    /**
+    * Gibt die Beschreibung des OperationTypes dieser Position zurück.
+    *
+    * @return string - Beschreibung
+    */
+   public function getTypeDescription() {
+      return ucFirst($this->type);
+   }
+
+
+   /**
     * Gibt die OpenTime dieser Position zurück.
     *
     * @param string $format - Zeitformat (default: 'Y-m-d H:i:s')

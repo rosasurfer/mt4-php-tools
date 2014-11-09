@@ -52,5 +52,50 @@ class ClosedPositionDAO extends CommonDAO {
       $result = $this->executeSql($sql);
       return (bool) $result['rows'];
    }
+
+
+   /**
+    * Gibt die geschlossenen Positionen des angegebenen Signals zurück.
+    *
+    * @param  Signal $signal      - Signal
+    * @param  bool   $assocTicket - ob das Ergebnisarray assoziativ nach Tickets organisiert werden soll (default: nein)
+    *
+    * @return ClosedPosition[] - Array von ClosedPosition-Instanzen, aufsteigend sortiert nach {CloseTime,OpenTime,Ticket}
+    */
+   public function listBySignal(Signal $signal, $assocTicket=false) {
+      if (!$signal->isPersistent()) throw new plInvalidArgumentException('Cannot process non-persistent '.get_class($signal));
+
+      return $this->listBySignalAlias($signal->getAlias(), $assocTicket);
+   }
+
+
+   /**
+    * Gibt die geschlossenen Positionen des angegebenen Signals zurück.
+    *
+    * @param  string $alias       - Signalalias
+    * @param  bool   $assocTicket - ob das Ergebnisarray assoziativ nach Tickets organisiert werden soll (default: nein)
+    *
+    * @return ClosedPosition[] - Array von ClosedPosition-Instanzen, aufsteigend sortiert nach {CloseTime,OpenTime,Ticket}
+    */
+   public function listBySignalAlias($alias, $assocTicket=false) {
+      if (!is_string($alias)) throw new IllegalTypeException('Illegal type of parameter $alias: '.getType($alias));
+
+      $alias = addSlashes($alias);
+
+      $sql = "select c.*
+                 from t_signal         s
+                 join t_closedposition c on s.id = c.signal_id
+                 where s.alias = '$alias'
+                 order by c.closetime, c.opentime, c.ticket";
+      $results = $this->getListByQuery($sql);
+
+      if ($assocTicket) {
+         foreach ($results as $i => $position) {
+            $results[(string) $position->getTicket()] = $position;
+            unset($results[$i]);
+         }
+      }
+      return $results;
+   }
 }
 ?>
