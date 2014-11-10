@@ -229,8 +229,8 @@ class MT4 extends StaticClass {
                   $lots        = $position->getLots();
                   $openTime    = $position->getOpenTime('Y.m.d H:i:s');
                   $openPrice   = $position->getOpenPrice();
-                  $closeTime   = $position->getOpenTime('Y.m.d H:i:s');
-                  $closePrice  = $position->getOpenPrice();
+                  $closeTime   = $position->getCloseTime('Y.m.d H:i:s');
+                  $closePrice  = $position->getClosePrice();
                   $takeProfit  = $position->getTakeProfit();
                   $stopLoss    = $position->getStopLoss();
                   $commission  = $position->getCommission();
