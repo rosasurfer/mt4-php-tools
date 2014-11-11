@@ -274,8 +274,12 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
 
       // (6) bekannte Fehler selbständig abfangen
       if ($formerOpenPositions) {
-         if ($signal->getAlias()=='asta' && isSet($formerOpenPositions['2111537'])) unset($formerOpenPositions['2111537']);
-         if ($signal->getAlias()=='asta' && isSet($formerOpenPositions['2114818'])) unset($formerOpenPositions['2114818']);
+         if ($signal->getAlias() == 'asta') {
+            if (isSet($formerOpenPositions[$ticket='2111537'])) unset($formerOpenPositions[$ticket]);
+            if (isSet($formerOpenPositions[$ticket='2114818'])) unset($formerOpenPositions[$ticket]);
+            if (isSet($formerOpenPositions[$ticket='2118556'])) unset($formerOpenPositions[$ticket]);
+            if (isSet($formerOpenPositions[$ticket='2118783'])) unset($formerOpenPositions[$ticket]);
+         }
       }
       if ($formerOpenPositions) throw new plRuntimeException('Found '.sizeOf($formerOpenPositions).' former open position'.(sizeOf($formerOpenPositions)==1 ? '':'s')." now neither showing up in \"openTrades\" nor in \"history\":\n".printFormatted($formerOpenPositions, true));
 
