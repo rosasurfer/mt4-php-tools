@@ -49,9 +49,9 @@ class MyFX extends StaticClass {
          $timestamp = strToTime($time);
          if ($timestamp === false) throw new plInvalidArgumentException('Invalid argument $time: "'.$time.'"');
          $timestamp -= 7*HOURS;
-         return $timestamp;
 
          date_default_timezone_set($oldTimezone);
+         return $timestamp;
       }
       catch(Exception $ex) { date_default_timezone_set($oldTimezone); throw $ex; }
    }
@@ -72,12 +72,12 @@ class MyFX extends StaticClass {
 
       $oldTimezone = date_default_timezone_get();
       try {
-
          date_default_timezone_set('America/New_York');
+
          $result = date($format, $timestamp + 7*HOURS);
+
          date_default_timezone_set($oldTimezone);
          return $result;
-
       }
       catch(Exception $ex) { date_default_timezone_set($oldTimezone); throw $ex; }
    }
