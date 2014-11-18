@@ -112,7 +112,7 @@ class SimpleTrader extends StaticClass {
 
       // Tabellen <table id="openTrades"> und <table id="history"> extrahieren
       $matchedTables = preg_match_all('/<table\b.*\bid="(opentrades|history)".*>.*<tbody\b.*>(.*)<\/tbody>.*<\/table>/isU', $html, $tables, PREG_SET_ORDER);
-      if ($matchedTables != 2) throw new plRuntimeException('Tables "openTrades" and/or "history" not found');
+      if ($matchedTables != 2) throw new plRuntimeException('Tables "opentrades" and/or "history" not found'.NL.NL.$html);
 
       foreach ($tables as $i => &$table) {
          $table[0] = 'table '.($i+1);
@@ -143,7 +143,7 @@ class SimpleTrader extends StaticClass {
                   // OpenTrades sind gesperrt und können durch unvollständige Subscription freigeschaltet werden.
                   throw new plRuntimeException($signal->getName().': '.$matches[1]);
                }
-               else throw new plRuntimeException($signal->getName().': no open tarde rows found (unknown HTML status)');
+               else throw new plRuntimeException($signal->getName().': no open trade rows found (unknown HTML status)'.NL.NL.$html);
             }
 
             foreach ($openTrades as $i => &$row) {
@@ -234,7 +234,7 @@ class SimpleTrader extends StaticClass {
                if (preg_match('/"sEmptyTable": "There is currently no history/', $html)) {
                   // keine History Trades vorhanden
                }
-               else throw new plRuntimeException($signal->getName().': no history rows found (unknown HTML status)');
+               else throw new plRuntimeException($signal->getName().': no history rows found (unknown HTML status)'.NL.NL.$table[2]);
             }
 
             foreach ($history as $i => &$row) {
