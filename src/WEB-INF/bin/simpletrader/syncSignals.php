@@ -280,9 +280,10 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
             if (isSet($formerOpenPositions[$ticket='2118556'])) unset($formerOpenPositions[$ticket]);
             if (isSet($formerOpenPositions[$ticket='2118783'])) unset($formerOpenPositions[$ticket]);
             if (isSet($formerOpenPositions[$ticket='2138672'])) unset($formerOpenPositions[$ticket]);
+            if (isSet($formerOpenPositions[$ticket='2145221'])) unset($formerOpenPositions[$ticket]);
          }
       }
-      if ($formerOpenPositions) throw new plRuntimeException('Found '.sizeOf($formerOpenPositions).' former open position'.(sizeOf($formerOpenPositions)==1 ? '':'s')." now neither showing up in \"openTrades\" nor in \"history\":\n".printFormatted($formerOpenPositions, true));
+      if ($formerOpenPositions) throw new plRuntimeException('Found '.sizeOf($formerOpenPositions).' former open position'.(sizeOf($formerOpenPositions)==1 ? '':'s')." now neither in \"openTrades\" nor in \"history\":\n".printFormatted($formerOpenPositions, true));
 
 
       // (7) alles speichern
