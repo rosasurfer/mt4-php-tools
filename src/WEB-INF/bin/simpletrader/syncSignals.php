@@ -220,7 +220,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
       }
 
 
-      // (5) Formatierter und sortierter Report der Änderungen
+      // (5) bei Änderungen: formatierter und sortierter Report
       if ($positionChangeStartTimes) {
          global $signalNamePadding;
          $n = 0;
@@ -251,7 +251,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
                      else                                    echoPre(($n==1 ? '':str_pad("\n", $signalNamePadding+2)).'                                             was: '.$oldNetPosition);
                      $oldNetPositionDone = true;
                   }
-                  echoPre($row['time'].':  '.str_pad($row['trade'], 6).' '. str_pad(ucFirst($row['type']), 4).' '.number_format($row['lots'], 2).' lots '.$row['symbol'].' @ '.str_pad($row['price'], 8).' now: '.$netPosition);
+                  echoPre(date('Y-m-d H:i:s', MyFX ::fxtStrToTime($row['time'])).':  '.str_pad($row['trade'], 6).' '. str_pad(ucFirst($row['type']), 4).' '.number_format($row['lots'], 2).' lots '.$row['symbol'].' @ '.str_pad($row['price'], 8).' now: '.$netPosition);
                }
                else $oldNetPosition = $netPosition;
             }
