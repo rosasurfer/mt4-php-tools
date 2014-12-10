@@ -429,7 +429,7 @@ class SimpleTrader extends StaticClass {
 
       // Ausgabe in Console
       $msg = str_pad(ucFirst($position->getType()), 4).' '.number_format($position->getLots(), 2).' lots '.$position->getSymbol().' @ '.str_pad($position->getOpenPrice(), 8);
-      echoPre(date(time()).':  modify '.$msg.$modification);      // MyFX::fxtDate(time())
+      echoPre(date('Y-m-d H:i:s', time()).':  modify '.$msg.$modification);
 
 
       // Benachrichtigung per E-Mail

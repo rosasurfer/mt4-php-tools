@@ -225,6 +225,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
          global $signalNamePadding;
          $n = 0;
 
+         // (5.1) Positionsänderungen
          foreach ($positionChangeStartTimes as $symbol => $startTime) {
             $n++;
             if ($startTime < $lastKnownChangeTimes[$symbol])
@@ -257,13 +258,18 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
             }
             SimpleTrader ::onPositionChange($signal, $symbol, $report, $iFirstNewRow, $oldNetPosition, $netPosition);
          }
+
+         // (5.2) Limitänderungen des jeweiligen Symbols nach Postionsänderung anfügen
          if (isSet($modifications[$symbol])) {
             foreach ($modifications[$symbol] as $modification)
                SimpleTrader ::onPositionModify($modification['position'], $modification['prevTP'], $modification['prevSL']);
             unset($modifications[$symbol]);
          }
       }
+
+      // (5.3) restliche Limitänderungen für Symbole ohne Postionsänderung
       if ($modifications) {
+         !$positionChangeStartTimes && echoPre("\n");
          foreach ($modifications as $modsPerSymbol) {
             foreach ($modsPerSymbol as $modification) {
                SimpleTrader ::onPositionModify($modification['position'], $modification['prevTP'], $modification['prevSL']);
