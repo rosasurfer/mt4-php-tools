@@ -281,12 +281,31 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
       // (6) bekannte Fehler selbständig abfangen
       if ($formerOpenPositions) {
          if ($signal->getAlias() == 'asta') {
-            if (isSet($formerOpenPositions[$ticket='2183611'])) unset($formerOpenPositions[$ticket]);
             if (isSet($formerOpenPositions[$ticket='2111537'])) unset($formerOpenPositions[$ticket]);
             if (isSet($formerOpenPositions[$ticket='2114818'])) unset($formerOpenPositions[$ticket]);
             if (isSet($formerOpenPositions[$ticket='2118556'])) unset($formerOpenPositions[$ticket]);
             if (isSet($formerOpenPositions[$ticket='2118783'])) unset($formerOpenPositions[$ticket]);
+            if (isSet($formerOpenPositions[$ticket='2128883'])) unset($formerOpenPositions[$ticket]);
+            if (isSet($formerOpenPositions[$ticket='2131107'])) unset($formerOpenPositions[$ticket]);
+            if (isSet($formerOpenPositions[$ticket='2132505'])) unset($formerOpenPositions[$ticket]);
             if (isSet($formerOpenPositions[$ticket='2138672'])) unset($formerOpenPositions[$ticket]);
+            if (isSet($formerOpenPositions[$ticket='2138858'])) unset($formerOpenPositions[$ticket]);
+            if (isSet($formerOpenPositions[$ticket='2139720'])) unset($formerOpenPositions[$ticket]);
+            if (isSet($formerOpenPositions[$ticket='2140271'])) unset($formerOpenPositions[$ticket]);
+            if (isSet($formerOpenPositions[$ticket='2140276'])) unset($formerOpenPositions[$ticket]);
+            if (isSet($formerOpenPositions[$ticket='2140277'])) unset($formerOpenPositions[$ticket]);
+            if (isSet($formerOpenPositions[$ticket='2140282'])) unset($formerOpenPositions[$ticket]);
+            if (isSet($formerOpenPositions[$ticket='2141148'])) unset($formerOpenPositions[$ticket]);
+            if (isSet($formerOpenPositions[$ticket='2142140'])) unset($formerOpenPositions[$ticket]);
+            if (isSet($formerOpenPositions[$ticket='2142359'])) unset($formerOpenPositions[$ticket]);
+            if (isSet($formerOpenPositions[$ticket='2142458'])) unset($formerOpenPositions[$ticket]);
+            if (isSet($formerOpenPositions[$ticket='2142541'])) unset($formerOpenPositions[$ticket]);
+            if (isSet($formerOpenPositions[$ticket='2142685'])) unset($formerOpenPositions[$ticket]);
+            if (isSet($formerOpenPositions[$ticket='2142695'])) unset($formerOpenPositions[$ticket]);
+            if (isSet($formerOpenPositions[$ticket='2142976'])) unset($formerOpenPositions[$ticket]);
+            if (isSet($formerOpenPositions[$ticket='2143042'])) unset($formerOpenPositions[$ticket]);
+            if (isSet($formerOpenPositions[$ticket='2143070'])) unset($formerOpenPositions[$ticket]);
+            if (isSet($formerOpenPositions[$ticket='2143073'])) unset($formerOpenPositions[$ticket]);
             if (isSet($formerOpenPositions[$ticket='2145221'])) unset($formerOpenPositions[$ticket]);
             if (isSet($formerOpenPositions[$ticket='2160211'])) unset($formerOpenPositions[$ticket]);
             if (isSet($formerOpenPositions[$ticket='2160281'])) unset($formerOpenPositions[$ticket]);
@@ -307,6 +326,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
             if (isSet($formerOpenPositions[$ticket='2183181'])) unset($formerOpenPositions[$ticket]);
             if (isSet($formerOpenPositions[$ticket='2183273'])) unset($formerOpenPositions[$ticket]);
             if (isSet($formerOpenPositions[$ticket='2183600'])) unset($formerOpenPositions[$ticket]);
+            if (isSet($formerOpenPositions[$ticket='2183611'])) unset($formerOpenPositions[$ticket]);
             if (isSet($formerOpenPositions[$ticket='2183878'])) unset($formerOpenPositions[$ticket]);
             if (isSet($formerOpenPositions[$ticket='2193718'])) unset($formerOpenPositions[$ticket]);
          }
