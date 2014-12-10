@@ -302,6 +302,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
             if (isSet($formerOpenPositions[$ticket='2183273'])) unset($formerOpenPositions[$ticket]);
             if (isSet($formerOpenPositions[$ticket='2183600'])) unset($formerOpenPositions[$ticket]);
             if (isSet($formerOpenPositions[$ticket='2183878'])) unset($formerOpenPositions[$ticket]);
+            if (isSet($formerOpenPositions[$ticket='2193718'])) unset($formerOpenPositions[$ticket]);
          }
       }
       if ($formerOpenPositions) throw new plRuntimeException('Found '.sizeOf($formerOpenPositions).' former open position'.(sizeOf($formerOpenPositions)==1 ? '':'s')." now neither in \"openTrades\" nor in \"history\":\n".printFormatted($formerOpenPositions, true));
