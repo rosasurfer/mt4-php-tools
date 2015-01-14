@@ -119,18 +119,18 @@ class SimpleTrader extends StaticClass {
          $table[1] = strToLower($table[1]);
 
          // offene Positionen extrahieren und parsen (Timezone: GMT)
-         if ($table[1] == 'opentrades') {
-            /*                                                                   // Array([ 0:          ] => {matched html}
-            <tr class="red topDir" title="Take Profit: 1.730990 Stop Loss: -">   //       [ 1:TakeProfit] => 1.319590
-               <td class="center">2014/09/08 13:25:42</td>                       //       [ 2:StopLoss  ] => -
-               <td class="center">1.294130</td>                                  //       [ 3:OpenTime  ] => 2014/09/04 08:15:12
-               <td class="center">1.24</td>                                      //       [ 4:OpenPrice ] => 1.314590
-               <td class="center">Sell</td>                                      //       [ 5:Lots      ] => 0.16
-               <td class="center">EURUSD</td>                                    //       [ 6:Type      ] => Buy
-               <td class="center">-32.57</td>                                    //       [ 7:Symbol    ] => EURUSD
-               <td class="center">-1.8</td>                                      //       [ 8:Profit    ] => -281.42
-               <td class="center">1999552</td>                                   //       [ 9:Pips      ] => -226.9
-            </tr>                                                                //       [10:Comment   ] => 2000641)
+         if ($table[1] == 'opentrades') {                                        // Array([ 0:          ] => {matched html}
+            /*                                                                   //       [ 1:TakeProfit] => 1.319590
+            <tr class="red topDir" title="Take Profit: 1.730990 Stop Loss: -">   //       [ 2:StopLoss  ] => -
+               <td class="center">2014/09/08 13:25:42</td>                       //       [ 3:OpenTime  ] => 2014/09/04 08:15:12
+               <td class="center">1.294130</td>                                  //       [ 4:OpenPrice ] => 1.314590
+               <td class="center">1.24</td>                                      //       [ 5:Lots      ] => 0.16
+               <td class="center">Sell</td>                                      //       [ 6:Type      ] => Buy
+               <td class="center">EURUSD</td>                                    //       [ 7:Symbol    ] => EURUSD
+               <td class="center">-32.57</td>                                    //       [ 8:Profit    ] => -281.42
+               <td class="center">-1.8</td>                                      //       [ 9:Pips      ] => -226.9
+               <td class="center">1999552</td>                                   //       [10:Comment   ] => 2000641)
+            </tr>
             */
             $openTradeRows     = preg_match_all('/<tr\b/is', $table[2], $openTrades);
             $matchedOpenTrades = preg_match_all('/<tr\b[^>]*?(?:"\s*Take\s*Profit:\s*([0-9.-]+)\s*Stop\s*Loss:\s*([0-9.-]+)\s*")?\s*>(?U)\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>/is', $table[2], $openTrades, PREG_SET_ORDER);
@@ -212,23 +212,24 @@ class SimpleTrader extends StaticClass {
          }
 
          // History extrahieren und parsen; TP und SL werden, falls angegeben, erkannt (Timezone: GMT)
-         if ($table[1] == 'history') {
-            /*                                                                   // Array([ 0:          ] => {matched html}
-            <tr class="green">                                                   //       [ 1:TakeProfit] =>
-               <td class="center">2014/09/05 16:32:52</td>                       //       [ 2:StopLoss  ] =>
-               <td class="center">2014/09/08 04:57:25</td>                       //       [ 3:OpenTime  ] => 2014/09/09 13:05:58
-               <td class="center">1.294620</td>                                  //       [ 4:CloseTime ] => 2014/09/09 13:08:15
-               <td class="center">1.294130</td>                                  //       [ 5:OpenPrice ] => 1.742870
-               <td class="center">1.24</td>                                      //       [ 6:ClosePrice] => 1.743470
-               <td class="center">Sell</td>                                      //       [ 7:Lots      ] => 0.12
-               <td class="center">EURUSD</td>                                    //       [ 8:Type      ] => Sell
-               <td class="center">47.43</td>                                     //       [ 9:Symbol    ] => GBPAUD
-               <td class="center">4.9</td>                                       //       [10:Profit    ] => -7.84
-               <td class="center">1996607</td>                                   //       [11:Pips      ] => -6
-            </tr>                                                                //       [12:Comment   ] => 2002156)
+         if ($table[1] == 'history') {                                           // Array([ 0:          ] => {matched html}
+            /*                                                                   //       [ 1:TakeProfit] =>
+            <tr class="green even">                                              //       [ 2:StopLoss  ] =>
+               <td class="center">2015/01/14 14:07:06</td>                       //       [ 3:OpenTime  ] => 2014/09/09 13:05:58
+               <td class="center">2015/01/14 14:12:00</td>                       //       [ 4:CloseTime ] => 2014/09/09 13:08:15
+               <td class="center">1.183290</td>                                  //       [ 5:OpenPrice ] => 1.742870
+               <td class="center">1.182420</td>                                  //       [ 6:ClosePrice] => 1.743470
+               <td class="center">1.60</td>                                      //       [ 7:Lots      ] => 0.12
+               <td class="center">Sell</td>                                      //       [ 8:Type      ] => Sell
+               <td class="center">EURUSD</td>                                    //       [ 9:Symbol    ] => GBPAUD
+               <td class="center">126.40</td>                                    //       [10:Profit    ] => -7.84
+               <td class="center">8.7</td>                                       //       [11:Pips      ] => -6
+               <td class="center">0.07%</td>                                     //       [12:Gain      ] => 0.07%
+               <td class="center">2289768</td>                                   //       [13:Comment   ] => 2002156)
+            </tr>
             */
             $historyRows           = preg_match_all('/<tr\b/is', $table[2], $history);
-            $matchedHistoryEntries = preg_match_all('/<tr\b[^>]*?(?:"\s*Take\s*Profit:\s*([0-9.-]+)\s*Stop\s*Loss:\s*([0-9.-]+)\s*")?\s*>(?U)\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>/is', $table[2], $history, PREG_SET_ORDER);
+            $matchedHistoryEntries = preg_match_all('/<tr\b[^>]*?(?:"\s*Take\s*Profit:\s*([0-9.-]+)\s*Stop\s*Loss:\s*([0-9.-]+)\s*")?\s*>(?U)\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>/is', $table[2], $history, PREG_SET_ORDER);
 
             if (!$historyRows) {
                if (preg_match('/"sEmptyTable": "There is currently no history/', $html)) {
@@ -311,12 +312,14 @@ class SimpleTrader extends StaticClass {
 
                // 11:Pips
 
-               // 12:Comment
+               // 12:Gain
+
+               // 13:Comment
                $sValue = trim($row[I_STH_COMMENT]);
                if (!ctype_digit($sValue)) throw new plRuntimeException('Invalid Comment found in history row '.($i+1).': "'.$row[I_STH_COMMENT].'" (non-digits)');
                $row['ticket'] = (int)$sValue;
 
-               unset($row[0], $row[1], $row[2], $row[3], $row[4], $row[5], $row[6], $row[7], $row[8], $row[9], $row[10], $row[11], $row[12]);
+               unset($row[0], $row[1], $row[2], $row[3], $row[4], $row[5], $row[6], $row[7], $row[8], $row[9], $row[10], $row[11], $row[12], $row[13]);
             }
             // History sortieren
             uSort($history, array(__CLASS__, 'compareTradesByCloseTimeOpenTimeTicket'));
