@@ -29,6 +29,12 @@ foreach ($args as $i => $arg) {
    if (in_array($arg, array('-f','/f'))) { $fileSyncOnly=true; unset($args[$i]); continue; }    // -f=FileSyncOnly
 }
 
+
+echoPre('cookieFile = "'.dirName(realPath($_SERVER['PHP_SELF'])).DIRECTORY_SEPARATOR.'cookies.txt'.'"');
+exit();
+
+
+
 // (1.2) Signalnamen
 foreach ($args as $i => $arg) {
    if ($arg == '*') {                                       // * ist Wildcard für alle Signale
