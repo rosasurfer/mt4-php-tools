@@ -30,11 +30,6 @@ foreach ($args as $i => $arg) {
 }
 
 
-echoPre('cookieFile = "'.dirName(realPath($_SERVER['PHP_SELF'])).DIRECTORY_SEPARATOR.'cookies.txt'.'"');
-exit();
-
-
-
 // (1.2) Signalnamen
 foreach ($args as $i => $arg) {
    if ($arg == '*') {                                       // * ist Wildcard für alle Signale
@@ -98,11 +93,11 @@ function processSignal($alias, $fileSyncOnly) {
 
    if (!$fileSyncOnly) {
       // HTML-Seite laden
-      $content = SimpleTrader ::loadSignalPage($signal);
+      $html = SimpleTrader ::loadSignalPage($signal);
 
       // HTML-Seite parsen
       $openPositions = $closedPositions = array();
-      SimpleTrader ::parseSignalData($signal, $content, $openPositions, $closedPositions);
+      SimpleTrader ::parseSignalData($signal, $html, $openPositions, $closedPositions);
 
       // Datenbank aktualisieren
      updateDatabase($signal, $openPositions, $openUpdates, $closedPositions, $closedUpdates);
