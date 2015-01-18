@@ -330,6 +330,19 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
             if (isSet($formerOpenPositions[$ticket='2183611'])) unset($formerOpenPositions[$ticket]);
             if (isSet($formerOpenPositions[$ticket='2183878'])) unset($formerOpenPositions[$ticket]);
             if (isSet($formerOpenPositions[$ticket='2193718'])) unset($formerOpenPositions[$ticket]);
+            if (isSet($formerOpenPositions[$ticket='2240240'])) unset($formerOpenPositions[$ticket]);
+            if (isSet($formerOpenPositions[$ticket='2245473'])) unset($formerOpenPositions[$ticket]);
+            if (isSet($formerOpenPositions[$ticket='2246685'])) unset($formerOpenPositions[$ticket]);
+            if (isSet($formerOpenPositions[$ticket='2247448'])) unset($formerOpenPositions[$ticket]);
+            if (isSet($formerOpenPositions[$ticket='2247671'])) unset($formerOpenPositions[$ticket]);
+            if (isSet($formerOpenPositions[$ticket='2248728'])) unset($formerOpenPositions[$ticket]);
+            if (isSet($formerOpenPositions[$ticket='2248785'])) unset($formerOpenPositions[$ticket]);
+            if (isSet($formerOpenPositions[$ticket='2248917'])) unset($formerOpenPositions[$ticket]);
+            if (isSet($formerOpenPositions[$ticket='2249193'])) unset($formerOpenPositions[$ticket]);
+            if (isSet($formerOpenPositions[$ticket='2249521'])) unset($formerOpenPositions[$ticket]);
+            if (isSet($formerOpenPositions[$ticket='2249522'])) unset($formerOpenPositions[$ticket]);
+            if (isSet($formerOpenPositions[$ticket='2249703'])) unset($formerOpenPositions[$ticket]);
+            if (isSet($formerOpenPositions[$ticket='2250222'])) unset($formerOpenPositions[$ticket]);
          }
       }
       if ($formerOpenPositions) throw new plRuntimeException('Found '.sizeOf($formerOpenPositions).' former open position'.(sizeOf($formerOpenPositions)==1 ? '':'s')." now neither in \"openTrades\" nor in \"history\":\n".printFormatted($formerOpenPositions, true));
