@@ -116,6 +116,9 @@ class SimpleTrader extends StaticClass {
          if (preg_match('/Please read the following information<\/h4>\s*(You do not have access to view this page\.)/isU', $html, $matches))
             throw new plRuntimeException($signal->getName().': '.$matches[1]);   // Login fehlgeschlagen
          throw new plRuntimeException($signal->getName().': tables "opentrades" and/or "history" not found (unknown HTML status)'.NL.NL.$html);
+         // TODO: bei SimpleTrader-PHP-Fehlern Request automatisch wiederholen:
+         //
+         // Parse error: syntax error, unexpected T_UNSET in /home/simpletrader/public_html/signals.php on line 534
       }
 
       foreach ($tables as $i => &$table) {
