@@ -94,6 +94,8 @@ class SimpleTrader extends StaticClass {
     * @param  string $html       - Inhalt der HTML-Seite
     * @param  array  $openTrades - Array zur Aufnahme der offenen Positionen
     * @param  array  $history    - Array zur Aufnahme der Signalhistory
+    *
+    * @return string - Fehlermeldung oder NULL, falls kein Fehler auftrat
     */
    public static function parseSignalData(Signal $signal, &$html, array &$openTrades, array &$history) {
       if (!is_string($html)) throw new IllegalTypeException('Illegal type of parameter $html: '.getType($html));
@@ -113,12 +115,16 @@ class SimpleTrader extends StaticClass {
       // Tabellen <table id="openTrades"> und <table id="history"> extrahieren
       $matchedTables = preg_match_all('/<table\b.*\bid="(opentrades|history)".*>.*<tbody\b.*>(.*)<\/tbody>.*<\/table>/isU', $html, $tables, PREG_SET_ORDER);
       if ($matchedTables != 2) {
+         // Login notwendig (falls Cookies ungültig oder korrupt sind)
          if (preg_match('/Please read the following information<\/h4>\s*(You do not have access to view this page\.)/isU', $html, $matches))
-            throw new plRuntimeException($signal->getName().': '.$matches[1]);   // Login fehlgeschlagen
-         throw new plRuntimeException($signal->getName().': tables "opentrades" and/or "history" not found (unknown HTML status)'.NL.NL.$html);
-         // TODO: bei SimpleTrader-PHP-Fehlern Request automatisch wiederholen:
-         //
+            throw new plRuntimeException($signal->getName().': '.$matches[1]);
+         // PHP-Fehler in der SimpleTrader-Website erkennen und abfangen
+         if (preg_match('/(Parse error: .+ in [a-z0-9_/]\.php on line [0-9]+)/iU', $html, $matches))
+            return $matches[1];
          // Parse error: syntax error, unexpected T_UNSET in /home/simpletrader/public_html/signals.php on line 534
+         // Parse error: syntax error, unexpected ';'     in /home/simpletrader/public_html/signals.php on line 691
+
+         throw new plRuntimeException($signal->getName().': tables "opentrades" and/or "history" not found (unknown HTML status)'.NL.NL.$html);
       }
 
       foreach ($tables as $i => &$table) {
@@ -333,6 +339,8 @@ class SimpleTrader extends StaticClass {
 
       if ($openTradeRows != $matchedOpenTrades    ) throw new plRuntimeException('Could not match '.($openTradeRows-$matchedOpenTrades  ).' row'.($openTradeRows-$matchedOpenTrades  ==1 ? '':'s'));
       if ($historyRows   != $matchedHistoryEntries) throw new plRuntimeException('Could not match '.($historyRows-$matchedHistoryEntries).' row'.($historyRows-$matchedHistoryEntries==1 ? '':'s'));
+
+      return null;
    }
 
 

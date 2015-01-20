@@ -91,13 +91,27 @@ function processSignal($alias, $fileSyncOnly) {
    global $signalNamePadding;
    echo(($openUpdates ? "\n":'').str_pad($signal->getName().' ', $signalNamePadding, '.', STR_PAD_RIGHT).' ');
 
-   if (!$fileSyncOnly) {
-      // HTML-Seite laden
-      $html = SimpleTrader ::loadSignalPage($signal);
 
-      // HTML-Seite parsen
-      $openPositions = $closedPositions = array();
-      SimpleTrader ::parseSignalData($signal, $html, $openPositions, $closedPositions);
+   if (!$fileSyncOnly) {
+      $counter = 0;
+
+      while (true) {
+         $counter++;
+
+         // HTML-Seite laden
+         $html = SimpleTrader ::loadSignalPage($signal);
+
+         // HTML-Seite parsen
+         $openPositions = $closedPositions = array();
+         $errorMsg      = SimpleTrader ::parseSignalData($signal, $html, $openPositions, $closedPositions);
+         if (!$errorMsg)
+            break;
+
+         // bei PHP-Fehlern im generiertem HTML Seite nochmal laden (bis zu 5 Versuche)
+         echoPre($errorMsg);
+         if ($counter >= 5) throw new plRuntimeException($signal->getName().': '.$errorMsg);
+         Logger ::log($signal->getName().': '.$errorMsg."\nretrying...", L_WARN, __CLASS__);
+      }
 
       // Datenbank aktualisieren
      updateDatabase($signal, $openPositions, $openUpdates, $closedPositions, $closedUpdates);
