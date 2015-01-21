@@ -119,7 +119,7 @@ class SimpleTrader extends StaticClass {
          if (preg_match('/Please read the following information<\/h4>\s*(You do not have access to view this page\.)/isU', $html, $matches))
             throw new plRuntimeException($signal->getName().': '.$matches[1]);
          // PHP-Fehler in der SimpleTrader-Website erkennen und abfangen
-         if (preg_match('/(Parse error: .+ in [a-z0-9_/]\.php on line [0-9]+)/iU', $html, $matches))
+         if (preg_match('/(Parse error: .+ in [a-z0-9_\/]\.php on line [0-9]+)/iU', $html, $matches))
             return $matches[1];
          // Parse error: syntax error, unexpected T_UNSET in /home/simpletrader/public_html/signals.php on line 534
          // Parse error: syntax error, unexpected ';'     in /home/simpletrader/public_html/signals.php on line 691
