@@ -56,15 +56,20 @@ class SimpleTrader extends StaticClass {
          try {
             $counter++;
             $response = CurlHttpClient ::create($options)->send($request);
+
+            if (is_null($response->getContent()))              // Serverfehler, entspricht CURLE_GOT_NOTHING
+               throw new IOException('Empty reply from server, url: '.$request->getUrl());
          }
          catch (IOException $ex) {
             $msg = $ex->getMessage();
             if (String ::startsWith($msg, 'CURL error CURLE_COULDNT_RESOLVE_HOST') ||
                 String ::startsWith($msg, 'CURL error CURLE_COULDNT_CONNECT'     ) ||
                 String ::startsWith($msg, 'CURL error CURLE_OPERATION_TIMEDOUT'  ) ||
-                String ::startsWith($msg, 'CURL error CURLE_GOT_NOTHING'         )) {
-               if ($counter < 3) {                             // bis zu 3 Versuche, eine URL zu laden
-                  Logger ::log($msg."\nretrying...", L_WARN, __CLASS__);
+                String ::startsWith($msg, 'CURL error CURLE_GOT_NOTHING'         ) ||
+                String ::startsWith($msg, 'Empty reply from server'              )) {
+               if ($counter < 10) {                            // bis zu 10 Versuche, eine URL zu laden (entsprcicht )
+                  Logger ::log($msg."\nretrying ... ($counter)", L_WARN, __CLASS__);
+                  sleep(10);                                   // vor jedem weiteren Versuch einige Sekunden warten
                   continue;
                }
             }
@@ -72,18 +77,8 @@ class SimpleTrader extends StaticClass {
          }
          if (($status=$response->getStatus()) != 200) throw new plRuntimeException('Unexpected HTTP status code '.$status.' ('.HttpResponse ::$sc[$status].') for url: '.$request->getUrl());
 
-         $content = $response->getContent();
-         if (is_null($content)) {                              // Serverfehler, entspricht CURLE_GOT_NOTHING
-            $msg = 'Empty reply from server, url: '.$request->getUrl();
-            if ($counter < 3) {
-               Logger ::log($msg."\nretrying...", L_WARN, __CLASS__);
-               continue;
-            }
-            throw new IOException($msg);
-         }
-         break;
+         return $response->getContent();
       }
-      return $content;
    }
 
 
