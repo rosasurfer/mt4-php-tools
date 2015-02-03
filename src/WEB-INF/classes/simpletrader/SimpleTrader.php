@@ -110,15 +110,18 @@ class SimpleTrader extends StaticClass {
       // Tabellen <table id="openTrades"> und <table id="history"> extrahieren
       $matchedTables = preg_match_all('/<table\b.*\bid="(opentrades|history)".*>.*<tbody\b.*>(.*)<\/tbody>.*<\/table>/isU', $html, $tables, PREG_SET_ORDER);
       if ($matchedTables != 2) {
-         // Login notwendig (falls Cookies ungültig oder korrupt sind)
-         if (preg_match('/Please read the following information<\/h4>\s*(You do not have access to view this page\.)/isU', $html, $matches))
+         if (preg_match('/Please read the following information<\/h4>\s*(You do not have access to view this page\.)/isU', $html, $matches)) {
+            // Login ungültig (falls Cookies ungültig oder korrupt sind)
             throw new plRuntimeException($signal->getName().': '.$matches[1]);
-         // PHP-Fehler in der SimpleTrader-Website erkennen und abfangen
-         if (preg_match('/(Parse error: .+ in [a-z0-9_\/]\.php on line [0-9]+)/iU', $html, $matches))
+         }
+         if (preg_match('/(Parse error: .+ in [a-z0-9_\/]\.php on line [0-9]+)/iU', $html, $matches)) {
+            // PHP-Fehler in der SimpleTrader-Website: Parse error: .............. in /home/simpletrader/public_html/signals.php on line ...
             return $matches[1];
-         // Parse error: syntax error, unexpected T_UNSET in /home/simpletrader/public_html/signals.php on line 534
-         // Parse error: syntax error, unexpected ';'     in /home/simpletrader/public_html/signals.php on line 691
-
+         }
+         if (trim($html) == 'Database error...') {
+            // PHP-Fehler in der SimpleTrader-Website: Database error...
+            return trim($html);
+         }
          throw new plRuntimeException($signal->getName().': tables "opentrades" and/or "history" not found (unknown HTML status)'.NL.NL.$html);
       }
 
