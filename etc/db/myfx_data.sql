@@ -9,6 +9,7 @@ insert into t_signal (created, name, alias, referenceid, currency) values
    (now(), 'DayFox'      , 'dayfox'      , '2465', 'EUR'),
    (now(), 'FX Viper'    , 'fxviper'     , '633' , 'USD'),
    (now(), 'GoldStar'    , 'goldstar'    , '2622', 'USD'),
+   (now(), 'OverTrader'  , 'overtrader'  , '2973', 'USD'),
    (now(), 'SmartScalper', 'smartscalper', '1086', 'USD'),
    (now(), 'SmartTrader' , 'smarttrader' , '1081', 'USD'),
    (now(), 'Yen Fortress', 'yenfortress' , '2877', 'USD');
@@ -21,6 +22,7 @@ insert into t_signal (created, name, alias, referenceid, currency) values
    set @signal_dayfox       = (select id from t_signal where alias = 'dayfox'      );
    set @signal_fxviper      = (select id from t_signal where alias = 'fxviper'     );
    set @signal_goldstar     = (select id from t_signal where alias = 'goldstar'    );
+   set @signal_overtrader   = (select id from t_signal where alias = 'overtrader'  );
    set @signal_smarttrader  = (select id from t_signal where alias = 'smarttrader' );
    set @signal_smartscalper = (select id from t_signal where alias = 'smartscalper');
    set @signal_yenfortress  = (select id from t_signal where alias = 'yenfortress' );
