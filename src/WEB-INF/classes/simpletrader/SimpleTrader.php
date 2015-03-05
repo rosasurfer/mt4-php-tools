@@ -171,6 +171,8 @@ class SimpleTrader extends StaticClass {
 
                // 3:OpenTime
                $sOpenTime = trim($row[I_STOP_OPENTIME]);
+               if (String::endsWith($sOpenTime, '*'))                // seit 06.02.2015 von Fall zu Fall, Bedeutung ist noch unklar
+                  $sOpenTime = subStr($sOpenTime, 0, -1);
                if (!($time=strToTime($sOpenTime.' GMT'))) throw new plRuntimeException('Invalid OpenTime found in open position row '.($i+1).': "'.$row[I_STOP_OPENTIME].'", HTML:'.NL.NL.$row[0]);
                $row['opentime' ] = $time;
                $row['closetime'] = null;
@@ -262,7 +264,7 @@ class SimpleTrader extends StaticClass {
 
                // 3:OpenTime
                $sOpenTime = trim($row[I_STH_OPENTIME]);
-               if (String::endsWith($sOpenTime, '*'))                // seit 06.02.2015 von Fall zu Fall, Bedeutung ist unklar
+               if (String::endsWith($sOpenTime, '*'))                // seit 06.02.2015 von Fall zu Fall, Bedeutung ist noch unklar
                   $sOpenTime = subStr($sOpenTime, 0, -1);
                if (!($time=strToTime($sOpenTime.' GMT'))) throw new plRuntimeException('Invalid OpenTime found in history row '.($i+1).': "'.$row[I_STH_OPENTIME].'", HTML:'.NL.NL.$row[0]);
                $row['opentime'] = $time;
