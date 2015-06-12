@@ -71,16 +71,16 @@ foreach ($matches as $i => $filename) {
       $rateinfoFrom = $rateinfoTo = array('time' => 0);
 
       if ($bars) {
-         $rateinfoFrom = unpack('Vtime/dopen/dlow/dhigh/dclose/dvol', fRead($hFile, 44));
+         $rateinfoFrom  = unpack('Vtime/dopen/dlow/dhigh/dclose/dvol', fRead($hFile, 44));
          if ($bars > 1) {
             fSeek($hFile, 148 + 44*($bars-1));
-            $rateinfoTo   = unpack('Vtime/dopen/dlow/dhigh/dclose/dvol', fRead($hFile, 44));
+            $rateinfoTo = unpack('Vtime/dopen/dlow/dhigh/dclose/dvol', fRead($hFile, 44));
          }
       }
       fClose($hFile);
 
       extract($header);
-      $symbolperiod = $symbol.','. MT4 ::periodDescription($period);
+      $symbolperiod = $symbol.','.MT4 ::periodDescription($period);
       $timesign     = $timesign ? date('Y.m.d H:i:s', $timesign):'';
       $lastsync     = $lastsync ? date('Y.m.d H:i:s', $lastsync):'';
       $ratesFrom    = $rateinfoFrom['time'] ? gmDate('Y.m.d H:i:s', $rateinfoFrom['time']):'';
