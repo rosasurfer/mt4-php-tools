@@ -13,21 +13,36 @@ require(dirName(realPath(__FILE__)).'/../../config.php');
 $args = array_slice($_SERVER['argv'], 1);
 !$args && exit("\n  Syntax: ".baseName($_SERVER['PHP_SELF'])." <file-pattern>\n");
 
+$arg0 = $args[0];                                                    // Die Funktion glob() kann nicht verwendet werden, da sie beim Patternmatching unter Windows
+if (realPath($arg0)) {                                               // Groß-/Kleinschreibung unerscheidet. Stattdessen werden Directory-Funktionen benutzt.
+   $arg0 = realPath($arg0);
+   if (is_dir($arg0)) { $dirName = $arg0;          $baseName = '';              }
+   else               { $dirName = dirName($arg0); $baseName = baseName($arg0); }
+}
+else                  { $dirName = dirName($arg0); $baseName = baseName($arg0); }
+!$baseName && ($basename='*');
+$baseName = str_replace('*', '.*', str_replace('.', '\.', $baseName));
 
-// Dateien einlesen                    // TODO: glob() unterscheidet beim Patternmatching unter Windows fälschlich Groß-/Kleinschreibung
-$files = glob($args[0], GLOB_ERR);     //       Solution: glob() mit Directory-Funktionen emulieren
+
+// Verzeichnis öffnen
+$dir = Dir($dirName);
+!$dir && exit("No history files found for \"$args[0]\"\n");
 
 
-// gefundene Dateien sortieren (order by Symbol ASC, Periode ASC)
+// Dateien filtern und einlesen
 $matches = array();
-foreach ($files as $name) {
-   if (preg_match('/^([^.]*\D)(\d+)(\.[^.]*)*\.hst$/i', $name, $match)) {
+while (($entry=$dir->read()) !== false) {
+   if (preg_match("/^$baseName$/i", $entry) && preg_match('/^([^.]*\D)(\d+)(\.[^.]*)*\.hst$/i', $entry, $match)) {
       $symbols[] = strToUpper($match[1]);
       $periods[] = (int) $match[2];
-      $matches[] = $name;
+      $matches[] = $entry;
    }
 }
-if (!$matches) exit("No history files found for \"$args[0]\"\n");
+$dir->close();
+!$matches && exit("No history files found for \"$args[0]\"\n");
+
+
+// gefundene Dateien sortieren: order by Symbol ASC, Periode ASC
 array_multisort($symbols, SORT_ASC, $periods, SORT_ASC, $matches);
 
 
