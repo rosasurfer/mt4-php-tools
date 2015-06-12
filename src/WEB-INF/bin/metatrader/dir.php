@@ -11,9 +11,7 @@ require(dirName(realPath(__FILE__)).'/../../config.php');
 
 // Befehlszeilenparameter holen
 $args = array_slice($_SERVER['argv'], 1);
-if (!$args) {
-   exit("\n  Syntax: ".baseName($_SERVER['PHP_SELF'])." <file-pattern>\n");
-}
+!$args && exit("\n  Syntax: ".baseName($_SERVER['PHP_SELF'])." <file-pattern>\n");
 
 
 // Dateien einlesen                    // TODO: glob() unterscheidet beim Patternmatching unter Windows fälschlich Groß-/Kleinschreibung
