@@ -3,7 +3,7 @@
 /**
  * Verzeichnislisting für MetaTrader-Historydateien
  */
-require(dirName(realPath(__FILE__)).'/../config.php');
+require(dirName(realPath(__FILE__)).'/../../config.php');
 
 
 /**

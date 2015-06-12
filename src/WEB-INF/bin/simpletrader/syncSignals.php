@@ -7,7 +7,7 @@
  *
  *
  */
-require(dirName(realPath(__FILE__)).'/../config.php');
+require(dirName(realPath(__FILE__)).'/../../config.php');
 
 
 $sleepSeconds      = 30;         // Länge der Pause zwischen zwei Updates
