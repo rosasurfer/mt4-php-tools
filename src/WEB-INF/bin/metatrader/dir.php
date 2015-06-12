@@ -6,29 +6,6 @@
 require(dirName(realPath(__FILE__)).'/../../config.php');
 
 
-/**
- * Gibt die lesbare Version eines Timeframe-Codes zurück.
- *
- * @param  int period - Timeframe-Code
- *
- * @return string
- */
-function periodToString($period) {
-   switch ($period) {
-      case PERIOD_M1  : return("M1" );    //     1  1 minute
-      case PERIOD_M5  : return("M5" );    //     5  5 minutes
-      case PERIOD_M15 : return("M15");    //    15  15 minutes
-      case PERIOD_M30 : return("M30");    //    30  30 minutes
-      case PERIOD_H1  : return("H1" );    //    60  1 hour
-      case PERIOD_H4  : return("H4" );    //   240  4 hour
-      case PERIOD_D1  : return("D1" );    //  1440  daily
-      case PERIOD_W1  : return("W1" );    // 10080  weekly
-      case PERIOD_MN1 : return("MN1");    // 43200  monthly
-   }
-   return("$period");
-}
-
-
 // -- Start ----------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -90,7 +67,7 @@ foreach ($matches as $i => $filename) {
       fClose($hFile);
 
       extract($header);
-      $symbolperiod = $symbol.','.periodToString($period);
+      $symbolperiod = $symbol.','. MT4 ::periodDescription($period);
       $timesign     = $timesign ? date('Y.m.d H:i:s', $timesign):'';
       $lastsync     = $lastsync ? date('Y.m.d H:i:s', $lastsync):'';
       $ratesFrom    = $rateinfoFrom['time'] ? gmDate('Y.m.d H:i:s', $rateinfoFrom['time']):'';
