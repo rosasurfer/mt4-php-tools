@@ -1,7 +1,7 @@
 #!/usr/bin/php -Cq
 <?php
 /**
- * Verzeichnislisting für MT4-Historydateien
+ * Verzeichnislisting für MetaTrader-Historydateien
  */
 require(dirName(realPath(__FILE__)).'/../config.php');
 
