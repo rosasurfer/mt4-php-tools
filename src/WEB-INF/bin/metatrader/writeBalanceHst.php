@@ -6,16 +6,16 @@
 require(dirName(realPath(__FILE__)).'/../../config.php');
 
 
-// Befehlszeilenargumente holen, auswerten und alle notwendigen Pfade und Dateinamen bestimmen
+// Befehlszeilenargumente holen, auswerten und notwendige Pfade und Dateinamen bestimmen
 $args = array_slice($_SERVER['argv'], 1);
-if (!$args || !is_file($args[0]))                                    exit("\n  Syntax: ".baseName($_SERVER['PHP_SELF'])." <history-file.csv>\n");
+(!$args || !is_file($args[0]))                                    && exit("\n  Syntax: ".baseName($_SERVER['PHP_SELF'])." <history-file.csv>\n");
 
 $sourceFile = realPath($args[0]);
 $pathInfo   = pathInfo($sourceFile);
-if (!isSet($pathInfo['extension']) || $pathInfo['extension']!='csv') exit("\n  Syntax: ".baseName($_SERVER['PHP_SELF'])." <history-file.csv>\n");
+(!isSet($pathInfo['extension']) || $pathInfo['extension']!='csv') && exit("\n  Syntax: ".baseName($_SERVER['PHP_SELF'])." <history-file.csv>\n");
 
 $parts = explode(DIRECTORY_SEPARATOR.'experts'.DIRECTORY_SEPARATOR.'files'.DIRECTORY_SEPARATOR, $pathInfo['dirname']);
-if (sizeOf($parts) != 2)                                             exit("\n  Syntax: ".baseName($_SERVER['PHP_SELF'])." <history-file.csv>\n");
+(sizeOf($parts) != 2)                                             && exit("\n  Syntax: ".baseName($_SERVER['PHP_SELF'])." <history-file.csv>\n");
 
 switch (strToLower($parts[1])) {
  //case 'alpariuk-demo'        : { $serverTimezone = 'Europe/Berlin'   ; $account =     52256; break; } // Jacko
@@ -66,11 +66,11 @@ foreach ($lines as $i => &$line) {
                          strToTime($date->format('Y-m-d H:i:s \G\M\T')),   // GMT-Timestamp der FXT der ServerTime; FXT = America/New_York+0700
                          (float) $values[20]);                             // Balance
 }
-if (!$csvHistory) exit("Empty CSV history file - nothing to do.\n");
+!$csvHistory && exit("Empty CSV history file - nothing to do.\n");
 
 
 // MT4-HistoryFile öffnen bzw. neu anlegen
-$symbol   = $account.'.AB';                                             // AB = AccountBalance
+$symbol   = $account.'.AB';                                                // AB = AccountBalance
 $period   = PERIOD_H1;
 $filename = $serverDirectory.DIRECTORY_SEPARATOR.$symbol.$period.'.hst';
 

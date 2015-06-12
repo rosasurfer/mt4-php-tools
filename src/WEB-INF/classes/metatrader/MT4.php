@@ -7,7 +7,7 @@ class MT4 extends StaticClass {
    /**
     * Erweiterter History-Header:
     *
-    * typedef struct _HISTORY_HEADER {
+    * typedef struct HISTORY_HEADER {
     *   int  version;            //     4      => hh[ 0]    // database version
     *   char description[64];    //    64      => hh[ 1]    // copyright info
     *   char symbol[12];         //    12      => hh[17]    // symbol name
@@ -18,18 +18,18 @@ class MT4 extends StaticClass {
     *   int  periodFlag;         //     4      => hh[24]    // whether hh.period is a minutes or a seconds timeframe
     *   int  timezone;           //     4      => hh[25]    // timezone id
     *   int  reserved[11];       //    44      => hh[26]
-    * } HISTORY_HEADER, hh;      // = 148 byte = int[37]
+    * } hh;                      // = 148 byte = int[37]
     */
 
    /**
-    * typedef struct _RATEINFO {
+    * typedef struct RATEINFO {
     *   int    time;             //     4      =>  ri[0]    // bar time
     *   double open;             //     8      =>  ri[1]
     *   double low;              //     8      =>  ri[3]
     *   double high;             //     8      =>  ri[5]
     *   double close;            //     8      =>  ri[7]
     *   double vol;              //     8      =>  ri[9]
-    * } RATEINFO, ri;            //  = 44 byte = int[11]
+    * } ri;                      //  = 44 byte = int[11]
     */
 
    private static $tpl_HistoryHeader = array('version'      => 400,
