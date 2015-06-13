@@ -7,23 +7,23 @@ class MT4 extends StaticClass {
    /**
     * Erweiterter History-Header:
     *
-    * typedef struct HISTORY_HEADER {
-    *   int  version;            //     4      => hh[ 0]    // database version
-    *   char description[64];    //    64      => hh[ 1]    // copyright info
-    *   char symbol[12];         //    12      => hh[17]    // symbol name
-    *   int  period;             //     4      => hh[20]    // symbol timeframe
-    *   int  digits;             //     4      => hh[21]    // amount of digits after decimal point
-    *   int  syncMark;           //     4      => hh[22]    // server database sync marker (timestamp)
-    *   int  prevSyncMark;       //     4      => hh[23]    // previous server database sync marker (timestamp)
-    *   int  periodFlag;         //     4      => hh[24]    // whether hh.period is a minutes or a seconds timeframe
-    *   int  timezone;           //     4      => hh[25]    // timezone id
-    *   int  reserved[11];       //    44      => hh[26]
+    * struct HISTORY_HEADER {
+    *   int    version;          //     4      => hh[ 0]    // database version
+    *   szchar description[64];  //    64      => hh[ 1]    // copyright info, <NUL> terminated
+    *   szchar symbol[12];       //    12      => hh[17]    // symbol name, <NUL> terminated
+    *   int    period;           //     4      => hh[20]    // symbol timeframe
+    *   int    digits;           //     4      => hh[21]    // amount of digits after decimal point
+    *   int    syncMark;         //     4      => hh[22]    // server database sync marker (timestamp)
+    *   int    prevSyncMark;     //     4      => hh[23]    // previous server database sync marker (timestamp)
+    *   int    periodFlag;       //     4      => hh[24]    // whether hh.period is a minutes or a seconds timeframe
+    *   int    timezone;         //     4      => hh[25]    // timezone id
+    *   int    reserved[11];     //    44      => hh[26]
     * } hh;                      // = 148 byte = int[37]
     */
 
    /**
-    * typedef struct RATEINFO {
-    *   int    time;             //     4      =>  ri[0]    // bar time
+    * struct RATE_INFO {
+    *   int    time;             //     4      =>  ri[0]    // bar open time
     *   double open;             //     8      =>  ri[1]
     *   double low;              //     8      =>  ri[3]
     *   double high;             //     8      =>  ri[5]

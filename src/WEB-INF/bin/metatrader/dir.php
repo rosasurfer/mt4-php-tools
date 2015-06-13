@@ -47,7 +47,7 @@ array_multisort($symbols, SORT_ASC, $periods, SORT_ASC, $matches);
 
 
 // Tabellenheader ausgeben
-echoPre("Symbol           Digits  Timesign             LastSync                  Bars  From                 To");
+echoPre("Symbol           Digits  TimeSign             LastSync                  Bars  From                 To");
 echoPre("----------------------------------------------------------------------------------------------------------------------");
 
 // Zeilenformat definieren
@@ -61,31 +61,27 @@ foreach ($matches as $i => $filename) {
       echoPre(str_pad($filename, 21).' invalid history file');
    }
    else {
-      $bars = floor(($filesize-148)/44);
-
-      $hFile  = fOpen($filename, 'rb');
-      $header = unpack('Vversion/a64description/a12symbol/Vperiod/Vdigits/Vtimesign/Vlastsync/a52reserved', fRead($hFile, 148));
-      $header['description'] = current(explode("\0", $header['description'], 2));
-      $header['symbol'     ] = current(explode("\0", $header['symbol'     ], 2));
-
-      $rateinfoFrom = $rateinfoTo = array('time' => 0);
-
+      $hFile   = fOpen($filename, 'rb');
+      $header  = unpack('Vversion/a64description/a12symbol/Vperiod/Vdigits/VtimeSign/VlastSync/a52reserved', fRead($hFile, 148));
+      $bars    = floor(($filesize-148)/44);
+      $barFrom = $barTo = array();
       if ($bars) {
-         $rateinfoFrom  = unpack('Vtime/dopen/dlow/dhigh/dclose/dvol', fRead($hFile, 44));
+         $barFrom  = unpack('Vtime/dopen/dlow/dhigh/dclose/dvol', fRead($hFile, 44));
          if ($bars > 1) {
             fSeek($hFile, 148 + 44*($bars-1));
-            $rateinfoTo = unpack('Vtime/dopen/dlow/dhigh/dclose/dvol', fRead($hFile, 44));
+            $barTo = unpack('Vtime/dopen/dlow/dhigh/dclose/dvol', fRead($hFile, 44));
          }
       }
       fClose($hFile);
 
       extract($header);
-      $symbolperiod = $symbol.','.MT4 ::periodDescription($period);
-      $timesign     = $timesign ? date('Y.m.d H:i:s', $timesign):'';
-      $lastsync     = $lastsync ? date('Y.m.d H:i:s', $lastsync):'';
-      $ratesFrom    = $rateinfoFrom['time'] ? gmDate('Y.m.d H:i:s', $rateinfoFrom['time']):'';
-      $ratesTo      = $rateinfoTo  ['time'] ? gmDate('Y.m.d H:i:s', $rateinfoTo  ['time']):'';
-      echoPre(sprintf($lineFormat, $symbolperiod, $digits, $timesign, $lastsync, number_format($bars), $ratesFrom, $ratesTo));
+      $period   = MT4 ::periodDescription($period);
+      $timeSign = $timeSign ? date('Y.m.d H:i:s', $timeSign) : '';
+      $lastSync = $lastSync ? date('Y.m.d H:i:s', $lastSync) : '';
+      $barFrom  = $barFrom  ? gmDate('Y.m.d H:i:s', $barFrom['time']) : '';
+      $barTo    = $barTo    ? gmDate('Y.m.d H:i:s', $barTo  ['time']) : '';
+
+      echoPre(sprintf($lineFormat, $symbol.','.$period, $digits, $timeSign, $lastSync, number_format($bars), $barFrom, $barTo));
    }
 }
 ?>
