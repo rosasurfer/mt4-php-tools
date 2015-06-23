@@ -8,30 +8,18 @@ class MT4 extends StaticClass {
     * Erweiterter History-Header:
     *
     * struct HISTORY_HEADER {
-    *   int    version;          //     4      => hh[ 0]    // database version
-    *   szchar description[64];  //    64      => hh[ 1]    // copyright info, <NUL> terminated
-    *   szchar symbol[12];       //    12      => hh[17]    // symbol name, <NUL> terminated
-    *   int    period;           //     4      => hh[20]    // symbol timeframe
-    *   int    digits;           //     4      => hh[21]    // amount of digits after decimal point
-    *   int    syncMark;         //     4      => hh[22]    // server database sync marker (timestamp)
-    *   int    prevSyncMark;     //     4      => hh[23]    // previous server database sync marker (timestamp)
-    *   int    periodFlag;       //     4      => hh[24]    // whether hh.period is a minutes or a seconds timeframe
-    *   int    timezone;         //     4      => hh[25]    // timezone id
-    *   int    reserved[11];     //    44      => hh[26]
-    * } hh;                      // = 148 byte = int[37]
+    *    int    version;                  //     4             // database version
+    *    szchar description[64];          //    64             // copyright info
+    *    szchar symbol[12];               //    12             // symbol name
+    *    int    period;                   //     4             // symbol timeframe
+    *    int    digits;                   //     4             // amount of digits after decimal point
+    *    int    syncMark;                 //     4             // server database sync marker (timestamp)
+    *    int    prevSyncMark;             //     4             // previous server database sync marker (timestamp)
+    *    int    periodFlag;               //     4             // whether hh.period is a minutes or a seconds timeframe
+    *    int    timezone;                 //     4             // timezone id
+    *    int    reserved[11];             //    44
+    * };                                  // = 148 bytes
     */
-
-   /**
-    * struct RATE_INFO {
-    *   int    time;             //     4      =>  ri[0]    // bar open time
-    *   double open;             //     8      =>  ri[1]
-    *   double low;              //     8      =>  ri[3]
-    *   double high;             //     8      =>  ri[5]
-    *   double close;            //     8      =>  ri[7]
-    *   double vol;              //     8      =>  ri[9]
-    * } ri;                      //  = 44 byte = int[11]
-    */
-
    private static $tpl_HistoryHeader = array('version'      => 400,
                                              'description'  => 'mt4.rosasurfer.com',
                                              'symbol'       => "\0",
@@ -43,12 +31,43 @@ class MT4 extends StaticClass {
                                              'timezone'     => 0,
                                              'reserved'     => "\0");
 
-   private static $tpl_RateInfo = array('time'  => 0,
-                                        'open'  => 0,
-                                        'high'  => 0,
-                                        'low'   => 0,
-                                        'close' => 0,
-                                        'vol'   => 0);
+   /**
+    * struct HISTORY_BAR_400 {
+    *    uint   time;                     //     4             // open time
+    *    double open;                     //     8
+    *    double low;                      //     8
+    *    double high;                     //     8
+    *    double close;                    //     8
+    *    double volume;                   //     8             // immer Ganzzahl
+    * };                                  //  = 44 bytes
+    */
+   private static $tpl_HistoryBar400 = array('time'   => 0,
+                                             'open'   => 0,
+                                             'high'   => 0,
+                                             'low'    => 0,
+                                             'close'  => 0,
+                                             'volume' => 0);
+
+   /**
+    * struct HISTORY_BAR_401 {
+    *    __int64          time;           //     8             // open time
+    *    double           open;           //     8
+    *    double           high;           //     8
+    *    double           low;            //     8
+    *    double           close;          //     8
+    *    unsigned __int64 tickVolume;     //     8
+    *    int              spread;         //     4             // unbenutzt
+    *    unsigned __int64 realVolume;     //     8             // unbenutzt
+    * };                                  //  = 60 bytes
+    */
+   private static $tpl_HistoryBar401 = array('time'       => 0,
+                                             'open'       => 0,
+                                             'high'       => 0,
+                                             'low'        => 0,
+                                             'close'      => 0,
+                                             'tickVolume' => 0,
+                                             'spread'     => 0,
+                                             'realVolume' => 0);
 
    /**
     * Erzeugt eine mit Defaultwerten gefüllte HistoryHeader-Struktur und gibt sie zurück.
@@ -69,8 +88,8 @@ class MT4 extends StaticClass {
     * @return int - Anzahl der geschriebenen Bytes
     */
    public static function writeHistoryHeader($hFile, array $hh) {
-      if (getType($hFile) != 'resource') throw new IllegalTypeException('Illegal type of parameter $hFile: '.$hFile.' ('.getType($hFile).')');
-      if (!$hh)                          throw new plInvalidArgumentException('Invalid parameter $hh: '.print_r($hh, true));
+      if (!is_resource($hFile)) throw new IllegalTypeException('Illegal type of parameter $hFile: '.$hFile.' ('.getType($hFile).')');
+      if (!$hh)                 throw new plInvalidArgumentException('Invalid parameter $hh: '.print_r($hh, true));
 
       $hh = array_merge(self::$tpl_HistoryHeader, $hh);
       $hh['timezone'] = 0;
@@ -104,9 +123,14 @@ class MT4 extends StaticClass {
     * @return int - Anzahl der geschriebenen Bytes
     */
    public static function addHistoryBar($hFile, $time, $open, $high, $low, $close, $vol) {
-      if (getType($hFile) != 'resource') throw new IllegalTypeException('Illegal type of parameter $hFile: '.$hFile.' ('.getType($hFile).')');
+      if (!is_resource($hFile)) throw new IllegalTypeException('Illegal type of parameter $hFile: '.$hFile.' ('.getType($hFile).')');
 
-      return fWrite($hFile, pack('Vddddd', $time, $open, $low, $high, $close, $vol));
+      return fWrite($hFile, pack('Vddddd', $time,     // V
+                                           $open,     // d
+                                           $low,      // d
+                                           $high,     // d
+                                           $close,    // d
+                                           $vol));    // d
    }
 
 
