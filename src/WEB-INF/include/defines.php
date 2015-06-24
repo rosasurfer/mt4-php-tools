@@ -46,7 +46,10 @@ define('AH_COMMENT'    , 12);
 
 
 // Struct-Sizes
-define('DUKASCOPY_BAR_SIZE', 24);
+define('DUKASCOPY_BAR_SIZE'  ,  24);
+define('HISTORY_HEADER_SIZE' , 148);
+define('HISTORY_BAR_400_SIZE',  44);
+define('HISTORY_BAR_401_SIZE',  60);
 
 
 // SimpleTrader: Indizes der von preg_match_all() zurückgegebenen OpenPosition-Datenarrays

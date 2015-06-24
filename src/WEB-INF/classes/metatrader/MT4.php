@@ -38,36 +38,36 @@ class MT4 extends StaticClass {
     *    double low;                      //     8
     *    double high;                     //     8
     *    double close;                    //     8
-    *    double volume;                   //     8             // immer Ganzzahl
+    *    double ticks;                    //     8             // immer Ganzzahl
     * };                                  //  = 44 bytes
     */
-   private static $tpl_HistoryBar400 = array('time'   => 0,
+   private static $tpl_HistoryBar400 = array('time'  => 0,
+                                             'open'  => 0,
+                                             'high'  => 0,
+                                             'low'   => 0,
+                                             'close' => 0,
+                                             'ticks' => 0);
+
+   /**
+    * struct HISTORY_BAR_401 {
+    *    int64  time;                     //     8             // open time
+    *    double open;                     //     8
+    *    double high;                     //     8
+    *    double low;                      //     8
+    *    double close;                    //     8
+    *    uint64 ticks;                    //     8
+    *    int    spread;                   //     4             // unbenutzt
+    *    uint64 volume;                   //     8             // unbenutzt
+    * };                                  //  = 60 bytes
+    */
+   private static $tpl_HistoryBar401 = array('time'   => 0,
                                              'open'   => 0,
                                              'high'   => 0,
                                              'low'    => 0,
                                              'close'  => 0,
+                                             'ticks'  => 0,
+                                             'spread' => 0,
                                              'volume' => 0);
-
-   /**
-    * struct HISTORY_BAR_401 {
-    *    __int64          time;           //     8             // open time
-    *    double           open;           //     8
-    *    double           high;           //     8
-    *    double           low;            //     8
-    *    double           close;          //     8
-    *    unsigned __int64 tickVolume;     //     8
-    *    int              spread;         //     4             // unbenutzt
-    *    unsigned __int64 realVolume;     //     8             // unbenutzt
-    * };                                  //  = 60 bytes
-    */
-   private static $tpl_HistoryBar401 = array('time'       => 0,
-                                             'open'       => 0,
-                                             'high'       => 0,
-                                             'low'        => 0,
-                                             'close'      => 0,
-                                             'tickVolume' => 0,
-                                             'spread'     => 0,
-                                             'realVolume' => 0);
 
    /**
     * Erzeugt eine mit Defaultwerten gefüllte HistoryHeader-Struktur und gibt sie zurück.
@@ -118,11 +118,11 @@ class MT4 extends StaticClass {
     * @param  float    $high
     * @param  float    $low
     * @param  float    $close
-    * @param  int      $vol
+    * @param  int      $ticks
     *
     * @return int - Anzahl der geschriebenen Bytes
     */
-   public static function addHistoryBar($hFile, $time, $open, $high, $low, $close, $vol) {
+   public static function addHistoryBar($hFile, $time, $open, $high, $low, $close, $ticks) {
       if (!is_resource($hFile)) throw new IllegalTypeException('Illegal type of parameter $hFile: '.$hFile.' ('.getType($hFile).')');
 
       return fWrite($hFile, pack('Vddddd', $time,     // V
@@ -130,7 +130,7 @@ class MT4 extends StaticClass {
                                            $low,      // d
                                            $high,     // d
                                            $close,    // d
-                                           $vol));    // d
+                                           $ticks));  // d
    }
 
 
