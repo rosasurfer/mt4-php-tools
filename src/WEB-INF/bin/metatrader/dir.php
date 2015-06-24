@@ -2,6 +2,13 @@
 <?php
 /**
  * Verzeichnislisting für MetaTrader-Historydateien
+ *
+ *
+ * Zur Datei <path>/4NT/alias.lst hinzufügen:
+ * ------------------------------------------
+ *  mt4dir     =mt4dir.php
+ *  mt4dir.php =<project_dir>/src/WEB-INF/bin/metatrader/mt4dir.php
+ *  mtdir      =mt4dir
  */
 require(dirName(realPath(__FILE__)).'/../../config.php');
 
