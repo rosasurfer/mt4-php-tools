@@ -77,10 +77,11 @@ $filename = $serverDirectory.DIRECTORY_SEPARATOR.$symbol.$period.'.hst';
 $hFile = fOpen($filename, 'ab+');
 if (fileSize($filename) < 148) {
    $hh = MT4 ::createHistoryHeader();
+      $hh['format'  ] = 400;
       $hh['symbol'  ] = $symbol;
       $hh['period'  ] = $period;
       $hh['digits'  ] = 2;
-      $hh['timezone'] = 'FXT';
+    //$hh['timezone'] = 'FXT';
    MT4 ::writeHistoryHeader($hFile, $hh);
 }
 

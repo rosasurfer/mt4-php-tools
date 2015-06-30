@@ -13,90 +13,95 @@
 require(dirName(realPath(__FILE__)).'/../../config.php');
 
 
+// Unpack-Format des HistoryHeaders definieren: PHP 5.5.0 - The "a" code now retains trailing NULL bytes, "Z" replaces the former "a".
+if (PHP_VERSION < '5.5.0') $hstHeaderFormat = 'Vformat/a64description/a12symbol/Vperiod/Vdigits/VsyncMark/VlastSync/x52';
+else                       $hstHeaderFormat = 'Vformat/Z64description/Z12symbol/Vperiod/Vdigits/VsyncMark/VlastSync/x52';
+
+
 // -- Start ----------------------------------------------------------------------------------------------------------------------------------------
 
 
-// Befehlszeilenparameter holen
+// (1) Befehlszeilenparameter auswerten
 $args = array_slice($_SERVER['argv'], 1);
-!$args && exit("\n  Syntax: ".baseName($_SERVER['PHP_SELF'])." <file-pattern>\n");
+!$args && ($args[0]='*');
 
 $arg0 = $args[0];                                                    // Die Funktion glob() kann nicht verwendet werden, da sie beim Patternmatching unter Windows
-if (realPath($arg0)) {                                               // Groß-/Kleinschreibung unerscheidet. Stattdessen werden Directory-Funktionen benutzt.
+if (realPath($arg0)) {                                               // Groß-/Kleinschreibung unterscheidet. Stattdessen werden Directory-Funktionen benutzt.
    $arg0 = realPath($arg0);
    if (is_dir($arg0)) { $dirName = $arg0;          $baseName = '';              }
    else               { $dirName = dirName($arg0); $baseName = baseName($arg0); }
 }
 else                  { $dirName = dirName($arg0); $baseName = baseName($arg0); }
-!$baseName && ($basename='*');
+
+!$baseName && ($baseName='*');
 $baseName = str_replace('*', '.*', str_replace('.', '\.', $baseName));
 
 
-// Verzeichnis öffnen
+// (2) Verzeichnis öffnen
 $dir = Dir($dirName);
 !$dir && exit("No history files found for \"$args[0]\"\n");
 
 
-// Dateien filtern und einlesen
-$matches = array();
+// (3.1) Dateinamen einlesen, filtern und aus dem Header "Symbol,Periode" auslesen (nicht aus dem Dateinamen, weil nicht eindeutig)
+$matches = $formats = $symbols = $periods = array();
 while (($entry=$dir->read()) !== false) {
-   if (preg_match("/^$baseName$/i", $entry) && preg_match('/^([^.]*\D)(\d+)(\.[^.]*)*\.hst$/i', $entry, $match)) {
-      $symbols[] = strToUpper($match[1]);
-      $periods[] = (int) $match[2];
+   if (preg_match("/^$baseName$/i", $entry) && preg_match('/^(.+)\.hst$/i', $entry, $match)) {
       $matches[] = $entry;
+      $filesize  = fileSize($entry);
+
+      if ($filesize < HISTORY_HEADER_SIZE) {
+         $formats[] = 0;
+         $symbols[] = strToUpper($match[1]);                         // invalid or unknown history file format
+         $periods[] = 0;
+      }
+      else {
+         $hFile     = fOpen($entry, 'rb');
+         $hstHeader = unpack($hstHeaderFormat, fRead($hFile, HISTORY_HEADER_SIZE));
+         if ($hstHeader['format']==400 || $hstHeader['format']==401) {
+            $formats[] =            $hstHeader['format'];
+            $symbols[] = strToUpper($hstHeader['symbol']);
+            $periods[] =            $hstHeader['period'];
+         }
+         else {
+            $formats[] = 0;
+            $symbols[] = strToUpper($match[1]);                      // unknown history file format
+            $periods[] = 0;
+         }
+         fClose($hFile);
+      }
    }
 }
 $dir->close();
 !$matches && exit("No history files found for \"$args[0]\"\n");
 
-
-// gefundene Dateien sortieren: ORDER by Symbol ASC, Periode ASC
+// (3.2) gefundene Dateien sortieren: ORDER by Symbol ASC, Periode ASC
 array_multisort($symbols, SORT_ASC, $periods, SORT_ASC, $matches);
 
 
-// Ausgabeformat der Zeilen definieren
-$tableHeader    = 'Symbol           Digits  TimeSign             LastSync                  Bars  From                 To                   Version';
-$tableSeparator = '-------------------------------------------------------------------------------------------------------------------------------';
+// (4) Tabellen-Format definieren und Header ausgeben
+$tableHeader    = 'Symbol           Digits  SyncMark             LastSync                  Bars  From                 To                   Format';
+$tableSeparator = '------------------------------------------------------------------------------------------------------------------------------';
 $tableRowFormat = '%-15s    %d     %-19s  %-19s  %9s  %-19s  %-19s    %s';
-$lastSymbol     = null;
-
-
-// Tabellenheader ausgeben
 echoPre($tableHeader);
 
 
-// Unpack-Format des HistoryHeaders anpassen: PHP 5.5.0 - The "a" code now retains trailing NULL bytes, "Z" replaces the former "a".
-if (PHP_VERSION < '5.5.0') $hstHeaderFormat = 'Vversion/a64description/a12symbol/Vperiod/Vdigits/VtimeSign/VlastSync/x52';
-else                       $hstHeaderFormat = 'Vversion/Z64description/Z12symbol/Vperiod/Vdigits/VtimeSign/VlastSync/x52';
+$lastSymbol = null;
 
 
-// Dateien öffnen und auslesen
+// (5) sortierte Dateien erneut öffnen, alle Daten auslesen und fortlaufend anzeigen
 foreach ($matches as $i => $filename) {
-   $filesize = fileSize($filename);
-   if ($filesize < HISTORY_HEADER_SIZE) {
-      echoPre(str_pad($filename, 21).' invalid history file');
-   }
-   else {
+   if ($formats[$i]) {
+      $filesize  = fileSize($filename);
       $hFile     = fOpen($filename, 'rb');
       $hstHeader = unpack($hstHeaderFormat, fRead($hFile, HISTORY_HEADER_SIZE));
 
       extract($hstHeader);
       $period   = MT4 ::periodDescription($period);
-      $timeSign = $timeSign ? date('Y.m.d H:i:s', $timeSign) : '';
+      $syncMark = $syncMark ? date('Y.m.d H:i:s', $syncMark) : '';
       $lastSync = $lastSync ? date('Y.m.d H:i:s', $lastSync) : '';
 
-      if ($version == 400) {
-         $barSize   = HISTORY_BAR_400_SIZE;
-         $barFormat = 'Vtime/dopen/dlow/dhigh/dclose/dticks';
-      }
-      else if ($version == 401) {
-         $barSize   = HISTORY_BAR_401_SIZE;
-         $barFormat = 'Vtime/x4/dopen/dhigh/dlow/dclose/Vticks/x4/lspread/Vvolume/x4';
-      }
-      else {
-         echoPre(str_pad($filename, 21).' unknown history file format ('.$version.')');
-         fClose($hFile);
-         continue;
-      }
+      if ($format == 400) { $barSize = HISTORY_BAR_400_SIZE; $barFormat = 'Vtime/dopen/dlow/dhigh/dclose/dticks';                          }
+      else         /*401*/{ $barSize = HISTORY_BAR_401_SIZE; $barFormat = 'Vtime/x4/dopen/dhigh/dlow/dclose/Vticks/x4/lspread/Vvolume/x4'; }
 
       $bars    = floor(($filesize-HISTORY_HEADER_SIZE)/$barSize);
       $barFrom = $barTo = array();
@@ -113,8 +118,37 @@ foreach ($matches as $i => $filename) {
       $barTo   = $barTo    ? gmDate('Y.m.d H:i:s', $barTo  ['time']) : '';
       if ($symbol != $lastSymbol)
          echoPre($tableSeparator);
-      echoPre(sprintf($tableRowFormat, $symbol.','.$period, $digits, $timeSign, $lastSync, number_format($bars), $barFrom, $barTo, $version));
+      echoPre(sprintf($tableRowFormat, $symbol.','.$period, $digits, $syncMark, $lastSync, number_format($bars), $barFrom, $barTo, $format));
       $lastSymbol = $symbol;
    }
+   else {
+      echoPre(str_pad($filename, 21).' invalid or unknown history file format');
+   }
+}
+
+
+// Programm-Ende
+exit(0);
+
+
+// --- Funktionen ---------------------------------------------------------------------------------------------------------------------------------------------
+
+
+/**
+ * Hilfefunktion: Zeigt die Syntax des Aufrufs an.
+ *
+ * @param  string $message - zusätzlich zur Syntax anzuzeigende Message (default: keine)
+ */
+function help($message=null) {
+   if (!is_null($message))
+      echo($message."\n\n");
+
+   $self = baseName($_SERVER['PHP_SELF']);
+
+echo <<<END
+
+  Syntax: $self <file-pattern>
+
+END;
 }
 ?>

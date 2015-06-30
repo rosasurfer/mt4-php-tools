@@ -5,31 +5,18 @@
 class MT4 extends StaticClass {
 
    /**
-    * Erweiterter History-Header:
+    * History-Header
     *
-    * struct HISTORY_HEADER {
-    *    int    version;                  //     4             // database version
-    *    szchar description[64];          //    64             // copyright info
-    *    szchar symbol[12];               //    12             // symbol name
-    *    int    period;                   //     4             // symbol timeframe
-    *    int    digits;                   //     4             // amount of digits after decimal point
-    *    int    syncMark;                 //     4             // server database sync marker (timestamp)
-    *    int    prevSyncMark;             //     4             // previous server database sync marker (timestamp)
-    *    int    periodFlag;               //     4             // whether hh.period is a minutes or a seconds timeframe
-    *    int    timezone;                 //     4             // timezone id
-    *    int    reserved[11];             //    44
-    * };                                  // = 148 bytes
+    * @see  Definition in Expander.dll::Expander.h
     */
-   private static $tpl_HistoryHeader = array('version'      => 400,
-                                             'description'  => 'mt4.rosasurfer.com',
-                                             'symbol'       => "\0",
-                                             'period'       => 0,
-                                             'digits'       => 0,
-                                             'syncMark'     => 0,
-                                             'prevSyncMark' => 0,
-                                             'periodFlag'   => 0,
-                                             'timezone'     => 0,
-                                             'reserved'     => "\0");
+   private static $tpl_HistoryHeader = array('format'      => 0,
+                                             'description' => "\0",
+                                             'symbol'      => "\0",
+                                             'period'      => 0,
+                                             'digits'      => 0,
+                                             'syncMark'    => 0,
+                                             'lastSync'    => 0,
+                                             'reserved'    => 0);
 
    /**
     * struct HISTORY_BAR_400 {
@@ -83,7 +70,7 @@ class MT4 extends StaticClass {
     * Schreibt einen HistoryHeader mit den angegebenen Daten in die zum Handle gehörende Datei.
     *
     * @param  resource $hFile - File-Handle eines History-Files, muß Schreibzugriff erlauben
-    * @param  mixed[]  $hh    - zu setzende Headerdaten (fehlende Werte werden ggf. durch Defaultwerte ergänzt)
+    * @param  mixed[]  $hh    - zu setzende Headerdaten (nicht angegebene Werte werden durch Defaultwerte ergänzt)
     *
     * @return int - Anzahl der geschriebenen Bytes
     */
@@ -92,20 +79,18 @@ class MT4 extends StaticClass {
       if (!$hh)                 throw new plInvalidArgumentException('Invalid parameter $hh: '.print_r($hh, true));
 
       $hh = array_merge(self::$tpl_HistoryHeader, $hh);
-      $hh['timezone'] = 0;
+
       // TODO: Struct-Daten validieren
 
       fSeek($hFile, 0);
-      return fWrite($hFile, pack('Va64a12VVVVVVa44', $hh['version'     ],     // V
-                                                     $hh['description' ],     // a64
-                                                     $hh['symbol'      ],     // a12
-                                                     $hh['period'      ],     // V
-                                                     $hh['digits'      ],     // V
-                                                     $hh['syncMark'    ],     // V
-                                                     $hh['prevSyncMark'],     // V
-                                                     $hh['periodFlag'  ],     // V
-                                                     $hh['timezone'    ],     // V
-                                                     $hh['reserved'    ]));   // a44
+      return fWrite($hFile, pack('Va64a12VVVVa52', $hh['format'     ],      // V
+                                                   $hh['description'],      // a64
+                                                   $hh['symbol'     ],      // a12
+                                                   $hh['period'     ],      // V
+                                                   $hh['digits'     ],      // V
+                                                   $hh['syncMark'   ],      // V
+                                                   $hh['lastSync'   ],      // V
+                                                   $hh['reserved'   ]));    // a52
    }
 
 
