@@ -14,8 +14,8 @@ require(dirName(realPath(__FILE__)).'/../../config.php');
 
 
 // Unpack-Format des HistoryHeaders definieren: PHP 5.5.0 - The "a" code now retains trailing NULL bytes, "Z" replaces the former "a".
-if (PHP_VERSION < '5.5.0') $hstHeaderFormat = 'Vformat/a64description/a12symbol/Vperiod/Vdigits/VsyncMark/VlastSync/x52';
-else                       $hstHeaderFormat = 'Vformat/Z64description/Z12symbol/Vperiod/Vdigits/VsyncMark/VlastSync/x52';
+if (PHP_VERSION < '5.5.0') $hstHeaderFormat = 'Vformat/a64description/a12symbol/Vperiod/Vdigits/VsyncMark/VlastSync/VtimezoneId/x48';
+else                       $hstHeaderFormat = 'Vformat/Z64description/Z12symbol/Vperiod/Vdigits/VsyncMark/VlastSync/VtimezoneId/x48';
 
 
 // -- Start ----------------------------------------------------------------------------------------------------------------------------------------

@@ -16,6 +16,7 @@ class MT4 extends StaticClass {
                                              'digits'      => 0,
                                              'syncMark'    => 0,
                                              'lastSync'    => 0,
+                                             'timezoneId'  => 0,
                                              'reserved'    => 0);
 
    /**
@@ -83,14 +84,15 @@ class MT4 extends StaticClass {
       // TODO: Struct-Daten validieren
 
       fSeek($hFile, 0);
-      return fWrite($hFile, pack('Va64a12VVVVa52', $hh['format'     ],      // V
-                                                   $hh['description'],      // a64
-                                                   $hh['symbol'     ],      // a12
-                                                   $hh['period'     ],      // V
-                                                   $hh['digits'     ],      // V
-                                                   $hh['syncMark'   ],      // V
-                                                   $hh['lastSync'   ],      // V
-                                                   $hh['reserved'   ]));    // a52
+      return fWrite($hFile, pack('Va64a12VVVVVa48', $hh['format'     ],    // V
+                                                    $hh['description'],    // a64
+                                                    $hh['symbol'     ],    // a12
+                                                    $hh['period'     ],    // V
+                                                    $hh['digits'     ],    // V
+                                                    $hh['syncMark'   ],    // V
+                                                    $hh['lastSync'   ],    // V
+                                                    $hh['timezoneId' ],    // V
+                                                    $hh['reserved'   ]));  // a48
    }
 
 
