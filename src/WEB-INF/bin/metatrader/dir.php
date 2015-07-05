@@ -42,88 +42,116 @@ $dir = Dir($dirName);
 !$dir && exit("No history files found for \"$args[0]\"\n");
 
 
-// (3.1) Dateinamen einlesen, filtern und aus dem Header "Symbol,Periode" auslesen (nicht aus dem Dateinamen, weil nicht eindeutig)
-$matches = $formats = $symbols = $periods = array();
-while (($entry=$dir->read()) !== false) {
-   if (preg_match("/^$baseName$/i", $entry) && preg_match('/^(.+)\.hst$/i', $entry, $match)) {
-      $matches[] = $entry;
-      $filesize  = fileSize($entry);
+// (3.1) Dateinamen einlesen, filtern und Daten auslesen und zwischenspeichern
+$fileNames = $formats = $symbols = $periods = $aDigits = $syncMarks = $lastSyncs = $timezoneIds = $aBars = $barFroms = $barTos = $errors = array();
 
-      if ($filesize < HISTORY_HEADER_SIZE) {
-         $formats[] = 0;
-         $symbols[] = strToUpper($match[1]);                         // invalid or unknown history file format
-         $periods[] = 0;
+while (($fileName=$dir->read()) !== false) {
+   if (preg_match("/^$baseName$/i", $fileName) && preg_match('/^(.+)\.hst$/i', $fileName, $match)) {
+      $fileNames[] = $fileName;
+      $fileSize    = fileSize($fileName);
+
+      if ($fileSize < HISTORY_HEADER_SIZE) {
+         $formats    [] = null;
+         $symbols    [] = strToUpper($match[1]);
+         $periods    [] = null;
+         $aDigits    [] = null;
+         $syncMarks  [] = null;
+         $lastSyncs  [] = null;
+         $timezoneIds[] = null;
+         $aBars      [] = null;
+         $barFroms   [] = null;
+         $barTos     [] = null;
+         $errors     [] = 'invalid or unknown history file format: fileSize '.$fileSize.' < minFileSize';
+         continue;
       }
-      else {
-         $hFile     = fOpen($entry, 'rb');
-         $hstHeader = unpack($hstHeaderFormat, fRead($hFile, HISTORY_HEADER_SIZE));
-         if ($hstHeader['format']==400 || $hstHeader['format']==401) {
-            $formats[] =            $hstHeader['format'];
-            $symbols[] = strToUpper($hstHeader['symbol']);
-            $periods[] =            $hstHeader['period'];
+
+      $hFile     = fOpen($fileName, 'rb');
+      $hstHeader = unpack($hstHeaderFormat, fRead($hFile, HISTORY_HEADER_SIZE));
+      extract($hstHeader);
+
+      if ($format==400 || $format==401) {
+         $formats    [] =            $format;
+         $symbols    [] = strToUpper($symbol);
+         $periods    [] =            $period;
+         $aDigits    [] =            $digits;
+         $syncMarks  [] =            $syncMark ? date('Y.m.d H:i:s', $syncMark) : null;
+         $lastSyncs  [] =            $lastSync ? date('Y.m.d H:i:s', $lastSync) : null;
+         $timezoneIds[] =            $timezoneId;
+
+         if ($format == 400) { $barSize = HISTORY_BAR_400_SIZE; $barFormat = 'Vtime/dopen/dlow/dhigh/dclose/dticks';                          }
+         else         /*401*/{ $barSize = HISTORY_BAR_401_SIZE; $barFormat = 'Vtime/x4/dopen/dhigh/dlow/dclose/Vticks/x4/lspread/Vvolume/x4'; }
+
+         $bars    = floor(($fileSize-HISTORY_HEADER_SIZE)/$barSize);
+         $barFrom = $barTo = array();
+         if ($bars) {
+            $barFrom  = unpack($barFormat, fRead($hFile, $barSize));
+            if ($bars > 1) {
+               fSeek($hFile, HISTORY_HEADER_SIZE + $barSize*($bars-1));
+               $barTo = unpack($barFormat, fRead($hFile, $barSize));
+            }
+         }
+
+         $aBars   [] = $bars;
+         $barFroms[] = $barFrom ? gmDate('Y.m.d H:i:s', $barFrom['time']) : null;
+         $barTos  [] = $barTo   ? gmDate('Y.m.d H:i:s', $barTo  ['time']) : null;
+
+         if (strToUpper($fileName) != strToUpper($symbol.$period.'.hst')) {
+            $formats[sizeOf($formats)-1] = null;
+            $symbols[sizeOf($symbols)-1] = strToUpper($match[1]);
+            $periods[sizeOf($periods)-1] = null;
+            $error = 'file name/data mis-match: data='.$symbol.','.MT4 ::periodDescription($period);
          }
          else {
-            $formats[] = 0;
-            $symbols[] = strToUpper($match[1]);                      // unknown history file format
-            $periods[] = 0;
+            $trailingBytes = ($fileSize-HISTORY_HEADER_SIZE) % $barSize;
+            $error = !$trailingBytes ? null : 'corrupted ('.$trailingBytes.' trailing bytes)';
          }
-         fClose($hFile);
+         $errors[] = $error;
       }
+      else {
+         $formats    [] = null;
+         $symbols    [] = strToUpper($match[1]);
+         $periods    [] = null;
+         $aDigits    [] = null;
+         $syncMarks  [] = null;
+         $lastSyncs  [] = null;
+         $timezoneIds[] = null;
+         $aBars      [] = null;
+         $barFroms   [] = null;
+         $barTos     [] = null;
+         $errors     [] = 'invalid or unknown history file format: '.$format;
+      }
+      fClose($hFile);
    }
 }
 $dir->close();
-!$matches && exit("No history files found for \"$args[0]\"\n");
+!$fileNames && exit("No history files found for \"$args[0]\"\n");
 
-// (3.2) gefundene Dateien sortieren: ORDER by Symbol ASC, Periode ASC
-array_multisort($symbols, SORT_ASC, $periods, SORT_ASC, $matches);
+// (3.2) Daten sortieren: ORDER by Symbol, Periode (ASC ist default); alle anderen "Spalten" mitsortieren
+array_multisort($symbols, SORT_ASC, $periods, SORT_ASC/*bis_hier*/, array_keys($symbols), $fileNames, $formats, $aDigits, $syncMarks, $lastSyncs, $timezoneIds, $aBars, $barFroms, $barTos, $errors);
 
 
 // (4) Tabellen-Format definieren und Header ausgeben
 $tableHeader    = 'Symbol           Digits  SyncMark             LastSync                  Bars  From                 To                   Format';
 $tableSeparator = '------------------------------------------------------------------------------------------------------------------------------';
-$tableRowFormat = '%-15s    %d     %-19s  %-19s  %9s  %-19s  %-19s    %s';
+$tableRowFormat = '%-15s    %d     %-19s  %-19s  %9s  %-19s  %-19s    %s  %s';
 echoPre($tableHeader);
 
 
+// (5) sortierte Daten anzeigen
 $lastSymbol = null;
 
+foreach ($fileNames as $i => $fileName) {
+   if ($symbols[$i] != $lastSymbol)
+      echoPre($tableSeparator);
 
-// (5) sortierte Dateien erneut öffnen, alle Daten auslesen und fortlaufend anzeigen
-foreach ($matches as $i => $filename) {
    if ($formats[$i]) {
-      $filesize  = fileSize($filename);
-      $hFile     = fOpen($filename, 'rb');
-      $hstHeader = unpack($hstHeaderFormat, fRead($hFile, HISTORY_HEADER_SIZE));
-
-      extract($hstHeader);
-      $period   = MT4 ::periodDescription($period);
-      $syncMark = $syncMark ? date('Y.m.d H:i:s', $syncMark) : '';
-      $lastSync = $lastSync ? date('Y.m.d H:i:s', $lastSync) : '';
-
-      if ($format == 400) { $barSize = HISTORY_BAR_400_SIZE; $barFormat = 'Vtime/dopen/dlow/dhigh/dclose/dticks';                          }
-      else         /*401*/{ $barSize = HISTORY_BAR_401_SIZE; $barFormat = 'Vtime/x4/dopen/dhigh/dlow/dclose/Vticks/x4/lspread/Vvolume/x4'; }
-
-      $bars    = floor(($filesize-HISTORY_HEADER_SIZE)/$barSize);
-      $barFrom = $barTo = array();
-      if ($bars) {
-         $barFrom  = unpack($barFormat, fRead($hFile, $barSize));
-         if ($bars > 1) {
-            fSeek($hFile, HISTORY_HEADER_SIZE + $barSize*($bars-1));
-            $barTo = unpack($barFormat, fRead($hFile, $barSize));
-         }
-      }
-      fClose($hFile);
-
-      $barFrom = $barFrom  ? gmDate('Y.m.d H:i:s', $barFrom['time']) : '';
-      $barTo   = $barTo    ? gmDate('Y.m.d H:i:s', $barTo  ['time']) : '';
-      if ($symbol != $lastSymbol)
-         echoPre($tableSeparator);
-      echoPre(sprintf($tableRowFormat, $symbol.','.$period, $digits, $syncMark, $lastSync, number_format($bars), $barFrom, $barTo, $format));
-      $lastSymbol = $symbol;
+      $period = MT4 ::periodDescription($periods[$i]);
+      echoPre(sprintf($tableRowFormat, $symbols[$i].','.$period, $aDigits[$i], $syncMarks[$i], $lastSyncs[$i], number_format($aBars[$i]), $barFroms[$i], $barTos[$i], $formats[$i], $errors[$i]));
    }
    else {
-      echoPre(str_pad($filename, 21).' invalid or unknown history file format');
+      echoPre(str_pad($fileName, 18).' '.$errors[$i]);
    }
+   $lastSymbol = $symbols[$i];
 }
 
 
