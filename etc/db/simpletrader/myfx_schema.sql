@@ -1,6 +1,6 @@
 /*
 Created     17.09.2014
-Modified    19.09.2014
+Modified    20.09.2014
 Project     myfx
 Model       main model
 Company     pewasoft
