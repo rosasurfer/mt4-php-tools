@@ -36,7 +36,7 @@ delimiter ;
 
 
 -- Daten einlesen
-source myfx_history_data.sql;
+source myfx_history_seed.sql;
 
 commit;
 
