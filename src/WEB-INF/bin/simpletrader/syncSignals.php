@@ -1,4 +1,4 @@
-#!/usr/bin/php -Cq
+#!/usr/bin/php
 <?php
 /**
  * Synchronisiert die Daten ein oder mehrerer Signale mit den lokal gespeicherten Daten (Datenbank und MT4-Datenfiles).

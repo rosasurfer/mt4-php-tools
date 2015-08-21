@@ -1,4 +1,4 @@
-#!/usr/bin/php -Cq
+#!/usr/bin/php
 <?php
 /**
  * Aktualisiert die vorhandenen Dukascopy-M1-Daten. Es werden nur Bid-Daten geladen (Dukascopy bietet auch Ask-Daten an).

@@ -1,4 +1,4 @@
-#!/usr/bin/php -Cq
+#!/usr/bin/php
 <?php
 /**
  * Verzeichnislisting für MetaTrader-Historydateien
