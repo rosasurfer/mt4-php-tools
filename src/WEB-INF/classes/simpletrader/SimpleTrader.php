@@ -14,8 +14,8 @@ class SimpleTrader extends StaticClass {
                                     'https://www.simpletrader.net/forex-signals.html');
 
    /**
-    * Lädt die HTML-Seite mit den Tradedaten des angegebenen Signals. Schlägt der Download fehl, wird zwei mal still versucht,
-    * die Seite von beiden alternativen URL's zu laden, bevor der Download ganz abbricht.
+    * Lädt die HTML-Seite mit den Tradedaten des angegebenen Signals. Schlägt der Download fehl, wird zwei mal versucht,
+    * die Seite von alternativen URL's zu laden, bevor der Download mit einem Fehler abbricht.
     *
     * @param  Signal $signal
     *
