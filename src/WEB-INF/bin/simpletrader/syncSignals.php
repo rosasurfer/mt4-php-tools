@@ -79,7 +79,7 @@ function processSignal($alias, $fileSyncOnly) {
 
    // Ist ein Wildcard angegeben, wird die Funktion rekursiv für alle Signale aufgerufen.
    if ($alias == '*') {
-      $self    = __FUNCTION__;
+      $self = __FUNCTION__;
       foreach (Signal ::dao()->listAll() as $signal)
          $self($signal->getAlias(), $fileSyncOnly);
       return;
