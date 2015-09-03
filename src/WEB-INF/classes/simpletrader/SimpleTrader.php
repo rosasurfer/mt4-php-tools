@@ -5,8 +5,10 @@
 class SimpleTrader extends StaticClass {
 
    // URLs
-   private static $urls     = array('http://cp.forexsignals.com/signal/{signal_ref_id}/signal.html',     // mit und ohne SSL
-                                    'https://www.simpletrader.net/signal/{signal_ref_id}/signal.html');  // nur mit SSL
+   private static $urls     = array('http://cp.forexsignals.com/signal/{signal_ref_id}/signal.html',                             // mit oder ohne SSL
+                                  //'http://cp.forexsignals.com/signals.php?do=view&id={signal_ref_id}&showAllClosedTrades=1',   // komplette History
+                                    'https://www.simpletrader.net/signal/{signal_ref_id}/signal.html',                           // nur mit SSL
+   );
 
    private static $referers = array('http://cp.forexsignals.com/forex-signals.html',
                                     'https://www.simpletrader.net/forex-signals.html');
