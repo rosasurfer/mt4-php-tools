@@ -20,11 +20,12 @@ $signalNamePadding = 16;         // Padding der Anzeige des Signalnamens:  @see 
 // (1) Befehlszeilenargumente einlesen und validieren
 $args = array_slice($_SERVER['argv'], 1);
 
+
 // (1.1) Optionen
 $looping = $fileSyncOnly = false;
 foreach ($args as $i => $arg) {
    $arg = strToLower($arg);
-   if (in_array($arg, array('-?','/?','-h','/h','-help','/help'))) exit(1|help());              // Hilfe
+   if (in_array($arg, array('-?','-h','/h','-help','/help')))  exit(1|help());                  // Hilfe
    if (in_array($arg, array('-l','/l'))) { $looping     =true; unset($args[$i]); continue; }    // -l=Looping
    if (in_array($arg, array('-f','/f'))) { $fileSyncOnly=true; unset($args[$i]); continue; }    // -f=FileSyncOnly
 }
@@ -38,7 +39,7 @@ foreach ($args as $i => $arg) {
    }
    $args[$i] = strToLower($arg);
 }
-$args = $args ? array_unique($args) : array('*');           // ohne angegebene Namen werden alle Signale synchronisiert
+$args = $args ? array_unique($args) : array('*');           // ohne Signal-Parameter werden alle Signale synchronisiert
 
 
 // (2) Erreichbarkeit der Datenbank prüfen
@@ -52,8 +53,10 @@ catch (Exception $ex) {
 
 // (3) Signale aktualisieren
 while (true) {
-   foreach ($args as $i => $arg)
-      processSignal($arg, $fileSyncOnly);
+   foreach ($args as $i => $arg) {
+      if (!processSignal($arg, $fileSyncOnly))
+         exit(1);
+   }
    if (!$looping) break;
    sleep($sleepSeconds);                                    // vorm nächsten Durchlauf jeweils einige Sek. schlafen
 }
@@ -71,6 +74,8 @@ exit(0);
  *
  * @param  string $alias        - Signalalias
  * @param  bool   $fileSyncOnly - ob alle Daten oder nur die MT4-Dateien aktualisiert werden sollen
+ *
+ * @return bool - Erfolgsstatus
  */
 function processSignal($alias, $fileSyncOnly) {
    if (!is_string($alias))      throw new IllegalTypeException('Illegal type of parameter $alias: '.getType($alias));
@@ -82,12 +87,16 @@ function processSignal($alias, $fileSyncOnly) {
       $self = __FUNCTION__;
       foreach (Signal ::dao()->listAll() as $signal)
          $self($signal->getAlias(), $fileSyncOnly);
-      return;
+      return true;
    }
 
    static $openUpdates=false, $closedUpdates=false;                  // ob beim letzten Aufruf Änderungen eines Signals festgestellt wurden
 
    $signal = Signal ::dao()->getByAlias($alias);
+   if (!$signal) {
+      echoPre('Invalid or unknown signal: '.$alias);
+      return false;
+   }
    global $signalNamePadding;
    echo(($openUpdates ? "\n":'').str_pad($signal->getName().' ', $signalNamePadding, '.', STR_PAD_RIGHT).' ');
 
@@ -122,6 +131,8 @@ function processSignal($alias, $fileSyncOnly) {
 
    // Datenbasis für MT4 aktualisieren
    MT4 ::updateDataFiles($signal, $openUpdates, $closedUpdates);
+
+   return true;
 }
 
 
