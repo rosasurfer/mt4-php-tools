@@ -134,8 +134,8 @@ class MyFX extends StaticClass {
    public static function sendSMS($receiver, $message) {
       if (!is_string($receiver))   throw new IllegalTypeException('Illegal type of parameter $receiver: '.getType($receiver));
       $receiver = trim($receiver);
-      if (String ::startsWith($receiver, '+' )) $receiver = subStr($receiver, 1);
-      if (String ::startsWith($receiver, '00')) $receiver = subStr($receiver, 2);
+      if (strStartsWith($receiver, '+' )) $receiver = subStr($receiver, 1);
+      if (strStartsWith($receiver, '00')) $receiver = subStr($receiver, 2);
       if (!ctype_digit($receiver)) throw new plInvalidArgumentException('Invalid argument $receiver: "'.$receiver.'"');
 
       if (!is_string($message))    throw new IllegalTypeException('Illegal type of parameter $message: '.getType($message));

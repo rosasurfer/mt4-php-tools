@@ -64,11 +64,11 @@ class SimpleTrader extends StaticClass {
          }
          catch (IOException $ex) {
             $msg = $ex->getMessage();
-            if (String ::startsWith($msg, 'CURL error CURLE_COULDNT_RESOLVE_HOST') ||
-                String ::startsWith($msg, 'CURL error CURLE_COULDNT_CONNECT'     ) ||
-                String ::startsWith($msg, 'CURL error CURLE_OPERATION_TIMEDOUT'  ) ||
-                String ::startsWith($msg, 'CURL error CURLE_GOT_NOTHING'         ) ||
-                String ::startsWith($msg, 'Empty reply from server'              )) {
+            if (strStartsWith($msg, 'CURL error CURLE_COULDNT_RESOLVE_HOST') ||
+                strStartsWith($msg, 'CURL error CURLE_COULDNT_CONNECT'     ) ||
+                strStartsWith($msg, 'CURL error CURLE_OPERATION_TIMEDOUT'  ) ||
+                strStartsWith($msg, 'CURL error CURLE_GOT_NOTHING'         ) ||
+                strStartsWith($msg, 'Empty reply from server'              )) {
                if ($counter < 10) {                            // bis zu 10 Versuche, eine URL zu laden (entsprcicht )
                   Logger ::log($msg."\nretrying ... ($counter)", L_WARN, __CLASS__);
                   sleep(10);                                   // vor jedem weiteren Versuch einige Sekunden warten
@@ -173,7 +173,7 @@ class SimpleTrader extends StaticClass {
 
                // 3:OpenTime
                $sOpenTime = trim($row[I_STOP_OPENTIME]);
-               if (String::endsWith($sOpenTime, '*'))                // seit 06.02.2015 von Fall zu Fall, Bedeutung ist noch unklar
+               if (strEndsWith($sOpenTime, '*'))                     // seit 06.02.2015 von Fall zu Fall, Bedeutung ist noch unklar
                   $sOpenTime = subStr($sOpenTime, 0, -1);
                if (!($time=strToTime($sOpenTime.' GMT'))) throw new plRuntimeException('Invalid OpenTime found in open position row '.($i+1).': "'.$row[I_STOP_OPENTIME].'", HTML:'.NL.NL.$row[0]);
                $row['opentime' ] = $time;
@@ -266,7 +266,7 @@ class SimpleTrader extends StaticClass {
 
                // 3:OpenTime
                $sOpenTime = trim($row[I_STH_OPENTIME]);
-               if (String::endsWith($sOpenTime, '*'))                // seit 06.02.2015 von Fall zu Fall, Bedeutung ist noch unklar
+               if (strEndsWith($sOpenTime, '*'))                     // seit 06.02.2015 von Fall zu Fall, Bedeutung ist noch unklar
                   $sOpenTime = subStr($sOpenTime, 0, -1);
                if (!($time=strToTime($sOpenTime.' GMT'))) throw new plRuntimeException('Invalid OpenTime found in history row '.($i+1).': "'.$row[I_STH_OPENTIME].'", HTML:'.NL.NL.$row[0]);
                $row['opentime'] = $time;

@@ -41,14 +41,14 @@ class ImportHelper extends StaticClass {
 
          // Swaps und Vendor-Matchings korrigieren
          if ($row[AH_TYPE] == OP_BALANCE) {
-            if (String ::startsWith($row[AH_COMMENT], 'swap', true)) {
+            if (strStartsWithI($row[AH_COMMENT], 'swap')) {
                if ($row[AH_SWAP] == 0) {
                   $row[AH_SWAP]   = $row[AH_PROFIT];
                   $row[AH_PROFIT] = 0;
                }
                $row[AH_TYPE] = OP_VENDOR;
             }
-            else if (String ::startsWith($row[AH_COMMENT], 'vendor matching', true)) {
+            else if (strStartsWithI($row[AH_COMMENT], 'vendor matching')) {
                $row[AH_TYPE] = OP_VENDOR;
             }
             else {
@@ -61,7 +61,7 @@ class ImportHelper extends StaticClass {
          // Hedges korrigieren
          if ($row[AH_UNITS] == 0) {
             // TODO: Prüfen, wie sich OrderComment() bei partiellem Close und/oder custom comments verhält.
-            if (!String ::startsWith($row[AH_COMMENT], 'close hedge by #', true)) throw new plInvalidArgumentException('ticket #'.$row[AH_TICKET].' - unknown comment for assumed hedged position: "'.$row[AH_COMMENT].'"');
+            if (!strStartsWithI($row[AH_COMMENT], 'close hedge by #')) throw new plInvalidArgumentException('ticket #'.$row[AH_TICKET].' - unknown comment for assumed hedged position: "'.$row[AH_COMMENT].'"');
 
             // Gegenstück suchen und alle Orderdaten in der 1. Order speichern
             $ticket = (int) subStr($row[AH_COMMENT], 16);            // (int) schneidet ggf. auf die Ticket# folgende nicht-numerische Zeichen ab
