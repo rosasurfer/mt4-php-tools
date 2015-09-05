@@ -1,6 +1,6 @@
 /*
 Created     17.09.2014
-Modified    20.09.2014
+Modified    26.07.2015
 Project     myfx
 Model       main model
 Company     pewasoft
@@ -96,7 +96,7 @@ delimiter ;
 
 
 -- Daten einlesen
-source myfx_data.sql;
+source myfx_seed.sql;
 
 commit;
 
