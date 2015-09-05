@@ -401,7 +401,7 @@ echo <<<END
  Syntax:  $self [-l] [-f] [signal_name ...]
 
  Options:  -l  Runs infinitely and synchronizes every 30 seconds.
-           -f  Synchronizes files only, not the database (doesn't go online).
+           -f  Synchronizes data files only but not the database (doesn't go online).
 
 END;
 }
