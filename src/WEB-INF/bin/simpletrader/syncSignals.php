@@ -21,49 +21,45 @@ $signalNamePadding = 16;         // Padding der Anzeige des Signalnamens:  @see 
 $args = array_slice($_SERVER['argv'], 1);
 
 
-// (1.1) Optionen
+// (1.1) Optionen parsen
 $looping = $fileSyncOnly = false;
 foreach ($args as $i => $arg) {
    $arg = strToLower($arg);
-   if (in_array($arg, array('-?','-h','/h','-help','/help')))  exit(1|help());                  // Hilfe: kein "/?" wegen Windows Git-Shell
-   if (in_array($arg, array('-l','/l'))) { $looping     =true; unset($args[$i]); continue; }    // -l=Looping
-   if (in_array($arg, array('-f','/f'))) { $fileSyncOnly=true; unset($args[$i]); continue; }    // -f=FileSyncOnly
+   if (in_array($arg, array('-h','-help'))) exit(1|help());                               // Hilfe
+   if (in_array($arg, array('-l'))) { $looping     =true; unset($args[$i]); continue; }   // -l=Looping
+   if (in_array($arg, array('-f'))) { $fileSyncOnly=true; unset($args[$i]); continue; }   // -f=FileSyncOnly
 }
 
 
-// (1.2) Signalnamen
+// (1.2) Groß-/Kleinschreibung normalisieren
 foreach ($args as $i => $arg) {
-   if ($arg == '*') {                                       // * ist Wildcard für alle Signale
-      $args = array('*');
-      break;
-   }
    $args[$i] = strToLower($arg);
 }
 $args = $args ? array_unique($args) : array('*');           // ohne Signal-Parameter werden alle Signale synchronisiert
 
 
-// (2) Erreichbarkeit der Datenbank prüfen
-try { Signal ::dao()->getDB()->executeSql("select 1 from dual"); }
-catch (Exception $ex) {
-   if ($ex instanceof InfrastructureException)
-      exit(1|echoPre('error: '.$ex->getMessage()));         // Can not connect to MySQL server on 'localhost:3306'
-   throw $ex;
-}
-
-
-// (3) Signale aktualisieren
-while (true) {
-   foreach ($args as $i => $arg) {
-      if (!processSignal($arg, $fileSyncOnly))
-         exit(1);
+// (2) Signale aktualisieren
+$exitCode = 0;
+try {
+   while (true) {
+      foreach ($args as $i => $arg) {
+         if (!processSignal($arg, $fileSyncOnly)) {
+            $exitCode = 1;
+            break;
+         }
+      }
+      if (!$looping) break;
+      sleep($sleepSeconds);                                    // vorm nächsten Durchlauf jeweils einige Sek. schlafen
    }
-   if (!$looping) break;
-   sleep($sleepSeconds);                                    // vorm nächsten Durchlauf jeweils einige Sek. schlafen
+}
+catch (InfrastructureException $ex) {
+   echoPre('error: '.$ex->getMessage());                       // Can not connect to MySQL server...
+   $exitCode = 1;
 }
 
 
-// (4) Ende
-exit(0);
+// (3) Ende
+exit($exitCode);
 
 
 // --- Funktionen ---------------------------------------------------------------------------------------------------------------------------------------------
@@ -402,6 +398,7 @@ echo <<<END
 
  Options:  -l  Runs infinitely and synchronizes every 30 seconds.
            -f  Synchronizes data files only but not the database (doesn't go online).
+           -h  This help screen.
 
 END;
 }
