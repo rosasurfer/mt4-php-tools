@@ -2,7 +2,7 @@
 <?php
 /**
  * Synchronisiert die Daten ein oder mehrerer Signale mit den lokal gespeicherten Daten (Datenbank und MT4-Datenfiles).
- * Bei Datenänderung wird eine Mail und eine SMS verschickt.
+ * Bei Datenänderung kann eine Mail oder eine SMS verschickt werden.
  *
  *
  *
