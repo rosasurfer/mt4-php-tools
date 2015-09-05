@@ -124,10 +124,10 @@ class SignalDAO extends CommonDAO {
    public function listAll() {
       $sql = "select s.*
                  from t_signal s
-                 where s.alias != 'alexprofit'     -- pleite: http://www.myfxbook.com/members/Alexprofit77/alexprofit/956592
-                   and s.alias != 'asta'
-                   and s.alias != 'dayfox'         -- pleite
-                   and s.alias != 'yenfortress'
+                 where s.alias != 'alexprofit'     -- Margin call: http://www.myfxbook.com/members/Alexprofit77/alexprofit/956592
+                   and s.alias != 'asta'           -- eingestellt (Looser)
+                   and s.alias != 'dayfox'         -- eingestellt (Looser, Alpari)
+                   and s.alias != 'yenfortress'    -- Looser
                  order by s.alias";
       return $this->getListByQuery($sql);
    }
