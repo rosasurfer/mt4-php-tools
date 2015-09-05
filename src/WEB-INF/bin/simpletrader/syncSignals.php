@@ -400,7 +400,7 @@ function help($message=null) {
 echo <<<END
  Syntax:  $self [-l] [-f] [signal_name ...]
 
- Options:  -l  Runs in a loop and synchronizes every 30 seconds.
+ Options:  -l  Runs infinitely and synchronizes every 30 seconds.
            -f  Synchronizes files only, not the database (doesn't go online).
 
 END;
