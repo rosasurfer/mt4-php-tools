@@ -112,20 +112,22 @@ function processSignal($alias, $fileSyncOnly) {
          if (!$errorMsg)
             break;
 
-         // bei PHP-Fehlern im generiertem HTML Seite nochmal laden (bis zu 5 Versuche)
+         // PHP-Fehlermessages in HTML-Seite: URL nochmal laden (bis zu 5 Versuche)
          echoPre($errorMsg);
          if ($counter >= 5) throw new plRuntimeException($signal->getName().': '.$errorMsg);
          Logger ::log($signal->getName().': '.$errorMsg."\nretrying...", L_WARN, __CLASS__);
       }
 
       // Datenbank aktualisieren
-     updateDatabase($signal, $openPositions, $openUpdates, $closedPositions, $closedUpdates);
+      updateDatabase($signal, $openPositions, $openUpdates, $closedPositions, $closedUpdates);
+
+      // TODO: komplette History laden, wenn die Daten in der DB unvollständig sind
    }
    else {
      $openUpdates = $closedUpdates = false;
    }
 
-   // Datenbasis für MT4 aktualisieren
+   // Datenfiles für MetaTrader::MQL aktualisieren
    MT4 ::updateDataFiles($signal, $openUpdates, $closedUpdates);
 
    return true;
