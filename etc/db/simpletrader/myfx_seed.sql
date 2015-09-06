@@ -10,6 +10,7 @@ insert into t_signal (created, name, alias, referenceid, currency) values
    (now(), 'FX Viper'    , 'fxviper'     , '633' , 'USD'),
    (now(), 'GC-Edge'     , 'gcedge'      , '998' , 'USD'),
    (now(), 'GoldStar'    , 'goldstar'    , '2622', 'USD'),
+   (now(), 'Kilimanjaro' , 'kilimanjaro' , '2905', 'USD'),
    (now(), 'OverTrader'  , 'overtrader'  , '2973', 'USD'),
    (now(), 'SmartScalper', 'smartscalper', '1086', 'USD'),
    (now(), 'SmartTrader' , 'smarttrader' , '1081', 'USD'),
@@ -24,6 +25,7 @@ insert into t_signal (created, name, alias, referenceid, currency) values
    set @signal_fxviper      = (select id from t_signal where alias = 'fxviper'     );
    set @signal_gcedge       = (select id from t_signal where alias = 'gcedge'      );
    set @signal_goldstar     = (select id from t_signal where alias = 'goldstar'    );
+   set @signal_kilimanjaro  = (select id from t_signal where alias = 'kilimanjaro' );
    set @signal_overtrader   = (select id from t_signal where alias = 'overtrader'  );
    set @signal_smarttrader  = (select id from t_signal where alias = 'smarttrader' );
    set @signal_smartscalper = (select id from t_signal where alias = 'smartscalper');
