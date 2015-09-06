@@ -162,17 +162,17 @@ class MT4 extends StaticClass {
             $hFile = fOpen($openFileName, 'wb');
             // (3.1) Header schreiben
             fWrite($hFile, "[SimpleTrader.$alias]\n");
-            fWrite($hFile, ";Symbol.Ticket   = Type, Lots, OpenTime           , OpenPrice, TakeProfit, StopLoss, Commission, Swap, MagicNumber, Comment\n");
+            fWrite($hFile, ";Symbol.Ticket   = Type,  Lots, OpenTime           , OpenPrice, TakeProfit, StopLoss, Commission, Swap, MagicNumber, Comment\n");
 
             // (3.2) Daten schreiben
             foreach ($positions as $position) {
                /*
-               ;Symbol.Ticket   = Type, Lots, OpenTime           , OpenPrice, TakeProfit, StopLoss, Commission, Swap, MagicNumber, Comment
-               AUDUSD.428259953 = Sell, 1.20, 2014.04.10 07:08:46,   1.62166,           ,         ,          0,    0,            ,
-               AUDUSD.428256273 = Buy , 1.50, 2014.04.23 11:51:32,     1.605,           ,         ,        0.1,    0,            ,
-               AUDUSD.428253857 = Buy , 1.50, 2014.04.24 08:00:25,   1.60417,           ,         ,          0,    0,            ,
+               ;Symbol.Ticket   = Type,  Lots, OpenTime           , OpenPrice, TakeProfit, StopLoss, Commission, Swap, MagicNumber, Comment
+               AUDUSD.428259953 = Sell,  1.20, 2014.04.10 07:08:46,   1.62166,           ,         ,          0,    0,            ,
+               AUDUSD.428256273 = Buy , 10.50, 2014.04.23 11:51:32,     1.605,           ,         ,        0.1,    0,            ,
+               AUDUSD.428253857 = Buy ,  1.50, 2014.04.24 08:00:25,   1.60417,           ,         ,          0,    0,            ,
                */
-               $format      = "%-16s = %-4s, %4.2F, %s, %9s, %10s, %8s, %10s, %4s, %11s, %s\n";
+               $format      = "%-16s = %-4s, %5.2F, %s, %9s, %10s, %8s, %10s, %4s, %11s, %s\n";
                $key         = $position->getSymbol().'.'.$position->getTicket();
                $type        = $position->getTypeDescription();
                $lots        = $position->getLots();
@@ -223,17 +223,17 @@ class MT4 extends StaticClass {
                $hFile = fOpen($closedFileName, 'wb');
                // (4.2.1) Header schreiben
                fWrite($hFile, "[SimpleTrader.$alias]\n");
-               fWrite($hFile, ";Symbol.Ticket   = Type, Lots, OpenTime           , OpenPrice, CloseTime          , ClosePrice, TakeProfit, StopLoss, Commission, Swap,   Profit, MagicNumber, Comment\n");
+               fWrite($hFile, ";Symbol.Ticket   = Type,  Lots, OpenTime           , OpenPrice, CloseTime          , ClosePrice, TakeProfit, StopLoss, Commission, Swap,   Profit, MagicNumber, Comment\n");
 
                // (4.2.2) Daten schreiben
                foreach ($positions as $position) {
                   /*
-                  ;Symbol.Ticket   = Type, Lots, OpenTime           , OpenPrice, CloseTime          , ClosePrice, TakeProfit, StopLoss, Commission, Swap,   Profit, MagicNumber, Comment
-                  AUDUSD.428259953 = Sell, 1.20, 2014.04.10 07:08:46,   1.62166, 2014.04.10 07:08:46,    1.62166,           ,         ,          0,    0, -1234.55,            ,
-                  AUDUSD.428256273 = Buy , 1.50, 2014.04.23 11:51:32,     1.605, 2014.04.23 11:51:32,      1.605,           ,         ,        0.1,    0,      0.1,            ,
-                  AUDUSD.428253857 = Buy , 1.50, 2014.04.24 08:00:25,   1.60417, 2014.04.24 08:00:25,    1.60417,           ,         ,          0,    0,        0,            ,
+                  ;Symbol.Ticket   = Type,  Lots, OpenTime           , OpenPrice, CloseTime          , ClosePrice, TakeProfit, StopLoss, Commission, Swap,   Profit, MagicNumber, Comment
+                  AUDUSD.428259953 = Sell,  1.20, 2014.04.10 07:08:46,   1.62166, 2014.04.10 07:08:46,    1.62166,           ,         ,          0,    0, -1234.55,            ,
+                  AUDUSD.428256273 = Buy , 10.50, 2014.04.23 11:51:32,     1.605, 2014.04.23 11:51:32,      1.605,           ,         ,        0.1,    0,      0.1,            ,
+                  AUDUSD.428253857 = Buy ,  1.50, 2014.04.24 08:00:25,   1.60417, 2014.04.24 08:00:25,    1.60417,           ,         ,          0,    0,        0,            ,
                   */
-                  $format      = "%-16s = %-4s, %4.2F, %s, %9s, %s, %10s, %10s, %8s, %10s, %4s, %8s, %11s, %s\n";
+                  $format      = "%-16s = %-4s, %5.2F, %s, %9s, %s, %10s, %10s, %8s, %10s, %4s, %8s, %11s, %s\n";
                   $key         = $position->getSymbol().'.'.$position->getTicket();
                   $type        = $position->getTypeDescription();
                   $lots        = $position->getLots();
