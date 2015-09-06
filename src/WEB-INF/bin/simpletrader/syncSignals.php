@@ -11,7 +11,7 @@ require(dirName(realPath(__FILE__)).'/../../config.php');
 
 
 $sleepSeconds      = 30;         // Länge der Pause zwischen zwei Updates
-$signalNamePadding = 16;         // Padding der Anzeige des Signalnamens:  @see function processSignal()
+$signalNamePadding = 19;         // Padding der Anzeige des Signalnamens:  @see function processSignal()
 
 
 // --- Start --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -310,7 +310,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
                   if (!$oldNetPositionDone) {
                      $iFirstNewRow       = $i;
                      if (sizeOf($report) == $iFirstNewRow+1) echoPre("\n");   // keine Anzeige von $oldNetPosition bei nur einem neuen Trade
-                     else                                    echoPre(($n==1 && !$fullHistory ? '' : str_pad("\n", $signalNamePadding+2)).'                                             was: '.$oldNetPosition);
+                     else                                    echoPre(($n==1 && !$fullHistory ? '' : str_pad("\n", $signalNamePadding+2)).'                                          was: '.$oldNetPosition);
                      $oldNetPositionDone = true;
                   }
                   echoPre(date('Y-m-d H:i:s', MyFX ::fxtStrToTime($row['time'])).':  '.str_pad($row['trade'], 6).' '. str_pad(ucFirst($row['type']), 4).' '.number_format($row['lots'], 2).' lots '.$row['symbol'].' @ '.str_pad($row['price'], 8).' now: '.$netPosition);
