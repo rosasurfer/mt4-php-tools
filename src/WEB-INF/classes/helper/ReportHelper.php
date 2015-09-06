@@ -29,7 +29,7 @@ class ReportHelper extends Object {
     *  +---------------------+---------+------+------+--------+-------+---------+-------+--------+------+--------+
     */
    public static function getNetPositionHistory(Signal $signal, $symbol, $starttime) {
-      if (!$signal->isPersistent()) throw new plInvalidArgumentException('Cannot process non-persistent '.get_class($signal));
+      if (!$signal->isPersistent())                       throw new plInvalidArgumentException('Cannot process non-persistent '.get_class($signal));
       if (!is_string($symbol))                            throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
       if (!strLen($symbol))                               throw new plInvalidArgumentException('Invalid argument $symbol: '.$symbol);
       if (!is_string($starttime))                         throw new IllegalTypeException('Illegal type of parameter $starttime: '.getType($starttime));
