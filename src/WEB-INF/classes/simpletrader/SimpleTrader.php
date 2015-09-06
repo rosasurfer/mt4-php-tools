@@ -4,24 +4,34 @@
  */
 class SimpleTrader extends StaticClass {
 
-   // URLs
-   private static $urls     = array('http://cp.forexsignals.com/signal/{signal_ref_id}/signal.html',                             // mit oder ohne SSL
-                                  //'http://cp.forexsignals.com/signals.php?do=view&id={signal_ref_id}&showAllClosedTrades=1',   // komplette History
-                                    'https://www.simpletrader.net/signal/{signal_ref_id}/signal.html',                           // nur mit SSL
+
+   // URLs und Referers zum Download der letzten 500 Trades und der kompletten History
+   private static $urls = array(
+      array(
+         'recent'  => 'http://cp.forexsignals.com/signal/{signal_ref_id}/signal.html',
+         'full'    => 'http://cp.forexsignals.com/signals.php?do=view&id={signal_ref_id}&showAllClosedTrades=1',
+         'referer' => 'http://cp.forexsignals.com/forex-signals.html',
+      ),
+      array(
+         'recent'  => 'https://www.simpletrader.net/signal/{signal_ref_id}/signal.html',
+         'full'    => 'https://www.simpletrader.net/signals.php?do=view&id={signal_ref_id}&showAllClosedTrades=1',
+         'referer' => 'https://www.simpletrader.net/forex-signals.html'
+      ),
    );
 
-   private static $referers = array('http://cp.forexsignals.com/forex-signals.html',
-                                    'https://www.simpletrader.net/forex-signals.html');
 
    /**
     * Lädt die HTML-Seite mit den Tradedaten des angegebenen Signals. Schlägt der Download fehl, wird zwei mal versucht,
     * die Seite von alternativen URL's zu laden, bevor der Download mit einem Fehler abbricht.
     *
     * @param  Signal $signal
+    * @param  bool   $fullHistory - ob die komplette History oder nur die letzten Trades geladen werden sollen
     *
     * @return string - Inhalt der HTML-Seite
     */
-   public static function loadSignalPage(Signal $signal) {
+   public static function loadSignalPage(Signal $signal, $fullHistory) {
+      if (!is_bool($fullHistory)) throw new IllegalTypeException('Illegal type of parameter $fullHistory: '.getType($fullHistory));
+
       $referenceId = $signal->getReferenceID();
 
 
@@ -40,19 +50,20 @@ class SimpleTrader extends StaticClass {
       // Cookies in der angegebenen Datei verwenden
       $cookieFile = dirName(realPath($_SERVER['PHP_SELF'])).DIRECTORY_SEPARATOR.'cookies.txt';
       $options[CURLOPT_COOKIEFILE    ] = $cookieFile;          // read cookies from
-      $options[CURLOPT_COOKIEJAR     ] = $cookieFile;          // write cookiess to
-      $options[CURLOPT_SSL_VERIFYPEER] = false;                // das SSL-Zertifikat von simpletrader.net ist evt. ungültig
+      $options[CURLOPT_COOKIEJAR     ] = $cookieFile;          // write cookies to
+      $options[CURLOPT_SSL_VERIFYPEER] = false;                // das SimpleTrader-SSL-Zertifikat ist evt. ungültig
 
 
       // TODO: Bei einem Netzwerkausfall am Server muß das Script weiterlaufen und seine Arbeit bei Rückkehr des Netzwerkes fortsetzen.
 
 
       // (2) HTTP-Request ausführen
+      $key     = $fullHistory ? 'full':'recent';
       $counter = 0;
       while (true) {
-         $i       = $counter % 2;                              // bei Neuversuchen abwechselnd beide URL's probieren
-         $url     = str_replace('{signal_ref_id}', $referenceId, self ::$urls[$i]);
-         $referer = self ::$referers[$i];
+         $i       = $counter % sizeof(self::$urls);            // bei Neuversuchen abwechselnd alle URL's durchprobieren
+         $url     = str_replace('{signal_ref_id}', $referenceId, self::$urls[$i][$key]);
+         $referer = self::$urls[$i]['referer'];
          $request->setUrl($url)->setHeader('Referer', $referer);
 
          try {
@@ -69,7 +80,7 @@ class SimpleTrader extends StaticClass {
                 strStartsWith($msg, 'CURL error CURLE_OPERATION_TIMEDOUT'  ) ||
                 strStartsWith($msg, 'CURL error CURLE_GOT_NOTHING'         ) ||
                 strStartsWith($msg, 'Empty reply from server'              )) {
-               if ($counter < 10) {                            // bis zu 10 Versuche, eine URL zu laden (entsprcicht )
+               if ($counter < 10) {                            // bis zu 10 Versuche, eine URL zu laden
                   Logger ::log($msg."\nretrying ... ($counter)", L_WARN, __CLASS__);
                   sleep(10);                                   // vor jedem weiteren Versuch einige Sekunden warten
                   continue;
@@ -87,14 +98,14 @@ class SimpleTrader extends StaticClass {
    /**
     * Parst eine simpletrader.net HTML-Seite mit Signaldaten.
     *
-    * @param  Signal $signal     - Signal
-    * @param  string $html       - Inhalt der HTML-Seite
-    * @param  array  $openTrades - Array zur Aufnahme der offenen Positionen
-    * @param  array  $history    - Array zur Aufnahme der Signalhistory
+    * @param  Signal  $signal     - Signal
+    * @param  string  $html       - Inhalt der HTML-Seite
+    * @param  array  &$openTrades - Array zur Aufnahme der offenen Positionen
+    * @param  array  &$history    - Array zur Aufnahme der Signalhistory
     *
     * @return string - Fehlermeldung oder NULL, falls kein Fehler auftrat
     */
-   public static function parseSignalData(Signal $signal, &$html, array &$openTrades, array &$history) {
+   public static function parseSignalData(Signal $signal, &$html, array &$openTrades, array &$history) {      // der zusätzliche Zeiger minimiert den benötigten Speicher
       if (!is_string($html)) throw new IllegalTypeException('Illegal type of parameter $html: '.getType($html));
 
       $signalAlias = $signal->getAlias();
@@ -147,7 +158,7 @@ class SimpleTrader extends StaticClass {
                   // keine OpenTrades vorhanden
                }
                else if (preg_match('/"sEmptyTable": "(There are currently trades open[^"]*)"/', $html, $matches)) {
-                  // OpenTrades sind gesperrt und können durch unvollständige Subscription freigeschaltet werden.
+                  // OpenTrades sind gesperrt und können durch begonne, aber nicht abgeschlossene Subscription freigeschaltet werden.
                   throw new plRuntimeException($signal->getName().': '.$matches[1]);
                }
                else throw new plRuntimeException($signal->getName().': no open trade rows found, HTML:'.NL.NL.$html);
@@ -175,8 +186,8 @@ class SimpleTrader extends StaticClass {
                $sOpenTime = trim($row[I_STOP_OPENTIME]);
                if (strEndsWith($sOpenTime, '*'))                     // seit 06.02.2015 von Fall zu Fall, Bedeutung ist noch unklar
                   $sOpenTime = subStr($sOpenTime, 0, -1);
-               if (!($time=strToTime($sOpenTime.' GMT'))) throw new plRuntimeException('Invalid OpenTime found in open position row '.($i+1).': "'.$row[I_STOP_OPENTIME].'", HTML:'.NL.NL.$row[0]);
-               $row['opentime' ] = $time;
+               if (!($iTime=strToTime($sOpenTime.' GMT'))) throw new plRuntimeException('Invalid OpenTime found in open position row '.($i+1).': "'.$row[I_STOP_OPENTIME].'", HTML:'.NL.NL.$row[0]);
+               $row['opentime' ] = $iTime;
                $row['closetime'] = null;
 
                // 4:OpenPrice
@@ -216,8 +227,8 @@ class SimpleTrader extends StaticClass {
 
                unset($row[0], $row[1], $row[2], $row[3], $row[4], $row[5], $row[6], $row[7], $row[8], $row[9], $row[10]);
             }
-            // offene Positionen sortieren
-            uSort($openTrades, array(__CLASS__, 'compareTradesByOpenTimeTicket'));
+            // offene Positionen sortieren: ORDER BY OpenTime asc, Ticket asc
+            uSort($openTrades, __CLASS__.'::compareTradesByOpenTimeTicket');
          }
 
          // History extrahieren und parsen; TP und SL werden, falls angegeben, erkannt (Timezone: GMT)
@@ -233,7 +244,7 @@ class SimpleTrader extends StaticClass {
                <td class="center">EURUSD</td>                                    //       [ 9:Symbol    ] => GBPAUD
                <td class="center">126.40</td>                                    //       [10:Profit    ] => -7.84
                <td class="center">8.7</td>                                       //       [11:Pips      ] => -6
-               <td class="center">0.07%</td>                                     //       [12:Gain      ] => 0.07%
+               <td class="center">0.07%</td>                                     //       [12:Gain      ] => -0.07%
                <td class="center">2289768</td>                                   //       [13:Comment   ] => 2002156)
             </tr>
             */
@@ -266,27 +277,22 @@ class SimpleTrader extends StaticClass {
 
                // 3:OpenTime
                $sOpenTime = trim($row[I_STH_OPENTIME]);
-               if (strEndsWith($sOpenTime, '*'))                     // seit 06.02.2015 von Fall zu Fall, Bedeutung ist noch unklar
+               if (strEndsWith($sOpenTime, '*'))                     // seit 06.02.2015 von Fall zu Fall, Bedeutung noch unklar
                   $sOpenTime = subStr($sOpenTime, 0, -1);
-               if (!($time=strToTime($sOpenTime.' GMT'))) throw new plRuntimeException('Invalid OpenTime found in history row '.($i+1).': "'.$row[I_STH_OPENTIME].'", HTML:'.NL.NL.$row[0]);
-               $row['opentime'] = $time;
+               if (!($iTime=strToTime($sOpenTime.' GMT'))) throw new plRuntimeException('Invalid OpenTime found in history row '.($i+1).': "'.$row[I_STH_OPENTIME].'", HTML:'.NL.NL.$row[0]);
+               $row['opentime'] = $iTime;
 
                // 4:CloseTime
                $sCloseTime = trim($row[I_STH_CLOSETIME]);
-               if (!($time=strToTime($sCloseTime.' GMT'))) throw new plRuntimeException('Invalid CloseTime found in history row '.($i+1).': "'.$row[I_STH_CLOSETIME].'", HTML:'.NL.NL.$row[0]);
-               if ($row['opentime'] > $time) {
-                  // bekannte Fehler selbständig fixen
+               if (!($iTime=strToTime($sCloseTime.' GMT'))) throw new plRuntimeException('Invalid CloseTime found in history row '.($i+1).': "'.$row[I_STH_CLOSETIME].'", HTML:'.NL.NL.$row[0]);
+               // Tickets mit fehlerhaften Open-/CloseTimes überspringen
+               if ($row['opentime'] > $iTime) {
                   $sTicket = trim($row[I_STH_COMMENT]);
-                  if      ($signalAlias=='smarttrader' && $sTicket=='1175928') $row['opentime'] = $time;
-                  else if ($signalAlias=='caesar21'    && $sTicket=='1897240') $row['opentime'] = $time;
-                  else if ($signalAlias=='caesar21'    && $sTicket=='1803494') $row['opentime'] = $time;
-                  else if ($signalAlias=='caesar21'    && $sTicket=='1803493') $row['opentime'] = $time;
-                  else if ($signalAlias=='caesar21'    && $sTicket=='1680703') $row['opentime'] = $time;
-                  else if ($signalAlias=='caesar21'    && $sTicket=='1617317') $row['opentime'] = $time;
-                  else if ($signalAlias=='caesar21'    && $sTicket=='1602520') $row['opentime'] = $time;
-                  else throw new plRuntimeException('Invalid Open-/CloseTime pair found in history #'.$sTicket.': '.$sOpenTime.'" / "'.$sCloseTime.'"');
+                  $row     = array();
+                  echoPre('Skipping invalid ticket #'.$sTicket.': OpenTime='.$sOpenTime.'  CloseTime='.$sCloseTime);
+                  continue;
                }
-               $row['closetime'] = $time;
+               $row['closetime'] = $iTime;
 
                // 5:OpenPrice
                $sValue = trim($row[I_STH_OPENPRICE]);
@@ -305,7 +311,17 @@ class SimpleTrader extends StaticClass {
 
                // 8:Type
                $sValue = trim(strToLower($row[I_STH_TYPE]));
-               if ($sValue!='buy' && $sValue!='sell') throw new plRuntimeException('Invalid OperationType found in history row '.($i+1).': "'.$row[I_STH_TYPE].'", HTML:'.NL.NL.$row[0]);
+               // Tickets mit fehlerhaften OperationType reparieren
+               if ($sValue!='buy' && $sValue!='sell') {
+                  if (is_numeric($sProfit=trim($row[I_STH_PROFIT])) && $row['openprice'] != $row['closeprice']) {
+                     $dProfit = (float)$sProfit;
+                     if ($row['openprice'] < $row['closeprice']) $fixedValue = ($dProfit > 0) ? 'Buy' :'Sell';
+                     else                                        $fixedValue = ($dProfit > 0) ? 'Sell':'Buy' ;
+                     echoPre('Fixing invalid operation type "'.$sValue.'" of ticket #'.$sTicket.': '.$fixedValue);
+                     $sValue = strToLower($fixedValue);
+                  }
+                  else throw new plRuntimeException('Invalid OperationType found in history row '.($i+1).': "'.$row[I_STH_TYPE].'", HTML:'.NL.NL.$row[0]);
+               }
                $row['type'] = $sValue;
 
                // 9:Symbol
@@ -331,8 +347,8 @@ class SimpleTrader extends StaticClass {
 
                unset($row[0], $row[1], $row[2], $row[3], $row[4], $row[5], $row[6], $row[7], $row[8], $row[9], $row[10], $row[11], $row[12], $row[13]);
             }
-            // History sortieren
-            uSort($history, array(__CLASS__, 'compareTradesByCloseTimeOpenTimeTicket'));
+            // History sortieren: : ORDER BY CloseTime asc, OpenTime asc, Ticket asc
+            uSort($history, __CLASS__.'::compareTradesByCloseTimeOpenTimeTicket');
          }
       }
 
@@ -355,6 +371,9 @@ class SimpleTrader extends StaticClass {
     *               0, wenn beide Trades zum selben Zeitpunkt geöffnet wurden
     */
    private static function compareTradesByOpenTimeTicket(array &$tradeA, array &$tradeB) {
+      if (!$tradeA) return $tradeB ? -1 : 0;
+      if (!$tradeB) return $tradeA ?  1 : 0;
+
       if ($tradeA['opentime'] > $tradeB['opentime']) return  1;
       if ($tradeA['opentime'] < $tradeB['opentime']) return -1;
 
@@ -377,6 +396,9 @@ class SimpleTrader extends StaticClass {
     *               0, wenn beide Trades zum selben Zeitpunkt geöffnet und geschlossen wurden
     */
    private static function compareTradesByCloseTimeOpenTimeTicket(array &$tradeA, array &$tradeB) {
+      if (!$tradeA) return $tradeB ? -1 : 0;
+      if (!$tradeB) return $tradeA ?  1 : 0;
+
       if ($tradeA['closetime'] > $tradeB['closetime']) return  1;
       if ($tradeA['closetime'] < $tradeB['closetime']) return -1;
       return self ::compareTradesByOpenTimeTicket($tradeA, $tradeB);

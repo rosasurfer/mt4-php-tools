@@ -35,31 +35,35 @@ foreach ($args as $i => $arg) {
 foreach ($args as $i => $arg) {
    $args[$i] = strToLower($arg);
 }
-$args = $args ? array_unique($args) : array('*');           // ohne Signal-Parameter werden alle Signale synchronisiert
+$args = $args ? array_unique($args) : array('*');              // ohne Signal-Parameter werden alle Signale synchronisiert
 
 
-// (2) Signale aktualisieren
-$exitCode = 0;
-try {
-   while (true) {
-      foreach ($args as $i => $arg) {
-         if (!processSignal($arg, $fileSyncOnly)) {
-            $exitCode = 1;
-            break;
-         }
-      }
-      if (!$looping) break;
-      sleep($sleepSeconds);                                    // vorm nächsten Durchlauf jeweils einige Sek. schlafen
-   }
+// (2) Erreichbarkeit der Datenbank prüfen                     // als Extra-Schritt, damit ein Connection-Fehler bei Programmstart nur eine
+try {                                                          // kurze Fehlermeldung, während der Programmausführung jedoch einen kritischen
+   Signal ::dao()->getDB()->executeSql("select 1");            // Fehler (mit Stacktrace) auslöst
 }
 catch (InfrastructureException $ex) {
-   echoPre('error: '.$ex->getMessage());                       // Can not connect to MySQL server...
-   $exitCode = 1;
+   if (strStartsWithI($ex->getMessage(), 'Can not connect')) {
+      echoPre('error: '.$ex->getMessage());
+      exit(1);
+   }
+   throw $ex;
 }
 
 
-// (3) Ende
-exit($exitCode);
+// (3) Signale aktualisieren
+while (true) {
+   foreach ($args as $i => $arg) {
+      if (!processSignal($arg, $fileSyncOnly))
+         exit(1);
+   }
+   if (!$looping) break;
+   sleep($sleepSeconds);                                       // vorm nächsten Durchlauf jeweils einige Sek. schlafen
+}
+
+
+// (4) Ende
+exit(0);
 
 
 // --- Funktionen ---------------------------------------------------------------------------------------------------------------------------------------------
@@ -98,34 +102,47 @@ function processSignal($alias, $fileSyncOnly) {
 
 
    if (!$fileSyncOnly) {
-      $counter = 0;
+      $counter     = 0;
+      $fullHistory = false;
 
       while (true) {
          $counter++;
 
          // HTML-Seite laden
-         $html = SimpleTrader ::loadSignalPage($signal);
+         $html = SimpleTrader ::loadSignalPage($signal, $fullHistory);
 
          // HTML-Seite parsen
          $openPositions = $closedPositions = array();
-         $errorMsg      = SimpleTrader ::parseSignalData($signal, $html, $openPositions, $closedPositions);
-         if (!$errorMsg)
+         $errorMsg = SimpleTrader ::parseSignalData($signal, $html, $openPositions, $closedPositions);
+
+         // bei PHP-Fehlermessages in HTML-Seite URL nochmal laden (bis zu 5 Versuche)
+         if ($errorMsg) {
+            echoPre($errorMsg);
+            if ($counter >= 5) throw new plRuntimeException($signal->getName().': '.$errorMsg);
+            Logger ::log($signal->getName().': '.$errorMsg."\nretrying...", L_WARN, __CLASS__);
+            continue;
+         }
+
+         // Datenbank aktualisieren
+         try {
+            if (!updateDatabase($signal, $openPositions, $openUpdates, $closedPositions, $closedUpdates, $fullHistory))
+               return false;
             break;
+         }
+         catch (DataNotFoundException $ex) {
+            if ($fullHistory) throw $ex;              // Fehler weiterreichen, wenn er mit kompletter History auftrat
 
-         // PHP-Fehlermessages in HTML-Seite: URL nochmal laden (bis zu 5 Versuche)
-         echoPre($errorMsg);
-         if ($counter >= 5) throw new plRuntimeException($signal->getName().': '.$errorMsg);
-         Logger ::log($signal->getName().': '.$errorMsg."\nretrying...", L_WARN, __CLASS__);
+            // Zähler zurücksetzen und komplette History laden
+            $counter     = 0;
+            $fullHistory = true;
+            echoPre($ex->getMessage().', loading full history...');
+         }
       }
-
-      // Datenbank aktualisieren
-      updateDatabase($signal, $openPositions, $openUpdates, $closedPositions, $closedUpdates);
-
-      // TODO: komplette History laden, wenn die Daten in der DB unvollständig sind
    }
    else {
      $openUpdates = $closedUpdates = false;
    }
+
 
    // Datenfiles für MetaTrader::MQL aktualisieren
    MT4 ::updateDataFiles($signal, $openUpdates, $closedUpdates);
@@ -143,29 +160,48 @@ function processSignal($alias, $fileSyncOnly) {
  * @param  bool  &$openUpdates          - Variable, die nach Rückkehr anzeigt, ob Änderungen an den offenen Positionen detektiert wurden oder nicht
  * @param  array  $currentHistory       - Array mit aktuellen Historydaten
  * @param  bool  &$closedUpdates        - Variable, die nach Rückkehr anzeigt, ob Änderungen an der Trade-History detektiert wurden oder nicht
+ * @param  bool   $fullHistory          - ob die komplette History geladen wurde (für korrektes Padding der Anzeige)
+ *
+ * @return bool - Erfolgsstatus
+ *
+ * @throws DataNotFoundException - wenn die älteste geschlossene Position lokal nicht vorhanden ist (auch beim ersten Synchronisieren)
+ *                               - wenn eine beim letzten Synchronisieren offene Position weder als offen noch als geschlossen angezeigt wird
  */
-function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpdates, array &$currentHistory, &$closedUpdates) {
+function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpdates, array &$currentHistory, &$closedUpdates, $fullHistory) {   // die zusätzlichen Zeiger minimieren den Speicherverbrauch
    if (!is_bool($openUpdates))   throw new IllegalTypeException('Illegal type of parameter $openUpdates: '.getType($openUpdates));
    if (!is_bool($closedUpdates)) throw new IllegalTypeException('Illegal type of parameter $closedUpdates: '.getType($closedUpdates));
+   if (!is_bool($fullHistory))   throw new IllegalTypeException('Illegal type of parameter $fullHistory: '.getType($fullHistory));
 
    $unchangedOpenPositions   = 0;
-   $positionChangeStartTimes = null;                                 // Beginn der Änderungen der Net-Position
-   $lastKnownChangeTimes     = null;
-   $modifications            = null;
+   $positionChangeStartTimes = array();                              // Beginn der Änderungen der Net-Position
+   $lastKnownChangeTimes     = array();
+   $modifications            = array();
 
    $db = OpenPosition ::dao()->getDB();
    $db->begin();
    try {
-      // (1) lokalen Stand der offenen Positionen holen
+      // (1) bei partieller History prüfen, ob die älteste geschlossene Position lokal vorhanden ist
+      if (!$fullHistory) {
+         foreach ($currentHistory as $i => &$data) {
+            if (!$data) continue;                                    // Datensätze übersprungener Zeilen können leer sein.
+            $ticket = $data['ticket'];
+            if (!ClosedPosition ::dao()->isTicket($signal, $ticket))
+               throw new DataNotFoundException('Closed position #'.$ticket.' not found locally');
+         }
+      }
+
+
+      // (2) lokalen Stand der offenen Positionen holen
       $knownOpenPositions = OpenPosition ::dao()->listBySignal($signal, $assocTicket=true);
 
 
-      // (2) offene Positionen abgleichen
+      // (3) offene Positionen abgleichen
       foreach ($currentOpenPositions as $i => &$data) {
-         $sTicket  = (string)$data['ticket'];
+         if (!$data) continue;                                       // Datensätze übersprungener Zeilen können leer sein.
+         $sTicket = (string)$data['ticket'];
 
          if (!isSet($knownOpenPositions[$sTicket])) {
-            // (2.1) neue offene Position
+            // (3.1) neue offene Position
             if (!isSet($positionChangeStartTimes[$data['symbol']]))
                $lastKnownChangeTimes[$data['symbol']] = Signal ::dao()->getLastKnownPositionChangeTime($signal, $data['symbol']);
 
@@ -175,7 +211,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
             $positionChangeStartTimes[$symbol] = isSet($positionChangeStartTimes[$symbol]) ? min($openTime, $positionChangeStartTimes[$symbol]) : $openTime;
          }
          else {
-            // (2.2) bekannte offene Position auf geänderte Limite prüfen
+            // (3.2) bekannte offene Position auf geänderte Limite prüfen
             $position = null;
             if ($data['takeprofit'] != ($prevTP=$knownOpenPositions[$sTicket]->getTakeProfit())) $position = $knownOpenPositions[$sTicket]->setTakeProfit($data['takeprofit']);
             if ($data['stoploss'  ] != ($prevSL=$knownOpenPositions[$sTicket]->getStopLoss())  ) $position = $knownOpenPositions[$sTicket]->setStopLoss  ($data['stoploss'  ]);
@@ -190,14 +226,15 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
       }
 
 
-      // (3) History abgleichen ($currentHistory ist sortiert nach CloseTime+OpenTime+Ticket)
-      $formerOpenPositions = $knownOpenPositions;                    // Alle in $knownOpenPositions übrig gebliebenen Positionen existierten nicht in $currentOpenPositions
-      $hstSize             = sizeOf($currentHistory);                // und müssen daher geschlossen worden sein.
+      // (4) History abgleichen ($currentHistory ist sortiert nach CloseTime+OpenTime+Ticket)
+      $formerOpenPositions = $knownOpenPositions;                    // Alle in $knownOpenPositions übrig gebliebenen Positionen existierten nicht
+      $hstSize             = sizeOf($currentHistory);                // in $currentOpenPositions und müssen daher geschlossen worden sein.
       $matchingPositions   = $otherClosedPositions = 0;
       $openGotClosed       = false;
 
       for ($i=$hstSize-1; $i >= 0; $i--) {                           // Die aufsteigende History wird rückwärts verarbeitet (schnellste Variante).
-         $data         = $currentHistory[$i];
+         if (!$data=$currentHistory[$i])                             // Datensätze übersprungener Zeilen können leer sein.
+            continue;
          $ticket       = $data['ticket'];
          $openPosition = null;
 
@@ -238,18 +275,18 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
       }
 
 
-      // (4) ohne Änderungen
+      // (5) ohne Änderungen
       if (!$positionChangeStartTimes && !$modifications) {
          echoPre('no changes'.($unchangedOpenPositions ? ' ('.$unchangedOpenPositions.' open position'.($unchangedOpenPositions==1 ? '':'s').')':''));
       }
 
 
-      // (5) bei Änderungen: formatierter und sortierter Report
+      // (6) bei Änderungen: formatierter und sortierter Report
       if ($positionChangeStartTimes) {
          global $signalNamePadding;
          $n = 0;
 
-         // (5.1) Positionsänderungen
+         // (6.1) Positionsänderungen
          foreach ($positionChangeStartTimes as $symbol => $startTime) {
             $n++;
             if ($startTime < $lastKnownChangeTimes[$symbol])
@@ -273,7 +310,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
                   if (!$oldNetPositionDone) {
                      $iFirstNewRow       = $i;
                      if (sizeOf($report) == $iFirstNewRow+1) echoPre("\n");   // keine Anzeige von $oldNetPosition bei nur einem neuen Trade
-                     else                                    echoPre(($n==1 ? '':str_pad("\n", $signalNamePadding+2)).'                                             was: '.$oldNetPosition);
+                     else                                    echoPre(($n==1 && !$fullHistory ? '' : str_pad("\n", $signalNamePadding+2)).'                                             was: '.$oldNetPosition);
                      $oldNetPositionDone = true;
                   }
                   echoPre(date('Y-m-d H:i:s', MyFX ::fxtStrToTime($row['time'])).':  '.str_pad($row['trade'], 6).' '. str_pad(ucFirst($row['type']), 4).' '.number_format($row['lots'], 2).' lots '.$row['symbol'].' @ '.str_pad($row['price'], 8).' now: '.$netPosition);
@@ -283,7 +320,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
             SimpleTrader ::onPositionChange($signal, $symbol, $report, $iFirstNewRow, $oldNetPosition, $netPosition);
          }
 
-         // (5.2) Limitänderungen des jeweiligen Symbols nach Postionsänderung anfügen
+         // (6.2) Limitänderungen des jeweiligen Symbols nach Postionsänderung anfügen
          if (isSet($modifications[$symbol])) {
             foreach ($modifications[$symbol] as $modification)
                SimpleTrader ::onPositionModify($modification['position'], $modification['prevTP'], $modification['prevSL']);
@@ -291,7 +328,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
          }
       }
 
-      // (5.3) restliche Limitänderungen für Symbole ohne Postionsänderung
+      // (6.3) restliche Limitänderungen für Symbole ohne Postionsänderung
       if ($modifications) {
          !$positionChangeStartTimes && echoPre("\n");
          foreach ($modifications as $modsPerSymbol) {
@@ -302,77 +339,22 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
       }
 
 
-      // (6) bekannte Fehler selbständig abfangen
+      // (7) nicht zuzuordnende Positionen: ggf. muß die komplette History geladen werden
       if ($formerOpenPositions) {
-         if ($signal->getAlias() == 'asta') {
-            if (isSet($formerOpenPositions[$ticket='2111537'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2114818'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2118556'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2118783'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2128883'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2131107'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2132505'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2138672'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2138858'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2139720'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2140271'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2140276'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2140277'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2140282'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2141148'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2142140'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2142359'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2142458'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2142541'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2142685'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2142695'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2142976'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2143042'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2143070'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2143073'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2145221'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2160211'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2160281'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2162670'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2177484'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2178261'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2178283'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2180998'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2181751'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2181759'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2181960'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2182579'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2182588'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2182636'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2182766'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2182859'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2183175'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2183181'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2183273'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2183600'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2183611'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2183878'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2193718'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2240240'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2245473'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2246685'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2247448'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2247671'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2248728'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2248785'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2248917'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2249193'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2249521'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2249522'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2249703'])) unset($formerOpenPositions[$ticket]);
-            if (isSet($formerOpenPositions[$ticket='2250222'])) unset($formerOpenPositions[$ticket]);
+         $errorMsg = null;
+         if (!$fullHistory) {
+            $errorMsg = 'Close data not found for former open position #'.array_shift($formerOpenPositions)->getTicket();
          }
+         else {
+            $errorMsg = 'Found '.sizeOf($formerOpenPositions).' former open position'.(sizeOf($formerOpenPositions)==1 ? '':'s')
+                      ." now neither in \"openTrades\" nor in \"history\":\n".printFormatted($formerOpenPositions, true);
+         }
+         throw new DataNotFoundException($errorMsg);
       }
-      if ($formerOpenPositions) throw new plRuntimeException('Found '.sizeOf($formerOpenPositions).' former open position'.(sizeOf($formerOpenPositions)==1 ? '':'s')." now neither in \"openTrades\" nor in \"history\":\n".printFormatted($formerOpenPositions, true));
 
 
-      // (7) alles speichern
-      $db->commit();
+      // (8) alles speichern
+      //$db->commit();
    }
    catch (Exception $ex) {
       $db->rollback();
@@ -381,6 +363,8 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
 
    $openUpdates   = $positionChangeStartTimes || $modifications;
    $closedUpdates = $openGotClosed || $otherClosedPositions;
+
+   return true;
 }
 
 
