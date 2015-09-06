@@ -187,6 +187,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
             $ticket = $data['ticket'];
             if (!ClosedPosition ::dao()->isTicket($signal, $ticket))
                throw new DataNotFoundException('Closed position #'.$ticket.' not found locally');
+            break;
          }
       }
 
