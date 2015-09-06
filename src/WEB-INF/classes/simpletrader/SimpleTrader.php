@@ -125,6 +125,7 @@ class SimpleTrader extends StaticClass {
       if ($matchedTables != 2) {
          // Login ungültig (falls Cookies ungültig oder korrupt sind)
          if (preg_match('/Please read the following information<\/h4>\s*(You do not have access to view this page\.)/isU', $html, $matches)) throw new plRuntimeException($signal->getName().': '.$matches[1]);
+         if (preg_match('/Please read the following information<\/h4>\s*(This signal does not exist\.)/isU'              , $html, $matches)) throw new plRuntimeException($signal->getName().': '.$matches[1]);
 
          // diverse PHP-Fehler in der SimpleTrader-Website
          if (preg_match('/(Parse error: .+ in .+ on line [0-9]+)/iU', $html, $matches)) return $matches[1];    // Parse error: ... in /home/simpletrader/public_html/signals.php on line ...
