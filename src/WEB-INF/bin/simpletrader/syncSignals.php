@@ -354,7 +354,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
 
 
       // (8) alles speichern
-      //$db->commit();
+      $db->commit();
    }
    catch (Exception $ex) {
       $db->rollback();
