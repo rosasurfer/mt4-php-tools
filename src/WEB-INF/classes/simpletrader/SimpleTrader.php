@@ -290,7 +290,8 @@ class SimpleTrader extends StaticClass {
                if ($row['opentime'] > $iTime) {
                   $sTicket = trim($row[I_STH_COMMENT]);
                   $row     = array();
-                  echoPre('Skipping invalid ticket #'.$sTicket.': OpenTime='.$sOpenTime.'  CloseTime='.$sCloseTime);
+                  if ($signalAlias=='smarttrader' && $sTicket=='1175928') {}  // permanente Fehler nicht jedesmal anzeigen
+                  else echoPre('Skipping invalid ticket #'.$sTicket.': OpenTime='.$sOpenTime.'  CloseTime='.$sCloseTime);
                   continue;
                }
                $row['closetime'] = $iTime;
