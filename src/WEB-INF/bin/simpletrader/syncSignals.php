@@ -309,8 +309,8 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
 
                if ($row['time'] >= $startTime) {
                   if (!$oldNetPositionDone) {
-                     $iFirstNewRow       = $i;
-                     if (sizeOf($report) == $iFirstNewRow+1) echoPre("\n");   // keine Anzeige von $oldNetPosition bei nur einem neuen Trade
+                     $iFirstNewRow       = $i;                                         // keine Anzeige von $oldNetPosition bei nur einem
+                     if (sizeOf($report) == $iFirstNewRow+1) echoPre("\n");            // neuen Trade
                      else                                    echoPre(($n==1 && !$fullHistory ? '' : str_pad("\n", $signalNamePadding+2)).'                                           was: '.$oldNetPosition);
                      $oldNetPositionDone = true;
                   }
@@ -319,8 +319,8 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
                   $deal   =                                         $row['trade' ];
                   $type   =                                 ucFirst($row['type'  ]);
                   $lots   =                                         $row['lots'  ];
-                  $symbol =                                         $row['symbol'];
-                  $price  =                                         $row['price' ];
+                  $symbol =                                         $row['symbol'];    // Consolen-Output für "[open|close] position...",
+                  $price  =                                         $row['price' ];    // "modify ..." in SimpleTrader::onPositionModify()
                   echoPre(sprintf($format, $date, $deal, $type, $lots, $symbol, $price, $netPosition));
                }
                else $oldNetPosition = $netPosition;
