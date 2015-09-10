@@ -44,7 +44,7 @@ try {                                                          // kurze Fehlerme
 }
 catch (InfrastructureException $ex) {
    if (strStartsWithI($ex->getMessage(), 'Can not connect')) {
-      echoPre('error: '.$ex->getMessage());
+      echoPre($ex->getMessage());
       exit(1);
    }
    throw $ex;
@@ -311,10 +311,17 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
                   if (!$oldNetPositionDone) {
                      $iFirstNewRow       = $i;
                      if (sizeOf($report) == $iFirstNewRow+1) echoPre("\n");   // keine Anzeige von $oldNetPosition bei nur einem neuen Trade
-                     else                                    echoPre(($n==1 && !$fullHistory ? '' : str_pad("\n", $signalNamePadding+2)).'                                          was: '.$oldNetPosition);
+                     else                                    echoPre(($n==1 && !$fullHistory ? '' : str_pad("\n", $signalNamePadding+2)).'                                           was: '.$oldNetPosition);
                      $oldNetPositionDone = true;
                   }
-                  echoPre(date('Y-m-d H:i:s', MyFX ::fxtStrToTime($row['time'])).':  '.str_pad($row['trade'], 6).' '. str_pad(ucFirst($row['type']), 4).' '.number_format($row['lots'], 2).' lots '.$row['symbol'].' @ '.str_pad($row['price'], 8).' now: '.$netPosition);
+                  $format = "%s:  %-6s %-4s %5.2F lots %s @ %-8s now: %s";
+                  $date   = date('Y-m-d H:i:s', MyFX ::fxtStrToTime($row['time'  ]));
+                  $deal   =                                         $row['trade' ];
+                  $type   =                                 ucFirst($row['type'  ]);
+                  $lots   =                                         $row['lots'  ];
+                  $symbol =                                         $row['symbol'];
+                  $price  =                                         $row['price' ];
+                  echoPre(sprintf($format, $date, $deal, $type, $lots, $symbol, $price, $netPosition));
                }
                else $oldNetPosition = $netPosition;
             }

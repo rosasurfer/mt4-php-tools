@@ -467,9 +467,13 @@ class SimpleTrader extends StaticClass {
       $signal = $position->getSignal();
 
       // Ausgabe in Console
-      $msg = str_pad(ucFirst($position->getType()), 4).' '.number_format($position->getLots(), 2).' lots '.$position->getSymbol().' @ '.str_pad($position->getOpenPrice(), 8);
+      $format = "%-4s %5.2F lots %s @ %-8s";
+      $type   = $position->getType();
+      $lots   = $position->getLots();
+      $symbol = $position->getSymbol();
+      $price  = $position->getOpenPrice();
+      $msg    = sprintf($format, $type, $lots, $symbol, $price);
       echoPre(date('Y-m-d H:i:s', time()).':  modify '.$msg.$modification);
-
 
       // Benachrichtigung per E-Mail
       $mailMsg = $signal->getName().': modify '.$msg.$modification;
@@ -482,9 +486,11 @@ class SimpleTrader extends StaticClass {
 
 
       // Benachrichtigung per SMS
-      if (false) {                                       // für Limitänderungen vorerst deaktiviert
+      if (false) {                                                   // für Limitänderungen vorerst deaktiviert
          try {
-            $smsMsg = $signal->getName().': modified '.str_replace('  ', ' ', $msg)."\n".$modification."\n".date('(H:i:s)', time());   // MyFX ::fxtDate(time(), '(H:i:s)')
+            $smsMsg = $signal->getName().': modified '.str_replace('  ', ' ', $msg)."\n"
+                     .$modification                                                ."\n"
+                     .date('(H:i:s)', time());                       // MyFX ::fxtDate(time(), '(H:i:s)')
             foreach (MyFX ::getSmsSignalReceivers() as $receiver) {
                MyFX ::sendSms($receiver, $smsMsg);
             }
