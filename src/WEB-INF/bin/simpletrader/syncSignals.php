@@ -328,7 +328,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
             SimpleTrader ::onPositionChange($signal, $symbol, $report, $iFirstNewRow, $oldNetPosition, $netPosition);
          }
 
-         // (6.2) Limitänderungen des jeweiligen Symbols nach Postionsänderung anfügen
+         // (6.2) Limitänderungen des jeweiligen Symbols nach Positionsänderung anfügen
          if (isSet($modifications[$symbol])) {
             foreach ($modifications[$symbol] as $modification)
                SimpleTrader ::onPositionModify($modification['position'], $modification['prevTP'], $modification['prevSL']);
