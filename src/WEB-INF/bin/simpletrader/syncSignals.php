@@ -11,7 +11,7 @@ require(dirName(realPath(__FILE__)).'/../../config.php');
 
 
 $sleepSeconds      = 30;         // Länge der Pause zwischen zwei Updates
-$signalNamePadding = 19;         // Padding der Anzeige des Signalnamens:  @see function processSignal()
+$signalNamePadding = 21;         // Padding der Anzeige des Signalnamens:  @see function processSignal()
 
 
 // --- Start --------------------------------------------------------------------------------------------------------------------------------------------------
