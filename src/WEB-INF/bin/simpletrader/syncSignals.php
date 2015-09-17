@@ -311,7 +311,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
                   if (!$oldNetPositionDone) {
                      $iFirstNewRow       = $i;                                         // keine Anzeige von $oldNetPosition bei nur einem
                      if (sizeOf($report) == $iFirstNewRow+1) echoPre("\n");            // neuen Trade
-                     else                                    echoPre(($n==1 && !$fullHistory ? '' : str_pad("\n", $signalNamePadding+2)).'                                           was: '.$oldNetPosition);
+                     else                                    echoPre(($n==1 && !$fullHistory ? '' : str_pad("\n", $signalNamePadding+2, STR_PAD_RIGHT)).str_repeat(' ', $signalNamePadding+20).'was: '.$oldNetPosition);
                      $oldNetPositionDone = true;
                   }
                   $format = "%s:  %-6s %-4s %5.2F lots %s @ %-8s now: %s";
