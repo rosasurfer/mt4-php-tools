@@ -38,12 +38,12 @@ foreach ($args as $i => $arg) {
 $args = $args ? array_unique($args) : array('*');              // ohne Signal-Parameter werden alle Signale synchronisiert
 
 
-// (2) Erreichbarkeit der Datenbank prüfen                     // als Extra-Schritt, damit ein Connection-Fehler bei Programmstart nur eine
+// (2) Erreichbarkeit der Datenbank prüfen                     // Als Extra-Schritt, damit ein Connection-Fehler bei Programmstart nur eine
 try {                                                          // kurze Fehlermeldung, während der Programmausführung jedoch einen kritischen
-   Signal ::dao()->getDB()->executeSql("select 1");            // Fehler (mit Stacktrace) auslöst
+   Signal ::dao()->getDB()->executeSql("select 1");            // Fehler (mit Stacktrace) auslöst.
 }
 catch (InfrastructureException $ex) {
-   if (strStartsWithI($ex->getMessage(), 'Can not connect')) {
+   if (strStartsWithI($ex->getMessage(), 'can not connect')) {
       echoPre($ex->getMessage());
       exit(1);
    }
@@ -391,7 +391,7 @@ echo <<<END
  Syntax:  $self [-l] [-f] [signal_name ...]
 
  Options:  -l  Runs infinitely and synchronizes every 30 seconds.
-           -f  Synchronizes data files only but not the database (doesn't go online).
+           -f  Synchronizes MetaTrader data files but not the database (doesn't go online).
            -h  This help screen.
 
 END;
