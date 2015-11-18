@@ -24,8 +24,6 @@ class LZMA extends StaticClass {
       $cmdLine = sprintf($cmd, $file);
       $stdout  = '';
 
-      echoPre($cmdLine);
-
       if (WINDOWS) $stdout = shell_exec_fix($cmdLine);      // Workaround für Windows-Bug in shell_exec(), siehe dort
       else         $stdout = shell_exec    ($cmdLine);
 
