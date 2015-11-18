@@ -11,9 +11,8 @@
  * History-Start: http://www.dukascopy.com/datafeed/metadata/HistoryStart.bi5  (Format unbekannt)
  *
  * URL-Format:    eine Datei je Kalendertag ab History-Start (inkl. Wochenenden, Januar = 00), z.B.
- *
- *                http://www.dukascopy.com/datafeed/GBPUSD/2013/05/10/BID_candles_min_1.bi5
- *                http://www.dukascopy.com/datafeed/GBPUSD/2013/05/10/ASK_candles_min_1.bi5
+ *                • http://www.dukascopy.com/datafeed/GBPUSD/2013/05/10/BID_candles_min_1.bi5
+ *                • http://www.dukascopy.com/datafeed/GBPUSD/2013/05/10/ASK_candles_min_1.bi5
  *
  * Dateiformat:   binär, LZMA-gepackt
  *                @see Dukascopy::processBarFile()
@@ -108,14 +107,15 @@ function processInstrument($symbol, $startTime) {
          continue;
 
       // URL und Dateinamen zusammenstellen
-      $yyyy = date('Y', $time);
-      $mmL  = strRight(iDate('m', $time)+100, 2);                    // lokaler Monat:   Januar = 01
-      $mmD  = strRight(iDate('m', $time)+ 99, 2);                    // Dukascopy-Monat: Januar = 00
-      $dd   = date('d', $time);
-      $path = "$symbol/$yyyy/$mmD/$dd";
-      $file = 'BID_candles_min_1.bi5';
-      $url  = "http://www.dukascopy.com/datafeed/$path/$file";
-      $file = "$dataDirectory/history/dukascopy/$path/$file";
+      $yyyy  = date('Y', $time);
+      $mmL   = strRight(''.(iDate('m', $time)+100), 2);              // lokaler Monat:   Januar = 01
+      $mmD   = strRight(''.(iDate('m', $time)+ 99), 2);              // Dukascopy-Monat: Januar = 00
+      $dd    = date('d', $time);
+      $dateL = "$yyyy/$mmL/$dd";                                     // lokales Datum
+      $dateD = "$yyyy/$mmD/$dd";                                     // Dukascopy-Datum
+      $file  = 'BID_candles_min_1.bi5';
+      $url   = "http://www.dukascopy.com/datafeed/$symbol/$dateD/$file";
+      $file  = "$dataDirectory/history/dukascopy/$symbol/$dateL/$file";
 
       // Existenz der Datei prüfen
       if (!is_file($file)) {
