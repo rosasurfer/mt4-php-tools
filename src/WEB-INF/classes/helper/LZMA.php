@@ -46,11 +46,11 @@ class LZMA extends StaticClass {
 
          if (WINDOWS) {
             if (!$cmd) {
-               exec(APPLICATION_ROOT.'/../etc/bin/lzmadec -V 2> nul', $output);
+               exec(APPLICATION_ROOT.'/../bin/lzmadec -V 2> nul', $output);
                if ($output) $cmd = APPLICATION_ROOT.'/../etc/bin/lzmadec "%s"';
             }
             if (!$cmd) {
-               exec(APPLICATION_ROOT.'/../etc/bin/xz -V 2> nul', $output);
+               exec(APPLICATION_ROOT.'/../bin/xz -V 2> nul', $output);
                if ($output) $cmd = APPLICATION_ROOT.'/../etc/bin/xz -dc "%s"';
             }
             if (!$cmd) {
@@ -80,8 +80,8 @@ class LZMA extends StaticClass {
                if ($output) $cmd = 'xz -dc "%s"';
             }
          }
+         if (!$cmd) throw new InfrastructureException('No LZMA decompressor found.');
       }
-      if (!$cmd) throw new InfrastructureException('No LZMA decompressor found.');
 
       return $cmd;
    }
