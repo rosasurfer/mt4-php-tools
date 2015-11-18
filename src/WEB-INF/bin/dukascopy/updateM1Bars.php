@@ -10,11 +10,13 @@
  *
  * History-Start: http://www.dukascopy.com/datafeed/metadata/HistoryStart.bi5  (Format unbekannt)
  *
- * URL-Format:    eine Datei je Kalendertag ab History-Start (inkl. Wochenenden, Januar = 00)
+ * URL-Format:    eine Datei je Kalendertag ab History-Start (inkl. Wochenenden, Januar = 00), z.B.
+ *
  *                http://www.dukascopy.com/datafeed/GBPUSD/2013/05/10/BID_candles_min_1.bi5
  *                http://www.dukascopy.com/datafeed/GBPUSD/2013/05/10/ASK_candles_min_1.bi5
  *
- * Dateiformat:   siehe Dukascopy::processBarFile()
+ * Dateiformat:   binär, LZMA-gepackt
+ *                @see Dukascopy::processBarFile()
  */
 require(dirName(__FILE__).'/../../config.php');
 date_default_timezone_set('GMT');
