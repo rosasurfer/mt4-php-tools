@@ -22,12 +22,12 @@ require(dirName(__FILE__).'/../../config.php');
 date_default_timezone_set('GMT');
 
 
-// History-Start der einzelnen Instrumente (geprüft am 21.06.2013)
+// History-Start der einzelnen Instrumente (geprüft am 21.06.2013)      // geprüft
 $startTimes = array('AUDCAD' => strToTime('2005-12-26 00:00:00 GMT'),
                     'AUDCHF' => strToTime('2005-12-26 00:00:00 GMT'),
                     'AUDJPY' => strToTime('2003-11-30 00:00:00 GMT'),
                     'AUDNZD' => strToTime('2006-12-08 00:00:00 GMT'),
-                    'AUDUSD' => strToTime('2003-08-03 00:00:00 GMT'),
+                    'AUDUSD' => strToTime('2003-08-03 00:00:00 GMT'),   // 18.11.2015
                     'CADCHF' => strToTime('2005-12-26 00:00:00 GMT'),
                     'CADJPY' => strToTime('2004-10-20 00:00:00 GMT'),
                     'CHFJPY' => strToTime('2003-08-08 00:00:00 GMT'),
@@ -39,20 +39,20 @@ $startTimes = array('AUDCAD' => strToTime('2005-12-26 00:00:00 GMT'),
                     'EURNOK' => strToTime('2004-10-20 00:00:00 GMT'),
                     'EURNZD' => strToTime('2005-12-26 00:00:00 GMT'),
                     'EURSEK' => strToTime('2004-10-27 00:00:00 GMT'),
-                    'EURUSD' => strToTime('2003-07-27 00:00:00 GMT'),
+                    'EURUSD' => strToTime('2003-05-04 00:00:00 GMT'),   // 18.11.2015
                     'GBPAUD' => strToTime('2006-01-01 00:00:00 GMT'),
                     'GBPCAD' => strToTime('2006-01-01 00:00:00 GMT'),
                     'GBPCHF' => strToTime('2003-08-08 00:00:00 GMT'),
                     'GBPJPY' => strToTime('2003-08-03 00:00:00 GMT'),
                     'GBPNZD' => strToTime('2006-01-01 00:00:00 GMT'),
-                    'GBPUSD' => strToTime('2003-08-08 00:00:00 GMT'),
+                    'GBPUSD' => strToTime('2003-05-04 00:00:00 GMT'),   // 18.11.2015
                     'NZDCAD' => strToTime('2006-01-01 00:00:00 GMT'),
                     'NZDCHF' => strToTime('2006-01-01 00:00:00 GMT'),
                     'NZDJPY' => strToTime('2006-01-01 00:00:00 GMT'),
-                    'NZDUSD' => strToTime('2003-08-08 00:00:00 GMT'),
-                    'USDCAD' => strToTime('2003-08-08 00:00:00 GMT'),
-                    'USDCHF' => strToTime('2003-07-27 00:00:00 GMT'),
-                    'USDJPY' => strToTime('2003-07-27 00:00:00 GMT'),
+                    'NZDUSD' => strToTime('2003-08-03 00:00:00 GMT'),   // 18.11.2015
+                    'USDCAD' => strToTime('2003-08-03 00:00:00 GMT'),   // 18.11.2015
+                    'USDCHF' => strToTime('2003-05-04 00:00:00 GMT'),   // 18.11.2015
+                    'USDJPY' => strToTime('2003-05-04 00:00:00 GMT'),   // 18.11.2015
                     'USDNOK' => strToTime('2003-08-08 00:00:00 GMT'),
                     'USDSEK' => strToTime('2003-08-08 00:00:00 GMT'),
                     'USDSGD' => strToTime('2004-11-16 00:00:00 GMT'),
@@ -99,9 +99,8 @@ function processInstrument($symbol, $startTime) {
    $startTime -= $startTime % DAY;                                   // 00:00 GMT des Starttages
    $today      = ($today=time()) - $today%DAY;                       // heute 00:00 GMT
 
-   static $downloadDirectory = null;
-   if (is_null($downloadDirectory))
-      $downloadDirectory = MyFX ::getConfigPath('history.dukascopy');
+   static $dataDirectory = null;
+   if (!$dataDirectory) $dataDirectory = MyFX ::getConfigPath('myfx.data_directory');
 
 
    for ($time=$startTime; $time < $today; $time+=1*DAY) {            // heutigen Tag überspringen (Daten sind immer unvollständig)
@@ -110,13 +109,13 @@ function processInstrument($symbol, $startTime) {
 
       // URL und Dateinamen zusammenstellen
       $yyyy = date('Y', $time);
-      $mmL  = subStr(iDate('m', $time)+100, 1);                      // Local:     Januar = 01
-      $mmD  = subStr(iDate('m', $time)+ 99, 1);                      // Dukascopy: Januar = 00
+      $mmL  = strRight(iDate('m', $time)+100, 2);                    // lokaler Monat:   Januar = 01
+      $mmD  = strRight(iDate('m', $time)+ 99, 2);                    // Dukascopy-Monat: Januar = 00
       $dd   = date('d', $time);
       $path = "$symbol/$yyyy/$mmD/$dd";
       $file = 'BID_candles_min_1.bi5';
       $url  = "http://www.dukascopy.com/datafeed/$path/$file";
-      $file = "$downloadDirectory/$path/$file";
+      $file = "$dataDirectory/history/dukascopy/$path/$file";
 
       // Existenz der Datei prüfen
       if (!is_file($file)) {
@@ -134,7 +133,9 @@ function processInstrument($symbol, $startTime) {
 
       // Datei verarbeiten
       Dukascopy ::processBarFile($file);
-      exit();
+
+      // vorerst nach einer Datei abbrechen
+      exit(0);
    }
 }
 

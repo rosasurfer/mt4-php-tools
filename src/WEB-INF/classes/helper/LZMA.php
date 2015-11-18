@@ -24,6 +24,8 @@ class LZMA extends StaticClass {
       $cmdLine = sprintf($cmd, $file);
       $stdout  = '';
 
+      echoPre($cmdLine);
+
       if (WINDOWS) $stdout = shell_exec_fix($cmdLine);      // Workaround für Windows-Bug in shell_exec(), siehe dort
       else         $stdout = shell_exec    ($cmdLine);
 
@@ -47,11 +49,11 @@ class LZMA extends StaticClass {
          if (WINDOWS) {
             if (!$cmd) {
                exec(APPLICATION_ROOT.'/../bin/lzmadec -V 2> nul', $output);
-               if ($output) $cmd = APPLICATION_ROOT.'/../etc/bin/lzmadec "%s"';
+               if ($output) $cmd = APPLICATION_ROOT.'/../bin/lzmadec "%s"';
             }
             if (!$cmd) {
                exec(APPLICATION_ROOT.'/../bin/xz -V 2> nul', $output);
-               if ($output) $cmd = APPLICATION_ROOT.'/../etc/bin/xz -dc "%s"';
+               if ($output) $cmd = APPLICATION_ROOT.'/../bin/xz -dc "%s"';
             }
             if (!$cmd) {
                exec('lzmadec -V 2> nul', $output);
