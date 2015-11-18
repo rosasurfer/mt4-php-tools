@@ -25,7 +25,7 @@ $args = array_slice($_SERVER['argv'], 1);
 $looping = $fileSyncOnly = false;
 foreach ($args as $i => $arg) {
    $arg = strToLower($arg);
-   if (in_array($arg, array('-h','-help'))) exit(1|help());                               // Hilfe
+   if (in_array($arg, array('-h','-help'))) help() & exit(1);                             // Hilfe
    if (in_array($arg, array('-l'))) { $looping     =true; unset($args[$i]); continue; }   // -l=Looping
    if (in_array($arg, array('-f'))) { $fileSyncOnly=true; unset($args[$i]); continue; }   // -f=FileSyncOnly
 }
@@ -388,10 +388,11 @@ function help($message=null) {
    $self = baseName($_SERVER['PHP_SELF']);
 
 echo <<<END
+
  Syntax:  $self [-l] [-f] [signal_name ...]
 
  Options:  -l  Runs infinitely and synchronizes every 30 seconds.
-           -f  Synchronizes MetaTrader data files but not the database (doesn't go online).
+           -f  Synchronizes MetaTrader data files but not the database (does not go online).
            -h  This help screen.
 
 END;
