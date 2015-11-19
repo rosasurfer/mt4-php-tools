@@ -211,21 +211,21 @@ function processFiles($symbol, $time, $url, $file404, $fileD_lzma, $fileD_bin, $
 
    // (2) falls lokale .bin-Datei existiert: packen und löschen
    else if (is_file($fileL_bin)) {
-      echoPre("[Info]  $shortDate   binary history file: ".baseName($fileL_bin));
+      echoPre("[Info]  $shortDate   raw binary history file: ".baseName($fileL_bin));
    }
 
 
    // (3) falls Dukascopy .bin-Datei existiert: verarbeiten und löschen
    else if (is_file($fileD_bin)) {
-      echoPre("[Info]  $shortDate   Dukascopy binary file: ".baseName($fileD_bin));
+      echoPre("[Info]  $shortDate   Dukascopy raw binary file: ".baseName($fileD_bin));
    }
 
 
    // (4) falls Dukascopy .lzma-Datei existiert: verarbeiten und löschen
    else if (is_file($fileD_lzma)) {
-      echoPre("[Info]  $shortDate   Dukascopy LZMA file: ".baseName($fileD_lzma));
+      echoPre("[Info]  $shortDate   Dukascopy compressed file: ".baseName($fileD_lzma));
 
-      // (4.1) Inhalt entpacken und speichern
+      // (4.1) Inhalt entpacken
       $content = LZMA ::decodeFile($fileD_lzma);
       $tmpFile = tempNam(dirName($fileD_bin), baseName($fileD_bin));
       $hFile   = fOpen($tmpFile, 'wb');
@@ -234,7 +234,7 @@ function processFiles($symbol, $time, $url, $file404, $fileD_lzma, $fileD_bin, $
       if (is_file($fileD_bin)) unlink($fileD_bin);
       rename($tmpFile, $fileD_bin);                                  // So kann eine geschriebene Datei niemals korrupt sein.
       unlink($fileD_lzma);
-      echoPre("                           decoded: ".baseName($fileD_bin).' ('.strLen($content).' bytes)');
+      echoPre("                           decompressed: ".baseName($fileD_bin));
    }
 
 
@@ -251,7 +251,7 @@ function processFiles($symbol, $time, $url, $file404, $fileD_lzma, $fileD_bin, $
       if (!strLen($content)) { echoPre("[Error] $shortDate   url not found (404): $url"); return true; }
                                echoPre("[Info]  $shortDate   url: $url");
 
-      // (6.2) Inhalt entpacken und speichern
+      // (6.2) Inhalt entpacken
       $content = LZMA ::decode($content);
       $tmpFile = tempNam(dirName($fileD_bin), baseName($fileD_bin));
       $hFile   = fOpen($tmpFile, 'wb');
@@ -260,11 +260,8 @@ function processFiles($symbol, $time, $url, $file404, $fileD_lzma, $fileD_bin, $
       if (is_file($fileD_bin)) unlink($fileD_bin);
       rename($tmpFile, $fileD_bin);                                  // So kann eine geschriebene Datei niemals korrupt sein.
       unlink($fileD_lzma);
-      echoPre("                           decoded: ".baseName($fileD_bin).' ('.strLen($content).' bytes)');
+      echoPre("                           decompressed: ".baseName($fileD_bin));
 
-
-
-      return true;
 
       // (3) Daten nach FXT konvertieren: 02:00:00 - 01:59:59 FXT (vom ersten Tag fehlen 2 h)
 
