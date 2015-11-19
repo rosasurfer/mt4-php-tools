@@ -359,6 +359,7 @@ echo <<<END
 
  Syntax:  $self [symbol ...]
 
+
 END;
 }
 ?>

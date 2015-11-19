@@ -395,6 +395,7 @@ echo <<<END
            -f  Synchronizes MetaTrader data files but not the database (does not go online).
            -h  This help screen.
 
+
 END;
 }
 ?>
