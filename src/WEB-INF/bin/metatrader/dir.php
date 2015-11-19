@@ -13,7 +13,7 @@
 require(dirName(realPath(__FILE__)).'/../../config.php');
 
 
-// Unpack-Format des HistoryHeaders definieren: PHP 5.5.0 - The "a" code now retains trailing NULL bytes, "Z" replaces the former "a".
+// Unpack-Formate des History-Headers: PHP 5.5.0 - The "a" code now retains trailing NULL bytes, "Z" replaces the former "a".
 if (PHP_VERSION < '5.5.0') $hstHeaderFormat = 'Vformat/a64description/a12symbol/Vperiod/Vdigits/VsyncMark/VlastSync/VtimezoneId/x48';
 else                       $hstHeaderFormat = 'Vformat/Z64description/Z12symbol/Vperiod/Vdigits/VsyncMark/VlastSync/VtimezoneId/x48';
 
@@ -25,9 +25,9 @@ else                       $hstHeaderFormat = 'Vformat/Z64description/Z12symbol/
 $args = array_slice($_SERVER['argv'], 1);
 !$args && ($args[0]='*');
 
-$arg0 = $args[0];                                                    // Die Funktion glob() kann nicht verwendet werden, da sie beim Patternmatching unter Windows
-if (realPath($arg0)) {                                               // Groß-/Kleinschreibung unterscheidet. Stattdessen werden Directory-Funktionen benutzt.
-   $arg0 = realPath($arg0);
+$arg0 = $args[0];                                           // Die Funktion glob() kann nicht verwendet werden, da sie beim Patternmatching
+if (realPath($arg0)) {                                      // unter Windows Groß-/Kleinschreibung unterscheidet. Stattdessen werden Directory-
+   $arg0 = realPath($arg0);                                 // Funktionen benutzt.
    if (is_dir($arg0)) { $dirName = $arg0;          $baseName = '';              }
    else               { $dirName = dirName($arg0); $baseName = baseName($arg0); }
 }
