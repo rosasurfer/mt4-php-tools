@@ -12,11 +12,12 @@
  *
  * History-Start: http://www.dukascopy.com/datafeed/metadata/HistoryStart.bi5  (Format unbekannt)
  *
- * URL-Format:    Eine Datei je Kalendertag ab History-Start (inkl. Wochenenden, Januar = 00), z.B.:
+ * URL-Format:    Eine Datei je Kalendertag ab History-Start (inkl. Wochenenden, Januar = 00), HTTP oder HTTPS
+ *                z.B.:
  *                • http://www.dukascopy.com/datafeed/GBPUSD/2013/05/10/BID_candles_min_1.bi5
  *                • http://www.dukascopy.com/datafeed/GBPUSD/2013/05/10/ASK_candles_min_1.bi5
  *
- * Dateiformat:   binär, LZMA-gepackt, alle Zeiten in GMT
+ * Dateiformat:   binär, LZMA-gepackt, alle Zeiten in GMT (keine Sommerzeit)
  *                Wochenenddateien enthalten durchgehend den Freitagsschlußkurs (OHLC) und ein Volume von 0 (zero).
  *
  *                @see Dukascopy::processBarFile()
@@ -108,108 +109,238 @@ exit(0);
 function updateInstrument($symbol, $startTime) {
    if (!is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
    if (!is_int($startTime)) throw new IllegalTypeException('Illegal type of parameter $startTime: '.getType($startTime));
+   $symbol = strToUpper($symbol);
 
    static $dataDirectory = null;
    if (!$dataDirectory) $dataDirectory = MyFX ::getConfigPath('myfx.data_directory');
 
 
-   echoPre(__FUNCTION__.'(): '.$symbol);
-   return true;
-
-
-   // (1) Prüfen, ob sich das Startdatum geändert hat
-
-   // (2) Datei herunterladen:         00:00:00 - 23:59:59 GMT
-
-   // (3) Daten nach FXT konvertieren: 02:00:00 - 01:59:59 FXT (vom ersten Tag fehlen 2 h)
-
-   // (4) Daten bis 23:59:59 FXT speichern, die restlichen 2 h im Speicher behalten
-
-   // (5) nächste Datei herunterladen und entpacken
-
-   // (6) Daten mit den vom letzten Download verbliebenen 2 h mergen
-
-
-
-
-   $symbol     = strToUpper($symbol);
+   // (1) Prüfen, ob sich der letzte bekannte Startzeitpunkt des Symbols geändert hat
    $startTime -= $startTime % DAY;                                   // 00:00 GMT des Starttages
    $today      = ($today=time()) - $today%DAY;                       // 00:00 GMT des aktuellen Tages
 
+   // URL der letzten Datei vor dem Startzeitpunkt zusammenstellen
+   $beforeTime = $startTime -1*DAY;                                  // 00:00 GMT des Starttages
+   $yyyy  = date('Y', $beforeTime);
+   $mmD   = strRight(iDate('m', $beforeTime)+ 99, 2);                // Dukascopy-Monat: Januar = 00
+   $mmL   = strRight(iDate('m', $beforeTime)+100, 2);                // lokaler Monat:   Januar = 01
+   $dd    = date('d', $beforeTime);
+   $dateD = "$yyyy/$mmD/$dd";                                        // Dukascopy-Datum
+   $dateL = "$yyyy/$mmL/$dd";                                        // lokales Datum
+   $url   = "http://www.dukascopy.com/datafeed/$symbol/$dateD/BID_candles_min_1.bi5";
 
-   for ($time=$startTime; $time < $today; $time+=1*DAY) {            // aktuellen Tag ignorieren (Daten sind immer unvollständig)
-      if (iDate('w', $time) == SATURDAY)                             // Samstage überspringen (00:00 GMT = 02:00 FXT)
+   // Existiert die Datei, hat sich der angegebene Startzeitpunkt geändert.
+   $content = downloadUrl($url);
+   if (strLen($content))
+      echoPre("[Notice]: $symbol history was extended. Please update the history's start time.") & exit(1);
+
+
+   // (2) Dateien der gesamten Zeitspanne tageweise durchlaufen
+   for ($time=$startTime; $time < $today; $time+=1*DAY) {                              // der aktuelle Tag wird ignoriert (unvollständig)
+      if (iDate('w', $time) == SATURDAY)                                               // Samstage werden ignoriert (keine Daten)
          continue;
+      $yyyy       = date('Y', $time);
+      $mmD        = strRight(iDate('m', $time)+ 99, 2);                                // Dukascopy-Monat: Januar = 00
+      $mmL        = strRight(iDate('m', $time)+100, 2);                                // lokaler Monat:   Januar = 01
+      $dd         = date('d', $time);
+      $dateD      = "$yyyy/$mmD/$dd";                                                  // Dukascopy-Datum
+      $dateL      = "$yyyy/$mmL/$dd";                                                  // lokales Datum
 
-      // URL und Dateinamen zusammenstellen
-      $yyyy  = date('Y', $time);
-      $mmD   = strRight(iDate('m', $time)+ 99, 2);                   // Dukascopy-Monat: Januar = 00
-      $mmL   = strRight(iDate('m', $time)+100, 2);                   // lokaler Monat:   Januar = 01
-      $dd    = date('d', $time);
-      $dateD = "$yyyy/$mmD/$dd";                                     // Dukascopy-Datum
-      $dateL = "$yyyy/$mmL/$dd";                                     // lokales Datum
-      $file  = 'BID_candles_min_1';
-      $url   = "http://www.dukascopy.com/datafeed/$symbol/$dateD/$file.bi5";
-      $file  = "$dataDirectory/history/dukascopy/orig/$symbol/$dateL/$file.bin.lzma";
+      // Bid-Preise
+      $fileD      = "BID_candles_min_1";                                               // Dukascopy-Dateiname
+      $fileL      = "Bid,M1";                                                          // lokaler Dateiname
+      $url        = "http://www.dukascopy.com/datafeed/$symbol/$dateD/$fileD.bi5";
+      $fileD_lzma = "$dataDirectory/history/dukascopy/$symbol/$dateL/$fileD.bi5";      // Dukascopy-Datei gepackt
+      $fileD_bin  = "$dataDirectory/history/dukascopy/$symbol/$dateL/$fileD.bin";      // Dukascopy-Datei ungepackt
+      $fileL_rar  = "$dataDirectory/history/dukascopy/$symbol/$dateL/$fileL.bin.rar";  // lokale Datei gepackt
+      $fileL_bin  = "$dataDirectory/history/dukascopy/$symbol/$dateL/$fileL.bin";      // lokale Datei ungepackt
+      $file404    = "$dataDirectory/history/dukascopy/$symbol/$dateL/$fileD.404";      // Dukascopy-Fehlerdatei (404)
+      if (!processFiles($symbol, $time, $url, $file404, $fileD_lzma, $fileD_bin, $fileL_rar, $fileL_bin))
+         return false;
 
-      // Existenz der Datei prüfen
-      if (!is_file($file)) {
-         if (is_file($file.'404')) {                                 // .404-Datei: vorheriger Response-Status 404
-            echoPre("[Info]: Skipping $symbol data of $yyyy.$mmL.$dd (404 file exists)");
-            continue;
-         }
-         // URL laden und speichern
-         downloadUrl($url, $file);
-         if (is_file($file.'404'))                                   // Response-Status 404
-            continue;
-         if (!is_file($file))
-            echoPre("[Error]: Downloading $symbol data of $yyyy.$mmL.$dd failed") & exit(1);
-      }
-
-      // Datei verarbeiten
-      Dukascopy ::processBarFile($file);
-
-      // vorerst nach einer Datei abbrechen
-      exit(0);
+      // Ask-Preise
+      $fileD      = "ASK_candles_min_1";
+      $fileL      = "Ask,M1";
+      $url        = "http://www.dukascopy.com/datafeed/$symbol/$dateD/$fileD.bi5";
+      $fileD_lzma = "$dataDirectory/history/dukascopy/$symbol/$dateL/$fileD.bi5";
+      $fileD_bin  = "$dataDirectory/history/dukascopy/$symbol/$dateL/$fileD.bin";
+      $fileL_rar  = "$dataDirectory/history/dukascopy/$symbol/$dateL/$fileL.bin.rar";
+      $fileL_bin  = "$dataDirectory/history/dukascopy/$symbol/$dateL/$fileL.bin";
+      $file404    = "$dataDirectory/history/dukascopy/$symbol/$dateL/$fileD.404";
+      if (!processFiles($symbol, $time, $url, $file404, $fileD_lzma, $fileD_bin, $fileL_rar, $fileL_bin))
+         return false;
    }
    return true;
 }
 
 
 /**
- * Lädt eine URL und speichert die Antwort unter dem angegebenen Dateinamen.
+ * Wickelt den Download und die Verarbeitung einer einzelnen Dukascopy-Historydatei ab.
+ *
+ * @param string $symbol     - Symbol
+ * @param int    $time       - Tag der zu verarbeitenden Daten
+ * @param string $url        - URL
+ * @param string $file404    - vollständiger Name der Datei, die einen Download-Fehler markiert (404)
+ * @param string $fileD_lzma - vollständiger Name, unter dem eine LZMA-gepackte Dukascopy-Datei gespeichert wird
+ * @param string $fileD_bin  - vollständiger Name, unter dem eine entpackte Dukascopy-Datei gespeichert wird
+ * @param string $fileL_rar  - vollständiger Name, unter dem eine RAR-gepackte lokale Kursdatei gespeichert wird
+ * @param string $fileL_bin  - vollständiger Name, unter dem eine entpackte lokale Kursdatei gespeichert wird
+ *
+ * @return bool - Erfolgsstatus
+ */
+function processFiles($symbol, $time, $url, $file404, $fileD_lzma, $fileD_bin, $fileL_rar, $fileL_bin) {
+   $shortDate = date('D, d-M-Y', $time);                             // Fri, 11-Jul-2003
+
+   // TODO: DIESE Funktion in DIESEM Verzeichnis mit Combi-Lock synchronisieren: http://stackoverflow.com/questions/5449395/file-locking-in-php
+   // TODO: temporäre Dateien löschen
+
+
+   // Mögliche Varianten bereits existierender Dateien prüfen.
+
+   // (1) falls .rar-Datei existiert: nichts zu tun
+   if (is_file($fileL_rar)) {
+      if (is_file($fileD_lzma)) unlink($fileD_lzma);
+      if (is_file($fileD_bin))  unlink($fileD_bin);
+      if (is_file($fileL_bin))  unlink($fileL_bin);
+      if (is_file($file404))    unlink($file404);
+   }
+
+
+   // (2) falls lokale .bin-Datei existiert: packen und löschen
+   else if (is_file($fileL_bin)) {
+   }
+
+
+   // (3) falls Dukascopy .bin-Datei existiert: verarbeiten und löschen
+   else if (is_file($fileD_bin)) {
+   }
+
+
+   // (4) falls Dukascopy .lzma-Datei existiert: verarbeiten und löschen
+   else if (is_file($fileD_lzma)) {
+   }
+
+
+   // (5) falls Fehlerdatei existiert: Datei überspringen
+   else if (is_file($file404)) {
+      echoPre("[Info]: $shortDate   Skipping $symbol (404 status file found)");
+   }
+
+
+   // (6) anderenfalls URL laden und Content verarbeiten
+   else {
+      $content = downloadUrl($url, $fileD_lzma, $file404);
+      if (strLen($content)) echoPre("[Ok]:   $shortDate   $url");
+      else                  echoPre("[Info]: $shortDate   404 - File not found: \"$url\"");
+
+      // Inhalt verarbeiten
+      //Dukascopy ::processBarFile($file);
+
+      // (2) Datei herunterladen:         00:00:00 - 23:59:59 GMT
+
+      // (3) Daten nach FXT konvertieren: 02:00:00 - 01:59:59 FXT (vom ersten Tag fehlen 2 h)
+
+      // (4) Daten bis 23:59:59 FXT speichern, die restlichen 2 h im Speicher behalten
+
+      // (5) nächste Datei herunterladen und entpacken
+
+      // (6) Daten mit den vom letzten Download verbliebenen 2 h mergen
+   }
+
+   return true;
+}
+
+
+/**
+ * Lädt eine URL und gibt ihren Inhalt zurück. Wird als zweiter Parameter ein Dateiname angegeben (während der Entwicklung),
+ * wird der geladene Inhalt zusätzlich unter dem angegebenen Dateinamen gespeichert.
  *
  * @param string $url      - URL
- * @param string $filename - vollständiger Dateiname
+ * @param string $contentFile - vollständiger Name der Datei, in der der Inhalt gespeichert wwerden soll
+ * @param string $errorFile   - vollständiger Name der Datei, die einen 404-Fehler beim Download markieren soll
+ *
+ * @return string - Content der heruntergeladenen Datei oder Leerstring, wenn die Resource nicht gefunden wurde (404).
  */
-function downloadUrl($url, $filename) {
-   if (!is_string($url))      throw new IllegalTypeException('Illegal type of parameter $url: '.getType($url));
-   if (!is_string($filename)) throw new IllegalTypeException('Illegal type of parameter $filename: '.getType($filename));
+function downloadUrl($url, $contentFile=null, $errorFile=null) {
+   if (!is_string($url))                                   throw new IllegalTypeException('Illegal type of parameter $url: '.getType($url));
+   if (!is_null($contentFile) && !is_string($contentFile)) throw new IllegalTypeException('Illegal type of parameter $contentFile: '.getType($contentFile));
+   if (!is_null($errorFile  ) && !is_string($errorFile  )) throw new IllegalTypeException('Illegal type of parameter $errorFile: '.getType($errorFile));
 
-   // HTTP-Request abschicken und auswerten
-   $request  = HttpRequest ::create()->setUrl($url);
-   $response = CurlHttpClient ::create()->send($request);
+
+   // (1) Standard-Browser simulieren
+   $userAgent = Config ::get('myfx.useragent'); if (!$userAgent) throw new plInvalidArgumentException('Invalid user agent configuration: "'.$userAgent.'"');
+   $request = HttpRequest ::create()
+                          ->setUrl($url)
+                          ->setHeader('User-Agent'     , $userAgent                                                       )
+                          ->setHeader('Accept'         , 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
+                          ->setHeader('Accept-Language', 'en-us'                                                          )
+                          ->setHeader('Accept-Charset' , 'ISO-8859-1,utf-8;q=0.7,*;q=0.7'                                 )
+                          ->setHeader('Keep-Alive'     , '115'                                                            )
+                          ->setHeader('Connection'     , 'keep-alive'                                                     )
+                          ->setHeader('Cache-Control'  , 'max-age=0'                                                      )
+                          ->setHeader('Referer'        , 'http://www.dukascopy.com/free/candelabrum/'                     );
+   $options[CURLOPT_SSL_VERIFYPEER] = false;                         // falls HTTPS verwendet wird
+
+
+   // (2) HTTP-Request abschicken und auswerten
+   $response = CurlHttpClient ::create($options)->send($request);    // TODO: CURL-Fehler wie bei SimpleTrader behandeln
    $status   = $response->getStatus();
    if ($status!=200 && $status!=404) throw new plRuntimeException("Unexpected HTTP status $status (".HttpResponse ::$sc[$status].") for url \"$url\"\n".printFormatted($response, true));
 
-   // ggf. Zielverzeichnis anlegen
-   $path = dirName($filename);
-   if (is_file($path))                              throw new plInvalidArgumentException('Cannot write to directory "'.$path.'" (is file)');
-   if (!is_dir($path) && !mkDir($path, 0700, true)) throw new plInvalidArgumentException('Cannot create directory "'.$path.'"');
-   if (!is_writable($path))                         throw new plInvalidArgumentException('Cannot write to directory "'.$path.'"');
 
-   // Datei speichern ...
+   // (3) Success
    if ($status == 200) {
-      echoPre("[Ok]: $url");
-      $hFile = fOpen($filename, 'xb');
-      fWrite($hFile, $response->getContent());
-      fClose($hFile);
+      // (3.1) ggf. vorhandene Fehlerdatei(en) löschen
+      $errorFiles = array();
+      if ($contentFile) {
+         $errorFiles[] =         $contentFile                                    .'.404';
+         $errorFiles[] = dirName($contentFile).'/'.baseName($contentFile, '.bi5').'.404';
+         $errorFiles[] = dirName($contentFile).'/'.baseName($url                ).'.404';
+         $errorFiles[] = dirName($contentFile).'/'.baseName($url,         '.bi5').'.404';
+      }
+      if ($errorFile) {
+         $errorFiles[] =         $errorFile;
+         $errorFiles[] = dirName($errorFile).'/'.baseName($url        ).'.404';
+         $errorFiles[] = dirName($errorFile).'/'.baseName($url, '.bi5').'.404';
+      }
+      foreach ($errorFiles as $file) {
+         if (is_file($file)) unlink($file);
+      }
+
+      // (3.2) bei Parameter $contentFile Content speichern
+      if ($contentFile) {
+         // ggf. Zielverzeichnis anlegen
+         $path = dirName($contentFile);
+         if (is_file($path))                              throw new plInvalidArgumentException('Cannot write to directory "'.$path.'" (is file)');
+         if (!is_dir($path) && !mkDir($path, 0700, true)) throw new plInvalidArgumentException('Cannot create directory "'.$path.'"');
+         if (!is_writable($path))                         throw new plInvalidArgumentException('Cannot write to directory "'.$path.'"');
+
+         // Content temporär zwischenspeichern und atomar nach $contentFile verschieben
+         $tmpFile = tempNam(dirName($contentFile), baseName($contentFile));
+         $hFile   = fOpen($tmpFile, 'wb');
+         fWrite($hFile, $response->getContent());
+         fClose($hFile);
+         if (is_file($contentFile)) unlink($contentFile);      // Dadurch kann eine existierende Datei $contentFile
+         rename($tmpFile, $contentFile);                       // niemals korrupt sein (z.B. bei Ctrl-C).
+      }
    }
-   else {
-      // ... oder 404-Status merken
-      echoPre("[Info]: $status - File not found: \"$url\"");
-      fClose(fOpen($filename.'.404', 'x'));
+
+
+   // (4) Download-Fehler: bei Parameter $errorFile Download-Fehler speichern
+   if ($status==404 && $errorFile) {
+      // ggf. Zielverzeichnis anlegen
+      $path = dirName($errorFile);
+      if (is_file($path))                              throw new plInvalidArgumentException('Cannot write to directory "'.$path.'" (is file)');
+      if (!is_dir($path) && !mkDir($path, 0700, true)) throw new plInvalidArgumentException('Cannot create directory "'.$path.'"');
+      if (!is_writable($path))                         throw new plInvalidArgumentException('Cannot write to directory "'.$path.'"');
+
+      // Fehlerdatei speichern
+      fClose(fOpen($errorFile, 'wb'));
    }
+
+
+   // (5) Content zurückgeben
+   return ($status==200) ? $response->getContent() : '';
 }
 
 

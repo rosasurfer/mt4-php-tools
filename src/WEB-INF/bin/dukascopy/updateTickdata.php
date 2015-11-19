@@ -9,7 +9,7 @@ require(dirName(__FILE__).'/../../config.php');
 
 
 // Beginn der Tickdaten der einzelnen Pairs
-$data = array('AUDJPY' => strToTime('2007-03-30 16:01:15 GMT'),      // Zeitzone der Daten ist GMT+0000 (keine Sommerzeit)
+$data = array('AUDJPY' => strToTime('2007-03-30 16:01:15 GMT'),      // Zeitzone der Daten ist GMT (keine Sommerzeit)
               'AUDNZD' => strToTime('2008-12-22 16:16:02 GMT'),
               'AUDUSD' => strToTime('2007-03-30 16:01:16 GMT'),
               'CADJPY' => strToTime('2007-03-30 16:01:16 GMT'),
