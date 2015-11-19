@@ -132,7 +132,7 @@ function updateInstrument($symbol, $startTime) {
    // Existiert die Datei, hat sich der angegebene Startzeitpunkt geändert.
    $content = downloadUrl($url);
    if (strLen($content))
-      echoPre("[Notice]: $symbol history was extended. Please update the history's start time.") & exit(1);
+      echoPre("[Notice]  $symbol history was extended. Please update the history's start time.") & exit(1);
 
 
    // (2) Dateien der gesamten Zeitspanne tageweise durchlaufen
@@ -169,6 +169,8 @@ function updateInstrument($symbol, $startTime) {
       $file404    = "$dataDirectory/history/dukascopy/$symbol/$dateL/$fileD.404";
       if (!processFiles($symbol, $time, $url, $file404, $fileD_lzma, $fileD_bin, $fileL_rar, $fileL_bin))
          return false;
+
+      //break;    // vorerst nach einem Durchlauf abbrechen
    }
    return true;
 }
@@ -199,6 +201,7 @@ function processFiles($symbol, $time, $url, $file404, $fileD_lzma, $fileD_bin, $
 
    // (1) falls .rar-Datei existiert: nichts zu tun
    if (is_file($fileL_rar)) {
+      echoPre("[Ok]    $shortDate   RAR history file: ".baseName($fileL_rar));
       if (is_file($fileD_lzma)) unlink($fileD_lzma);
       if (is_file($fileD_bin))  unlink($fileD_bin);
       if (is_file($fileL_bin))  unlink($fileL_bin);
@@ -208,35 +211,60 @@ function processFiles($symbol, $time, $url, $file404, $fileD_lzma, $fileD_bin, $
 
    // (2) falls lokale .bin-Datei existiert: packen und löschen
    else if (is_file($fileL_bin)) {
+      echoPre("[Info]  $shortDate   binary history file: ".baseName($fileL_bin));
    }
 
 
    // (3) falls Dukascopy .bin-Datei existiert: verarbeiten und löschen
    else if (is_file($fileD_bin)) {
+      echoPre("[Info]  $shortDate   Dukascopy binary file: ".baseName($fileD_bin));
    }
 
 
    // (4) falls Dukascopy .lzma-Datei existiert: verarbeiten und löschen
    else if (is_file($fileD_lzma)) {
+      echoPre("[Info]  $shortDate   Dukascopy LZMA file: ".baseName($fileD_lzma));
+
+      // (4.1) Inhalt entpacken und speichern
+      $content = LZMA ::decodeFile($fileD_lzma);
+      $tmpFile = tempNam(dirName($fileD_bin), baseName($fileD_bin));
+      $hFile   = fOpen($tmpFile, 'wb');
+      fWrite($hFile, $content);
+      fClose($hFile);
+      if (is_file($fileD_bin)) unlink($fileD_bin);
+      rename($tmpFile, $fileD_bin);                                  // So kann eine geschriebene Datei niemals korrupt sein.
+      unlink($fileD_lzma);
+      echoPre("                           decoded: ".baseName($fileD_bin).' ('.strLen($content).' bytes)');
    }
 
 
    // (5) falls Fehlerdatei existiert: Datei überspringen
    else if (is_file($file404)) {
-      echoPre("[Info]: $shortDate   Skipping $symbol (404 status file found)");
+      echoPre("[Info]  $shortDate   Skipping $symbol (404 status file found)");
    }
 
 
    // (6) anderenfalls URL laden und Content verarbeiten
    else {
+      // (6.1) Datei herunterladen
       $content = downloadUrl($url, $fileD_lzma, $file404);
-      if (strLen($content)) echoPre("[Ok]:   $shortDate   $url");
-      else                  echoPre("[Info]: $shortDate   404 - File not found: \"$url\"");
+      if (!strLen($content)) { echoPre("[Error] $shortDate   url not found (404): $url"); return true; }
+                               echoPre("[Info]  $shortDate   url: $url");
 
-      // Inhalt verarbeiten
-      //Dukascopy ::processBarFile($file);
+      // (6.2) Inhalt entpacken und speichern
+      $content = LZMA ::decode($content);
+      $tmpFile = tempNam(dirName($fileD_bin), baseName($fileD_bin));
+      $hFile   = fOpen($tmpFile, 'wb');
+      fWrite($hFile, $content);
+      fClose($hFile);
+      if (is_file($fileD_bin)) unlink($fileD_bin);
+      rename($tmpFile, $fileD_bin);                                  // So kann eine geschriebene Datei niemals korrupt sein.
+      unlink($fileD_lzma);
+      echoPre("                           decoded: ".baseName($fileD_bin).' ('.strLen($content).' bytes)');
 
-      // (2) Datei herunterladen:         00:00:00 - 23:59:59 GMT
+
+
+      return true;
 
       // (3) Daten nach FXT konvertieren: 02:00:00 - 01:59:59 FXT (vom ersten Tag fehlen 2 h)
 
@@ -320,8 +348,8 @@ function downloadUrl($url, $contentFile=null, $errorFile=null) {
          $hFile   = fOpen($tmpFile, 'wb');
          fWrite($hFile, $response->getContent());
          fClose($hFile);
-         if (is_file($contentFile)) unlink($contentFile);      // Dadurch kann eine existierende Datei $contentFile
-         rename($tmpFile, $contentFile);                       // niemals korrupt sein (z.B. bei Ctrl-C).
+         if (is_file($contentFile)) unlink($contentFile);            // So kann eine geschriebene Datei niemals korrupt sein.
+         rename($tmpFile, $contentFile);
       }
    }
 

@@ -1,37 +1,39 @@
 <?php
 /**
  * Dukascopy related functionality
+ *
+ *
+ * Datenformat von Bardaten:
+ * -------------------------
+ * • Big-Endian
+ *                               size        offset
+ * struct DUKASCOPY_BAR {        ----        ------
+ *    int timeDelta;               4            0        // Zeitdifferenz in Sekunden seit 00:00 GMT
+ *    int open;                    4            4        // in Points
+ *    int close;                   4            8        // in Points
+ *    int low;                     4           12        // in Points
+ *    int high;                    4           16        // in Points
+ *    int volume;                  4           20        // vermutlich in Units
+ * };                           = 24 byte
  */
 class Dukascopy extends StaticClass {
 
 
    /**
-    * Verarbeitet eine komprimierte Dukascopy-Kursdatei.
+    * Verarbeitet eine LZMA-komprimierte Dukascopy-Kursdatei.
     *
-    * @param  string $filename - vollständiger Name der LZMA-gepackten Datei
-    *
-    * Format der entpackten Datei:
-    *                                        size        offset
-    * struct big-endian DUKASCOPY_BAR {      ----        ------
-    *    int timeDelta;                        4            0        // Zeitdifferenz in Sekunden seit 00:00 GMT
-    *    int open;                             4            4        // in Points
-    *    int close;                            4            8        // in Points
-    *    int low;                              4           12        // in Points
-    *    int high;                             4           16        // in Points
-    *    int volume;                           4           20
-    * };                                    = 24 byte
+    * @param  string $fileName - vollständiger Name der Datei
     */
-   public static function processBarFile($filename) {
-      if (!is_string($filename)) throw new IllegalTypeException('Illegal type of parameter $filename: '.getType($filename));
+   public static function processBarFile($fileName) {
+      if (!is_string($fileName)) throw new IllegalTypeException('Illegal type of parameter $fileName: '.getType($fileName));
 
-      if (!fileSize($filename)) {
-         // TODO: Gap speichern
-         Logger ::log("Skipping zero sized file \"$filename\"", L_NOTICE, __CLASS__);
+      if (!fileSize($fileName)) {                                    // TODO: Gap speichern
+         Logger ::log("Skipping zero sized file \"$fileName\"", L_NOTICE, __CLASS__);
          return;
       }
 
       // Datei entpacken
-      $binString = LZMA ::decompress($filename);
+      $binString = LZMA ::decodeFile($fileName);
 
       // Inhalt lesen
       $size   = strLen($binString);
