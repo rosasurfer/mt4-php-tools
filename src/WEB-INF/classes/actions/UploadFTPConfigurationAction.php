@@ -21,12 +21,8 @@ class UploadFTPConfigurationAction extends Action {
             $directory = MyFX ::getConfigPath('strategies.config.ftp').'/'.$company.'/'.$account.'/'.$symbol;
             $filename  = $directory.'/'.$form->getFileName();
 
-            // ggf. Zielverzeichnis erzeugen
-            if (is_file($directory))                                   throw new plInvalidArgumentException('Cannot write to directory "'.$directory.'" (is file)');
-            if (!is_dir($directory) && !mkDir($directory, 0700, true)) throw new plInvalidArgumentException('Cannot create directory "'.$directory.'"');
-            if (!is_writable($directory))                              throw new plInvalidArgumentException('Cannot write to directory "'.$directory.'"');
-
             // Datei speichern
+            mkDirWritable($directory, 0700);
             if (!copy($form->getFileTmpName(), $filename)) throw new IOException('Error copying src="'.$form->getFileTmpName().'" to dest="'.$filename.'"');
 
             echo("200\n");

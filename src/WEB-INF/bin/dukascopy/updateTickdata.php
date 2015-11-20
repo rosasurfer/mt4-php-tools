@@ -73,12 +73,9 @@ foreach ($data as $symbol => $start) {
       $status   = $response->getStatus();
       if ($status!=200 && $status!=404) throw new plRuntimeException("Unexpected HTTP status $status (".HttpResponse ::$sc[$status].") for url \"$url\"\n".printFormatted($response, true));
 
-      // ggf. Zielverzeichnis anlegen
-      if (is_file($localPath))                                   throw new plInvalidArgumentException('Cannot write to file "'.$localPath.'" (not a directory)');
-      if (!is_dir($localPath) && !mkDir($localPath, 0700, true)) throw new plInvalidArgumentException('Cannot create directory "'.$localPath.'"');
-      if (!is_writable($localPath))                              throw new plInvalidArgumentException('Cannot write to directory "'.$localPath.'"');
-
       // Datei speichern ...
+      mkDirWritable($localPath, 0700);
+
       if ($status == 200) {
          echoPre("[Ok]: $url");
          $hFile = fOpen($localFile, 'xb');

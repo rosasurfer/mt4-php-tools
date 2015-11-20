@@ -150,13 +150,8 @@ class MT4 extends StaticClass {
       if ($openUpdates || !$isOpenFile) {
          $positions = OpenPosition ::dao()->listBySignal($signal);   // aufsteigend sortiert nach {OpenTime,Ticket}
 
-         // Verzeichnis ggf. erzeugen
-         $directory = dirName($openFileName);
-         if (is_file($directory))                                   throw new plInvalidArgumentException('Cannot write to directory "'.$directory.'" (is a file)');
-         if (!is_dir($directory) && !mkDir($directory, 0755, true)) throw new plInvalidArgumentException('Cannot create directory "'.$directory.'"');
-         if (!is_writable($directory))                              throw new plInvalidArgumentException('Cannot write to directory "'.$directory.'"');
-
          // Datei schreiben
+         mkDirWritable(dirName($openFileName), 0755);
          $hFile = $ex = null;
          try {
             $hFile = fOpen($openFileName, 'wb');
@@ -211,13 +206,8 @@ class MT4 extends StaticClass {
             // (4.2) History-Datei komplett neuschreiben
             $positions = ClosedPosition ::dao()->listBySignal($signal); // aufsteigend sortiert nach {CloseTime,OpenTime,Ticket}
 
-            // Verzeichnis ggf. erzeugen
-            $directory = dirName($closedFileName);
-            if (is_file($directory))                                   throw new plInvalidArgumentException('Cannot write to directory "'.$directory.'" (is a file)');
-            if (!is_dir($directory) && !mkDir($directory, 0755, true)) throw new plInvalidArgumentException('Cannot create directory "'.$directory.'"');
-            if (!is_writable($directory))                              throw new plInvalidArgumentException('Cannot write to directory "'.$directory.'"');
-
             // Datei schreiben
+            mkDirWritable(dirName($closedFileName), 0755);
             $hFile = $ex = null;
             try {
                $hFile = fOpen($closedFileName, 'wb');

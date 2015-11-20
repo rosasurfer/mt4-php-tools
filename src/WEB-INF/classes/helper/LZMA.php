@@ -6,18 +6,18 @@ class LZMA extends StaticClass {
 
 
    /**
-    * Entpackt einen komprimierten binären String und gibt seinen Inhalt zurück.
+    * Entpackt einen LZMA-komprimierten binären String und gibt seinen Inhalt zurück.
     *
-    * @param  string $string - codierter String
+    * @param  string $string - kompromierter String
     *
-    * @return string - decodierter String
+    * @return string - unkompromierter String
     */
-   public static function decode($string) {
+   public static function decompress($string) {
       if (!is_string($string)) throw new IllegalTypeException('Illegal type of parameter $string: '.getType($string));
       if (!strLen($string))
          return '';
 
-      // Unter Windows blockiert das Schreiben nach STDIN bei größeren Datenmengen, stream_set_blocking() scheint dort
+      // Unter Windows blockiert das Schreiben nach STDIN bei Datenmengen ab 8193 Bytes, stream_set_blocking() scheint dort
       // jedoch nicht zu funktionieren (Windows 7). Daher wird der String in eine temporäre Datei geschrieben und diese
       // decodiert.
 
@@ -26,7 +26,7 @@ class LZMA extends StaticClass {
       fWrite($hFile, $string);
       fClose($hFile);
 
-      $content = self::decodeFile($tmpFile);
+      $content = self::decompressFile($tmpFile);
       unlink($tmpFile);
 
       return $content;
@@ -34,20 +34,20 @@ class LZMA extends StaticClass {
 
 
    /**
-    * Entpackt die angegebene Datei und gibt ihren Inhalt zurück.
+    * Entpackt eine LZMA-komprimierte Datei und gibt ihren Inhalt zurück.
     *
     * @param  string $file - vollständiger Dateiname
     *
-    * @return string - Dateiinhalt
+    * @return string - unkomprimierter Dateiinhalt
     */
-   public static function decodeFile($file) {
+   public static function decompressFile($file) {
       if (!is_string($file)) throw new IllegalTypeException('Illegal type of parameter $file: '.getType($file));
       if (!is_file($file))   throw new FileNotFoundException('File not found "'.$file.'"');
 
       if (!fileSize($file))
          return '';
 
-      $cmd     = self::getDecodeFileCmd();
+      $cmd     = self::getDecompressFileCmd();
       $file    = str_replace('/', DIRECTORY_SEPARATOR, str_replace('\\', '/', $file));
       $cmdLine = sprintf($cmd, $file);
       $stdout  = '';
@@ -62,11 +62,11 @@ class LZMA extends StaticClass {
 
 
    /**
-    * Sucht einen verfügbaren LZMA-Decoder und gibt die Befehlszeile zum Entpacken einer Datei nach STDOUT zurück.
+    * Sucht einen verfügbaren LZMA-Decoder und gibt die Befehlszeile zum Dekomprimieren einer Datei nach STDOUT zurück.
     *
     * @return string
     */
-   private static function getDecodeFileCmd() {
+   private static function getDecompressFileCmd() {
       static $cmd = null;
 
       if (!$cmd) {

@@ -226,13 +226,13 @@ function processFiles($symbol, $time, $url, $file404, $fileD_lzma, $fileD_bin, $
       echoPre("[Info]  $shortDate   Dukascopy compressed file: ".baseName($fileD_lzma));
 
       // (4.1) Inhalt entpacken
-      $content = LZMA ::decodeFile($fileD_lzma);
+      $content = LZMA ::decompressFile($fileD_lzma);
       $tmpFile = tempNam(dirName($fileD_bin), baseName($fileD_bin));
       $hFile   = fOpen($tmpFile, 'wb');
       fWrite($hFile, $content);
       fClose($hFile);
       if (is_file($fileD_bin)) unlink($fileD_bin);
-      rename($tmpFile, $fileD_bin);                                  // So kann eine geschriebene Datei niemals korrupt sein.
+      rename($tmpFile, $fileD_bin);                                  // So kann eine existierende Datei niemals korrupt sein.
       unlink($fileD_lzma);
       echoPre("                           decompressed: ".baseName($fileD_bin));
    }
@@ -252,15 +252,17 @@ function processFiles($symbol, $time, $url, $file404, $fileD_lzma, $fileD_bin, $
                                echoPre("[Info]  $shortDate   url: $url");
 
       // (6.2) Inhalt entpacken
-      $content = LZMA ::decode($content);
+      $content = LZMA ::decompress($content);
       $tmpFile = tempNam(dirName($fileD_bin), baseName($fileD_bin));
       $hFile   = fOpen($tmpFile, 'wb');
       fWrite($hFile, $content);
       fClose($hFile);
       if (is_file($fileD_bin)) unlink($fileD_bin);
-      rename($tmpFile, $fileD_bin);                                  // So kann eine geschriebene Datei niemals korrupt sein.
+      rename($tmpFile, $fileD_bin);                                  // So kann eine existierende Datei niemals korrupt sein.
       unlink($fileD_lzma);
       echoPre("                           decompressed: ".baseName($fileD_bin));
+
+      // (6.3) Inhalt einlesen
 
 
       // (3) Daten nach FXT konvertieren: 02:00:00 - 01:59:59 FXT (vom ersten Tag fehlen 2 h)
@@ -334,18 +336,13 @@ function downloadUrl($url, $contentFile=null, $errorFile=null) {
 
       // (3.2) bei Parameter $contentFile Content speichern
       if ($contentFile) {
-         // ggf. Zielverzeichnis anlegen
-         $path = dirName($contentFile);
-         if (is_file($path))                              throw new plInvalidArgumentException('Cannot write to directory "'.$path.'" (is file)');
-         if (!is_dir($path) && !mkDir($path, 0700, true)) throw new plInvalidArgumentException('Cannot create directory "'.$path.'"');
-         if (!is_writable($path))                         throw new plInvalidArgumentException('Cannot write to directory "'.$path.'"');
-
          // Content temporär zwischenspeichern und atomar nach $contentFile verschieben
+         mkDirWritable(dirName($contentFile), 0700);
          $tmpFile = tempNam(dirName($contentFile), baseName($contentFile));
          $hFile   = fOpen($tmpFile, 'wb');
          fWrite($hFile, $response->getContent());
          fClose($hFile);
-         if (is_file($contentFile)) unlink($contentFile);            // So kann eine geschriebene Datei niemals korrupt sein.
+         if (is_file($contentFile)) unlink($contentFile);            // So kann eine existierende Datei niemals korrupt sein.
          rename($tmpFile, $contentFile);
       }
    }
@@ -353,13 +350,8 @@ function downloadUrl($url, $contentFile=null, $errorFile=null) {
 
    // (4) Download-Fehler: bei Parameter $errorFile Download-Fehler speichern
    if ($status==404 && $errorFile) {
-      // ggf. Zielverzeichnis anlegen
-      $path = dirName($errorFile);
-      if (is_file($path))                              throw new plInvalidArgumentException('Cannot write to directory "'.$path.'" (is file)');
-      if (!is_dir($path) && !mkDir($path, 0700, true)) throw new plInvalidArgumentException('Cannot create directory "'.$path.'"');
-      if (!is_writable($path))                         throw new plInvalidArgumentException('Cannot write to directory "'.$path.'"');
-
       // Fehlerdatei speichern
+      mkDirWritable(dirName($errorFile), 0700);
       fClose(fOpen($errorFile, 'wb'));
    }
 
