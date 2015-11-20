@@ -103,8 +103,7 @@ class MyFX extends StaticClass {
 
       static $transitions = null;
       if (!$transitions) {
-         $tzName      = 'America/New_York';
-         $timezone    = new DateTimeZone($tzName);
+         $timezone    = new DateTimeZone('America/New_York');
          $transitions = $timezone->getTransitions();
       }
 
