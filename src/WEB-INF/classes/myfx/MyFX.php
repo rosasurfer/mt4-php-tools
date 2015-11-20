@@ -84,6 +84,82 @@ class MyFX extends StaticClass {
 
 
    /**
+    * Gibt den Offset der angegebenen Zeit zu FXT (Forex Time) zurück.
+    *
+    * @param  int   $timestamp      - Zeitpunkt (default: aktuelle Zeit)
+    * @param  array $prevTransition - Wenn angegeben, enthält dieser Parameter nach Rückkehr ein Array
+    *                                 ['time'=>{timestamp}, 'offset'=>{offset}] mit dem Zeitpunkt des vorherigen Zeitwechsels
+    *                                 und dem Offset vor diesem Zeitpunkt.
+    * @param  array $nextTransition - Wenn angegeben, enthält dieser Parameter nach Rückkehr ein Array
+    *                                 ['time'=>{timestamp}, 'offset'=>{offset}] mit dem Zeitpunkt des nächsten Zeitwechsels
+    *                                 und dem Offset nach diesem Zeitpunkt.
+    *
+    * @return int - Offset in Sekunden (immer negativer Wert; es gilt: FXT + Offset = GMT) oder NULL, wenn der Zeitpunkt
+    *               außerhalb der bekannten Transitionsdaten liegt
+    */
+   public static function getGmtToFxtTimeOffset($timestamp=null, &$prevTransition=array(), &$nextTransition=array()) {
+      if (!is_int($timestamp) && !is_null($timestamp)) throw new IllegalTypeException('Illegal type of parameter $timestamp: '.getType($timestamp));
+      is_null($timestamp) && $timestamp=time();
+
+      static $transitions = null;
+      if (!$transitions) {
+         $tzName      = 'America/New_York';
+         $timezone    = new DateTimeZone($tzName);
+         $transitions = $timezone->getTransitions();
+      }
+
+      $i = -2;
+      foreach ($transitions as $i => $transition) {
+         if ($transition['ts'] > $timestamp) {
+            $i--;                                                    // $i zeigt auf die aktuelle Periode
+            break;
+         }
+      }
+
+      $size = sizeOf($transitions);
+      $args = func_num_args();
+
+      // $prevTransition definieren
+      if ($args > 1) {
+         $prevTransition = array();
+
+         if ($i < 0) {                                               // $transitions ist leer oder $timestamp
+            $prevTransition['time'  ] = null;                        // liegt vor der ersten Periode
+            $prevTransition['offset'] = null;
+         }
+         else if ($i == 0) {                                         // $timestamp liegt in erster Periode
+            $prevTransition['time'  ] = $transitions[0]['ts'];
+            $prevTransition['offset'] = null;                        // vorheriger Offset unbekannt
+         }
+         else {
+            $prevTransition['time'  ] =   $transitions[$i  ]['ts'];
+            $prevTransition['offset'] = -($transitions[$i-1]['offset'] + 7*HOURS);
+         }
+      }
+
+      // $nextTransition definieren
+      if ($args > 2) {
+         $nextTransition = array();
+
+         if ($i==-2 || $i >= $size-1) {                              // $transitions ist leer oder
+            $nextTransition['time'  ] = null;                        // $timestamp liegt in letzter Periode
+            $nextTransition['offset'] = null;
+         }
+         else {
+            $nextTransition['time'  ] =   $transitions[$i+1]['ts'];
+            $nextTransition['offset'] = -($transitions[$i+1]['offset'] + 7*HOURS);
+         }
+      }
+
+      // Rückgabewert definieren
+      $offset = null;
+      if ($i >= 0)                                                   // $transitions ist nicht leer und
+         $offset = -($transitions[$i]['offset'] + 7*HOURS);          // $timestamp liegt nicht vor der ersten Periode
+      return $offset;
+   }
+
+
+   /**
     * Gibt die Mailadressen aller konfigurierten Signalempfänger per E-Mail zurück.
     *
     * @return string[] - Array mit E-Mailadressen

@@ -8,7 +8,7 @@
  * • Big-Endian
  *                               size        offset
  * struct DUKASCOPY_BAR {        ----        ------
- *    int timeDelta;               4            0        // Zeitdifferenz in Sekunden seit 00:00 GMT
+ *    int timeDelta;               4            0        // Zeitdifferenz in Sekunden seit der letzten Mitternacht (00:00 GMT)
  *    int open;                    4            4        // in Points
  *    int close;                   4            8        // in Points
  *    int low;                     4           12        // in Points
@@ -101,4 +101,85 @@ class Dukascopy extends StaticClass {
       return self::readBars(file_get_contents($fileName));
    }
 }
+?>
+
+<?php
+/*
+$dstGmt       = $dstLocal    = $stdGmt    = $stdLocal    = '                               ';
+$dstGmtMql    = $dstLocalMql = $stdGmtMql = $stdLocalMql = '-1,  -1,                    ';
+$dstOffsetMql = $stdOffsetMql = '            0';
+$dstSet       = $stdSet       = false;
+$year         = $lastYear     = 1970;
+$tsMin = strToTime('1970-01-01 00:00:00 GMT');
+
+
+$tzName      = 'Europe/Minsk';
+$timezone    = new DateTimeZone($tzName);
+$transitions = $timezone->getTransitions();
+
+
+echoPre("Timezone transitions for '$tzName'\n\n");
+
+
+foreach ($transitions as $transition) {
+   $ts     = $transition['ts'    ];
+   $offset = $transition['offset'];
+   $isDST  = $transition['isdst' ];
+
+   if ($ts >= $tsMin) {
+      date_default_timezone_set('GMT');
+      $year = iDate('Y', $ts);
+      if ($year != $lastYear) {
+         printYear();
+         while (++$lastYear < $year) {
+            echoPre($lastYear);
+         }
+      }
+
+      if ($isDST) {
+         if ($dstSet)
+            printYear();
+         $dstGmt      = date(DATE_RSS,         $ts);
+         $dstGmtMql   = strToUpper(date('D, ', $ts)).date("\D'Y.m.d H:i:s',", $ts);
+
+         date_default_timezone_set($tzName);
+         $dstLocal    = date(DATE_RSS,         $ts);
+         $dstLocalMql = strToUpper(date('D, ', $ts)).date("\D'Y.m.d H:i:s',", $ts);
+
+         $dstOffsetMql = (!$offset ? '            0':(($offset<0?'MINUS_':' PLUS_').(abs($offset)/HOURS).'_HOURS'));
+         $dstSet = true;
+      }
+      else {
+         if ($stdSet)
+            printYear();
+         $stdGmt      = date(DATE_RSS,         $ts);
+         $stdGmtMql   = strToUpper(date('D, ', $ts)).date("\D'Y.m.d H:i:s',", $ts);
+
+         date_default_timezone_set($tzName);
+         $stdLocal    = date(DATE_RSS,         $ts);
+         $stdLocalMql = strToUpper(date('D, ', $ts)).date("\D'Y.m.d H:i:s',", $ts);
+
+         $stdOffsetMql = (!$offset ? '            0':(($offset<0?'MINUS_':' PLUS_').(abs($offset)/HOURS).'_HOURS'));
+         $stdSet = true;
+      }
+   }
+}
+if ($dstSet || $stdSet) {
+   printYear();
+}
+
+
+echoPre($transitions);
+
+
+function printYear() {
+   global $lastYear, $dstGmt, $dstLocal, $stdGmt, $stdLocal, $dstGmtMql, $dstLocalMql, $stdGmtMql, $stdLocalMql, $dstOffsetMql, $stdOffsetMql, $dstSet, $stdSet;
+
+   echoPre("$lastYear    DST: $dstGmt    $dstLocal        STD: $stdGmt    $stdLocal        $dstGmtMql $dstLocalMql $dstOffsetMql,    $stdGmtMql $stdLocalMql $stdOffsetMql,");
+   $dstGmt       = $dstLocal     = $stdGmt    = $stdLocal    = '                               ';
+   $dstGmtMql    = $dstLocalMql  = $stdGmtMql = $stdLocalMql = '-1,  -1,                    ';
+   $dstOffsetMql = $stdOffsetMql                             = '            0';
+   $dstSet       = $stdSet                                   = false;
+}
+*/
 ?>

@@ -136,13 +136,13 @@ function updateInstrument($symbol, $startTime) {
 
 
    // (2) Dateien der gesamten Zeitspanne tageweise durchlaufen
-   for ($time=$startTime; $time < $today; $time+=1*DAY) {                              // der aktuelle Tag wird ignoriert (unvollständig)
-      if (iDate('w', $time) == SATURDAY)                                               // Samstage werden ignoriert (keine Daten)
+   for ($day=$startTime; $day < $today; $day+=1*DAY) {                                 // der aktuelle Tag wird ignoriert (unvollständig)
+      if (iDate('w', $day) == SATURDAY)                                                // Samstage werden ignoriert (keine Daten)
          continue;
-      $yyyy       = date('Y', $time);
-      $mmD        = strRight(iDate('m', $time)+ 99, 2);                                // Dukascopy-Monat: Januar = 00
-      $mmL        = strRight(iDate('m', $time)+100, 2);                                // lokaler Monat:   Januar = 01
-      $dd         = date('d', $time);
+      $yyyy       = date('Y', $day);
+      $mmD        = strRight(iDate('m', $day)+ 99, 2);                                 // Dukascopy-Monat: Januar = 00
+      $mmL        = strRight(iDate('m', $day)+100, 2);                                 // lokaler Monat:   Januar = 01
+      $dd         = date('d', $day);
       $dateD      = "$yyyy/$mmD/$dd";                                                  // Dukascopy-Datum
       $dateL      = "$yyyy/$mmL/$dd";                                                  // lokales Datum
 
@@ -155,7 +155,7 @@ function updateInstrument($symbol, $startTime) {
       $fileL_rar  = "$dataDirectory/history/dukascopy/$symbol/$dateL/$fileL.bin.rar";  // lokale Datei gepackt
       $fileL_bin  = "$dataDirectory/history/dukascopy/$symbol/$dateL/$fileL.bin";      // lokale Datei ungepackt
       $file404    = "$dataDirectory/history/dukascopy/$symbol/$dateL/$fileD.404";      // Dukascopy-Fehlerdatei (404)
-      if (!processFiles($symbol, $time, $url, $file404, $fileD_lzma, $fileD_bin, $fileL_rar, $fileL_bin))
+      if (!processFiles($symbol, $day, $url, $file404, $fileD_lzma, $fileD_bin, $fileL_rar, $fileL_bin))
          return false;
 
       // Ask-Preise
@@ -167,7 +167,7 @@ function updateInstrument($symbol, $startTime) {
       $fileL_rar  = "$dataDirectory/history/dukascopy/$symbol/$dateL/$fileL.bin.rar";
       $fileL_bin  = "$dataDirectory/history/dukascopy/$symbol/$dateL/$fileL.bin";
       $file404    = "$dataDirectory/history/dukascopy/$symbol/$dateL/$fileD.404";
-      if (!processFiles($symbol, $time, $url, $file404, $fileD_lzma, $fileD_bin, $fileL_rar, $fileL_bin))
+      if (!processFiles($symbol, $day, $url, $file404, $fileD_lzma, $fileD_bin, $fileL_rar, $fileL_bin))
          return false;
 
       //break;    // vorerst nach einem Durchlauf abbrechen
@@ -180,7 +180,7 @@ function updateInstrument($symbol, $startTime) {
  * Wickelt den Download und die Verarbeitung einer einzelnen Dukascopy-Historydatei ab.
  *
  * @param string $symbol     - Symbol
- * @param int    $time       - Tag der zu verarbeitenden Daten
+ * @param int    $day        - Timestamp des Tags der zu verarbeitenden Daten
  * @param string $url        - URL
  * @param string $file404    - vollständiger Name der Datei, die einen Download-Fehler markiert (404)
  * @param string $fileD_lzma - vollständiger Name, unter dem eine LZMA-gepackte Dukascopy-Datei gespeichert wird
@@ -190,8 +190,9 @@ function updateInstrument($symbol, $startTime) {
  *
  * @return bool - Erfolgsstatus
  */
-function processFiles($symbol, $time, $url, $file404, $fileD_lzma, $fileD_bin, $fileL_rar, $fileL_bin) {
-   $shortDate = date('D, d-M-Y', $time);                             // Fri, 11-Jul-2003
+function processFiles($symbol, $day, $url, $file404, $fileD_lzma, $fileD_bin, $fileL_rar, $fileL_bin) {
+   $day      -= $day % DAY;                                          // 00:00 GMT
+   $shortDate = date('D, d-M-Y', $day);                              // Fri, 11-Jul-2003
 
    // TODO: DIESE Funktion in DIESEM Verzeichnis mit Combi-Lock synchronisieren: http://stackoverflow.com/questions/5449395/file-locking-in-php
    // TODO: temporäre Dateien löschen
@@ -211,13 +212,30 @@ function processFiles($symbol, $time, $url, $file404, $fileD_lzma, $fileD_bin, $
 
    // (2) falls lokale .bin-Datei existiert: packen und löschen
    else if (is_file($fileL_bin)) {
-      echoPre("[Info]  $shortDate   raw binary history file: ".baseName($fileL_bin));
+      echoPre("[Info]  $shortDate   raw history file: ".baseName($fileL_bin));
    }
 
 
    // (3) falls Dukascopy .bin-Datei existiert: verarbeiten und löschen
    else if (is_file($fileD_bin)) {
-      echoPre("[Info]  $shortDate   Dukascopy raw binary file: ".baseName($fileD_bin));
+      echoPre("[Info]  $shortDate   Dukascopy raw history file: ".baseName($fileD_bin));
+
+      // Bars einlesen
+      $bars = Dukascopy ::readBarsFile($fileD_bin);
+      $size = sizeOf($bars); if ($size != 1*DAY/MINUTES) throw new plRuntimeException('Unexpected number of bars in Dukascopy file: '.$size.' ('.($size > 1*DAY/MINUTES ? 'more':'less').' then a day)');
+
+      // Timestamps und Delta zu 00:00 FXT hinzufügen
+      $fxtOffset = MyFX ::getGmtToFxtTimeOffset($day);               // immer negativ: FXT + Offset = GMT
+      foreach ($bars as $i => &$bar) {
+         $bar['time'     ] = $day + $bar['timeDelta'];
+         $bar['delta_gmt'] =        $bar['timeDelta'];
+         $bar['delta_fxt'] = ($bar['time'] - $fxtOffset) % DAY;
+         unset($bar['timeDelta']);
+      }
+
+      echoPre($bars[$size-1]);
+      exit();
+      if (is_file($fileD_bin)) unlink($fileD_bin);
    }
 
 
@@ -225,14 +243,25 @@ function processFiles($symbol, $time, $url, $file404, $fileD_lzma, $fileD_bin, $
    else if (is_file($fileD_lzma)) {
       echoPre("[Info]  $shortDate   Dukascopy compressed file: ".baseName($fileD_lzma));
 
-      // (4.1) Inhalt entpacken
+      // Inhalt entpacken
       $content = Dukascopy ::decompressBarsFile($fileD_lzma, $fileD_bin);
       echoPre("                           decompressed: ".baseName($fileD_bin));
 
-      // (4.2) Bars einlesen
+      // Bars einlesen
       $bars = Dukascopy ::readBars($content);
       $size = sizeOf($bars); if ($size != 1*DAY/MINUTES) throw new plRuntimeException('Unexpected number of bars in Dukascopy file: '.$size.' ('.($size > 1*DAY/MINUTES ? 'more':'less').' then a day)');
 
+      // Timestamps und Delta zu 00:00 FXT hinzufügen
+      $fxtOffset = MyFX ::getGmtToFxtTimeOffset($day);               // immer negativ: FXT + Offset = GMT
+      foreach ($bars as $i => &$bar) {
+         $bar['time'     ] = $day + $bar['timeDelta'];
+         $bar['delta_gmt'] =        $bar['timeDelta'];
+         $bar['delta_fxt'] = ($bar['time'] - $fxtOffset) % DAY;
+         unset($bar['timeDelta']);
+      }
+
+      echoPre($bars[$size-1]);
+      exit();
       if (is_file($fileD_lzma)) unlink($fileD_lzma);
    }
 
@@ -245,29 +274,31 @@ function processFiles($symbol, $time, $url, $file404, $fileD_lzma, $fileD_bin, $
 
    // (6) anderenfalls URL laden und Content verarbeiten
    else {
-      // (6.1) Datei herunterladen
+      // Datei herunterladen
       $content = downloadUrl($url, $fileD_lzma, $file404);
       if (!strLen($content)) { echoPre("[Error] $shortDate   url not found (404): $url"); return true; }
                                echoPre("[Info]  $shortDate   url: $url");
-      // (6.2) Inhalt entpacken
+      // Inhalt entpacken
       $content = Dukascopy ::decompressBars($content, $fileD_bin);
       echoPre("                           decompressed: ".baseName($fileD_bin));
 
-      // (6.3) Bars einlesen
+      // Bars einlesen
       $bars = Dukascopy ::readBars($content);
       $size = sizeOf($bars); if ($size != 1*DAY/MINUTES) throw new plRuntimeException('Unexpected number of bars in Dukascopy file: '.$size.' ('.($size > 1*DAY/MINUTES ? 'more':'less').' then a day)');
 
-      echoPre($size.' bars');
+      // Timestamps und Delta zu 00:00 FXT hinzufügen
+      $fxtOffset = MyFX ::getGmtToFxtTimeOffset($day);               // immer negativ: FXT + Offset = GMT
+      foreach ($bars as $i => &$bar) {
+         $bar['time'     ] = $day + $bar['timeDelta'];
+         $bar['delta_gmt'] =        $bar['timeDelta'];
+         $bar['delta_fxt'] = ($bar['time'] - $fxtOffset) % DAY;
+         unset($bar['timeDelta']);
+      }
 
-      //$bar = $bars[$size-1];
-      //echoPre("timeDelta=$bar[timeDelta]  O=$bar[open]  H=$bar[high]  L=$bar[low]  C=$bar[close]  V=$bar[vol]");
+      echoPre($bars[$size-1]);
       exit();
 
-
-
-      // (3) Daten nach FXT konvertieren: 02:00:00 - 01:59:59 FXT (vom ersten Tag fehlen 2 h)
-
-      // (4) Daten bis 23:59:59 FXT speichern, die restlichen 2 h im Speicher behalten
+      // (4) Bars bis 23:59:59 FXT speichern, die restlichen 2 h im Speicher behalten
 
       // (5) nächste Datei herunterladen und entpacken
 
