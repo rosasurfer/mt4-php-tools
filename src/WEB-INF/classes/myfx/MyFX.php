@@ -223,7 +223,7 @@ class MyFX extends StaticClass {
       $password = $config['password'];
       $api_id   = $config['api_id'  ];
       $message  = urlEncode($message);
-      $url = 'https://api.clickatell.com/http/sendmsg?user='.$username.'&password='.$password.'&api_id='.$api_id.'&to='.$receiver.'&text='.$message;
+      $url      = 'https://api.clickatell.com/http/sendmsg?user='.$username.'&password='.$password.'&api_id='.$api_id.'&to='.$receiver.'&text='.$message;
 
       // HTTP-Request erzeugen und ausführen
       $request  = HttpRequest ::create()->setUrl($url);
