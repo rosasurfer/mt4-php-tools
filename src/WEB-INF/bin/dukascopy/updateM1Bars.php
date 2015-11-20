@@ -12,13 +12,13 @@
  *
  * History-Start: http://www.dukascopy.com/datafeed/metadata/HistoryStart.bi5  (Format unbekannt)
  *
- * URL-Format:    Eine Datei je Kalendertag ab History-Start (inkl. Wochenenden, Januar = 00), HTTP oder HTTPS
- *                z.B.:
- *                • http://www.dukascopy.com/datafeed/GBPUSD/2013/05/10/BID_candles_min_1.bi5
- *                • http://www.dukascopy.com/datafeed/GBPUSD/2013/05/10/ASK_candles_min_1.bi5
+ * URL-Format:    Durchgehend eine Datei je Kalendertag ab History-Start,
+ *                z.B.: (Januar = 00)
+ *                • http://www.dukascopy.com/datafeed/GBPUSD/2013/00/10/BID_candles_min_1.bi5
+ *                • http://www.dukascopy.com/datafeed/GBPUSD/2013/11/31/ASK_candles_min_1.bi5
  *
- * Dateiformat:   binär, LZMA-gepackt, alle Zeiten in GMT (keine Sommerzeit)
- *                Wochenenddateien enthalten durchgehend den Freitagsschlußkurs (OHLC) und ein Volume von 0 (zero).
+ * Dateiformat:   binär, LZMA-gepackt, alle Zeiten in GMT (keine Sommerzeit),
+ *                Handelspausen sind mit dem letzten Schlußkurs (OHLC) und V=0 (zero) angegeben.
  *
  *                @see Dukascopy::processBarFile()
  */
@@ -226,15 +226,14 @@ function processFiles($symbol, $time, $url, $file404, $fileD_lzma, $fileD_bin, $
       echoPre("[Info]  $shortDate   Dukascopy compressed file: ".baseName($fileD_lzma));
 
       // (4.1) Inhalt entpacken
-      $content = LZMA ::decompressFile($fileD_lzma);
-      $tmpFile = tempNam(dirName($fileD_bin), baseName($fileD_bin));
-      $hFile   = fOpen($tmpFile, 'wb');
-      fWrite($hFile, $content);
-      fClose($hFile);
-      if (is_file($fileD_bin)) unlink($fileD_bin);
-      rename($tmpFile, $fileD_bin);                                  // So kann eine existierende Datei niemals korrupt sein.
-      unlink($fileD_lzma);
+      $content = Dukascopy ::decompressBarsFile($fileD_lzma, $fileD_bin);
       echoPre("                           decompressed: ".baseName($fileD_bin));
+
+      // (4.2) Bars einlesen
+      $bars = Dukascopy ::readBars($content);
+      $size = sizeOf($bars); if ($size != 1*DAY/MINUTES) throw new plRuntimeException('Unexpected number of bars in Dukascopy file: '.$size.' ('.($size > 1*DAY/MINUTES ? 'more':'less').' then a day)');
+
+      if (is_file($fileD_lzma)) unlink($fileD_lzma);
    }
 
 
@@ -250,19 +249,20 @@ function processFiles($symbol, $time, $url, $file404, $fileD_lzma, $fileD_bin, $
       $content = downloadUrl($url, $fileD_lzma, $file404);
       if (!strLen($content)) { echoPre("[Error] $shortDate   url not found (404): $url"); return true; }
                                echoPre("[Info]  $shortDate   url: $url");
-
       // (6.2) Inhalt entpacken
-      $content = LZMA ::decompress($content);
-      $tmpFile = tempNam(dirName($fileD_bin), baseName($fileD_bin));
-      $hFile   = fOpen($tmpFile, 'wb');
-      fWrite($hFile, $content);
-      fClose($hFile);
-      if (is_file($fileD_bin)) unlink($fileD_bin);
-      rename($tmpFile, $fileD_bin);                                  // So kann eine existierende Datei niemals korrupt sein.
-      unlink($fileD_lzma);
+      $content = Dukascopy ::decompressBars($content, $fileD_bin);
       echoPre("                           decompressed: ".baseName($fileD_bin));
 
-      // (6.3) Inhalt einlesen
+      // (6.3) Bars einlesen
+      $bars = Dukascopy ::readBars($content);
+      $size = sizeOf($bars); if ($size != 1*DAY/MINUTES) throw new plRuntimeException('Unexpected number of bars in Dukascopy file: '.$size.' ('.($size > 1*DAY/MINUTES ? 'more':'less').' then a day)');
+
+      echoPre($size.' bars');
+
+      //$bar = $bars[$size-1];
+      //echoPre("timeDelta=$bar[timeDelta]  O=$bar[open]  H=$bar[high]  L=$bar[low]  C=$bar[close]  V=$bar[vol]");
+      exit();
+
 
 
       // (3) Daten nach FXT konvertieren: 02:00:00 - 01:59:59 FXT (vom ersten Tag fehlen 2 h)
