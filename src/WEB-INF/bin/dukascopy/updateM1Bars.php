@@ -81,12 +81,11 @@ foreach ($args as $i => $arg) {
       $args[$i] = $arg;
    }
 }
-$args = in_array('*', $args) ? array_keys($startTimes) : array_unique($args);    // '*' steht für und ersetzt alle Symbole
+$args = in_array('*', $args) ? array_keys($startTimes) : array_unique($args);    // '*' wird durch alle Symbole ersetzt
 
 
-// (2) Buffer zum dateiübergreifenden Zwischenspeichern der geladenen Bardaten
-$barBuffer['bid'] = array();
-$barBuffer['ask'] = array();
+// (2) Buffer zum Zwischenspeichern geladener Bardaten
+$barBuffer;
 
 
 // (3) Daten aktualisieren
@@ -119,6 +118,11 @@ function updateInstrument($symbol, $startTime) {
    static $dataDirectory = null;
    if (!$dataDirectory) $dataDirectory = MyFX ::getConfigPath('myfx.data_directory');
 
+   global $barBuffer;
+   $barBuffer        = null;                                         // Barbuffer zurücksetzen
+   $barBuffer['bid'] = array();
+   $barBuffer['ask'] = array();
+
 
    // (1) Prüfen, ob sich der letzte bekannte Startzeitpunkt des Symbols geändert hat
    $startTime -= $startTime % DAY;                                   // 00:00 GMT des Starttages
@@ -135,7 +139,7 @@ function updateInstrument($symbol, $startTime) {
    $url   = "http://www.dukascopy.com/datafeed/$symbol/$dateD/BID_candles_min_1.bi5";
 
    // Existiert die Datei, hat sich der angegebene Startzeitpunkt geändert.
-   $content = downloadUrl($url);
+   $content = downloadUrl(null, $url);
    if (strLen($content)) {
       echoPre("[Notice]  $symbol history was extended. Please update the history's start time.");
       return false;
@@ -155,7 +159,7 @@ function updateInstrument($symbol, $startTime) {
 
       // Bid-Preise
       $nameD      = "BID_candles_min_1";                                               // Dukascopy-Name
-      $nameL      = "Bid,M1";                                                          // lokaler Name
+      $nameL      = "M1,Bid";                                                          // lokaler Name
       $url        = "http://www.dukascopy.com/datafeed/$symbol/$dateD/$nameD.bi5";
       $fileD_lzma = "$dataDirectory/history/dukascopy/$symbol/$dateL/$nameD.bi5";      // Dukascopy-Datei gepackt
       $fileD_bin  = "$dataDirectory/history/dukascopy/$symbol/$dateL/$nameD.bin";      // Dukascopy-Datei ungepackt
@@ -164,10 +168,11 @@ function updateInstrument($symbol, $startTime) {
       $file404    = "$dataDirectory/history/dukascopy/$symbol/$dateL/$nameD.404";      // Dukascopy-Fehlerdatei (404)
       if (!processFiles($symbol, $day, 'bid', $url, $file404, $nameD, $fileD_lzma, $fileD_bin, $nameL, $fileL_rar, $fileL_bin))
          return false;
+      continue;
 
       // Ask-Preise
       $nameD      = "ASK_candles_min_1";
-      $nameL      = "Ask,M1";
+      $nameL      = "M1,Ask";
       $url        = "http://www.dukascopy.com/datafeed/$symbol/$dateD/$nameD.bi5";
       $fileD_lzma = "$dataDirectory/history/dukascopy/$symbol/$dateL/$nameD.bi5";
       $fileD_bin  = "$dataDirectory/history/dukascopy/$symbol/$dateL/$nameD.bin";
@@ -176,8 +181,6 @@ function updateInstrument($symbol, $startTime) {
       $file404    = "$dataDirectory/history/dukascopy/$symbol/$dateL/$nameD.404";
       if (!processFiles($symbol, $day, 'ask', $url, $file404, $nameD, $fileD_lzma, $fileD_bin, $nameL, $fileL_rar, $fileL_bin))
          return false;
-
-      //break;    // vorerst nach einem Durchlauf abbrechen
    }
    return true;
 }
@@ -202,8 +205,7 @@ function updateInstrument($symbol, $startTime) {
  */
 function processFiles($symbol, $day, $type, $url, $file404, $nameD, $fileD_lzma, $fileD_bin, $nameL, $fileL_rar, $fileL_bin) {
    $day      -= $day % DAY;                                          // 00:00 GMT
-   $shortDate = date('D, d-M-Y', $day);                              // Fri, 11-Jul-2003
-   global $barBuffer;
+   $shortDate = date('D, d-M-Y', $day).' GMT';                       // Fri, 11-Jul-2003 GMT
 
 
    // TODO: DIESE Funktion in DIESEM Verzeichnis mit Combi-Lock synchronisieren: http://stackoverflow.com/questions/5449395/file-locking-in-php
@@ -214,45 +216,45 @@ function processFiles($symbol, $day, $type, $url, $file404, $nameD, $fileD_lzma,
 
    // (1) falls .rar-Datei existiert
    if (is_file($fileL_rar)) {
-      echoPre("[Ok]    $shortDate   RAR history file: ".baseName($fileL_rar));
+      echoPre('[Ok]    '.$shortDate.'   RAR history file: '.baseName($fileL_rar));
    }
 
 
    // (2) falls lokale .bin-Datei existiert
    else if (is_file($fileL_bin)) {
-      echoPre("[Info]  $shortDate   raw history file: ".baseName($fileL_bin));
+      echoPre('[Info]  '.$shortDate.'   raw history file: '.baseName($fileL_bin));
    }
 
 
    // (3) falls dekomprimierte Dukascopy-Datei existiert
    else if (is_file($fileD_bin)) {
-      echoPre("[Info]  $shortDate   Dukascopy raw history file: ".baseName($fileD_bin));
-      processRawDukascopyFile($fileD_bin, $day, $type, $nameD);
+      echoPre('[Info]  '.$shortDate.'   Dukascopy raw history file: '.baseName($fileD_bin));
+      if (!processRawDukascopyFile($fileD_bin, $day, $type, $nameD))
+         return false;
    }
 
 
    // (4) falls komprimierte Dukascopy-Datei existiert
    else if (is_file($fileD_lzma)) {
-      echoPre("[Info]  $shortDate   Dukascopy compressed file: ".baseName($fileD_lzma));
-      processCompressedDukascopyFile($fileD_lzma, $day, $type, $nameD, $fileD_bin);
+      echoPre('[Info]  '.$shortDate.'   Dukascopy compressed file: '.baseName($fileD_lzma));
+      if (!processCompressedDukascopyFile($fileD_lzma, $day, $type, $nameD, $fileD_bin))
+         return false;
    }
 
 
    // (5) falls Fehlerdatei existiert
    else if (is_file($file404)) {
-      echoPre("[Info]  $shortDate   Skipping $symbol (404 status file found)");
+      echoPre('[Info]  '.$shortDate.'   Skipping '.$symbol.' (404 status file found)');
    }
 
 
-   // (6) anderenfalls URL laden und Content verarbeiten
+   // (6) anderenfalls URL laden und verarbeiten
    else {
-      // Datei herunterladen
-      $content = downloadUrl($url, $fileD_lzma, $file404);
-      if (!strLen($content)) { echoPre("[Error] $shortDate   url not found (404): $url"); return true; }
-                               echoPre("[Info]  $shortDate   url: $url");
-      processCompressedDukascopyString($content, $day, $type, $nameD, $fileD_bin);
+      $content = downloadUrl($day, $url, /*$fileD_lzma*/null, $file404);
+      if ($content)
+         if (!processCompressedDukascopyString($content, $day, $type, $nameD, $fileD_bin))
+            return false;
    }
-
    return true;
 }
 
@@ -261,17 +263,23 @@ function processFiles($symbol, $day, $type, $url, $file404, $nameD, $fileD_lzma,
  * Lädt eine URL und gibt ihren Inhalt zurück. Wird als zweiter Parameter ein Dateiname angegeben (während der Entwicklung),
  * wird der geladene Inhalt zusätzlich unter dem angegebenen Dateinamen gespeichert.
  *
- * @param string $url      - URL
- * @param string $contentFile - vollständiger Name der Datei, in der der Inhalt gespeichert wwerden soll
- * @param string $errorFile   - vollständiger Name der Datei, die einen 404-Fehler beim Download markieren soll
+ * @param string $url       - URL
+ * @param string $saveAs    - vollständiger Name der Datei, in der der Inhalt gespeichert wwerden soll
+ * @param string $saveError - vollständiger Name der Datei, die einen 404-Fehler beim Download markieren soll
  *
  * @return string - Content der heruntergeladenen Datei oder Leerstring, wenn die Resource nicht gefunden wurde (404).
  */
-function downloadUrl($url, $contentFile=null, $errorFile=null) {
-   if (!is_string($url))                                   throw new IllegalTypeException('Illegal type of parameter $url: '.getType($url));
-   if (!is_null($contentFile) && !is_string($contentFile)) throw new IllegalTypeException('Illegal type of parameter $contentFile: '.getType($contentFile));
-   if (!is_null($errorFile  ) && !is_string($errorFile  )) throw new IllegalTypeException('Illegal type of parameter $errorFile: '.getType($errorFile));
+function downloadUrl($day, $url, $saveAs=null, $saveError=null) {
+   if (!is_null($day) && !is_int($day))                throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
+   if (!is_string($url))                               throw new IllegalTypeException('Illegal type of parameter $url: '.getType($url));
+   if (!is_null($saveAs) && !is_string($saveAs))       throw new IllegalTypeException('Illegal type of parameter $saveAs: '.getType($saveAs));
+   if (!is_null($saveError) && !is_string($saveError)) throw new IllegalTypeException('Illegal type of parameter $saveError: '.getType($saveError));
 
+   if (!is_null($day)) {
+      $day      -= $day % DAY;                                          // 00:00 GMT
+      $shortDate = date('D, d-M-Y', $day).' GMT';                       // Fri, 11-Jul-2003 GMT
+      echoPre('[Info]  '.$shortDate.'   url: '.$url);
+   }
 
    // (1) Standard-Browser simulieren
    $userAgent = Config ::get('myfx.useragent'); if (!$userAgent) throw new plInvalidArgumentException('Invalid user agent configuration: "'.$userAgent.'"');
@@ -287,88 +295,89 @@ function downloadUrl($url, $contentFile=null, $errorFile=null) {
                           ->setHeader('Referer'        , 'http://www.dukascopy.com/free/candelabrum/'                     );
    $options[CURLOPT_SSL_VERIFYPEER] = false;                         // falls HTTPS verwendet wird
 
-
    // (2) HTTP-Request abschicken und auswerten
    $response = CurlHttpClient ::create($options)->send($request);    // TODO: CURL-Fehler wie bei SimpleTrader behandeln
    $status   = $response->getStatus();
    if ($status!=200 && $status!=404) throw new plRuntimeException("Unexpected HTTP status $status (".HttpResponse ::$sc[$status].") for url \"$url\"\n".printFormatted($response, true));
 
-
    // (3) Download-Success
    if ($status == 200) {
       // vorhandene Fehlerdatei(en) löschen
       $errorFiles = array();
-      if ($contentFile) {
-         $errorFiles[] =         $contentFile                                    .'.404';
-         $errorFiles[] = dirName($contentFile).'/'.baseName($contentFile, '.bi5').'.404';
-         $errorFiles[] = dirName($contentFile).'/'.baseName($url                ).'.404';
-         $errorFiles[] = dirName($contentFile).'/'.baseName($url,         '.bi5').'.404';
+      if ($saveAs) {
+         $errorFiles[] =         $saveAs                               .'.404';
+         $errorFiles[] = dirName($saveAs).'/'.baseName($saveAs, '.bi5').'.404';
+         $errorFiles[] = dirName($saveAs).'/'.baseName($url           ).'.404';
+         $errorFiles[] = dirName($saveAs).'/'.baseName($url,    '.bi5').'.404';
       }
-      if ($errorFile) {
-         $errorFiles[] =         $errorFile;
-         $errorFiles[] = dirName($errorFile).'/'.baseName($url        ).'.404';
-         $errorFiles[] = dirName($errorFile).'/'.baseName($url, '.bi5').'.404';
+      if ($saveError) {
+         $errorFiles[] =         $saveError;
+         $errorFiles[] = dirName($saveError).'/'.baseName($url        ).'.404';
+         $errorFiles[] = dirName($saveError).'/'.baseName($url, '.bi5').'.404';
       }
       foreach ($errorFiles as $file) {
          if (is_file($file)) unlink($file);
       }
 
-      // bei Parameter $contentFile Content speichern
-      if ($contentFile) {
-         mkDirWritable(dirName($contentFile), 0700);
-         $tmpFile = tempNam(dirName($contentFile), baseName($contentFile));
+      // bei Parameter $saveAs Content speichern
+      if ($saveAs) {
+         mkDirWritable(dirName($saveAs), 0700);
+         $tmpFile = tempNam(dirName($saveAs), baseName($saveAs));
          $hFile   = fOpen($tmpFile, 'wb');
          fWrite($hFile, $response->getContent());
          fClose($hFile);
-         if (is_file($contentFile)) unlink($contentFile);            // So kann eine existierende Datei niemals korrupt sein.
-         rename($tmpFile, $contentFile);
+         if (is_file($saveAs)) unlink($saveAs);                      // So kann eine existierende Datei niemals korrupt sein.
+         rename($tmpFile, $saveAs);
       }
    }
 
-
-   // (4) Download-Fehler: bei Parameter $errorFile Fehler speichern
-   if ($status==404 && $errorFile) {
-      mkDirWritable(dirName($errorFile), 0700);
-      fClose(fOpen($errorFile, 'wb'));
+   // (4) Download-Fehler: bei Parameter $saveError Fehler speichern
+   if ($status == 404) {
+      if (!is_null($day)) {
+         echoPre('[Error] '.$shortDate.'   url not found (404): '.$url);
+      }
+      if ($saveError) {
+         mkDirWritable(dirName($saveError), 0700);
+         fClose(fOpen($saveError, 'wb'));
+      }
    }
-
    return ($status==200) ? $response->getContent() : '';
 }
 
 
 /**
- *
+ * @return bool - Erfolgsstatus
  */
 function processCompressedDukascopyFile($file, $day, $type, $nameD, $fileD_bin) {
    if (!is_string($file)) throw new IllegalTypeException('Illegal type of parameter $file: '.getType($file));
-   processCompressedDukascopyString(file_get_contents($file), $day, $type, $nameD, $fileD_bin);
+   return processCompressedDukascopyString(file_get_contents($file), $day, $type, $nameD, $fileD_bin);
 }
 
 
 /**
- *
+ * @return bool - Erfolgsstatus
  */
 function processCompressedDukascopyString($string, $day, $type, $nameD, $fileD_bin) {
    if (!is_string($string)) throw new IllegalTypeException('Illegal type of parameter $string: '.getType($string));
    if (!is_string($nameD))  throw new IllegalTypeException('Illegal type of parameter $nameD: '.getType($nameD));
 
    $rawString = Dukascopy ::decompressBars($string, $fileD_bin);
-   echoPre('                           decompressed: '.$nameD);
-   processRawDukascopyString($rawString, $day, $type, $nameD);
+   echoPre('                               decompressed '.$nameD);
+   return processRawDukascopyString($rawString, $day, $type, $nameD);
 }
 
 
 /**
- *
+ * @return bool - Erfolgsstatus
  */
 function processRawDukascopyFile($file, $day, $type, $nameD) {
    if (!is_string($file)) throw new IllegalTypeException('Illegal type of parameter $file: '.getType($file));
-   processRawDukascopyString(file_get_contents($file), $day, $type, $nameD);
+   return processRawDukascopyString(file_get_contents($file), $day, $type, $nameD);
 }
 
 
 /**
- *
+ * @return bool - Erfolgsstatus
  */
 function processRawDukascopyString($string, $day, $type, $nameD) {
    if (!is_string($string))                  throw new IllegalTypeException('Illegal type of parameter $string: '.getType($string));
@@ -382,27 +391,125 @@ function processRawDukascopyString($string, $day, $type, $nameD) {
    $bars = Dukascopy ::readBars($string);
    $size = sizeOf($bars); if ($size != 1*DAY/MINUTES) throw new plRuntimeException('Unexpected number of Dukascopy bars in '.$nameD.': '.$size.' ('.($size > 1*DAY/MINUTES ? 'more':'less').' then a day)');
 
-   // Timestamps und Delta zu 00:00 FXT hinzufügen
-   $fxtOffset = MyFX ::getGmtToFxtTimeOffset($day);                  // negativ, es gilt: FXT + Offset = GMT
-   foreach ($bars as $i => &$bar) {
-      $bar['time'     ] = $day + $bar['timeDelta'];
+   // Timestamps und FXT-Daten hinzufügen
+   $dstChange = false;
+   $prev = $next = null;                                             // Die Daten der Datei können einen DST-Wechsel abdecken, wenn
+   $fxtOffset = MyFX ::getGmtToFxtTimeOffset($day, $prev, $next);    // $day = "Sun, 00:00 GMT" ist. In diesem Fall muß innerhalb
+   foreach ($bars as $i => &$bar) {                                  // der Datenreihe auf den nächsten DST-Offset gewechselt werden.
+      $bar['time_gmt' ] = $day + $bar['timeDelta'];
       $bar['delta_gmt'] =        $bar['timeDelta'];
-      $bar['delta_fxt'] = ($bar['time'] - $fxtOffset) % DAY;
+      if ($bar['time_gmt'] >= $next['time']) {
+         if ($fxtOffset != $next['offset']) {
+            echoPre(NL.'DST change'.NL.NL);
+            $dstChange = true;
+         }
+         $fxtOffset = $next['offset'];                               // $fxtOffset on-the-fly aktualisieren
+      }
+      $bar['time_fxt' ] = $bar['time_gmt'] - $fxtOffset;
+      $bar['delta_fxt'] = $bar['time_fxt'] % DAY;
       unset($bar['timeDelta']);
    }
+   if ($dstChange) {
+      $newDayOffset = $size + $fxtOffset/MINUTES;
+      echoPre('previous day ended with:');
+      echoPre($bars[$newDayOffset-1]);
+      echoPre('current day starts with:');
+      echoPre($bars[$newDayOffset]);
+   }
 
-   $barBuffer[$type] = array_merge($barBuffer[$type], $bars);
-   //echoPre('now '.sizeof($barBuffer[$type])." $type bars in buffer".NL.NL);
+   // Index von 00:00 FXT bestimmen und Bars FXT-tageweise verarbeiten
+   $newDayOffset = $size + $fxtOffset/MINUTES;
+   if (!processFxtBarRange($type, array_slice($bars, 0, $newDayOffset), $nameD)) return false;
+   if (!processFxtBarRange($type, array_slice($bars, $newDayOffset   ), $nameD)) return false;
+
+   return true;
+}
 
 
+/**
+ * @return bool - Erfolgsstatus
+ */
+function processFxtBarRange($type, array $bars, $nameD) {
+   if (!is_string($type))                    throw new IllegalTypeException('Illegal type of parameter $type: '.getType($type));
+   global $barBuffer;
+   if (!array_key_exists($type, $barBuffer)) throw new plInvalidArgumentException('Invalid parameter $type: "'.$type.'"');
+   if (!$bars)                               throw new plInvalidArgumentException('Invalid parameter $bars: (empty)');
+   if (!is_string($nameD))                   throw new IllegalTypeException('Illegal type of parameter $nameD: '.getType($nameD));
 
-   //exit();
+   // Bars dem jeweiligen FXT-Tag der internen Buffer hinzufügen
+   $fxtDay = $bars[0]['time_fxt'] - $bars[0]['delta_fxt'];
+   $dow    = iDate('w', $fxtDay);
+   if ($dow==SATURDAY || $dow==SUNDAY)                               // FXT-Wochenenden überspringen
+      return true;
 
-   // (3) Bars getrennt nach FXT-Tag/Bid/Ask in Buffern ablegen
+   if (isSet($barBuffer[$type][$fxtDay])) {
+      // Sicherstellen, daß die Daten zu mergender Bars nahtlos ineinander übergehen.
+      $lastDelta = $barBuffer[$type][$fxtDay][sizeOf($barBuffer[$type][$fxtDay])-1]['delta_fxt'];
+      $nextDelta = $bars[0]['delta_fxt'];
+      if ($lastDelta + 1*MINUTE != $nextDelta) throw new plRuntimeException('Bar delta mis-match, bars to merge: "'.$nameD.'", $lastDelta='.$lastDelta.', $nextDelta='.$nextDelta);
+      $barBuffer[$type][$fxtDay] = array_merge($barBuffer[$type][$fxtDay], $bars);
+   }
+   else {
+      // Sicherstellen, daß die vorherigen Tage im Buffer verarbeitet und gelöscht wurden.
+      if ($keys=array_keys($barBuffer[$type])) throw new plRuntimeException('Tried to buffer bars of '.date('D, d-M-Y', $fxtDay).' but found unfinished bars of '.date('D, d-M-Y', $keys[0]));
+      $barBuffer[$type][$fxtDay] = $bars;
+   }
 
-   // (4) volle Buffer in Datei speichern, die Reste im Speicher behalten
+   // Prüfen, ob die gebufferten Daten eines Tages komplett sind. Reichen sie bis Mitternacht, sind sie "komplett", auch wenn am Tagesanfang Bars fehlen können.
+   $bars = &$barBuffer[$type][$fxtDay];
+   $size = sizeOf($bars);
 
-   // (5) nächste Datei herunterladen und entpacken
+   if ($bars[$size-1]['delta_fxt'] == 23*HOURS + 59*MINUTES)
+      if (!processFinishedFxtBars($type, $fxtDay))                   // abgeschlossenen Tag weiterverarbeiten
+         return false;
+
+
+   static $counter = 0; $counter++;
+   if ($counter >= 800) {
+      //showBuffer();
+      exit();
+   }
+   return true;
+}
+
+
+/**
+ * @return bool - Erfolgsstatus
+ */
+function processFinishedFxtBars($type, $fxtDay) {
+   if (!is_string($type))                    throw new IllegalTypeException('Illegal type of parameter $type: '.getType($type));
+   global $barBuffer;
+   if (!array_key_exists($type, $barBuffer)) throw new plInvalidArgumentException('Invalid parameter $type: "'.$type.'"');
+   if (!is_int($fxtDay))                     throw new IllegalTypeException('Illegal type of parameter $fxtDay: '.getType($fxtDay));
+
+   // abgeschlossenen Tag in Datei speichern
+
+   unset($barBuffer[$type][$fxtDay]);
+   return true;
+}
+
+
+/**
+ *
+ */
+function showBuffer() {
+   global $barBuffer;
+   foreach ($barBuffer as $type => &$days) {
+      if (!is_array($days)) {
+         echoPre('barBuffer['.$type.'] => '.(is_null($days) ? 'null':$days));
+         continue;
+      }
+      foreach ($days as $fxtDay => &$bars) {
+         if (!is_array($bars)) {
+            echoPre('barBuffer['.$type.']['.date('D, d-M-Y', $fxtDay).' FXT] => '.(is_null($bars) ? 'null':$bars));
+            continue;
+         }
+         $size = sizeOf($bars);
+         $firstBar = $size ? date('H:i', $bars[0      ]['time_fxt']):null;
+         $lastBar  = $size ? date('H:i', $bars[$size-1]['time_fxt']):null;
+         echoPre('barBuffer['.$type.']['.date('D, d-M-Y', $fxtDay).' FXT] => '.str_pad($size, 4, ' ', STR_PAD_LEFT).' bar'.($size==1?'':'s').($firstBar?': '.$firstBar:'').($size>1?'-'.$lastBar:'').($size?' FXT':''));
+      }
+   }
 }
 
 

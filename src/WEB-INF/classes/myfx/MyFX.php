@@ -94,8 +94,8 @@ class MyFX extends StaticClass {
     *                                 ['time'=>{timestamp}, 'offset'=>{offset}] mit dem Zeitpunkt des nächsten Zeitwechsels
     *                                 und dem Offset nach diesem Zeitpunkt.
     *
-    * @return int - Offset in Sekunden (immer negativer Wert; es gilt: FXT + Offset = GMT) oder NULL, wenn der Zeitpunkt
-    *               außerhalb der bekannten Transitionsdaten liegt
+    * @return int - Offset in Sekunden (es gilt: FXT + Offset = GMT) oder NULL, wenn der Zeitpunkt außerhalb der bekannten
+    *               Transitionsdaten liegt
     */
    public static function getGmtToFxtTimeOffset($timestamp=null, &$prevTransition=array(), &$nextTransition=array()) {
       if (!is_int($timestamp) && !is_null($timestamp)) throw new IllegalTypeException('Illegal type of parameter $timestamp: '.getType($timestamp));
