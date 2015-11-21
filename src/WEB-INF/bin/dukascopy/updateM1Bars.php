@@ -84,14 +84,19 @@ foreach ($args as $i => $arg) {
 $args = in_array('*', $args) ? array_keys($startTimes) : array_unique($args);    // '*' steht für und ersetzt alle Symbole
 
 
-// (2) Daten aktualisieren
+// (2) Buffer zum dateiübergreifenden Zwischenspeichern der geladenen Bardaten
+$barBuffer['bid'] = array();
+$barBuffer['ask'] = array();
+
+
+// (3) Daten aktualisieren
 foreach ($args as $symbol) {
    if (!updateInstrument($symbol, $startTimes[$symbol]))
       exit(1);
 }
 
 
-// (3) Ende
+// (4) Ende
 exit(0);
 
 
@@ -131,8 +136,10 @@ function updateInstrument($symbol, $startTime) {
 
    // Existiert die Datei, hat sich der angegebene Startzeitpunkt geändert.
    $content = downloadUrl($url);
-   if (strLen($content))
-      echoPre("[Notice]  $symbol history was extended. Please update the history's start time.") & exit(1);
+   if (strLen($content)) {
+      echoPre("[Notice]  $symbol history was extended. Please update the history's start time.");
+      return false;
+   }
 
 
    // (2) Dateien der gesamten Zeitspanne tageweise durchlaufen
@@ -147,27 +154,27 @@ function updateInstrument($symbol, $startTime) {
       $dateL      = "$yyyy/$mmL/$dd";                                                  // lokales Datum
 
       // Bid-Preise
-      $fileD      = "BID_candles_min_1";                                               // Dukascopy-Dateiname
-      $fileL      = "Bid,M1";                                                          // lokaler Dateiname
-      $url        = "http://www.dukascopy.com/datafeed/$symbol/$dateD/$fileD.bi5";
-      $fileD_lzma = "$dataDirectory/history/dukascopy/$symbol/$dateL/$fileD.bi5";      // Dukascopy-Datei gepackt
-      $fileD_bin  = "$dataDirectory/history/dukascopy/$symbol/$dateL/$fileD.bin";      // Dukascopy-Datei ungepackt
-      $fileL_rar  = "$dataDirectory/history/dukascopy/$symbol/$dateL/$fileL.bin.rar";  // lokale Datei gepackt
-      $fileL_bin  = "$dataDirectory/history/dukascopy/$symbol/$dateL/$fileL.bin";      // lokale Datei ungepackt
-      $file404    = "$dataDirectory/history/dukascopy/$symbol/$dateL/$fileD.404";      // Dukascopy-Fehlerdatei (404)
-      if (!processFiles($symbol, $day, $url, $file404, $fileD_lzma, $fileD_bin, $fileL_rar, $fileL_bin))
+      $nameD      = "BID_candles_min_1";                                               // Dukascopy-Name
+      $nameL      = "Bid,M1";                                                          // lokaler Name
+      $url        = "http://www.dukascopy.com/datafeed/$symbol/$dateD/$nameD.bi5";
+      $fileD_lzma = "$dataDirectory/history/dukascopy/$symbol/$dateL/$nameD.bi5";      // Dukascopy-Datei gepackt
+      $fileD_bin  = "$dataDirectory/history/dukascopy/$symbol/$dateL/$nameD.bin";      // Dukascopy-Datei ungepackt
+      $fileL_rar  = "$dataDirectory/history/dukascopy/$symbol/$dateL/$nameL.bin.rar";  // lokale Datei gepackt
+      $fileL_bin  = "$dataDirectory/history/dukascopy/$symbol/$dateL/$nameL.bin";      // lokale Datei ungepackt
+      $file404    = "$dataDirectory/history/dukascopy/$symbol/$dateL/$nameD.404";      // Dukascopy-Fehlerdatei (404)
+      if (!processFiles($symbol, $day, 'bid', $url, $file404, $nameD, $fileD_lzma, $fileD_bin, $nameL, $fileL_rar, $fileL_bin))
          return false;
 
       // Ask-Preise
-      $fileD      = "ASK_candles_min_1";
-      $fileL      = "Ask,M1";
-      $url        = "http://www.dukascopy.com/datafeed/$symbol/$dateD/$fileD.bi5";
-      $fileD_lzma = "$dataDirectory/history/dukascopy/$symbol/$dateL/$fileD.bi5";
-      $fileD_bin  = "$dataDirectory/history/dukascopy/$symbol/$dateL/$fileD.bin";
-      $fileL_rar  = "$dataDirectory/history/dukascopy/$symbol/$dateL/$fileL.bin.rar";
-      $fileL_bin  = "$dataDirectory/history/dukascopy/$symbol/$dateL/$fileL.bin";
-      $file404    = "$dataDirectory/history/dukascopy/$symbol/$dateL/$fileD.404";
-      if (!processFiles($symbol, $day, $url, $file404, $fileD_lzma, $fileD_bin, $fileL_rar, $fileL_bin))
+      $nameD      = "ASK_candles_min_1";
+      $nameL      = "Ask,M1";
+      $url        = "http://www.dukascopy.com/datafeed/$symbol/$dateD/$nameD.bi5";
+      $fileD_lzma = "$dataDirectory/history/dukascopy/$symbol/$dateL/$nameD.bi5";
+      $fileD_bin  = "$dataDirectory/history/dukascopy/$symbol/$dateL/$nameD.bin";
+      $fileL_rar  = "$dataDirectory/history/dukascopy/$symbol/$dateL/$nameL.bin.rar";
+      $fileL_bin  = "$dataDirectory/history/dukascopy/$symbol/$dateL/$nameL.bin";
+      $file404    = "$dataDirectory/history/dukascopy/$symbol/$dateL/$nameD.404";
+      if (!processFiles($symbol, $day, 'ask', $url, $file404, $nameD, $fileD_lzma, $fileD_bin, $nameL, $fileL_rar, $fileL_bin))
          return false;
 
       //break;    // vorerst nach einem Durchlauf abbrechen
@@ -181,18 +188,23 @@ function updateInstrument($symbol, $startTime) {
  *
  * @param string $symbol     - Symbol
  * @param int    $day        - Timestamp des Tags der zu verarbeitenden Daten
+ * @param string $type       - Kurstyp: 'bid'|'ask'
  * @param string $url        - URL
  * @param string $file404    - vollständiger Name der Datei, die einen Download-Fehler markiert (404)
+ * @param string $nameD      - Dukascopy-Name
  * @param string $fileD_lzma - vollständiger Name, unter dem eine LZMA-gepackte Dukascopy-Datei gespeichert wird
  * @param string $fileD_bin  - vollständiger Name, unter dem eine entpackte Dukascopy-Datei gespeichert wird
+ * @param string $nameL      - lokaler Name
  * @param string $fileL_rar  - vollständiger Name, unter dem eine RAR-gepackte lokale Kursdatei gespeichert wird
  * @param string $fileL_bin  - vollständiger Name, unter dem eine entpackte lokale Kursdatei gespeichert wird
  *
  * @return bool - Erfolgsstatus
  */
-function processFiles($symbol, $day, $url, $file404, $fileD_lzma, $fileD_bin, $fileL_rar, $fileL_bin) {
+function processFiles($symbol, $day, $type, $url, $file404, $nameD, $fileD_lzma, $fileD_bin, $nameL, $fileL_rar, $fileL_bin) {
    $day      -= $day % DAY;                                          // 00:00 GMT
    $shortDate = date('D, d-M-Y', $day);                              // Fri, 11-Jul-2003
+   global $barBuffer;
+
 
    // TODO: DIESE Funktion in DIESEM Verzeichnis mit Combi-Lock synchronisieren: http://stackoverflow.com/questions/5449395/file-locking-in-php
    // TODO: temporäre Dateien löschen
@@ -200,73 +212,33 @@ function processFiles($symbol, $day, $url, $file404, $fileD_lzma, $fileD_bin, $f
 
    // Mögliche Varianten bereits existierender Dateien prüfen.
 
-   // (1) falls .rar-Datei existiert: nichts zu tun
+   // (1) falls .rar-Datei existiert
    if (is_file($fileL_rar)) {
       echoPre("[Ok]    $shortDate   RAR history file: ".baseName($fileL_rar));
-      if (is_file($fileD_lzma)) unlink($fileD_lzma);
-      if (is_file($fileD_bin))  unlink($fileD_bin);
-      if (is_file($fileL_bin))  unlink($fileL_bin);
-      if (is_file($file404))    unlink($file404);
    }
 
 
-   // (2) falls lokale .bin-Datei existiert: packen und löschen
+   // (2) falls lokale .bin-Datei existiert
    else if (is_file($fileL_bin)) {
       echoPre("[Info]  $shortDate   raw history file: ".baseName($fileL_bin));
    }
 
 
-   // (3) falls Dukascopy .bin-Datei existiert: verarbeiten und löschen
+   // (3) falls dekomprimierte Dukascopy-Datei existiert
    else if (is_file($fileD_bin)) {
       echoPre("[Info]  $shortDate   Dukascopy raw history file: ".baseName($fileD_bin));
-
-      // Bars einlesen
-      $bars = Dukascopy ::readBarsFile($fileD_bin);
-      $size = sizeOf($bars); if ($size != 1*DAY/MINUTES) throw new plRuntimeException('Unexpected number of bars in Dukascopy file: '.$size.' ('.($size > 1*DAY/MINUTES ? 'more':'less').' then a day)');
-
-      // Timestamps und Delta zu 00:00 FXT hinzufügen
-      $fxtOffset = MyFX ::getGmtToFxtTimeOffset($day);               // immer negativ: FXT + Offset = GMT
-      foreach ($bars as $i => &$bar) {
-         $bar['time'     ] = $day + $bar['timeDelta'];
-         $bar['delta_gmt'] =        $bar['timeDelta'];
-         $bar['delta_fxt'] = ($bar['time'] - $fxtOffset) % DAY;
-         unset($bar['timeDelta']);
-      }
-
-      echoPre($bars[$size-1]);
-      exit();
-      if (is_file($fileD_bin)) unlink($fileD_bin);
+      processRawDukascopyFile($fileD_bin, $day, $type, $nameD);
    }
 
 
-   // (4) falls Dukascopy .lzma-Datei existiert: verarbeiten und löschen
+   // (4) falls komprimierte Dukascopy-Datei existiert
    else if (is_file($fileD_lzma)) {
       echoPre("[Info]  $shortDate   Dukascopy compressed file: ".baseName($fileD_lzma));
-
-      // Inhalt entpacken
-      $content = Dukascopy ::decompressBarsFile($fileD_lzma, $fileD_bin);
-      echoPre("                           decompressed: ".baseName($fileD_bin));
-
-      // Bars einlesen
-      $bars = Dukascopy ::readBars($content);
-      $size = sizeOf($bars); if ($size != 1*DAY/MINUTES) throw new plRuntimeException('Unexpected number of bars in Dukascopy file: '.$size.' ('.($size > 1*DAY/MINUTES ? 'more':'less').' then a day)');
-
-      // Timestamps und Delta zu 00:00 FXT hinzufügen
-      $fxtOffset = MyFX ::getGmtToFxtTimeOffset($day);               // immer negativ: FXT + Offset = GMT
-      foreach ($bars as $i => &$bar) {
-         $bar['time'     ] = $day + $bar['timeDelta'];
-         $bar['delta_gmt'] =        $bar['timeDelta'];
-         $bar['delta_fxt'] = ($bar['time'] - $fxtOffset) % DAY;
-         unset($bar['timeDelta']);
-      }
-
-      echoPre($bars[$size-1]);
-      exit();
-      if (is_file($fileD_lzma)) unlink($fileD_lzma);
+      processCompressedDukascopyFile($fileD_lzma, $day, $type, $nameD, $fileD_bin);
    }
 
 
-   // (5) falls Fehlerdatei existiert: Datei überspringen
+   // (5) falls Fehlerdatei existiert
    else if (is_file($file404)) {
       echoPre("[Info]  $shortDate   Skipping $symbol (404 status file found)");
    }
@@ -278,31 +250,7 @@ function processFiles($symbol, $day, $url, $file404, $fileD_lzma, $fileD_bin, $f
       $content = downloadUrl($url, $fileD_lzma, $file404);
       if (!strLen($content)) { echoPre("[Error] $shortDate   url not found (404): $url"); return true; }
                                echoPre("[Info]  $shortDate   url: $url");
-      // Inhalt entpacken
-      $content = Dukascopy ::decompressBars($content, $fileD_bin);
-      echoPre("                           decompressed: ".baseName($fileD_bin));
-
-      // Bars einlesen
-      $bars = Dukascopy ::readBars($content);
-      $size = sizeOf($bars); if ($size != 1*DAY/MINUTES) throw new plRuntimeException('Unexpected number of bars in Dukascopy file: '.$size.' ('.($size > 1*DAY/MINUTES ? 'more':'less').' then a day)');
-
-      // Timestamps und Delta zu 00:00 FXT hinzufügen
-      $fxtOffset = MyFX ::getGmtToFxtTimeOffset($day);               // immer negativ: FXT + Offset = GMT
-      foreach ($bars as $i => &$bar) {
-         $bar['time'     ] = $day + $bar['timeDelta'];
-         $bar['delta_gmt'] =        $bar['timeDelta'];
-         $bar['delta_fxt'] = ($bar['time'] - $fxtOffset) % DAY;
-         unset($bar['timeDelta']);
-      }
-
-      echoPre($bars[$size-1]);
-      exit();
-
-      // (4) Bars bis 23:59:59 FXT speichern, die restlichen 2 h im Speicher behalten
-
-      // (5) nächste Datei herunterladen und entpacken
-
-      // (6) Daten mit den vom letzten Download verbliebenen 2 h mergen
+      processCompressedDukascopyString($content, $day, $type, $nameD, $fileD_bin);
    }
 
    return true;
@@ -346,9 +294,9 @@ function downloadUrl($url, $contentFile=null, $errorFile=null) {
    if ($status!=200 && $status!=404) throw new plRuntimeException("Unexpected HTTP status $status (".HttpResponse ::$sc[$status].") for url \"$url\"\n".printFormatted($response, true));
 
 
-   // (3) Success
+   // (3) Download-Success
    if ($status == 200) {
-      // (3.1) ggf. vorhandene Fehlerdatei(en) löschen
+      // vorhandene Fehlerdatei(en) löschen
       $errorFiles = array();
       if ($contentFile) {
          $errorFiles[] =         $contentFile                                    .'.404';
@@ -365,9 +313,8 @@ function downloadUrl($url, $contentFile=null, $errorFile=null) {
          if (is_file($file)) unlink($file);
       }
 
-      // (3.2) bei Parameter $contentFile Content speichern
+      // bei Parameter $contentFile Content speichern
       if ($contentFile) {
-         // Content temporär zwischenspeichern und atomar nach $contentFile verschieben
          mkDirWritable(dirName($contentFile), 0700);
          $tmpFile = tempNam(dirName($contentFile), baseName($contentFile));
          $hFile   = fOpen($tmpFile, 'wb');
@@ -379,16 +326,83 @@ function downloadUrl($url, $contentFile=null, $errorFile=null) {
    }
 
 
-   // (4) Download-Fehler: bei Parameter $errorFile Download-Fehler speichern
+   // (4) Download-Fehler: bei Parameter $errorFile Fehler speichern
    if ($status==404 && $errorFile) {
-      // Fehlerdatei speichern
       mkDirWritable(dirName($errorFile), 0700);
       fClose(fOpen($errorFile, 'wb'));
    }
 
-
-   // (5) Content zurückgeben
    return ($status==200) ? $response->getContent() : '';
+}
+
+
+/**
+ *
+ */
+function processCompressedDukascopyFile($file, $day, $type, $nameD, $fileD_bin) {
+   if (!is_string($file)) throw new IllegalTypeException('Illegal type of parameter $file: '.getType($file));
+   processCompressedDukascopyString(file_get_contents($file), $day, $type, $nameD, $fileD_bin);
+}
+
+
+/**
+ *
+ */
+function processCompressedDukascopyString($string, $day, $type, $nameD, $fileD_bin) {
+   if (!is_string($string)) throw new IllegalTypeException('Illegal type of parameter $string: '.getType($string));
+   if (!is_string($nameD))  throw new IllegalTypeException('Illegal type of parameter $nameD: '.getType($nameD));
+
+   $rawString = Dukascopy ::decompressBars($string, $fileD_bin);
+   echoPre('                           decompressed: '.$nameD);
+   processRawDukascopyString($rawString, $day, $type, $nameD);
+}
+
+
+/**
+ *
+ */
+function processRawDukascopyFile($file, $day, $type, $nameD) {
+   if (!is_string($file)) throw new IllegalTypeException('Illegal type of parameter $file: '.getType($file));
+   processRawDukascopyString(file_get_contents($file), $day, $type, $nameD);
+}
+
+
+/**
+ *
+ */
+function processRawDukascopyString($string, $day, $type, $nameD) {
+   if (!is_string($string))                  throw new IllegalTypeException('Illegal type of parameter $string: '.getType($string));
+   if (!is_int($day))                        throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
+   if (!is_string($type))                    throw new IllegalTypeException('Illegal type of parameter $type: '.getType($type));
+   global $barBuffer;
+   if (!array_key_exists($type, $barBuffer)) throw new plInvalidArgumentException('Invalid parameter $type: "'.$type.'"');
+   if (!is_string($nameD))                   throw new IllegalTypeException('Illegal type of parameter $nameD: '.getType($nameD));
+
+   // Bars einlesen
+   $bars = Dukascopy ::readBars($string);
+   $size = sizeOf($bars); if ($size != 1*DAY/MINUTES) throw new plRuntimeException('Unexpected number of Dukascopy bars in '.$nameD.': '.$size.' ('.($size > 1*DAY/MINUTES ? 'more':'less').' then a day)');
+
+   // Timestamps und Delta zu 00:00 FXT hinzufügen
+   $fxtOffset = MyFX ::getGmtToFxtTimeOffset($day);                  // negativ, es gilt: FXT + Offset = GMT
+   foreach ($bars as $i => &$bar) {
+      $bar['time'     ] = $day + $bar['timeDelta'];
+      $bar['delta_gmt'] =        $bar['timeDelta'];
+      $bar['delta_fxt'] = ($bar['time'] - $fxtOffset) % DAY;
+      unset($bar['timeDelta']);
+   }
+
+   $barBuffer[$type] = array_merge($barBuffer[$type], $bars);
+   //echoPre('now '.sizeof($barBuffer[$type])." $type bars in buffer".NL.NL);
+
+
+
+   //exit();
+
+   // (3) Bars getrennt nach FXT-Tag/Bid/Ask in Buffern ablegen
+
+   // (4) volle Buffer in Datei speichern, die Reste im Speicher behalten
+
+   // (5) nächste Datei herunterladen und entpacken
 }
 
 
