@@ -1,8 +1,9 @@
 #!/usr/bin/php
 <?php
 /**
- * Aktualisiert die vorhandenen Dukascopy-M1-Daten. Die Daten werden heruntergeladen, nach FXT konvertiert und in einem
- * eigenen RAR-komprimierten binären Format gespeichert.
+ * Aktualisiert die vorhandenen Dukascopy-M1-Daten. Fehlende Daten werden heruntergeladen, nach FXT konvertiert und in einem
+ * eigenen komprimierten Format gespeichert. Die Dukascopy-Daten sind vollständig durchgehend, lokal werden für Wochenenden
+ * und Feiertage (1. Januar und 25. Dezember) jedoch keine Daten gespeichert.
  *
  *
  * Webseite:      http://www.dukascopy.com/swiss/english/marketwatch/historical/
@@ -17,16 +18,23 @@
  *                • http://www.dukascopy.com/datafeed/GBPUSD/2013/00/10/BID_candles_min_1.bi5
  *                • http://www.dukascopy.com/datafeed/GBPUSD/2013/11/31/ASK_candles_min_1.bi5
  *
- * Dateiformat:   binär, LZMA-gepackt, alle Zeiten in GMT (keine Sommerzeit),
+ * Dateiformat:   binär, LZMA-gepackt, Zeiten in GMT (keine Sommerzeit)
  *                Handelspausen sind mit dem letzten Schlußkurs (OHLC) und V=0 (zero) angegeben.
  *
- *                @see Dukascopy::processBarFile()
+ *                @see class Dukascopy
+ *
+ *      +------------------------+------------+------------+------------+------------------------+------------------------+
+ * FXT: |   Sunday      Monday   |  Tuesday   | Wednesday  |  Thursday  |   Friday     Saturday  |   Sunday      Monday   |
+ *      +------------------------+------------+------------+------------+------------------------+------------------------+
+ *          +------------------------+------------+------------+------------+------------------------+------------------------+
+ * GMT:     |   Sunday      Monday   |  Tuesday   | Wednesday  |  Thursday  |   Friday     Saturday  |   Sunday      Monday   |
+ *          +------------------------+------------+------------+------------+------------------------+------------------------+
  */
 require(dirName(__FILE__).'/../../config.php');
 date_default_timezone_set('GMT');
 
 
-// History-Start der einzelnen Instrumente (geprüft am 21.06.2013)
+// History-Start der einzelnen Instrumente bei Dukascopy (geprüft am 21.06.2013)
 $startTimes = array(//'AUDCAD' => strToTime('2005-12-26 00:00:00 GMT'),
                     //'AUDCHF' => strToTime('2005-12-26 00:00:00 GMT'),
                     //'AUDJPY' => strToTime('2003-11-30 00:00:00 GMT'),
@@ -216,20 +224,20 @@ function processFiles($symbol, $day, $type, $url, $file404, $nameD, $fileD_lzma,
 
    // (1) falls .rar-Datei existiert
    if (is_file($fileL_rar)) {
-      echoPre('[Ok]    '.$shortDate.'   RAR history file: '.baseName($fileL_rar));
+      echoPre('[Ok]    '.$shortDate.'   MyFX compressed history file: '.baseName($fileL_rar));
    }
 
 
    // (2) falls lokale .bin-Datei existiert
    else if (is_file($fileL_bin)) {
-      echoPre('[Info]  '.$shortDate.'   raw history file: '.baseName($fileL_bin));
+      echoPre('[Info]  '.$shortDate.'   MyFX raw history file: '.baseName($fileL_bin));
    }
 
 
    // (3) falls dekomprimierte Dukascopy-Datei existiert
    else if (is_file($fileD_bin)) {
       echoPre('[Info]  '.$shortDate.'   Dukascopy raw history file: '.baseName($fileD_bin));
-      if (!processRawDukascopyFile($fileD_bin, $day, $type, $nameD))
+      if (!processRawDukascopyFile($fileD_bin, $day, $type, $nameD, $nameL, $fileL_rar, $fileL_bin))
          return false;
    }
 
@@ -237,7 +245,7 @@ function processFiles($symbol, $day, $type, $url, $file404, $nameD, $fileD_lzma,
    // (4) falls komprimierte Dukascopy-Datei existiert
    else if (is_file($fileD_lzma)) {
       echoPre('[Info]  '.$shortDate.'   Dukascopy compressed file: '.baseName($fileD_lzma));
-      if (!processCompressedDukascopyFile($fileD_lzma, $day, $type, $nameD, $fileD_bin))
+      if (!processCompressedDukascopyFile($fileD_lzma, $day, $type, $nameD, $fileD_bin, $nameL, $fileL_rar, $fileL_bin))
          return false;
    }
 
@@ -252,7 +260,7 @@ function processFiles($symbol, $day, $type, $url, $file404, $nameD, $fileD_lzma,
    else {
       $content = downloadUrl($day, $url, /*$fileD_lzma*/null, $file404);
       if ($content)
-         if (!processCompressedDukascopyString($content, $day, $type, $nameD, $fileD_bin))
+         if (!processCompressedDukascopyString($content, $day, $type, $nameD, $fileD_bin, $nameL, $fileL_rar, $fileL_bin))
             return false;
    }
    return true;
@@ -348,38 +356,38 @@ function downloadUrl($day, $url, $saveAs=null, $saveError=null) {
 /**
  * @return bool - Erfolgsstatus
  */
-function processCompressedDukascopyFile($file, $day, $type, $nameD, $fileD_bin) {
+function processCompressedDukascopyFile($file, $day, $type, $nameD, $fileD_bin, $nameL, $fileL_rar, $fileL_bin) {
    if (!is_string($file)) throw new IllegalTypeException('Illegal type of parameter $file: '.getType($file));
-   return processCompressedDukascopyString(file_get_contents($file), $day, $type, $nameD, $fileD_bin);
+   return processCompressedDukascopyString(file_get_contents($file), $day, $type, $nameD, $fileD_bin, $nameL, $fileL_rar, $fileL_bin);
 }
 
 
 /**
  * @return bool - Erfolgsstatus
  */
-function processCompressedDukascopyString($string, $day, $type, $nameD, $fileD_bin) {
+function processCompressedDukascopyString($string, $day, $type, $nameD, $fileD_bin, $nameL, $fileL_rar, $fileL_bin) {
    if (!is_string($string)) throw new IllegalTypeException('Illegal type of parameter $string: '.getType($string));
    if (!is_string($nameD))  throw new IllegalTypeException('Illegal type of parameter $nameD: '.getType($nameD));
 
    $rawString = Dukascopy ::decompressBars($string, $fileD_bin);
    echoPre('                               decompressed '.$nameD);
-   return processRawDukascopyString($rawString, $day, $type, $nameD);
+   return processRawDukascopyString($rawString, $day, $type, $nameD, $nameL, $fileL_rar, $fileL_bin);
 }
 
 
 /**
  * @return bool - Erfolgsstatus
  */
-function processRawDukascopyFile($file, $day, $type, $nameD) {
+function processRawDukascopyFile($file, $day, $type, $nameD, $nameL, $fileL_rar, $fileL_bin) {
    if (!is_string($file)) throw new IllegalTypeException('Illegal type of parameter $file: '.getType($file));
-   return processRawDukascopyString(file_get_contents($file), $day, $type, $nameD);
+   return processRawDukascopyString(file_get_contents($file), $day, $type, $nameD, $nameL, $fileL_rar, $fileL_bin);
 }
 
 
 /**
  * @return bool - Erfolgsstatus
  */
-function processRawDukascopyString($string, $day, $type, $nameD) {
+function processRawDukascopyString($string, $day, $type, $nameD, $nameL, $fileL_rar, $fileL_bin) {
    if (!is_string($string))                  throw new IllegalTypeException('Illegal type of parameter $string: '.getType($string));
    if (!is_int($day))                        throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
    if (!is_string($type))                    throw new IllegalTypeException('Illegal type of parameter $type: '.getType($type));
@@ -419,8 +427,8 @@ function processRawDukascopyString($string, $day, $type, $nameD) {
 
    // Index von 00:00 FXT bestimmen und Bars FXT-tageweise verarbeiten
    $newDayOffset = $size + $fxtOffset/MINUTES;
-   if (!processFxtBarRange($type, array_slice($bars, 0, $newDayOffset), $nameD)) return false;
-   if (!processFxtBarRange($type, array_slice($bars, $newDayOffset   ), $nameD)) return false;
+   if (!processFxtBarRange($type, array_slice($bars, 0, $newDayOffset), $nameD, $nameL, $fileL_rar, $fileL_bin)) return false;
+   if (!processFxtBarRange($type, array_slice($bars, $newDayOffset   ), $nameD, $nameL, $fileL_rar, $fileL_bin)) return false;
 
    return true;
 }
@@ -429,7 +437,7 @@ function processRawDukascopyString($string, $day, $type, $nameD) {
 /**
  * @return bool - Erfolgsstatus
  */
-function processFxtBarRange($type, array $bars, $nameD) {
+function processFxtBarRange($type, array $bars, $nameD, $nameL, $fileL_rar, $fileL_bin) {
    if (!is_string($type))                    throw new IllegalTypeException('Illegal type of parameter $type: '.getType($type));
    global $barBuffer;
    if (!array_key_exists($type, $barBuffer)) throw new plInvalidArgumentException('Invalid parameter $type: "'.$type.'"');
@@ -450,25 +458,19 @@ function processFxtBarRange($type, array $bars, $nameD) {
       $barBuffer[$type][$fxtDay] = array_merge($barBuffer[$type][$fxtDay], $bars);
    }
    else {
-      // Sicherstellen, daß die vorherigen Tage im Buffer verarbeitet und gelöscht wurden.
-      if ($keys=array_keys($barBuffer[$type])) throw new plRuntimeException('Tried to buffer bars of '.date('D, d-M-Y', $fxtDay).' but found unfinished bars of '.date('D, d-M-Y', $keys[0]));
+      // Sicherstellen, daß vorherige Tage im Buffer verarbeitet und gelöscht wurden.
+      if ($keys=array_keys($barBuffer[$type])) throw new plRuntimeException('Found unfinished bars of '.date('D, d-M-Y', $keys[0]).' while buffering bars of '.date('D, d-M-Y', $fxtDay));
       $barBuffer[$type][$fxtDay] = $bars;
    }
 
-   // Prüfen, ob die gebufferten Daten eines Tages komplett sind. Reichen sie bis Mitternacht, sind sie "komplett", auch wenn am Tagesanfang Bars fehlen können.
+   // Prüfen, ob die aktuellen Daten des Tages abgeschlossen sind (ist der Fall, wenn sie bis Mitternacht reichen)
    $bars = &$barBuffer[$type][$fxtDay];
    $size = sizeOf($bars);
 
-   if ($bars[$size-1]['delta_fxt'] == 23*HOURS + 59*MINUTES)
-      if (!processFinishedFxtBars($type, $fxtDay))                   // abgeschlossenen Tag weiterverarbeiten
+   if ($bars[$size-1]['delta_fxt'] == 23*HOURS + 59*MINUTES)         // abgeschlossenen Tag weiterverarbeiten
+      if (!processFinishedFxtBars($type, $fxtDay, $nameL, $fileL_rar, $fileL_bin))
          return false;
 
-
-   static $counter = 0; $counter++;
-   if ($counter >= 800) {
-      //showBuffer();
-      exit();
-   }
    return true;
 }
 
@@ -476,15 +478,51 @@ function processFxtBarRange($type, array $bars, $nameD) {
 /**
  * @return bool - Erfolgsstatus
  */
-function processFinishedFxtBars($type, $fxtDay) {
-   if (!is_string($type))                    throw new IllegalTypeException('Illegal type of parameter $type: '.getType($type));
+function processFinishedFxtBars($type, $fxtDay, $nameL, $fileL_rar, $fileL_bin) {
+   if (!is_string($type))                              throw new IllegalTypeException('Illegal type of parameter $type: '.getType($type));
    global $barBuffer;
-   if (!array_key_exists($type, $barBuffer)) throw new plInvalidArgumentException('Invalid parameter $type: "'.$type.'"');
-   if (!is_int($fxtDay))                     throw new IllegalTypeException('Illegal type of parameter $fxtDay: '.getType($fxtDay));
+   if (!array_key_exists($type, $barBuffer))           throw new plInvalidArgumentException('Invalid parameter $type: "'.$type.'"');
+   if (!is_int($fxtDay))                               throw new IllegalTypeException('Illegal type of parameter $fxtDay: '.getType($fxtDay));
+   if (!is_string($nameL))                             throw new IllegalTypeException('Illegal type of parameter $nameL: '.getType($nameL));
+   if (!is_string($fileL_rar))                         throw new IllegalTypeException('Illegal type of parameter $fileL_rar: '.getType($fileL_rar));
+   if (!is_null($fileL_bin) && !is_string($fileL_bin)) throw new IllegalTypeException('Illegal type of parameter $fileL_bin: '.getType($fileL_bin));
 
-   // abgeschlossenen Tag in Datei speichern
 
+   // (1) Bars binär packen
+   $bars         = &$barBuffer[$type][$fxtDay];
+   $binaryString = null;
+
+   foreach ($bars as $i => &$bar) {
+      $binaryString .= pack('VVVVVV', $bar['time_fxt'],              // alle Felder als uint little-endian speichern
+                                      $bar['open'    ],
+                                      $bar['high'    ],
+                                      $bar['low'     ],
+                                      $bar['close'   ],
+                                 (int)$bar['volume'  ]/100000);      // Units in Lots konvertieren
+   }
+
+   // (2) wenn Parameter $fileL_bin angegeben, binär gepackte Bars in Datei speichern
+   if (!is_null($fileL_bin)) {
+      mkDirWritable(dirName($fileL_bin));
+      $tmpFile = tempNam(dirName($fileL_bin), baseName($fileL_bin));
+      $hFile   = fOpen($tmpFile, 'wb');
+      fWrite($hFile, $binaryString);
+      fClose($hFile);
+      if (is_file($fileL_bin)) unlink($fileL_bin);
+      rename($tmpFile, $fileL_bin);                                  // So kann eine existierende Datei niemals korrupt sein.
+   }
+
+   // (3) binär gepackte Bars komprimieren und speichern
+
+   // (4) Bars im Buffer löschen
    unset($barBuffer[$type][$fxtDay]);
+
+
+   static $counter = 0; $counter++;
+   if ($counter >= 10) {
+      //showBuffer();
+      exit();
+   }
    return true;
 }
 
