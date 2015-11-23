@@ -259,5 +259,55 @@ class MyFX extends StaticClass {
 
       throw new plInvalidArgumentException('Invalid parameter $type: '.$type.' (not an operation type)');
    }
+
+
+   /**
+    * Ob ein FXT-Zeitpunkt auf einen regulären Handelstag fällt.
+    *
+    * @param  int $fxtTime - FXT-Timestamp
+    *
+    * @return bool
+    */
+   public static function isTradingDay($fxtTime) {
+      if (!is_int($fxtTime)) throw new IllegalTypeException('Illegal type of parameter $fxtTime: '.getType($fxtTime));
+
+      return (!self::isWeekend($fxtTime) && !self::isHoliday($fxtTime));
+   }
+
+
+   /**
+    * Ob der Wochentag eines FXT-Zeitpunkts ein Sonnabend oder Sonntag ist.
+    *
+    * @param  int $fxtTime - FXT-Timestamp
+    *
+    * @return bool
+    */
+   public static function isWeekend($fxtTime) {
+      if (!is_int($fxtTime)) throw new IllegalTypeException('Illegal type of parameter $fxtTime: '.getType($fxtTime));
+
+      $dow = iDate('w', $fxtTime);
+      return ($dow==SATURDAY || $dow==SUNDAY);
+   }
+
+
+   /**
+    * Ob ein FXT-Zeitpunkt auf einen Forex-Feiertag fällt.
+    *
+    * @param  int $fxtTime - FXT-Timestamp
+    *
+    * @return bool
+    */
+   public static function isHoliday($fxtTime) {
+      if (!is_int($fxtTime)) throw new IllegalTypeException('Illegal type of parameter $fxtTime: '.getType($fxtTime));
+
+      $m   = iDate('m', $fxtTime);
+      $dom = iDate('d', $fxtTime);
+
+      if ($dom==1 && $m==1)            // 1. Januar
+         return true;
+      if ($dom==25 && $m==12)          // 25. Dezember
+         return true;
+      return false;
+   }
 }
 ?>

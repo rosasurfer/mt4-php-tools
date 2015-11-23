@@ -81,7 +81,7 @@ class Dukascopy extends StaticClass {
       $bars   = array();
 
       while ($offset < $size) {
-         $bars[]  = unpack("@$offset/NtimeDelta/Nopen/Nclose/Nlow/Nhigh/Nvol", $data);
+         $bars[]  = unpack("@$offset/NtimeDelta/Nopen/Nclose/Nlow/Nhigh/Nvolume", $data);
          $offset += DUKASCOPY_BAR_SIZE;
       }
       return $bars;
