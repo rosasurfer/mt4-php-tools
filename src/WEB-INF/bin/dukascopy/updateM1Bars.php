@@ -333,6 +333,80 @@ function updateHistory($symbol, $day, $type) {
 
 
 /**
+ * Lädt eine Dukascopy-Datei und gibt ihren Inhalt zurück.
+ *
+ * @param string $symbol    - Symbol der herunterzuladenen Datei
+ * @param int    $day       - Tag der herunterzuladenen Datei
+ * @param string $type      - Kurstyp der herunterzuladenen Datei: 'bid'|'ask'
+ * @param bool   $quiet     - ob Statusmeldungen unterdrückt werden sollen (default: nein)
+ * @param bool   $saveData  - ob die Daten zusätzlich gespeichert werden sollen (default: nein)
+ * @param bool   $saveError - ob ein 404-Fehler in einer entsprechenden Datei gespeichert werden soll (default: ja)
+ *
+ * @return string - Content der heruntergeladenen Datei oder Leerstring, wenn die Resource nicht gefunden wurde (404).
+ */
+function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $saveError=true) {
+   if (!is_int($day))        throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
+   if (!is_bool($quiet))     throw new IllegalTypeException('Illegal type of parameter $quiet: '.getType($quiet));
+   if (!is_bool($saveData))  throw new IllegalTypeException('Illegal type of parameter $saveData: '.getType($saveData));
+   if (!is_bool($saveError)) throw new IllegalTypeException('Illegal type of parameter $saveError: '.getType($saveError));
+   $day      -= $day % DAY;                                          // 00:00
+   $shortDate = date('D, d-M-Y', $day);                              // Fri, 11-Jul-2003
+   $url       = value('dukaUrl', $symbol, $day, $type);
+   if (!$quiet) {
+      echoPre('[Info]  '.$shortDate.'   url: '.$url);
+   }
+
+   // (1) Standard-Browser simulieren
+   $userAgent = Config ::get('myfx.useragent'); if (!$userAgent) throw new plInvalidArgumentException('Invalid user agent configuration: "'.$userAgent.'"');
+   $request = HttpRequest ::create()
+                          ->setUrl($url)
+                          ->setHeader('User-Agent'     , $userAgent                                                       )
+                          ->setHeader('Accept'         , 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
+                          ->setHeader('Accept-Language', 'en-us'                                                          )
+                          ->setHeader('Accept-Charset' , 'ISO-8859-1,utf-8;q=0.7,*;q=0.7'                                 )
+                          ->setHeader('Keep-Alive'     , '115'                                                            )
+                          ->setHeader('Connection'     , 'keep-alive'                                                     )
+                          ->setHeader('Cache-Control'  , 'max-age=0'                                                      )
+                          ->setHeader('Referer'        , 'http://www.dukascopy.com/free/candelabrum/'                     );
+   $options[CURLOPT_SSL_VERIFYPEER] = false;                         // falls HTTPS verwendet wird
+
+   // (2) HTTP-Request abschicken und auswerten
+   $response = CurlHttpClient ::create($options)->send($request);    // TODO: CURL-Fehler wie bei SimpleTrader behandeln
+   $status   = $response->getStatus();
+   if ($status!=200 && $status!=404) throw new plRuntimeException('Unexpected HTTP status '.$status.' ('.HttpResponse::$sc[$status].') for url "'.$url.'"'.NL.printFormatted($response, true));
+
+   // (3) Download-Success
+   if ($status == 200) {
+      // ggf. vorhandene Fehlerdatei löschen
+      if (is_file($file=value('dukaFile.404', $symbol, $day, $type))) unlink($file);
+
+      // ist das Flag $saveData gesetzt, Content speichern
+      if ($saveData) {
+         mkDirWritable(value('myfxDir', $symbol, $day, $type), 0700);
+         $tmpFile = tempNam(dirName($file=value('dukaFile.lzma', $symbol, $day, $type)), baseName($file));
+         $hFile   = fOpen($tmpFile, 'wb');
+         fWrite($hFile, $response->getContent());
+         fClose($hFile);
+         if (is_file($file)) unlink($file);                          // So kann eine existierende Datei niemals korrupt sein.
+         rename($tmpFile, $file);
+      }
+   }
+
+   // (4) Download-Fehler: ist das Flag $saveError gesetzt, Fehler speichern
+   if ($status == 404) {
+      if (!$quiet) {
+         echoPre('[Error] '.$shortDate.'   url not found (404): '.$url);
+      }
+      if ($saveError) {
+         mkDirWritable(dirName($file=value('dukaFile.404', $symbol, $day, $type)), 0700);
+         fClose(fOpen($file, 'wb'));
+      }
+   }
+   return ($status==200) ? $response->getContent() : '';
+}
+
+
+/**
  * @return bool - Erfolgsstatus
  */
 function processDownload($symbol, $day, $type) {
@@ -472,80 +546,6 @@ function processRawDukascopyData($data, $symbol, $day, $type) {
       if (!processFinishedFxtBars($type, $fxtDay, $nameL, $fileL_rar, $fileL_bin))
          return false;
    */
-}
-
-
-/**
- * Lädt eine Dukascopy-Datei und gibt ihren Inhalt zurück.
- *
- * @param string $symbol    - Symbol der herunterzuladenen Datei
- * @param int    $day       - Tag der herunterzuladenen Datei
- * @param string $type      - Kurstyp der herunterzuladenen Datei: 'bid'|'ask'
- * @param bool   $quiet     - ob Statusmeldungen unterdrückt werden sollen (default: nein)
- * @param bool   $saveData  - ob die Daten zusätzlich gespeichert werden sollen (default: nein)
- * @param bool   $saveError - ob ein 404-Fehler in einer entsprechenden Datei gespeichert werden soll (default: ja)
- *
- * @return string - Content der heruntergeladenen Datei oder Leerstring, wenn die Resource nicht gefunden wurde (404).
- */
-function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $saveError=true) {
-   if (!is_int($day))        throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
-   if (!is_bool($quiet))     throw new IllegalTypeException('Illegal type of parameter $quiet: '.getType($quiet));
-   if (!is_bool($saveData))  throw new IllegalTypeException('Illegal type of parameter $saveData: '.getType($saveData));
-   if (!is_bool($saveError)) throw new IllegalTypeException('Illegal type of parameter $saveError: '.getType($saveError));
-   $day      -= $day % DAY;                                          // 00:00
-   $shortDate = date('D, d-M-Y', $day);                              // Fri, 11-Jul-2003
-   $url       = value('dukaUrl', $symbol, $day, $type);
-   if (!$quiet) {
-      echoPre('[Info]  '.$shortDate.'   url: '.$url);
-   }
-
-   // (1) Standard-Browser simulieren
-   $userAgent = Config ::get('myfx.useragent'); if (!$userAgent) throw new plInvalidArgumentException('Invalid user agent configuration: "'.$userAgent.'"');
-   $request = HttpRequest ::create()
-                          ->setUrl($url)
-                          ->setHeader('User-Agent'     , $userAgent                                                       )
-                          ->setHeader('Accept'         , 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
-                          ->setHeader('Accept-Language', 'en-us'                                                          )
-                          ->setHeader('Accept-Charset' , 'ISO-8859-1,utf-8;q=0.7,*;q=0.7'                                 )
-                          ->setHeader('Keep-Alive'     , '115'                                                            )
-                          ->setHeader('Connection'     , 'keep-alive'                                                     )
-                          ->setHeader('Cache-Control'  , 'max-age=0'                                                      )
-                          ->setHeader('Referer'        , 'http://www.dukascopy.com/free/candelabrum/'                     );
-   $options[CURLOPT_SSL_VERIFYPEER] = false;                         // falls HTTPS verwendet wird
-
-   // (2) HTTP-Request abschicken und auswerten
-   $response = CurlHttpClient ::create($options)->send($request);    // TODO: CURL-Fehler wie bei SimpleTrader behandeln
-   $status   = $response->getStatus();
-   if ($status!=200 && $status!=404) throw new plRuntimeException('Unexpected HTTP status '.$status.' ('.HttpResponse::$sc[$status].') for url "'.$url.'"'.NL.printFormatted($response, true));
-
-   // (3) Download-Success
-   if ($status == 200) {
-      // ggf. vorhandene Fehlerdatei löschen
-      if (is_file($file=value('dukaFile.404', $symbol, $day, $type))) unlink($file);
-
-      // ist das Flag $saveData gesetzt, Content speichern
-      if ($saveData) {
-         mkDirWritable(value('myfxDir', $symbol, $day, $type), 0700);
-         $tmpFile = tempNam(dirName($file=value('dukaFile.lzma', $symbol, $day, $type)), baseName($file));
-         $hFile   = fOpen($tmpFile, 'wb');
-         fWrite($hFile, $response->getContent());
-         fClose($hFile);
-         if (is_file($file)) unlink($file);                          // So kann eine existierende Datei niemals korrupt sein.
-         rename($tmpFile, $file);
-      }
-   }
-
-   // (4) Download-Fehler: bei Parameter $saveErrorAs Fehler speichern
-   if ($status == 404) {
-      if (!$quiet) {
-         echoPre('[Error] '.$shortDate.'   url not found (404): '.$url);
-      }
-      if ($saveError) {
-         mkDirWritable(dirName($file=value('dukaFile.404', $symbol, $day, $type)), 0700);
-         fClose(fOpen($file, 'wb'));
-      }
-   }
-   return ($status==200) ? $response->getContent() : '';
 }
 
 

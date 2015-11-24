@@ -23,30 +23,30 @@ class Dukascopy extends StaticClass {
     * Dekomprimiert den Inhalt einer komprimierten Dukascopy-Kursdatei und gibt ihn zurück. Wird ein Dateiname angegeben,
     * wird der dekomprimierte Inhalt zusätzlich in dieser Datei gespeichert.
     *
-    * @param  string $string - komprimierter Inhalt einer Dukascopy-Kursdatei
+    * @param  string $data   - komprimierter Inhalt einer Dukascopy-Kursdatei
     * @param  string $saveAs - Name der Datei, in der der dekomprimierte Inhalt zusätzlich gespeichert wird
     *
     * @return string - dekomprimierter Inhalt
     */
-   public static function decompressBars($string, $saveAs=null) {
-      if (!is_string($string))    throw new IllegalTypeException('Illegal type of parameter $string: '.getType($string));
+   public static function decompressBarData($data, $saveAs=null) {
+      if (!is_string($data))      throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
       if (!is_null($saveAs)) {
          if (!is_string($saveAs)) throw new IllegalTypeException('Illegal type of parameter $saveAs: '.getType($saveAs));
          if (!strLen($saveAs))    throw new plInvalidArgumentException('Invalid parameter $saveAs: ""');
       }
 
-      $content = LZMA ::decompress($string);
+      $rawData = LZMA ::decompressData($data);
 
       if (!is_null($saveAs)) {
          mkDirWritable(dirName($saveAs));
          $tmpFile = tempNam(dirName($saveAs), baseName($saveAs));
          $hFile   = fOpen($tmpFile, 'wb');
-         fWrite($hFile, $content);
+         fWrite($hFile, $rawData);
          fClose($hFile);
          if (is_file($saveAs)) unlink($saveAs);
          rename($tmpFile, $saveAs);                               // So kann eine existierende Datei niemals korrupt sein.
       }
-      return $content;
+      return $rawData;
    }
 
 
@@ -59,10 +59,10 @@ class Dukascopy extends StaticClass {
     *
     * @return string - dekomprimierter Inhalt der Datei
     */
-   public static function decompressBarsFile($compressedFile, $saveAsFile=null) {
+   public static function decompressBarFile($compressedFile, $saveAsFile=null) {
       if (!is_string($compressedFile)) throw new IllegalTypeException('Illegal type of parameter $compressedFile: '.getType($compressedFile));
 
-      return self::decompressBars(file_get_contents($compressedFile), $saveAsFile);
+      return self::decompressBarData(file_get_contents($compressedFile), $saveAsFile);
    }
 
 

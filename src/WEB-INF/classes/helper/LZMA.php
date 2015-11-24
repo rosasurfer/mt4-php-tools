@@ -8,14 +8,13 @@ class LZMA extends StaticClass {
    /**
     * Entpackt einen LZMA-komprimierten binären String und gibt seinen Inhalt zurück.
     *
-    * @param  string $string - kompromierter String
+    * @param  string $data - kompromierter String
     *
     * @return string - unkompromierter String
     */
-   public static function decompress($string) {
-      if (!is_string($string)) throw new IllegalTypeException('Illegal type of parameter $string: '.getType($string));
-      if (!strLen($string))
-         return '';
+   public static function decompressData($data) {
+      if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
+      if (!strLen($data))    throw new plInvalidArgumentException('Invalid parameter $data: "" (not compressed)');
 
       // Unter Windows blockiert das Schreiben nach STDIN bei Datenmengen ab 8193 Bytes, stream_set_blocking() scheint dort
       // jedoch nicht zu funktionieren (Windows 7). Daher wird der String in eine temporäre Datei geschrieben und diese
@@ -23,7 +22,7 @@ class LZMA extends StaticClass {
 
       $tmpFile = tempNam(null, 'php');
       $hFile   = fOpen($tmpFile, 'wb');
-      fWrite($hFile, $string);
+      fWrite($hFile, $data);
       fClose($hFile);
 
       $content = self::decompressFile($tmpFile);
@@ -43,9 +42,7 @@ class LZMA extends StaticClass {
    public static function decompressFile($file) {
       if (!is_string($file)) throw new IllegalTypeException('Illegal type of parameter $file: '.getType($file));
       if (!is_file($file))   throw new FileNotFoundException('File not found "'.$file.'"');
-
-      if (!fileSize($file))
-         return '';
+      if (!fileSize($file))  throw new plInvalidArgumentException('Invalid file "'.$file.'" (not compressed)');
 
       $cmd     = self::getDecompressFileCmd();
       $file    = str_replace('/', DIRECTORY_SEPARATOR, str_replace('\\', '/', $file));
