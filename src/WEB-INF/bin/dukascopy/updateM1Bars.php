@@ -472,10 +472,8 @@ function processRawDukascopyData($data, $symbol, $day, $type) {
       $bar['time_gmt' ] = $day + $bar['timeDelta'];
       $bar['delta_gmt'] =        $bar['timeDelta'];
       if ($bar['time_gmt'] >= $next['time']) {
-         if ($fxtOffset != $next['offset']) {
-            echoPre(NL.'DST change'.NL.NL);
+         if ($fxtOffset != $next['offset'])
             $dstChange = true;
-         }
          $fxtOffset = $next['offset'];                               // $fxtOffset on-the-fly aktualisieren
       }
       $bar['time_fxt' ] =       $bar['time_gmt'] - $fxtOffset;
@@ -485,10 +483,12 @@ function processRawDukascopyData($data, $symbol, $day, $type) {
    }
    if ($dstChange) {
       $newDayOffset = $size + $fxtOffset/MINUTES;
+      /*
       echoPre('previous day ended with:');
       echoPre($bars[$newDayOffset-1]);
       echoPre('current day starts with:');
       echoPre($bars[$newDayOffset]);
+      */
    }
 
 
