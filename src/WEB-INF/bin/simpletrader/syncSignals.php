@@ -25,7 +25,7 @@ $args = array_slice($_SERVER['argv'], 1);
 $looping = $fileSyncOnly = false;
 foreach ($args as $i => $arg) {
    $arg = strToLower($arg);
-   if (in_array($arg, array('-h','-help'))) help() & exit(1);                             // Hilfe
+   if (in_array($arg, array('-h','--help'))) help() & exit(1);                            // Hilfe
    if (in_array($arg, array('-l'))) { $looping     =true; unset($args[$i]); continue; }   // -l=Looping
    if (in_array($arg, array('-f'))) { $fileSyncOnly=true; unset($args[$i]); continue; }   // -f=FileSyncOnly
 }

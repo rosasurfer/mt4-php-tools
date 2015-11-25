@@ -42,6 +42,8 @@ date_default_timezone_set('GMT');
 // -- Konfiguration --------------------------------------------------------------------------------------------------------------------------------
 
 
+$verbose = 0;                                   // output verbosity
+
 $saveCompressedDukascopyFiles = false;          // ob heruntergeladene Dukascopy-Dateien lokal gespeichert werden sollen
 $saveRawDukascopyFiles        = false;          // ob entpackte Dukascopy-Dateien lokal gespeichert werden sollen
 $saveRawMyFXData              = true;           // ob unkomprimierte MyFX-Historydaten gespeichert werden sollen
@@ -93,6 +95,17 @@ $startTimes = array(//'AUDCAD' => strToTime('2005-12-26 00:00:00 GMT'),
 $args = array_slice($_SERVER['argv'], 1);
 if (!$args) help() & exit(1);
 
+
+// Optionen parsen
+$looping = $fileSyncOnly = false;
+foreach ($args as $i => $arg) {
+   if (in_array($arg, array('-h','--help'))) help() & exit(1);                   // Hilfe
+   if ($arg == '-v'  ) { $verbose = 1; unset($args[$i]); continue; }             // verbose output
+   if ($arg == '-vv' ) { $verbose = 2; unset($args[$i]); continue; }             // more verbose output
+   if ($arg == '-vvv') { $verbose = 3; unset($args[$i]); continue; }             // very verbose output
+}
+
+// Symbole parsen
 foreach ($args as $i => $arg) {
    if ($arg=="'*'" || $arg=='"*"')
       $args[$i] = $arg = '*';
@@ -726,6 +739,11 @@ function help($message=null) {
 echo <<<END
 
  Syntax:  $self [symbol ...]
+
+ Options:  -v    Verbose output.
+           -vv   More verbose output.
+           -vvv  Very verbose output.
+           -h    This help screen.
 
 
 END;
