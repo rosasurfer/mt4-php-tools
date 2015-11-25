@@ -42,8 +42,9 @@ date_default_timezone_set('GMT');
 // -- Konfiguration --------------------------------------------------------------------------------------------------------------------------------
 
 
-$keepCompressedDukascopyFiles = false;          // ob heruntergeladene Dukascopy-Dateien behalten werden sollen
-$keepRawDukascopyFiles        = false;          // ob entpackte Dukascopy-Dateien behalten werden sollen
+$saveCompressedDukascopyFiles = false;          // ob heruntergeladene Dukascopy-Dateien lokal gespeichert werden sollen
+$saveRawDukascopyFiles        = false;          // ob entpackte Dukascopy-Dateien lokal gespeichert werden sollen
+$saveRawMyFXData              = true;           // ob unkomprimierte MyFX-Historydaten gespeichert werden sollen
 
 
 // History-Start der einzelnen Instrumente bei Dukascopy (geprüft am 21.06.2013)
@@ -141,13 +142,11 @@ function updateSymbol($symbol, $startTime) {
 
 
    // (1) Prüfen, ob sich der Startzeitpunkt des Symbols geändert hat
-   /*
    $content = downloadData($symbol, $startTime-1*DAY, 'bid', true, false, false);   // Statusmeldungen unterdrücken, nichts speichern
    if (strLen($content)) {
       echoPre('[Notice]  '.$symbol.' history was extended. Please update the history start time.');
       return false;
    }
-   */
 
 
    // (2) Eine Dukascopy-Datei enthält immer anteilige Daten zweier FXT-Tage. Zum Update eines FXT-Tages sind immer
@@ -166,17 +165,16 @@ function updateSymbol($symbol, $startTime) {
 
 
 /**
- * Prüft den Stand der MyFX-History eines einzelnen Tages und Typs und stößt ggf. das Update an.
+ * Prüft den Stand der MyFX-History eines einzelnen Tages und Typs (Bid oder Ask) und stößt ggf. das Update an.
  *
  * @param string $symbol - Symbol
  * @param int    $day    - Timestamp des zu prüfenden Tages
- * @param string $type   - Kurstyp: 'bid'|'ask'
+ * @param string $type   - Kurstyp
  *
  * @return bool - Erfolgsstatus
  */
 function checkHistory($symbol, $day, $type) {
    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
-   $day      -= $day % DAY;                                          // 00:00 GMT
    $shortDate = date('D, d-M-Y', $day);                              // Fri, 11-Jul-2003
 
    // (1) nur an Handelstagen: prüfen, ob die lokale MyFX-History existiert
@@ -196,37 +194,44 @@ function checkHistory($symbol, $day, $type) {
    }
 
 
-   // (2) an allen Tagen: ggf. zu löschende Daten, Dateien und Verzeichnisse zum Löschen vormerken
-   global $keepCompressedDukascopyFiles, $keepRawDukascopyFiles;
-   static $filesToDelete = array();
+   // (2) an allen Tagen: nicht mehr benötigte Dateien, Verzeichnisse und Barbuffer-Daten löschen
+   global $barBuffer, $saveCompressedDukascopyFiles, $saveRawDukascopyFiles;
+   $previousDay   = $day - 1*DAY;
+   $shortDatePrev = date('D, d-M-Y', $previousDay);                  // Fri, 11-Jul-2003
 
-   // Dukascopy-Download (gepackt)
-   if (!$keepCompressedDukascopyFiles && is_file($file=getVar('dukaFile.compressed', $symbol, $day, $type))) {
-      $filesToDelete[] = $file;
+   // Dukascopy-Download (gepackt) des Vortages
+   if (!$saveCompressedDukascopyFiles && is_file($file=getVar('dukaFile.compressed', $symbol, $previousDay, $type))) {
+      unlink($file);
    }
-   // Dukascopy-Download (entpackt)
-   if (!$keepRawDukascopyFiles && is_file($file=getVar('dukaFile.raw', $symbol, $day, $type))) {
-      $filesToDelete[] = $file;
+   // dekomprimierte Dukascopy-Daten des Vortages
+   if (!$saveRawDukascopyFiles && is_file($file=getVar('dukaFile.raw', $symbol, $previousDay, $type))) {
+      unlink($file);
    }
-   // Download-Fehlerdatei (404)
-   //if ($isUpToDate && is_file($file=getVar('dukaFile.404', $symbol, $day, $type))) {
-   //   $filesToDelete[] = $file;
-   //}
-   // lokales Historyverzeichnis eines Wochenendes oder Feiertags (wird nur gelöscht, wenn es leer ist)
+   // lokales Historyverzeichnis des Vortages, wenn Wochenende oder Feiertag (wenn es leer ist)
+   if (!MyFX::isTradingDay($previousDay) && is_dir($dir=getVar('myfxDir', $symbol, $previousDay))) {
+      @rmDir($dir);
+   }
+   // lokales Historyverzeichnis des aktuellen Tages, wenn Wochenende oder Feiertag (wenn es leer ist)
    if (!MyFX::isTradingDay($day) && is_dir($dir=getVar('myfxDir', $symbol, $day))) {
-      $filesToDelete[] = $dir;
+      @rmDir($dir);
    }
+   // Barbuffer-Daten des Vor- und des aktuellen Tages
+   unset($barBuffer[$type][$shortDatePrev]);
+   unset($barBuffer[$type][$shortDate    ]);
 
-   // TODO: Dateien und Verzeichnisse des vorherigen Tages löschen (wurden auch zum Update benötigt)
-   // TODO: Daten im BarBuffer löschen
+   return true;
 
-
+   /*
    static $counter = 0; $counter++;
    if ($counter >= 15) {
-      showBuffer();
       return false;
    }
-   return true;
+
+   // Download-Fehlerdatei (404)
+   if ($isUpToDate && is_file($file=getVar('dukaFile.404', $symbol, $day, $type))) {
+      $filesToDelete[] = $file;
+   }
+   */
 }
 
 
@@ -236,15 +241,15 @@ function checkHistory($symbol, $day, $type) {
  *
  * @param string $symbol - Symbol
  * @param int    $day    - Timestamp des zu aktualisierenden FXT-Tages
- * @param string $type   - Kurstyp: 'bid'|'ask'
+ * @param string $type   - Kurstyp
  *
  * @return bool - Erfolgsstatus
  */
 function updateHistory($symbol, $day, $type) {
    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
-   $day      -= $day % DAY;                                          // 00:00
+
    $shortDate = date('D, d-M-Y', $day);                              // Fri, 11-Jul-2003
-   global $barBuffer, $keepCompressedDukascopyFiles, $keepRawDukascopyFiles;
+   global $barBuffer, $saveCompressedDukascopyFiles, $saveRawDukascopyFiles;
 
    // Für jeden FXT-Tag werden die GMT-Dukascopy-Daten des vorherigen und des aktuellen Tages benötigt.
    // Die Daten werden jeweils in folgender Reihenfolge gesucht:
@@ -254,21 +259,21 @@ function updateHistory($symbol, $day, $type) {
    //  • als Dukascopy-Download
 
 
-   // (1) Daten des vorherigen Tages suchen bzw. bereitstellen
+   // (1) Daten des vorherigen Tages suchen und bereitstellen
    $previousDay     = $day - 1*DAY;
    $previousDayData = false;
 
    // • im Buffer nachschauen
-   if (!$previousDayData && isSet($barBuffer[$type][$shortDate])) {              // Beginnen die Daten im Buffer mit 00:00 FXT,
-      $previousDayData = ($barBuffer[$type][$shortDate][0]['delta_fxt'] == 0);   // liegt der Teil des vorherigen GMT-Tags dort bereit.
+   if (!$previousDayData && isSet($barBuffer[$type][$shortDate])) {              // Beginnen die Daten im Buffer mit 00:00 FXT, liegt
+      $previousDayData = ($barBuffer[$type][$shortDate][0]['delta_fxt'] == 0);   // der Teil des vorherigen GMT-Tags dort schon bereit.
    }
-   // • dekomprimierte Dukascopy-Datei suchen und ggf. verarbeiten
+   // • dekomprimierte Dukascopy-Datei suchen und verarbeiten
    if (!$previousDayData) {
       if (is_file($file=getVar('dukaFile.raw', $symbol, $previousDay, $type)))
          if (!$previousDayData=processRawDukascopyFile($file, $symbol, $previousDay, $type))
             return false;
    }
-   // • komprimierte Dukascopy-Datei suchen und ggf. verarbeiten
+   // • komprimierte Dukascopy-Datei suchen und verarbeiten
    if (!$previousDayData) {
       if (is_file($file=getVar('dukaFile.compressed', $symbol, $previousDay, $type)))
          if (!$previousDayData=processCompressedDukascopyFile($file, $symbol, $previousDay, $type))
@@ -276,35 +281,30 @@ function updateHistory($symbol, $day, $type) {
    }
    // • ggf. Dukascopy-Datei herunterladen und verarbeiten
    if (!$previousDayData) {
-      $data = downloadData($symbol, $day, $type, false, $keepCompressedDukascopyFiles);
+      $data = downloadData($symbol, $previousDay, $type, false, $saveCompressedDukascopyFiles);
       if (!$data)                                                                // HTTP status 404 (file not found)
          return true;                                                            // => diesen Datensatz abbrechen und fortfahren
-      if (!processCompressedDukascopyData($data, $symbol, $day, $type))
+      if (!processCompressedDukascopyData($data, $symbol, $previousDay, $type))
          return false;
    }
-   // • Buffer nochmal prüfen
-   if (!isSet($barBuffer[$type][$shortDate]) || $barBuffer[$type][$shortDate][0]['delta_fxt']!=0) {
-      showBuffer();
-      throw new plRuntimeException('No beginning bars of '.$shortDate.' found in buffer');
-   }
 
 
-   // (2) Daten des aktuellen Tages suchen bzw. bereitstellen
+   // (2) Daten des aktuellen Tages suchen und bereitstellen
    $currentDay     = $day;
    $currentDayData = false;
 
    // • im Buffer nachschauen
-   if (!$currentDayData && isSet($barBuffer[$type][$shortDate])) {               // Enden die Daten im Buffer mit 23:59 FXT,
-      $size = sizeOf($barBuffer[$type][$shortDate]);                             // liegt der Teil des aktuellen GMT-Tags dort bereit.
+   if (!$currentDayData && isSet($barBuffer[$type][$shortDate])) {               // Enden die Daten im Buffer mit 23:59 FXT, liegt
+      $size = sizeOf($barBuffer[$type][$shortDate]);                             // der Teil des aktuellen GMT-Tags dort schon bereit.
       $currentDayData = ($barBuffer[$type][$shortDate][$size-1]['delta_fxt'] == 23*HOURS+59*MINUTES);
    }
-   // • dekomprimierte Dukascopy-Datei suchen und ggf. verarbeiten
+   // • dekomprimierte Dukascopy-Datei suchen und verarbeiten
    if (!$currentDayData) {
       if (is_file($file=getVar('dukaFile.raw', $symbol, $currentDay, $type)))
          if (!$currentDayData=processRawDukascopyFile($file, $symbol, $currentDay, $type))
             return false;
    }
-   // • komprimierte Dukascopy-Datei suchen und ggf. verarbeiten
+   // • komprimierte Dukascopy-Datei suchen und verarbeiten
    if (!$currentDayData) {
       if (is_file($file=getVar('dukaFile.compressed', $symbol, $currentDay, $type)))
          if (!$currentDayData=processCompressedDukascopyFile($file, $symbol, $currentDay, $type))
@@ -312,21 +312,17 @@ function updateHistory($symbol, $day, $type) {
    }
    // • ggf. Dukascopy-Datei herunterladen und verarbeiten
    if (!$currentDayData) {
-      $data = downloadData($symbol, $day, $type, false, $keepCompressedDukascopyFiles);
+      $data = downloadData($symbol, $currentDay, $type, false, $saveCompressedDukascopyFiles);
       if (!$data)                                                                // HTTP status 404 (file not found)
          return true;                                                            // => diesen Datensatz abbrechen und fortfahren
-      if (!processCompressedDukascopyData($data, $symbol, $day, $type))
+      if (!processCompressedDukascopyData($data, $symbol, $currentDay, $type))
          return false;
    }
-   // • Buffer nochmal prüfen
-   if (!isSet($barBuffer[$type][$shortDate]) || $barBuffer[$type][$shortDate][sizeOf($barBuffer[$type][$shortDate])-1]['delta_fxt']!=23*HOURS+59*MINUTES) {
-      showBuffer();
-      throw new plRuntimeException('No ending bars of '.$shortDate.' found in buffer');
-   }
 
 
-   // (3) alle Daten sind vollständig und liegen im Buffer bereit
-
+   // (3) Daten im Buffer sind vollständig: in Historydatei schreiben
+   if (!saveBars($symbol, $day, $type))
+      return false;
 
 
    /*
@@ -356,7 +352,7 @@ function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $save
    if (!is_bool($quiet))     throw new IllegalTypeException('Illegal type of parameter $quiet: '.getType($quiet));
    if (!is_bool($saveData))  throw new IllegalTypeException('Illegal type of parameter $saveData: '.getType($saveData));
    if (!is_bool($saveError)) throw new IllegalTypeException('Illegal type of parameter $saveError: '.getType($saveError));
-   $day      -= $day % DAY;                                          // 00:00
+
    $shortDate = date('D, d-M-Y', $day);                              // Fri, 11-Jul-2003
    $url       = getVar('dukaUrl', $symbol, $day, $type);
    if (!$quiet) {
@@ -432,8 +428,8 @@ function processCompressedDukascopyFile($file, $symbol, $day, $type) {
 function processCompressedDukascopyData($data, $symbol, $day, $type) {
    if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
 
-   global $keepRawDukascopyFiles;
-   $saveAs = $keepRawDukascopyFiles ? getVar('dukaFile.raw', $symbol, $day, $type) : null;
+   global $saveRawDukascopyFiles;
+   $saveAs = $saveRawDukascopyFiles ? getVar('dukaFile.raw', $symbol, $day, $type) : null;
 
    $rawData = Dukascopy ::decompressBarData($data, $saveAs);
    return processRawDukascopyData($rawData, $symbol, $day, $type);
@@ -460,15 +456,15 @@ function processRawDukascopyData($data, $symbol, $day, $type) {
    if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
    if (!is_int($day))     throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
    if (!is_string($type)) throw new IllegalTypeException('Illegal type of parameter $type: '.getType($type));
+
    global $barBuffer; $barBuffer[$type];
-   $day -= $day % DAY;                                               // 00:00
 
    // (1) Bars einlesen
    $bars = Dukascopy ::readBars($data);
    $size = sizeOf($bars); if ($size != 1*DAY/MINUTES) throw new plRuntimeException('Unexpected number of Dukascopy bars in '.getVar('dukaName', null, null, $type).': '.$size.' ('.($size > 1*DAY/MINUTES ? 'more':'less').' then a day)');
 
 
-   // (2) Timestamps und FXT-Daten hinzufügen
+   // (2) Timestamps und FXT-Daten hinzufügen, Units in Lots konvertieren
    $dstChange = false;
    $prev = $next = null;                                             // Die Daten der Datei können einen DST-Wechsel abdecken, wenn
    $fxtOffset = MyFX ::getGmtToFxtTimeOffset($day, $prev, $next);    // $day = "Sun, 00:00 GMT" ist. In diesem Fall muß innerhalb
@@ -482,8 +478,9 @@ function processRawDukascopyData($data, $symbol, $day, $type) {
          }
          $fxtOffset = $next['offset'];                               // $fxtOffset on-the-fly aktualisieren
       }
-      $bar['time_fxt' ] = $bar['time_gmt'] - $fxtOffset;
-      $bar['delta_fxt'] = $bar['time_fxt'] % DAY;
+      $bar['time_fxt' ] =      $bar['time_gmt'] - $fxtOffset;
+      $bar['delta_fxt'] =      $bar['time_fxt'] % DAY;
+      $bar['volume'   ] = (int)$bar['volume'  ]/100000;              // Units in Lots konvertieren
       unset($bar['timeDelta']);
    }
    if ($dstChange) {
@@ -505,9 +502,9 @@ function processRawDukascopyData($data, $symbol, $day, $type) {
 
    if (isSet($barBuffer[$type][$shortDate1])) {
       // Sicherstellen, daß die Daten zu mergender Bars nahtlos ineinander übergehen.
-      $lastDelta = $barBuffer[$type][$shortDate1][sizeOf($barBuffer[$type][$shortDate1])-1]['delta_fxt'];
-      $nextDelta = $bars1[0]['delta_fxt'];
-      if ($lastDelta + 1*MINUTE != $nextDelta) throw new plRuntimeException('Bar delta mis-match, bars to merge: "'.getVar('dukaName', null, null, $type).'", $lastDelta='.$lastDelta.', $nextDelta='.$nextDelta);
+      $lastBarTime = $barBuffer[$type][$shortDate1][sizeOf($barBuffer[$type][$shortDate1])-1]['time_fxt'];
+      $nextBarTime = $bars1[0]['time_fxt'];
+      if ($lastBarTime + 1*MINUTE != $nextBarTime) throw new plRuntimeException('Bar time mis-match, bars to merge: "'.getVar('dukaName', null, null, $type).'", $lastBarTime='.$lastBarTime.', $nextBarTime='.$nextBarTime);
       $barBuffer[$type][$shortDate1] = array_merge($barBuffer[$type][$shortDate1], $bars1);
    }
    else {
@@ -516,9 +513,9 @@ function processRawDukascopyData($data, $symbol, $day, $type) {
 
    if (isSet($barBuffer[$type][$shortDate2])) {
       // Sicherstellen, daß die Daten zu mergender Bars nahtlos ineinander übergehen.
-      $lastDelta = $barBuffer[$type][$shortDate2][sizeOf($barBuffer[$type][$shortDate2])-1]['delta_fxt'];
-      $nextDelta = $bars2[0]['delta_fxt'];
-      if ($lastDelta + 1*MINUTE != $nextDelta) throw new plRuntimeException('Bar delta mis-match, bars to merge: "'.getVar('dukaName', null, null, $type).'", $lastDelta='.$lastDelta.', $nextDelta='.$nextDelta);
+      $lastBarTime = $barBuffer[$type][$shortDate2][sizeOf($barBuffer[$type][$shortDate2])-1]['time_fxt'];
+      $nextBarTime = $bars2[0]['time_fxt'];
+      if ($lastBarTime + 1*MINUTE != $nextBarTime) throw new plRuntimeException('Bar time mis-match, bars to merge: "'.getVar('dukaName', null, null, $type).'", $lastBarTime='.$lastBarTime.', $nextBarTime='.$nextBarTime);
       $barBuffer[$type][$shortDate2] = array_merge($barBuffer[$type][$shortDate2], $bars2);
    }
    else {
@@ -526,60 +523,62 @@ function processRawDukascopyData($data, $symbol, $day, $type) {
    }
 
    return true;
-   /*
-   // Sicherstellen, daß vorherige Tage im Buffer verarbeitet und gelöscht wurden.
-   //if ($keys=array_keys($barBuffer[$type])) throw new plRuntimeException('Found unfinished bars of '.date('D, d-M-Y', $keys[0]).' while buffering bars of '.date('D, d-M-Y', $fxtDay));
-
-   // Prüfen, ob die aktuellen Daten des Tages abgeschlossen sind (ist der Fall, wenn sie bis Mitternacht reichen)
-   $bars = &$barBuffer[$type][$fxtDay];
-   $size = sizeOf($bars);
-
-   if ($bars[$size-1]['delta_fxt'] == 23*HOURS + 59*MINUTES)         // abgeschlossenen Tag weiterverarbeiten
-      if (!processFinishedFxtBars($type, $fxtDay, $nameL, $fileL_rar, $fileL_bin))
-         return false;
-   */
 }
 
 
 /**
+ * Schreibt die gepufferten Bardaten eines FXT-Tages und Typs (Bid oder Ask) in die lokale MyFX-Historydatei.
+ *
+ * @param string $symbol - Symbol
+ * @param int    $day    - Timestamp des FXT-Tages
+ * @param string $type   - Kurstyp
+ *
  * @return bool - Erfolgsstatus
  */
-function processFinishedFxtBars($type, $fxtDay, $nameL, $fileL_rar, $fileL_bin) {
-   global $barBuffer; $barBuffer[$type];
-   if (!is_int($fxtDay))                               throw new IllegalTypeException('Illegal type of parameter $fxtDay: '.getType($fxtDay));
-   if (!is_string($nameL))                             throw new IllegalTypeException('Illegal type of parameter $nameL: '.getType($nameL));
-   if (!is_string($fileL_rar))                         throw new IllegalTypeException('Illegal type of parameter $fileL_rar: '.getType($fileL_rar));
-   if (!is_null($fileL_bin) && !is_string($fileL_bin)) throw new IllegalTypeException('Illegal type of parameter $fileL_bin: '.getType($fileL_bin));
+function saveBars($symbol, $day, $type) {
+   if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
+   $shortDate = date('D, d-M-Y', $day);                              // Fri, 11-Jul-2003
+   global $barBuffer, $saveRawMyFXData; $barBuffer[$type];
 
 
-   // (1) Bars binär packen
-   $bars         = &$barBuffer[$type][$fxtDay];
-   $binaryString = null;
-
-   foreach ($bars as $i => &$bar) {
-      $binaryString .= pack('VVVVVV', $bar['time_fxt'],              // alle Felder als uint little-endian speichern
-                                      $bar['open'    ],
-                                      $bar['high'    ],
-                                      $bar['low'     ],
-                                      $bar['close'   ],
-                                 (int)$bar['volume'  ]/100000);      // Units in Lots konvertieren
+   // (1) gepufferte Daten nochmal prüfen
+   $errorMsg = null;
+   if (!$errorMsg && !isSet($barBuffer[$type][$shortDate]))                                    $errorMsg = 'No bars of '.$shortDate.' in buffer';
+   if (!$errorMsg && ($size=sizeOf($barBuffer[$type][$shortDate]))!=1*DAY/MINUTES)             $errorMsg = 'Invalid number of bars for '.$shortDate.' in buffer: '.$size;
+   if (!$errorMsg && $barBuffer[$type][$shortDate][0      ]['delta_fxt']!=0                  ) $errorMsg = 'No beginning bars for '.$shortDate.' in buffer, first bar:'.NL.printFormatted($barBuffer[$type][$shortDate][0], true);
+   if (!$errorMsg && $barBuffer[$type][$shortDate][$size-1]['delta_fxt']!=23*HOURS+59*MINUTES) $errorMsg = 'No ending bars for '.$shortDate.' in buffer, last bar:'.NL.printFormatted($barBuffer[$type][$shortDate][$size-1], true);
+   if (!$errorMsg && sizeOf(array_keys($barBuffer[$type])) > 3)                                $errorMsg = 'Invalid bar buffer state: found data for more then three days';
+   if ($errorMsg) {
+      showBuffer();
+      throw new plRuntimeException($errorMsg);
    }
 
-   // (2) wenn Parameter $fileL_bin angegeben, binär gepackte Bars in Datei speichern
-   if (!is_null($fileL_bin)) {
-      mkDirWritable(dirName($fileL_bin));
-      $tmpFile = tempNam(dirName($fileL_bin), baseName($fileL_bin));
+
+   // (2) Bars binär packen
+   $data = null;
+   foreach ($barBuffer[$type][$shortDate] as $i => &$bar) {
+      $data .= pack('VVVVVV', $bar['time_fxt'],                      // alle Felder als UINT Little-Endian speichern
+                              $bar['open'    ],
+                              $bar['high'    ],
+                              $bar['low'     ],
+                              $bar['close'   ],
+                              $bar['volume'  ]);
+   }
+
+
+   // (3) binäre Daten ggf. speichern
+   if ($saveRawMyFXData) {
+      mkDirWritable(dirName($file=getVar('myfxFile.raw', $symbol, $day, $type)));
+      $tmpFile = tempNam(dirName($file), baseName($file));
       $hFile   = fOpen($tmpFile, 'wb');
-      fWrite($hFile, $binaryString);
+      fWrite($hFile, $data);
       fClose($hFile);
-      if (is_file($fileL_bin)) unlink($fileL_bin);
-      rename($tmpFile, $fileL_bin);                                  // So kann eine existierende Datei niemals korrupt sein.
+      if (is_file($file)) unlink($file);
+      rename($tmpFile, $file);                                       // So kann eine existierende Datei niemals korrupt sein.
    }
 
-   // (3) binär gepackte Bars komprimieren und speichern
 
-   // (4) Bars im Buffer löschen
-   unset($barBuffer[$type][$fxtDay]);
+   // (4) binäre Daten komprimieren und speichern
 
    return true;
 }
