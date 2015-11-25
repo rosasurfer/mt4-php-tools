@@ -158,7 +158,7 @@ function updateSymbol($symbol, $startTime) {
 
    for ($day=$startTime; $day < $today; $day+=1*DAY) {
       if (!checkHistory($symbol, $day, 'bid')) return false;
-      //if (!checkHistory($symbol, $day, 'ask')) return false;
+      if (!checkHistory($symbol, $day, 'ask')) return false;
    }
    return true;
 }
