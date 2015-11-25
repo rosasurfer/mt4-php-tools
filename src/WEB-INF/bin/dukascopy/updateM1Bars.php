@@ -181,10 +181,10 @@ function checkHistory($symbol, $day, $type) {
    if (MyFX::isTradingDay($day)) {                                   // um 00:00 GMT sind GMT- und FXT-Wochentag immer gleich
       // History ist ok, wenn die lokale RAR- oder .bin-Datei existieren
       if (is_file($file=getVar('myfxFile.compressed', $symbol, $day, $type))) {
-         echoPre('[Ok]    '.$shortDate.'   MyFX compressed history file: '.baseName($file));
+         //echoPre('[Ok]    '.$shortDate.'   MyFX compressed history file: '.baseName($file));
       }
       else if (is_file($file=getVar('myfxFile.raw', $symbol, $day, $type))) {
-         echoPre('[Ok]    '.$shortDate.'   MyFX raw history file: '.baseName($file));
+         //echoPre('[Ok]    '.$shortDate.'   MyFX raw history file: '.baseName($file));
       }
       else {
          // History des Tages aktualisieren
