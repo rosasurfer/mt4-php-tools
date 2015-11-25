@@ -160,6 +160,8 @@ function updateSymbol($symbol, $startTime) {
       if (!checkHistory($symbol, $day, 'bid')) return false;
       if (!checkHistory($symbol, $day, 'ask')) return false;
    }
+   echoPre('[Ok]    '.$symbol);
+
    return true;
 }
 
