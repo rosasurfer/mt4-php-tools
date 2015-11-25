@@ -478,9 +478,9 @@ function processRawDukascopyData($data, $symbol, $day, $type) {
          }
          $fxtOffset = $next['offset'];                               // $fxtOffset on-the-fly aktualisieren
       }
-      $bar['time_fxt' ] =      $bar['time_gmt'] - $fxtOffset;
-      $bar['delta_fxt'] =      $bar['time_fxt'] % DAY;
-      $bar['volume'   ] = (int)$bar['volume'  ]/100000;              // Units in Lots konvertieren
+      $bar['time_fxt' ] =       $bar['time_gmt'] - $fxtOffset;
+      $bar['delta_fxt'] =       $bar['time_fxt'] % DAY;
+      $bar['volume'   ] = (int)($bar['volume'  ]/100000);            // Units in Lots konvertieren
       unset($bar['timeDelta']);
    }
    if ($dstChange) {
