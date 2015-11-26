@@ -177,6 +177,7 @@ echo <<<END
 
   Syntax: $self <file-pattern>
 
+
 END;
 }
 ?>
