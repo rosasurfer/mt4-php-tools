@@ -173,12 +173,12 @@ function checkHistory($symbol, $day, $type) {
 
    // (1) nur an Handelstagen: prüfen, ob die lokale MyFX-History existiert und History ggf. aktualisieren
    if (MyFX::isTradingDay($day)) {                                   // um 00:00 GMT sind GMT- und FXT-Wochentag immer gleich
-      // History ok, wenn die komprimierte MyFX-Datei existiert
+      // History ist ok, wenn die komprimierte MyFX-Datei existiert
       if (is_file($file=getVar('myfxFile.compressed', $symbol, $day, $type))) {
          if ($verbose > 0)
             echoPre('[Ok]    '.$shortDate.'   MyFX compressed history file: '.baseName($file));
       }
-      // History ok, wenn die unkomprimierte MyFX-Datei gespeichert wird und existiert
+      // History ist ok, wenn die unkomprimierte MyFX-Datei gespeichert wird und existiert
       else if ($saveRawMyFXData && is_file($file=getVar('myfxFile.raw', $symbol, $day, $type))) {
          if ($verbose > 0)
             echoPre('[Ok]    '.$shortDate.'   MyFX raw history file: '.baseName($file));
@@ -202,11 +202,11 @@ function checkHistory($symbol, $day, $type) {
    if (!$saveRawDukascopyFiles && is_file($file=getVar('dukaFile.raw', $symbol, $previousDay, $type))) {
       unlink($file);
    }
-   // lokales Historyverzeichnis des Vortages, wenn Wochenende oder Feiertag (wenn es leer ist)
+   // lokales Historyverzeichnis des Vortages, wenn Wochenende oder Feiertag und es leer ist
    if (!MyFX::isTradingDay($previousDay) && is_dir($dir=getVar('myfxDir', $symbol, $previousDay))) {
       @rmDir($dir);
    }
-   // lokales Historyverzeichnis des aktuellen Tages, wenn Wochenende oder Feiertag (wenn es leer ist)
+   // lokales Historyverzeichnis des aktuellen Tages, wenn Wochenende oder Feiertag und es leer ist
    if (!MyFX::isTradingDay($day) && is_dir($dir=getVar('myfxDir', $symbol, $day))) {
       @rmDir($dir);
    }
@@ -237,7 +237,7 @@ function updateHistory($symbol, $day, $type) {
    // Für jeden FXT-Tag werden die GMT-Dukascopy-Daten des vorherigen und des aktuellen Tages benötigt.
    // Die Daten werden jeweils in folgender Reihenfolge gesucht:
    //  • im Barbuffer (Schlüssel: string $shortDate)
-   //  • in dekomprimierten Dukascopy-Dateien
+   //  • in bereits dekomprimierten Dukascopy-Dateien
    //  • in noch komprimierten Dukascopy-Dateien
    //  • als Dukascopy-Download
 
@@ -295,7 +295,10 @@ function updateHistory($symbol, $day, $type) {
    }
    // • ggf. Dukascopy-Datei herunterladen und verarbeiten
    if (!$currentDayData) {
-      $data = downloadData($symbol, $currentDay, $type, false, $saveCompressedDukascopyFiles);
+      static $yesterday; if (!$yesterday) $yesterday=($today=time()) - $today%DAY - 1*DAY;   // 00:00 gestriger Tag
+      $saveFile = ($saveCompressedDukascopyFiles || $currentDay==$yesterday);                // beim letzten Durchlauf immer speichern
+
+      $data = downloadData($symbol, $currentDay, $type, false, $saveFile);
       if (!$data)                                                                // HTTP status 404 (file not found)
          return false;    // vorerst Komplettabbruch                             // TRUE => diesen Datensatz abbrechen und fortfahren
       if (!processCompressedDukascopyData($data, $symbol, $currentDay, $type))
