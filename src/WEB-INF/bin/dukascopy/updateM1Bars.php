@@ -265,9 +265,9 @@ function updateHistory($symbol, $day, $type) {
    // • ggf. Dukascopy-Datei herunterladen und verarbeiten
    if (!$previousDayData) {
       $data = downloadData($symbol, $previousDay, $type, false, $saveCompressedDukascopyFiles);
-      if (!$data)                                                                // HTTP status 404 (file not found)
-         return false;    // vorerst Komplettabbruch                             // TRUE => diesen Datensatz abbrechen und fortfahren
-      if (!processCompressedDukascopyData($data, $symbol, $previousDay, $type))
+      if (!$data)                                                                            // HTTP status 404 (file not found)
+         return false;                                                                       // FALSE => Komplettabbruch
+      if (!processCompressedDukascopyData($data, $symbol, $previousDay, $type))              // TRUE  => continue (nächste Kursreihe)
          return false;
    }
 
@@ -299,9 +299,9 @@ function updateHistory($symbol, $day, $type) {
       $saveFile = ($saveCompressedDukascopyFiles || $currentDay==$yesterday);                // beim letzten Durchlauf immer speichern
 
       $data = downloadData($symbol, $currentDay, $type, false, $saveFile);
-      if (!$data)                                                                // HTTP status 404 (file not found)
-         return false;    // vorerst Komplettabbruch                             // TRUE => diesen Datensatz abbrechen und fortfahren
-      if (!processCompressedDukascopyData($data, $symbol, $currentDay, $type))
+      if (!$data)                                                                            // HTTP status 404 (file not found)
+         return false;                                                                       // FALSE => Komplettabbruch
+      if (!processCompressedDukascopyData($data, $symbol, $currentDay, $type))               // TRUE  => continue (nächste Kursreihe)
          return false;
    }
 
@@ -310,13 +310,6 @@ function updateHistory($symbol, $day, $type) {
    if (!saveBars($symbol, $day, $type))
       return false;
 
-
-   /*
-   // falls Fehlerdatei existiert
-   else if (is_file($file404)) {
-      echoPre('[Info]  '.$shortDate.'   Skipping '.$symbol.' (404 status file found)');
-   }
-   */
    return true;
 }
 
