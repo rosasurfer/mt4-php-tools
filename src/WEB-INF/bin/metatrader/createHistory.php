@@ -78,7 +78,7 @@ function createHistory($symbol, $type) {
    if (!is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
    if (!strLen($symbol))    throw new plInvalidArgumentException('Invalid parameter $symbol: ""');
 
-   global $startTimes;
+   global $verbose, $startTimes;
    $startDay = ($startDay=$startTimes[$symbol]) - $startDay%DAY;     // 00:00 Starttag
    $today    = ($today=time())                  - $today   %DAY;     // 00:00 aktueller Tag
 
@@ -88,16 +88,13 @@ function createHistory($symbol, $type) {
 
       // nur an Handelstagen vorhandene MyFX-Historydateien verarbeiten
       if (MyFX::isTradingDay($day)) {
-         if (is_file($file=getVar('myfxFile.compressed', $symbol, $day, $type))) {
-            // wenn eine komprimierte MyFX-Datei existiert
-         }
-         else if (is_file($file=getVar('myfxFile.raw', $symbol, $day, $type))) {
-            // oder wenn eine unkomprimierte MyFX-Datei existiert
-         }
+         if      (is_file($file=getVar('myfxFile.compressed', $symbol, $day, $type))) {}  // wenn komprimierte MyFX-Datei existiert
+         else if (is_file($file=getVar('myfxFile.raw'       , $symbol, $day, $type))) {}  // wenn unkomprimierte MyFX-Datei existiert
          else continue;
 
          $shortDate = date('D, d-M-Y', $day);
-         echoPre('[Info]  '.$shortDate.'   MyFX history file: '.baseName($file));
+         if ($verbose > 0)
+            echoPre('[Info]  '.$shortDate.'   MyFX history file: '.baseName($file));
 
          // Bars einlesen
          $bars = MyFX::readBarFile($file);
@@ -115,6 +112,9 @@ function createHistory($symbol, $type) {
       }
    }
 
+   // History Stück für Stück einlesen
+
+   // Bars zwischenspeichern und History eines jeden Timeframes ab bestimmter Größe in MT4-Datei speichern
 
 
 
@@ -124,9 +124,6 @@ function createHistory($symbol, $type) {
 
    // Trigger für Timeframe-Wechsel jeder Bar einrichten
 
-   // History Stück für Stück einlesen
-
-   // Bars zwischenspeichern und History eines jeden Timeframes ab bestimmter Größe speichern
 
    return true;
 }
