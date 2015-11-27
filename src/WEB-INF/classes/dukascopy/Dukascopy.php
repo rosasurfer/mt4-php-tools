@@ -67,16 +67,16 @@ class Dukascopy extends StaticClass {
 
 
    /**
-    * Interpretiert die Dukascopy-Bardaten in einem String und liest sie in ein Array ein.
+    * Interpretiert die Dukascopy-Bardaten eines Strings und liest sie in ein Array ein.
     *
     * @param  string $data - String mit Dukascopy-Bardaten
     *
     * @return DUKASCOPY_BAR[] - Array mit Bardaten
     */
-   public static function readBars($data) {
+   public static function readBarData($data) {
       if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
 
-      $size   = strLen($data); if ($size % DUKASCOPY_BAR_SIZE) throw new plRuntimeException('Odd size of passed $data: '.$size.' (not an even DUKASCOPY_BAR_SIZE)');
+      $size   = strLen($data); if ($size % DUKASCOPY_BAR_SIZE) throw new plRuntimeException('Odd length of passed $data: '.$size.' (not an even DUKASCOPY_BAR_SIZE)');
       $offset = 0;
       $bars   = array();
 
@@ -89,16 +89,16 @@ class Dukascopy extends StaticClass {
 
 
    /**
-    * Interpretiert die Dukascopy-Bardaten in einer Datei und liest sie in ein Array ein.
+    * Interpretiert die Dukascopy-Bardaten einer Datei und liest sie in ein Array ein.
     *
     * @param  string $fileName - Name der Datei mit Dukascopy-Bardaten
     *
     * @return DUKASCOPY_BAR[] - Array mit Bardaten
     */
-   public static function readBarsFile($fileName) {
+   public static function readBarFile($fileName) {
       if (!is_string($fileName)) throw new IllegalTypeException('Illegal type of parameter $fileName: '.getType($fileName));
 
-      return self::readBars(file_get_contents($fileName));
+      return self::readBarData(file_get_contents($fileName));
    }
 }
 ?>

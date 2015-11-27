@@ -445,7 +445,7 @@ function processRawDukascopyData($data, $symbol, $day, $type) {
    global $barBuffer; $barBuffer[$type];
 
    // (1) Bars einlesen
-   $bars = Dukascopy ::readBars($data);
+   $bars = Dukascopy ::readBarData($data);
    $size = sizeOf($bars); if ($size != 1*DAY/MINUTES) throw new plRuntimeException('Unexpected number of Dukascopy bars in '.getVar('dukaName', null, null, $type).': '.$size.' ('.($size > 1*DAY/MINUTES ? 'more':'less').' then a day)');
 
 
@@ -568,19 +568,18 @@ function saveBars($symbol, $day, $type) {
 
 
 /**
- * Gibt dynamisch generierte Variablen zurück.
+ * Erzeugt und verwaltet dynamisch generierte Variablen.
  *
  * Evaluiert und cacht ständig wiederbenutzte dynamische Variablen an einem zentralen Ort. Vereinfacht die Logik,
  * da die Variablen nicht global gespeichert oder über viele Funktionsaufrufe hinweg weitergereicht werden müssen,
  * aber trotzdem nicht bei jeder Verwendung neu ermittelt werden brauchen.
  *
  * @param string $id     - eindeutiger Schlüssel des Bezeichners (ID)
- *
  * @param string $symbol - Symbol oder NULL
  * @param int    $time   - Timestamp oder NULL
  * @param string $type   - Kurstyp (bid|ask) oder NULL
  *
- * @return string
+ * @return string - Variable
  */
 function getVar($id, $symbol=null, $time=null, $type=null) {
    //global $varCache;

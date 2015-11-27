@@ -15,6 +15,17 @@ date_default_timezone_set('GMT');
 $verbose = 0;                                                           // output verbosity
 
 
+// History-Start der momentan verfügbaren Dukascopy-Instrumente
+$startTimes = array('AUDUSD' => strToTime('2003-08-03 00:00:00 GMT'),
+                    'EURUSD' => strToTime('2003-05-04 00:00:00 GMT'),
+                    'GBPUSD' => strToTime('2003-05-04 00:00:00 GMT'),
+                    'NZDUSD' => strToTime('2003-08-03 00:00:00 GMT'),
+                    'USDCAD' => strToTime('2003-08-03 00:00:00 GMT'),
+                    'USDCHF' => strToTime('2003-05-04 00:00:00 GMT'),
+                    'USDJPY' => strToTime('2003-05-04 00:00:00 GMT'),
+);
+
+
 // -- Start ----------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -31,16 +42,22 @@ foreach ($args as $i => $arg) {
    if ($arg == '-vvv') { $verbose = 3; unset($args[$i]); continue; }    // very verbose output
 }
 
-// Source-Verzeichnis(se) validieren
+// Symbole parsen
 foreach ($args as $i => $arg) {
-   //if (!is_dir($arg)) help('error: not a source directory "'.$args[$i].'"') & exit(1);
+   if ($arg=="'*'" || $arg=='"*"')
+      $args[$i] = $arg = '*';
+   if ($arg != '*') {
+      $arg = strToUpper($arg);
+      if (!isSet($startTimes[$arg])) help('error: unknown symbol "'.$args[$i].'"') & exit(1);
+      $args[$i] = $arg;
+   }
 }
+$args = in_array('*', $args) ? array_keys($startTimes) : array_unique($args);    // '*' wird durch alle Symbole ersetzt
 
 
-// (2) Source-Verzeichnisse durchlaufen und History erstellen
-foreach ($args as $directory) {
-   $symbol = baseName($directory);
-   if (!createHistory($symbol, $directory))
+// (3) History erstellen
+foreach ($args as $symbol) {
+   if (!createHistory($symbol, 'bid'))
       exit(1);
 }
 exit(0);
@@ -52,20 +69,132 @@ exit(0);
 /**
  * Erzeugt die MetaTrader-History eines Symbol.
  *
- * @param string $symbol    - Symbol
- * @param string $directory - Source-Verzeichnis
+ * @param string $symbol - Symbol
+ * @param string $type   - Kurstyp
  *
  * @return bool - Erfolgsstatus
  */
-function createHistory($symbol, $directory) {
-   if (!is_string($symbol))    throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
-   if (!strLen($symbol))       throw new plInvalidArgumentException('Invalid parameter $symbol: ""');
-   if (!is_string($directory)) throw new IllegalTypeException('Illegal type of parameter $directory: '.getType($directory));
-   //if (!is_dir($directory))    throw new plInvalidArgumentException('Invalid parameter $directory: "'.$directory.'" (not a directory)');
+function createHistory($symbol, $type) {
+   if (!is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
+   if (!strLen($symbol))    throw new plInvalidArgumentException('Invalid parameter $symbol: ""');
 
-   echoPre(glob($directory, GLOB_ERR|GLOB_BRACE));
+   global $startTimes;
+   $startDay = ($startDay=$startTimes[$symbol]) - $startDay%DAY;     // 00:00 Starttag
+   $today    = ($today=time())                  - $today   %DAY;     // 00:00 aktueller Tag
+
+
+   // Gesamte Zeitspanne tageweise durchlaufen
+   for ($day=$startDay; $day < $today; $day+=1*DAY) {
+
+      // nur an Handelstagen vorhandene MyFX-Historydateien verarbeiten
+      if (MyFX::isTradingDay($day)) {
+         if (is_file($file=getVar('myfxFile.compressed', $symbol, $day, $type))) {
+            // wenn eine komprimierte MyFX-Datei existiert
+         }
+         else if (is_file($file=getVar('myfxFile.raw', $symbol, $day, $type))) {
+            // oder wenn eine unkomprimierte MyFX-Datei existiert
+         }
+         else continue;
+
+         $shortDate = date('D, d-M-Y', $day);
+         echoPre('[Info]  '.$shortDate.'   MyFX history file: '.baseName($file));
+
+         // Bars einlesen
+         $bars = MyFX::readBarFile($file);
+         $size = sizeOf($bars); if ($size != 1*DAY/MINUTES) throw new plRuntimeException('Unexpected number of MyFX bars in '.$file.': '.$size.' ('.($size > 1*DAY/MINUTES ? 'more':'less').' then a day)');
+
+         echoPre($bars[0]);
+         exit();
+      }
+
+
+
+      static $counter; $counter++;
+      if ($counter > 10) {
+         return false;
+      }
+   }
+
+
+
+
+   // MT4-Historydateien anlegen und öffnen
+
+   // im Speicher eine MT4-Bar für jeden Timeframe anlegen
+
+   // Trigger für Timeframe-Wechsel jeder Bar einrichten
+
+   // History Stück für Stück einlesen
+
+   // Bars zwischenspeichern und History eines jeden Timeframes ab bestimmter Größe speichern
 
    return true;
+}
+
+
+/**
+ * Erzeugt und verwaltet dynamisch generierte Variablen.
+ *
+ * Evaluiert und cacht ständig wiederbenutzte dynamische Variablen an einem zentralen Ort. Vereinfacht die Logik,
+ * da die Variablen nicht global gespeichert oder über viele Funktionsaufrufe hinweg weitergereicht werden müssen,
+ * aber trotzdem nicht bei jeder Verwendung neu ermittelt werden brauchen.
+ *
+ * @param string $id     - eindeutiger Schlüssel des Bezeichners (ID)
+ * @param string $symbol - Symbol oder NULL
+ * @param int    $time   - Timestamp oder NULL
+ * @param string $type   - Kurstyp (bid|ask) oder NULL
+ *
+ * @return string - Variable
+ */
+function getVar($id, $symbol=null, $time=null, $type=null) {
+   //global $varCache;
+   static $varCache = array();
+   if (array_key_exists(($key=$id.'|'.$symbol.'|'.$time.'|'.$type), $varCache))
+      return $varCache[$key];
+
+   if (!is_string($id))                          throw new IllegalTypeException('Illegal type of parameter $id: '.getType($id));
+   if (!is_null($symbol) && !is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
+   if (!is_null($time) && !is_int($time))        throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+   if (!is_null($type)) {
+      if (!is_string($type))                     throw new IllegalTypeException('Illegal type of parameter $type: '.getType($type));
+      if ($type!='bid' && $type!='ask')          throw new plInvalidArgumentException('Invalid parameter $type: "'.$type.'"');
+   }
+
+   $self = __FUNCTION__;
+
+   if ($id == 'myfxName') {                  // M1,Bid                                                // lokaler Name
+      if (!$type)   throw new plInvalidArgumentException('Invalid parameter $type: (null)');
+      $result = 'M1,'.($type=='bid' ? 'Bid':'Ask');
+   }
+   else if ($id == 'myfxDirDate') {          // $yyyy/$mmL/$dd                                        // lokales Pfad-Datum
+      if (!$time)   throw new plInvalidArgumentException('Invalid parameter $time: '.$time);
+      $result = date('Y/m/d', $time);
+   }
+   else if ($id == 'myfxDir') {              // $dataDirectory/history/dukascopy/$symbol/$dateL       // lokales Verzeichnis
+      if (!$symbol) throw new plInvalidArgumentException('Invalid parameter $symbol: '.$symbol);
+      static $dataDirectory; if (!$dataDirectory)
+      $dataDirectory = MyFX::getConfigPath('myfx.data_directory');
+      $dateL         = $self('myfxDirDate', null, $time, null);
+      $result        = "$dataDirectory/history/dukascopy/$symbol/$dateL";
+   }
+   else if ($id == 'myfxFile.raw') {         // $myfxDir/$nameL.bin                                   // lokale Datei ungepackt
+      $myfxDir = $self('myfxDir' , $symbol, $time, null);
+      $nameL   = $self('myfxName', null, null, $type);
+      $result  = "$myfxDir/$nameL.bin";
+   }
+   else if ($id == 'myfxFile.compressed') {  // $myfxDir/$nameL.rar                                   // lokale Datei gepackt
+      $myfxDir = $self('myfxDir' , $symbol, $time, null);
+      $nameL   = $self('myfxName', null, null, $type);
+      $result  = "$myfxDir/$nameL.rar";
+   }
+   else {
+     throw new plInvalidArgumentException('Unknown parameter $id: "'.$id.'"');
+   }
+
+   $varCache[$key] = $result;
+   (sizeof($varCache) > ($maxSize=64)) && array_shift($varCache) /*&& echoPre('cache size limit of '.$maxSize.' hit')*/;
+
+   return $result;
 }
 
 
@@ -82,7 +211,7 @@ function help($message=null) {
 
 echo <<<END
 
-  Syntax: $self <directory> ...
+ Syntax:  $self [symbol ...]
 
 
 END;

@@ -309,5 +309,41 @@ class MyFX extends StaticClass {
          return true;
       return false;
    }
+
+
+   /**
+    * Interpretiert die MyFX-Bardaten eines Strings und liest sie in ein Array ein.
+    *
+    * @param  string $data - String mit MyFX-Bardaten
+    *
+    * @return MYFX_BAR[] - Array mit Bardaten
+    */
+   public static function readBarData($data) {
+      if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
+
+      $size   = strLen($data); if ($size % MYFX_BAR_SIZE) throw new plRuntimeException('Odd length of passed $data: '.$size.' (not an even MYFX_BAR_SIZE)');
+      $offset = 0;
+      $bars   = array();
+
+      while ($offset < $size) {
+         $bars[]  = unpack("@$offset/Vtime/Vopen/Vhigh/Vlow/Vclose/Vvolume", $data);
+         $offset += MYFX_BAR_SIZE;
+      }
+      return $bars;
+   }
+
+
+   /**
+    * Interpretiert die MyFX-Bardaten einer Datei und liest sie in ein Array ein.
+    *
+    * @param  string $fileName - Name der Datei mit MyFX-Bardaten
+    *
+    * @return MYFX_BAR[] - Array mit Bardaten
+    */
+   public static function readBarFile($fileName) {
+      if (!is_string($fileName)) throw new IllegalTypeException('Illegal type of parameter $fileName: '.getType($fileName));
+
+      return self::readBarData(file_get_contents($fileName));
+   }
 }
 ?>
