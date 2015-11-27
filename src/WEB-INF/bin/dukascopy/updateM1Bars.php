@@ -49,19 +49,19 @@ $saveRawDukascopyFiles        = false;          // ob entpackte Dukascopy-Dateie
 $saveRawMyFXData              = true;           // ob unkomprimierte MyFX-Historydaten gespeichert werden sollen
 
 
-// History-Start der einzelnen Instrumente bei Dukascopy
+// History-Start der momentan verfügbaren Dukascopy-Instrumente
 $startTimes = array('AUDUSD' => strToTime('2003-08-03 00:00:00 GMT'),
-                  //'EURNOK' => strToTime('2004-10-20 00:00:00 GMT'),      // geprüft am 21.06.2013
-                  //'EURSEK' => strToTime('2004-10-27 00:00:00 GMT'),      // geprüft am 21.06.2013
+                  //'EURNOK' => strToTime('2004-10-25 00:00:00 GMT'),
+                  //'EURSEK' => strToTime('2004-10-27 00:00:00 GMT'),
                     'EURUSD' => strToTime('2003-05-04 00:00:00 GMT'),
                     'GBPUSD' => strToTime('2003-05-04 00:00:00 GMT'),
                     'NZDUSD' => strToTime('2003-08-03 00:00:00 GMT'),
                     'USDCAD' => strToTime('2003-08-03 00:00:00 GMT'),
                     'USDCHF' => strToTime('2003-05-04 00:00:00 GMT'),
                     'USDJPY' => strToTime('2003-05-04 00:00:00 GMT'),
-                  //'USDNOK' => strToTime('2003-08-08 00:00:00 GMT'),      // geprüft am 21.06.2013
-                  //'USDSEK' => strToTime('2003-08-08 00:00:00 GMT'),      // geprüft am 21.06.2013
-                  //'USDSGD' => strToTime('2004-11-16 00:00:00 GMT'),      // geprüft am 21.06.2013
+                  //'USDNOK' => strToTime('2003-08-08 00:00:00 GMT'),
+                  //'USDSEK' => strToTime('2003-08-08 00:00:00 GMT'),
+                  //'USDSGD' => strToTime('2004-11-16 00:00:00 GMT'),
 );
 
 
@@ -355,6 +355,12 @@ function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $save
    $response = CurlHttpClient ::create($options)->send($request);    // TODO: CURL-Fehler wie bei SimpleTrader behandeln
    $status   = $response->getStatus();
    if ($status!=200 && $status!=404) throw new plRuntimeException('Unexpected HTTP status '.$status.' ('.HttpResponse::$sc[$status].') for url "'.$url.'"'.NL.printFormatted($response, true));
+
+   // eine leere Antwort ist möglich und wird wie 404 behandelt
+   $content = $response->getContent();
+   if (!strLen($content))
+      $status = 404;
+
 
    // (3) Download-Success
    if ($status == 200) {
