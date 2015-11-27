@@ -99,7 +99,7 @@ while (($fileName=$dir->read()) !== false) {
             $formats[sizeOf($formats)-1] = null;
             $symbols[sizeOf($symbols)-1] = strToUpper($match[1]);
             $periods[sizeOf($periods)-1] = null;
-            $error = 'file name/data mis-match: data='.$symbol.','.MT4 ::periodDescription($period);
+            $error = 'file name/data mis-match: data='.$symbol.','.MyFX::periodDescription($period);
          }
          else {
             $trailingBytes = ($fileSize-HISTORY_HEADER_SIZE) % $barSize;
@@ -145,7 +145,7 @@ foreach ($fileNames as $i => $fileName) {
       echoPre($tableSeparator);
 
    if ($formats[$i]) {
-      $period = MT4 ::periodDescription($periods[$i]);
+      $period = MyFX::periodDescription($periods[$i]);
       echoPre(sprintf($tableRowFormat, $symbols[$i].','.$period, $aDigits[$i], $syncMarks[$i], $lastSyncs[$i], number_format($aBars[$i]), $barFroms[$i], $barTos[$i], $formats[$i], $errors[$i]));
    }
    else {

@@ -55,6 +55,11 @@ foreach ($args as $i => $arg) {
 $args = in_array('*', $args) ? array_keys($startTimes) : array_unique($args);    // '*' wird durch alle Symbole ersetzt
 
 
+// (2) Buffer zum Zwischenspeichern geladener Bardaten
+$barBuffer = array();
+$varCache  = array();
+
+
 // (3) History erstellen
 foreach ($args as $symbol) {
    if (!createHistory($symbol, 'bid'))
@@ -78,15 +83,26 @@ function createHistory($symbol, $type) {
    if (!is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
    if (!strLen($symbol))    throw new plInvalidArgumentException('Invalid parameter $symbol: ""');
 
-   global $verbose, $startTimes;
+   global $verbose, $startTimes, $barBuffer;
    $startDay = ($startDay=$startTimes[$symbol]) - $startDay%DAY;     // 00:00 Starttag
    $today    = ($today=time())                  - $today   %DAY;     // 00:00 aktueller Tag
+
+   $barBuffer             = null;                                    // Barbuffer zurücksetzen
+   $barBuffer[PERIOD_M1 ] = array();
+   $barBuffer[PERIOD_M5 ] = array();
+   $barBuffer[PERIOD_M15] = array();
+   $barBuffer[PERIOD_M30] = array();
+   $barBuffer[PERIOD_H1 ] = array();
+   $barBuffer[PERIOD_H4 ] = array();
+   $barBuffer[PERIOD_D1 ] = array();
+   $barBuffer[PERIOD_W1 ] = array();
+   $barBuffer[PERIOD_MN1] = array();
 
 
    // Gesamte Zeitspanne tageweise durchlaufen
    for ($day=$startDay; $day < $today; $day+=1*DAY) {
 
-      // nur an Handelstagen vorhandene MyFX-Historydateien verarbeiten
+      // nur an Handelstagen vorhandene MyFX-History einlesen
       if (MyFX::isTradingDay($day)) {
          if      (is_file($file=getVar('myfxFile.compressed', $symbol, $day, $type))) {}  // wenn komprimierte MyFX-Datei existiert
          else if (is_file($file=getVar('myfxFile.raw'       , $symbol, $day, $type))) {}  // wenn unkomprimierte MyFX-Datei existiert
@@ -100,27 +116,29 @@ function createHistory($symbol, $type) {
          $bars = MyFX::readBarFile($file);
          $size = sizeOf($bars); if ($size != 1*DAY/MINUTES) throw new plRuntimeException('Unexpected number of MyFX bars in '.$file.': '.$size.' ('.($size > 1*DAY/MINUTES ? 'more':'less').' then a day)');
 
-         echoPre($bars[0]);
-         exit();
-      }
+         // Bars im Barbuffer zwischenspeichern
+         $barBuffer[PERIOD_M1] = array_merge($barBuffer[PERIOD_M1], $bars);
 
+         foreach ($bars as $i => $bar) {
+            $time = $bar['time'];
+         }
+
+
+         // jeden Timeframe ab bestimmter Baranzahl in MT4-Datei speichern
+      }
 
 
       static $counter; $counter++;
       if ($counter > 10) {
+         showBuffer();
          return false;
       }
    }
 
-   // History Stück für Stück einlesen
-
-   // Bars zwischenspeichern und History eines jeden Timeframes ab bestimmter Größe in MT4-Datei speichern
 
 
 
    // MT4-Historydateien anlegen und öffnen
-
-   // im Speicher eine MT4-Bar für jeden Timeframe anlegen
 
    // Trigger für Timeframe-Wechsel jeder Bar einrichten
 
@@ -192,6 +210,23 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
    (sizeof($varCache) > ($maxSize=64)) && array_shift($varCache) /*&& echoPre('cache size limit of '.$maxSize.' hit')*/;
 
    return $result;
+}
+
+
+/**
+ *
+ */
+function showBuffer() {
+   global $barBuffer;
+
+   echoPre(NL);
+   foreach ($barBuffer as $timeframe => &$bars) {
+      $size = sizeOf($bars);
+      $firstBar = $size ? date('d-M-Y H:i', $bars[0      ]['time']):null;
+      $lastBar  = $size ? date('d-M-Y H:i', $bars[$size-1]['time']):null;
+      echoPre('barBuffer['. str_pad(MyFX::timeframeToStr($timeframe), 10, ' ', STR_PAD_RIGHT).'] => '.str_pad($size, 5, ' ', STR_PAD_LEFT).' bar'.($size==1?'':'s').($firstBar?'  from='.$firstBar:'').($size>1?'  to='.$lastBar:''));
+   }
+   echoPre(NL);
 }
 
 
