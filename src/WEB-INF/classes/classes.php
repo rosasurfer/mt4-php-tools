@@ -31,4 +31,3 @@ $__classes['Signal'                            ] = $dir.'model/Signal';
 $__classes['SignalDAO'                         ] = $dir.'model/SignalDAO';
 
 unset($dir);
-?>

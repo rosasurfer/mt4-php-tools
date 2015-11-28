@@ -94,4 +94,3 @@ class OpenPositionDAO extends CommonDAO {
       return $this->getByQuery($sql);
    }
 }
-?>

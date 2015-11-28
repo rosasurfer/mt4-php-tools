@@ -126,4 +126,3 @@ class ReportHelper extends Object {
       return $data;
    }
 }
-?>

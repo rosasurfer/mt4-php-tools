@@ -27,4 +27,3 @@ class Signal extends PersistableObject {
       return self ::getDAO(__CLASS__);
    }
 }
-?>

@@ -55,4 +55,3 @@ class UploadAccountHistoryAction extends Action {
       return null;
    }
 }
-?>

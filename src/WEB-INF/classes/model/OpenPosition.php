@@ -330,4 +330,3 @@ class OpenPosition extends PersistableObject {
       return null;
    }
 }
-?>

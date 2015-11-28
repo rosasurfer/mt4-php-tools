@@ -46,4 +46,3 @@ class AccountDAO extends CommonDAO {
       return $this->getByQuery($sql);
    }
 }
-?>

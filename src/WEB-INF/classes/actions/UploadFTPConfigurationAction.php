@@ -38,4 +38,3 @@ class UploadFTPConfigurationAction extends Action {
       return null;
    }
 }
-?>

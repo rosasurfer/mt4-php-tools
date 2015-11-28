@@ -101,4 +101,3 @@ class Dukascopy extends StaticClass {
       return self::readBarData(file_get_contents($fileName));
    }
 }
-?>

@@ -280,4 +280,3 @@ class ClosedPosition extends PersistableObject {
       return $this;
    }
 }
-?>

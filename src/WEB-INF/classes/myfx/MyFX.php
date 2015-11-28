@@ -435,4 +435,3 @@ class MyFX extends StaticClass {
       return self::periodDescription($timeframe);
    }
 }
-?>

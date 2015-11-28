@@ -7,7 +7,7 @@ ini_set('session.save_path', APPLICATION_ROOT.'/../etc/tmp');
 ini_set('apd.dumpdir',       APPLICATION_ROOT.'/../etc/tmp');
 ini_set('error_log',         APPLICATION_ROOT.'/../etc/log/php_error_log');
 
-require(APPLICATION_ROOT.'/../../phplib/src/phpLib.php');                 	// PHPLib laden
+require(APPLICATION_ROOT.'/../../phplib/src/phpLib.php');                  // PHPLib laden
 include(APPLICATION_ROOT.'/WEB-INF/include/defines.php');                  // zusätzliche Definitionen laden
 include(APPLICATION_ROOT.'/WEB-INF/classes/classes.php');                  // zusätzliche Klasen laden
 
@@ -15,4 +15,3 @@ include(APPLICATION_ROOT.'/WEB-INF/classes/classes.php');                  // zu
 // kein Time-Limit, falls wir in einer Shell laufen
 if (!isSet($_SERVER['REQUEST_METHOD']))
    set_time_limit(0);
-?>

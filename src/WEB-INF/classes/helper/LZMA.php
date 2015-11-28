@@ -106,4 +106,3 @@ class LZMA extends StaticClass {
       return $cmd;
    }
 }
-?>

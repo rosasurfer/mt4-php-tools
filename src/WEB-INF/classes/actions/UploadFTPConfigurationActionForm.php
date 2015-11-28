@@ -88,4 +88,3 @@ class UploadFTPConfigurationActionForm extends ActionForm {
       }
    }
 }
-?>

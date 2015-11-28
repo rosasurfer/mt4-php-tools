@@ -592,4 +592,3 @@ class SimpleTrader extends StaticClass {
       }
    }
 }
-?>

@@ -79,4 +79,3 @@ define('I_STH_SYMBOL'     ,  9);
 define('I_STH_PROFIT'     , 10);
 define('I_STH_PIPS'       , 11);
 define('I_STH_COMMENT'    , 13);
-?>

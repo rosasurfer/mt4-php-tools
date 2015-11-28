@@ -102,7 +102,7 @@ function createHistory($symbol, $type) {
    // Gesamte Zeitspanne tageweise durchlaufen
    for ($day=$startDay; $day < $today; $day+=1*DAY) {
 
-      // nur an Handelstagen vorhandene MyFX-History einlesen
+      // nur an Handelstagen vorhandene MyFX-History einlesen und verarbeiten
       if (MyFX::isTradingDay($day)) {
          if      (is_file($file=getVar('myfxFile.compressed', $symbol, $day, $type))) {}  // wenn komprimierte MyFX-Datei existiert
          else if (is_file($file=getVar('myfxFile.raw'       , $symbol, $day, $type))) {}  // wenn unkomprimierte MyFX-Datei existiert
@@ -116,20 +116,22 @@ function createHistory($symbol, $type) {
          $bars = MyFX::readBarFile($file);
          $size = sizeOf($bars); if ($size != 1*DAY/MINUTES) throw new plRuntimeException('Unexpected number of MyFX bars in '.$file.': '.$size.' ('.($size > 1*DAY/MINUTES ? 'more':'less').' then a day)');
 
-         // Bars im Barbuffer zwischenspeichern
-         $barBuffer[PERIOD_M1] = array_merge($barBuffer[PERIOD_M1], $bars);
+         // Bars der MT4-History hinzufügen
+         static $history; if (!$history) $history=new ChainedHistorySet($symbol);
+         $history->addM1Bars($bars);
 
-         foreach ($bars as $i => $bar) {
-            $time = $bar['time'];
+
+
+         static $counter1; $counter1++;
+         if ($counter1 >= 4) {
+            //showBuffer();
+            //return false;
          }
-
-
-         // jeden Timeframe ab bestimmter Baranzahl in MT4-Datei speichern
       }
 
 
-      static $counter; $counter++;
-      if ($counter > 10) {
+      static $counter2; $counter2++;
+      if ($counter2 >= 10) {
          showBuffer();
          return false;
       }
@@ -142,6 +144,7 @@ function createHistory($symbol, $type) {
 
    // Trigger für Timeframe-Wechsel jeder Bar einrichten
 
+   // jeden Timeframe ab bestimmter Baranzahl in MT4-Datei speichern
 
    return true;
 }
@@ -248,4 +251,3 @@ echo <<<END
 
 END;
 }
-?>

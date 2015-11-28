@@ -196,4 +196,3 @@ class ImportHelper extends StaticClass {
       return $result['rows'];
    }
 }
-?>

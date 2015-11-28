@@ -64,4 +64,3 @@ class ViewHelper extends StaticClass {
                                                    'USDSGD' => 'USD/SGD',
                                                    'USDZAR' => 'USD/ZAR');
 }
-?>

@@ -52,4 +52,3 @@ class Validator extends CommonValidator {
       return (is_string($string) && isSet(ViewHelper ::$instruments[$string]));
    }
 }
-?>

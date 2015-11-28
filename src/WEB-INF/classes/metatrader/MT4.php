@@ -254,4 +254,3 @@ class MT4 extends StaticClass {
       }
    }
 }
-?>

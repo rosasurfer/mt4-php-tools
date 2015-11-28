@@ -48,4 +48,3 @@ class DownloadFTPConfigurationAction extends Action {
       return null;
    }
 }
-?>

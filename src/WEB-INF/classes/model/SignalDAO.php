@@ -132,4 +132,3 @@ class SignalDAO extends CommonDAO {
       return $this->getListByQuery($sql);
    }
 }
-?>

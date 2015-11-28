@@ -44,4 +44,3 @@ class DownloadFTPConfigurationActionForm extends ActionForm {
       return !$request->isActionError();
    }
 }
-?>

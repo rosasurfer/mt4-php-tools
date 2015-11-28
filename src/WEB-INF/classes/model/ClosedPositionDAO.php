@@ -98,4 +98,3 @@ class ClosedPositionDAO extends CommonDAO {
       return $results;
    }
 }
-?>
