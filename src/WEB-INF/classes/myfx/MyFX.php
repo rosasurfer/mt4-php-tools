@@ -300,8 +300,8 @@ class MyFX extends StaticClass {
    public static function isHoliday($fxtTime) {
       if (!is_int($fxtTime)) throw new IllegalTypeException('Illegal type of parameter $fxtTime: '.getType($fxtTime));
 
-      $m   = iDate('m', $fxtTime);
       $dom = iDate('d', $fxtTime);
+      $m   = iDate('m', $fxtTime);
 
       if ($dom==1 && $m==1)            // 1. Januar
          return true;

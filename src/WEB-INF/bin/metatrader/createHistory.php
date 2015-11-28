@@ -81,7 +81,9 @@ function createHistory($symbol, $type) {
    global $verbose, $startTimes;
    $startDay = ($startDay=$startTimes[$symbol]) - $startDay%DAY;     // 00:00 Starttag
    $today    = ($today=time())                  - $today   %DAY;     // 00:00 aktueller Tag
-   $history  = new ChainedHistorySet($symbol);
+
+   // MT4-HistorySet erzeugen
+   $history = new ChainedHistorySet($symbol);
 
 
    // Gesamte Zeitspanne tageweise durchlaufen
@@ -101,14 +103,6 @@ function createHistory($symbol, $type) {
          $bars = MyFX::readBarFile($file);
          $size = sizeOf($bars); if ($size != 1*DAY/MINUTES) throw new plRuntimeException('Unexpected number of MyFX bars in '.$file.': '.$size.' ('.($size > 1*DAY/MINUTES ? 'more':'less').' then a day)');
          $history->addM1Bars($bars);
-
-
-
-         static $counter1; $counter1++;
-         if ($counter1 >= 4) {
-            //$history->showBuffer();
-            //return false;
-         }
       }
 
 
@@ -118,16 +112,6 @@ function createHistory($symbol, $type) {
          return false;
       }
    }
-
-
-
-
-   // MT4-Historydateien anlegen und öffnen
-
-   // Trigger für Timeframe-Wechsel jeder Bar einrichten
-
-   // jeden Timeframe ab bestimmter Baranzahl in MT4-Datei speichern
-
    return true;
 }
 
