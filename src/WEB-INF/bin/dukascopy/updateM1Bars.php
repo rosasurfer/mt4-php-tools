@@ -94,12 +94,7 @@ foreach ($args as $i => $arg) {
 $args = in_array('*', $args) ? array_keys($startTimes) : array_unique($args);    // '*' wird durch alle Symbole ersetzt
 
 
-// (2) Buffer zum Zwischenspeichern geladener Bardaten
-$barBuffer = array();
-$varCache  = array();
-
-
-// (3) Daten aktualisieren
+// (2) Daten aktualisieren
 foreach ($args as $symbol) {
    if (!updateSymbol($symbol, $startTimes[$symbol]))
       exit(1);

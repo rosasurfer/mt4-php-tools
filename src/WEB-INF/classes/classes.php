@@ -10,6 +10,7 @@ $__classes['UploadAccountHistoryActionForm'    ] = $dir.'actions/UploadAccountHi
 $__classes['UploadFTPConfigurationAction'      ] = $dir.'actions/UploadFTPConfigurationAction';
 $__classes['UploadFTPConfigurationActionForm'  ] = $dir.'actions/UploadFTPConfigurationActionForm';
 
+$__classes['ChainedHistorySet'                 ] = $dir.'helper/ChainedHistorySet';
 $__classes['DataNotFoundException'             ] = $dir.'helper/DataNotFoundException';
 $__classes['Dukascopy'                         ] = $dir.'helper/Dukascopy';
 $__classes['LZMA'                              ] = $dir.'helper/LZMA';

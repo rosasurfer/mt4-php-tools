@@ -3,6 +3,10 @@
  * Globale Konstanten.
  */
 
+// MetaTrader
+define('MAX_SYMBOL_LENGTH', 11);
+
+
 // Timeframe-Identifier
 define('PERIOD_M1' ,      1);    // 1 minute
 define('PERIOD_M5' ,      5);    // 5 minutes
