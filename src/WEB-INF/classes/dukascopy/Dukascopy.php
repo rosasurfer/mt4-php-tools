@@ -8,12 +8,12 @@
  * • Big-Endian
  *                               size        offset
  * struct DUKASCOPY_BAR {        ----        ------
- *    int timeDelta;               4            0        // Zeitdifferenz in Sekunden seit der letzten Mitternacht (00:00 GMT)
+ *    int timeDelta;               4            0        // Zeitdifferenz in Sekunden seit 00:00 GMT
  *    int open;                    4            4        // in Points
  *    int close;                   4            8        // in Points
  *    int low;                     4           12        // in Points
  *    int high;                    4           16        // in Points
- *    int volume;                  4           20        // in Units
+ *    int interest                 4           20        // (vermutlich) Gesamtvolumen einer Marktseite in Units
  * };                           = 24 byte
  */
 class Dukascopy extends StaticClass {
@@ -81,7 +81,7 @@ class Dukascopy extends StaticClass {
       $bars   = array();
 
       while ($offset < $size) {
-         $bars[]  = unpack("@$offset/NtimeDelta/Nopen/Nclose/Nlow/Nhigh/Nvolume", $data);
+         $bars[]  = unpack("@$offset/NtimeDelta/Nopen/Nclose/Nlow/Nhigh/Ninterest", $data);
          $offset += DUKASCOPY_BAR_SIZE;
       }
       return $bars;

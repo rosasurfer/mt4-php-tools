@@ -449,9 +449,9 @@ function processRawDukascopyData($data, $symbol, $day, $type) {
    $size = sizeOf($bars); if ($size != 1*DAY/MINUTES) throw new plRuntimeException('Unexpected number of Dukascopy bars in '.getVar('dukaName', null, null, $type).': '.$size.' ('.($size > 1*DAY/MINUTES ? 'more':'less').' then a day)');
 
 
-   // (2) Timestamps und FXT-Daten hinzufügen, Units in Lots konvertieren
+   // (2) Timestamps und FXT-Daten hinzufügen, Interest in Lots konvertieren
    $prev = $next = null;                                             // Die Daten der Datei können einen DST-Wechsel abdecken, wenn
-   $fxtOffset = MyFX ::getGmtToFxtTimeOffset($day, $prev, $next);    // $day = "Sun, 00:00 GMT" ist. In diesem Fall muß innerhalb
+   $fxtOffset = MyFX::getGmtToFxtTimeOffset($day, $prev, $next);     // $day = "Sun, 00:00 GMT" ist. In diesem Fall muß innerhalb
    foreach ($bars as $i => &$bar) {                                  // der Datenreihe auf den nächsten DST-Offset gewechselt werden.
       $bar['time_gmt' ] = $day + $bar['timeDelta'];
       $bar['delta_gmt'] =        $bar['timeDelta'];
@@ -459,7 +459,7 @@ function processRawDukascopyData($data, $symbol, $day, $type) {
          $fxtOffset = $next['offset'];                               // $fxtOffset on-the-fly aktualisieren
       $bar['time_fxt' ] =       $bar['time_gmt'] - $fxtOffset;
       $bar['delta_fxt'] =       $bar['time_fxt'] % DAY;
-      $bar['volume'   ] = (int)($bar['volume'  ]/100000);            // Units in Lots konvertieren
+      $bar['interest' ] = (int)($bar['interest']/100000);            // Units in Lots konvertieren
       unset($bar['timeDelta']);
    }
 
@@ -469,8 +469,8 @@ function processRawDukascopyData($data, $symbol, $day, $type) {
    if ($fxtOffset == $next['offset']) {                              // bei DST-Change sicherheitshalber Volumen prüfen
       $lastBar  = $bars[$newDayOffset-1];
       $firstBar = $bars[$newDayOffset];
-      if ($lastBar['volume']!=0 || $firstBar['volume']==0) {
-         echoPre('[Error] '.$shortDate.'   Bar volume mis-match during DST change.');
+      if ($lastBar['interest']!=0 || $firstBar['interest']==0) {
+         echoPre('[Error] '.$shortDate.'   Bar interest mis-match during DST change.');
          echoPre('Last day before DST change ended with:');
          echoPre($bars[$newDayOffset-1]);
          echoPre('First day after DST change starts with:');
@@ -545,7 +545,7 @@ function saveBars($symbol, $day, $type) {
                               $bar['high'    ],
                               $bar['low'     ],
                               $bar['close'   ],
-                              $bar['volume'  ]);
+                              $bar['interest']);
    }
 
 
