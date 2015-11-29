@@ -115,13 +115,13 @@ class ReportHelper extends Object {
       array_pop($data);
 
       foreach ($data as &$row) {
-         $row['ticket'] = (int)   $row['ticket'];
-         $row['lots'  ] = (float) $row['lots'  ];
-         $row['price' ] = (float) $row['price' ];
-         $row['total' ] = (float) $row['total' ];
-         $row['hedged'] = (float) $row['hedged'];
-         $row['long'  ] = (float) $row['long'  ];
-         $row['short' ] = (float) $row['short' ];
+         $row['ticket'] = (int)    $row['ticket'];
+         $row['lots'  ] = (double) $row['lots'  ];
+         $row['price' ] = (double) $row['price' ];
+         $row['total' ] = (double) $row['total' ];
+         $row['hedged'] = (double) $row['hedged'];
+         $row['long'  ] = (double) $row['long'  ];
+         $row['short' ] = (double) $row['short' ];
       }
       return $data;
    }

@@ -447,7 +447,7 @@ function processRawDukascopyData($data, $symbol, $day, $type) {
    // (2) Timestamps und FXT-Daten hinzufügen, Interest in Lots konvertieren
    $prev = $next = null;                                             // Die Daten der Datei können einen DST-Wechsel abdecken, wenn
    $fxtOffset = MyFX::getGmtToFxtTimeOffset($day, $prev, $next);     // $day = "Sun, 00:00 GMT" ist. In diesem Fall muß innerhalb
-   foreach ($bars as $i => &$bar) {                                  // der Datenreihe auf den nächsten DST-Offset gewechselt werden.
+   foreach ($bars as &$bar) {                                        // der Datenreihe auf den nächsten DST-Offset gewechselt werden.
       $bar['time_gmt' ] = $day + $bar['timeDelta'];
       $bar['delta_gmt'] =        $bar['timeDelta'];
       if ($bar['time_gmt'] >= $next['time'])
@@ -534,7 +534,7 @@ function saveBars($symbol, $day, $type) {
 
    // (2) Bars binär packen
    $data = null;
-   foreach ($barBuffer[$type][$shortDate] as $i => &$bar) {
+   foreach ($barBuffer[$type][$shortDate] as $i => $bar) {
       $data .= pack('VVVVVV', $bar['time_fxt'],                      // alle Felder als UINT Little-Endian speichern
                               $bar['open'    ],
                               $bar['high'    ],
@@ -667,12 +667,12 @@ function showBuffer() {
    global $barBuffer;
 
    echoPre(NL);
-   foreach ($barBuffer as $type => &$days) {
+   foreach ($barBuffer as $type => $days) {
       if (!is_array($days)) {
          echoPre('barBuffer['.$type.'] => '.(is_null($days) ? 'null':$days));
          continue;
       }
-      foreach ($days as $day => &$bars) {
+      foreach ($days as $day => $bars) {
          if (!is_array($bars)) {
             echoPre('barBuffer['.$type.']['.(is_int($day) ? date('D, d-M-Y', $day):$day).'] => '.(is_null($bars) ? 'null':$bars));
             continue;

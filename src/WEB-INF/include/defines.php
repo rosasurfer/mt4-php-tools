@@ -7,6 +7,34 @@
 define('MAX_SYMBOL_LENGTH', 11);
 
 
+/**
+ * Timezones und Timezone-IDs
+ *
+ * @see  Definition in MT4Expander.dll::defines.h
+ */
+define('TIMEZONE_ALPARI'             , 'Alpari'          );    // bis 03/2012 "Europe/Berlin", ab 04/2012 "Europe/Kiev"
+define('TIMEZONE_AMERICA_NEW_YORK'   , 'America/New_York');
+define('TIMEZONE_EUROPE_BERLIN'      , 'Europe/Berlin'   );
+define('TIMEZONE_EUROPE_KIEV'        , 'Europe/Kiev'     );
+define('TIMEZONE_EUROPE_LONDON'      , 'Europe/London'   );
+define('TIMEZONE_EUROPE_MINSK'       , 'Europe/Minsk'    );
+define('TIMEZONE_FXT'                , 'FXT'             );    // "Europe/Kiev"   mit DST-Wechseln von "America/New_York"
+define('TIMEZONE_FXT_MINUS_0200'     , 'FXT-0200'        );    // "Europe/London" mit DST-Wechseln von "America/New_York"
+define('TIMEZONE_GLOBALPRIME'        , 'GlobalPrime'     );    // bis 24.10.2015 "FXT", dann durch Fehler "Europe/Kiev" (einmalig?)
+define('TIMEZONE_GMT'                , 'GMT'             );
+
+define('TIMEZONE_ID_ALPARI'          ,                 1 );
+define('TIMEZONE_ID_AMERICA_NEW_YORK',                 2 );
+define('TIMEZONE_ID_EUROPE_BERLIN'   ,                 3 );
+define('TIMEZONE_ID_EUROPE_KIEV'     ,                 4 );
+define('TIMEZONE_ID_EUROPE_LONDON'   ,                 5 );
+define('TIMEZONE_ID_EUROPE_MINSK'    ,                 6 );
+define('TIMEZONE_ID_FXT'             ,                 7 );
+define('TIMEZONE_ID_FXT_MINUS_0200'  ,                 8 );
+define('TIMEZONE_ID_GLOBALPRIME'     ,                 9 );
+define('TIMEZONE_ID_GMT'             ,                10 );
+
+
 // Timeframe-Identifier
 define('PERIOD_M1' ,      1);    // 1 minute
 define('PERIOD_M5' ,      5);    // 5 minutes
@@ -49,14 +77,6 @@ define('AH_MAGICNUMBER', 11);
 define('AH_COMMENT'    , 12);
 
 
-// Struct-Sizes
-define('DUKASCOPY_BAR_SIZE'  ,  24);
-define('HISTORY_HEADER_SIZE' , 148);
-define('HISTORY_BAR_400_SIZE',  44);
-define('HISTORY_BAR_401_SIZE',  60);
-define('MYFX_BAR_SIZE'       ,  24);
-
-
 // SimpleTrader: Indizes der von preg_match_all() zurückgegebenen OpenPosition-Datenarrays
 define('I_STOP_TAKEPROFIT',  1);
 define('I_STOP_STOPLOSS'  ,  2);
@@ -83,3 +103,11 @@ define('I_STH_SYMBOL'     ,  9);
 define('I_STH_PROFIT'     , 10);
 define('I_STH_PIPS'       , 11);
 define('I_STH_COMMENT'    , 13);
+
+
+// Struct-Sizes
+define('DUKASCOPY_BAR_SIZE'  ,  24);
+define('HISTORY_HEADER_SIZE' , 148);
+define('HISTORY_BAR_400_SIZE',  44);
+define('HISTORY_BAR_401_SIZE',  60);
+define('MYFX_BAR_SIZE'       ,  24);

@@ -182,7 +182,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
    try {
       // (1) bei partieller History prüfen, ob die älteste geschlossene Position lokal vorhanden ist
       if (!$fullHistory) {
-         foreach ($currentHistory as &$data) {
+         foreach ($currentHistory as $data) {
             if (!$data) continue;                                    // Datensätze übersprungener Zeilen können leer sein.
             $ticket = $data['ticket'];
             if (!ClosedPosition ::dao()->isTicket($signal, $ticket))
@@ -197,7 +197,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
 
 
       // (3) offene Positionen abgleichen
-      foreach ($currentOpenPositions as $i => &$data) {
+      foreach ($currentOpenPositions as $i => $data) {
          if (!$data) continue;                                       // Datensätze übersprungener Zeilen können leer sein.
          $sTicket = (string)$data['ticket'];
 

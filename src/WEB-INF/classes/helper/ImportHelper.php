@@ -27,7 +27,7 @@ class ImportHelper extends StaticClass {
       }
 
       // (1.1) Transaktionen sortieren (by CloseTime ASC, OpenTime ASC, Ticket ASC)
-      foreach ($transactions as $i => &$row) {
+      foreach ($transactions as $i => $row) {
          $closeTimes[$i] = $row[AH_CLOSETIME];
          $openTimes [$i] = $row[AH_OPENTIME];
          $tickets   [$i] = $row[AH_TICKET];

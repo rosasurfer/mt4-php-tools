@@ -49,7 +49,10 @@ class ChainedHistorySet extends Object {
       $this->description = strLeft($description, 63);                   // ein zu langer String wird gekürzt
       $this->digits      = $digits;
       $this->format      = $format;
-      $this->directory   = is_null($directory) ? getCwd():$directory;   // ggf. aktuelles Verzeichnis
+      $this->directory   = $directory;
+      if (is_null($directory))
+         $this->directory = MyFX::getConfigPath('myfx.data_directory').'/history/mt4/MyFX-Dukascopy';
+      mkDirWritable($this->directory);
 
       $this->history[PERIOD_M1 ] = array();                             // Timeframes initialisieren
       $this->history[PERIOD_M5 ] = array();
@@ -60,6 +63,39 @@ class ChainedHistorySet extends Object {
       $this->history[PERIOD_D1 ] = array();
       $this->history[PERIOD_W1 ] = array();
       $this->history[PERIOD_MN1] = array();
+
+      // neuen HistoryHeader initialisieren
+      $hh = MT4::createHistoryHeader();
+      $hh['format'     ] = $this->format;
+      $hh['description'] = $this->description;
+      $hh['symbol'     ] = $this->symbol;
+      $hh['digits'     ] = $this->digits;
+      $hh['timezoneId' ] = TIMEZONE_ID_FXT;
+
+      // alle HistoryFiles erzeugen bzw. zurücksetzen und Header neuschreiben
+      foreach ($this->history as $timeframe => $data) {
+         $file  = $this->directory.'/'.$symbol.$timeframe.'.hst';
+         $hFile = fOpen($file, 'wb');
+         $this->history[$timeframe]['hFile'] = $hFile;
+
+         $hh['period'] = $timeframe;
+         MT4::writeHistoryHeader($hFile, $hh);
+      }
+   }
+
+
+   /**
+    * Destructor
+    *
+    * Sorgt bei Zerstörung des Objekts dafür, daß alle noch offenen Historydateien geschlossen werden.
+    */
+   public function __destruct() {
+      foreach ($this->history as $timeframe => &$data) {                      // data by reference
+         if (isSet($data['hFile']) && is_resource($hFile=&$data['hFile'])) {  // hFile by reference
+            $hTmp=$hFile; $hFile=null;
+            fClose($hTmp);
+         }
+      }
    }
 
 
@@ -71,7 +107,7 @@ class ChainedHistorySet extends Object {
     * @return bool - Erfolgsstatus
     */
    public function addM1Bars(array $bars) {
-      foreach ($bars as &$bar) {
+      foreach ($bars as $bar) {
          if (!$this->addToM1 ($bar)) return false;
          if (!$this->addToM5 ($bar)) return false;
          if (!$this->addToM15($bar)) return false;
@@ -97,12 +133,12 @@ class ChainedHistorySet extends Object {
     */
    private function addToM1(array $bar) {
       static $timeframe = PERIOD_M1;
-      $this->history[$timeframe][] = $bar;
+      $this->history[$timeframe]['bars'][] = $bar;
 
-      $size = sizeOf($this->history[$timeframe]);
+      $size = sizeOf($this->history[$timeframe]['bars']);
       if ($size > $this->flushingTreshold) {
          echoPre('flushing '.$this->flushingTreshold.' bars');
-         $this->history[$timeframe] = array_slice($this->history[$timeframe], $this->flushingTreshold);
+         $this->history[$timeframe]['bars'] = array_slice($this->history[$timeframe]['bars'], $this->flushingTreshold);
       }
       return true;
    }
@@ -125,18 +161,18 @@ class ChainedHistorySet extends Object {
          $currentOpenTime  = $time - $time%5*MINUTES;
          $currentCloseTime = $currentOpenTime + 5*MINUTES;
          $bar['time']      = $currentOpenTime;
-         $this->history[$timeframe][] = $bar; $i++;
+         $this->history[$timeframe]['bars'][] = $bar; $i++;
 
-         $size = sizeOf($this->history[$timeframe]);
+         $size = sizeOf($this->history[$timeframe]['bars']);
          if ($size > $this->flushingTreshold) {
             echoPre('flushing '.$this->flushingTreshold.' bars');
-            $this->history[$timeframe] = array_slice($this->history[$timeframe], $this->flushingTreshold);
+            $this->history[$timeframe]['bars'] = array_slice($this->history[$timeframe]['bars'], $this->flushingTreshold);
             $i -= $this->flushingTreshold;
          }
       }
       else {
          // letzte Bar aktualisieren ('time' und 'open' unverändert)
-         $currentBar =& $this->history[$timeframe][$i];
+         $currentBar =& $this->history[$timeframe]['bars'][$i];
          $currentBar['high' ]  = max($currentBar['high'], $bar['high']);
          $currentBar['low'  ]  = min($currentBar['low' ], $bar['low' ]);
          $currentBar['close']  = $bar['close'];
@@ -163,18 +199,18 @@ class ChainedHistorySet extends Object {
          $currentOpenTime  = $time - $time%15*MINUTES;
          $currentCloseTime = $currentOpenTime + 15*MINUTES;
          $bar['time']      = $currentOpenTime;
-         $this->history[$timeframe][] = $bar; $i++;
+         $this->history[$timeframe]['bars'][] = $bar; $i++;
 
-         $size = sizeOf($this->history[$timeframe]);
+         $size = sizeOf($this->history[$timeframe]['bars']);
          if ($size > $this->flushingTreshold) {
             echoPre('flushing '.$this->flushingTreshold.' bars');
-            $this->history[$timeframe] = array_slice($this->history[$timeframe], $this->flushingTreshold);
+            $this->history[$timeframe]['bars'] = array_slice($this->history[$timeframe]['bars'], $this->flushingTreshold);
             $i -= $this->flushingTreshold;
          }
       }
       else {
          // letzte Bar aktualisieren ('time' und 'open' unverändert)
-         $currentBar =& $this->history[$timeframe][$i];
+         $currentBar =& $this->history[$timeframe]['bars'][$i];
          $currentBar['high' ]  = max($currentBar['high'], $bar['high']);
          $currentBar['low'  ]  = min($currentBar['low' ], $bar['low' ]);
          $currentBar['close']  = $bar['close'];
@@ -201,18 +237,18 @@ class ChainedHistorySet extends Object {
          $currentOpenTime  = $time - $time%30*MINUTES;
          $currentCloseTime = $currentOpenTime + 30*MINUTES;
          $bar['time']      = $currentOpenTime;
-         $this->history[$timeframe][] = $bar; $i++;
+         $this->history[$timeframe]['bars'][] = $bar; $i++;
 
-         $size = sizeOf($this->history[$timeframe]);
+         $size = sizeOf($this->history[$timeframe]['bars']);
          if ($size > $this->flushingTreshold) {
             echoPre('flushing '.$this->flushingTreshold.' bars');
-            $this->history[$timeframe] = array_slice($this->history[$timeframe], $this->flushingTreshold);
+            $this->history[$timeframe]['bars'] = array_slice($this->history[$timeframe]['bars'], $this->flushingTreshold);
             $i -= $this->flushingTreshold;
          }
       }
       else {
          // letzte Bar aktualisieren ('time' und 'open' unverändert)
-         $currentBar =& $this->history[$timeframe][$i];
+         $currentBar =& $this->history[$timeframe]['bars'][$i];
          $currentBar['high' ]  = max($currentBar['high'], $bar['high']);
          $currentBar['low'  ]  = min($currentBar['low' ], $bar['low' ]);
          $currentBar['close']  = $bar['close'];
@@ -239,18 +275,18 @@ class ChainedHistorySet extends Object {
          $currentOpenTime  = $time - $time%HOURS;
          $currentCloseTime = $currentOpenTime + 1*HOUR;
          $bar['time']      = $currentOpenTime;
-         $this->history[$timeframe][] = $bar; $i++;
+         $this->history[$timeframe]['bars'][] = $bar; $i++;
 
-         $size = sizeOf($this->history[$timeframe]);
+         $size = sizeOf($this->history[$timeframe]['bars']);
          if ($size > $this->flushingTreshold) {
             echoPre('flushing '.$this->flushingTreshold.' bars');
-            $this->history[$timeframe] = array_slice($this->history[$timeframe], $this->flushingTreshold);
+            $this->history[$timeframe]['bars'] = array_slice($this->history[$timeframe]['bars'], $this->flushingTreshold);
             $i -= $this->flushingTreshold;
          }
       }
       else {
          // letzte Bar aktualisieren ('time' und 'open' unverändert)
-         $currentBar =& $this->history[$timeframe][$i];
+         $currentBar =& $this->history[$timeframe]['bars'][$i];
          $currentBar['high' ]  = max($currentBar['high'], $bar['high']);
          $currentBar['low'  ]  = min($currentBar['low' ], $bar['low' ]);
          $currentBar['close']  = $bar['close'];
@@ -277,18 +313,18 @@ class ChainedHistorySet extends Object {
          $currentOpenTime  = $time - $time%4*HOURS;
          $currentCloseTime = $currentOpenTime + 4*HOURS;
          $bar['time']      = $currentOpenTime;
-         $this->history[$timeframe][] = $bar; $i++;
+         $this->history[$timeframe]['bars'][] = $bar; $i++;
 
-         $size = sizeOf($this->history[$timeframe]);
+         $size = sizeOf($this->history[$timeframe]['bars']);
          if ($size > $this->flushingTreshold) {
             echoPre('flushing '.$this->flushingTreshold.' bars');
-            $this->history[$timeframe] = array_slice($this->history[$timeframe], $this->flushingTreshold);
+            $this->history[$timeframe]['bars'] = array_slice($this->history[$timeframe]['bars'], $this->flushingTreshold);
             $i -= $this->flushingTreshold;
          }
       }
       else {
          // letzte Bar aktualisieren ('time' und 'open' unverändert)
-         $currentBar =& $this->history[$timeframe][$i];
+         $currentBar =& $this->history[$timeframe]['bars'][$i];
          $currentBar['high' ]  = max($currentBar['high'], $bar['high']);
          $currentBar['low'  ]  = min($currentBar['low' ], $bar['low' ]);
          $currentBar['close']  = $bar['close'];
@@ -315,18 +351,18 @@ class ChainedHistorySet extends Object {
          $currentOpenTime  = $time - $time%DAYS;
          $currentCloseTime = $currentOpenTime + 1*DAY;
          $bar['time']      = $currentOpenTime;
-         $this->history[$timeframe][] = $bar; $i++;
+         $this->history[$timeframe]['bars'][] = $bar; $i++;
 
-         $size = sizeOf($this->history[$timeframe]);
+         $size = sizeOf($this->history[$timeframe]['bars']);
          if ($size > $this->flushingTreshold) {
             echoPre('flushing '.$this->flushingTreshold.' bars');
-            $this->history[$timeframe] = array_slice($this->history[$timeframe], $this->flushingTreshold);
+            $this->history[$timeframe]['bars'] = array_slice($this->history[$timeframe]['bars'], $this->flushingTreshold);
             $i -= $this->flushingTreshold;
          }
       }
       else {
          // letzte Bar aktualisieren ('time' und 'open' unverändert)
-         $currentBar =& $this->history[$timeframe][$i];
+         $currentBar =& $this->history[$timeframe]['bars'][$i];
          $currentBar['high' ]  = max($currentBar['high'], $bar['high']);
          $currentBar['low'  ]  = min($currentBar['low' ], $bar['low' ]);
          $currentBar['close']  = $bar['close'];
@@ -354,18 +390,18 @@ class ChainedHistorySet extends Object {
          $currentOpenTime  = $time - $time%DAYS - (($dow+6)%7)*DAYS; // 00:00, Montag
          $currentCloseTime = $currentOpenTime + 1*WEEK;
          $bar['time']      = $currentOpenTime;
-         $this->history[$timeframe][] = $bar; $i++;
+         $this->history[$timeframe]['bars'][] = $bar; $i++;
 
-         $size = sizeOf($this->history[$timeframe]);
+         $size = sizeOf($this->history[$timeframe]['bars']);
          if ($size > $this->flushingTreshold) {
             echoPre('flushing '.$this->flushingTreshold.' bars');
-            $this->history[$timeframe] = array_slice($this->history[$timeframe], $this->flushingTreshold);
+            $this->history[$timeframe]['bars'] = array_slice($this->history[$timeframe]['bars'], $this->flushingTreshold);
             $i -= $this->flushingTreshold;
          }
       }
       else {
          // letzte Bar aktualisieren ('time' und 'open' unverändert)
-         $currentBar =& $this->history[$timeframe][$i];
+         $currentBar =& $this->history[$timeframe]['bars'][$i];
          $currentBar['high' ]  = max($currentBar['high'], $bar['high']);
          $currentBar['low'  ]  = min($currentBar['low' ], $bar['low' ]);
          $currentBar['close']  = $bar['close'];
@@ -395,18 +431,18 @@ class ChainedHistorySet extends Object {
          $currentOpenTime  = $time - $time%DAYS - ($dom-1)*DAYS;     // 00:00, 1. des Monats
          $currentCloseTime = gmMkTime(0, 0, 0, $m+1, 1, $y);         // 00:00, 1. des nächsten Monats
          $bar['time']      = $currentOpenTime;
-         $this->history[$timeframe][] = $bar; $i++;
+         $this->history[$timeframe]['bars'][] = $bar; $i++;
 
-         $size = sizeOf($this->history[$timeframe]);
+         $size = sizeOf($this->history[$timeframe]['bars']);
          if ($size > $this->flushingTreshold) {
             echoPre('flushing '.$this->flushingTreshold.' bars');
-            $this->history[$timeframe] = array_slice($this->history[$timeframe], $this->flushingTreshold);
+            $this->history[$timeframe]['bars'] = array_slice($this->history[$timeframe]['bars'], $this->flushingTreshold);
             $i -= $this->flushingTreshold;
          }
       }
       else {
          // letzte Bar aktualisieren
-         $currentBar =& $this->history[$timeframe][$i];
+         $currentBar =& $this->history[$timeframe]['bars'][$i];
        //$currentBar['time' ]  = ...                                 // unverändert
        //$currentBar['open' ]  = ...                                 // unverändert
          $currentBar['high' ]  = max($currentBar['high'], $bar['high']);
@@ -423,11 +459,14 @@ class ChainedHistorySet extends Object {
     */
    public function showBuffer() {
       echoPre(NL);
-      foreach ($this->history as $timeframe => &$bars) {
-         $size = sizeOf($bars);
-         $firstBar = $size ? date('d-M-Y H:i', $bars[0      ]['time']):null;
-         $lastBar  = $size ? date('d-M-Y H:i', $bars[$size-1]['time']):null;
-         echoPre('history['. str_pad(MyFX::timeframeDescription($timeframe), 3, ' ', STR_PAD_RIGHT).'] => '.str_pad($size, 5, ' ', STR_PAD_LEFT).' bar'.($size==1?' ':'s').($firstBar?'  from='.$firstBar:'').($size>1?'  to='.$lastBar:''));
+      foreach ($this->history as $timeframe => $data) {
+         if (isSet($data['bars'])) {
+            $bars = $data['bars'];
+            $size = sizeOf($bars);
+            $firstBar = $size ? date('d-M-Y H:i', $bars[0      ]['time']):null;
+            $lastBar  = $size ? date('d-M-Y H:i', $bars[$size-1]['time']):null;
+            echoPre('history['. str_pad(MyFX::timeframeDescription($timeframe), 3, ' ', STR_PAD_RIGHT).'] => '.str_pad($size, 5, ' ', STR_PAD_LEFT).' bar'.($size==1?' ':'s').($firstBar?'  from='.$firstBar:'').($size>1?'  to='.$lastBar:''));
+         }
       }
       echoPre(NL);
    }

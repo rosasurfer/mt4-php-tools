@@ -108,7 +108,7 @@ class MyFX extends StaticClass {
       }
 
       $i = -2;
-      foreach ($transitions as $i => &$transition) {
+      foreach ($transitions as $i => $transition) {
          if ($transition['ts'] > $timestamp) {
             $i--;                                                    // $i zeigt auf die aktuelle Periode
             break;

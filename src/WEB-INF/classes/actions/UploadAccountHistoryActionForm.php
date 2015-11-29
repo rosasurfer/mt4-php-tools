@@ -16,7 +16,7 @@ class UploadAccountHistoryActionForm extends ActionForm {
 
    private /*string*/  $accountCompany;
    private /*string*/  $accountNumber;
-   private /*float*/   $accountBalance;
+   private /*double*/  $accountBalance;
    private /*mixed[]*/ $data;                               // geparster Inhalt der Datei
 
 
@@ -145,11 +145,11 @@ class UploadAccountHistoryActionForm extends ActionForm {
             $this->accountNumber = $accountNumber;
 
             $accountBalance = $values[2];
-            if ($accountBalance != (string)(float)$accountBalance) {
+            if ($accountBalance != (string)(double)$accountBalance) {
                $request->setActionError('', '103: Invalid file format (unexpected value in line '.($i+1).',4)');
                return false;
             }
-            $this->accountBalance = (float) $accountBalance;
+            $this->accountBalance = (double) $accountBalance;
 
             // Abschnitt [account] nach der ersten Datenzeile abbrechen
             $section = null;
@@ -213,23 +213,23 @@ class UploadAccountHistoryActionForm extends ActionForm {
             }
             $closeTimestamp = (int) $closeTimestamp;
 
-            if ($commission != (string)(float)$commission) {
+            if ($commission != (string)(double)$commission) {
                $request->setActionError('', '103: Invalid file format (unexpected value in line '.($i+1).',12)');
                return false;
             }
-            $commission = (float) $commission;
+            $commission = (double)$commission;
 
-            if ($swap != (string)(float)$swap) {
+            if ($swap != (string)(double)$swap) {
                $request->setActionError('', '103: Invalid file format (unexpected value in line '.($i+1).',13)');
                return false;
             }
-            $swap = (float) $swap;
+            $swap = (double)$swap;
 
-            if ($profit != (string)(float)$profit) {
+            if ($profit != (string)(double)$profit) {
                $request->setActionError('', '103: Invalid file format (unexpected value in line '.($i+1).',14)');
                return false;
             }
-            $profit = (float) $profit;
+            $profit = (double)$profit;
 
             if ($type==OP_BALANCE || $type==OP_CREDIT) { // für Balance und Credit-Werte nichtzutreffende Felder auf NULL setzen
                $symbol      = null;
@@ -247,17 +247,17 @@ class UploadAccountHistoryActionForm extends ActionForm {
                   return false;
                }
 
-               if ($openPrice!=(string)(float)$openPrice || (float)$openPrice <= 0) {
+               if ($openPrice!=(string)(double)$openPrice || (double)$openPrice <= 0) {
                   $request->setActionError('', '103: Invalid file format (unexpected value in line '.($i+1).',8)');
                   return false;
                }
-               $openPrice = (float) $openPrice;
+               $openPrice = (double)$openPrice;
 
-               if ($closePrice!=(string)(float)$closePrice || (float)$closePrice <= 0) {
+               if ($closePrice!=(string)(double)$closePrice || (double)$closePrice <= 0) {
                   $request->setActionError('', '103: Invalid file format (unexpected value in line '.($i+1).',11)');
                   return false;
                }
-               $closePrice = (float) $closePrice;
+               $closePrice = (double)$closePrice;
 
                if (strLen($magicNumber) && ($magicNumber!==(string)(int)$magicNumber || (int)$magicNumber <= 0)) {
                   $request->setActionError('', '103: Invalid file format (unexpected value in line '.($i+1).',15)');

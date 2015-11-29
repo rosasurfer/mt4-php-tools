@@ -174,13 +174,13 @@ class SimpleTrader extends StaticClass {
                // 1:TakeProfit
                $sValue = trim($row[I_STOP_TAKEPROFIT]);
                if (empty($sValue) || $sValue=='-') $dValue = null;
-               else if (($dValue=(float)$sValue) <= 0 || !is_numeric($sValue)) throw new plRuntimeException('Invalid TakeProfit found in open position row '.($i+1).': "'.$row[I_STOP_TAKEPROFIT].'", HTML:'.NL.NL.$row[0]);
+               else if (($dValue=(double)$sValue) <= 0 || !is_numeric($sValue)) throw new plRuntimeException('Invalid TakeProfit found in open position row '.($i+1).': "'.$row[I_STOP_TAKEPROFIT].'", HTML:'.NL.NL.$row[0]);
                $row['takeprofit'] = $dValue;
 
                // 2:StopLoss
                $sValue = trim($row[I_STOP_STOPLOSS]);
                if (empty($sValue) || $sValue=='-') $dValue = null;
-               else if (($dValue=(float)$sValue) <= 0 || !is_numeric($sValue)) throw new plRuntimeException('Invalid StopLoss found in open position row '.($i+1).': "'.$row[I_STOP_STOPLOSS].'", HTML:'.NL.NL.$row[0]);
+               else if (($dValue=(double)$sValue) <= 0 || !is_numeric($sValue)) throw new plRuntimeException('Invalid StopLoss found in open position row '.($i+1).': "'.$row[I_STOP_STOPLOSS].'", HTML:'.NL.NL.$row[0]);
                $row['stoploss'] = $dValue;
 
                // 3:OpenTime
@@ -193,13 +193,13 @@ class SimpleTrader extends StaticClass {
 
                // 4:OpenPrice
                $sValue = trim($row[I_STOP_OPENPRICE]);
-               if (!is_numeric($sValue) || ($dValue=(float)$sValue) <= 0) throw new plRuntimeException('Invalid OpenPrice found in open position row '.($i+1).': "'.$row[I_STOP_OPENPRICE].'", HTML:'.NL.NL.$row[0]);
+               if (!is_numeric($sValue) || ($dValue=(double)$sValue) <= 0) throw new plRuntimeException('Invalid OpenPrice found in open position row '.($i+1).': "'.$row[I_STOP_OPENPRICE].'", HTML:'.NL.NL.$row[0]);
                $row['openprice' ] = $dValue;
                $row['closeprice'] = null;
 
                // 5:LotSize
                $sValue = trim($row[I_STOP_LOTSIZE]);
-               if (!is_numeric($sValue) || ($dValue=(float)$sValue) <= 0) throw new plRuntimeException('Invalid LotSize found in open position row '.($i+1).': "'.$row[I_STOP_LOTSIZE].'", HTML:'.NL.NL.$row[0]);
+               if (!is_numeric($sValue) || ($dValue=(double)$sValue) <= 0) throw new plRuntimeException('Invalid LotSize found in open position row '.($i+1).': "'.$row[I_STOP_LOTSIZE].'", HTML:'.NL.NL.$row[0]);
                $row['lots'] = $dValue;
 
                // 6:Type
@@ -215,7 +215,7 @@ class SimpleTrader extends StaticClass {
                // 8:Profit
                $sValue = trim($row[I_STOP_PROFIT]);
                if (!is_numeric($sValue)) throw new plRuntimeException('Invalid Profit found in open position row '.($i+1).': "'.$row[I_STOP_PROFIT].'", HTML:'.NL.NL.$row[0]);
-               $row['profit'    ] = (float)$sValue;
+               $row['profit'    ] = (double)$sValue;
                $row['commission'] = 0;
                $row['swap'      ] = 0;
 
@@ -267,13 +267,13 @@ class SimpleTrader extends StaticClass {
                // 1:TakeProfit
                $sValue = trim($row[I_STH_TAKEPROFIT]);
                if (empty($sValue) || $sValue=='-') $dValue = null;
-               else if (($dValue=(float)$sValue) <= 0 || !is_numeric($sValue)) throw new plRuntimeException('Invalid TakeProfit found in history row '.($i+1).': "'.$row[I_STH_TAKEPROFIT].'", HTML:'.NL.NL.$row[0]);
+               else if (($dValue=(double)$sValue) <= 0 || !is_numeric($sValue)) throw new plRuntimeException('Invalid TakeProfit found in history row '.($i+1).': "'.$row[I_STH_TAKEPROFIT].'", HTML:'.NL.NL.$row[0]);
                $row['takeprofit'] = $dValue;
 
                // 2:StopLoss
                $sValue = trim($row[I_STH_STOPLOSS]);
                if (empty($sValue) || $sValue=='-') $dValue = null;
-               else if (($dValue=(float)$sValue) <= 0 || !is_numeric($sValue)) throw new plRuntimeException('Invalid StopLoss found in history row '.($i+1).': "'.$row[I_STH_STOPLOSS].'", HTML:'.NL.NL.$row[0]);
+               else if (($dValue=(double)$sValue) <= 0 || !is_numeric($sValue)) throw new plRuntimeException('Invalid StopLoss found in history row '.($i+1).': "'.$row[I_STH_STOPLOSS].'", HTML:'.NL.NL.$row[0]);
                $row['stoploss'] = $dValue;
 
                // 3:OpenTime
@@ -298,17 +298,17 @@ class SimpleTrader extends StaticClass {
 
                // 5:OpenPrice
                $sValue = trim($row[I_STH_OPENPRICE]);
-               if (!is_numeric($sValue) || ($dValue=(float)$sValue) <= 0) throw new plRuntimeException('Invalid OpenPrice found in history row '.($i+1).': "'.$row[I_STH_OPENPRICE].'", HTML:'.NL.NL.$row[0]);
+               if (!is_numeric($sValue) || ($dValue=(double)$sValue) <= 0) throw new plRuntimeException('Invalid OpenPrice found in history row '.($i+1).': "'.$row[I_STH_OPENPRICE].'", HTML:'.NL.NL.$row[0]);
                $row['openprice'] = $dValue;
 
                // 6:ClosePrice
                $sValue = trim($row[I_STH_CLOSEPRICE]);
-               if (!is_numeric($sValue) || ($dValue=(float)$sValue) <= 0) throw new plRuntimeException('Invalid ClosePrice found in history row '.($i+1).': "'.$row[I_STH_CLOSEPRICE].'", HTML:'.NL.NL.$row[0]);
+               if (!is_numeric($sValue) || ($dValue=(double)$sValue) <= 0) throw new plRuntimeException('Invalid ClosePrice found in history row '.($i+1).': "'.$row[I_STH_CLOSEPRICE].'", HTML:'.NL.NL.$row[0]);
                $row['closeprice'] = $dValue;
 
                // 7:LotSize
                $sValue = trim($row[I_STH_LOTSIZE]);
-               if (!is_numeric($sValue) || ($dValue=(float)$sValue) <= 0) throw new plRuntimeException('Invalid LotSize found in history row '.($i+1).': "'.$row[I_STH_LOTSIZE].'", HTML:'.NL.NL.$row[0]);
+               if (!is_numeric($sValue) || ($dValue=(double)$sValue) <= 0) throw new plRuntimeException('Invalid LotSize found in history row '.($i+1).': "'.$row[I_STH_LOTSIZE].'", HTML:'.NL.NL.$row[0]);
                $row['lots'] = $dValue;
 
                // 8:Type
@@ -316,7 +316,7 @@ class SimpleTrader extends StaticClass {
                // Tickets mit fehlerhaften OperationType reparieren
                if ($sValue!='buy' && $sValue!='sell') {
                   if (is_numeric($sProfit=trim($row[I_STH_PROFIT])) && $row['openprice'] != $row['closeprice']) {
-                     $dProfit = (float)$sProfit;
+                     $dProfit = (double)$sProfit;
                      if ($row['openprice'] < $row['closeprice']) $fixedValue = ($dProfit > 0) ? 'Buy' :'Sell';
                      else                                        $fixedValue = ($dProfit > 0) ? 'Sell':'Buy' ;
                      echoPre('Fixing invalid operation type "'.$sValue.'" of ticket #'.$sTicket.': '.$fixedValue);
@@ -334,7 +334,7 @@ class SimpleTrader extends StaticClass {
                // 10:Profit
                $sValue = trim($row[I_STH_PROFIT]);
                if (!is_numeric($sValue)) throw new plRuntimeException('Invalid Profit found in history row '.($i+1).': "'.$row[I_STH_PROFIT].'", HTML:'.NL.NL.$row[0]);
-               $row['profit'    ] = (float)$sValue;
+               $row['profit'    ] = (double)$sValue;
                $row['commission'] = 0;
                $row['swap'      ] = 0;
 
@@ -452,8 +452,8 @@ class SimpleTrader extends StaticClass {
     * Handler für PositionModify-Events eines SimpleTrader-Signals.
     *
     * @param  OpenPosition $position - die modifizierte Position (nach der Änderung)
-    * @param  float        $prevTP   - der vorherige TakeProfit-Wert
-    * @param  float        $prevSL   - der vorherige StopLoss-Wert
+    * @param  double       $prevTP   - der vorherige TakeProfit-Wert
+    * @param  double       $prevSL   - der vorherige StopLoss-Wert
     */
    public static function onPositionModify(OpenPosition $position, $prevTP, $prevSL) {
       if (!is_null($prevTP) && !is_float($prevTP)) throw new IllegalTypeException('Illegal type of parameter $prevTP: '.getType($prevSL));

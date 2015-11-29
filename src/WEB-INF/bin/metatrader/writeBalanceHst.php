@@ -43,7 +43,7 @@ $newYorkTimezone = new DateTimeZone('America/New_York');
 $lines         = file($sourceFile);
 $headerChecked = false;
 
-foreach ($lines as $i => &$line) {
+foreach ($lines as $i => $line) {
    if ($line{0}=='#')                                                      // Kommentare überspringen
       continue;
    if (!$headerChecked) {                                                  // Header in 1. Datenzeile prüfen
@@ -64,7 +64,7 @@ foreach ($lines as $i => &$line) {
 
    $csvHistory[] = array((int) $values[11],                                // ServerTime
                          strToTime($date->format('Y-m-d H:i:s \G\M\T')),   // GMT-Timestamp der FXT der ServerTime; FXT = America/New_York+0700
-                         (float) $values[20]);                             // Balance
+                         (double) $values[20]);                            // Balance
 }
 !$csvHistory && exit("Empty CSV history file - nothing to do.\n");
 
