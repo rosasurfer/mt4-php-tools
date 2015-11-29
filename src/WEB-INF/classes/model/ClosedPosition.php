@@ -7,17 +7,17 @@ class ClosedPosition extends PersistableObject {
 
    protected /*int   */ $ticket;
    protected /*string*/ $type;
-   protected /*float */ $lots;
+   protected /*double*/ $lots;
    protected /*string*/ $symbol;
    protected /*string*/ $openTime;
-   protected /*float */ $openPrice;
+   protected /*double*/ $openPrice;
    protected /*string*/ $closeTime;
-   protected /*float */ $closePrice;
-   protected /*float */ $stopLoss;
-   protected /*float */ $takeProfit;
-   protected /*float */ $commission;
-   protected /*float */ $swap;
-   protected /*float */ $profit;
+   protected /*double*/ $closePrice;
+   protected /*double*/ $stopLoss;
+   protected /*double*/ $takeProfit;
+   protected /*double*/ $commission;
+   protected /*double*/ $swap;
+   protected /*double*/ $profit;
    protected /*int   */ $magicNumber;
    protected /*string*/ $comment;
    protected /*int   */ $signal_id;
@@ -168,7 +168,7 @@ class ClosedPosition extends PersistableObject {
     * @param  int    $decimals  - Anzahl der Nachkommastellen
     * @param  string $separator - Dezimaltrennzeichen
     *
-    * @return float|string - Betrag
+    * @return double|string - Betrag
     */
    public function getCommission($decimals=2, $separator='.') {
       if (func_num_args() == 0)
@@ -184,7 +184,7 @@ class ClosedPosition extends PersistableObject {
     * @param  int    $decimals  - Anzahl der Nachkommastellen
     * @param  string $separator - Dezimaltrennzeichen
     *
-    * @return float|string - Betrag
+    * @return double|string - Betrag
     */
    public function getSwap($decimals=2, $separator='.') {
       if (func_num_args() == 0)
@@ -200,7 +200,7 @@ class ClosedPosition extends PersistableObject {
     * @param  int    $decimals  - Anzahl der Nachkommastellen
     * @param  string $separator - Dezimaltrennzeichen
     *
-    * @return float|string - Betrag
+    * @return double|string - Betrag
     */
    public function getProfit($decimals=2, $separator='.') {
       if (func_num_args() == 0)

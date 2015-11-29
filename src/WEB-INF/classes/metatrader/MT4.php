@@ -61,6 +61,8 @@ class MT4 extends StaticClass {
     * Erzeugt eine mit Defaultwerten gefüllte HistoryHeader-Struktur und gibt sie zurück.
     *
     * @return array - struct HISTORY_HEADER
+    *
+    * @see  Definition in Expander.dll::Expander.h
     */
    public static function createHistoryHeader() {
       return self ::$tpl_HistoryHeader;
@@ -101,10 +103,10 @@ class MT4 extends StaticClass {
     *
     * @param  resource $hFile - File-Handle eines History-Files, muß Schreibzugriff erlauben
     * @param  int      $time  - Timestamp der Bar
-    * @param  float    $open
-    * @param  float    $high
-    * @param  float    $low
-    * @param  float    $close
+    * @param  double   $open
+    * @param  double   $high
+    * @param  double   $low
+    * @param  double   $close
     * @param  int      $ticks
     *
     * @return int - Anzahl der geschriebenen Bytes

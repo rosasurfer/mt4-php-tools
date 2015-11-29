@@ -7,12 +7,12 @@ class Account extends PersistableObject {
 
    protected /*string*/ $company;
    protected /*string*/ $number;
-   protected /*bool*/   $demo;
+   protected /*bool  */ $demo;
    protected /*string*/ $type;
    protected /*string*/ $timezone;
    protected /*string*/ $currency;
-   protected /*float*/  $balance;
-   protected /*float*/  $lastReportedBalance;
+   protected /*double*/ $balance;
+   protected /*double*/ $lastReportedBalance;
    protected /*string*/ $lastUpdate;
    protected /*string*/ $mtiAccountId;
 
@@ -43,7 +43,7 @@ class Account extends PersistableObject {
     * @param  int    $decimals  - Anzahl der Nachkommastellen
     * @param  string $separator - Dezimaltrennzeichen
     *
-    * @return float|string - Kontostand
+    * @return double|string - Kontostand
     */
    public function getBalance($decimals = 2, $separator = ',') {
       if (func_num_args() == 0)
@@ -59,7 +59,7 @@ class Account extends PersistableObject {
     * @param  int    $decimals  - Anzahl der Nachkommastellen
     * @param  string $separator - Dezimaltrennzeichen
     *
-    * @return float|string - Kontostand
+    * @return double|string - Kontostand
     */
    public function getLastReportedBalance($decimals = 2, $separator = ',') {
       if (is_null($this->lastReportedBalance) || func_num_args()==0)
@@ -72,7 +72,7 @@ class Account extends PersistableObject {
    /**
     * Setzt den letzten gemeldeten Kontostand des Accounts.
     *
-    * @param  float $balance - Kontostand
+    * @param  double $balance - Kontostand
     *
     * @return Account
     */

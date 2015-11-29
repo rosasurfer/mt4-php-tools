@@ -1,8 +1,8 @@
 <?php
 /**
- * ChainedHistorySet
+ * HistorySet
  *
- * Ein optimiertes HistorySet zur Erzeugung einer vollständigen MetaTrader-History aus M1-Daten.
+ * Ein HistorySet zur Erzeugung einer vollständigen MetaTrader-History aus M1-Daten.
  */
 class ChainedHistorySet extends Object {
 

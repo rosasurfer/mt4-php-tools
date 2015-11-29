@@ -12,7 +12,7 @@ $__classes['UploadFTPConfigurationActionForm'  ] = $dir.'actions/UploadFTPConfig
 
 $__classes['Dukascopy'                         ] = $dir.'dukascopy/Dukascopy';
 
-$__classes['ChainedHistorySet'                 ] = $dir.'metatrader/ChainedHistorySet';
+$__classes['HistorySet'                        ] = $dir.'metatrader/HistorySet';
 $__classes['MT4'                               ] = $dir.'metatrader/MT4';
 
 $__classes['DataNotFoundException'             ] = $dir.'simpletrader/DataNotFoundException';

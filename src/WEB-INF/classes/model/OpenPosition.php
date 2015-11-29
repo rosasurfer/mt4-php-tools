@@ -7,14 +7,14 @@ class OpenPosition extends PersistableObject {
 
    protected /*int   */ $ticket;
    protected /*string*/ $type;
-   protected /*float */ $lots;
+   protected /*double*/ $lots;
    protected /*string*/ $symbol;
    protected /*string*/ $openTime;
-   protected /*float */ $openPrice;
-   protected /*float */ $stopLoss;
-   protected /*float */ $takeProfit;
-   protected /*float */ $commission;
-   protected /*float */ $swap;
+   protected /*double*/ $openPrice;
+   protected /*double*/ $stopLoss;
+   protected /*double*/ $takeProfit;
+   protected /*double*/ $commission;
+   protected /*double*/ $swap;
    protected /*int   */ $magicNumber;
    protected /*string*/ $comment;
    protected /*int   */ $signal_id;
@@ -96,7 +96,7 @@ class OpenPosition extends PersistableObject {
     * @param  int    $decimals  - Anzahl der Nachkommastellen
     * @param  string $separator - Dezimaltrennzeichen
     *
-    * @return float|string - Betrag
+    * @return double|string - Betrag
     */
    public function getCommission($decimals=2, $separator='.') {
       if (func_num_args() == 0)
@@ -111,7 +111,7 @@ class OpenPosition extends PersistableObject {
     * @param  int    $decimals  - Anzahl der Nachkommastellen
     * @param  string $separator - Dezimaltrennzeichen
     *
-    * @return float|string - Betrag
+    * @return double|string - Betrag
     */
    public function getSwap($decimals=2, $separator='.') {
       if (func_num_args() == 0)
@@ -123,7 +123,7 @@ class OpenPosition extends PersistableObject {
    /**
     * Setzt den StopLoss dieser Position auf den angegebenen Wert.
     *
-    * @param  float $value - StopLoss-Value (0 oder NULL löschen den aktuellen Wert)
+    * @param  double $value - StopLoss-Value (0 oder NULL löschen den aktuellen Wert)
     *
     * @return Customer
     */
@@ -146,7 +146,7 @@ class OpenPosition extends PersistableObject {
    /**
     * Setzt den TakeProfit dieser Position auf den angegebenen Wert.
     *
-    * @param  float $value - TakeProfit-Value (0 oder NULL löschen den aktuellen Wert)
+    * @param  double $value - TakeProfit-Value (0 oder NULL löschen den aktuellen Wert)
     *
     * @return Customer
     */
