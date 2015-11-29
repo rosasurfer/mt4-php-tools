@@ -83,7 +83,7 @@ function createHistory($symbol, $type) {
    $today    = ($today=time())                  - $today   %DAY;     // 00:00 aktueller Tag
 
    // MT4-HistorySet erzeugen
-   $history = new ChainedHistorySet($symbol);
+   $history = new ChainedHistorySet($symbol, $description=null, $digits=5, $format=400);
 
 
    // Gesamte Zeitspanne tageweise durchlaufen

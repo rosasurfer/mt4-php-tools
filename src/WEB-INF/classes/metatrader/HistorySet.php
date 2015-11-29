@@ -7,25 +7,51 @@
 class ChainedHistorySet extends Object {
 
 
-   protected /*string    */ $symbol;
+   protected /*string*/     $symbol;
+   protected /*string*/     $description;
+   protected /*int   */     $digits;
+   protected /*int   */     $format;
+   protected /*string*/     $directory;
+
    protected /*MYFX_BAR[]*/ $history;
+   protected /*int       */ $flushingTreshold = 1000;                // maximale Anzahl von gecachten/ungespeicherten Bars
 
 
    /**
     * Constructor
     *
-    * Erzeugt ein neues HistorySet.
+    * Erzeugt ein neues HistorySet mit den angegebenen Daten.
     *
-    * @param  string $symbol - Symbol der HistorySet-Daten
+    * @param  string $symbol      - Symbol der HistorySet-Daten
+    * @param  string $description - Beschreibung des Symbols
+    * @param  int    $digits      - Digits der Datenreihe
+    * @param  int    $format      - Speicherformat der Datenreihe:
+    *                               • 400 - wie MetaTrader bis Build 509
+    *                               • 401 - wie MetaTrader ab Build 510
+    * @param  string $directory   - Serververzeichnis, in dem die Historydateien des Sets gespeichert und das Symbol in die Datei
+    *                               "symbols.raw" eingetragen werden (default: aktuelles Verzeichnis).
     */
-   public function __construct($symbol) {
-      if (!is_string($symbol))                 throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
-      if (!strLen($symbol))                    throw new plInvalidArgumentException('Invalid parameter $symbol: ""');
-      if (strLen($symbol) > MAX_SYMBOL_LENGTH) throw new plInvalidArgumentException('Invalid parameter $symbol: "'.$symbol.'" (max '.MAX_SYMBOL_LENGTH.' characters)');
+   public function __construct($symbol, $description, $digits, $format, $directory=null) {
+      if (!is_string($symbol))                                throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
+      if (!strLen($symbol))                                   throw new plInvalidArgumentException('Invalid parameter $symbol: ""');
+      if (strLen($symbol) > MAX_SYMBOL_LENGTH)                throw new plInvalidArgumentException('Invalid parameter $symbol: "'.$symbol.'" (max '.MAX_SYMBOL_LENGTH.' characters)');
+      if (!is_null($description) && !is_string($description)) throw new IllegalTypeException('Illegal type of parameter $description: '.getType($description));
+      if (!is_int($digits))                                   throw new IllegalTypeException('Illegal type of parameter $digits: '.getType($digits));
+      if ($digits < 0)                                        throw new plInvalidArgumentException('Invalid parameter $digits: '.$digits);
+      if (!is_int($format))                                   throw new IllegalTypeException('Illegal type of parameter $format: '.getType($format));
+      if ($format!=400 && $format!=401)                       throw new plInvalidArgumentException('Invalid parameter $format: '.$format.' (needs to be 400 or 401)');
+      if (!is_null($directory)) {
+         if (!is_string($directory))                          throw new IllegalTypeException('Illegal type of parameter $directory: '.getType($directory));
+         if (!strLen($directory))                             throw new plInvalidArgumentException('Invalid parameter $directory: ""');
+      }
 
-      $this->symbol = $symbol;
+      $this->symbol      = $symbol;
+      $this->description = strLeft($description, 63);                   // ein zu langer String wird gekürzt
+      $this->digits      = $digits;
+      $this->format      = $format;
+      $this->directory   = is_null($directory) ? getCwd():$directory;   // ggf. aktuelles Verzeichnis
 
-      $this->history[PERIOD_M1 ] = array();                          // Timeframes initialisieren
+      $this->history[PERIOD_M1 ] = array();                             // Timeframes initialisieren
       $this->history[PERIOD_M5 ] = array();
       $this->history[PERIOD_M15] = array();
       $this->history[PERIOD_M30] = array();
@@ -45,29 +71,17 @@ class ChainedHistorySet extends Object {
     * @return bool - Erfolgsstatus
     */
    public function addM1Bars(array $bars) {
-      foreach ($bars as $i => &$bar) {
-         $this->addM1Bar($bar);
+      foreach ($bars as &$bar) {
+         if (!$this->addToM1 ($bar)) return false;
+         if (!$this->addToM5 ($bar)) return false;
+         if (!$this->addToM15($bar)) return false;
+         if (!$this->addToM30($bar)) return false;
+         if (!$this->addToH1 ($bar)) return false;
+         if (!$this->addToH4 ($bar)) return false;
+         if (!$this->addToD1 ($bar)) return false;
+         if (!$this->addToW1 ($bar)) return false;
+         if (!$this->addToMN1($bar)) return false;
       }
-   }
-
-
-   /**
-    * Fügt dem HistorySet M1-Bardaten hinzu. Die Bardaten werden am Ende der Timeframes gespeichert.
-    *
-    * @param  MYFX_BAR $bar - einzelne MyFX-Bar
-    *
-    * @return bool - Erfolgsstatus
-    */
-   private function addM1Bar(array &$bar) {
-      if (!$this->addToM1 ($bar)) return false;
-      if (!$this->addToM5 ($bar)) return false;
-      if (!$this->addToM15($bar)) return false;
-      if (!$this->addToM30($bar)) return false;
-      if (!$this->addToH1 ($bar)) return false;
-      if (!$this->addToH4 ($bar)) return false;
-      if (!$this->addToD1 ($bar)) return false;
-      if (!$this->addToW1 ($bar)) return false;
-      if (!$this->addToMN1($bar)) return false;
 
       // Daten ab bestimmter Baranzahl in Datei speichern
       return true;
@@ -75,40 +89,54 @@ class ChainedHistorySet extends Object {
 
 
    /**
-    * Fügt der M1-History eine Bar hinzu.
+    * Fügt der M1-History des Sets eine Bar hinzu.
     *
-    * @param  MYFX_BAR $bar - einzelne MyFX-Bar
+    * @param  MYFX_BAR $bar
     *
     * @return bool - Erfolgsstatus
     */
    private function addToM1(array $bar) {
-      $this->history[PERIOD_M1][] = $bar;
+      static $timeframe = PERIOD_M1;
+      $this->history[$timeframe][] = $bar;
+
+      $size = sizeOf($this->history[$timeframe]);
+      if ($size > $this->flushingTreshold) {
+         echoPre('flushing '.$this->flushingTreshold.' bars');
+         $this->history[$timeframe] = array_slice($this->history[$timeframe], $this->flushingTreshold);
+      }
       return true;
    }
 
 
    /**
-    * Fügt der M5-History eine M1-Bar hinzu.
+    * Fügt der M5-History des Sets die Daten einer M1-Bar hinzu.
     *
-    * @param  MYFX_BAR $bar - einzelne MyFX-Bar
+    * @param  MYFX_BAR $bar
     *
     * @return bool - Erfolgsstatus
     */
    private function addToM5(array $bar) {
-      static $currentOpenTime, $currentCloseTime, $i=-1;
+      static $i=-1, $currentOpenTime, $currentCloseTime=PHP_INT_MIN, $timeframe=PERIOD_M5;
       $time = $bar['time'];
 
       // Wechsel zur nächsten Bar erkennen
-      if ($i==-1 || $time>=$currentCloseTime) {
+      if ($time >= $currentCloseTime) {
          // neue Bar beginnen
          $currentOpenTime  = $time - $time%5*MINUTES;
          $currentCloseTime = $currentOpenTime + 5*MINUTES;
          $bar['time']      = $currentOpenTime;
-         $this->history[PERIOD_M5][] = $bar; $i++;
+         $this->history[$timeframe][] = $bar; $i++;
+
+         $size = sizeOf($this->history[$timeframe]);
+         if ($size > $this->flushingTreshold) {
+            echoPre('flushing '.$this->flushingTreshold.' bars');
+            $this->history[$timeframe] = array_slice($this->history[$timeframe], $this->flushingTreshold);
+            $i -= $this->flushingTreshold;
+         }
       }
       else {
          // letzte Bar aktualisieren ('time' und 'open' unverändert)
-         $currentBar =& $this->history[PERIOD_M5][$i];
+         $currentBar =& $this->history[$timeframe][$i];
          $currentBar['high' ]  = max($currentBar['high'], $bar['high']);
          $currentBar['low'  ]  = min($currentBar['low' ], $bar['low' ]);
          $currentBar['close']  = $bar['close'];
@@ -119,27 +147,34 @@ class ChainedHistorySet extends Object {
 
 
    /**
-    * Fügt der M15-History eine M1-Bar hinzu.
+    * Fügt der M15-History des Sets die Daten einer M1-Bar hinzu.
     *
-    * @param  MYFX_BAR $bar - einzelne MyFX-Bar
+    * @param  MYFX_BAR $bar
     *
     * @return bool - Erfolgsstatus
     */
    private function addToM15(array $bar) {
-      static $currentOpenTime, $currentCloseTime, $i=-1;
+      static $i=-1, $currentOpenTime, $currentCloseTime=PHP_INT_MIN, $timeframe=PERIOD_M15;
       $time = $bar['time'];
 
       // Wechsel zur nächsten Bar erkennen
-      if ($i==-1 || $time>=$currentCloseTime) {
+      if ($time >= $currentCloseTime) {
          // neue Bar beginnen
          $currentOpenTime  = $time - $time%15*MINUTES;
          $currentCloseTime = $currentOpenTime + 15*MINUTES;
          $bar['time']      = $currentOpenTime;
-         $this->history[PERIOD_M15][] = $bar; $i++;
+         $this->history[$timeframe][] = $bar; $i++;
+
+         $size = sizeOf($this->history[$timeframe]);
+         if ($size > $this->flushingTreshold) {
+            echoPre('flushing '.$this->flushingTreshold.' bars');
+            $this->history[$timeframe] = array_slice($this->history[$timeframe], $this->flushingTreshold);
+            $i -= $this->flushingTreshold;
+         }
       }
       else {
          // letzte Bar aktualisieren ('time' und 'open' unverändert)
-         $currentBar =& $this->history[PERIOD_M15][$i];
+         $currentBar =& $this->history[$timeframe][$i];
          $currentBar['high' ]  = max($currentBar['high'], $bar['high']);
          $currentBar['low'  ]  = min($currentBar['low' ], $bar['low' ]);
          $currentBar['close']  = $bar['close'];
@@ -150,27 +185,34 @@ class ChainedHistorySet extends Object {
 
 
    /**
-    * Fügt der M30-History eine M1-Bar hinzu.
+    * Fügt der M30-History des Sets die Daten einer M1-Bar hinzu.
     *
-    * @param  MYFX_BAR $bar - einzelne MyFX-Bar
+    * @param  MYFX_BAR $bar
     *
     * @return bool - Erfolgsstatus
     */
    private function addToM30(array $bar) {
-      static $currentOpenTime, $currentCloseTime, $i=-1;
+      static $i=-1, $currentOpenTime, $currentCloseTime=PHP_INT_MIN, $timeframe=PERIOD_M30;
       $time = $bar['time'];
 
       // Wechsel zur nächsten Bar erkennen
-      if ($i==-1 || $time>=$currentCloseTime) {
+      if ($time >= $currentCloseTime) {
          // neue Bar beginnen
          $currentOpenTime  = $time - $time%30*MINUTES;
          $currentCloseTime = $currentOpenTime + 30*MINUTES;
          $bar['time']      = $currentOpenTime;
-         $this->history[PERIOD_M30][] = $bar; $i++;
+         $this->history[$timeframe][] = $bar; $i++;
+
+         $size = sizeOf($this->history[$timeframe]);
+         if ($size > $this->flushingTreshold) {
+            echoPre('flushing '.$this->flushingTreshold.' bars');
+            $this->history[$timeframe] = array_slice($this->history[$timeframe], $this->flushingTreshold);
+            $i -= $this->flushingTreshold;
+         }
       }
       else {
          // letzte Bar aktualisieren ('time' und 'open' unverändert)
-         $currentBar =& $this->history[PERIOD_M30][$i];
+         $currentBar =& $this->history[$timeframe][$i];
          $currentBar['high' ]  = max($currentBar['high'], $bar['high']);
          $currentBar['low'  ]  = min($currentBar['low' ], $bar['low' ]);
          $currentBar['close']  = $bar['close'];
@@ -181,27 +223,34 @@ class ChainedHistorySet extends Object {
 
 
    /**
-    * Fügt der H1-History eine M1-Bar hinzu.
+    * Fügt der H1-History des Sets die Daten einer M1-Bar hinzu.
     *
-    * @param  MYFX_BAR $bar - einzelne MyFX-Bar
+    * @param  MYFX_BAR $bar
     *
     * @return bool - Erfolgsstatus
     */
    private function addToH1(array $bar) {
-      static $currentOpenTime, $currentCloseTime, $i=-1;
+      static $i=-1, $currentOpenTime, $currentCloseTime=PHP_INT_MIN, $timeframe=PERIOD_H1;
       $time = $bar['time'];
 
       // Wechsel zur nächsten Bar erkennen
-      if ($i==-1 || $time>=$currentCloseTime) {
+      if ($time >= $currentCloseTime) {
          // neue Bar beginnen
          $currentOpenTime  = $time - $time%HOURS;
          $currentCloseTime = $currentOpenTime + 1*HOUR;
          $bar['time']      = $currentOpenTime;
-         $this->history[PERIOD_H1][] = $bar; $i++;
+         $this->history[$timeframe][] = $bar; $i++;
+
+         $size = sizeOf($this->history[$timeframe]);
+         if ($size > $this->flushingTreshold) {
+            echoPre('flushing '.$this->flushingTreshold.' bars');
+            $this->history[$timeframe] = array_slice($this->history[$timeframe], $this->flushingTreshold);
+            $i -= $this->flushingTreshold;
+         }
       }
       else {
          // letzte Bar aktualisieren ('time' und 'open' unverändert)
-         $currentBar =& $this->history[PERIOD_H1][$i];
+         $currentBar =& $this->history[$timeframe][$i];
          $currentBar['high' ]  = max($currentBar['high'], $bar['high']);
          $currentBar['low'  ]  = min($currentBar['low' ], $bar['low' ]);
          $currentBar['close']  = $bar['close'];
@@ -212,27 +261,34 @@ class ChainedHistorySet extends Object {
 
 
    /**
-    * Fügt der H4-History eine M1-Bar hinzu.
+    * Fügt der H4-History des Sets die Daten einer M1-Bar hinzu.
     *
-    * @param  MYFX_BAR $bar - einzelne MyFX-Bar
+    * @param  MYFX_BAR $bar
     *
     * @return bool - Erfolgsstatus
     */
    private function addToH4(array $bar) {
-      static $currentOpenTime, $currentCloseTime, $i=-1;
+      static $i=-1, $currentOpenTime, $currentCloseTime=PHP_INT_MIN, $timeframe=PERIOD_H4;
       $time = $bar['time'];
 
       // Wechsel zur nächsten Bar erkennen
-      if ($i==-1 || $time>=$currentCloseTime) {
+      if ($time >= $currentCloseTime) {
          // neue Bar beginnen
          $currentOpenTime  = $time - $time%4*HOURS;
          $currentCloseTime = $currentOpenTime + 4*HOURS;
          $bar['time']      = $currentOpenTime;
-         $this->history[PERIOD_H4][] = $bar; $i++;
+         $this->history[$timeframe][] = $bar; $i++;
+
+         $size = sizeOf($this->history[$timeframe]);
+         if ($size > $this->flushingTreshold) {
+            echoPre('flushing '.$this->flushingTreshold.' bars');
+            $this->history[$timeframe] = array_slice($this->history[$timeframe], $this->flushingTreshold);
+            $i -= $this->flushingTreshold;
+         }
       }
       else {
          // letzte Bar aktualisieren ('time' und 'open' unverändert)
-         $currentBar =& $this->history[PERIOD_H4][$i];
+         $currentBar =& $this->history[$timeframe][$i];
          $currentBar['high' ]  = max($currentBar['high'], $bar['high']);
          $currentBar['low'  ]  = min($currentBar['low' ], $bar['low' ]);
          $currentBar['close']  = $bar['close'];
@@ -243,27 +299,34 @@ class ChainedHistorySet extends Object {
 
 
    /**
-    * Fügt der D1-History eine M1-Bar hinzu.
+    * Fügt der D1-History des Sets die Daten einer M1-Bar hinzu.
     *
-    * @param  MYFX_BAR $bar - einzelne MyFX-Bar
+    * @param  MYFX_BAR $bar
     *
     * @return bool - Erfolgsstatus
     */
    private function addToD1(array $bar) {
-      static $currentOpenTime, $currentCloseTime, $i=-1;
+      static $i=-1, $currentOpenTime, $currentCloseTime=PHP_INT_MIN, $timeframe=PERIOD_D1;
       $time = $bar['time'];
 
       // Wechsel zur nächsten Bar erkennen
-      if ($i==-1 || $time>=$currentCloseTime) {
+      if ($time >= $currentCloseTime) {
          // neue Bar beginnen
          $currentOpenTime  = $time - $time%DAYS;
          $currentCloseTime = $currentOpenTime + 1*DAY;
          $bar['time']      = $currentOpenTime;
-         $this->history[PERIOD_D1][] = $bar; $i++;
+         $this->history[$timeframe][] = $bar; $i++;
+
+         $size = sizeOf($this->history[$timeframe]);
+         if ($size > $this->flushingTreshold) {
+            echoPre('flushing '.$this->flushingTreshold.' bars');
+            $this->history[$timeframe] = array_slice($this->history[$timeframe], $this->flushingTreshold);
+            $i -= $this->flushingTreshold;
+         }
       }
       else {
          // letzte Bar aktualisieren ('time' und 'open' unverändert)
-         $currentBar =& $this->history[PERIOD_D1][$i];
+         $currentBar =& $this->history[$timeframe][$i];
          $currentBar['high' ]  = max($currentBar['high'], $bar['high']);
          $currentBar['low'  ]  = min($currentBar['low' ], $bar['low' ]);
          $currentBar['close']  = $bar['close'];
@@ -274,28 +337,35 @@ class ChainedHistorySet extends Object {
 
 
    /**
-    * Fügt der W1-History eine M1-Bar hinzu.
+    * Fügt der W1-History des Sets die Daten einer M1-Bar hinzu.
     *
-    * @param  MYFX_BAR $bar - einzelne MyFX-Bar
+    * @param  MYFX_BAR $bar
     *
     * @return bool - Erfolgsstatus
     */
    private function addToW1(array $bar) {
-      static $currentOpenTime, $currentCloseTime, $i=-1;
+      static $i=-1, $currentOpenTime, $currentCloseTime=PHP_INT_MIN, $timeframe=PERIOD_W1;
       $time = $bar['time'];
 
       // Wechsel zur nächsten Bar erkennen
-      if ($i==-1 || $time>=$currentCloseTime) {
+      if ($time >= $currentCloseTime) {
          // neue Bar beginnen
          $dow = iDate('w', $time);
          $currentOpenTime  = $time - $time%DAYS - (($dow+6)%7)*DAYS; // 00:00, Montag
          $currentCloseTime = $currentOpenTime + 1*WEEK;
          $bar['time']      = $currentOpenTime;
-         $this->history[PERIOD_W1][] = $bar; $i++;
+         $this->history[$timeframe][] = $bar; $i++;
+
+         $size = sizeOf($this->history[$timeframe]);
+         if ($size > $this->flushingTreshold) {
+            echoPre('flushing '.$this->flushingTreshold.' bars');
+            $this->history[$timeframe] = array_slice($this->history[$timeframe], $this->flushingTreshold);
+            $i -= $this->flushingTreshold;
+         }
       }
       else {
          // letzte Bar aktualisieren ('time' und 'open' unverändert)
-         $currentBar =& $this->history[PERIOD_W1][$i];
+         $currentBar =& $this->history[$timeframe][$i];
          $currentBar['high' ]  = max($currentBar['high'], $bar['high']);
          $currentBar['low'  ]  = min($currentBar['low' ], $bar['low' ]);
          $currentBar['close']  = $bar['close'];
@@ -306,18 +376,18 @@ class ChainedHistorySet extends Object {
 
 
    /**
-    * Fügt der MN1-History eine M1-Bar hinzu.
+    * Fügt der MN1-History des Sets die Daten einer M1-Bar hinzu.
     *
-    * @param  MYFX_BAR $bar - einzelne MyFX-Bar
+    * @param  MYFX_BAR $bar
     *
     * @return bool - Erfolgsstatus
     */
    private function addToMN1(array $bar) {
-      static $currentOpenTime, $currentCloseTime, $i=-1;
+      static $i=-1, $currentOpenTime, $currentCloseTime=PHP_INT_MIN, $timeframe=PERIOD_MN1;
       $time = $bar['time'];
 
       // Wechsel zur nächsten Bar erkennen
-      if ($i==-1 || $time>=$currentCloseTime) {
+      if ($time >= $currentCloseTime) {
          // neue Bar beginnen
          $dom = iDate('d', $time);
          $m   = iDate('m', $time);
@@ -325,11 +395,18 @@ class ChainedHistorySet extends Object {
          $currentOpenTime  = $time - $time%DAYS - ($dom-1)*DAYS;     // 00:00, 1. des Monats
          $currentCloseTime = gmMkTime(0, 0, 0, $m+1, 1, $y);         // 00:00, 1. des nächsten Monats
          $bar['time']      = $currentOpenTime;
-         $this->history[PERIOD_MN1][] = $bar; $i++;
+         $this->history[$timeframe][] = $bar; $i++;
+
+         $size = sizeOf($this->history[$timeframe]);
+         if ($size > $this->flushingTreshold) {
+            echoPre('flushing '.$this->flushingTreshold.' bars');
+            $this->history[$timeframe] = array_slice($this->history[$timeframe], $this->flushingTreshold);
+            $i -= $this->flushingTreshold;
+         }
       }
       else {
          // letzte Bar aktualisieren
-         $currentBar =& $this->history[PERIOD_MN1][$i];
+         $currentBar =& $this->history[$timeframe][$i];
        //$currentBar['time' ]  = ...                                 // unverändert
        //$currentBar['open' ]  = ...                                 // unverändert
          $currentBar['high' ]  = max($currentBar['high'], $bar['high']);
