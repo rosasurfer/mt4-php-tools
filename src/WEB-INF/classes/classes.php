@@ -10,15 +10,18 @@ $__classes['UploadAccountHistoryActionForm'    ] = $dir.'actions/UploadAccountHi
 $__classes['UploadFTPConfigurationAction'      ] = $dir.'actions/UploadFTPConfigurationAction';
 $__classes['UploadFTPConfigurationActionForm'  ] = $dir.'actions/UploadFTPConfigurationActionForm';
 
-$__classes['ChainedHistorySet'                 ] = $dir.'helper/ChainedHistorySet';
-$__classes['DataNotFoundException'             ] = $dir.'helper/DataNotFoundException';
-$__classes['Dukascopy'                         ] = $dir.'helper/Dukascopy';
+$__classes['Dukascopy'                         ] = $dir.'dukascopy/Dukascopy';
+
+$__classes['ChainedHistorySet'                 ] = $dir.'metatrader/ChainedHistorySet';
+$__classes['MT4'                               ] = $dir.'metatrader/MT4';
+
+$__classes['DataNotFoundException'             ] = $dir.'simpletrader/DataNotFoundException';
+$__classes['SimpleTrader'                      ] = $dir.'simpletrader/SimpleTrader';
+
 $__classes['LZMA'                              ] = $dir.'helper/LZMA';
 $__classes['ImportHelper'                      ] = $dir.'helper/ImportHelper';
-$__classes['MT4'                               ] = $dir.'helper/MT4';
 $__classes['MyFX'                              ] = $dir.'helper/MyFX';
 $__classes['ReportHelper'                      ] = $dir.'helper/ReportHelper';
-$__classes['SimpleTrader'                      ] = $dir.'helper/SimpleTrader';
 $__classes['Validator'                         ] = $dir.'helper/Validator';
 $__classes['ViewHelper'                        ] = $dir.'helper/ViewHelper';
 
