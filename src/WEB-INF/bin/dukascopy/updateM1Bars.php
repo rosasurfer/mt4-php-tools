@@ -170,13 +170,11 @@ function checkHistory($symbol, $day, $type) {
    if (MyFX::isTradingDay($day)) {                                   // um 00:00 GMT sind GMT- und FXT-Wochentag immer gleich
       // History ist ok, wenn die komprimierte MyFX-Datei existiert
       if (is_file($file=getVar('myfxFile.compressed', $symbol, $day, $type))) {
-         if ($verbose > 0)
-            echoPre('[Ok]    '.$shortDate.'   MyFX compressed history file: '.baseName($file));
+         if ($verbose > 1) echoPre('[Ok]    '.$shortDate.'   MyFX compressed history file: '.baseName($file));
       }
       // History ist ok, wenn die unkomprimierte MyFX-Datei gespeichert wird und existiert
       else if ($saveRawMyFXData && is_file($file=getVar('myfxFile.raw', $symbol, $day, $type))) {
-         if ($verbose > 0)
-            echoPre('[Ok]    '.$shortDate.'   MyFX raw history file: '.baseName($file));
+         if ($verbose > 1) echoPre('[Ok]    '.$shortDate.'   MyFX raw history file: '.baseName($file));
       }
       // History aktualisieren
       else if (!updateHistory($symbol, $day, $type)) {
@@ -327,9 +325,11 @@ function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $save
    if (!is_bool($saveData))  throw new IllegalTypeException('Illegal type of parameter $saveData: '.getType($saveData));
    if (!is_bool($saveError)) throw new IllegalTypeException('Illegal type of parameter $saveError: '.getType($saveError));
 
+   global $verbose;
+
    $shortDate = date('D, d-M-Y', $day);
    $url       = getVar('dukaUrl', $symbol, $day, $type);
-   if (!$quiet)
+   if (!$quiet && $verbose > 0)
       echoPre('[Info]  '.$shortDate.'   url: '.$url);
 
    // (1) Standard-Browser simulieren
@@ -395,8 +395,9 @@ function processCompressedDukascopyFile($file, $symbol, $day, $type) {
    if (!is_string($file)) throw new IllegalTypeException('Illegal type of parameter $file: '.getType($file));
    if (!is_int($day))     throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
 
-   $shortDate = date('D, d-M-Y', $day);
-   echoPre('[Info]  '.$shortDate.'   Dukascopy compressed file: '.baseName($file));
+   global $verbose;
+   if ($verbose > 1) echoPre('[Info]  '.date('D, d-M-Y', $day).'   Dukascopy compressed file: '.baseName($file));
+
    return processCompressedDukascopyData(file_get_contents($file), $symbol, $day, $type);
 }
 
@@ -422,8 +423,9 @@ function processRawDukascopyFile($file, $symbol, $day, $type) {
    if (!is_string($file)) throw new IllegalTypeException('Illegal type of parameter $file: '.getType($file));
    if (!is_int($day))     throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
 
-   $shortDate = date('D, d-M-Y', $day);
-   echoPre('[Info]  '.$shortDate.'   Dukascopy raw history file: '.baseName($file));
+   global $verbose;
+   if ($verbose > 1) echoPre('[Info]  '.date('D, d-M-Y', $day).'   Dukascopy raw history file: '.baseName($file));
+
    return processRawDukascopyData(file_get_contents($file), $symbol, $day, $type);
 }
 
