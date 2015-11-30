@@ -1,9 +1,9 @@
 #!/usr/bin/php
 <?php
 /**
- * Aktualisiert die vorhandenen Dukascopy-M1-Daten. Fehlende Daten werden heruntergeladen, nach FXT konvertiert und in einem
- * eigenen komprimierten Format gespeichert. Die Dukascopy-Daten sind durchgehend, lokal werden jedoch für Wochenenden und
- * Feiertage (1. Januar und 25. Dezember) keine Daten gespeichert.
+ * Aktualisiert die vorhandenen Dukascopy-M1-Daten. Bid und Ask werden zu Median gemerged, nach FXT konvertiert und im
+ * MyFX-Format gespeichert. Die Dukascopy-Daten sind durchgehend, lokal werden jedoch für Wochenenden und Feiertage
+ * (1. Januar und 25. Dezember) keine Daten gespeichert.
  *
  *
  * Webseite:      http://www.dukascopy.com/swiss/english/marketwatch/historical/
@@ -11,7 +11,7 @@
  *
  * Instrumente:   http://www.dukascopy.com/free/candelabrum/data.json
  *
- * History-Start: http://www.dukascopy.com/datafeed/metadata/HistoryStart.bi5  (Format unbekannt)
+ * History-Start: http://www.dukascopy.com/datafeed/metadata/HistoryStart.bi5  (unbekanntes Format)
  *
  * URL-Format:    Durchgehend eine Datei je Kalendertag ab History-Start,
  *                z.B.: (Januar = 00)
