@@ -152,7 +152,7 @@ class HistorySet extends Object {
          $this->history[$timeframe]['bars'][] = $bar; $i++;
 
          if ($i >= $this->flushLimit) {
-            exit();
+            //exit();
             $i -= $this->flushBars($timeframe, $this->flushLimit);
          }
       }
