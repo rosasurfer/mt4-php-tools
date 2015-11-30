@@ -347,7 +347,7 @@ class MyFX extends StaticClass {
 
 
    /**
-    * Interpretiert die MyFX-Bardaten einer Datei und liest sie in ein Array ein.
+    * Interpretiert die Bardaten einer MyFX-Datei und liest sie in ein Array ein.
     *
     * @param  string $fileName - Name der Datei mit MyFX-Bardaten
     *
@@ -355,8 +355,19 @@ class MyFX extends StaticClass {
     */
    public static function readBarFile($fileName) {
       if (!is_string($fileName)) throw new IllegalTypeException('Illegal type of parameter $fileName: '.getType($fileName));
-
       return self::readBarData(file_get_contents($fileName));
+   }
+
+
+   /**
+    * Interpretiert die Bardaten einer komprimierten MyFX-Datei und liest sie in ein Array ein.
+    *
+    * @param  string $fileName - Name der Datei mit MyFX-Bardaten
+    *
+    * @return MYFX_BAR[] - Array mit Bardaten
+    */
+   public static function readCompressedBarFile($fileName) {
+      throw new UnimplementedFeatureException(__METHOD__);
    }
 
 
