@@ -328,17 +328,6 @@ class MyFX extends StaticClass {
 
       while ($offset < $size) {
          $bars[] = unpack("@$offset/Vtime/Vopen/Vhigh/Vlow/Vclose/Vticks", $data);
-
-         $O = $bars[$i]['open' ];                  // Dukascopy-Interest durch Ticks ersetzen
-         $H = $bars[$i]['high' ];
-         $L = $bars[$i]['low'  ];
-         $C = $bars[$i]['close'];
-
-         $ticks = ($H - $L) << 1;                  // unchanged bar (O == C)
-         if      ($O < $C) $ticks += ($O - $C);    // bull bar
-         else if ($O > $C) $ticks += ($C - $O);    // bear bar
-         $bars[$i]['ticks'] = $ticks;
-
          $offset += MYFX_BAR_SIZE;
          $i++;
       }

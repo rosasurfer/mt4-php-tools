@@ -1,7 +1,7 @@
 #!/usr/bin/php
 <?php
 /**
- * Konvertiert die MyFX-History ein oder mehrerer Verzeichnisse ins MetaTrader-Format und legt sie im aktuellen Verzeichnis ab.
+ * Konvertiert die MyFX-History ein oder mehrerer Verzeichnisse ins Metatrader-Format und legt sie im aktuellen Verzeichnis ab.
  * Der letzte Pfadbestandteil eines angegebenen Verzeichnisses wird als Symbol des zu konvertierenden Instruments interpretiert.
  * Dieses Symbol wird zusätzlich in die Datei "symbols.raw" im aktuellen Verzeichnis eingetragen.
  */
@@ -48,7 +48,7 @@ foreach ($args as $i => $arg) {
       $args[$i] = $arg = '*';
    if ($arg != '*') {
       $arg = strToUpper($arg);
-      if (!isSet($startTimes[$arg])) help('error: unknown symbol "'.$args[$i].'"') & exit(1);
+      if (!isSet($startTimes[$arg])) help('error: unsupported symbol "'.$args[$i].'"') & exit(1);
       $args[$i] = $arg;
    }
 }
@@ -57,7 +57,7 @@ $args = in_array('*', $args) ? array_keys($startTimes) : array_unique($args);   
 
 // (2) History erstellen
 foreach ($args as $symbol) {
-   if (!createHistory($symbol, 'bid'))
+   if (!createHistory($symbol, 'avg'))
       exit(1);
 }
 exit(0);
@@ -140,19 +140,19 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
    if (array_key_exists(($key=$id.'|'.$symbol.'|'.$time.'|'.$type), $varCache))
       return $varCache[$key];
 
-   if (!is_string($id))                          throw new IllegalTypeException('Illegal type of parameter $id: '.getType($id));
-   if (!is_null($symbol) && !is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
-   if (!is_null($time) && !is_int($time))        throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+   if (!is_string($id))                                 throw new IllegalTypeException('Illegal type of parameter $id: '.getType($id));
+   if (!is_null($symbol) && !is_string($symbol))        throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
+   if (!is_null($time) && !is_int($time))               throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
    if (!is_null($type)) {
-      if (!is_string($type))                     throw new IllegalTypeException('Illegal type of parameter $type: '.getType($type));
-      if ($type!='bid' && $type!='ask')          throw new plInvalidArgumentException('Invalid parameter $type: "'.$type.'"');
+      if (!is_string($type))                            throw new IllegalTypeException('Illegal type of parameter $type: '.getType($type));
+      if ($type!='bid' && $type!='ask' && $type!='avg') throw new plInvalidArgumentException('Invalid parameter $type: "'.$type.'"');
    }
 
    $self = __FUNCTION__;
 
    if ($id == 'myfxName') {                  // M1,Bid                                                // lokaler Name
       if (!$type)   throw new plInvalidArgumentException('Invalid parameter $type: (null)');
-      $result = 'M1,'.($type=='bid' ? 'Bid':'Ask');
+      $result = 'M1'.($type=='bid' ? ',Bid':($type=='ask' ? ',Ask':''));
    }
    else if ($id == 'myfxDirDate') {          // $yyyy/$mmL/$dd                                        // lokales Pfad-Datum
       if (!$time)   throw new plInvalidArgumentException('Invalid parameter $time: '.$time);
