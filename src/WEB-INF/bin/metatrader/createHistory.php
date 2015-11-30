@@ -116,6 +116,7 @@ function createHistory($symbol, $type) {
       }
       */
    }
+   echoPre('[Ok]    '.$symbol);
    return true;
 }
 
