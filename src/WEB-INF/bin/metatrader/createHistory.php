@@ -81,23 +81,26 @@ function createHistory($symbol, $type) {
    global $verbose, $startTimes;
    $startDay = ($startDay=$startTimes[$symbol]) - $startDay%DAY;     // 00:00 Starttag
    $today    = ($today=time())                  - $today   %DAY;     // 00:00 aktueller Tag
+   $digits   = strEndsWith($symbol, 'JPY') ? 3:5;
 
    // MT4-HistorySet erzeugen
-   $history = new ChainedHistorySet($symbol, $description=null, $digits=5, $format=400);
+   $history = new HistorySet($symbol, $description=null, $digits, $format=400);
 
 
    // Gesamte Zeitspanne tageweise durchlaufen
-   for ($day=$startDay; $day < $today; $day+=1*DAY) {
+   for ($day=$startDay, $lastMonth=-1; $day < $today; $day+=1*DAY) {
+      $month = iDate('m', $day);
+      if ($month != $lastMonth) {
+         if ($verbose > 0) echoPre('[Info]  '.date('D, d-M-Y', $day));
+         $lastMonth = $month;
+      }
 
       // nur an Handelstagen vorhandene MyFX-History einlesen und verarbeiten
       if (MyFX::isTradingDay($day)) {
-         $shortDate = date('D, d-M-Y', $day);
-
          if      (is_file($file=getVar('myfxFile.compressed', $symbol, $day, $type))) {}  // wenn komprimierte MyFX-Datei existiert
          else if (is_file($file=getVar('myfxFile.raw'       , $symbol, $day, $type))) {}  // wenn unkomprimierte MyFX-Datei existiert
          else continue;
-         if ($verbose > 0)
-            echoPre('[Info]  '.$shortDate.'   MyFX history file: '.baseName($file));
+         if ($verbose > 1) echoPre('[Info]  '.date('D, d-M-Y', $day).'   MyFX history file: '.baseName($file));
 
          // Bars einlesen und der MT4-History hinzufügen
          $bars = MyFX::readBarFile($file);
@@ -105,12 +108,13 @@ function createHistory($symbol, $type) {
          $history->addM1Bars($bars);
       }
 
-
+      /*
       static $counter2; $counter2++;
-      if ($counter2 >= 10) {
+      if ($counter2 >= 1000) {
          $history->showBuffer();
          return false;
       }
+      */
    }
    return true;
 }

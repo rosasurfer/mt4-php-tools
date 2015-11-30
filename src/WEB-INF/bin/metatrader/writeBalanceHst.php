@@ -139,7 +139,7 @@ for ($i=$n=0, $time=$startBar; $time <= $currentBar; $time+=$period) {
    }
 
    // Bar schreiben
-   MT4 ::addHistoryBar($hFile, $time, $O, $H, $L, $C, $V);
+   MT4 ::addHistoryBar400($hFile, $time, $O, $H, $L, $C, $V);
 }
 echoPre($n.' bars');
 

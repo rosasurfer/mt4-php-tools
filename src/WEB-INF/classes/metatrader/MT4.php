@@ -111,9 +111,7 @@ class MT4 extends StaticClass {
     *
     * @return int - Anzahl der geschriebenen Bytes
     */
-   public static function addHistoryBar($hFile, $time, $open, $high, $low, $close, $ticks) {
-      if (!is_resource($hFile)) throw new IllegalTypeException('Illegal type of parameter $hFile: '.$hFile.' ('.getType($hFile).')');
-
+   public static function addHistoryBar400($hFile, $time, $open, $high, $low, $close, $ticks) {
       return fWrite($hFile, pack('Vddddd', $time,     // V
                                            $open,     // d
                                            $low,      // d

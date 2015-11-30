@@ -43,7 +43,7 @@ $dir = Dir($dirName);
 
 
 // (3.1) Dateinamen einlesen, filtern und Daten auslesen und zwischenspeichern
-$fileNames = $formats = $symbols = $periods = $aDigits = $syncMarks = $lastSyncs = $timezoneIds = $aBars = $barFroms = $barTos = $errors = array();
+$fileNames = $formats = $symbols = $periods = $aDigits = $syncMarks = $lastSyncs = $timezoneIds = $aBars = $barsFrom = $barsTo = $errors = array();
 
 while (($fileName=$dir->read()) !== false) {
    if (preg_match("/^$baseName$/i", $fileName) && preg_match('/^(.+)\.hst$/i', $fileName, $match)) {
@@ -59,8 +59,8 @@ while (($fileName=$dir->read()) !== false) {
          $lastSyncs  [] = null;
          $timezoneIds[] = null;
          $aBars      [] = null;
-         $barFroms   [] = null;
-         $barTos     [] = null;
+         $barsFrom   [] = null;
+         $barsTo     [] = null;
          $errors     [] = 'invalid or unknown history file format: fileSize '.$fileSize.' < minFileSize';
          continue;
       }
@@ -92,8 +92,8 @@ while (($fileName=$dir->read()) !== false) {
          }
 
          $aBars   [] = $bars;
-         $barFroms[] = $barFrom ? gmDate('Y.m.d H:i:s', $barFrom['time']) : null;
-         $barTos  [] = $barTo   ? gmDate('Y.m.d H:i:s', $barTo  ['time']) : null;
+         $barsFrom[] = $barFrom ? gmDate('Y.m.d H:i:s', $barFrom['time']) : null;
+         $barsTo  [] = $barTo   ? gmDate('Y.m.d H:i:s', $barTo  ['time']) : null;
 
          if (strToUpper($fileName) != strToUpper($symbol.$period.'.hst')) {
             $formats[sizeOf($formats)-1] = null;
@@ -116,8 +116,8 @@ while (($fileName=$dir->read()) !== false) {
          $lastSyncs  [] = null;
          $timezoneIds[] = null;
          $aBars      [] = null;
-         $barFroms   [] = null;
-         $barTos     [] = null;
+         $barsFrom   [] = null;
+         $barsTo     [] = null;
          $errors     [] = 'invalid or unknown history file format: '.$format;
       }
       fClose($hFile);
@@ -127,7 +127,7 @@ $dir->close();
 !$fileNames && exit("No history files found for \"$args[0]\"\n");
 
 // (3.2) Daten sortieren: ORDER by Symbol, Periode (ASC ist default); alle anderen "Spalten" mitsortieren
-array_multisort($symbols, SORT_ASC, $periods, SORT_ASC/*bis_hier*/, array_keys($symbols), $fileNames, $formats, $aDigits, $syncMarks, $lastSyncs, $timezoneIds, $aBars, $barFroms, $barTos, $errors);
+array_multisort($symbols, SORT_ASC, $periods, SORT_ASC/*bis_hier*/, array_keys($symbols), $fileNames, $formats, $aDigits, $syncMarks, $lastSyncs, $timezoneIds, $aBars, $barsFrom, $barsTo, $errors);
 
 
 // (4) Tabellen-Format definieren und Header ausgeben
@@ -146,7 +146,7 @@ foreach ($fileNames as $i => $fileName) {
 
    if ($formats[$i]) {
       $period = MyFX::periodDescription($periods[$i]);
-      echoPre(sprintf($tableRowFormat, $symbols[$i].','.$period, $aDigits[$i], $syncMarks[$i], $lastSyncs[$i], number_format($aBars[$i]), $barFroms[$i], $barTos[$i], $formats[$i], $errors[$i]));
+      echoPre(sprintf($tableRowFormat, $symbols[$i].','.$period, $aDigits[$i], $syncMarks[$i], $lastSyncs[$i], number_format($aBars[$i]), $barsFrom[$i], $barsTo[$i], $formats[$i], $errors[$i]));
    }
    else {
       echoPre(str_pad($fileName, 18).' '.$errors[$i]);
