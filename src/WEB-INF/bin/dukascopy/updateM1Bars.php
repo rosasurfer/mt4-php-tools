@@ -737,7 +737,7 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
    }
 
    $varCache[$key] = $result;
-   (sizeof($varCache) > ($maxSize=64)) && array_shift($varCache) /*&& echoPre('cache size limit of '.$maxSize.' hit')*/;
+   (sizeof($varCache) > ($maxSize=128)) && array_shift($varCache) /*&& echoPre('cache size limit of '.$maxSize.' hit')*/;
 
    return $result;
 }

@@ -143,37 +143,37 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
 
    $self = __FUNCTION__;
 
-   if ($id == 'myfxName') {                  // M1,Bid                                                // lokaler Name
+   if ($id == 'myfxName') {                  // M1,Bid                                                   // lokaler Name
       if (!$type)   throw new plInvalidArgumentException('Invalid parameter $type: (null)');
       $result = 'M1'.($type=='bid' ? ',Bid':($type=='ask' ? ',Ask':''));
    }
-   else if ($id == 'myfxDirDate') {          // $yyyy/$mmL/$dd                                        // lokales Pfad-Datum
+   else if ($id == 'myfxDirDate') {          // $yyyy/$mm/$dd                                            // lokales Pfad-Datum
       if (!$time)   throw new plInvalidArgumentException('Invalid parameter $time: '.$time);
       $result = date('Y/m/d', $time);
    }
-   else if ($id == 'myfxDir') {              // $dataDirectory/history/dukascopy/$symbol/$dateL       // lokales Verzeichnis
+   else if ($id == 'myfxDir') {              // $dataDirectory/history/dukascopy/$symbol/$myfxDirDate    // lokales Verzeichnis
       if (!$symbol) throw new plInvalidArgumentException('Invalid parameter $symbol: '.$symbol);
       static $dataDirectory; if (!$dataDirectory)
       $dataDirectory = MyFX::getConfigPath('myfx.data_directory');
-      $dateL         = $self('myfxDirDate', null, $time, null);
-      $result        = "$dataDirectory/history/dukascopy/$symbol/$dateL";
+      $myfxDirDate   = $self('myfxDirDate', null, $time, null);
+      $result        = "$dataDirectory/history/dukascopy/$symbol/$myfxDirDate";
    }
-   else if ($id == 'myfxFile.raw') {         // $myfxDir/$nameL.bin                                   // lokale Datei ungepackt
-      $myfxDir = $self('myfxDir' , $symbol, $time, null);
-      $nameL   = $self('myfxName', null, null, $type);
-      $result  = "$myfxDir/$nameL.bin";
+   else if ($id == 'myfxFile.raw') {         // $myfxDir/$myfxName.bin                                   // lokale Datei ungepackt
+      $myfxDir  = $self('myfxDir' , $symbol, $time, null);
+      $myfxName = $self('myfxName', null, null, $type);
+      $result   = "$myfxDir/$myfxName.bin";
    }
-   else if ($id == 'myfxFile.compressed') {  // $myfxDir/$nameL.rar                                   // lokale Datei gepackt
-      $myfxDir = $self('myfxDir' , $symbol, $time, null);
-      $nameL   = $self('myfxName', null, null, $type);
-      $result  = "$myfxDir/$nameL.rar";
+   else if ($id == 'myfxFile.compressed') {  // $myfxDir/$myfxName.rar                                   // lokale Datei gepackt
+      $myfxDir  = $self('myfxDir' , $symbol, $time, null);
+      $myfxName = $self('myfxName', null, null, $type);
+      $result   = "$myfxDir/$myfxName.rar";
    }
    else {
      throw new plInvalidArgumentException('Unknown parameter $id: "'.$id.'"');
    }
 
    $varCache[$key] = $result;
-   (sizeof($varCache) > ($maxSize=64)) && array_shift($varCache) /*&& echoPre('cache size limit of '.$maxSize.' hit')*/;
+   (sizeof($varCache) > ($maxSize=128)) && array_shift($varCache) /*&& echoPre('cache size limit of '.$maxSize.' hit')*/;
 
    return $result;
 }
