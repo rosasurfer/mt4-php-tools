@@ -201,9 +201,6 @@ function checkHistory($symbol, $day) {
       if (is_file($file=getVar('dukaFile.raw', $symbol, $previousDay, 'bid'))) unlink($file);
       if (is_file($file=getVar('dukaFile.raw', $symbol, $previousDay, 'ask'))) unlink($file);
    }
-   // unkomprimierte MyFX-Bid|Ask-Daten des aktuellen Tages (wurden durch Avg ersetzt)
-   if (is_file($file=getVar('myfxFile.raw', $symbol, $day, 'bid'))) unlink($file);
-   if (is_file($file=getVar('myfxFile.raw', $symbol, $day, 'ask'))) unlink($file);
 
    // lokales Historyverzeichnis des Vortages, wenn Wochenende und es leer ist
    if (MyFX::isWeekend($previousDay)) {
@@ -275,7 +272,6 @@ function loadHistory($symbol, $day, $type) {
    // Für jeden FXT-Tag werden die GMT-Dukascopy-Daten des vorherigen und des aktuellen Tages benötigt.
    // Die Daten werden jeweils in folgender Reihenfolge gesucht:
    //  • im Barbuffer selbst
-   //  • in alten Bid-Ask-MyFX-Dateien (mit Dukascopy-Interest)
    //  • in bereits dekomprimierten Dukascopy-Dateien
    //  • in noch komprimierten Dukascopy-Dateien
    //  • als Dukascopy-Download
@@ -288,14 +284,6 @@ function loadHistory($symbol, $day, $type) {
    // • im Buffer nachschauen
    if (!$previousDayData && isSet($barBuffer[$type][$shortDate])) {              // Beginnen die Daten im Buffer mit 00:00 FXT, liegt
       $previousDayData = ($barBuffer[$type][$shortDate][0]['delta_fxt'] == 0);   // der Teil des vorherigen GMT-Tags dort schon bereit.
-   }
-   // • alte MyFX-Bid-Ask-Datei suchen und laden
-   if (!$previousDayData) {
-      if (is_file($file=getVar('myfxFile.raw', $symbol, $day, $type))) {
-         if ($barBuffer[$type][$shortDate] = readMyfxBarFile($file))
-            return false;
-         $previousDayData = $currentDayData = true;                              // die MyFX-Datei enthält immer den kompletten FXT-Tag
-      }
    }
    // • dekomprimierte Dukascopy-Datei suchen und verarbeiten
    if (!$previousDayData) {
@@ -325,14 +313,6 @@ function loadHistory($symbol, $day, $type) {
    if (!$currentDayData && isSet($barBuffer[$type][$shortDate])) {               // Enden die Daten im Buffer mit 23:59 FXT, liegt
       $size = sizeOf($barBuffer[$type][$shortDate]);                             // der Teil des aktuellen GMT-Tags dort schon bereit.
       $currentDayData = ($barBuffer[$type][$shortDate][$size-1]['delta_fxt'] == 23*HOURS+59*MINUTES);
-   }
-   // • alte MyFX-Bid-Ask-Datei suchen und laden
-   if (!$currentDayData) {
-      if (is_file($file=getVar('myfxFile.raw', $symbol, $day, $type))) {
-         if ($barBuffer[$type][$shortDate] = readMyfxBarFile($file))
-            return false;
-         $previousDayData = $currentDayData = true;                              // die MyFX-Datei enthält immer den kompletten FXT-Tag
-      }
    }
    // • dekomprimierte Dukascopy-Datei suchen und verarbeiten
    if (!$currentDayData) {
@@ -409,32 +389,6 @@ function mergeHistory($symbol, $day) {
       $barBuffer['avg'][$shortDate][$i] = $avg;
    }
    return true;
-}
-
-
-/**
- * Interpretiert die Bardaten einer MyFX-Datei und liest sie in ein Array ein.
- *
- * @param  string $fileName - Name der Datei mit MyFX-Bardaten
- *
- * @return MYFX_BAR[] - Array mit Bardaten
- */
-function readMyfxBarFile($fileName) {
-   if (!is_string($fileName)) throw new IllegalTypeException('Illegal type of parameter $fileName: '.getType($fileName));
-
-   $data   = file_get_contents($fileName);
-   $size   = strLen($data); if ($size % MYFX_BAR_SIZE) throw new plRuntimeException('Odd length of passed $data: '.$size.' (not an even MYFX_BAR_SIZE)');
-   $offset = 0;
-   $i      = 0;
-   $bars   = array();
-
-   while ($offset < $size) {
-      $bars[] = unpack("@$offset/Vtime_fxt/Vopen/Vhigh/Vlow/Vclose/Vinterest", $data);
-      $bars[$i]['delta_fxt'] = $bars[$i]['time_fxt'] % DAY;
-      $offset += MYFX_BAR_SIZE;
-      $i++;
-   }
-   return $bars;
 }
 
 
@@ -574,7 +528,7 @@ function processRawDukascopyData($data, $symbol, $day, $type) {
    $size = sizeOf($bars); if ($size != 1*DAY/MINUTES) throw new plRuntimeException('Unexpected number of Dukascopy bars in '.getVar('dukaName', null, null, $type).': '.$size.' ('.($size > 1*DAY/MINUTES ? 'more':'less').' then a day)');
 
 
-   // (2) Timestamps und FXT-Daten hinzufügen, Interest in Lots konvertieren
+   // (2) Timestamps und FXT-Daten hinzufügen
    $prev = $next = null;                                             // Die Daten der Datei können einen DST-Wechsel abdecken, wenn
    $fxtOffset = MyFX::getGmtToFxtTimeOffset($day, $prev, $next);     // $day = "Sun, 00:00 GMT" ist. In diesem Fall muß innerhalb
    foreach ($bars as &$bar) {                                        // der Datenreihe auf den nächsten DST-Offset gewechselt werden.
@@ -582,9 +536,8 @@ function processRawDukascopyData($data, $symbol, $day, $type) {
       $bar['delta_gmt'] =        $bar['timeDelta'];
       if ($bar['time_gmt'] >= $next['time'])
          $fxtOffset = $next['offset'];                               // $fxtOffset on-the-fly aktualisieren
-      $bar['time_fxt' ] =       $bar['time_gmt'] - $fxtOffset;
-      $bar['delta_fxt'] =       $bar['time_fxt'] % DAY;
-      $bar['interest' ] = (int)($bar['interest']/100000);            // Units in Lots konvertieren
+      $bar['time_fxt' ] = $bar['time_gmt'] - $fxtOffset;
+      $bar['delta_fxt'] = $bar['time_fxt'] % DAY;
       unset($bar['timeDelta']);
    }
 
