@@ -107,14 +107,6 @@ function createHistory($symbol, $type) {
          $size = sizeOf($bars); if ($size != 1*DAY/MINUTES) throw new plRuntimeException('Unexpected number of MyFX bars in '.$file.': '.$size.' ('.($size > 1*DAY/MINUTES ? 'more':'less').' then a day)');
          $history->addM1Bars($bars);
       }
-
-      /*
-      static $counter2; $counter2++;
-      if ($counter2 >= 1000) {
-         $history->showBuffer();
-         return false;
-      }
-      */
    }
    echoPre('[Ok]    '.$symbol);
    return true;
