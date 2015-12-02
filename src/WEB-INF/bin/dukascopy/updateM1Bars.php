@@ -671,11 +671,7 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
 
    $self = __FUNCTION__;
 
-   if ($id == 'myfxName') {                  // M1,Bid                                                // lokaler Name
-      if (!$type)   throw new plInvalidArgumentException('Invalid parameter $type: (null)');
-      $result = 'M1'.($type=='bid' ? ',Bid':($type=='ask' ? ',Ask':''));
-   }
-   else if ($id == 'myfxDirDate') {          // $yyyy/$mmL/$dd                                        // lokales Pfad-Datum
+   if ($id == 'myfxDirDate') {               // $yyyy/$mmL/$dd                                        // lokales Pfad-Datum
       if (!$time)   throw new plInvalidArgumentException('Invalid parameter $time: '.$time);
       $result = date('Y/m/d', $time);
    }
@@ -686,15 +682,13 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
       $dateL         = $self('myfxDirDate', null, $time, null);
       $result        = "$dataDirectory/history/dukascopy/$symbol/$dateL";
    }
-   else if ($id == 'myfxFile.raw') {         // $myfxDir/$nameL.bin                                   // lokale Datei ungepackt
+   else if ($id == 'myfxFile.raw') {         // $myfxDir/M1.bin                                       // lokale Datei ungepackt
       $myfxDir = $self('myfxDir' , $symbol, $time, null);
-      $nameL   = $self('myfxName', null, null, $type);
-      $result  = "$myfxDir/$nameL.bin";
+      $result  = "$myfxDir/M1.bin";
    }
-   else if ($id == 'myfxFile.compressed') {  // $myfxDir/$nameL.rar                                   // lokale Datei gepackt
+   else if ($id == 'myfxFile.compressed') {  // $myfxDir/M1.rar                                       // lokale Datei gepackt
       $myfxDir = $self('myfxDir' , $symbol, $time, null);
-      $nameL   = $self('myfxName', null, null, $type);
-      $result  = "$myfxDir/$nameL.rar";
+      $result  = "$myfxDir/M1.rar";
    }
    else if ($id == 'dukaName') {             // BID_candles_min_1                                     // Dukascopy-Name
       if (is_null($type))               throw new plInvalidArgumentException('Invalid parameter $type: (null)');
