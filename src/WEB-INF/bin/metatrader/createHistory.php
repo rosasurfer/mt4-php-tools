@@ -1,7 +1,7 @@
 #!/usr/bin/php
 <?php
 /**
- * Konvertiert die MyFX-History ein oder mehrerer Symbole ins Metatrader-Format und legt sie im MyFX-Serververzeichnis ab.
+ * Konvertiert die MyFX-History ein oder mehrerer Symbole ins MetaTrader-Format und legt sie im MyFX-Serververzeichnis ab.
  * Zur Zeit wird nur die MyFX-History von Dukascopy-Symbolen verarbeitet.
  * Es wird nicht geprüft, ob die Symbole in die Datei "symbols.raw" des Serververzeichnisses eingetragen wurden.
  */

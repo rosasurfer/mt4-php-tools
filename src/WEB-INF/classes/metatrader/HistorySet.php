@@ -109,7 +109,7 @@ class HistorySet extends Object {
          }
       }
       catch (Exception $ex) {
-         Logger::handleException($ex, $handleOnlyInShutdown=true);
+         Logger::handleException($ex, $inShutdownOnly=true);
          throw $ex;
       }
    }

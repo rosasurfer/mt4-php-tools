@@ -84,7 +84,7 @@ class UploadFTPConfigurationActionForm extends ActionForm {
             unlink($this->file['tmp_name']);
       }
       catch (Exception $ex) {
-         Logger ::handleException($ex, $handleOnlyInShutdown=true);
+         Logger ::handleException($ex, $inShutdownOnly=true);
          throw $ex;
       }
    }
