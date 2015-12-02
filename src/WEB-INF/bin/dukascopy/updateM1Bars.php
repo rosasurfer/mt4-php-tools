@@ -71,7 +71,6 @@ $startTimes = array('AUDUSD' => strToTime('2003-08-03 00:00:00 GMT'),
 $args = array_slice($_SERVER['argv'], 1);
 
 // Optionen parsen
-$looping = $fileSyncOnly = false;
 foreach ($args as $i => $arg) {
    if ($arg == '-h'  )   help() & exit(1);                              // Hilfe
    if ($arg == '-v'  ) { $verbose = 1; unset($args[$i]); continue; }    // verbose output

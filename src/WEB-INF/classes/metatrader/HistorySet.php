@@ -54,7 +54,17 @@ class HistorySet extends Object {
          $this->directory = MyFX::getConfigPath('myfx.data_directory').'/history/mt4/MyFX-Dukascopy';
       mkDirWritable($this->directory);
 
-      $this->history[PERIOD_M1 ]['currentCloseTime'] = PHP_INT_MIN;     // Timeframes initialisieren
+      $this->history[PERIOD_M1 ]['bars']             = array();      // Timeframes initialisieren
+      $this->history[PERIOD_M5 ]['bars']             = array();
+      $this->history[PERIOD_M15]['bars']             = array();
+      $this->history[PERIOD_M30]['bars']             = array();
+      $this->history[PERIOD_H1 ]['bars']             = array();
+      $this->history[PERIOD_H4 ]['bars']             = array();
+      $this->history[PERIOD_D1 ]['bars']             = array();
+      $this->history[PERIOD_W1 ]['bars']             = array();
+      $this->history[PERIOD_MN1]['bars']             = array();
+
+      $this->history[PERIOD_M1 ]['currentCloseTime'] = PHP_INT_MIN;
       $this->history[PERIOD_M5 ]['currentCloseTime'] = PHP_INT_MIN;
       $this->history[PERIOD_M15]['currentCloseTime'] = PHP_INT_MIN;
       $this->history[PERIOD_M30]['currentCloseTime'] = PHP_INT_MIN;
@@ -90,12 +100,19 @@ class HistorySet extends Object {
     * Sorgt bei Zerstörung des Objekts dafür, daß alle noch offenen Historydateien geschlossen werden.
     */
    public function __destruct() {
-      foreach ($this->history as $timeframe => &$data) {                      // data by reference
-         if (isSet($data['hFile']) && is_resource($hFile=&$data['hFile'])) {  // hFile by reference
-            $this->flushBars($timeframe);
-            $hTmp=$hFile; $hFile=null;
-            fClose($hTmp);
+      // Ein Destructor darf während des Shutdowns keine Exception werfen.
+      try {
+         foreach ($this->history as $timeframe => &$data) {                      // data by reference
+            if (isSet($data['hFile']) && is_resource($hFile=&$data['hFile'])) {  // hFile by reference
+               $this->flushBars($timeframe);
+               $hTmp=$hFile; $hFile=null;
+               fClose($hTmp);
+            }
          }
+      }
+      catch (Exception $ex) {
+         Logger::handleException($ex, $handleOnlyInShutdown=true);
+         throw $ex;
       }
    }
 
@@ -106,277 +123,317 @@ class HistorySet extends Object {
     * @param  MYFX_BAR[] $bars - Array von MyFX-Bars
     */
    public function addM1Bars(array $bars) {
+      $this->addToM1 ($bars);
+      $this->addToM5 ($bars);
+      $this->addToM15($bars);
+      $this->addToM30($bars);
+      $this->addToH1 ($bars);
+      $this->addToH4 ($bars);
+      $this->addToD1 ($bars);
+      $this->addToW1 ($bars);
+      $this->addToMN1($bars);
+   }
+
+
+   /**
+    * Fügt der M1-History des Sets weitere Bars hinzu.
+    *
+    * @param  MYFX_BAR[] $bars
+    */
+   private function addToM1(array $bars) {
+      $this->history[PERIOD_M1]['bars'] = array_merge($this->history[PERIOD_M1]['bars'], $bars);
+
+      $size    = sizeOf($this->history[PERIOD_M1]['bars']);
+      $lastBar = $this->history[PERIOD_M1]['bars'][$size-1];
+      $this->history[PERIOD_M1]['currentCloseTime'] = $lastBar['time'] + 1*MINUTE;
+
+      if ($size > $this->flushLimit)
+         $this->flushBars(PERIOD_M1, $this->flushLimit);
+   }
+
+
+   /**
+    * Fügt der M5-History des Sets weitere M1-Daten hinzu.
+    *
+    * @param  MYFX_BAR[] $bars
+    */
+   private function addToM5(array $bars) {
+      $sizeM5Bars = sizeOf($this->history[PERIOD_M5]['bars']);
+      $currentBar = null;
+      if ($sizeM5Bars)
+         $currentBar =& $this->history[PERIOD_M5]['bars'][$sizeM5Bars-1];
+
       foreach ($bars as $bar) {
-         $this->addToM1 ($bar);
-         $this->addToM5 ($bar);
-         $this->addToM15($bar);
-         $this->addToM30($bar);
-         $this->addToH1 ($bar);
-         $this->addToH4 ($bar);
-         $this->addToD1 ($bar);
-         $this->addToW1 ($bar);
-         $this->addToMN1($bar);
-      }
-   }
+         // Wechsel zur nächsten M5-Bar erkennen
+         if ($bar['time'] >= $this->history[PERIOD_M5]['currentCloseTime']) {
+            // neue Bar beginnen
+            $bar['time']                                 -= $bar['time'] % 5*MINUTES;
+            $this->history[PERIOD_M5]['currentCloseTime'] = $bar['time'] + 5*MINUTES;
+            $this->history[PERIOD_M5]['bars'          ][] = $bar;
+            $sizeM5Bars++;
+            $currentBar =& $this->history[PERIOD_M5]['bars'][$sizeM5Bars-1];
 
-
-   /**
-    * Fügt der M1-History des Sets eine Bar hinzu.
-    *
-    * @param  MYFX_BAR $bar
-    */
-   private function addToM1(array $bar) {
-      static $timeframe = PERIOD_M1;
-      $this->history[$timeframe]['currentCloseTime'] = $bar['time'] + 1*MINUTE;
-      $this->history[$timeframe]['bars'          ][] = $bar;
-
-      if (sizeOf($this->history[$timeframe]['bars']) > $this->flushLimit)
-         $this->flushBars($timeframe, $this->flushLimit);
-   }
-
-
-   /**
-    * Fügt der M5-History des Sets die Daten einer M1-Bar hinzu.
-    *
-    * @param  MYFX_BAR $bar
-    */
-   private function addToM5(array $bar) {
-      static $timeframe = PERIOD_M5;
-      $time = $bar['time'];
-
-      // Wechsel zur nächsten Bar erkennen
-      if ($time >= $this->history[$timeframe]['currentCloseTime']) {
-         // neue Bar beginnen
-         $bar['time']                                   = $time - $time%5*MINUTES;
-         $this->history[$timeframe]['currentCloseTime'] = $bar['time'] + 5*MINUTES;
-         $this->history[$timeframe]['bars'          ][] = $bar;
-
-         if (sizeOf($this->history[$timeframe]['bars']) > $this->flushLimit) {
-            //exit();
-            $this->flushBars($timeframe, $this->flushLimit);
+            if ($sizeM5Bars > $this->flushLimit) {
+               exit();
+               $this->flushBars(PERIOD_M5, $this->flushLimit);
+            }
+         }
+         else {
+            // letzte Bar aktualisieren ('time' und 'open' unverändert)
+            if ($bar['high'] > $currentBar['high']) $currentBar['high' ]  = $bar['high' ];
+            if ($bar['low' ] < $currentBar['low' ]) $currentBar['low'  ]  = $bar['low'  ];
+                                                    $currentBar['close']  = $bar['close'];
+                                                    $currentBar['ticks'] += $bar['ticks'];
          }
       }
-      else {
-         // letzte Bar aktualisieren ('time' und 'open' unverändert)
-         $currentBar =& $this->history[$timeframe]['bars'][sizeOf($this->history[$timeframe]['bars'])-1];
-         if ($bar['high'] > $currentBar['high']) $currentBar['high' ]  = $bar['high' ];
-         if ($bar['low' ] < $currentBar['low' ]) $currentBar['low'  ]  = $bar['low'  ];
-                                                 $currentBar['close']  = $bar['close'];
-                                                 $currentBar['ticks'] += $bar['ticks'];
+   }
+
+
+   /**
+    * Fügt der M15-History des Sets weitere M1-Daten hinzu.
+    *
+    * @param  MYFX_BAR[] $bars
+    */
+   private function addToM15(array $bars) {
+      $sizeM15Bars = sizeOf($this->history[PERIOD_M15]['bars']);
+      $currentBar  = null;
+      if ($sizeM15Bars)
+         $currentBar =& $this->history[PERIOD_M15]['bars'][$sizeM15Bars-1];
+
+      foreach ($bars as $bar) {
+         // Wechsel zur nächsten M15-Bar erkennen
+         if ($bar['time'] >= $this->history[PERIOD_M15]['currentCloseTime']) {
+            // neue Bar beginnen
+            $bar['time']                                  -= $bar['time'] % 15*MINUTES;
+            $this->history[PERIOD_M15]['currentCloseTime'] = $bar['time'] + 15*MINUTES;
+            $this->history[PERIOD_M15]['bars'          ][] = $bar;
+            $sizeM15Bars++;
+            $currentBar =& $this->history[PERIOD_M15]['bars'][$sizeM15Bars-1];
+
+            if ($sizeM15Bars > $this->flushLimit)
+               $this->flushBars(PERIOD_M15, $this->flushLimit);
+         }
+         else {
+            // letzte Bar aktualisieren ('time' und 'open' unverändert)
+            if ($bar['high'] > $currentBar['high']) $currentBar['high' ]  = $bar['high' ];
+            if ($bar['low' ] < $currentBar['low' ]) $currentBar['low'  ]  = $bar['low'  ];
+                                                    $currentBar['close']  = $bar['close'];
+                                                    $currentBar['ticks'] += $bar['ticks'];
+         }
       }
    }
 
 
    /**
-    * Fügt der M15-History des Sets die Daten einer M1-Bar hinzu.
+    * Fügt der M30-History des Sets weitere M1-Daten hinzu.
     *
-    * @param  MYFX_BAR $bar
+    * @param  MYFX_BAR[] $bars
     */
-   private function addToM15(array $bar) {
-      static $timeframe = PERIOD_M15;
-      $time = $bar['time'];
+   private function addToM30(array $bars) {
+      $sizeM30Bars = sizeOf($this->history[PERIOD_M30]['bars']);
+      $currentBar  = null;
+      if ($sizeM30Bars)
+         $currentBar =& $this->history[PERIOD_M30]['bars'][$sizeM30Bars-1];
 
-      // Wechsel zur nächsten Bar erkennen
-      if ($time >= $this->history[$timeframe]['currentCloseTime']) {
-         // neue Bar beginnen
-         $bar['time']                                   = $time - $time%15*MINUTES;
-         $this->history[$timeframe]['currentCloseTime'] = $bar['time'] + 15*MINUTES;
-         $this->history[$timeframe]['bars'          ][] = $bar;
+      foreach ($bars as $bar) {
+         // Wechsel zur nächsten M30-Bar erkennen
+         if ($bar['time'] >= $this->history[PERIOD_M30]['currentCloseTime']) {
+            // neue Bar beginnen
+            $bar['time']                                  -= $bar['time'] % 30*MINUTES;
+            $this->history[PERIOD_M30]['currentCloseTime'] = $bar['time'] + 30*MINUTES;
+            $this->history[PERIOD_M30]['bars'          ][] = $bar;
+            $sizeM30Bars++;
+            $currentBar =& $this->history[PERIOD_M30]['bars'][$sizeM30Bars-1];
 
-         if (sizeOf($this->history[$timeframe]['bars']) > $this->flushLimit)
-            $this->flushBars($timeframe, $this->flushLimit);
-      }
-      else {
-         // letzte Bar aktualisieren ('time' und 'open' unverändert)
-         $currentBar =& $this->history[$timeframe]['bars'][sizeOf($this->history[$timeframe]['bars'])-1];
-         if ($bar['high'] > $currentBar['high']) $currentBar['high' ]  = $bar['high' ];
-         if ($bar['low' ] < $currentBar['low' ]) $currentBar['low'  ]  = $bar['low'  ];
-                                                 $currentBar['close']  = $bar['close'];
-                                                 $currentBar['ticks'] += $bar['ticks'];
+            if ($sizeM30Bars > $this->flushLimit)
+               $this->flushBars(PERIOD_M30, $this->flushLimit);
+         }
+         else {
+            // letzte Bar aktualisieren ('time' und 'open' unverändert)
+            if ($bar['high'] > $currentBar['high']) $currentBar['high' ]  = $bar['high' ];
+            if ($bar['low' ] < $currentBar['low' ]) $currentBar['low'  ]  = $bar['low'  ];
+                                                    $currentBar['close']  = $bar['close'];
+                                                    $currentBar['ticks'] += $bar['ticks'];
+         }
       }
    }
 
 
    /**
-    * Fügt der M30-History des Sets die Daten einer M1-Bar hinzu.
+    * Fügt der H1-History des Sets weitere M1-Daten hinzu.
     *
-    * @param  MYFX_BAR $bar
+    * @param  MYFX_BAR[] $bars
     */
-   private function addToM30(array $bar) {
-      static $timeframe = PERIOD_M30;
-      $time = $bar['time'];
+   private function addToH1(array $bars) {
+      $sizeH1Bars = sizeOf($this->history[PERIOD_H1]['bars']);
+      $currentBar = null;
+      if ($sizeH1Bars)
+         $currentBar =& $this->history[PERIOD_H1]['bars'][$sizeH1Bars-1];
 
-      // Wechsel zur nächsten Bar erkennen
-      if ($time >= $this->history[$timeframe]['currentCloseTime']) {
-         // neue Bar beginnen
-         $bar['time']                                   = $time - $time%30*MINUTES;
-         $this->history[$timeframe]['currentCloseTime'] = $bar['time'] + 30*MINUTES;
-         $this->history[$timeframe]['bars'          ][] = $bar;
+      foreach ($bars as $bar) {
+         // Wechsel zur nächsten H1-Bar erkennen
+         if ($bar['time'] >= $this->history[PERIOD_H1]['currentCloseTime']) {
+            // neue Bar beginnen
+            $bar['time']                                 -= $bar['time'] % 1*HOUR;
+            $this->history[PERIOD_H1]['currentCloseTime'] = $bar['time'] + 1*HOUR;
+            $this->history[PERIOD_H1]['bars'          ][] = $bar;
+            $sizeH1Bars++;
+            $currentBar =& $this->history[PERIOD_H1]['bars'][$sizeH1Bars-1];
 
-         if (sizeOf($this->history[$timeframe]['bars']) > $this->flushLimit)
-            $this->flushBars($timeframe, $this->flushLimit);
-      }
-      else {
-         // letzte Bar aktualisieren ('time' und 'open' unverändert)
-         $currentBar =& $this->history[$timeframe]['bars'][sizeOf($this->history[$timeframe]['bars'])-1];
-         if ($bar['high'] > $currentBar['high']) $currentBar['high' ]  = $bar['high' ];
-         if ($bar['low' ] < $currentBar['low' ]) $currentBar['low'  ]  = $bar['low'  ];
-                                                 $currentBar['close']  = $bar['close'];
-                                                 $currentBar['ticks'] += $bar['ticks'];
+            if ($sizeH1Bars > $this->flushLimit)
+               $this->flushBars(PERIOD_H1, $this->flushLimit);
+         }
+         else {
+            // letzte Bar aktualisieren ('time' und 'open' unverändert)
+            if ($bar['high'] > $currentBar['high']) $currentBar['high' ]  = $bar['high' ];
+            if ($bar['low' ] < $currentBar['low' ]) $currentBar['low'  ]  = $bar['low'  ];
+                                                    $currentBar['close']  = $bar['close'];
+                                                    $currentBar['ticks'] += $bar['ticks'];
+         }
       }
    }
 
 
    /**
-    * Fügt der H1-History des Sets die Daten einer M1-Bar hinzu.
+    * Fügt der H4-History des Sets weitere M1-Daten hinzu.
     *
-    * @param  MYFX_BAR $bar
+    * @param  MYFX_BAR[] $bars
     */
-   private function addToH1(array $bar) {
-      static $timeframe = PERIOD_H1;
-      $time = $bar['time'];
+   private function addToH4(array $bars) {
+      $sizeH4Bars = sizeOf($this->history[PERIOD_H4]['bars']);
+      $currentBar = null;
+      if ($sizeH4Bars)
+         $currentBar =& $this->history[PERIOD_H4]['bars'][$sizeH4Bars-1];
 
-      // Wechsel zur nächsten Bar erkennen
-      if ($time >= $this->history[$timeframe]['currentCloseTime']) {
-         // neue Bar beginnen
-         $bar['time']                                   = $time - $time%HOURS;
-         $this->history[$timeframe]['currentCloseTime'] = $bar['time'] + 1*HOUR;
-         $this->history[$timeframe]['bars'          ][] = $bar;
+      foreach ($bars as $bar) {
+         // Wechsel zur nächsten H4-Bar erkennen
+         if ($bar['time'] >= $this->history[PERIOD_H4]['currentCloseTime']) {
+            // neue Bar beginnen
+            $bar['time']                                 -= $bar['time'] % 4*HOURS;
+            $this->history[PERIOD_H4]['currentCloseTime'] = $bar['time'] + 4*HOURS;
+            $this->history[PERIOD_H4]['bars'          ][] = $bar;
+            $sizeH4Bars++;
+            $currentBar =& $this->history[PERIOD_H4]['bars'][$sizeH4Bars-1];
 
-         if (sizeOf($this->history[$timeframe]['bars']) > $this->flushLimit)
-            $this->flushBars($timeframe, $this->flushLimit);
-      }
-      else {
-         // letzte Bar aktualisieren ('time' und 'open' unverändert)
-         $currentBar =& $this->history[$timeframe]['bars'][sizeOf($this->history[$timeframe]['bars'])-1];
-         if ($bar['high'] > $currentBar['high']) $currentBar['high' ]  = $bar['high' ];
-         if ($bar['low' ] < $currentBar['low' ]) $currentBar['low'  ]  = $bar['low'  ];
-                                                 $currentBar['close']  = $bar['close'];
-                                                 $currentBar['ticks'] += $bar['ticks'];
+            if ($sizeH4Bars > $this->flushLimit)
+               $this->flushBars(PERIOD_H4, $this->flushLimit);
+         }
+         else {
+            // letzte Bar aktualisieren ('time' und 'open' unverändert)
+            if ($bar['high'] > $currentBar['high']) $currentBar['high' ]  = $bar['high' ];
+            if ($bar['low' ] < $currentBar['low' ]) $currentBar['low'  ]  = $bar['low'  ];
+                                                    $currentBar['close']  = $bar['close'];
+                                                    $currentBar['ticks'] += $bar['ticks'];
+         }
       }
    }
 
 
    /**
-    * Fügt der H4-History des Sets die Daten einer M1-Bar hinzu.
+    * Fügt der D1-History des Sets weitere M1-Daten hinzu.
     *
-    * @param  MYFX_BAR $bar
+    * @param  MYFX_BAR[] $bars
     */
-   private function addToH4(array $bar) {
-      static $timeframe = PERIOD_H4;
-      $time = $bar['time'];
+   private function addToD1(array $bars) {
+      $sizeD1Bars = sizeOf($this->history[PERIOD_D1]['bars']);
+      $currentBar = null;
+      if ($sizeD1Bars)
+         $currentBar =& $this->history[PERIOD_D1]['bars'][$sizeD1Bars-1];
 
-      // Wechsel zur nächsten Bar erkennen
-      if ($time >= $this->history[$timeframe]['currentCloseTime']) {
-         // neue Bar beginnen
-         $bar['time']                                   = $time - $time%4*HOURS;
-         $this->history[$timeframe]['currentCloseTime'] = $bar['time'] + 4*HOURS;
-         $this->history[$timeframe]['bars'          ][] = $bar;
+      foreach ($bars as $bar) {
+         // Wechsel zur nächsten D1-Bar erkennen
+         if ($bar['time'] >= $this->history[PERIOD_D1]['currentCloseTime']) {
+            // neue Bar beginnen
+            $bar['time']                                 -= $bar['time'] % 1*DAY;
+            $this->history[PERIOD_D1]['currentCloseTime'] = $bar['time'] + 1*DAY;
+            $this->history[PERIOD_D1]['bars'          ][] = $bar;
+            $sizeD1Bars++;
+            $currentBar =& $this->history[PERIOD_D1]['bars'][$sizeD1Bars-1];
 
-         if (sizeOf($this->history[$timeframe]['bars']) > $this->flushLimit)
-            $this->flushBars($timeframe, $this->flushLimit);
-      }
-      else {
-         // letzte Bar aktualisieren ('time' und 'open' unverändert)
-         $currentBar =& $this->history[$timeframe]['bars'][sizeOf($this->history[$timeframe]['bars'])-1];
-         if ($bar['high'] > $currentBar['high']) $currentBar['high' ]  = $bar['high' ];
-         if ($bar['low' ] < $currentBar['low' ]) $currentBar['low'  ]  = $bar['low'  ];
-                                                 $currentBar['close']  = $bar['close'];
-                                                 $currentBar['ticks'] += $bar['ticks'];
+            if ($sizeD1Bars > $this->flushLimit)
+               $this->flushBars(PERIOD_D1, $this->flushLimit);
+         }
+         else {
+            // letzte Bar aktualisieren ('time' und 'open' unverändert)
+            if ($bar['high'] > $currentBar['high']) $currentBar['high' ]  = $bar['high' ];
+            if ($bar['low' ] < $currentBar['low' ]) $currentBar['low'  ]  = $bar['low'  ];
+                                                    $currentBar['close']  = $bar['close'];
+                                                    $currentBar['ticks'] += $bar['ticks'];
+         }
       }
    }
 
 
    /**
-    * Fügt der D1-History des Sets die Daten einer M1-Bar hinzu.
+    * Fügt der W1-History des Sets weitere M1-Daten hinzu.
     *
-    * @param  MYFX_BAR $bar
+    * @param  MYFX_BAR[] $bars
     */
-   private function addToD1(array $bar) {
-      static $timeframe = PERIOD_D1;
-      $time = $bar['time'];
+   private function addToW1(array $bars) {
+      $sizeW1Bars =  sizeOf($this->history[PERIOD_W1]['bars']);
+      $currentBar = null;
+      if ($sizeW1Bars)
+         $currentBar =& $this->history[PERIOD_W1]['bars'][$sizeW1Bars-1];
 
-      // Wechsel zur nächsten Bar erkennen
-      if ($time >= $this->history[$timeframe]['currentCloseTime']) {
-         // neue Bar beginnen
-         $bar['time']                                   = $time - $time%DAYS;
-         $this->history[$timeframe]['currentCloseTime'] = $bar['time'] + 1*DAY;
-         $this->history[$timeframe]['bars'          ][] = $bar;
+      foreach ($bars as $bar) {
+         // Wechsel zur nächsten W1-Bar erkennen
+         if ($bar['time'] >= $this->history[PERIOD_W1]['currentCloseTime']) {
+            // neue Bar beginnen
+            $dow = iDate('w', $bar['time']);
+            $bar['time']                                 -= $bar['time'] % 1*DAY - (($dow+6)%7)*DAYS;   // 00:00, Montag
+            $this->history[PERIOD_W1]['currentCloseTime'] = $bar['time'] + 1*WEEK;
+            $this->history[PERIOD_W1]['bars'          ][] = $bar;
+            $sizeW1Bars++;
+            $currentBar =& $this->history[PERIOD_W1]['bars'][$sizeW1Bars-1];
 
-         if (sizeOf($this->history[$timeframe]['bars']) > $this->flushLimit)
-            $this->flushBars($timeframe, $this->flushLimit);
-      }
-      else {
-         // letzte Bar aktualisieren ('time' und 'open' unverändert)
-         $currentBar =& $this->history[$timeframe]['bars'][sizeOf($this->history[$timeframe]['bars'])-1];
-         if ($bar['high'] > $currentBar['high']) $currentBar['high' ]  = $bar['high' ];
-         if ($bar['low' ] < $currentBar['low' ]) $currentBar['low'  ]  = $bar['low'  ];
-                                                 $currentBar['close']  = $bar['close'];
-                                                 $currentBar['ticks'] += $bar['ticks'];
+            if ($sizeW1Bars > $this->flushLimit)
+               $this->flushBars(PERIOD_W1, $this->flushLimit);
+         }
+         else {
+            // letzte Bar aktualisieren ('time' und 'open' unverändert)
+            if ($bar['high'] > $currentBar['high']) $currentBar['high' ]  = $bar['high' ];
+            if ($bar['low' ] < $currentBar['low' ]) $currentBar['low'  ]  = $bar['low'  ];
+                                                    $currentBar['close']  = $bar['close'];
+                                                    $currentBar['ticks'] += $bar['ticks'];
+         }
       }
    }
 
 
    /**
-    * Fügt der W1-History des Sets die Daten einer M1-Bar hinzu.
+    * Fügt der MN1-History des Sets weitere M1-Daten hinzu.
     *
-    * @param  MYFX_BAR $bar
+    * @param  MYFX_BAR[] $bars
     */
-   private function addToW1(array $bar) {
-      static $timeframe = PERIOD_W1;
-      $time = $bar['time'];
+   private function addToMN1(array $bars) {
+      $sizeMN1Bars =  sizeOf($this->history[PERIOD_MN1]['bars']);
+      $currentBar = null;
+      if ($sizeMN1Bars)
+         $currentBar =& $this->history[PERIOD_MN1]['bars'][$sizeMN1Bars-1];
 
-      // Wechsel zur nächsten Bar erkennen
-      if ($time >= $this->history[$timeframe]['currentCloseTime']) {
-         // neue Bar beginnen
-         $dow = iDate('w', $time);
-         $bar['time']                                   = $time - $time%DAYS - (($dow+6)%7)*DAYS; // 00:00, Montag
-         $this->history[$timeframe]['currentCloseTime'] = $bar['time'] + 1*WEEK;
-         $this->history[$timeframe]['bars'          ][] = $bar;
+      foreach ($bars as $bar) {
+         // Wechsel zur nächsten MN1-Bar erkennen
+         if ($bar['time'] >= $this->history[PERIOD_MN1]['currentCloseTime']) {
+            // neue Bar beginnen
+            $dom = iDate('d', $bar['time']);
+            $m   = iDate('m', $bar['time']);
+            $y   = iDate('Y', $bar['time']);
+            $bar['time']                                  -= $bar['time']%DAYS - ($dom-1)*DAYS;   // 00:00, 1. des Monats
+            $this->history[PERIOD_MN1]['currentCloseTime'] = gmMkTime(0, 0, 0, $m+1, 1, $y);       // 00:00, 1. des nächsten Monats
+            $this->history[PERIOD_MN1]['bars'          ][] = $bar;
+            $sizeMN1Bars++;
+            $currentBar =& $this->history[PERIOD_MN1]['bars'][$sizeMN1Bars-1];
 
-         if (sizeOf($this->history[$timeframe]['bars']) > $this->flushLimit)
-            $this->flushBars($timeframe, $this->flushLimit);
-      }
-      else {
-         // letzte Bar aktualisieren ('time' und 'open' unverändert)
-         $currentBar =& $this->history[$timeframe]['bars'][sizeOf($this->history[$timeframe]['bars'])-1];
-         if ($bar['high'] > $currentBar['high']) $currentBar['high' ]  = $bar['high' ];
-         if ($bar['low' ] < $currentBar['low' ]) $currentBar['low'  ]  = $bar['low'  ];
-                                                 $currentBar['close']  = $bar['close'];
-                                                 $currentBar['ticks'] += $bar['ticks'];
-      }
-   }
-
-
-   /**
-    * Fügt der MN1-History des Sets die Daten einer M1-Bar hinzu.
-    *
-    * @param  MYFX_BAR $bar
-    */
-   private function addToMN1(array $bar) {
-      static $timeframe = PERIOD_MN1;
-      $time = $bar['time'];
-
-      // Wechsel zur nächsten Bar erkennen
-      if ($time >= $this->history[$timeframe]['currentCloseTime']) {
-         // neue Bar beginnen
-         $dom = iDate('d', $time);
-         $m   = iDate('m', $time);
-         $y   = iDate('Y', $time);
-         $bar['time']                                   = $time - $time%DAYS - ($dom-1)*DAYS;   // 00:00, 1. des Monats
-         $this->history[$timeframe]['currentCloseTime'] = gmMkTime(0, 0, 0, $m+1, 1, $y);       // 00:00, 1. des nächsten Monats
-         $this->history[$timeframe]['bars'          ][] = $bar;
-
-         if (sizeOf($this->history[$timeframe]['bars']) > $this->flushLimit)
-            $this->flushBars($timeframe, $this->flushLimit);
-      }
-      else {
-         // letzte Bar aktualisieren ('time' und 'open' unverändert)
-         $currentBar =& $this->history[$timeframe]['bars'][sizeOf($this->history[$timeframe]['bars'])-1];
-         if ($bar['high'] > $currentBar['high']) $currentBar['high' ]  = $bar['high' ];
-         if ($bar['low' ] < $currentBar['low' ]) $currentBar['low'  ]  = $bar['low'  ];
-                                                 $currentBar['close']  = $bar['close'];
-                                                 $currentBar['ticks'] += $bar['ticks'];
+            if ($sizeMN1Bars > $this->flushLimit)
+               $this->flushBars(PERIOD_MN1, $this->flushLimit);
+         }
+         else {
+            // letzte Bar aktualisieren ('time' und 'open' unverändert)
+            if ($bar['high'] > $currentBar['high']) $currentBar['high' ]  = $bar['high' ];
+            if ($bar['low' ] < $currentBar['low' ]) $currentBar['low'  ]  = $bar['low'  ];
+                                                    $currentBar['close']  = $bar['close'];
+                                                    $currentBar['ticks'] += $bar['ticks'];
+         }
       }
    }
 
@@ -395,6 +452,9 @@ class HistorySet extends Object {
       if (is_null($count)) $count = PHP_INT_MAX;
       if (!is_int($count))                    throw new IllegalTypeException('Illegal type of parameter $count: '.getType($count));
       if ($count < 0)                         throw new plInvalidArgumentException('Invalid parameter $count: '.$count);
+
+      if (!isSet($this->history[$timeframe]['bars']))
+         return 0;
 
       $size = sizeOf($this->history[$timeframe]['bars']);
       $todo = min($size, $count);
@@ -420,6 +480,7 @@ class HistorySet extends Object {
 
       if ($todo == $size) $this->history[$timeframe]['bars'] = array();
       else                $this->history[$timeframe]['bars'] = array_slice($this->history[$timeframe]['bars'], $todo);
+
       return $todo;
    }
 
@@ -445,6 +506,9 @@ class HistorySet extends Object {
                }
             }
             echoPre('history['. str_pad(MyFX::timeframeDescription($timeframe), 3, ' ', STR_PAD_RIGHT).'] => '.str_pad($size, 5, ' ', STR_PAD_LEFT).' bar'.($size==1?' ':'s').$firstBar.($size>1? $lastBar:''));
+         }
+         else {
+            echoPre('history['. str_pad(MyFX::timeframeDescription($timeframe), 3, ' ', STR_PAD_RIGHT).'] => '.printFormatted($data, true));
          }
       }
       echoPre(NL);
