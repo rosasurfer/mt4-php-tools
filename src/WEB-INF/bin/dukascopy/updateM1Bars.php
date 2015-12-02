@@ -82,10 +82,10 @@ foreach ($args as $i => $arg) {
 // Symbole parsen
 foreach ($args as $i => $arg) {
    $arg = strToUpper($arg);
-   if (!isSet($startTimes[$arg])) help('error: unknown symbol "'.$args[$i].'"') & exit(1);
+   if (!isSet($startTimes[$arg])) help('error: unknown or unsupported symbol "'.$args[$i].'"') & exit(1);
    $args[$i] = $arg;
 }
-$args = $args ? array_unique($args) : array_keys($startTimes);          // ohne Symbole werden alle Symbole aktualisiert
+$args = $args ? array_unique($args) : array_keys($startTimes);          // ohne Symbol werden alle Symbole aktualisiert
 
 
 // (2) Daten aktualisieren

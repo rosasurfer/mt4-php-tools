@@ -1,9 +1,8 @@
 #!/usr/bin/php
 <?php
 /**
- * Konvertiert die MyFX-History ein oder mehrerer Verzeichnisse ins Metatrader-Format und legt sie im aktuellen Verzeichnis ab.
- * Der letzte Pfadbestandteil eines angegebenen Verzeichnisses wird als Symbol des zu konvertierenden Instruments interpretiert.
- * Dieses Symbol wird zusätzlich in die Datei "symbols.raw" im aktuellen Verzeichnis eingetragen.
+ * Konvertiert die MyFX-History ein oder mehrerer Symbole ins Metatrader-Format und legt sie im MyFX-Serververzeichnis ab.
+ * Es wird nicht geprüft, ob die Symbole in die Datei "symbols.raw" des Serververzeichnisses eingetragen wurden.
  */
 require(dirName(realPath(__FILE__)).'/../../config.php');
 date_default_timezone_set('GMT');
@@ -31,12 +30,11 @@ $startTimes = array('AUDUSD' => strToTime('2003-08-03 00:00:00 GMT'),
 
 // (1) Befehlszeilenparameter auswerten
 $args = array_slice($_SERVER['argv'], 1);
-if (!$args) help() & exit(1);
 
 // Optionen parsen
 $looping = $fileSyncOnly = false;
 foreach ($args as $i => $arg) {
-   if (in_array($arg, array('-h','--help'))) help() & exit(1);          // Hilfe
+   if ($arg == '-h'  )   help() & exit(1);                              // Hilfe
    if ($arg == '-v'  ) { $verbose = 1; unset($args[$i]); continue; }    // verbose output
    if ($arg == '-vv' ) { $verbose = 2; unset($args[$i]); continue; }    // more verbose output
    if ($arg == '-vvv') { $verbose = 3; unset($args[$i]); continue; }    // very verbose output
@@ -44,15 +42,11 @@ foreach ($args as $i => $arg) {
 
 // Symbole parsen
 foreach ($args as $i => $arg) {
-   if ($arg=="'*'" || $arg=='"*"')
-      $args[$i] = $arg = '*';
-   if ($arg != '*') {
-      $arg = strToUpper($arg);
-      if (!isSet($startTimes[$arg])) help('error: unsupported symbol "'.$args[$i].'"') & exit(1);
-      $args[$i] = $arg;
-   }
+   $arg = strToUpper($arg);
+   if (!isSet($startTimes[$arg])) help('error: unknown or unsupported symbol "'.$args[$i].'"') & exit(1);
+   $args[$i] = $arg;
 }
-$args = in_array('*', $args) ? array_keys($startTimes) : array_unique($args);    // '*' wird durch alle Symbole ersetzt
+$args = $args ? array_unique($args) : array_keys($startTimes);          // ohne Symbol werden alle Symbole aktualisiert
 
 
 // (2) History erstellen
