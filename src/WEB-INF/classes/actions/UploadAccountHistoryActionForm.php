@@ -293,13 +293,14 @@ class UploadAccountHistoryActionForm extends ActionForm {
     * Destructor
     */
    public function __destruct() {
+      // Ein Destructor darf während des Shutdowns keine Exception werfen.
       try {
          // tmp. Dateien manuell löschen, da $FILES-Array u.U. emuliert sein kann
          if (is_file($this->file['tmp_name']))
             unlink($this->file['tmp_name']);
       }
       catch (Exception $ex) {
-         Logger ::handleException($ex, $ignoreIfNotInShutdown=true);
+         Logger ::handleException($ex, $handleOnlyInShutdown=true);
          throw $ex;
       }
    }

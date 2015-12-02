@@ -29,11 +29,10 @@ $startTimes = array('AUDUSD' => strToTime('2003-08-03 00:00:00 GMT'),
 // -- Start ----------------------------------------------------------------------------------------------------------------------------------------
 
 
-// (1) Befehlszeilenparameter auswerten
+// (1) Befehlszeilenargumente einlesen und validieren
 $args = array_slice($_SERVER['argv'], 1);
 
 // Optionen parsen
-$looping = $fileSyncOnly = false;
 foreach ($args as $i => $arg) {
    if ($arg == '-h'  )   help() & exit(1);                              // Hilfe
    if ($arg == '-v'  ) { $verbose = 1; unset($args[$i]); continue; }    // verbose output
@@ -47,12 +46,12 @@ foreach ($args as $i => $arg) {
    if (!isSet($startTimes[$arg])) help('error: unknown or unsupported symbol "'.$args[$i].'"') & exit(1);
    $args[$i] = $arg;
 }
-$args = $args ? array_unique($args) : array_keys($startTimes);          // ohne Symbol werden alle Symbole aktualisiert
+$args = $args ? array_unique($args) : array_keys($startTimes);          // ohne Symbol werden alle Symbole verarbeitet
 
 
 // (2) History erstellen
 foreach ($args as $symbol) {
-   if (!createHistory($symbol, 'avg'))
+   if (!createHistory($symbol))
       exit(1);
 }
 exit(0);
@@ -65,11 +64,10 @@ exit(0);
  * Erzeugt die MetaTrader-History eines Symbol.
  *
  * @param string $symbol - Symbol
- * @param string $type   - Kurstyp
  *
  * @return bool - Erfolgsstatus
  */
-function createHistory($symbol, $type) {
+function createHistory($symbol) {
    if (!is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
    if (!strLen($symbol))    throw new plInvalidArgumentException('Invalid parameter $symbol: ""');
 
@@ -90,10 +88,10 @@ function createHistory($symbol, $type) {
          $lastMonth = $month;
       }
 
-      // außer an Wochenenden: vorhandene MyFX-History einlesen und verarbeiten
+      // außer an Wochenenden: MyFX-History verarbeiten
       if (!MyFX::isWeekend($day)) {
-         if      (is_file($file=getVar('myfxFile.compressed', $symbol, $day, $type))) {}  // wenn komprimierte MyFX-Datei existiert
-         else if (is_file($file=getVar('myfxFile.raw'       , $symbol, $day, $type))) {}  // wenn unkomprimierte MyFX-Datei existiert
+         if      (is_file($file=getVar('myfxFile.compressed', $symbol, $day))) {}   // wenn komprimierte MyFX-Datei existiert
+         else if (is_file($file=getVar('myfxFile.raw'       , $symbol, $day))) {}   // wenn unkomprimierte MyFX-Datei existiert
          else continue;
          if ($verbose > 1) echoPre('[Info]  '.date('D, d-M-Y', $day).'   MyFX history file: '.baseName($file));
 

@@ -77,13 +77,14 @@ class UploadFTPConfigurationActionForm extends ActionForm {
     * Destructor
     */
    public function __destruct() {
-      // temporäre Datei manuell löschen, da $FILES-Array emuliert ist
+      // Ein Destructor darf während des Shutdowns keine Exception werfen.
       try {
+         // temporäre Datei manuell löschen, da $FILES-Array emuliert ist
          if (is_file($this->file['tmp_name']))
             unlink($this->file['tmp_name']);
       }
       catch (Exception $ex) {
-         Logger ::handleException($ex, $ignoreIfNotInShutdown=true);
+         Logger ::handleException($ex, $handleOnlyInShutdown=true);
          throw $ex;
       }
    }

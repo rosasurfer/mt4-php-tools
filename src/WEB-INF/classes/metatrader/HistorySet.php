@@ -173,10 +173,8 @@ class HistorySet extends Object {
             $sizeM5Bars++;
             $currentBar =& $this->history[PERIOD_M5]['bars'][$sizeM5Bars-1];
 
-            if ($sizeM5Bars > $this->flushLimit) {
-               exit();
+            if ($sizeM5Bars > $this->flushLimit)
                $this->flushBars(PERIOD_M5, $this->flushLimit);
-            }
          }
          else {
             // letzte Bar aktualisieren ('time' und 'open' unverändert)
