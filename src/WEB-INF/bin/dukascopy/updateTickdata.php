@@ -2,6 +2,7 @@
 <?php
 /**
  * Aktualisiert die vorhandenen Dukascopy-Tickdaten.
+ * Die Daten der aktuellen Stunde sind frühestens ab der nächsten Stunde verfügbar.
  *
  * http://www.dukascopy.com/datafeed/EURUSD/2013/05/10/07h_ticks.bi5
  */

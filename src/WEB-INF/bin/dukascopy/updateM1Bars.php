@@ -3,6 +3,7 @@
 /**
  * Aktualisiert die lokalen Dukascopy-M1-Daten. Bid und Ask werden zu Median gemerged, nach FXT konvertiert und im
  * MyFX-Format gespeichert. Die Dukascopy-Daten sind durchgehend, Feiertage werden, Wochenenden werden nicht gespeichert.
+ * Die Daten des aktuellen Tags sind frühestens am nächsten Tag verfügbar.
  *
  *
  * Webseite:      http://www.dukascopy.com/swiss/english/marketwatch/historical/
@@ -19,7 +20,6 @@
  *
  * Dateiformat:   • Binär, LZMA-gepackt, Zeiten in GMT (keine Sommerzeit).
  *                • In Handelspausen ist durchgehend der letzte Schlußkurs (OHLC) und V=0 (zero) angegeben.
- *                • Die Daten des aktuellen Tags sind frühestens am nächsten Tag verfügbar.
  *
  *                @see class Dukascopy
  *
@@ -69,28 +69,23 @@ $startTimes = array('AUDUSD' => strToTime('2003-08-03 00:00:00 GMT'),
 
 // (1) Befehlszeilenargumente einlesen und validieren
 $args = array_slice($_SERVER['argv'], 1);
-if (!$args) help() & exit(1);
 
 // Optionen parsen
 $looping = $fileSyncOnly = false;
 foreach ($args as $i => $arg) {
-   if (in_array($arg, array('-h','--help'))) help() & exit(1);                   // Hilfe
-   if ($arg == '-v'  ) { $verbose = 1; unset($args[$i]); continue; }             // verbose output
-   if ($arg == '-vv' ) { $verbose = 2; unset($args[$i]); continue; }             // more verbose output
-   if ($arg == '-vvv') { $verbose = 3; unset($args[$i]); continue; }             // very verbose output
+   if ($arg == '-h'  )   help() & exit(1);                              // Hilfe
+   if ($arg == '-v'  ) { $verbose = 1; unset($args[$i]); continue; }    // verbose output
+   if ($arg == '-vv' ) { $verbose = 2; unset($args[$i]); continue; }    // more verbose output
+   if ($arg == '-vvv') { $verbose = 3; unset($args[$i]); continue; }    // very verbose output
 }
 
 // Symbole parsen
 foreach ($args as $i => $arg) {
-   if ($arg=="'*'" || $arg=='"*"')
-      $args[$i] = $arg = '*';
-   if ($arg != '*') {
-      $arg = strToUpper($arg);
-      if (!isSet($startTimes[$arg])) help('error: unknown symbol "'.$args[$i].'"') & exit(1);
-      $args[$i] = $arg;
-   }
+   $arg = strToUpper($arg);
+   if (!isSet($startTimes[$arg])) help('error: unknown symbol "'.$args[$i].'"') & exit(1);
+   $args[$i] = $arg;
 }
-$args = in_array('*', $args) ? array_keys($startTimes) : array_unique($args);    // '*' wird durch alle Symbole ersetzt
+$args = $args ? array_unique($args) : array_keys($startTimes);          // ohne Symbole werden alle Symbole aktualisiert
 
 
 // (2) Daten aktualisieren
@@ -126,6 +121,8 @@ function updateSymbol($symbol, $startTime) {
    $barBuffer['bid'] = array();
    $barBuffer['ask'] = array();
    $barBuffer['avg'] = array();
+
+   echoPre('[Info]  '.$symbol);
 
 
    // (1) Prüfen, ob sich der Startzeitpunkt des Symbols geändert hat
