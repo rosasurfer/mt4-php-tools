@@ -15,12 +15,13 @@ $__classes['Dukascopy'                         ] = $dir.'dukascopy/Dukascopy';
 $__classes['HistorySet'                        ] = $dir.'metatrader/HistorySet';
 $__classes['MT4'                               ] = $dir.'metatrader/MT4';
 
+$__classes['MyFX'                              ] = $dir.'myfx/MyFX';
+
 $__classes['DataNotFoundException'             ] = $dir.'simpletrader/DataNotFoundException';
 $__classes['SimpleTrader'                      ] = $dir.'simpletrader/SimpleTrader';
 
 $__classes['LZMA'                              ] = $dir.'helper/LZMA';
 $__classes['ImportHelper'                      ] = $dir.'helper/ImportHelper';
-$__classes['MyFX'                              ] = $dir.'helper/MyFX';
 $__classes['ReportHelper'                      ] = $dir.'helper/ReportHelper';
 $__classes['Validator'                         ] = $dir.'helper/Validator';
 $__classes['ViewHelper'                        ] = $dir.'helper/ViewHelper';
