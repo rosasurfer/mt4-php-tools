@@ -143,12 +143,12 @@ class HistorySet extends Object {
    private function addToM1(array $bars) {
       $this->history[PERIOD_M1]['bars'] = array_merge($this->history[PERIOD_M1]['bars'], $bars);
 
-      $size    = sizeOf($this->history[PERIOD_M1]['bars']);
-      $lastBar = $this->history[PERIOD_M1]['bars'][$size-1];
+      $sizeM1Bars = sizeOf($this->history[PERIOD_M1]['bars']);
+      $lastBar    = $this->history[PERIOD_M1]['bars'][$sizeM1Bars-1];
       $this->history[PERIOD_M1]['currentCloseTime'] = $lastBar['time'] + 1*MINUTE;
 
-      if ($size > $this->flushLimit)
-         $this->flushBars(PERIOD_M1, $this->flushLimit);
+      if ($sizeM1Bars > $this->flushLimit)
+         $sizeM1Bars -= $this->flushBars(PERIOD_M1, $this->flushLimit);
    }
 
 
@@ -163,18 +163,17 @@ class HistorySet extends Object {
       if ($sizeM5Bars)
          $currentBar =& $this->history[PERIOD_M5]['bars'][$sizeM5Bars-1];
 
-      foreach ($bars as $bar) {
+      foreach ($bars as $i => $bar) {
          // Wechsel zur nächsten M5-Bar erkennen
          if ($bar['time'] >= $this->history[PERIOD_M5]['currentCloseTime']) {
             // neue Bar beginnen
             $bar['time']                                 -= $bar['time'] % 5*MINUTES;
             $this->history[PERIOD_M5]['currentCloseTime'] = $bar['time'] + 5*MINUTES;
             $this->history[PERIOD_M5]['bars'          ][] = $bar;
-            $sizeM5Bars++;
-            $currentBar =& $this->history[PERIOD_M5]['bars'][$sizeM5Bars-1];
+            $currentBar =& $this->history[PERIOD_M5]['bars'][$sizeM5Bars++];
 
             if ($sizeM5Bars > $this->flushLimit)
-               $this->flushBars(PERIOD_M5, $this->flushLimit);
+               $sizeM5Bars -= $this->flushBars(PERIOD_M5, $this->flushLimit);
          }
          else {
             // letzte Bar aktualisieren ('time' und 'open' unverändert)
@@ -205,11 +204,10 @@ class HistorySet extends Object {
             $bar['time']                                  -= $bar['time'] % 15*MINUTES;
             $this->history[PERIOD_M15]['currentCloseTime'] = $bar['time'] + 15*MINUTES;
             $this->history[PERIOD_M15]['bars'          ][] = $bar;
-            $sizeM15Bars++;
-            $currentBar =& $this->history[PERIOD_M15]['bars'][$sizeM15Bars-1];
+            $currentBar =& $this->history[PERIOD_M15]['bars'][$sizeM15Bars++];
 
             if ($sizeM15Bars > $this->flushLimit)
-               $this->flushBars(PERIOD_M15, $this->flushLimit);
+               $sizeM15Bars -= $this->flushBars(PERIOD_M15, $this->flushLimit);
          }
          else {
             // letzte Bar aktualisieren ('time' und 'open' unverändert)
@@ -240,11 +238,10 @@ class HistorySet extends Object {
             $bar['time']                                  -= $bar['time'] % 30*MINUTES;
             $this->history[PERIOD_M30]['currentCloseTime'] = $bar['time'] + 30*MINUTES;
             $this->history[PERIOD_M30]['bars'          ][] = $bar;
-            $sizeM30Bars++;
-            $currentBar =& $this->history[PERIOD_M30]['bars'][$sizeM30Bars-1];
+            $currentBar =& $this->history[PERIOD_M30]['bars'][$sizeM30Bars++];
 
             if ($sizeM30Bars > $this->flushLimit)
-               $this->flushBars(PERIOD_M30, $this->flushLimit);
+               $sizeM30Bars -= $this->flushBars(PERIOD_M30, $this->flushLimit);
          }
          else {
             // letzte Bar aktualisieren ('time' und 'open' unverändert)
@@ -275,11 +272,10 @@ class HistorySet extends Object {
             $bar['time']                                 -= $bar['time'] % 1*HOUR;
             $this->history[PERIOD_H1]['currentCloseTime'] = $bar['time'] + 1*HOUR;
             $this->history[PERIOD_H1]['bars'          ][] = $bar;
-            $sizeH1Bars++;
-            $currentBar =& $this->history[PERIOD_H1]['bars'][$sizeH1Bars-1];
+            $currentBar =& $this->history[PERIOD_H1]['bars'][$sizeH1Bars++];
 
             if ($sizeH1Bars > $this->flushLimit)
-               $this->flushBars(PERIOD_H1, $this->flushLimit);
+               $sizeH1Bars -= $this->flushBars(PERIOD_H1, $this->flushLimit);
          }
          else {
             // letzte Bar aktualisieren ('time' und 'open' unverändert)
@@ -310,11 +306,10 @@ class HistorySet extends Object {
             $bar['time']                                 -= $bar['time'] % 4*HOURS;
             $this->history[PERIOD_H4]['currentCloseTime'] = $bar['time'] + 4*HOURS;
             $this->history[PERIOD_H4]['bars'          ][] = $bar;
-            $sizeH4Bars++;
-            $currentBar =& $this->history[PERIOD_H4]['bars'][$sizeH4Bars-1];
+            $currentBar =& $this->history[PERIOD_H4]['bars'][$sizeH4Bars++];
 
             if ($sizeH4Bars > $this->flushLimit)
-               $this->flushBars(PERIOD_H4, $this->flushLimit);
+               $sizeH4Bars -= $this->flushBars(PERIOD_H4, $this->flushLimit);
          }
          else {
             // letzte Bar aktualisieren ('time' und 'open' unverändert)
@@ -345,11 +340,10 @@ class HistorySet extends Object {
             $bar['time']                                 -= $bar['time'] % 1*DAY;
             $this->history[PERIOD_D1]['currentCloseTime'] = $bar['time'] + 1*DAY;
             $this->history[PERIOD_D1]['bars'          ][] = $bar;
-            $sizeD1Bars++;
-            $currentBar =& $this->history[PERIOD_D1]['bars'][$sizeD1Bars-1];
+            $currentBar =& $this->history[PERIOD_D1]['bars'][$sizeD1Bars++];
 
             if ($sizeD1Bars > $this->flushLimit)
-               $this->flushBars(PERIOD_D1, $this->flushLimit);
+               $sizeD1Bars -= $this->flushBars(PERIOD_D1, $this->flushLimit);
          }
          else {
             // letzte Bar aktualisieren ('time' und 'open' unverändert)
@@ -381,11 +375,10 @@ class HistorySet extends Object {
             $bar['time']                                 -= $bar['time'] % 1*DAY - (($dow+6)%7)*DAYS;   // 00:00, Montag
             $this->history[PERIOD_W1]['currentCloseTime'] = $bar['time'] + 1*WEEK;
             $this->history[PERIOD_W1]['bars'          ][] = $bar;
-            $sizeW1Bars++;
-            $currentBar =& $this->history[PERIOD_W1]['bars'][$sizeW1Bars-1];
+            $currentBar =& $this->history[PERIOD_W1]['bars'][$sizeW1Bars++];
 
             if ($sizeW1Bars > $this->flushLimit)
-               $this->flushBars(PERIOD_W1, $this->flushLimit);
+               $sizeW1Bars -= $this->flushBars(PERIOD_W1, $this->flushLimit);
          }
          else {
             // letzte Bar aktualisieren ('time' und 'open' unverändert)
@@ -419,11 +412,10 @@ class HistorySet extends Object {
             $bar['time']                                  -= $bar['time']%DAYS - ($dom-1)*DAYS;   // 00:00, 1. des Monats
             $this->history[PERIOD_MN1]['currentCloseTime'] = gmMkTime(0, 0, 0, $m+1, 1, $y);       // 00:00, 1. des nächsten Monats
             $this->history[PERIOD_MN1]['bars'          ][] = $bar;
-            $sizeMN1Bars++;
-            $currentBar =& $this->history[PERIOD_MN1]['bars'][$sizeMN1Bars-1];
+            $currentBar =& $this->history[PERIOD_MN1]['bars'][$sizeMN1Bars++];
 
             if ($sizeMN1Bars > $this->flushLimit)
-               $this->flushBars(PERIOD_MN1, $this->flushLimit);
+               $sizeMN1Bars -= $this->flushBars(PERIOD_MN1, $this->flushLimit);
          }
          else {
             // letzte Bar aktualisieren ('time' und 'open' unverändert)
@@ -472,7 +464,7 @@ class HistorySet extends Object {
          $V = $bar['ticks'];
 
          MT4::addHistoryBar400($hFile, $T, $O, $H, $L, $C, $V);
-         if (++$i >= $todo)
+         if ($i+1 == $todo)
             break;
       }
 
