@@ -2,6 +2,7 @@
 <?php
 /**
  * Konvertiert die MyFX-History ein oder mehrerer Symbole ins Metatrader-Format und legt sie im MyFX-Serververzeichnis ab.
+ * Zur Zeit wird nur die MyFX-History von Dukascopy-Symbolen verarbeitet.
  * Es wird nicht geprüft, ob die Symbole in die Datei "symbols.raw" des Serververzeichnisses eingetragen wurden.
  */
 require(dirName(realPath(__FILE__)).'/../../config.php');
@@ -89,8 +90,8 @@ function createHistory($symbol, $type) {
          $lastMonth = $month;
       }
 
-      // nur an Handelstagen vorhandene MyFX-History einlesen und verarbeiten
-      if (MyFX::isTradingDay($day)) {
+      // außer an Wochenenden: vorhandene MyFX-History einlesen und verarbeiten
+      if (!MyFX::isWeekend($day)) {
          if      (is_file($file=getVar('myfxFile.compressed', $symbol, $day, $type))) {}  // wenn komprimierte MyFX-Datei existiert
          else if (is_file($file=getVar('myfxFile.raw'       , $symbol, $day, $type))) {}  // wenn unkomprimierte MyFX-Datei existiert
          else continue;
@@ -137,11 +138,7 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
 
    $self = __FUNCTION__;
 
-   if ($id == 'myfxName') {                  // M1,Bid                                                   // lokaler Name
-      if (!$type)   throw new plInvalidArgumentException('Invalid parameter $type: (null)');
-      $result = 'M1'.($type=='bid' ? ',Bid':($type=='ask' ? ',Ask':''));
-   }
-   else if ($id == 'myfxDirDate') {          // $yyyy/$mm/$dd                                            // lokales Pfad-Datum
+   if ($id == 'myfxDirDate') {               // $yyyy/$mm/$dd                                            // lokales Pfad-Datum
       if (!$time)   throw new plInvalidArgumentException('Invalid parameter $time: '.$time);
       $result = date('Y/m/d', $time);
    }
@@ -152,15 +149,13 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
       $myfxDirDate   = $self('myfxDirDate', null, $time, null);
       $result        = "$dataDirectory/history/dukascopy/$symbol/$myfxDirDate";
    }
-   else if ($id == 'myfxFile.raw') {         // $myfxDir/$myfxName.bin                                   // lokale Datei ungepackt
-      $myfxDir  = $self('myfxDir' , $symbol, $time, null);
-      $myfxName = $self('myfxName', null, null, $type);
-      $result   = "$myfxDir/$myfxName.bin";
+   else if ($id == 'myfxFile.raw') {         // $myfxDir/M1.bin                                          // lokale Datei ungepackt
+      $myfxDir = $self('myfxDir' , $symbol, $time, null);
+      $result  = "$myfxDir/M1.bin";
    }
-   else if ($id == 'myfxFile.compressed') {  // $myfxDir/$myfxName.rar                                   // lokale Datei gepackt
-      $myfxDir  = $self('myfxDir' , $symbol, $time, null);
-      $myfxName = $self('myfxName', null, null, $type);
-      $result   = "$myfxDir/$myfxName.rar";
+   else if ($id == 'myfxFile.compressed') {  // $myfxDir/M1.rar                                          // lokale Datei gepackt
+      $myfxDir = $self('myfxDir' , $symbol, $time, null);
+      $result  = "$myfxDir/M1.rar";
    }
    else {
      throw new plInvalidArgumentException('Unknown parameter $id: "'.$id.'"');
