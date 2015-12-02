@@ -1,7 +1,5 @@
 <?php
 /**
- * HistorySet
- *
  * Ein HistorySet zur Erzeugung einer vollständigen MetaTrader-History aus M1-Daten.
  */
 class HistorySet extends Object {
