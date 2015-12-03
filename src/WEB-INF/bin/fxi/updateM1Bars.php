@@ -1,17 +1,17 @@
 #!/usr/bin/php
 <?php
 /**
- * Erzeugt die MyFX-History verschiedener FX-Indizes (zur Zeit aus Dukascopy-Daten). Nach Möglichkeit werden vorhandene Tickdaten
- * zur Berechnung benutzt.
+ * Erzeugt die MyFX-History verschiedener FX-Indizes (zur Zeit aus Dukascopy-Daten). Nach Möglichkeit werden zur Berechnung vorhandene
+ * Tickdaten benutzt.
  *
  * Unterstützte Instrumente:
  *
- *  • USDX und EURX (ICE-Formel)
- *  • LFX-Indizes (LiteForex-Formel)
- *  • FX6-Indizes (geometrisches Mittel, normalisiert)
- *  • FX7-Indizes (geometrisches Mittel, normalisiert)
- *  • SEKFX6 und SEKFX7: SEK gegen FX6/FX7-Index
- *  • NOKFX6 und NOKFX7: NOK gegen FX6/FX7-Index
+ *  • USDX und EURX: ICE-Formel
+ *  • LFX-Indizes:   LiteForex-Formel
+ *  • FX6-Indizes:   AUDLFX, CADLFX, CHFLFX, EURLFX, GBPLFX, JPYLFX, USDLFX (geometrisches Mittel, normalisiert)
+ *  • FX7-Indizes:   AUDLFX, CADLFX, CHFLFX, EURLFX, GBPLFX, JPYLFX, NZDLFX, USDLFX (geometrisches Mittel, normalisiert)
+ *  • SEKFX6/SEKFX7: SEK gegen FX6/FX7-Index
+ *  • NOKFX6/NOKFX7: NOK gegen FX6/FX7-Index
  */
 require(dirName(realPath(__FILE__)).'/../../config.php');
 date_default_timezone_set('GMT');
