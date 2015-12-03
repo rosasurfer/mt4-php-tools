@@ -5,12 +5,12 @@
  *
  * Unterstützte Instrumente:
  *
- *  • FX6-Indizes:    AUDFX6, CADFX6, CHFFX6, EURFX6, GBPFX6, JPYFX6,         USDFX6 (geometrisches Mittel, JPY normalisiert)
- *  • FX7-Indizes:    AUDFX7, CADFX7, CHFFX7, EURFX7, GBPFX7, JPYFX7, NZDFX7, USDFX7 (geometrisches Mittel, JPY normalisiert)
+ *  • FX6-Indizes:    AUDFX6, CADFX6, CHFFX6, EURFX6, GBPFX6, JPYFX6,         USDFX6 (geometrisches Mittel, JPYFX6 normalisiert)
+ *  • FX7-Indizes:    AUDFX7, CADFX7, CHFFX7, EURFX7, GBPFX7, JPYFX7, NZDFX7, USDFX7 (geometrisches Mittel, JPYFX7 normalisiert)
  *  • SEKFX6, SEKFX7: SEK gegen USDFX6 bzw. USDFX7
  *  • NOKFX6, NOKFX7: NOK gegen USDFX6 bzw. USDFX7
  *  • USDX und EURX:  ICE-Formel
- *  • LFX-Indizes:    LiteForex-Formel (JPY nicht gespiegelt und normalisiert)
+ *  • LFX-Indizes:    LiteForex-Formel (JPYLFX nicht gespiegelt und normalisiert)
  *
  *
  * Note: Zur Zeit werden ausschließlich Dukascopy-Daten benutzt.
