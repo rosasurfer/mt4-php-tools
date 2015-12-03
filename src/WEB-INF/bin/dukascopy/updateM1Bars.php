@@ -169,11 +169,11 @@ function checkHistory($symbol, $day) {
    // (1) nur an Wochentagen: prüfen, ob die MyFX-History existiert und ggf. aktualisieren
    if (!MyFX::isWeekend($day)) {                                  // um 00:00 GMT sind GMT- und FXT-Wochentag immer gleich
       // History ist ok, wenn entweder die komprimierte MyFX-Datei existiert...
-      if (is_file($file=getVar('myfxFile.compressed', $symbol, $day, 'avg'))) {
+      if (is_file($file=getVar('myfxFile.compressed', $symbol, $day))) {
          if ($verbose > 1) echoPre('[Ok]    '.$shortDate.'   MyFX compressed history file: '.baseName($file));
       }
       // History ist ok, ...oder die unkomprimierte MyFX-Datei gespeichert wird und existiert
-      else if ($saveRawMyFXData && is_file($file=getVar('myfxFile.raw', $symbol, $day, 'avg'))) {
+      else if ($saveRawMyFXData && is_file($file=getVar('myfxFile.raw', $symbol, $day))) {
          if ($verbose > 1) echoPre('[Ok]    '.$shortDate.'   MyFX raw history file: '.baseName($file));
       }
       // History aktualisieren
@@ -624,7 +624,7 @@ function saveBars($symbol, $day) {
 
    // (3) binäre Daten ggf. speichern
    if ($saveRawMyFXData) {
-      mkDirWritable(dirName($file=getVar('myfxFile.raw', $symbol, $day, 'avg')));
+      mkDirWritable(dirName($file=getVar('myfxFile.raw', $symbol, $day)));
       $tmpFile = tempNam(dirName($file), baseName($file));
       $hFile   = fOpen($tmpFile, 'wb');
       fWrite($hFile, $data);
@@ -647,7 +647,7 @@ function saveBars($symbol, $day) {
  * da die Variablen nicht global gespeichert oder über viele Funktionsaufrufe hinweg weitergereicht werden müssen,
  * aber trotzdem nicht bei jeder Verwendung neu ermittelt werden brauchen.
  *
- * @param string $id     - eindeutiger Schlüssel des Bezeichners (ID)
+ * @param string $id     - eindeutiger Bezeichner der Variable (ID)
  * @param string $symbol - Symbol oder NULL
  * @param int    $time   - Timestamp oder NULL
  * @param string $type   - Kurstyp (bid|ask) oder NULL
@@ -665,7 +665,7 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
    if (!is_null($time) && !is_int($time))               throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
    if (!is_null($type)) {
       if (!is_string($type))                            throw new IllegalTypeException('Illegal type of parameter $type: '.getType($type));
-      if ($type!='bid' && $type!='ask' && $type!='avg') throw new plInvalidArgumentException('Invalid parameter $type: "'.$type.'"');
+      if ($type!='bid' && $type!='ask')                 throw new plInvalidArgumentException('Invalid parameter $type: "'.$type.'"');
    }
 
    $self = __FUNCTION__;
@@ -690,8 +690,7 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
       $result  = "$myfxDir/M1.rar";
    }
    else if ($id == 'dukaName') {             // BID_candles_min_1                                     // Dukascopy-Name
-      if (is_null($type))               throw new plInvalidArgumentException('Invalid parameter $type: (null)');
-      if ($type!='bid' && $type!='ask') throw new plInvalidArgumentException('Invalid parameter $type: "'.$type.'" for variable {dukaName}');
+      if (is_null($type)) throw new plInvalidArgumentException('Invalid parameter $type: (null)');
       $result = ($type=='bid' ? 'BID':'ASK').'_candles_min_1';
    }
    else if ($id == 'dukaFile.raw') {         // $myfxDir/$nameD.bin                                   // Dukascopy-Datei ungepackt

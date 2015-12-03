@@ -96,7 +96,6 @@ function createHistory($symbol) {
 
          // Bars einlesen und der MT4-History hinzufügen
          $bars = MyFX::readBarFile($file);
-         $size = sizeOf($bars); if ($size != 1*DAY/MINUTES) throw new plRuntimeException('Unexpected number of MyFX bars in '.$file.': '.$size.' ('.($size > 1*DAY/MINUTES ? 'more':'less').' then a day)');
          $history->addM1Bars($bars);
       }
    }
@@ -112,7 +111,7 @@ function createHistory($symbol) {
  * da die Variablen nicht global gespeichert oder über viele Funktionsaufrufe hinweg weitergereicht werden müssen,
  * aber trotzdem nicht bei jeder Verwendung neu ermittelt werden brauchen.
  *
- * @param string $id     - eindeutiger Schlüssel des Bezeichners (ID)
+ * @param string $id     - eindeutiger Bezeichner der Variable (ID)
  * @param string $symbol - Symbol oder NULL
  * @param int    $time   - Timestamp oder NULL
  * @param string $type   - Kurstyp (bid|ask) oder NULL
