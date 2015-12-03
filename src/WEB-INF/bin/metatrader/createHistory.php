@@ -14,7 +14,6 @@ date_default_timezone_set('GMT');
 
 $verbose = 0;                                                           // output verbosity
 
-
 // History-Start der momentan verfügbaren Dukascopy-Instrumente
 $startTimes = array('AUDUSD' => strToTime('2003-08-03 00:00:00 GMT'),
                     'EURUSD' => strToTime('2003-05-04 00:00:00 GMT'),
@@ -173,7 +172,7 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
  */
 function help($message=null) {
    if (!is_null($message))
-      echo($message."\n\n");
+      echo($message.NL.NL);
 
    $self = baseName($_SERVER['PHP_SELF']);
 

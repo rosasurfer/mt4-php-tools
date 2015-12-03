@@ -767,7 +767,7 @@ function showBuffer() {
  */
 function help($message=null) {
    if (!is_null($message))
-      echo($message."\n");
+      echo($message.NL.NL);
 
    $self = baseName($_SERVER['PHP_SELF']);
 
