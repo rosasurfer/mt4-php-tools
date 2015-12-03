@@ -44,6 +44,8 @@ $indizes['GBPFX6'] = array('EURGBP'=>0, 'GBPAUD'=>0, 'GBPCAD'=>0, 'GBPCHF'=>0, '
 $indizes['JPYFX6'] = array('AUDJPY'=>0, 'CADJPY'=>0, 'CHFJPY'=>0, 'EURJPY'=>0, 'GBPJPY'=>0, 'USDJPY'=>0);
 $indizes['USDFX6'] = array('AUDUSD'=>0, 'EURUSD'=>0, 'GBPUSD'=>0, 'USDCAD'=>0, 'USDCHF'=>0, 'USDJPY'=>0);
 
+$indizes['USDLFX'] = array('AUDUSD'=>0, 'EURUSD'=>0, 'GBPUSD'=>0, 'USDCAD'=>0, 'USDCHF'=>0, 'USDJPY'=>0);
+
 
 // -- Start ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -165,12 +167,11 @@ function calculateUSDFX6($day, array $symbols) {
       $audusd = $AUDUSD[$i]['open'];
       $eurusd = $EURUSD[$i]['open'];
       $gbpusd = $GBPUSD[$i]['open'];
-      $usdcad = $USDCAD[$i]['open'];                                 // Vorsicht: Die Divisionen müssen vor den Multiplikationen erfolgen,
-      $usdchf = $USDCHF[$i]['open'];                                 // da die Multiplikation der MyFX-Ganzzahlen den Zahlenbereich eines
+      $usdcad = $USDCAD[$i]['open'];                                 // Die Divisionen müssen vor den Multiplikationen erfolgen, da die
+      $usdchf = $USDCHF[$i]['open'];                                 // Multiplikation der MyFX-Ganzzahlen den Zahlenbereich eines
       $usdjpy = $USDJPY[$i]['open'];                                 // Integers überschreitet.
       $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/6);
       $iOpen  = round($open * 100000);
-      //echoPre("Open:  USDFX6=$open");
 
       $audusd = $AUDUSD[$i]['close'];
       $eurusd = $EURUSD[$i]['close'];
@@ -180,7 +181,59 @@ function calculateUSDFX6($day, array $symbols) {
       $usdjpy = $USDJPY[$i]['close'];
       $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/6);
       $iClose = round($close * 100000);
-      //echoPre("Close: USDFX6=$close");
+
+      $index[$i]['time' ] = $bar['time'];
+      $index[$i]['open' ] = $iOpen;
+      $index[$i]['high' ] = max($iOpen, $iClose);
+      $index[$i]['low'  ] = min($iOpen, $iClose);
+      $index[$i]['close'] = $iClose;
+      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
+   }
+   return $index;
+}
+
+
+/**
+ * Berechnet für die übergebenen Daten den USDLFX-Index.
+ *
+ * @param  int   $day     - Tag der zu berechnenden Daten
+ * @param  array $symbols - Array mit den Daten der beteiligten Instrumente für diesen Tag
+ *
+ * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
+ */
+function calculateUSDLFX($day, array $symbols) {
+   if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
+   $shortDate = date('D, d-M-Y', $day);
+
+   global $verbose;
+   if ($verbose > 1) echoPre('[Info]  USDLFX  '.$shortDate);
+
+   $AUDUSD = $symbols['AUDUSD']['bars'];
+   $EURUSD = $symbols['EURUSD']['bars'];
+   $GBPUSD = $symbols['GBPUSD']['bars'];
+   $USDCAD = $symbols['USDCAD']['bars'];
+   $USDCHF = $symbols['USDCHF']['bars'];
+   $USDJPY = $symbols['USDJPY']['bars'];
+   $index  = array();
+
+   foreach ($AUDUSD as $i => $bar) {
+      $audusd = $AUDUSD[$i]['open'];
+      $eurusd = $EURUSD[$i]['open'];
+      $gbpusd = $GBPUSD[$i]['open'];
+      $usdcad = $USDCAD[$i]['open'];                                 // Die Divisionen müssen vor den Multiplikationen erfolgen, da die
+      $usdchf = $USDCHF[$i]['open'];                                 // Multiplikation der MyFX-Ganzzahlen den Zahlenbereich eines
+      $usdjpy = $USDJPY[$i]['open'];                                 // Integers überschreitet.
+      $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7);
+      $iOpen  = round($open * 100000);
+
+      $audusd = $AUDUSD[$i]['close'];
+      $eurusd = $EURUSD[$i]['close'];
+      $gbpusd = $GBPUSD[$i]['close'];
+      $usdcad = $USDCAD[$i]['close'];
+      $usdchf = $USDCHF[$i]['close'];
+      $usdjpy = $USDJPY[$i]['close'];
+      $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7);
+      $iClose = round($close * 100000);
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
