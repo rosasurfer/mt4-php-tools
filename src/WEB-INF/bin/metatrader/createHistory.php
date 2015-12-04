@@ -3,7 +3,6 @@
 /**
  * Konvertiert die MyFX-History ein oder mehrerer Symbole ins MetaTrader-Format und legt sie im MyFX-Serververzeichnis ab.
  * Es wird nicht geprüft, ob die Symbole in die Datei "symbols.raw" des Serververzeichnisses eingetragen wurden.
- * Zur Zeit wird nur die MyFX-History von Dukascopy-Symbolen verarbeitet.
  */
 require(dirName(realPath(__FILE__)).'/../../config.php');
 date_default_timezone_set('GMT');
