@@ -124,7 +124,7 @@ function updateSymbol($symbol, $startTime) {
    for ($day=$startTime; $day < $today; $day+=1*DAY) {
       $month = iDate('m', $day);
       if ($month != $lastMonth) {
-         if ($verbose > 0) echoPre('[Info]  '.date('D, d-M-Y', $day));
+         if ($verbose > 0) echoPre('[Info]  '.date('M-Y', $day));
          $lastMonth = $month;
       }
       if (!checkHistory($symbol, $day)) return false;

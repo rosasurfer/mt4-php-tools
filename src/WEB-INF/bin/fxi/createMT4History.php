@@ -72,7 +72,7 @@ function createHistory($symbol) {
    for ($day=$startDay, $lastMonth=-1; $day < $today; $day+=1*DAY) {
       $month = iDate('m', $day);
       if ($month != $lastMonth) {
-         if ($verbose > 0) echoPre('[Info]  '.date('D, d-M-Y', $day));
+         if ($verbose > 0) echoPre('[Info]  '.date('M-Y', $day));
          $lastMonth = $month;
       }
 
