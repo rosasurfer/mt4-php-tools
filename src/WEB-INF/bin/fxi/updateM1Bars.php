@@ -224,7 +224,7 @@ function calculateAUDLFX($day, array $symbols) {
       $usdchf = $USDCHF[$i]['open'];                                 // Multiplikation der MyFX-Ganzzahlen den Zahlenbereich eines
       $usdjpy = $USDJPY[$i]['open'];                                 // 32bit-Integers überschreitet.
       $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) * $audusd;
-      $iOpen  = round($open * 100000);
+      $iOpen  = round($open);
 
       $audusd = $AUDUSD[$i]['close'];
       $eurusd = $EURUSD[$i]['close'];
@@ -233,7 +233,7 @@ function calculateAUDLFX($day, array $symbols) {
       $usdchf = $USDCHF[$i]['close'];
       $usdjpy = $USDJPY[$i]['close'];
       $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) * $audusd;
-      $iClose = round($close * 100000);
+      $iClose = round($close);
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
@@ -279,7 +279,7 @@ function calculateCADLFX($day, array $symbols) {
       $usdchf = $USDCHF[$i]['open'];                                 // Multiplikation der MyFX-Ganzzahlen den Zahlenbereich eines
       $usdjpy = $USDJPY[$i]['open'];                                 // 32bit-Integers überschreitet.
       $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdcad;
-      $iOpen  = round($open * 100000);
+      $iOpen  = round($open);
 
       $audusd = $AUDUSD[$i]['close'];
       $eurusd = $EURUSD[$i]['close'];
@@ -288,7 +288,7 @@ function calculateCADLFX($day, array $symbols) {
       $usdchf = $USDCHF[$i]['close'];
       $usdjpy = $USDJPY[$i]['close'];
       $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdcad;
-      $iClose = round($close * 100000);
+      $iClose = round($close);
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
@@ -334,7 +334,7 @@ function calculateCHFLFX($day, array $symbols) {
       $usdchf = $USDCHF[$i]['open'];                                 // Multiplikation der MyFX-Ganzzahlen den Zahlenbereich eines
       $usdjpy = $USDJPY[$i]['open'];                                 // Integers überschreitet.
       $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdchf;
-      $iOpen  = round($open * 100000);
+      $iOpen  = round($open);
 
       $audusd = $AUDUSD[$i]['close'];
       $eurusd = $EURUSD[$i]['close'];
@@ -343,7 +343,7 @@ function calculateCHFLFX($day, array $symbols) {
       $usdchf = $USDCHF[$i]['close'];
       $usdjpy = $USDJPY[$i]['close'];
       $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdchf;
-      $iClose = round($close * 100000);
+      $iClose = round($close);
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
@@ -389,7 +389,7 @@ function calculateEURLFX($day, array $symbols) {
       $usdchf = $USDCHF[$i]['open'];                                 // Multiplikation der MyFX-Ganzzahlen den Zahlenbereich eines
       $usdjpy = $USDJPY[$i]['open'];                                 // 32bit-Integers überschreitet.
       $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) * $eurusd;
-      $iOpen  = round($open * 100000);
+      $iOpen  = round($open);
 
       $audusd = $AUDUSD[$i]['close'];
       $eurusd = $EURUSD[$i]['close'];
@@ -398,7 +398,7 @@ function calculateEURLFX($day, array $symbols) {
       $usdchf = $USDCHF[$i]['close'];
       $usdjpy = $USDJPY[$i]['close'];
       $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) * $eurusd;
-      $iClose = round($close * 100000);
+      $iClose = round($close);
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
@@ -444,7 +444,7 @@ function calculateGBPLFX($day, array $symbols) {
       $usdchf = $USDCHF[$i]['open'];                                 // Multiplikation der MyFX-Ganzzahlen den Zahlenbereich eines
       $usdjpy = $USDJPY[$i]['open'];                                 // 32bit-Integers überschreitet.
       $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) * $gbpusd;
-      $iOpen  = round($open * 100000);
+      $iOpen  = round($open);
 
       $audusd = $AUDUSD[$i]['close'];
       $eurusd = $EURUSD[$i]['close'];
@@ -453,7 +453,7 @@ function calculateGBPLFX($day, array $symbols) {
       $usdchf = $USDCHF[$i]['close'];
       $usdjpy = $USDJPY[$i]['close'];
       $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) * $gbpusd;
-      $iClose = round($close * 100000);
+      $iClose = round($close);
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
@@ -498,7 +498,7 @@ function calculateJPYLFX($day, array $symbols) {
       $usdcad = $USDCAD[$i]['open'];                                 // Die Divisionen müssen vor den Multiplikationen erfolgen, da die
       $usdchf = $USDCHF[$i]['open'];                                 // Multiplikation der MyFX-Ganzzahlen den Zahlenbereich eines
       $usdjpy = $USDJPY[$i]['open'];                                 // 32bit-Integers überschreitet.
-      $open   = 100 * pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdjpy;
+      $open   = 100 * pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdjpy * 1000;
       $iOpen  = round($open * 100000);
 
       $audusd = $AUDUSD[$i]['close'];
@@ -507,7 +507,7 @@ function calculateJPYLFX($day, array $symbols) {
       $usdcad = $USDCAD[$i]['close'];
       $usdchf = $USDCHF[$i]['close'];
       $usdjpy = $USDJPY[$i]['close'];
-      $close  = 100 * pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdjpy;
+      $close  = 100 * pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdjpy * 1000;
       $iClose = round($close * 100000);
 
       $index[$i]['time' ] = $bar['time'];
@@ -556,7 +556,7 @@ function calculateNZDLFX($day, array $symbols) {
       $usdjpy = $USDJPY[$i]['open'];                                 // Multiplikation der MyFX-Ganzzahlen den Zahlenbereich eines
       $nzdusd = $NZDUSD[$i]['open'];                                 // 32bit-Integers überschreitet.
       $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) * $nzdusd;
-      $iOpen  = round($open * 100000);
+      $iOpen  = round($open);
 
       $audusd = $AUDUSD[$i]['close'];
       $eurusd = $EURUSD[$i]['close'];
@@ -566,7 +566,7 @@ function calculateNZDLFX($day, array $symbols) {
       $usdjpy = $USDJPY[$i]['close'];
       $nzdusd = $NZDUSD[$i]['close'];
       $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) * $nzdusd;
-      $iClose = round($close * 100000);
+      $iClose = round($close);
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
