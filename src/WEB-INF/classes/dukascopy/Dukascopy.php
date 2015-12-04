@@ -13,10 +13,17 @@
  *    int close;                   4            8        // in Points
  *    int low;                     4           12        // in Points
  *    int high;                    4           16        // in Points
- *    int interest                 4           20        // (vermutlich) Gesamtvolumen einer Marktseite in Units
+ *    int interest                 4           20        // vermutlich Gesamtvolumen einer Marktseite in Units
  * };                           = 24 byte
  */
 class Dukascopy extends StaticClass {
+
+
+   // Start der M1-History der Dukascopy-Instrumente
+   public static $historyStart_M1;                       // @see static initializer at end of file
+
+   // Start der Tick-History der Dukascopy-Instrumente
+   public static $historyStart_Ticks;                    // @see static initializer at end of file
 
 
    /**
@@ -101,3 +108,28 @@ class Dukascopy extends StaticClass {
       return self::readBarData(file_get_contents($fileName));
    }
 }
+
+
+/**
+ * Workaround für in PHP nicht existierende Static Initializer
+ */
+
+
+// Start der M1-History der Dukascopy-Instrumente
+Dukascopy::$historyStart_M1 = array('AUDUSD' => strToTime('2003-08-03 00:00:00 GMT'),
+                                  //'EURNOK' => strToTime('2004-10-25 00:00:00 GMT'),
+                                  //'EURSEK' => strToTime('2004-10-27 00:00:00 GMT'),
+                                    'EURUSD' => strToTime('2003-05-04 00:00:00 GMT'),
+                                    'GBPUSD' => strToTime('2003-05-04 00:00:00 GMT'),
+                                    'NZDUSD' => strToTime('2003-08-03 00:00:00 GMT'),
+                                    'USDCAD' => strToTime('2003-08-03 00:00:00 GMT'),
+                                    'USDCHF' => strToTime('2003-05-04 00:00:00 GMT'),
+                                    'USDJPY' => strToTime('2003-05-04 00:00:00 GMT'),
+                                  //'USDNOK' => strToTime('2003-08-08 00:00:00 GMT'),
+                                  //'USDSEK' => strToTime('2003-08-08 00:00:00 GMT'),
+                                  //'USDSGD' => strToTime('2004-11-16 00:00:00 GMT'),
+);
+
+
+// Start der Tick-History der Dukascopy-Instrumente
+Dukascopy::$historyStart_Ticks = array();

@@ -48,22 +48,6 @@ $saveRawDukascopyFiles        = false;          // ob entpackte Dukascopy-Dateie
 $saveRawMyFXData              = true;           // ob unkomprimierte MyFX-Historydaten gespeichert werden sollen
 
 
-// History-Start der momentan verfügbaren Dukascopy-Instrumente
-$startTimes = array('AUDUSD' => strToTime('2003-08-03 00:00:00 GMT'),
-                  //'EURNOK' => strToTime('2004-10-25 00:00:00 GMT'),
-                  //'EURSEK' => strToTime('2004-10-27 00:00:00 GMT'),
-                    'EURUSD' => strToTime('2003-05-04 00:00:00 GMT'),
-                    'GBPUSD' => strToTime('2003-05-04 00:00:00 GMT'),
-                    'NZDUSD' => strToTime('2003-08-03 00:00:00 GMT'),
-                    'USDCAD' => strToTime('2003-08-03 00:00:00 GMT'),
-                    'USDCHF' => strToTime('2003-05-04 00:00:00 GMT'),
-                    'USDJPY' => strToTime('2003-05-04 00:00:00 GMT'),
-                  //'USDNOK' => strToTime('2003-08-08 00:00:00 GMT'),
-                  //'USDSEK' => strToTime('2003-08-08 00:00:00 GMT'),
-                  //'USDSGD' => strToTime('2004-11-16 00:00:00 GMT'),
-);
-
-
 // -- Start ----------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -81,15 +65,15 @@ foreach ($args as $i => $arg) {
 // Symbole parsen
 foreach ($args as $i => $arg) {
    $arg = strToUpper($arg);
-   if (!isSet($startTimes[$arg])) help('error: unknown or unsupported symbol "'.$args[$i].'"') & exit(1);
+   if (!isSet(Dukascopy::$historyStart_M1[$arg])) help('error: unknown or unsupported symbol "'.$args[$i].'"') & exit(1);
    $args[$i] = $arg;
 }
-$args = $args ? array_unique($args) : array_keys($startTimes);          // ohne Symbol werden alle Symbole aktualisiert
+$args = $args ? array_unique($args) : array_keys(Dukascopy::$historyStart_M1);   // ohne Symbol werden alle Symbole aktualisiert
 
 
 // (2) Daten aktualisieren
 foreach ($args as $symbol) {
-   if (!updateSymbol($symbol, $startTimes[$symbol]))
+   if (!updateSymbol($symbol, Dukascopy::$historyStart_M1[$symbol]))
       exit(1);
 }
 exit(0);
@@ -624,12 +608,15 @@ function saveBars($symbol, $day) {
 
    // (3) binäre Daten ggf. speichern
    if ($saveRawMyFXData) {
-      mkDirWritable(dirName($file=getVar('myfxFile.raw', $symbol, $day)));
+      if (is_file($file=getVar('myfxFile.raw', $symbol, $day))) {
+         echoPre('[Error] '.$symbol.' history for '.$shortDate.' already exists');
+         return false;
+      }
+      mkDirWritable(dirName($file));
       $tmpFile = tempNam(dirName($file), baseName($file));
       $hFile   = fOpen($tmpFile, 'wb');
       fWrite($hFile, $data);
       fClose($hFile);
-      if (is_file($file)) unlink($file);
       rename($tmpFile, $file);                                       // So kann eine existierende Datei niemals korrupt sein.
    }
 

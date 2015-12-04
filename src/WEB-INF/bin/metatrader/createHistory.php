@@ -14,16 +14,6 @@ date_default_timezone_set('GMT');
 
 $verbose = 0;                                                           // output verbosity
 
-// History-Start der momentan verfügbaren Dukascopy-Instrumente
-$startTimes = array('AUDUSD' => strToTime('2003-08-03 00:00:00 GMT'),
-                    'EURUSD' => strToTime('2003-05-04 00:00:00 GMT'),
-                    'GBPUSD' => strToTime('2003-05-04 00:00:00 GMT'),
-                    'NZDUSD' => strToTime('2003-08-03 00:00:00 GMT'),
-                    'USDCAD' => strToTime('2003-08-03 00:00:00 GMT'),
-                    'USDCHF' => strToTime('2003-05-04 00:00:00 GMT'),
-                    'USDJPY' => strToTime('2003-05-04 00:00:00 GMT'),
-);
-
 
 // -- Start ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -42,10 +32,10 @@ foreach ($args as $i => $arg) {
 // Symbole parsen
 foreach ($args as $i => $arg) {
    $arg = strToUpper($arg);
-   if (!isSet($startTimes[$arg])) help('error: unknown or unsupported symbol "'.$args[$i].'"') & exit(1);
+   if (!isSet(Dukascopy::$historyStart_M1[$arg])) help('error: unknown or unsupported symbol "'.$args[$i].'"') & exit(1);
    $args[$i] = $arg;
 }
-$args = $args ? array_unique($args) : array_keys($startTimes);          // ohne Symbol werden alle Symbole verarbeitet
+$args = $args ? array_unique($args) : array_keys(Dukascopy::$historyStart_M1);   // ohne Symbol werden alle Symbole verarbeitet
 
 
 // (2) History erstellen
@@ -70,9 +60,9 @@ function createHistory($symbol) {
    if (!is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
    if (!strLen($symbol))    throw new plInvalidArgumentException('Invalid parameter $symbol: ""');
 
-   global $verbose, $startTimes;
-   $startDay = ($startDay=$startTimes[$symbol]) - $startDay%DAY;     // 00:00 Starttag
-   $today    = ($today=time())                  - $today   %DAY;     // 00:00 aktueller Tag
+   global $verbose;
+   $startDay = ($startDay=Dukascopy::$historyStart_M1[$symbol]) - $startDay%DAY;     // 00:00 Starttag
+   $today    = ($today=time())                                  - $today   %DAY;     // 00:00 aktueller Tag
    $digits   = strEndsWith($symbol, 'JPY') ? 3:5;
 
    // MT4-HistorySet erzeugen

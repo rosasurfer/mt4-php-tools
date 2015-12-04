@@ -25,15 +25,6 @@ date_default_timezone_set('GMT');
 $verbose         = 0;                                 // output verbosity
 $saveRawMyFXData = true;                              // ob unkomprimierte MyFX-Historydaten gespeichert werden sollen
 
-// History-Start der verfügbaren Dukascopy-Daten
-$startTimes = array('AUDUSD' => strToTime('2003-08-03 00:00:00 GMT'),
-                    'EURUSD' => strToTime('2003-05-04 00:00:00 GMT'),
-                    'GBPUSD' => strToTime('2003-05-04 00:00:00 GMT'),
-                    'NZDUSD' => strToTime('2003-08-03 00:00:00 GMT'),
-                    'USDCAD' => strToTime('2003-08-03 00:00:00 GMT'),
-                    'USDCHF' => strToTime('2003-05-04 00:00:00 GMT'),
-                    'USDJPY' => strToTime('2003-05-04 00:00:00 GMT'),
-);
 
 // Indizes         = zur Berechnung benötigte Instrumente
 $indizes['AUDFX6'] = array('AUDCAD'=>5, 'AUDCHF'=>5, 'AUDJPY'=>3, 'AUDUSD'=>5, 'EURAUD'=>5, 'GBPAUD'=>5);
@@ -100,13 +91,13 @@ function createIndex($index) {
    if (!is_string($index)) throw new IllegalTypeException('Illegal type of parameter $index: '.getType($index));
    if (!strLen($index))    throw new plInvalidArgumentException('Invalid parameter $index: ""');
 
-   global $verbose, $startTimes, $indizes;
+   global $verbose, $indizes;
 
    // (1) Starttag der benötigten Daten ermitteln
    $startTime = 0;
    $symbols = $indizes[$index];
    foreach($symbols as $symbol => &$data) {
-      $startTime = max($startTime, $startTimes[$symbol]);
+      $startTime = max($startTime, Dukascopy::$historyStart_M1[$symbol]);
       $data      = array('digits'=>strEndsWith($symbol, 'JPY') ? 3:5);                 // on-the-fly Digits initialisieren
    }
    $startDay = $startTime     - $startTime%DAY;                                        // 00:00 Starttag
@@ -176,7 +167,7 @@ function calculateUSDFX6($day, array $symbols) {
       $gbpusd = $GBPUSD[$i]['open'];
       $usdcad = $USDCAD[$i]['open'];                                 // Die Divisionen müssen vor den Multiplikationen erfolgen, da die
       $usdchf = $USDCHF[$i]['open'];                                 // Multiplikation der MyFX-Ganzzahlen den Zahlenbereich eines
-      $usdjpy = $USDJPY[$i]['open'];                                 // Integers überschreitet.
+      $usdjpy = $USDJPY[$i]['open'];                                 // 32bit-Integers überschreitet.
       $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/6);
       $iOpen  = round($open * 100000);
 
@@ -207,6 +198,8 @@ function calculateUSDFX6($day, array $symbols) {
  * @param  array $symbols - Array mit den Daten der beteiligten Instrumente für diesen Tag
  *
  * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
+ *
+ * @see    Herleitung der Formel: MetaTrader::mql4\indicators\LFX-Recorder.mq4
  */
 function calculateAUDLFX($day, array $symbols) {
    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
@@ -229,7 +222,7 @@ function calculateAUDLFX($day, array $symbols) {
       $gbpusd = $GBPUSD[$i]['open'];
       $usdcad = $USDCAD[$i]['open'];                                 // Die Divisionen müssen vor den Multiplikationen erfolgen, da die
       $usdchf = $USDCHF[$i]['open'];                                 // Multiplikation der MyFX-Ganzzahlen den Zahlenbereich eines
-      $usdjpy = $USDJPY[$i]['open'];                                 // Integers überschreitet.
+      $usdjpy = $USDJPY[$i]['open'];                                 // 32bit-Integers überschreitet.
       $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) * $audusd;
       $iOpen  = round($open * 100000);
 
@@ -260,6 +253,8 @@ function calculateAUDLFX($day, array $symbols) {
  * @param  array $symbols - Array mit den Daten der beteiligten Instrumente für diesen Tag
  *
  * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
+ *
+ * @see    Herleitung der Formel: MetaTrader::mql4\indicators\LFX-Recorder.mq4
  */
 function calculateCADLFX($day, array $symbols) {
    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
@@ -282,7 +277,7 @@ function calculateCADLFX($day, array $symbols) {
       $gbpusd = $GBPUSD[$i]['open'];
       $usdcad = $USDCAD[$i]['open'];                                 // Die Divisionen müssen vor den Multiplikationen erfolgen, da die
       $usdchf = $USDCHF[$i]['open'];                                 // Multiplikation der MyFX-Ganzzahlen den Zahlenbereich eines
-      $usdjpy = $USDJPY[$i]['open'];                                 // Integers überschreitet.
+      $usdjpy = $USDJPY[$i]['open'];                                 // 32bit-Integers überschreitet.
       $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdcad;
       $iOpen  = round($open * 100000);
 
@@ -313,6 +308,8 @@ function calculateCADLFX($day, array $symbols) {
  * @param  array $symbols - Array mit den Daten der beteiligten Instrumente für diesen Tag
  *
  * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
+ *
+ * @see    Herleitung der Formel: MetaTrader::mql4\indicators\LFX-Recorder.mq4
  */
 function calculateCHFLFX($day, array $symbols) {
    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
@@ -366,6 +363,8 @@ function calculateCHFLFX($day, array $symbols) {
  * @param  array $symbols - Array mit den Daten der beteiligten Instrumente für diesen Tag
  *
  * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
+ *
+ * @see    Herleitung der Formel: MetaTrader::mql4\indicators\LFX-Recorder.mq4
  */
 function calculateEURLFX($day, array $symbols) {
    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
@@ -388,7 +387,7 @@ function calculateEURLFX($day, array $symbols) {
       $gbpusd = $GBPUSD[$i]['open'];
       $usdcad = $USDCAD[$i]['open'];                                 // Die Divisionen müssen vor den Multiplikationen erfolgen, da die
       $usdchf = $USDCHF[$i]['open'];                                 // Multiplikation der MyFX-Ganzzahlen den Zahlenbereich eines
-      $usdjpy = $USDJPY[$i]['open'];                                 // Integers überschreitet.
+      $usdjpy = $USDJPY[$i]['open'];                                 // 32bit-Integers überschreitet.
       $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) * $eurusd;
       $iOpen  = round($open * 100000);
 
@@ -419,6 +418,8 @@ function calculateEURLFX($day, array $symbols) {
  * @param  array $symbols - Array mit den Daten der beteiligten Instrumente für diesen Tag
  *
  * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
+ *
+ * @see    Herleitung der Formel: MetaTrader::mql4\indicators\LFX-Recorder.mq4
  */
 function calculateGBPLFX($day, array $symbols) {
    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
@@ -441,7 +442,7 @@ function calculateGBPLFX($day, array $symbols) {
       $gbpusd = $GBPUSD[$i]['open'];
       $usdcad = $USDCAD[$i]['open'];                                 // Die Divisionen müssen vor den Multiplikationen erfolgen, da die
       $usdchf = $USDCHF[$i]['open'];                                 // Multiplikation der MyFX-Ganzzahlen den Zahlenbereich eines
-      $usdjpy = $USDJPY[$i]['open'];                                 // Integers überschreitet.
+      $usdjpy = $USDJPY[$i]['open'];                                 // 32bit-Integers überschreitet.
       $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) * $gbpusd;
       $iOpen  = round($open * 100000);
 
@@ -472,6 +473,8 @@ function calculateGBPLFX($day, array $symbols) {
  * @param  array $symbols - Array mit den Daten der beteiligten Instrumente für diesen Tag
  *
  * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
+ *
+ * @see    Herleitung der Formel: MetaTrader::mql4\indicators\LFX-Recorder.mq4
  */
 function calculateJPYLFX($day, array $symbols) {
    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
@@ -494,7 +497,7 @@ function calculateJPYLFX($day, array $symbols) {
       $gbpusd = $GBPUSD[$i]['open'];
       $usdcad = $USDCAD[$i]['open'];                                 // Die Divisionen müssen vor den Multiplikationen erfolgen, da die
       $usdchf = $USDCHF[$i]['open'];                                 // Multiplikation der MyFX-Ganzzahlen den Zahlenbereich eines
-      $usdjpy = $USDJPY[$i]['open'];                                 // Integers überschreitet.
+      $usdjpy = $USDJPY[$i]['open'];                                 // 32bit-Integers überschreitet.
       $open   = 100 * pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdjpy;
       $iOpen  = round($open * 100000);
 
@@ -519,12 +522,14 @@ function calculateJPYLFX($day, array $symbols) {
 
 
 /**
- * Berechnet für die übergebenen Daten den NZDLFX-Index.
+ * Berechnet für die übergebenen Daten den NZDLFX-Index. Die zugrundeliegende LiteForex-Formel ist falsch.
  *
  * @param  int   $day     - Tag der zu berechnenden Daten
  * @param  array $symbols - Array mit den Daten der beteiligten Instrumente für diesen Tag
  *
  * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
+ *
+ * @see    Herleitung der Formel: MetaTrader::mql4\indicators\LFX-Recorder.mq4
  */
 function calculateNZDLFX($day, array $symbols) {
    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
@@ -549,7 +554,7 @@ function calculateNZDLFX($day, array $symbols) {
       $usdcad = $USDCAD[$i]['open'];
       $usdchf = $USDCHF[$i]['open'];                                 // Die Divisionen müssen vor den Multiplikationen erfolgen, da die
       $usdjpy = $USDJPY[$i]['open'];                                 // Multiplikation der MyFX-Ganzzahlen den Zahlenbereich eines
-      $nzdusd = $NZDUSD[$i]['open'];                                 // Integers überschreitet.
+      $nzdusd = $NZDUSD[$i]['open'];                                 // 32bit-Integers überschreitet.
       $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) * $nzdusd;
       $iOpen  = round($open * 100000);
 
@@ -581,6 +586,8 @@ function calculateNZDLFX($day, array $symbols) {
  * @param  array $symbols - Array mit den Daten der beteiligten Instrumente für diesen Tag
  *
  * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
+ *
+ * @see    Herleitung der Formel: MetaTrader::mql4\indicators\LFX-Recorder.mq4
  */
 function calculateUSDLFX($day, array $symbols) {
    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
@@ -603,7 +610,7 @@ function calculateUSDLFX($day, array $symbols) {
       $gbpusd = $GBPUSD[$i]['open'];
       $usdcad = $USDCAD[$i]['open'];                                 // Die Divisionen müssen vor den Multiplikationen erfolgen, da die
       $usdchf = $USDCHF[$i]['open'];                                 // Multiplikation der MyFX-Ganzzahlen den Zahlenbereich eines
-      $usdjpy = $USDJPY[$i]['open'];                                 // Integers überschreitet.
+      $usdjpy = $USDJPY[$i]['open'];                                 // 32bit-Integers überschreitet.
       $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7);
       $iOpen  = round($open * 100000);
 
@@ -668,12 +675,15 @@ function saveBars($symbol, $day, array $bars) {
 
    // (3) binäre Daten ggf. speichern
    if ($saveRawMyFXData) {
-      mkDirWritable(dirName($file=getVar('myfxTarget.raw', $symbol, $day)));
+      if (is_file($file=getVar('myfxTarget.raw', $symbol, $day))) {
+         echoPre('[Error] '.$symbol.' history for '.date('D, d-M-Y', $day).' already exists');
+         return false;
+      }
+      mkDirWritable(dirName($file));
       $tmpFile = tempNam(dirName($file), baseName($file));
       $hFile   = fOpen($tmpFile, 'wb');
       fWrite($hFile, $data);
       fClose($hFile);
-      if (is_file($file)) unlink($file);
       rename($tmpFile, $file);                                       // So kann eine existierende Datei niemals korrupt sein.
    }
 
