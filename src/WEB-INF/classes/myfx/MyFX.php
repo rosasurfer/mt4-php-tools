@@ -5,6 +5,10 @@
 class MyFX extends StaticClass {
 
 
+   // Start der M1-History der FX-Indizes
+   public static $fxIndizesHistoryStart_M1;                       // @see static initializer at end of file
+
+
    /**
     * Gibt den absoluten Pfad der unter dem angegebenen Schlüssel konfigurierten Pfadeinstellung zurück.
     * Ist ein relativer Pfad konfiguriert, wird der Pfad als relativ zu APPLICATION_ROOT interpretiert.
@@ -435,3 +439,19 @@ class MyFX extends StaticClass {
       return self::periodDescription($timeframe);
    }
 }
+
+
+/**
+ * Workaround für in PHP nicht existierende Static Initializer
+ */
+
+// Start der M1-History der FX-Indizes
+MyFX::$fxIndizesHistoryStart_M1 = array('AUDLFX' => strToTime('2003-08-03 00:00:00 GMT'),
+                                        'CADLFX' => strToTime('2003-08-03 00:00:00 GMT'),
+                                        'CHFLFX' => strToTime('2003-08-03 00:00:00 GMT'),
+                                        'EURLFX' => strToTime('2003-08-03 00:00:00 GMT'),
+                                        'GBPLFX' => strToTime('2003-08-03 00:00:00 GMT'),
+                                        'JPYLFX' => strToTime('2003-08-03 00:00:00 GMT'),
+                                        'NZDLFX' => strToTime('2003-08-03 00:00:00 GMT'),
+                                        'USDLFX' => strToTime('2003-08-03 00:00:00 GMT'),
+);
