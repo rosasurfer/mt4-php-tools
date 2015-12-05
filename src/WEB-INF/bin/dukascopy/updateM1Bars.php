@@ -522,14 +522,14 @@ function processRawDukascopyData($data, $symbol, $day, $type) {
 
    // (3) Index von 00:00 FXT bestimmen und Bars FXT-tageweise im Buffer speichern
    $newDayOffset = $size + $fxtOffset/MINUTES;
-   if ($fxtOffset == $next['offset']) {                              // bei DST-Change sicherheitshalber Volumen prüfen
+   if ($fxtOffset == $next['offset']) {                              // bei DST-Change sicherheitshalber Interest prüfen
       $lastBar  = $bars[$newDayOffset-1];
       $firstBar = $bars[$newDayOffset];
       if ($lastBar['interest']!=0 || $firstBar['interest']==0) {
-         echoPre('[Error]   '.$shortDate.'   bar interest mis-match during DST change.');
-         echoPre('Last day before DST change ended with:');
+         echoPre('[Warn]    '.$shortDate.'   bar interest mis-match during DST change.');
+         echoPre('Sunday of DST change ended with:');
          echoPre($bars[$newDayOffset-1]);
-         echoPre('First day after DST change starts with:');
+         echoPre('Monday after DST change starts with:');
          echoPre($bars[$newDayOffset]);
       }
    }
