@@ -101,7 +101,7 @@ function updateSymbol($symbol, $startTime) {
    $barBuffer['ask'] = array();
    $barBuffer['avg'] = array();
 
-   echoPre('[Info]  '.$symbol);
+   echoPre('[Info]    '.$symbol);
 
 
    // (1) Prüfen, ob sich der Startzeitpunkt des Symbols geändert hat
@@ -120,7 +120,7 @@ function updateSymbol($symbol, $startTime) {
    for ($day=$startTime; $day < $today; $day+=1*DAY) {
       $month = iDate('m', $day);
       if ($month != $lastMonth) {
-         if ($verbose > 0) echoPre('[Info]  '.date('M-Y', $day));
+         if ($verbose > 0) echoPre('[Info]    '.date('M-Y', $day));
          $lastMonth = $month;
       }
       if (!checkHistory($symbol, $day)) return false;
@@ -388,7 +388,7 @@ function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $save
 
    $shortDate = date('D, d-M-Y', $day);
    $url       = getVar('dukaUrl', $symbol, $day, $type);
-   if (!$quiet) echoPre('[Info]  '.$shortDate.'   url: '.$url);
+   if (!$quiet) echoPre('[Info]    '.$shortDate.'   url: '.$url);
 
    // (1) Standard-Browser simulieren
    $userAgent = Config ::get('myfx.useragent'); if (!$userAgent) throw new plInvalidArgumentException('Invalid user agent configuration: "'.$userAgent.'"');
@@ -435,7 +435,7 @@ function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $save
    // (4) Download-Fehler: ist das Flag $saveError gesetzt, Fehler speichern
    if ($status == 404) {
       if (!$quiet)
-         echoPre('[Error] '.$shortDate.'   url not found (404): '.$url);
+         echoPre('[Error]   '.$shortDate.'   url not found (404): '.$url);
 
       if ($saveError) {
          mkDirWritable(dirName($file=getVar('dukaFile.404', $symbol, $day, $type)), 0700);
@@ -454,7 +454,7 @@ function processCompressedDukascopyFile($file, $symbol, $day, $type) {
    if (!is_int($day))     throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
 
    global $verbose;
-   if ($verbose > 0) echoPre('[Info]  '.date('D, d-M-Y', $day).'   Dukascopy compressed file: '.baseName($file));
+   if ($verbose > 0) echoPre('[Info]    '.date('D, d-M-Y', $day).'   Dukascopy compressed file: '.baseName($file));
 
    return processCompressedDukascopyData(file_get_contents($file), $symbol, $day, $type);
 }
@@ -482,7 +482,7 @@ function processRawDukascopyFile($file, $symbol, $day, $type) {
    if (!is_int($day))     throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
 
    global $verbose;
-   if ($verbose > 0) echoPre('[Info]  '.date('D, d-M-Y', $day).'   Dukascopy raw history file: '.baseName($file));
+   if ($verbose > 0) echoPre('[Info]    '.date('D, d-M-Y', $day).'   Dukascopy raw history file: '.baseName($file));
 
    return processRawDukascopyData(file_get_contents($file), $symbol, $day, $type);
 }
@@ -524,7 +524,7 @@ function processRawDukascopyData($data, $symbol, $day, $type) {
       $lastBar  = $bars[$newDayOffset-1];
       $firstBar = $bars[$newDayOffset];
       if ($lastBar['interest']!=0 || $firstBar['interest']==0) {
-         echoPre('[Error] '.$shortDate.'   Bar interest mis-match during DST change.');
+         echoPre('[Error]   '.$shortDate.'   bar interest mis-match during DST change.');
          echoPre('Last day before DST change ended with:');
          echoPre($bars[$newDayOffset-1]);
          echoPre('First day after DST change starts with:');
@@ -605,7 +605,7 @@ function saveBars($symbol, $day) {
    // (3) binäre Daten ggf. speichern
    if ($saveRawMyFXData) {
       if (is_file($file=getVar('myfxFile.raw', $symbol, $day))) {
-         echoPre('[Error] '.$symbol.' history for '.$shortDate.' already exists');
+         echoPre('[Error]   '.$symbol.' history for '.$shortDate.' already exists');
          return false;
       }
       mkDirWritable(dirName($file));
