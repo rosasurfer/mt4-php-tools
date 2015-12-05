@@ -5,9 +5,10 @@
  *
  * Unterstützte Instrumente:
  *
- * ok • LFX-Indizes:    LiteForex-Formel (JPYLFX nicht gespiegelt und normalisiert)
+ * ok • LFX-Indizes:    LiteForex-Formel (JPYLFX nicht gespiegelt, normalisiert)
+ * ok • USDX:           ICE-Formel
  *
- *    • USDX und EURX:  ICE-Formel
+ *    • EURX:           ICE-Formel
  *    • FX6-Indizes:    AUDFX6, CADFX6, CHFFX6, EURFX6, GBPFX6, JPYFX6,         USDFX6 (geometrisches Mittel, JPYFX6 normalisiert)
  *    • FX7-Indizes:    AUDFX7, CADFX7, CHFFX7, EURFX7, GBPFX7, JPYFX7, NZDFX7, USDFX7 (geometrisches Mittel, JPYFX7 normalisiert)
  *    • SEKFX6, SEKFX7: SEK gegen USDFX6 bzw. USDFX7
@@ -26,17 +27,19 @@ date_default_timezone_set('GMT');
 $verbose         = 0;                                 // output verbosity
 $saveRawMyFXData = true;                              // ob unkomprimierte MyFX-Historydaten gespeichert werden sollen
 
-// Indizes und die zur Berechnung benötigten Instrumente
-$indizes['AUDLFX'] = array('AUDUSD'=>null, 'EURUSD'=>null, 'GBPUSD'=>null, 'USDCAD'=>null, 'USDCHF'=>null, 'USDJPY'=>null);
-$indizes['CADLFX'] = array('AUDUSD'=>null, 'EURUSD'=>null, 'GBPUSD'=>null, 'USDCAD'=>null, 'USDCHF'=>null, 'USDJPY'=>null);
-$indizes['CHFLFX'] = array('AUDUSD'=>null, 'EURUSD'=>null, 'GBPUSD'=>null, 'USDCAD'=>null, 'USDCHF'=>null, 'USDJPY'=>null);
-$indizes['EURLFX'] = array('AUDUSD'=>null, 'EURUSD'=>null, 'GBPUSD'=>null, 'USDCAD'=>null, 'USDCHF'=>null, 'USDJPY'=>null);
-$indizes['GBPLFX'] = array('AUDUSD'=>null, 'EURUSD'=>null, 'GBPUSD'=>null, 'USDCAD'=>null, 'USDCHF'=>null, 'USDJPY'=>null);
-$indizes['JPYLFX'] = array('AUDUSD'=>null, 'EURUSD'=>null, 'GBPUSD'=>null, 'USDCAD'=>null, 'USDCHF'=>null, 'USDJPY'=>null);
-$indizes['NZDLFX'] = array('AUDUSD'=>null, 'EURUSD'=>null, 'GBPUSD'=>null, 'USDCAD'=>null, 'USDCHF'=>null, 'USDJPY'=>null, 'NZDUSD'=>null);
-$indizes['USDLFX'] = array('AUDUSD'=>null, 'EURUSD'=>null, 'GBPUSD'=>null, 'USDCAD'=>null, 'USDCHF'=>null, 'USDJPY'=>null);
 
-$indizes['USDX'  ] = array('EURUSD'=>null, 'GBPUSD'=>null, 'USDCAD'=>null, 'USDCHF'=>null, 'USDJPY'=>null, 'USDSEK'=>null);
+// Indizes und die zu ihrer Berechnung benötigten Instrumente
+$indizes['AUDLFX'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY');
+$indizes['CADLFX'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY');
+$indizes['CHFLFX'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY');
+$indizes['EURLFX'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY');
+$indizes['GBPLFX'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY');
+$indizes['JPYLFX'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY');
+$indizes['NZDLFX'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD');
+$indizes['USDLFX'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY');
+
+$indizes['EURX'  ] = array('EURUSD', 'GBPUSD', 'USDCHF', 'USDJPY', 'USDSEK');
+$indizes['USDX'  ] = array('EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'USDSEK');
 
 
 // -- Start ----------------------------------------------------------------------------------------------------------------------------------------
@@ -89,10 +92,10 @@ function createIndex($index) {
 
    // (1) Starttag der benötigten Daten ermitteln
    $startTime = 0;
-   $symbols = $indizes[$index];
+   $symbols   = array_flip($indizes[$index]);
    foreach($symbols as $symbol => &$data) {
+      $data      = array();                                                            // $data on-the-fly initialisieren
       $startTime = max($startTime, Dukascopy::$historyStart_M1[$symbol]);
-      $data      = array();                                                            // on-the-fly $data initialisieren
    }
    $startDay = $startTime     - $startTime%DAY;                                        // 00:00 Starttag
    $today    = ($today=time())- $today    %DAY;                                        // 00:00 aktueller Tag
@@ -625,6 +628,67 @@ function calculateUSDLFX($day, array $symbols) {
       $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
    }
    return $index;
+}
+
+
+/**
+ * Berechnet für die übergebenen Daten den EURX-Index (ICE).
+ *
+ * @param  int   $day     - Tag der zu berechnenden Daten
+ * @param  array $symbols - Array mit den Daten der beteiligten Instrumente für diesen Tag
+ *
+ * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
+ *
+ * @see    Formel: MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ */
+function calculateEURX($day, array $symbols) {
+   if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
+   $shortDate = date('D, d-M-Y', $day);
+
+   global $verbose;
+   if ($verbose > 1) echoPre('[Info]    EURX  '.$shortDate);
+
+   $EURUSD = $symbols['EURUSD']['bars'];
+   $GBPUSD = $symbols['GBPUSD']['bars'];
+   $USDCHF = $symbols['USDCHF']['bars'];
+   $USDJPY = $symbols['USDJPY']['bars'];
+   $USDSEK = $symbols['USDSEK']['bars'];
+   $index  = array();
+
+   foreach ($EURUSD as $i => $bar) {
+      $eurusd = $EURUSD[$i]['open'];
+      $gbpusd = $GBPUSD[$i]['open'];
+      $usdchf = $USDCHF[$i]['open'];
+      $usdjpy = $USDJPY[$i]['open'];
+      $usdsek = $USDSEK[$i]['open'];
+      $open   = 34.38805726
+              * pow($eurusd/100000 * $usdchf/100000, 0.1113)         // Die Divisionen müssen einzeln erfolgen, da der Teiler bei
+              * pow($eurusd        / $gbpusd       , 0.3056)         // gemeinsamer Division den Zahlenbereich eines 32bit-Integers
+              * pow($eurusd/100000 * $usdjpy/1000  , 0.1891)         // überschreitet.
+              * pow($eurusd/100000 * $usdsek/100000, 0.0785)
+              * pow($eurusd/100000                 , 0.3155);
+      $iOpen  = round($open * 1000);
+
+      $eurusd = $EURUSD[$i]['close'];
+      $gbpusd = $GBPUSD[$i]['close'];
+      $usdchf = $USDCHF[$i]['close'];
+      $usdjpy = $USDJPY[$i]['close'];
+      $usdsek = $USDSEK[$i]['close'];
+      $close  = 34.38805726
+              * pow($eurusd/100000 * $usdchf/100000, 0.1113)
+              * pow($eurusd        / $gbpusd       , 0.3056)
+              * pow($eurusd/100000 * $usdjpy/1000  , 0.1891)
+              * pow($eurusd/100000 * $usdsek/100000, 0.0785)
+              * pow($eurusd/100000                 , 0.3155);
+      $iClose = round($close * 1000);
+
+      $index[$i]['time' ] = $bar['time'];
+      $index[$i]['open' ] = $iOpen;
+      $index[$i]['high' ] = max($iOpen, $iClose);
+      $index[$i]['low'  ] = min($iOpen, $iClose);
+      $index[$i]['close'] = $iClose;
+      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
+   }
 }
 
 

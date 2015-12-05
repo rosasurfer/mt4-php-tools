@@ -116,8 +116,12 @@ class Dukascopy extends StaticClass {
 
 // Start der M1-History der Dukascopy-Instrumente
 Dukascopy::$historyStart_M1 = array('AUDUSD' => strToTime('2003-08-03 00:00:00 GMT'),
+                                  //'EURCHF' => strToTime('2003-08-03 00:00:00 GMT'),  // = EURUSD * USDCHF: reicht weiter zurück
+                                  //'EURGBP' => strToTime('2003-08-03 00:00:00 GMT'),  // = EURUSD / GBPUSD: reicht weiter zurück
+                                  //'EURJPY' => strToTime('2003-08-03 00:00:00 GMT'),  // = EURUSD * USDJPY: reicht weiter zurück
                                   //'EURNOK' => strToTime('2004-10-25 00:00:00 GMT'),
-                                  //'EURSEK' => strToTime('2004-10-27 00:00:00 GMT'),
+                                  //'EURSEK' => strToTime('2004-10-27 00:00:00 GMT'),  // = EURUSD * USDSEK: reicht weiter zurück
+
                                     'EURUSD' => strToTime('2003-05-04 00:00:00 GMT'),
                                     'GBPUSD' => strToTime('2003-05-04 00:00:00 GMT'),
                                     'NZDUSD' => strToTime('2003-08-03 00:00:00 GMT'),
