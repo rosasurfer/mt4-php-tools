@@ -88,8 +88,8 @@ exit(0);
  * Eine Dukascopy-Datei enthält immer anteilige Daten zweier FXT-Tage. Zum Update eines FXT-Tages sind immer die Daten
  * zweier Dukascopy-Tage notwendig. Die Daten des aktuellen Tags sind frühestens am nächsten Tag verfügbar.
  *
- * @param string $symbol    - Symbol
- * @param int    $startTime - Beginn der Dukascopy-Daten dieses Symbols
+ * @param  string $symbol    - Symbol
+ * @param  int    $startTime - Beginn der Dukascopy-Daten dieses Symbols
  *
  * @return bool - Erfolgsstatus
  */
@@ -138,8 +138,8 @@ function updateSymbol($symbol, $startTime) {
 /**
  * Prüft den Stand der MyFX-History eines einzelnen FXT-Tages und stößt ggf. das Update an.
  *
- * @param string $symbol - Symbol
- * @param int    $day    - Timestamp des zu prüfenden Tages
+ * @param  string $symbol - Symbol
+ * @param  int    $day    - Timestamp des zu prüfenden Tages
  *
  * @return bool - Erfolgsstatus
  */
@@ -208,8 +208,8 @@ function checkHistory($symbol, $day) {
  * Aktualisiert die Daten eines einzelnen FXT-Tages. Wird aufgerufen, wenn für einen Wochentag keine lokalen
  * MyFX-Historydateien existieren.
  *
- * @param string $symbol - Symbol
- * @param int    $day    - Timestamp des zu aktualisierenden FXT-Tages
+ * @param  string $symbol - Symbol
+ * @param  int    $day    - Timestamp des zu aktualisierenden FXT-Tages
  *
  * @return bool - Erfolgsstatus
  */
@@ -238,9 +238,9 @@ function updateHistory($symbol, $day) {
 /**
  * Lädt die Daten eines einzelnen FXT-Tages und Typs in den Barbuffer.
  *
- * @param string $symbol - Symbol
- * @param int    $day    - Timestamp des zu ladenden FXT-Tages
- * @param string $type   - Kurstyp
+ * @param  string $symbol - Symbol
+ * @param  int    $day    - Timestamp des zu ladenden FXT-Tages
+ * @param  string $type   - Kurstyp
  *
  * @return bool - Erfolgsstatus
  */
@@ -325,8 +325,8 @@ function loadHistory($symbol, $day, $type) {
 /**
  * Merged die Historydaten eines einzelnen FXT-Tages. Wird aufgerufen, wenn Bid- und Ask-Kurse des Tages im Barbuffer liegen.
  *
- * @param string $symbol - Symbol
- * @param int    $day    - Timestamp des zu mergenden FXT-Tages
+ * @param  string $symbol - Symbol
+ * @param  int    $day    - Timestamp des zu mergenden FXT-Tages
  *
  * @return bool - Erfolgsstatus
  */
@@ -375,12 +375,12 @@ function mergeHistory($symbol, $day) {
 /**
  * Lädt eine Dukascopy-Datei und gibt ihren Inhalt zurück.
  *
- * @param string $symbol    - Symbol der herunterzuladenen Datei
- * @param int    $day       - Tag der herunterzuladenen Datei
- * @param string $type      - Kurstyp der herunterzuladenen Datei: 'bid'|'ask'
- * @param bool   $quiet     - ob Statusmeldungen unterdrückt werden sollen (default: nein)
- * @param bool   $saveData  - ob die Daten zusätzlich gespeichert werden sollen (default: nein)
- * @param bool   $saveError - ob ein 404-Fehler in einer entsprechenden Datei gespeichert werden soll (default: ja)
+ * @param  string $symbol    - Symbol der herunterzuladenen Datei
+ * @param  int    $day       - Tag der herunterzuladenen Datei
+ * @param  string $type      - Kurstyp der herunterzuladenen Datei: 'bid'|'ask'
+ * @param  bool   $quiet     - ob Statusmeldungen unterdrückt werden sollen (default: nein)
+ * @param  bool   $saveData  - ob die Daten zusätzlich gespeichert werden sollen (default: nein)
+ * @param  bool   $saveError - ob ein 404-Fehler in einer entsprechenden Datei gespeichert werden soll (default: ja)
  *
  * @return string - Content der heruntergeladenen Datei oder Leerstring, wenn die Resource nicht gefunden wurde (404).
  */
@@ -570,8 +570,8 @@ function processRawDukascopyData($data, $symbol, $day, $type) {
 /**
  * Schreibt die gemergten Bardaten eines FXT-Tages aus dem Barbuffer in die lokale MyFX-Historydatei.
  *
- * @param string $symbol - Symbol
- * @param int    $day    - Timestamp des FXT-Tages
+ * @param  string $symbol - Symbol
+ * @param  int    $day    - Timestamp des FXT-Tages
  *
  * @return bool - Erfolgsstatus
  */
@@ -634,10 +634,10 @@ function saveBars($symbol, $day) {
  * da die Variablen nicht global gespeichert oder über viele Funktionsaufrufe hinweg weitergereicht werden müssen,
  * aber trotzdem nicht bei jeder Verwendung neu ermittelt werden brauchen.
  *
- * @param string $id     - eindeutiger Bezeichner der Variable (ID)
- * @param string $symbol - Symbol oder NULL
- * @param int    $time   - Timestamp oder NULL
- * @param string $type   - Kurstyp (bid|ask) oder NULL
+ * @param  string $id     - eindeutiger Bezeichner der Variable (ID)
+ * @param  string $symbol - Symbol oder NULL
+ * @param  int    $time   - Timestamp oder NULL
+ * @param  string $type   - Kurstyp (bid|ask) oder NULL
  *
  * @return string - Variable
  */
