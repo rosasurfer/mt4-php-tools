@@ -26,17 +26,17 @@ date_default_timezone_set('GMT');
 $verbose         = 0;                                 // output verbosity
 $saveRawMyFXData = true;                              // ob unkomprimierte MyFX-Historydaten gespeichert werden sollen
 
-// Indizes         = zur Berechnung benötigte Instrumente
-$indizes['AUDLFX'] = array('AUDUSD'=>5, 'EURUSD'=>5, 'GBPUSD'=>5, 'USDCAD'=>5, 'USDCHF'=>5, 'USDJPY'=>3);
-$indizes['CADLFX'] = array('AUDUSD'=>5, 'EURUSD'=>5, 'GBPUSD'=>5, 'USDCAD'=>5, 'USDCHF'=>5, 'USDJPY'=>3);
-$indizes['CHFLFX'] = array('AUDUSD'=>5, 'EURUSD'=>5, 'GBPUSD'=>5, 'USDCAD'=>5, 'USDCHF'=>5, 'USDJPY'=>3);
-$indizes['EURLFX'] = array('AUDUSD'=>5, 'EURUSD'=>5, 'GBPUSD'=>5, 'USDCAD'=>5, 'USDCHF'=>5, 'USDJPY'=>3);
-$indizes['GBPLFX'] = array('AUDUSD'=>5, 'EURUSD'=>5, 'GBPUSD'=>5, 'USDCAD'=>5, 'USDCHF'=>5, 'USDJPY'=>3);
-$indizes['JPYLFX'] = array('AUDUSD'=>5, 'EURUSD'=>5, 'GBPUSD'=>5, 'USDCAD'=>5, 'USDCHF'=>5, 'USDJPY'=>3);
-$indizes['NZDLFX'] = array('AUDUSD'=>5, 'EURUSD'=>5, 'GBPUSD'=>5, 'USDCAD'=>5, 'USDCHF'=>5, 'USDJPY'=>3, 'NZDUSD'=>5);
-$indizes['USDLFX'] = array('AUDUSD'=>5, 'EURUSD'=>5, 'GBPUSD'=>5, 'USDCAD'=>5, 'USDCHF'=>5, 'USDJPY'=>3);
+// Indizes und die zur Berechnung benötigten Instrumente
+$indizes['AUDLFX'] = array('AUDUSD'=>null, 'EURUSD'=>null, 'GBPUSD'=>null, 'USDCAD'=>null, 'USDCHF'=>null, 'USDJPY'=>null);
+$indizes['CADLFX'] = array('AUDUSD'=>null, 'EURUSD'=>null, 'GBPUSD'=>null, 'USDCAD'=>null, 'USDCHF'=>null, 'USDJPY'=>null);
+$indizes['CHFLFX'] = array('AUDUSD'=>null, 'EURUSD'=>null, 'GBPUSD'=>null, 'USDCAD'=>null, 'USDCHF'=>null, 'USDJPY'=>null);
+$indizes['EURLFX'] = array('AUDUSD'=>null, 'EURUSD'=>null, 'GBPUSD'=>null, 'USDCAD'=>null, 'USDCHF'=>null, 'USDJPY'=>null);
+$indizes['GBPLFX'] = array('AUDUSD'=>null, 'EURUSD'=>null, 'GBPUSD'=>null, 'USDCAD'=>null, 'USDCHF'=>null, 'USDJPY'=>null);
+$indizes['JPYLFX'] = array('AUDUSD'=>null, 'EURUSD'=>null, 'GBPUSD'=>null, 'USDCAD'=>null, 'USDCHF'=>null, 'USDJPY'=>null);
+$indizes['NZDLFX'] = array('AUDUSD'=>null, 'EURUSD'=>null, 'GBPUSD'=>null, 'USDCAD'=>null, 'USDCHF'=>null, 'USDJPY'=>null, 'NZDUSD'=>null);
+$indizes['USDLFX'] = array('AUDUSD'=>null, 'EURUSD'=>null, 'GBPUSD'=>null, 'USDCAD'=>null, 'USDCHF'=>null, 'USDJPY'=>null);
 
-$indizes['USDX'  ] = array('EURUSD'=>5, 'GBPUSD'=>5, 'USDCAD'=>5, 'USDCHF'=>5, 'USDJPY'=>3, 'USDSEK'=>5);
+$indizes['USDX'  ] = array('EURUSD'=>null, 'GBPUSD'=>null, 'USDCAD'=>null, 'USDCHF'=>null, 'USDJPY'=>null, 'USDSEK'=>null);
 
 
 // -- Start ----------------------------------------------------------------------------------------------------------------------------------------
@@ -57,7 +57,7 @@ if (!$args) help() & exit(1);
 // Symbole parsen
 foreach ($args as $i => $arg) {
    $arg = strToUpper($arg);
-   if (!isSet($indizes[$arg])) help('error: unsupported symbol "'.$args[$i].'"') & exit(1);
+   if (!array_key_exists($arg, $indizes)) help('error: unsupported symbol "'.$args[$i].'"') & exit(1);
    $args[$i] = $arg;
 }
 $args = array_unique($args);
@@ -92,7 +92,7 @@ function createIndex($index) {
    $symbols = $indizes[$index];
    foreach($symbols as $symbol => &$data) {
       $startTime = max($startTime, Dukascopy::$historyStart_M1[$symbol]);
-      $data      = array('digits'=>strEndsWith($symbol, 'JPY') ? 3:5);                 // on-the-fly Digits initialisieren
+      $data      = array();                                                            // on-the-fly $data initialisieren
    }
    $startDay = $startTime     - $startTime%DAY;                                        // 00:00 Starttag
    $today    = ($today=time())- $today    %DAY;                                        // 00:00 aktueller Tag
@@ -193,7 +193,7 @@ function calculateUSDFX6($day, array $symbols) {
  *
  * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
  *
- * @see    Herleitung der Formel: MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ * @see    Formel: MetaTrader::mql4\indicators\LFX-Recorder.mq4
  */
 function calculateAUDLFX($day, array $symbols) {
    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
@@ -248,7 +248,7 @@ function calculateAUDLFX($day, array $symbols) {
  *
  * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
  *
- * @see    Herleitung der Formel: MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ * @see    Formel: MetaTrader::mql4\indicators\LFX-Recorder.mq4
  */
 function calculateCADLFX($day, array $symbols) {
    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
@@ -303,7 +303,7 @@ function calculateCADLFX($day, array $symbols) {
  *
  * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
  *
- * @see    Herleitung der Formel: MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ * @see    Formel: MetaTrader::mql4\indicators\LFX-Recorder.mq4
  */
 function calculateCHFLFX($day, array $symbols) {
    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
@@ -358,7 +358,7 @@ function calculateCHFLFX($day, array $symbols) {
  *
  * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
  *
- * @see    Herleitung der Formel: MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ * @see    Formel: MetaTrader::mql4\indicators\LFX-Recorder.mq4
  */
 function calculateEURLFX($day, array $symbols) {
    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
@@ -413,7 +413,7 @@ function calculateEURLFX($day, array $symbols) {
  *
  * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
  *
- * @see    Herleitung der Formel: MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ * @see    Formel: MetaTrader::mql4\indicators\LFX-Recorder.mq4
  */
 function calculateGBPLFX($day, array $symbols) {
    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
@@ -468,7 +468,7 @@ function calculateGBPLFX($day, array $symbols) {
  *
  * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
  *
- * @see    Herleitung der Formel: MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ * @see    Formel: MetaTrader::mql4\indicators\LFX-Recorder.mq4
  */
 function calculateJPYLFX($day, array $symbols) {
    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
@@ -523,7 +523,7 @@ function calculateJPYLFX($day, array $symbols) {
  *
  * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
  *
- * @see    Herleitung der Formel: MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ * @see    Formel: MetaTrader::mql4\indicators\LFX-Recorder.mq4
  */
 function calculateNZDLFX($day, array $symbols) {
    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
@@ -581,7 +581,7 @@ function calculateNZDLFX($day, array $symbols) {
  *
  * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
  *
- * @see    Herleitung der Formel: MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ * @see    Formel: MetaTrader::mql4\indicators\LFX-Recorder.mq4
  */
 function calculateUSDLFX($day, array $symbols) {
    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
@@ -616,6 +616,65 @@ function calculateUSDLFX($day, array $symbols) {
       $usdjpy = $USDJPY[$i]['close'];
       $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7);
       $iClose = round($close * 100000);
+
+      $index[$i]['time' ] = $bar['time'];
+      $index[$i]['open' ] = $iOpen;
+      $index[$i]['high' ] = max($iOpen, $iClose);
+      $index[$i]['low'  ] = min($iOpen, $iClose);
+      $index[$i]['close'] = $iClose;
+      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
+   }
+   return $index;
+}
+
+
+/**
+ * Berechnet für die übergebenen Daten den USDX-Index (ICE).
+ *
+ * @param  int   $day     - Tag der zu berechnenden Daten
+ * @param  array $symbols - Array mit den Daten der beteiligten Instrumente für diesen Tag
+ *
+ * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
+ *
+ * @see    Formel: MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ */
+function calculateUSDX($day, array $symbols) {
+   if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
+   $shortDate = date('D, d-M-Y', $day);
+
+   global $verbose;
+   if ($verbose > 1) echoPre('[Info]    USDX  '.$shortDate);
+
+   $EURUSD = $symbols['EURUSD']['bars'];
+   $GBPUSD = $symbols['GBPUSD']['bars'];
+   $USDCAD = $symbols['USDCAD']['bars'];
+   $USDCHF = $symbols['USDCHF']['bars'];
+   $USDJPY = $symbols['USDJPY']['bars'];
+   $USDSEK = $symbols['USDSEK']['bars'];
+   $index  = array();
+
+   foreach ($EURUSD as $i => $bar) {
+      $eurusd = $EURUSD[$i]['open'];
+      $gbpusd = $GBPUSD[$i]['open'];
+      $usdcad = $USDCAD[$i]['open'];
+      $usdchf = $USDCHF[$i]['open'];
+      $usdjpy = $USDJPY[$i]['open'];
+      $usdsek = $USDSEK[$i]['open'];
+      $open   = 50.14348112
+              * pow($usdcad/100000, 0.091) * pow($usdchf/100000, 0.036) * pow($usdjpy/1000, 0.136) * pow($usdsek/100000, 0.042)
+              / pow($eurusd/100000, 0.576) / pow($gbpusd/100000, 0.119);
+      $iOpen  = round($open * 1000);
+
+      $eurusd = $EURUSD[$i]['close'];
+      $gbpusd = $GBPUSD[$i]['close'];
+      $usdcad = $USDCAD[$i]['close'];
+      $usdchf = $USDCHF[$i]['close'];
+      $usdjpy = $USDJPY[$i]['close'];
+      $usdsek = $USDSEK[$i]['close'];
+      $close  = 50.14348112
+              * pow($usdcad/100000, 0.091) * pow($usdchf/100000, 0.036) * pow($usdjpy/1000, 0.136) * pow($usdsek/100000, 0.042)
+              / pow($eurusd/100000, 0.576) / pow($gbpusd/100000, 0.119);
+      $iClose = round($close * 1000);
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
