@@ -689,6 +689,7 @@ function calculateEURX($day, array $symbols) {
       $index[$i]['close'] = $iClose;
       $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
    }
+   return $index;
 }
 
 
