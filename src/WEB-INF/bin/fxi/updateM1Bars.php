@@ -6,9 +6,9 @@
  * Unterstützte Instrumente:
  *
  * ok • LFX-Indizes:    LiteForex-Formel (JPYLFX nicht gespiegelt, normalisiert)
+ * ok • EURX:           ICE-Formel
  * ok • USDX:           ICE-Formel
  *
- *    • EURX:           ICE-Formel
  *    • FX6-Indizes:    AUDFX6, CADFX6, CHFFX6, EURFX6, GBPFX6, JPYFX6,         USDFX6 (geometrisches Mittel, JPYFX6 normalisiert)
  *    • FX7-Indizes:    AUDFX7, CADFX7, CHFFX7, EURFX7, GBPFX7, JPYFX7, NZDFX7, USDFX7 (geometrisches Mittel, JPYFX7 normalisiert)
  *    • SEKFX6, SEKFX7: SEK gegen USDFX6 bzw. USDFX7
