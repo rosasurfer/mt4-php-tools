@@ -20,10 +20,10 @@ class Dukascopy extends StaticClass {
 
 
    // Start der M1-History der Dukascopy-Instrumente
-   public static $historyStart_M1;                       // @see static initializer at end of file
+   public static $historyStart_M1 = null;                // @see static initializer at end of file
 
    // Start der Tick-History der Dukascopy-Instrumente
-   public static $historyStart_Ticks;                    // @see static initializer at end of file
+   public static $historyStart_Ticks = null;             // @see static initializer at end of file
 
 
    /**
@@ -114,7 +114,6 @@ class Dukascopy extends StaticClass {
  * Workaround für in PHP nicht existierende Static Initializer
  */
 
-
 // Start der M1-History der Dukascopy-Instrumente
 Dukascopy::$historyStart_M1 = array('AUDUSD' => strToTime('2003-08-03 00:00:00 GMT'),
                                   //'EURNOK' => strToTime('2004-10-25 00:00:00 GMT'),
@@ -129,7 +128,6 @@ Dukascopy::$historyStart_M1 = array('AUDUSD' => strToTime('2003-08-03 00:00:00 G
                                   //'USDSEK' => strToTime('2003-08-08 00:00:00 GMT'),
                                   //'USDSGD' => strToTime('2004-11-16 00:00:00 GMT'),
 );
-
 
 // Start der Tick-History der Dukascopy-Instrumente
 Dukascopy::$historyStart_Ticks = array();

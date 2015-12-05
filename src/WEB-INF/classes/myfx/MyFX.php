@@ -6,7 +6,7 @@ class MyFX extends StaticClass {
 
 
    // Start der M1-History der FX-Indizes
-   public static $fxIndizesHistoryStart_M1;                       // @see static initializer at end of file
+   public static $fxIndizesHistoryStart_M1 = null;                // @see static initializer at end of file
 
 
    /**

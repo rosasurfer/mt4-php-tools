@@ -51,7 +51,7 @@ exit(0);
 /**
  * Erzeugt die MetaTrader-History eines Symbol.
  *
- * @param string $symbol - Symbol
+ * @param  string $symbol - Symbol
  *
  * @return bool - Erfolgsstatus
  */
@@ -100,10 +100,10 @@ function createHistory($symbol) {
  * da die Variablen nicht global gespeichert oder über viele Funktionsaufrufe hinweg weitergereicht werden müssen,
  * aber trotzdem nicht bei jeder Verwendung neu ermittelt werden brauchen.
  *
- * @param string $id     - eindeutiger Bezeichner der Variable (ID)
- * @param string $symbol - Symbol oder NULL
- * @param int    $time   - Timestamp oder NULL
- * @param string $type   - Kurstyp (bid|ask) oder NULL
+ * @param  string $id     - eindeutiger Bezeichner der Variable (ID)
+ * @param  string $symbol - Symbol oder NULL
+ * @param  int    $time   - Timestamp oder NULL
+ * @param  string $type   - Kurstyp (bid|ask) oder NULL
  *
  * @return string - Variable
  */

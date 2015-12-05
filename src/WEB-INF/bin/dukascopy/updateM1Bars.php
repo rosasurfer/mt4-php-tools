@@ -29,10 +29,6 @@
  *          +------------------------+------------+------------+------------+------------------------+------------------------+
  * GMT:     |   Sunday      Monday   |  Tuesday   | Wednesday  |  Thursday  |   Friday     Saturday  |   Sunday      Monday   |
  *          +------------------------+------------+------------+------------+------------------------+------------------------+
- *
- * TODO: Update im aktuellen Verzeichnis mit Combi-Lock synchronisieren, damit parallel laufende Scripte sich vertragen.
- *
- *       @see http://stackoverflow.com/questions/5449395/file-locking-in-php
  */
 require(dirName(__FILE__).'/../../config.php');
 date_default_timezone_set('GMT');

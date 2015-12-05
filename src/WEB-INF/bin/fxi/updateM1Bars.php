@@ -83,7 +83,7 @@ exit(0);
 /**
  * Berechnet die M1-History eines Indexes und speichert sie im MyFX-Format.
  *
- * @param string $index - Symbol des Index
+ * @param  string $index - Symbol des Index
  *
  * @return bool - Erfolgsstatus
  */
@@ -637,9 +637,9 @@ function calculateUSDLFX($day, array $symbols) {
 /**
  * Schreibt die Indexdaten eines FXT-Tages in die lokale MyFX-Historydatei.
  *
- * @param string     $symbol - Symbol
- * @param int        $day    - Timestamp des FXT-Tages
- * @param MYFX_BAR[] $bars   - Indexdaten des FXT-Tages
+ * @param  string     $symbol - Symbol
+ * @param  int        $day    - Timestamp des FXT-Tages
+ * @param  MYFX_BAR[] $bars   - Indexdaten des FXT-Tages
  *
  * @return bool - Erfolgsstatus
  */
@@ -723,9 +723,9 @@ function showBuffer($bars) {
  * da die Variablen nicht global gespeichert oder über viele Funktionsaufrufe hinweg weitergereicht werden müssen,
  * aber trotzdem nicht bei jeder Verwendung neu ermittelt werden brauchen.
  *
- * @param string $id     - eindeutiger Bezeichner der Variable (ID)
- * @param string $symbol - Symbol oder NULL
- * @param int    $time   - Timestamp oder NULL
+ * @param  string $id     - eindeutiger Bezeichner der Variable (ID)
+ * @param  string $symbol - Symbol oder NULL
+ * @param  int    $time   - Timestamp oder NULL
  *
  * @return string - Variable
  */
