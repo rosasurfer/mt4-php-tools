@@ -62,9 +62,10 @@ function createHistory($symbol) {
    global $verbose;
    $startDay = ($startDay=MyFX::$fxIndizesHistoryStart_M1[$symbol]) - $startDay%DAY;   // 00:00 Starttag
    $today    = ($today=time())                                      - $today   %DAY;   // 00:00 aktueller Tag
-   $digits   = 5;
+
 
    // MT4-HistorySet erzeugen
+   $digits  = (strEndsWith($symbol, 'JPY') || array_search($symbol, array('USDX', 'EURX'))!==false) ? 3:5;
    $history = new HistorySet($symbol, $description=null, $digits, $format=400);
 
 
