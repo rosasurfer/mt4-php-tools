@@ -121,12 +121,7 @@ Dukascopy::$historyStart_M1 = array('AUDUSD' => strToTime('2003-08-03 00:00:00 G
                                   //'EURJPY' => strToTime('2003-08-03 00:00:00 GMT'),  // = EURUSD * USDJPY: reicht weiter zurück
                                   //'EURNOK' => strToTime('2004-10-25 00:00:00 GMT'),
                                   //'EURSEK' => strToTime('2004-10-27 00:00:00 GMT'),  // = EURUSD * USDSEK: reicht weiter zurück
-
-                                    //'EURUSD' => strToTime('2003-05-04 00:00:00 GMT'),
-
-                                    'EURUSD' => strToTime('2015-11-23 00:00:00 GMT'),
-
-
+                                    'EURUSD' => strToTime('2003-05-04 00:00:00 GMT'),
                                     'GBPUSD' => strToTime('2003-05-04 00:00:00 GMT'),
                                     'NZDUSD' => strToTime('2003-08-03 00:00:00 GMT'),
                                     'USDCAD' => strToTime('2003-08-03 00:00:00 GMT'),

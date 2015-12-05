@@ -669,9 +669,6 @@ function calculateEURX($day, array $symbols) {
               * pow($eurusd/100000                 , 0.3155);
       $iOpen  = round($open * 1000);
 
-      echoPre('EURX = '.$open);
-      exit();
-
       $eurusd = $EURUSD[$i]['close'];
       $gbpusd = $GBPUSD[$i]['close'];
       $usdchf = $USDCHF[$i]['close'];
