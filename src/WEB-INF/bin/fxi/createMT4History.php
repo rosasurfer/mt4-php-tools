@@ -72,7 +72,7 @@ function createHistory($symbol) {
    for ($day=$startDay, $lastMonth=-1; $day < $today; $day+=1*DAY) {
       $month = iDate('m', $day);
       if ($month != $lastMonth) {
-         if ($verbose > 0) echoPre('[Info]  '.date('M-Y', $day));
+         if ($verbose > 0) echoPre('[Info]    '.date('M-Y', $day));
          $lastMonth = $month;
       }
 
@@ -81,7 +81,7 @@ function createHistory($symbol) {
          if      (is_file($file=getVar('myfxFile.compressed', $symbol, $day))) {}      // wenn komprimierte MyFX-Datei existiert
          else if (is_file($file=getVar('myfxFile.raw'       , $symbol, $day))) {}      // wenn unkomprimierte MyFX-Datei existiert
          else continue;
-         if ($verbose > 1) echoPre('[Info]  '.date('D, d-M-Y', $day).'   MyFX history file: '.baseName($file));
+         if ($verbose > 1) echoPre('[Info]    '.date('D, d-M-Y', $day).'   MyFX history file: '.baseName($file));
 
          // Bars einlesen und der MT4-History hinzufügen
          $bars = MyFX::readBarFile($file);

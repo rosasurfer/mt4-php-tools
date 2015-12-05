@@ -26,16 +26,7 @@ date_default_timezone_set('GMT');
 $verbose         = 0;                                 // output verbosity
 $saveRawMyFXData = true;                              // ob unkomprimierte MyFX-Historydaten gespeichert werden sollen
 
-
 // Indizes         = zur Berechnung benötigte Instrumente
-$indizes['AUDFX6'] = array('AUDCAD'=>5, 'AUDCHF'=>5, 'AUDJPY'=>3, 'AUDUSD'=>5, 'EURAUD'=>5, 'GBPAUD'=>5);
-$indizes['CADFX6'] = array('AUDCAD'=>5, 'CADCHF'=>5, 'CADJPY'=>3, 'EURCAD'=>5, 'GBPCAD'=>5, 'USDCAD'=>5);
-$indizes['CHFFX6'] = array('AUDCHF'=>5, 'CADCHF'=>5, 'CHFJPY'=>3, 'EURCHF'=>5, 'GBPCHF'=>5, 'USDCHF'=>5);
-$indizes['EURFX6'] = array('EURAUD'=>5, 'EURCAD'=>5, 'EURCHF'=>5, 'EURGBP'=>5, 'EURJPY'=>3, 'EURUSD'=>5);
-$indizes['GBPFX6'] = array('EURGBP'=>5, 'GBPAUD'=>5, 'GBPCAD'=>5, 'GBPCHF'=>5, 'GBPJPY'=>3, 'GBPUSD'=>5);
-$indizes['JPYFX6'] = array('AUDJPY'=>3, 'CADJPY'=>3, 'CHFJPY'=>3, 'EURJPY'=>3, 'GBPJPY'=>3, 'USDJPY'=>3);
-$indizes['USDFX6'] = array('AUDUSD'=>5, 'EURUSD'=>5, 'GBPUSD'=>5, 'USDCAD'=>5, 'USDCHF'=>5, 'USDJPY'=>3);
-
 $indizes['AUDLFX'] = array('AUDUSD'=>5, 'EURUSD'=>5, 'GBPUSD'=>5, 'USDCAD'=>5, 'USDCHF'=>5, 'USDJPY'=>3);
 $indizes['CADLFX'] = array('AUDUSD'=>5, 'EURUSD'=>5, 'GBPUSD'=>5, 'USDCAD'=>5, 'USDCHF'=>5, 'USDJPY'=>3);
 $indizes['CHFLFX'] = array('AUDUSD'=>5, 'EURUSD'=>5, 'GBPUSD'=>5, 'USDCAD'=>5, 'USDCHF'=>5, 'USDJPY'=>3);
@@ -44,6 +35,8 @@ $indizes['GBPLFX'] = array('AUDUSD'=>5, 'EURUSD'=>5, 'GBPUSD'=>5, 'USDCAD'=>5, '
 $indizes['JPYLFX'] = array('AUDUSD'=>5, 'EURUSD'=>5, 'GBPUSD'=>5, 'USDCAD'=>5, 'USDCHF'=>5, 'USDJPY'=>3);
 $indizes['NZDLFX'] = array('AUDUSD'=>5, 'EURUSD'=>5, 'GBPUSD'=>5, 'USDCAD'=>5, 'USDCHF'=>5, 'USDJPY'=>3, 'NZDUSD'=>5);
 $indizes['USDLFX'] = array('AUDUSD'=>5, 'EURUSD'=>5, 'GBPUSD'=>5, 'USDCAD'=>5, 'USDCHF'=>5, 'USDJPY'=>3);
+
+$indizes['USDX'  ] = array('EURUSD'=>5, 'GBPUSD'=>5, 'USDCAD'=>5, 'USDCHF'=>5, 'USDJPY'=>3, 'USDSEK'=>5);
 
 
 // -- Start ----------------------------------------------------------------------------------------------------------------------------------------
@@ -109,7 +102,7 @@ function createIndex($index) {
    for ($day=$startDay, $lastMonth=-1; $day < $today; $day+=1*DAY) {
       $month = iDate('m', $day);
       if ($month != $lastMonth) {
-         if ($verbose > 0) echoPre('[Info]  '.date('M-Y', $day));
+         if ($verbose > 0) echoPre('[Info]    '.date('M-Y', $day));
          $lastMonth = $month;
       }
 
@@ -119,7 +112,7 @@ function createIndex($index) {
             if      (is_file($file=getVar('myfxSource.compressed', $symbol, $day))) {} // komprimierte MyFX-Datei...
             else if (is_file($file=getVar('myfxSource.raw'       , $symbol, $day))) {} // ...oder unkomprimierte MyFX-Datei
             else {
-               echoPre('[Error] '.$symbol.' history for '.date('D, d-M-Y', $day).' not found');
+               echoPre('[Error]   '.$symbol.' history for '.date('D, d-M-Y', $day).' not found');
                return false;
             }
             // Bars zwischenspeichern
@@ -152,7 +145,7 @@ function calculateUSDFX6($day, array $symbols) {
    $shortDate = date('D, d-M-Y', $day);
 
    global $verbose;
-   if ($verbose > 1) echoPre('[Info]  USDFX6  '.$shortDate);
+   if ($verbose > 1) echoPre('[Info]    USDFX6  '.$shortDate);
 
    $AUDUSD = $symbols['AUDUSD']['bars'];
    $EURUSD = $symbols['EURUSD']['bars'];
@@ -207,7 +200,7 @@ function calculateAUDLFX($day, array $symbols) {
    $shortDate = date('D, d-M-Y', $day);
 
    global $verbose;
-   if ($verbose > 1) echoPre('[Info]  AUDLFX  '.$shortDate);
+   if ($verbose > 1) echoPre('[Info]    AUDLFX  '.$shortDate);
 
    $AUDUSD = $symbols['AUDUSD']['bars'];
    $EURUSD = $symbols['EURUSD']['bars'];
@@ -262,7 +255,7 @@ function calculateCADLFX($day, array $symbols) {
    $shortDate = date('D, d-M-Y', $day);
 
    global $verbose;
-   if ($verbose > 1) echoPre('[Info]  CADLFX  '.$shortDate);
+   if ($verbose > 1) echoPre('[Info]    CADLFX  '.$shortDate);
 
    $AUDUSD = $symbols['AUDUSD']['bars'];
    $EURUSD = $symbols['EURUSD']['bars'];
@@ -317,7 +310,7 @@ function calculateCHFLFX($day, array $symbols) {
    $shortDate = date('D, d-M-Y', $day);
 
    global $verbose;
-   if ($verbose > 1) echoPre('[Info]  CHFLFX  '.$shortDate);
+   if ($verbose > 1) echoPre('[Info]    CHFLFX  '.$shortDate);
 
    $AUDUSD = $symbols['AUDUSD']['bars'];
    $EURUSD = $symbols['EURUSD']['bars'];
@@ -372,7 +365,7 @@ function calculateEURLFX($day, array $symbols) {
    $shortDate = date('D, d-M-Y', $day);
 
    global $verbose;
-   if ($verbose > 1) echoPre('[Info]  EURLFX  '.$shortDate);
+   if ($verbose > 1) echoPre('[Info]    EURLFX  '.$shortDate);
 
    $AUDUSD = $symbols['AUDUSD']['bars'];
    $EURUSD = $symbols['EURUSD']['bars'];
@@ -427,7 +420,7 @@ function calculateGBPLFX($day, array $symbols) {
    $shortDate = date('D, d-M-Y', $day);
 
    global $verbose;
-   if ($verbose > 1) echoPre('[Info]  GBPLFX  '.$shortDate);
+   if ($verbose > 1) echoPre('[Info]    GBPLFX  '.$shortDate);
 
    $AUDUSD = $symbols['AUDUSD']['bars'];
    $EURUSD = $symbols['EURUSD']['bars'];
@@ -482,7 +475,7 @@ function calculateJPYLFX($day, array $symbols) {
    $shortDate = date('D, d-M-Y', $day);
 
    global $verbose;
-   if ($verbose > 1) echoPre('[Info]  JPYLFX  '.$shortDate);
+   if ($verbose > 1) echoPre('[Info]    JPYLFX  '.$shortDate);
 
    $AUDUSD = $symbols['AUDUSD']['bars'];
    $EURUSD = $symbols['EURUSD']['bars'];
@@ -537,7 +530,7 @@ function calculateNZDLFX($day, array $symbols) {
    $shortDate = date('D, d-M-Y', $day);
 
    global $verbose;
-   if ($verbose > 1) echoPre('[Info]  NZDLFX  '.$shortDate);
+   if ($verbose > 1) echoPre('[Info]    NZDLFX  '.$shortDate);
 
    $AUDUSD = $symbols['AUDUSD']['bars'];
    $EURUSD = $symbols['EURUSD']['bars'];
@@ -595,7 +588,7 @@ function calculateUSDLFX($day, array $symbols) {
    $shortDate = date('D, d-M-Y', $day);
 
    global $verbose;
-   if ($verbose > 1) echoPre('[Info]  USDLFX  '.$shortDate);
+   if ($verbose > 1) echoPre('[Info]    USDLFX  '.$shortDate);
 
    $AUDUSD = $symbols['AUDUSD']['bars'];
    $EURUSD = $symbols['EURUSD']['bars'];
@@ -677,7 +670,7 @@ function saveBars($symbol, $day, array $bars) {
    // (3) binäre Daten ggf. speichern
    if ($saveRawMyFXData) {
       if (is_file($file=getVar('myfxTarget.raw', $symbol, $day))) {
-         echoPre('[Error] '.$symbol.' history for '.date('D, d-M-Y', $day).' already exists');
+         echoPre('[Error]   '.$symbol.' history for '.date('D, d-M-Y', $day).' already exists');
          return false;
       }
       mkDirWritable(dirName($file));

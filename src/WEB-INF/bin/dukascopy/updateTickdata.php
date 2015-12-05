@@ -102,7 +102,7 @@ foreach ($data as $symbol => $start) {
       $localPath = $downloadDirectory.PATH_SEPARATOR.$path;
       $localFile = $localPath.PATH_SEPARATOR.$file;
       if (is_file($localFile) || is_file($localFile.'.404')) {       // Datei, für die 404 zurückgegeben wurde
-         echoPre("[Info]: Skipping url \"$url\", local file already exists.");
+         echoPre("[Info]    Skipping url \"$url\", local file already exists.");
          continue;
       }
 
@@ -122,7 +122,7 @@ foreach ($data as $symbol => $start) {
          fClose($hFile);
       }
       else {   // ... oder 404-Status mit leerer .404-Datei merken
-         echoPre("[Info]: $status - File not found: \"$url\"");
+         echoPre("[Info]    $status - File not found: \"$url\"");
          fClose(fOpen($localFile.'.404', 'x'));
       }
    }
