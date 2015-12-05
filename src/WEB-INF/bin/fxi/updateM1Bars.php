@@ -278,8 +278,8 @@ function calculateCADLFX($day, array $symbols) {
       $usdcad = $USDCAD[$i]['open'];                                 // Die Divisionen müssen vor den Multiplikationen erfolgen, da die
       $usdchf = $USDCHF[$i]['open'];                                 // Multiplikation der MyFX-Ganzzahlen den Zahlenbereich eines
       $usdjpy = $USDJPY[$i]['open'];                                 // 32bit-Integers überschreitet.
-      $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdcad;
-      $iOpen  = round($open);
+      $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdcad * 100000;
+      $iOpen  = round($open * 100000);
 
       $audusd = $AUDUSD[$i]['close'];
       $eurusd = $EURUSD[$i]['close'];
@@ -287,8 +287,8 @@ function calculateCADLFX($day, array $symbols) {
       $usdcad = $USDCAD[$i]['close'];
       $usdchf = $USDCHF[$i]['close'];
       $usdjpy = $USDJPY[$i]['close'];
-      $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdcad;
-      $iClose = round($close);
+      $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdcad * 100000;
+      $iClose = round($close * 100000);
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
@@ -333,8 +333,8 @@ function calculateCHFLFX($day, array $symbols) {
       $usdcad = $USDCAD[$i]['open'];                                 // Die Divisionen müssen vor den Multiplikationen erfolgen, da die
       $usdchf = $USDCHF[$i]['open'];                                 // Multiplikation der MyFX-Ganzzahlen den Zahlenbereich eines
       $usdjpy = $USDJPY[$i]['open'];                                 // Integers überschreitet.
-      $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdchf;
-      $iOpen  = round($open);
+      $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdchf * 100000;
+      $iOpen  = round($open * 100000);
 
       $audusd = $AUDUSD[$i]['close'];
       $eurusd = $EURUSD[$i]['close'];
@@ -342,8 +342,8 @@ function calculateCHFLFX($day, array $symbols) {
       $usdcad = $USDCAD[$i]['close'];
       $usdchf = $USDCHF[$i]['close'];
       $usdjpy = $USDJPY[$i]['close'];
-      $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdchf;
-      $iClose = round($close);
+      $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdchf * 100000;
+      $iClose = round($close * 100000);
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
