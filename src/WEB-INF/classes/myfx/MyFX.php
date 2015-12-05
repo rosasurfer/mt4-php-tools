@@ -454,4 +454,6 @@ MyFX::$fxIndizesHistoryStart_M1 = array('AUDLFX' => strToTime('2003-08-03 00:00:
                                         'JPYLFX' => strToTime('2003-08-03 00:00:00 GMT'),
                                         'NZDLFX' => strToTime('2003-08-03 00:00:00 GMT'),
                                         'USDLFX' => strToTime('2003-08-03 00:00:00 GMT'),
+
+                                        'USDX'   => strToTime('2003-08-04 00:00:00 GMT'),
 );

@@ -527,9 +527,9 @@ function processRawDukascopyData($data, $symbol, $day, $type) {
       $firstBar = $bars[$newDayOffset];
       if ($lastBar['interest']!=0 || $firstBar['interest']==0) {
          echoPre('[Warn]    '.$shortDate.'   bar interest mis-match during DST change.');
-         echoPre('Sunday of DST change ended with:');
+         echoPre('Day of DST change ('.date('D, d-M-Y', $lastBar['time_fxt']).') ended with:');
          echoPre($bars[$newDayOffset-1]);
-         echoPre('Monday after DST change starts with:');
+         echoPre('Day after DST change ('.date('D, d-M-Y', $firstBar['time_fxt']).') started with:');
          echoPre($bars[$newDayOffset]);
       }
    }
