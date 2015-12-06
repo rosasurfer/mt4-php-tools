@@ -232,10 +232,6 @@ function calculateAUDFX6($day, array $symbols) {
       $open   = pow(($usdcad/$eurusd) * ($usdchf/$gbpusd) * ($usdjpy/1000), 1/6) * $audusd;
       $iOpen  = round($open);
 
-      echoPre('audfx6 = '.($open/100000));
-      exit();
-
-
       $audusd = $AUDUSD[$i]['close'];
       $eurusd = $EURUSD[$i]['close'];
       $gbpusd = $GBPUSD[$i]['close'];
