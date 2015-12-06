@@ -4,11 +4,13 @@
  * Aktualisiert die MyFX-M1-History der angegebenen FX-Indizes. Nach Möglichkeit werden zur Berechnung vorhandene Tickdaten benutzt.
  *
  * Unterstützte Instrumente:
- *    • LFX-Indizes:    LiteForex-Formel (JPYLFX normalisiert und nicht gespiegelt), sind bis auf NZDLFX verzerrte FX6-Indizes
+ *    • LFX-Indizes:    LiteForex-Formel (JPYLFX normalisiert und nicht gespiegelt), sind bis auf NZDLFX gestauchte FX6-Indizes
  *    • EURX:           ICE-Formel
  *    • USDX:           ICE-Formel
  *
- *    • FX6-Indizes:    AUDFX6, CADFX6, CHFFX6, EURFX6, GBPFX6, JPYFX6 (normalisiert), USDFX6
+ *    • FX6-Indizes:    USDFX6
+ *
+ *    • FX6-Indizes:    AUDFX6, CADFX6, CHFFX6, EURFX6, GBPFX6, JPYFX6 (normalisiert)
  *    • FX7-Indizes:    AUDFX7, CADFX7, CHFFX7, EURFX7, GBPFX7, JPYFX7 (normalisiert), USDFX7, NZDFX7=NZDLFX
  *    • SEKFX7, SEKFX8: SEK gegen USDFX6 bzw. USDFX7
  *    • NOKFX7, NOKFX8: NOK gegen USDFX6 bzw. USDFX7
@@ -36,6 +38,8 @@ $indizes['GBPLFX'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'US
 $indizes['JPYLFX'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY');
 $indizes['NZDLFX'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD');
 $indizes['USDLFX'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY');
+
+$indizes['USDFX6'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY');
 
 $indizes['EURX'  ] = array('EURUSD', 'GBPUSD', 'USDCHF', 'USDJPY', 'USDSEK');
 $indizes['USDX'  ] = array('EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'USDSEK');
@@ -141,6 +145,10 @@ function createIndex($index) {
  * @param  array $symbols - Array mit den Daten der beteiligten Instrumente für diesen Tag
  *
  * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
+ *
+ * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ *
+ *         Formel: USDFX6 = ((USDCAD * USDCHF * USDJPY) / (AUDUSD * EURUSD * GBPUSD)) ^ 1/6
  */
 function calculateUSDFX6($day, array $symbols) {
    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
@@ -161,9 +169,9 @@ function calculateUSDFX6($day, array $symbols) {
       $audusd = $AUDUSD[$i]['open'];
       $eurusd = $EURUSD[$i]['open'];
       $gbpusd = $GBPUSD[$i]['open'];
-      $usdcad = $USDCAD[$i]['open'];                                 // Die Divisionen müssen vor den Multiplikationen erfolgen, da die
-      $usdchf = $USDCHF[$i]['open'];                                 // Multiplikation der MyFX-Ganzzahlen den Zahlenbereich eines
-      $usdjpy = $USDJPY[$i]['open'];                                 // 32bit-Integers überschreitet.
+      $usdcad = $USDCAD[$i]['open'];
+      $usdchf = $USDCHF[$i]['open'];
+      $usdjpy = $USDJPY[$i]['open'];
       $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/6);
       $iOpen  = round($open * 100000);
 
@@ -195,7 +203,10 @@ function calculateUSDFX6($day, array $symbols) {
  *
  * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
  *
- * @see    Formel: MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ *
+ *         Formel: AUDLFX = ((AUDCAD * AUDCHF * AUDJPY * AUDUSD) / (EURAUD * GBPAUD)) ^ 1/7
+ *           oder: AUDLFX = USDLFX * AUDUSD
  */
 function calculateAUDLFX($day, array $symbols) {
    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
@@ -216,9 +227,9 @@ function calculateAUDLFX($day, array $symbols) {
       $audusd = $AUDUSD[$i]['open'];
       $eurusd = $EURUSD[$i]['open'];
       $gbpusd = $GBPUSD[$i]['open'];
-      $usdcad = $USDCAD[$i]['open'];                                 // Die Divisionen müssen vor den Multiplikationen erfolgen, da die
-      $usdchf = $USDCHF[$i]['open'];                                 // Multiplikation der MyFX-Ganzzahlen den Zahlenbereich eines
-      $usdjpy = $USDJPY[$i]['open'];                                 // 32bit-Integers überschreitet.
+      $usdcad = $USDCAD[$i]['open'];
+      $usdchf = $USDCHF[$i]['open'];
+      $usdjpy = $USDJPY[$i]['open'];
       $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) * $audusd;
       $iOpen  = round($open);
 
@@ -250,7 +261,10 @@ function calculateAUDLFX($day, array $symbols) {
  *
  * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
  *
- * @see    Formel: MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ *
+ *         Formel: CADLFX = ((CADCHF * CADJPY) / (AUDCAD * EURCAD * GBPCAD * USDCAD)) ^ 1/7
+ *           oder: CADLFX = USDLFX / USDCAD
  */
 function calculateCADLFX($day, array $symbols) {
    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
@@ -271,9 +285,9 @@ function calculateCADLFX($day, array $symbols) {
       $audusd = $AUDUSD[$i]['open'];
       $eurusd = $EURUSD[$i]['open'];
       $gbpusd = $GBPUSD[$i]['open'];
-      $usdcad = $USDCAD[$i]['open'];                                 // Die Divisionen müssen vor den Multiplikationen erfolgen, da die
-      $usdchf = $USDCHF[$i]['open'];                                 // Multiplikation der MyFX-Ganzzahlen den Zahlenbereich eines
-      $usdjpy = $USDJPY[$i]['open'];                                 // 32bit-Integers überschreitet.
+      $usdcad = $USDCAD[$i]['open'];
+      $usdchf = $USDCHF[$i]['open'];
+      $usdjpy = $USDJPY[$i]['open'];
       $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdcad * 100000;
       $iOpen  = round($open * 100000);
 
@@ -305,7 +319,10 @@ function calculateCADLFX($day, array $symbols) {
  *
  * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
  *
- * @see    Formel: MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ *
+ *         Formel: CHFLFX = (CHFJPY / (AUDCHF * CADCHF * EURCHF * GBPCHF * USDCHF)) ^ 1/7
+ *           oder: CHFLFX = UDLFX / USDCHF
  */
 function calculateCHFLFX($day, array $symbols) {
    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
@@ -326,9 +343,9 @@ function calculateCHFLFX($day, array $symbols) {
       $audusd = $AUDUSD[$i]['open'];
       $eurusd = $EURUSD[$i]['open'];
       $gbpusd = $GBPUSD[$i]['open'];
-      $usdcad = $USDCAD[$i]['open'];                                 // Die Divisionen müssen vor den Multiplikationen erfolgen, da die
-      $usdchf = $USDCHF[$i]['open'];                                 // Multiplikation der MyFX-Ganzzahlen den Zahlenbereich eines
-      $usdjpy = $USDJPY[$i]['open'];                                 // Integers überschreitet.
+      $usdcad = $USDCAD[$i]['open'];
+      $usdchf = $USDCHF[$i]['open'];
+      $usdjpy = $USDJPY[$i]['open'];
       $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdchf * 100000;
       $iOpen  = round($open * 100000);
 
@@ -360,7 +377,10 @@ function calculateCHFLFX($day, array $symbols) {
  *
  * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
  *
- * @see    Formel: MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ *
+ *         Formel: EURLFX = (EURAUD * EURCAD * EURCHF * EURGBP * EURJPY * EURUSD) ^ 1/7
+ *           oder: EURLFX = USDLFX * EURUSD
  */
 function calculateEURLFX($day, array $symbols) {
    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
@@ -381,9 +401,9 @@ function calculateEURLFX($day, array $symbols) {
       $audusd = $AUDUSD[$i]['open'];
       $eurusd = $EURUSD[$i]['open'];
       $gbpusd = $GBPUSD[$i]['open'];
-      $usdcad = $USDCAD[$i]['open'];                                 // Die Divisionen müssen vor den Multiplikationen erfolgen, da die
-      $usdchf = $USDCHF[$i]['open'];                                 // Multiplikation der MyFX-Ganzzahlen den Zahlenbereich eines
-      $usdjpy = $USDJPY[$i]['open'];                                 // 32bit-Integers überschreitet.
+      $usdcad = $USDCAD[$i]['open'];
+      $usdchf = $USDCHF[$i]['open'];
+      $usdjpy = $USDJPY[$i]['open'];
       $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) * $eurusd;
       $iOpen  = round($open);
 
@@ -415,7 +435,10 @@ function calculateEURLFX($day, array $symbols) {
  *
  * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
  *
- * @see    Formel: MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ *
+ *         Formel: GBPLFX = ((GBPAUD * GBPCAD * GBPCHF * GBPJPY * GBPUSD) / EURGBP) ^ 1/7
+ *           oder: GBPLFX = USDLFX * GBPUSD
  */
 function calculateGBPLFX($day, array $symbols) {
    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
@@ -436,9 +459,9 @@ function calculateGBPLFX($day, array $symbols) {
       $audusd = $AUDUSD[$i]['open'];
       $eurusd = $EURUSD[$i]['open'];
       $gbpusd = $GBPUSD[$i]['open'];
-      $usdcad = $USDCAD[$i]['open'];                                 // Die Divisionen müssen vor den Multiplikationen erfolgen, da die
-      $usdchf = $USDCHF[$i]['open'];                                 // Multiplikation der MyFX-Ganzzahlen den Zahlenbereich eines
-      $usdjpy = $USDJPY[$i]['open'];                                 // 32bit-Integers überschreitet.
+      $usdcad = $USDCAD[$i]['open'];
+      $usdchf = $USDCHF[$i]['open'];
+      $usdjpy = $USDJPY[$i]['open'];
       $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) * $gbpusd;
       $iOpen  = round($open);
 
@@ -470,7 +493,10 @@ function calculateGBPLFX($day, array $symbols) {
  *
  * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
  *
- * @see    Formel: MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ *
+ *         Formel: JPYLFX = 100 * (1 / (AUDJPY * CADJPY * CHFJPY * EURJPY * GBPJPY * USDJPY)) ^ 1/7
+ *           oder: JPYLFX = 100 * USDLFX / USDJPY
  */
 function calculateJPYLFX($day, array $symbols) {
    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
@@ -491,9 +517,9 @@ function calculateJPYLFX($day, array $symbols) {
       $audusd = $AUDUSD[$i]['open'];
       $eurusd = $EURUSD[$i]['open'];
       $gbpusd = $GBPUSD[$i]['open'];
-      $usdcad = $USDCAD[$i]['open'];                                 // Die Divisionen müssen vor den Multiplikationen erfolgen, da die
-      $usdchf = $USDCHF[$i]['open'];                                 // Multiplikation der MyFX-Ganzzahlen den Zahlenbereich eines
-      $usdjpy = $USDJPY[$i]['open'];                                 // 32bit-Integers überschreitet.
+      $usdcad = $USDCAD[$i]['open'];
+      $usdchf = $USDCHF[$i]['open'];
+      $usdjpy = $USDJPY[$i]['open'];
       $open   = 100 * pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdjpy * 1000;
       $iOpen  = round($open * 100000);
 
@@ -525,7 +551,10 @@ function calculateJPYLFX($day, array $symbols) {
  *
  * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
  *
- * @see    Formel: MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ *
+ *         Formel: NZDLFX = ((NZDCAD * NZDCHF * NZDJPY * NZDUSD) / (AUDNZD * EURNZD * GBPNZD)) ^ 1/7
+ *           oder: NZDLFX = USDLFX * NZDUSD
  */
 function calculateNZDLFX($day, array $symbols) {
    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
@@ -548,9 +577,9 @@ function calculateNZDLFX($day, array $symbols) {
       $eurusd = $EURUSD[$i]['open'];
       $gbpusd = $GBPUSD[$i]['open'];
       $usdcad = $USDCAD[$i]['open'];
-      $usdchf = $USDCHF[$i]['open'];                                 // Die Divisionen müssen vor den Multiplikationen erfolgen, da die
-      $usdjpy = $USDJPY[$i]['open'];                                 // Multiplikation der MyFX-Ganzzahlen den Zahlenbereich eines
-      $nzdusd = $NZDUSD[$i]['open'];                                 // 32bit-Integers überschreitet.
+      $usdchf = $USDCHF[$i]['open'];
+      $usdjpy = $USDJPY[$i]['open'];
+      $nzdusd = $NZDUSD[$i]['open'];
       $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) * $nzdusd;
       $iOpen  = round($open);
 
@@ -583,7 +612,9 @@ function calculateNZDLFX($day, array $symbols) {
  *
  * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
  *
- * @see    Formel: MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ *
+ *         Formel: USDLFX = ((USDCAD * USDCHF * USDJPY) / (AUDUSD * EURUSD * GBPUSD)) ^ 1/7
  */
 function calculateUSDLFX($day, array $symbols) {
    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
@@ -604,9 +635,9 @@ function calculateUSDLFX($day, array $symbols) {
       $audusd = $AUDUSD[$i]['open'];
       $eurusd = $EURUSD[$i]['open'];
       $gbpusd = $GBPUSD[$i]['open'];
-      $usdcad = $USDCAD[$i]['open'];                                 // Die Divisionen müssen vor den Multiplikationen erfolgen, da die
-      $usdchf = $USDCHF[$i]['open'];                                 // Multiplikation der MyFX-Ganzzahlen den Zahlenbereich eines
-      $usdjpy = $USDJPY[$i]['open'];                                 // 32bit-Integers überschreitet.
+      $usdcad = $USDCAD[$i]['open'];
+      $usdchf = $USDCHF[$i]['open'];
+      $usdjpy = $USDJPY[$i]['open'];
       $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7);
       $iOpen  = round($open * 100000);
 
@@ -638,7 +669,9 @@ function calculateUSDLFX($day, array $symbols) {
  *
  * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
  *
- * @see    Formel: MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ *
+ *         Formel: EURX = 34.38805726 * EURCHF^0.1113 * EURGBP^0.3056 * EURJPY^0.1891 * EURSEK^0.0785 * EURUSD^0.3155
  */
 function calculateEURX($day, array $symbols) {
    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
@@ -661,9 +694,9 @@ function calculateEURX($day, array $symbols) {
       $usdjpy = $USDJPY[$i]['open'];
       $usdsek = $USDSEK[$i]['open'];
       $open   = 34.38805726
-              * pow($eurusd/100000 * $usdchf/100000, 0.1113)         // Die Divisionen müssen einzeln erfolgen, da der Teiler bei
-              * pow($eurusd        / $gbpusd       , 0.3056)         // gemeinsamer Division den Zahlenbereich eines 32bit-Integers
-              * pow($eurusd/100000 * $usdjpy/1000  , 0.1891)         // überschreitet.
+              * pow($eurusd/100000 * $usdchf/100000, 0.1113)
+              * pow($eurusd        / $gbpusd       , 0.3056)
+              * pow($eurusd/100000 * $usdjpy/1000  , 0.1891)
               * pow($eurusd/100000 * $usdsek/100000, 0.0785)
               * pow($eurusd/100000                 , 0.3155);
       $iOpen  = round($open * 1000);
@@ -700,7 +733,9 @@ function calculateEURX($day, array $symbols) {
  *
  * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
  *
- * @see    Formel: MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ *
+ *         Formel: USDX = 50.14348112 * (USDCAD^0.091 * USDCHF^0.036 * USDJPY^0.136 * USDSEK^0.042) / (EURUSD^0.576 * GBPUSD^0.119)
  */
 function calculateUSDX($day, array $symbols) {
    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
