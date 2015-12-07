@@ -10,7 +10,7 @@
  *    • FX6-Indizes:    AUDFX6, CADFX6, CHFFX6, USDFX6
  *
  *    • FX6-Indizes:    EURFX6, GBPFX6, JPYFX6 (normalisiert)
- *    • FX7-Indizes:    AUDFX7, CADFX7, CHFFX7, EURFX7, GBPFX7, JPYFX7 (normalisiert), USDFX7, NZDFX7=NZDLFX
+ *    • FX7-Indizes:    AUDFX7, CADFX7, CHFFX7, EURFX7, GBPFX7, JPYFX7 (normalisiert), USDFX7, NZDFX7 = NZDLFX
  *    • SEKFX7, SEKFX8: SEK vs USDFX6 bzw. USDFX7
  *    • NOKFX7, NOKFX8: NOK vs USDFX6 bzw. USDFX7
  *
