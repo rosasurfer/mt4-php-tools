@@ -291,9 +291,6 @@ function calculateCHFFX6($day, array $symbols) {
       $open   = pow(($usdcad/$audusd) * ($usdjpy/$eurusd) * (100000/$gbpusd) * 100, 1/6) / $usdchf * 100000;
       $iOpen  = round($open * 100000);
 
-      echoPre('CHFFX6 = '.$open);
-      exit();
-
       $audusd = $AUDUSD[$i]['close'];
       $eurusd = $EURUSD[$i]['close'];
       $gbpusd = $GBPUSD[$i]['close'];
