@@ -348,18 +348,13 @@ function calculateCADFX6($day, array $symbols) {
       $open   = pow(($usdchf/$audusd) * ($usdjpy/$eurusd) * (100000/$gbpusd) * 100, 1/6) / $usdcad * 100000;
       $iOpen  = round($open * 100000);
 
-      echoPre('CADFX6 = '. $open);
-      exit();
-
-
-
       $audusd = $AUDUSD[$i]['close'];
       $eurusd = $EURUSD[$i]['close'];
       $gbpusd = $GBPUSD[$i]['close'];
       $usdcad = $USDCAD[$i]['close'];
       $usdchf = $USDCHF[$i]['close'];
       $usdjpy = $USDJPY[$i]['close'];
-      $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdcad * 100000;
+      $close  = pow(($usdchf/$audusd) * ($usdjpy/$eurusd) * (100000/$gbpusd) * 100, 1/6) / $usdcad * 100000;
       $iClose = round($close * 100000);
 
       $index[$i]['time' ] = $bar['time'];
