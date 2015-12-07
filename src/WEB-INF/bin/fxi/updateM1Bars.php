@@ -11,8 +11,8 @@
  *
  *    ï FX6-Indizes:    EURFX6, GBPFX6, JPYFX6 (normalisiert)
  *    ï FX7-Indizes:    AUDFX7, CADFX7, CHFFX7, EURFX7, GBPFX7, JPYFX7 (normalisiert), USDFX7, NZDFX7=NZDLFX
- *    ï SEKFX7, SEKFX8: SEK gegen USDFX6 bzw. USDFX7
- *    ï NOKFX7, NOKFX8: NOK gegen USDFX6 bzw. USDFX7
+ *    ï SEKFX7, SEKFX8: SEK vs USDFX6 bzw. USDFX7
+ *    ï NOKFX7, NOKFX8: NOK vs USDFX6 bzw. USDFX7
  *
  *
  * Note: Zur Zeit wird als Datenquelle ausschlieﬂlich Dukascopy benutzt.
