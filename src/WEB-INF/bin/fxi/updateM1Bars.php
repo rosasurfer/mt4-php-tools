@@ -7,9 +7,7 @@
  *    • LFX-Indizes:    LiteForex-Formel (JPYLFX normalisiert und nicht gespiegelt), sind bis auf NZDLFX gestauchte FX6-Indizes
  *    • EURX:           ICE-Formel
  *    • USDX:           ICE-Formel
- *    • FX6-Indizes:    AUDFX6, CADFX6, CHFFX6, USDFX6
- *
- *                      EURFX6
+ *    • FX6-Indizes:    AUDFX6, CADFX6, CHFFX6, EURFX6, USDFX6
  *
  *    • FX6-Indizes:    GBPFX6, JPYFX6 (normalisiert)
  *    • FX7-Indizes:    AUDFX7, CADFX7, CHFFX7, EURFX7, GBPFX7, JPYFX7 (normalisiert), USDFX7, NZDFX7 = NZDLFX
