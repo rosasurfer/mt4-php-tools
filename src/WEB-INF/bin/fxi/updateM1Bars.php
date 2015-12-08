@@ -412,7 +412,7 @@ function calculateGBPFX6($day, array $symbols) {
       $usdcad = $USDCAD[$i]['close'];
       $usdchf = $USDCHF[$i]['close'];
       $usdjpy = $USDJPY[$i]['close'];
-      $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) * $gbpusd;
+      $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/1000), 1/6) * $gbpusd;
       $iClose = round($close);
 
       $index[$i]['time' ] = $bar['time'];
