@@ -4,7 +4,7 @@
  * Aktualisiert die MyFX-M1-History der angegebenen FX-Indizes. Nach Möglichkeit werden zur Berechnung vorhandene Tickdaten benutzt.
  *
  * Unterstützte Instrumente:
- *    • LFX-Indizes:    LiteForex-Formel (JPYLFX normalisiert und nicht gespiegelt), sind bis auf NZDLFX gestauchte FX6-Indizes
+ *    • LFX-Indizes:    LiteForex-Formel (JPYLFX normalisiert, nicht gespiegelt), sind bis auf NZDLFX gestauchte FX6-Indizes
  *    • EURX:           ICE-Formel
  *    • USDX:           ICE-Formel
  *    • FX6-Indizes:    AUDFX6, CADFX6, CHFFX6, EURFX6, USDFX6
