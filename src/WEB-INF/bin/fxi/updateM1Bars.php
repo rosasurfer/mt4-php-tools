@@ -5,11 +5,10 @@
  *
  * Unterstützte Instrumente:
  *    • LFX-Indizes:    LiteForex-Formel (JPYLFX normalisiert, nicht gespiegelt), sind bis auf NZDLFX gestauchte FX6-Indizes
- *    • EURX:           ICE-Formel
- *    • USDX:           ICE-Formel
- *    • FX6-Indizes:    AUDFX6, CADFX6, CHFFX6, EURFX6, USDFX6
+ *    • ICE-Indizes:    EURX, USDX
+ *    • FX6-Indizes:    AUDFX6, CADFX6, CHFFX6, EURFX6, GBPFX6, USDFX6
  *
- *    • FX6-Indizes:    GBPFX6, JPYFX6 (normalisiert)
+ *    • FX6-Indizes:    JPYFX6 (normalisiert)
  *    • FX7-Indizes:    AUDFX7, CADFX7, CHFFX7, EURFX7, GBPFX7, JPYFX7 (normalisiert), USDFX7, NZDFX7 = NZDLFX
  *    • SEKFX7, SEKFX8: SEK vs USDFX6 bzw. USDFX7
  *    • NOKFX7, NOKFX8: NOK vs USDFX6 bzw. USDFX7
@@ -42,6 +41,7 @@ $indizes['AUDFX6'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'US
 $indizes['CADFX6'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY');
 $indizes['CHFFX6'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY');
 $indizes['EURFX6'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY');
+$indizes['GBPFX6'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY');
 $indizes['USDFX6'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY');
 
 $indizes['EURX'  ] = array('EURUSD', 'GBPUSD', 'USDCHF', 'USDJPY', 'USDSEK');
@@ -356,6 +356,63 @@ function calculateEURFX6($day, array $symbols) {
       $usdchf = $USDCHF[$i]['close'];
       $usdjpy = $USDJPY[$i]['close'];
       $close  = pow(($usdcad/$audusd) * ($usdchf/$gbpusd) * ($usdjpy/1000), 1/6) * $eurusd;
+      $iClose = round($close);
+
+      $index[$i]['time' ] = $bar['time'];
+      $index[$i]['open' ] = $iOpen;
+      $index[$i]['high' ] = max($iOpen, $iClose);
+      $index[$i]['low'  ] = min($iOpen, $iClose);
+      $index[$i]['close'] = $iClose;
+      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
+   }
+   return $index;
+}
+
+
+/**
+ * Berechnet für die übergebenen Daten den GBPFX6-Index.
+ *
+ * @param  int   $day     - Tag der zu berechnenden Daten
+ * @param  array $symbols - Array mit den Daten der beteiligten Instrumente für diesen Tag
+ *
+ * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
+ *
+ * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ *
+ *         Formel: GBPFX6 = ((GBPAUD * GBPCAD * GBPCHF * GBPJPY * GBPUSD) / EURGBP) ^ 1/6
+ */
+function calculateGBPFX6($day, array $symbols) {
+   if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
+   $shortDate = date('D, d-M-Y', $day);
+
+   global $verbose;
+   if ($verbose > 1) echoPre('[Info]    GBPFX6  '.$shortDate);
+
+   $AUDUSD = $symbols['AUDUSD']['bars'];
+   $EURUSD = $symbols['EURUSD']['bars'];
+   $GBPUSD = $symbols['GBPUSD']['bars'];
+   $USDCAD = $symbols['USDCAD']['bars'];
+   $USDCHF = $symbols['USDCHF']['bars'];
+   $USDJPY = $symbols['USDJPY']['bars'];
+   $index  = array();
+
+   foreach ($AUDUSD as $i => $bar) {
+      $audusd = $AUDUSD[$i]['open'];
+      $eurusd = $EURUSD[$i]['open'];
+      $gbpusd = $GBPUSD[$i]['open'];
+      $usdcad = $USDCAD[$i]['open'];
+      $usdchf = $USDCHF[$i]['open'];
+      $usdjpy = $USDJPY[$i]['open'];
+      $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/1000), 1/6) * $gbpusd;
+      $iOpen  = round($open);
+
+      $audusd = $AUDUSD[$i]['close'];
+      $eurusd = $EURUSD[$i]['close'];
+      $gbpusd = $GBPUSD[$i]['close'];
+      $usdcad = $USDCAD[$i]['close'];
+      $usdchf = $USDCHF[$i]['close'];
+      $usdjpy = $USDJPY[$i]['close'];
+      $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) * $gbpusd;
       $iClose = round($close);
 
       $index[$i]['time' ] = $bar['time'];
