@@ -4,11 +4,11 @@
  * Aktualisiert die MyFX-M1-History der angegebenen FX-Indizes. Nach Möglichkeit werden zur Berechnung vorhandene Tickdaten benutzt.
  *
  * Unterstützte Instrumente:
- *    • LFX-Indizes:    LiteForex (sind bis auf NZDLFX gestauchte FX6-Indizes)
+ *    • LFX-Indizes:    LiteForex (sind bis auf NZDLFX gestauchte FX6-Indizes, NZDLFX = NZDFX7)
  *    • ICE-Indizes:    EURX, USDX
  *    • FX6-Indizes:    AUDFX6, CADFX6, CHFFX6, EURFX6, GBPFX6, JPYFX6, USDFX6
  *
- *    • FX7-Indizes:    AUDFX7, CADFX7, CHFFX7, EURFX7, GBPFX7, JPYFX7, USDFX7, NZDFX7 = NZDLFX
+ *    • FX7-Indizes:    AUDFX7, CADFX7, CHFFX7, EURFX7, GBPFX7, JPYFX7, USDFX7, NZDFX7
  *    • SEKFX7, SEKFX8: SEK vs USDFX6 bzw. USDFX7
  *    • NOKFX7, NOKFX8: NOK vs USDFX6 bzw. USDFX7
  *
@@ -43,6 +43,15 @@ $indizes['EURFX6'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'US
 $indizes['GBPFX6'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY');
 $indizes['JPYFX6'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY');
 $indizes['USDFX6'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY');
+
+$indizes['AUDFX7'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD');
+$indizes['CADFX7'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD');
+$indizes['CHFFX7'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD');
+$indizes['EURFX7'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD');
+$indizes['GBPFX7'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD');
+$indizes['JPYFX7'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD');
+$indizes['NZDFX7'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD');
+$indizes['USDFX7'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD');
 
 $indizes['EURX'  ] = array('EURUSD', 'GBPUSD', 'USDCHF', 'USDJPY', 'USDSEK');
 $indizes['USDX'  ] = array('EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'USDSEK');
@@ -185,6 +194,66 @@ function calculateAUDFX6($day, array $symbols) {
       $usdchf = $USDCHF[$i]['close'];
       $usdjpy = $USDJPY[$i]['close'];
       $close  = pow(($usdcad/$eurusd) * ($usdchf/$gbpusd) * ($usdjpy/1000), 1/6) * $audusd;
+      $iClose = round($close);
+
+      $index[$i]['time' ] = $bar['time'];
+      $index[$i]['open' ] = $iOpen;
+      $index[$i]['high' ] = max($iOpen, $iClose);
+      $index[$i]['low'  ] = min($iOpen, $iClose);
+      $index[$i]['close'] = $iClose;
+      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
+   }
+   return $index;
+}
+
+
+/**
+ * Berechnet für die übergebenen Daten den AUDFX7-Index.
+ *
+ * @param  int   $day     - Tag der zu berechnenden Daten
+ * @param  array $symbols - Array mit den Daten der beteiligten Instrumente für diesen Tag
+ *
+ * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
+ *
+ * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ *
+ *         Formel: AUDFX7 = ((AUDCAD * AUDCHF * AUDJPY * AUDNZD * AUDUSD ) / (EURAUD * GBPAUD)) ^ 1/7
+ */
+function calculateAUDFX7($day, array $symbols) {
+   if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
+   $shortDate = date('D, d-M-Y', $day);
+
+   global $verbose;
+   if ($verbose > 1) echoPre('[Info]    AUDFX7  '.$shortDate);
+
+   $AUDUSD = $symbols['AUDUSD']['bars'];
+   $EURUSD = $symbols['EURUSD']['bars'];
+   $GBPUSD = $symbols['GBPUSD']['bars'];
+   $NZDUSD = $symbols['NZDUSD']['bars'];
+   $USDCAD = $symbols['USDCAD']['bars'];
+   $USDCHF = $symbols['USDCHF']['bars'];
+   $USDJPY = $symbols['USDJPY']['bars'];
+   $index  = array();
+
+   foreach ($AUDUSD as $i => $bar) {
+      $audusd = $AUDUSD[$i]['open'];
+      $eurusd = $EURUSD[$i]['open'];
+      $gbpusd = $GBPUSD[$i]['open'];
+      $nzdusd = $NZDUSD[$i]['open'];
+      $usdcad = $USDCAD[$i]['open'];
+      $usdchf = $USDCHF[$i]['open'];
+      $usdjpy = $USDJPY[$i]['open'];
+      $open   = pow(($usdcad/$eurusd) * ($usdchf/$gbpusd) * ($usdjpy/$nzdusd), 1/7) * $audusd;
+      $iOpen  = round($open);
+
+      $audusd = $AUDUSD[$i]['close'];
+      $eurusd = $EURUSD[$i]['close'];
+      $gbpusd = $GBPUSD[$i]['close'];
+      $nzdusd = $NZDUSD[$i]['close'];
+      $usdcad = $USDCAD[$i]['close'];
+      $usdchf = $USDCHF[$i]['close'];
+      $usdjpy = $USDJPY[$i]['close'];
+      $close  = pow(($usdcad/$eurusd) * ($usdchf/$gbpusd) * ($usdjpy/$nzdusd), 1/7) * $audusd;
       $iClose = round($close);
 
       $index[$i]['time' ] = $bar['time'];

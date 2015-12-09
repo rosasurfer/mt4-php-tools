@@ -463,6 +463,15 @@ MyFX::$fxIndizesHistoryStart_M1 = array('AUDLFX' => strToTime('2003-08-03 00:00:
                                         'JPYFX6' => strToTime('2003-08-03 00:00:00 GMT'),
                                         'USDFX6' => strToTime('2003-08-03 00:00:00 GMT'),
 
+                                        'AUDFX7' => strToTime('2003-08-03 00:00:00 GMT'),
+                                        'CADFX7' => strToTime('2003-08-03 00:00:00 GMT'),
+                                        'CHFFX7' => strToTime('2003-08-03 00:00:00 GMT'),
+                                        'EURFX7' => strToTime('2003-08-03 00:00:00 GMT'),
+                                        'GBPFX7' => strToTime('2003-08-03 00:00:00 GMT'),
+                                        'JPYFX7' => strToTime('2003-08-03 00:00:00 GMT'),
+                                        'NZDFX7' => strToTime('2003-08-03 00:00:00 GMT'),
+                                        'USDFX7' => strToTime('2003-08-03 00:00:00 GMT'),
+
                                         'EURX'   => strToTime('2003-08-04 00:00:00 GMT'),
                                         'USDX'   => strToTime('2003-08-04 00:00:00 GMT'),
 );
