@@ -7,9 +7,8 @@
  *    • LFX-Indizes:    LiteForex (sind bis auf NZDLFX gestauchte FX6-Indizes, NZDLFX = NZDFX7)
  *    • ICE-Indizes:    EURX, USDX
  *    • FX6-Indizes:    AUDFX6, CADFX6, CHFFX6, EURFX6, GBPFX6, JPYFX6, USDFX6
- *    • FX7-Indizes:    AUDFX7, CADFX7, CHFFX7, EURFX7, GBPFX7, JPYFX7, USDFX7
+ *    • FX7-Indizes:    AUDFX7, CADFX7, CHFFX7, EURFX7, GBPFX7, JPYFX7, USDFX7, NZDFX7
  *
- *    • FX7-Indizes:    NZDFX7
  *    • SEKFX7, SEKFX8: SEK vs USDFX6 bzw. USDFX7
  *    • NOKFX7, NOKFX8: NOK vs USDFX6 bzw. USDFX7
  *
@@ -1319,10 +1318,11 @@ function calculateJPYLFX($day, array $symbols) {
 
 
 /**
- * Berechnet für die übergebenen Daten den NZDLFX-Index. Die zugrundeliegende LiteForex-Formel ist falsch.
+ * Berechnet für die übergebenen Daten den NZDLFX-Index. Dieser Index entspricht dem NZDFX7.
  *
- * @param  int   $day     - Tag der zu berechnenden Daten
- * @param  array $symbols - Array mit den Daten der beteiligten Instrumente für diesen Tag
+ * @param  int    $day     - Tag der zu berechnenden Daten
+ * @param  array  $symbols - Array mit den Daten der beteiligten Instrumente für diesen Tag
+ * @param  string $name    - optionaler Name (um die Funktion für NZDLFX und NZDFX7 benutzen zu können)
  *
  * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
  *
@@ -1331,12 +1331,12 @@ function calculateJPYLFX($day, array $symbols) {
  *         Formel: NZDLFX = ((NZDCAD * NZDCHF * NZDJPY * NZDUSD) / (AUDNZD * EURNZD * GBPNZD)) ^ 1/7
  *           oder: NZDLFX = USDLFX * NZDUSD
  */
-function calculateNZDLFX($day, array $symbols) {
+function calculateNZDLFX($day, array $symbols, $name='NZDLFX') {
    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
    $shortDate = date('D, d-M-Y', $day);
 
    global $verbose;
-   if ($verbose > 1) echoPre('[Info]    NZDLFX  '.$shortDate);
+   if ($verbose > 1) echoPre('[Info]    '.$name.'  '.$shortDate);
 
    $AUDUSD = $symbols['AUDUSD']['bars'];
    $EURUSD = $symbols['EURUSD']['bars'];
@@ -1376,6 +1376,23 @@ function calculateNZDLFX($day, array $symbols) {
       $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
    }
    return $index;
+}
+
+
+/**
+ * Berechnet für die übergebenen Daten den NZDFX7-Index.
+ *
+ * @param  int   $day     - Tag der zu berechnenden Daten
+ * @param  array $symbols - Array mit den Daten der beteiligten Instrumente für diesen Tag
+ *
+ * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
+ *
+ * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ *
+ *         Formel: NZDFX7 = ((NZDCAD * NZDCHF * NZDJPY * NZDUSD) / (AUDNZD * EURNZD * GBPNZD)) ^ 1/7
+ */
+function calculateNZDFX7($day, array $symbols) {
+   return calculateNZDLFX($day, $symbols, 'NZDFX7');
 }
 
 
