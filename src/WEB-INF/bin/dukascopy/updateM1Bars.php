@@ -127,7 +127,7 @@ function updateSymbol($symbol, $startTime) {
       }
       if (!checkHistory($symbol, $day)) return false;
    }
-   echoPre('[Ok]    '.$symbol);
+   echoPre('[Ok]      '.$symbol);
 
    return true;
 }
