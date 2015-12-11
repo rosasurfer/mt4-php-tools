@@ -5,9 +5,9 @@
  *
  * Unterstützte Instrumente:
  *    • ICE-Indizes:    EURX, USDX
- *    • LFX-Indizes:    LiteForex, sind bis auf NZDLFX (=NZDFX7) gestauchte FX6-Indizes
+ *    • LFX-Indizes:    LiteForex, sind bis auf NZDLFX gestauchte FX6-Indizes
  *    • FX6-Indizes:    AUDFX6, CADFX6, CHFFX6, EURFX6, GBPFX6, JPYFX6, USDFX6
- *    • FX7-Indizes:    AUDFX7, CADFX7, CHFFX7, EURFX7, GBPFX7, JPYFX7, USDFX7, NZDFX7, SEKFX7
+ *    • FX7-Indizes:    AUDFX7, CADFX7, CHFFX7, EURFX7, GBPFX7, JPYFX7, USDFX7, NZDFX7=NZDLFX, SEKFX7
  *
  *    • SEKFX8: SEK vs USDFX7
  *    • NOKFX7, NOKFX8: NOK vs USDFX6 bzw. USDFX7
