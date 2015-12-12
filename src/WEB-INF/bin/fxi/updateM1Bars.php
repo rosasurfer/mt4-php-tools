@@ -1398,6 +1398,23 @@ function calculateNZDFX7($day, array $symbols) {
 
 
 /**
+ * Berechnet für die übergebenen Daten den NOKFX7-Index.
+ *
+ * @param  int   $day     - Tag der zu berechnenden Daten
+ * @param  array $symbols - Array mit den Daten der beteiligten Instrumente für diesen Tag
+ *
+ * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
+ *
+ * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ *
+ *         Formel: NOKFX7 = (NOKAUD * NOKCAD * NOKCHF * NOKEUR * NOKGBP * NOKJPY * NOKUSD) ^ 1/7
+ *           oder: NOKFX7 = USDLFX * NOKUSD
+ */
+function calculateNOKFX7($day, array $symbols) {
+}
+
+
+/**
  * Berechnet für die übergebenen Daten den SEKFX7-Index.
  *
  * @param  int   $day     - Tag der zu berechnenden Daten
@@ -1407,7 +1424,7 @@ function calculateNZDFX7($day, array $symbols) {
  *
  * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
  *
- *         Formel: SEKFX7 = 10 * (SEKAUD * SEKCAD * SEKCHF * SEKEUR * SEKGBP * SEKJPY * SEKUSD) ^ 1/7
+ *         Formel: SEKFX7 = 10 * (SEKJPY / (AUDSEK * CADSEK * CHFSEK * EURSEK * GBPSEK * USDSEK)) ^ 1/7
  *           oder: SEKFX7 = 10 * USDLFX / USDSEK
  */
 function calculateSEKFX7($day, array $symbols) {
@@ -1455,6 +1472,23 @@ function calculateSEKFX7($day, array $symbols) {
       $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
    }
    return $index;
+}
+
+
+/**
+ * Berechnet für die übergebenen Daten den SGDFX7-Index.
+ *
+ * @param  int   $day     - Tag der zu berechnenden Daten
+ * @param  array $symbols - Array mit den Daten der beteiligten Instrumente für diesen Tag
+ *
+ * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
+ *
+ * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ *
+ *         Formel: SGDFX7 = (SGDJPY / (AUDSGD * CADSGD * CHFSGD * EURSGD * GBPSGD * USDSGD)) ^ 1/7
+ *           oder: SGDFX7 = USDLFX / USDSGD
+ */
+function calculateSGDFX7($day, array $symbols) {
 }
 
 
