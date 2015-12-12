@@ -50,9 +50,12 @@ $indizes['CHFFX7'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'US
 $indizes['EURFX7'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD');
 $indizes['GBPFX7'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD');
 $indizes['JPYFX7'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD');
+$indizes['USDFX7'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD');
+
+$indizes['NOKFX7'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'USDNOK');
 $indizes['NZDFX7'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD');
 $indizes['SEKFX7'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'USDSEK');
-$indizes['USDFX7'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD');
+$indizes['SGDFX7'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'USDSGD');
 
 $indizes['EURX'  ] = array('EURUSD', 'GBPUSD', 'USDCHF', 'USDJPY', 'USDSEK');
 $indizes['USDX'  ] = array('EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'USDSEK');
