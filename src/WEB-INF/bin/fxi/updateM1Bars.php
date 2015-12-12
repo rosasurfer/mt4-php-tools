@@ -1776,8 +1776,8 @@ function calculateUSDFX7($day, array $symbols) {
  *
  * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
  *
- *         Formel: ZARFX7 = 100 * (ZARJPY / (AUDZAR * CADZAR * CHFZAR * EURZAR * GBPZAR * USDZAR)) ^ 1/7
- *           oder: ZARFX7 = 100 * USDLFX / USDZAR
+ *         Formel: ZARFX7 = 10 * (ZARJPY / (AUDZAR * CADZAR * CHFZAR * EURZAR * GBPZAR * USDZAR)) ^ 1/7
+ *           oder: ZARFX7 = 10 * USDLFX / USDZAR
  */
 function calculateZARFX7($day, array $symbols) {
    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
@@ -1803,7 +1803,7 @@ function calculateZARFX7($day, array $symbols) {
       $usdchf = $USDCHF[$i]['open'];
       $usdjpy = $USDJPY[$i]['open'];
       $usdzar = $USDZAR[$i]['open'];
-      $open   = 100 * pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdzar * 100000;
+      $open   = 10 * pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdzar * 100000;
       $iOpen  = round($open * 100000);
 
       $audusd = $AUDUSD[$i]['close'];
@@ -1813,7 +1813,7 @@ function calculateZARFX7($day, array $symbols) {
       $usdchf = $USDCHF[$i]['close'];
       $usdjpy = $USDJPY[$i]['close'];
       $usdzar = $USDZAR[$i]['close'];
-      $close  = 100 * pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdzar * 100000;
+      $close  = 10 * pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdzar * 100000;
       $iClose = round($close * 100000);
 
       $index[$i]['time' ] = $bar['time'];
