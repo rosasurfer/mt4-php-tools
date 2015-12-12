@@ -1806,9 +1806,6 @@ function calculateZARFX7($day, array $symbols) {
       $open   = 100 * pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdzar * 100000;
       $iOpen  = round($open * 100000);
 
-      echoPre('ZARFX7 = '.$open);
-      exit();
-
       $audusd = $AUDUSD[$i]['close'];
       $eurusd = $EURUSD[$i]['close'];
       $gbpusd = $GBPUSD[$i]['close'];
