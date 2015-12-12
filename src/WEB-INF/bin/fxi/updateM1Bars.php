@@ -1483,6 +1483,50 @@ function calculateSEKFX7($day, array $symbols) {
  *           oder: SGDFX7 = USDLFX / USDSGD
  */
 function calculateSGDFX7($day, array $symbols) {
+   if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
+   $shortDate = date('D, d-M-Y', $day);
+
+   global $verbose;
+   if ($verbose > 1) echoPre('[Info]    SGDFX7  '.$shortDate);
+
+   $AUDUSD = $symbols['AUDUSD']['bars'];
+   $EURUSD = $symbols['EURUSD']['bars'];
+   $GBPUSD = $symbols['GBPUSD']['bars'];
+   $USDCAD = $symbols['USDCAD']['bars'];
+   $USDCHF = $symbols['USDCHF']['bars'];
+   $USDJPY = $symbols['USDJPY']['bars'];
+   $USDSGD = $symbols['USDSGD']['bars'];
+   $index  = array();
+
+   foreach ($AUDUSD as $i => $bar) {
+      $audusd = $AUDUSD[$i]['open'];
+      $eurusd = $EURUSD[$i]['open'];
+      $gbpusd = $GBPUSD[$i]['open'];
+      $usdcad = $USDCAD[$i]['open'];
+      $usdchf = $USDCHF[$i]['open'];
+      $usdjpy = $USDJPY[$i]['open'];
+      $usdsgd = $USDSGD[$i]['open'];
+      $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdsgd * 100000;
+      $iOpen  = round($open * 100000);
+
+      $audusd = $AUDUSD[$i]['close'];
+      $eurusd = $EURUSD[$i]['close'];
+      $gbpusd = $GBPUSD[$i]['close'];
+      $usdcad = $USDCAD[$i]['close'];
+      $usdchf = $USDCHF[$i]['close'];
+      $usdjpy = $USDJPY[$i]['close'];
+      $usdsgd = $USDSGD[$i]['close'];
+      $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdsgd * 100000;
+      $iClose = round($close * 100000);
+
+      $index[$i]['time' ] = $bar['time'];
+      $index[$i]['open' ] = $iOpen;
+      $index[$i]['high' ] = max($iOpen, $iClose);
+      $index[$i]['low'  ] = min($iOpen, $iClose);
+      $index[$i]['close'] = $iClose;
+      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
+   }
+   return $index;
 }
 
 
