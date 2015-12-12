@@ -1803,7 +1803,7 @@ function calculateZARFX7($day, array $symbols) {
       $usdchf = $USDCHF[$i]['open'];
       $usdjpy = $USDJPY[$i]['open'];
       $usdzar = $USDZAR[$i]['open'];
-      $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdzar * 100000;
+      $open   = 100 * pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdzar * 100000;
       $iOpen  = round($open * 100000);
 
       echoPre('ZARFX7 = '.$open);
@@ -1816,7 +1816,7 @@ function calculateZARFX7($day, array $symbols) {
       $usdchf = $USDCHF[$i]['close'];
       $usdjpy = $USDJPY[$i]['close'];
       $usdzar = $USDZAR[$i]['close'];
-      $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdzar * 100000;
+      $close  = 100 * pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdzar * 100000;
       $iClose = round($close * 100000);
 
       $index[$i]['time' ] = $bar['time'];
