@@ -155,6 +155,64 @@ function createIndex($index) {
 
 
 /**
+ * Berechnet für die übergebenen Daten den AUDLFX-Index.
+ *
+ * @param  int   $day     - Tag der zu berechnenden Daten
+ * @param  array $symbols - Array mit den Daten der beteiligten Instrumente für diesen Tag
+ *
+ * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
+ *
+ * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ *
+ *         Formel: AUDLFX = ((AUDCAD * AUDCHF * AUDJPY * AUDUSD) / (EURAUD * GBPAUD)) ^ 1/7
+ *           oder: AUDLFX = USDLFX * AUDUSD
+ */
+function calculateAUDLFX($day, array $symbols) {
+   if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
+   $shortDate = date('D, d-M-Y', $day);
+
+   global $verbose;
+   if ($verbose > 1) echoPre('[Info]    AUDLFX  '.$shortDate);
+
+   $AUDUSD = $symbols['AUDUSD']['bars'];
+   $EURUSD = $symbols['EURUSD']['bars'];
+   $GBPUSD = $symbols['GBPUSD']['bars'];
+   $USDCAD = $symbols['USDCAD']['bars'];
+   $USDCHF = $symbols['USDCHF']['bars'];
+   $USDJPY = $symbols['USDJPY']['bars'];
+   $index  = array();
+
+   foreach ($AUDUSD as $i => $bar) {
+      $audusd = $AUDUSD[$i]['open'];
+      $eurusd = $EURUSD[$i]['open'];
+      $gbpusd = $GBPUSD[$i]['open'];
+      $usdcad = $USDCAD[$i]['open'];
+      $usdchf = $USDCHF[$i]['open'];
+      $usdjpy = $USDJPY[$i]['open'];
+      $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) * $audusd;
+      $iOpen  = round($open);
+
+      $audusd = $AUDUSD[$i]['close'];
+      $eurusd = $EURUSD[$i]['close'];
+      $gbpusd = $GBPUSD[$i]['close'];
+      $usdcad = $USDCAD[$i]['close'];
+      $usdchf = $USDCHF[$i]['close'];
+      $usdjpy = $USDJPY[$i]['close'];
+      $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) * $audusd;
+      $iClose = round($close);
+
+      $index[$i]['time' ] = $bar['time'];
+      $index[$i]['open' ] = $iOpen;
+      $index[$i]['high' ] = max($iOpen, $iClose);
+      $index[$i]['low'  ] = min($iOpen, $iClose);
+      $index[$i]['close'] = $iClose;
+      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
+   }
+   return $index;
+}
+
+
+/**
  * Berechnet für die übergebenen Daten den AUDFX6-Index.
  *
  * @param  int   $day     - Tag der zu berechnenden Daten
@@ -272,6 +330,64 @@ function calculateAUDFX7($day, array $symbols) {
 
 
 /**
+ * Berechnet für die übergebenen Daten den CADLFX-Index.
+ *
+ * @param  int   $day     - Tag der zu berechnenden Daten
+ * @param  array $symbols - Array mit den Daten der beteiligten Instrumente für diesen Tag
+ *
+ * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
+ *
+ * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ *
+ *         Formel: CADLFX = ((CADCHF * CADJPY) / (AUDCAD * EURCAD * GBPCAD * USDCAD)) ^ 1/7
+ *           oder: CADLFX = USDLFX / USDCAD
+ */
+function calculateCADLFX($day, array $symbols) {
+   if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
+   $shortDate = date('D, d-M-Y', $day);
+
+   global $verbose;
+   if ($verbose > 1) echoPre('[Info]    CADLFX  '.$shortDate);
+
+   $AUDUSD = $symbols['AUDUSD']['bars'];
+   $EURUSD = $symbols['EURUSD']['bars'];
+   $GBPUSD = $symbols['GBPUSD']['bars'];
+   $USDCAD = $symbols['USDCAD']['bars'];
+   $USDCHF = $symbols['USDCHF']['bars'];
+   $USDJPY = $symbols['USDJPY']['bars'];
+   $index  = array();
+
+   foreach ($AUDUSD as $i => $bar) {
+      $audusd = $AUDUSD[$i]['open'];
+      $eurusd = $EURUSD[$i]['open'];
+      $gbpusd = $GBPUSD[$i]['open'];
+      $usdcad = $USDCAD[$i]['open'];
+      $usdchf = $USDCHF[$i]['open'];
+      $usdjpy = $USDJPY[$i]['open'];
+      $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdcad * 100000;
+      $iOpen  = round($open * 100000);
+
+      $audusd = $AUDUSD[$i]['close'];
+      $eurusd = $EURUSD[$i]['close'];
+      $gbpusd = $GBPUSD[$i]['close'];
+      $usdcad = $USDCAD[$i]['close'];
+      $usdchf = $USDCHF[$i]['close'];
+      $usdjpy = $USDJPY[$i]['close'];
+      $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdcad * 100000;
+      $iClose = round($close * 100000);
+
+      $index[$i]['time' ] = $bar['time'];
+      $index[$i]['open' ] = $iOpen;
+      $index[$i]['high' ] = max($iOpen, $iClose);
+      $index[$i]['low'  ] = min($iOpen, $iClose);
+      $index[$i]['close'] = $iClose;
+      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
+   }
+   return $index;
+}
+
+
+/**
  * Berechnet für die übergebenen Daten den CADFX6-Index.
  *
  * @param  int   $day     - Tag der zu berechnenden Daten
@@ -375,6 +491,64 @@ function calculateCADFX7($day, array $symbols) {
       $usdchf = $USDCHF[$i]['close'];
       $usdjpy = $USDJPY[$i]['close'];
       $close  = pow(($usdchf/$audusd) * ($usdjpy/$eurusd) * (100000/$gbpusd) * (100000/$nzdusd) * 100, 1/7) / $usdcad * 100000;
+      $iClose = round($close * 100000);
+
+      $index[$i]['time' ] = $bar['time'];
+      $index[$i]['open' ] = $iOpen;
+      $index[$i]['high' ] = max($iOpen, $iClose);
+      $index[$i]['low'  ] = min($iOpen, $iClose);
+      $index[$i]['close'] = $iClose;
+      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
+   }
+   return $index;
+}
+
+
+/**
+ * Berechnet für die übergebenen Daten den CHFLFX-Index.
+ *
+ * @param  int   $day     - Tag der zu berechnenden Daten
+ * @param  array $symbols - Array mit den Daten der beteiligten Instrumente für diesen Tag
+ *
+ * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
+ *
+ * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ *
+ *         Formel: CHFLFX = (CHFJPY / (AUDCHF * CADCHF * EURCHF * GBPCHF * USDCHF)) ^ 1/7
+ *           oder: CHFLFX = UDLFX / USDCHF
+ */
+function calculateCHFLFX($day, array $symbols) {
+   if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
+   $shortDate = date('D, d-M-Y', $day);
+
+   global $verbose;
+   if ($verbose > 1) echoPre('[Info]    CHFLFX  '.$shortDate);
+
+   $AUDUSD = $symbols['AUDUSD']['bars'];
+   $EURUSD = $symbols['EURUSD']['bars'];
+   $GBPUSD = $symbols['GBPUSD']['bars'];
+   $USDCAD = $symbols['USDCAD']['bars'];
+   $USDCHF = $symbols['USDCHF']['bars'];
+   $USDJPY = $symbols['USDJPY']['bars'];
+   $index  = array();
+
+   foreach ($AUDUSD as $i => $bar) {
+      $audusd = $AUDUSD[$i]['open'];
+      $eurusd = $EURUSD[$i]['open'];
+      $gbpusd = $GBPUSD[$i]['open'];
+      $usdcad = $USDCAD[$i]['open'];
+      $usdchf = $USDCHF[$i]['open'];
+      $usdjpy = $USDJPY[$i]['open'];
+      $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdchf * 100000;
+      $iOpen  = round($open * 100000);
+
+      $audusd = $AUDUSD[$i]['close'];
+      $eurusd = $EURUSD[$i]['close'];
+      $gbpusd = $GBPUSD[$i]['close'];
+      $usdcad = $USDCAD[$i]['close'];
+      $usdchf = $USDCHF[$i]['close'];
+      $usdjpy = $USDJPY[$i]['close'];
+      $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdchf * 100000;
       $iClose = round($close * 100000);
 
       $index[$i]['time' ] = $bar['time'];
@@ -506,6 +680,128 @@ function calculateCHFFX7($day, array $symbols) {
 
 
 /**
+ * Berechnet für die übergebenen Daten den EURX-Index (ICE).
+ *
+ * @param  int   $day     - Tag der zu berechnenden Daten
+ * @param  array $symbols - Array mit den Daten der beteiligten Instrumente für diesen Tag
+ *
+ * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
+ *
+ * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ *
+ *         Formel: EURX = 34.38805726 * EURCHF^0.1113 * EURGBP^0.3056 * EURJPY^0.1891 * EURSEK^0.0785 * EURUSD^0.3155
+ */
+function calculateEURX($day, array $symbols) {
+   if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
+   $shortDate = date('D, d-M-Y', $day);
+
+   global $verbose;
+   if ($verbose > 1) echoPre('[Info]    EURX  '.$shortDate);
+
+   $EURUSD = $symbols['EURUSD']['bars'];
+   $GBPUSD = $symbols['GBPUSD']['bars'];
+   $USDCHF = $symbols['USDCHF']['bars'];
+   $USDJPY = $symbols['USDJPY']['bars'];
+   $USDSEK = $symbols['USDSEK']['bars'];
+   $index  = array();
+
+   foreach ($EURUSD as $i => $bar) {
+      $eurusd = $EURUSD[$i]['open'];
+      $gbpusd = $GBPUSD[$i]['open'];
+      $usdchf = $USDCHF[$i]['open'];
+      $usdjpy = $USDJPY[$i]['open'];
+      $usdsek = $USDSEK[$i]['open'];
+      $open   = 34.38805726
+              * pow($eurusd/100000 * $usdchf/100000, 0.1113)
+              * pow($eurusd        / $gbpusd       , 0.3056)
+              * pow($eurusd/100000 * $usdjpy/1000  , 0.1891)
+              * pow($eurusd/100000 * $usdsek/100000, 0.0785)
+              * pow($eurusd/100000                 , 0.3155);
+      $iOpen  = round($open * 1000);
+
+      $eurusd = $EURUSD[$i]['close'];
+      $gbpusd = $GBPUSD[$i]['close'];
+      $usdchf = $USDCHF[$i]['close'];
+      $usdjpy = $USDJPY[$i]['close'];
+      $usdsek = $USDSEK[$i]['close'];
+      $close  = 34.38805726
+              * pow($eurusd/100000 * $usdchf/100000, 0.1113)
+              * pow($eurusd        / $gbpusd       , 0.3056)
+              * pow($eurusd/100000 * $usdjpy/1000  , 0.1891)
+              * pow($eurusd/100000 * $usdsek/100000, 0.0785)
+              * pow($eurusd/100000                 , 0.3155);
+      $iClose = round($close * 1000);
+
+      $index[$i]['time' ] = $bar['time'];
+      $index[$i]['open' ] = $iOpen;
+      $index[$i]['high' ] = max($iOpen, $iClose);
+      $index[$i]['low'  ] = min($iOpen, $iClose);
+      $index[$i]['close'] = $iClose;
+      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
+   }
+   return $index;
+}
+
+
+/**
+ * Berechnet für die übergebenen Daten den EURLFX-Index.
+ *
+ * @param  int   $day     - Tag der zu berechnenden Daten
+ * @param  array $symbols - Array mit den Daten der beteiligten Instrumente für diesen Tag
+ *
+ * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
+ *
+ * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ *
+ *         Formel: EURLFX = (EURAUD * EURCAD * EURCHF * EURGBP * EURJPY * EURUSD) ^ 1/7
+ *           oder: EURLFX = USDLFX * EURUSD
+ */
+function calculateEURLFX($day, array $symbols) {
+   if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
+   $shortDate = date('D, d-M-Y', $day);
+
+   global $verbose;
+   if ($verbose > 1) echoPre('[Info]    EURLFX  '.$shortDate);
+
+   $AUDUSD = $symbols['AUDUSD']['bars'];
+   $EURUSD = $symbols['EURUSD']['bars'];
+   $GBPUSD = $symbols['GBPUSD']['bars'];
+   $USDCAD = $symbols['USDCAD']['bars'];
+   $USDCHF = $symbols['USDCHF']['bars'];
+   $USDJPY = $symbols['USDJPY']['bars'];
+   $index  = array();
+
+   foreach ($AUDUSD as $i => $bar) {
+      $audusd = $AUDUSD[$i]['open'];
+      $eurusd = $EURUSD[$i]['open'];
+      $gbpusd = $GBPUSD[$i]['open'];
+      $usdcad = $USDCAD[$i]['open'];
+      $usdchf = $USDCHF[$i]['open'];
+      $usdjpy = $USDJPY[$i]['open'];
+      $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) * $eurusd;
+      $iOpen  = round($open);
+
+      $audusd = $AUDUSD[$i]['close'];
+      $eurusd = $EURUSD[$i]['close'];
+      $gbpusd = $GBPUSD[$i]['close'];
+      $usdcad = $USDCAD[$i]['close'];
+      $usdchf = $USDCHF[$i]['close'];
+      $usdjpy = $USDJPY[$i]['close'];
+      $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) * $eurusd;
+      $iClose = round($close);
+
+      $index[$i]['time' ] = $bar['time'];
+      $index[$i]['open' ] = $iOpen;
+      $index[$i]['high' ] = max($iOpen, $iClose);
+      $index[$i]['low'  ] = min($iOpen, $iClose);
+      $index[$i]['close'] = $iClose;
+      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
+   }
+   return $index;
+}
+
+
+/**
  * Berechnet für die übergebenen Daten den EURFX6-Index.
  *
  * @param  int   $day     - Tag der zu berechnenden Daten
@@ -609,6 +905,64 @@ function calculateEURFX7($day, array $symbols) {
       $usdchf = $USDCHF[$i]['close'];
       $usdjpy = $USDJPY[$i]['close'];
       $close  = pow(($usdcad/$audusd) * ($usdchf/$gbpusd) * ($usdjpy/$nzdusd) * 100, 1/7) * $eurusd;
+      $iClose = round($close);
+
+      $index[$i]['time' ] = $bar['time'];
+      $index[$i]['open' ] = $iOpen;
+      $index[$i]['high' ] = max($iOpen, $iClose);
+      $index[$i]['low'  ] = min($iOpen, $iClose);
+      $index[$i]['close'] = $iClose;
+      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
+   }
+   return $index;
+}
+
+
+/**
+ * Berechnet für die übergebenen Daten den GBPLFX-Index.
+ *
+ * @param  int   $day     - Tag der zu berechnenden Daten
+ * @param  array $symbols - Array mit den Daten der beteiligten Instrumente für diesen Tag
+ *
+ * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
+ *
+ * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ *
+ *         Formel: GBPLFX = ((GBPAUD * GBPCAD * GBPCHF * GBPJPY * GBPUSD) / EURGBP) ^ 1/7
+ *           oder: GBPLFX = USDLFX * GBPUSD
+ */
+function calculateGBPLFX($day, array $symbols) {
+   if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
+   $shortDate = date('D, d-M-Y', $day);
+
+   global $verbose;
+   if ($verbose > 1) echoPre('[Info]    GBPLFX  '.$shortDate);
+
+   $AUDUSD = $symbols['AUDUSD']['bars'];
+   $EURUSD = $symbols['EURUSD']['bars'];
+   $GBPUSD = $symbols['GBPUSD']['bars'];
+   $USDCAD = $symbols['USDCAD']['bars'];
+   $USDCHF = $symbols['USDCHF']['bars'];
+   $USDJPY = $symbols['USDJPY']['bars'];
+   $index  = array();
+
+   foreach ($AUDUSD as $i => $bar) {
+      $audusd = $AUDUSD[$i]['open'];
+      $eurusd = $EURUSD[$i]['open'];
+      $gbpusd = $GBPUSD[$i]['open'];
+      $usdcad = $USDCAD[$i]['open'];
+      $usdchf = $USDCHF[$i]['open'];
+      $usdjpy = $USDJPY[$i]['open'];
+      $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) * $gbpusd;
+      $iOpen  = round($open);
+
+      $audusd = $AUDUSD[$i]['close'];
+      $eurusd = $EURUSD[$i]['close'];
+      $gbpusd = $GBPUSD[$i]['close'];
+      $usdcad = $USDCAD[$i]['close'];
+      $usdchf = $USDCHF[$i]['close'];
+      $usdjpy = $USDJPY[$i]['close'];
+      $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) * $gbpusd;
       $iClose = round($close);
 
       $index[$i]['time' ] = $bar['time'];
@@ -740,6 +1094,64 @@ function calculateGBPFX7($day, array $symbols) {
 
 
 /**
+ * Berechnet für die übergebenen Daten den JPYLFX-Index.
+ *
+ * @param  int   $day     - Tag der zu berechnenden Daten
+ * @param  array $symbols - Array mit den Daten der beteiligten Instrumente für diesen Tag
+ *
+ * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
+ *
+ * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ *
+ *         Formel: JPYLFX = 100 * (1 / (AUDJPY * CADJPY * CHFJPY * EURJPY * GBPJPY * USDJPY)) ^ 1/7
+ *           oder: JPYLFX = 100 * USDLFX / USDJPY
+ */
+function calculateJPYLFX($day, array $symbols) {
+   if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
+   $shortDate = date('D, d-M-Y', $day);
+
+   global $verbose;
+   if ($verbose > 1) echoPre('[Info]    JPYLFX  '.$shortDate);
+
+   $AUDUSD = $symbols['AUDUSD']['bars'];
+   $EURUSD = $symbols['EURUSD']['bars'];
+   $GBPUSD = $symbols['GBPUSD']['bars'];
+   $USDCAD = $symbols['USDCAD']['bars'];
+   $USDCHF = $symbols['USDCHF']['bars'];
+   $USDJPY = $symbols['USDJPY']['bars'];
+   $index  = array();
+
+   foreach ($AUDUSD as $i => $bar) {
+      $audusd = $AUDUSD[$i]['open'];
+      $eurusd = $EURUSD[$i]['open'];
+      $gbpusd = $GBPUSD[$i]['open'];
+      $usdcad = $USDCAD[$i]['open'];
+      $usdchf = $USDCHF[$i]['open'];
+      $usdjpy = $USDJPY[$i]['open'];
+      $open   = 100 * pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdjpy * 1000;
+      $iOpen  = round($open * 100000);
+
+      $audusd = $AUDUSD[$i]['close'];
+      $eurusd = $EURUSD[$i]['close'];
+      $gbpusd = $GBPUSD[$i]['close'];
+      $usdcad = $USDCAD[$i]['close'];
+      $usdchf = $USDCHF[$i]['close'];
+      $usdjpy = $USDJPY[$i]['close'];
+      $close  = 100 * pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdjpy * 1000;
+      $iClose = round($close * 100000);
+
+      $index[$i]['time' ] = $bar['time'];
+      $index[$i]['open' ] = $iOpen;
+      $index[$i]['high' ] = max($iOpen, $iClose);
+      $index[$i]['low'  ] = min($iOpen, $iClose);
+      $index[$i]['close'] = $iClose;
+      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
+   }
+   return $index;
+}
+
+
+/**
  * Berechnet für die übergebenen Daten den JPYFX6-Index.
  *
  * @param  int   $day     - Tag der zu berechnenden Daten
@@ -843,6 +1255,342 @@ function calculateJPYFX7($day, array $symbols) {
       $usdchf = $USDCHF[$i]['close'];
       $usdjpy = $USDJPY[$i]['close'];
       $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * (100000/$gbpusd) * (100000/$nzdusd), 1/7) / $usdjpy * 100000;
+      $iClose = round($close * 100000);
+
+      $index[$i]['time' ] = $bar['time'];
+      $index[$i]['open' ] = $iOpen;
+      $index[$i]['high' ] = max($iOpen, $iClose);
+      $index[$i]['low'  ] = min($iOpen, $iClose);
+      $index[$i]['close'] = $iClose;
+      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
+   }
+   return $index;
+}
+
+
+/**
+ * Berechnet für die übergebenen Daten den NOKFX7-Index.
+ *
+ * @param  int   $day     - Tag der zu berechnenden Daten
+ * @param  array $symbols - Array mit den Daten der beteiligten Instrumente für diesen Tag
+ *
+ * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
+ *
+ * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ *
+ *         Formel: NOKFX7 = 10 * (NOKJPY / (AUDNOK * CADNOK * CHFNOK * EURNOK * GBPNOK * USDNOK)) ^ 1/7
+ *           oder: NOKFX7 = 10 * USDLFX / USDNOK
+ */
+function calculateNOKFX7($day, array $symbols) {
+   if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
+   $shortDate = date('D, d-M-Y', $day);
+
+   global $verbose;
+   if ($verbose > 1) echoPre('[Info]    NOKFX7  '.$shortDate);
+
+   $AUDUSD = $symbols['AUDUSD']['bars'];
+   $EURUSD = $symbols['EURUSD']['bars'];
+   $GBPUSD = $symbols['GBPUSD']['bars'];
+   $USDCAD = $symbols['USDCAD']['bars'];
+   $USDCHF = $symbols['USDCHF']['bars'];
+   $USDJPY = $symbols['USDJPY']['bars'];
+   $USDNOK = $symbols['USDNOK']['bars'];
+   $index  = array();
+
+   foreach ($AUDUSD as $i => $bar) {
+      $audusd = $AUDUSD[$i]['open'];
+      $eurusd = $EURUSD[$i]['open'];
+      $gbpusd = $GBPUSD[$i]['open'];
+      $usdcad = $USDCAD[$i]['open'];
+      $usdchf = $USDCHF[$i]['open'];
+      $usdjpy = $USDJPY[$i]['open'];
+      $usdnok = $USDNOK[$i]['open'];
+      $open   = 10 * pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdnok * 100000;
+      $iOpen  = round($open * 100000);
+
+      $audusd = $AUDUSD[$i]['close'];
+      $eurusd = $EURUSD[$i]['close'];
+      $gbpusd = $GBPUSD[$i]['close'];
+      $usdcad = $USDCAD[$i]['close'];
+      $usdchf = $USDCHF[$i]['close'];
+      $usdjpy = $USDJPY[$i]['close'];
+      $usdnok = $USDNOK[$i]['close'];
+      $close  = 10 * pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdnok * 100000;
+      $iClose = round($close * 100000);
+
+      $index[$i]['time' ] = $bar['time'];
+      $index[$i]['open' ] = $iOpen;
+      $index[$i]['high' ] = max($iOpen, $iClose);
+      $index[$i]['low'  ] = min($iOpen, $iClose);
+      $index[$i]['close'] = $iClose;
+      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
+   }
+   return $index;
+}
+
+
+/**
+ * Berechnet für die übergebenen Daten den NZDLFX-Index. Dieser Index entspricht dem NZDFX7.
+ *
+ * @param  int    $day     - Tag der zu berechnenden Daten
+ * @param  array  $symbols - Array mit den Daten der beteiligten Instrumente für diesen Tag
+ * @param  string $name    - optionaler Name (um die Funktion für NZDLFX und NZDFX7 benutzen zu können)
+ *
+ * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
+ *
+ * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ *
+ *         Formel: NZDLFX = ((NZDCAD * NZDCHF * NZDJPY * NZDUSD) / (AUDNZD * EURNZD * GBPNZD)) ^ 1/7
+ *           oder: NZDLFX = USDLFX * NZDUSD
+ */
+function calculateNZDLFX($day, array $symbols, $name='NZDLFX') {
+   if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
+   $shortDate = date('D, d-M-Y', $day);
+
+   global $verbose;
+   if ($verbose > 1) echoPre('[Info]    '.$name.'  '.$shortDate);
+
+   $AUDUSD = $symbols['AUDUSD']['bars'];
+   $EURUSD = $symbols['EURUSD']['bars'];
+   $GBPUSD = $symbols['GBPUSD']['bars'];
+   $USDCAD = $symbols['USDCAD']['bars'];
+   $USDCHF = $symbols['USDCHF']['bars'];
+   $USDJPY = $symbols['USDJPY']['bars'];
+   $NZDUSD = $symbols['NZDUSD']['bars'];
+   $index  = array();
+
+   foreach ($AUDUSD as $i => $bar) {
+      $audusd = $AUDUSD[$i]['open'];
+      $eurusd = $EURUSD[$i]['open'];
+      $gbpusd = $GBPUSD[$i]['open'];
+      $usdcad = $USDCAD[$i]['open'];
+      $usdchf = $USDCHF[$i]['open'];
+      $usdjpy = $USDJPY[$i]['open'];
+      $nzdusd = $NZDUSD[$i]['open'];
+      $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) * $nzdusd;
+      $iOpen  = round($open);
+
+      $audusd = $AUDUSD[$i]['close'];
+      $eurusd = $EURUSD[$i]['close'];
+      $gbpusd = $GBPUSD[$i]['close'];
+      $usdcad = $USDCAD[$i]['close'];
+      $usdchf = $USDCHF[$i]['close'];
+      $usdjpy = $USDJPY[$i]['close'];
+      $nzdusd = $NZDUSD[$i]['close'];
+      $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) * $nzdusd;
+      $iClose = round($close);
+
+      $index[$i]['time' ] = $bar['time'];
+      $index[$i]['open' ] = $iOpen;
+      $index[$i]['high' ] = max($iOpen, $iClose);
+      $index[$i]['low'  ] = min($iOpen, $iClose);
+      $index[$i]['close'] = $iClose;
+      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
+   }
+   return $index;
+}
+
+
+/**
+ * Berechnet für die übergebenen Daten den NZDFX7-Index.
+ *
+ * @param  int   $day     - Tag der zu berechnenden Daten
+ * @param  array $symbols - Array mit den Daten der beteiligten Instrumente für diesen Tag
+ *
+ * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
+ *
+ * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ *
+ *         Formel: NZDFX7 = ((NZDCAD * NZDCHF * NZDJPY * NZDUSD) / (AUDNZD * EURNZD * GBPNZD)) ^ 1/7
+ */
+function calculateNZDFX7($day, array $symbols) {
+   return calculateNZDLFX($day, $symbols, 'NZDFX7');
+}
+
+
+/**
+ * Berechnet für die übergebenen Daten den SEKFX7-Index.
+ *
+ * @param  int   $day     - Tag der zu berechnenden Daten
+ * @param  array $symbols - Array mit den Daten der beteiligten Instrumente für diesen Tag
+ *
+ * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
+ *
+ * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ *
+ *         Formel: SEKFX7 = 10 * (SEKJPY / (AUDSEK * CADSEK * CHFSEK * EURSEK * GBPSEK * USDSEK)) ^ 1/7
+ *           oder: SEKFX7 = 10 * USDLFX / USDSEK
+ */
+function calculateSEKFX7($day, array $symbols) {
+   if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
+   $shortDate = date('D, d-M-Y', $day);
+
+   global $verbose;
+   if ($verbose > 1) echoPre('[Info]    SEKFX7  '.$shortDate);
+
+   $AUDUSD = $symbols['AUDUSD']['bars'];
+   $EURUSD = $symbols['EURUSD']['bars'];
+   $GBPUSD = $symbols['GBPUSD']['bars'];
+   $USDCAD = $symbols['USDCAD']['bars'];
+   $USDCHF = $symbols['USDCHF']['bars'];
+   $USDJPY = $symbols['USDJPY']['bars'];
+   $USDSEK = $symbols['USDSEK']['bars'];
+   $index  = array();
+
+   foreach ($AUDUSD as $i => $bar) {
+      $audusd = $AUDUSD[$i]['open'];
+      $eurusd = $EURUSD[$i]['open'];
+      $gbpusd = $GBPUSD[$i]['open'];
+      $usdcad = $USDCAD[$i]['open'];
+      $usdchf = $USDCHF[$i]['open'];
+      $usdjpy = $USDJPY[$i]['open'];
+      $usdsek = $USDSEK[$i]['open'];
+      $open   = 10 * pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdsek * 100000;
+      $iOpen  = round($open * 100000);
+
+      $audusd = $AUDUSD[$i]['close'];
+      $eurusd = $EURUSD[$i]['close'];
+      $gbpusd = $GBPUSD[$i]['close'];
+      $usdcad = $USDCAD[$i]['close'];
+      $usdchf = $USDCHF[$i]['close'];
+      $usdjpy = $USDJPY[$i]['close'];
+      $usdsek = $USDSEK[$i]['close'];
+      $close  = 10 * pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdsek * 100000;
+      $iClose = round($close * 100000);
+
+      $index[$i]['time' ] = $bar['time'];
+      $index[$i]['open' ] = $iOpen;
+      $index[$i]['high' ] = max($iOpen, $iClose);
+      $index[$i]['low'  ] = min($iOpen, $iClose);
+      $index[$i]['close'] = $iClose;
+      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
+   }
+   return $index;
+}
+
+
+/**
+ * Berechnet für die übergebenen Daten den SGDFX7-Index.
+ *
+ * @param  int   $day     - Tag der zu berechnenden Daten
+ * @param  array $symbols - Array mit den Daten der beteiligten Instrumente für diesen Tag
+ *
+ * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
+ *
+ * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ *
+ *         Formel: SGDFX7 = (SGDJPY / (AUDSGD * CADSGD * CHFSGD * EURSGD * GBPSGD * USDSGD)) ^ 1/7
+ *           oder: SGDFX7 = USDLFX / USDSGD
+ */
+function calculateSGDFX7($day, array $symbols) {
+}
+
+
+/**
+ * Berechnet für die übergebenen Daten den USDX-Index (ICE).
+ *
+ * @param  int   $day     - Tag der zu berechnenden Daten
+ * @param  array $symbols - Array mit den Daten der beteiligten Instrumente für diesen Tag
+ *
+ * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
+ *
+ * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ *
+ *         Formel: USDX = 50.14348112 * (USDCAD^0.091 * USDCHF^0.036 * USDJPY^0.136 * USDSEK^0.042) / (EURUSD^0.576 * GBPUSD^0.119)
+ */
+function calculateUSDX($day, array $symbols) {
+   if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
+   $shortDate = date('D, d-M-Y', $day);
+
+   global $verbose;
+   if ($verbose > 1) echoPre('[Info]    USDX  '.$shortDate);
+
+   $EURUSD = $symbols['EURUSD']['bars'];
+   $GBPUSD = $symbols['GBPUSD']['bars'];
+   $USDCAD = $symbols['USDCAD']['bars'];
+   $USDCHF = $symbols['USDCHF']['bars'];
+   $USDJPY = $symbols['USDJPY']['bars'];
+   $USDSEK = $symbols['USDSEK']['bars'];
+   $index  = array();
+
+   foreach ($EURUSD as $i => $bar) {
+      $eurusd = $EURUSD[$i]['open'];
+      $gbpusd = $GBPUSD[$i]['open'];
+      $usdcad = $USDCAD[$i]['open'];
+      $usdchf = $USDCHF[$i]['open'];
+      $usdjpy = $USDJPY[$i]['open'];
+      $usdsek = $USDSEK[$i]['open'];
+      $open   = 50.14348112
+              * pow($usdcad/100000, 0.091) * pow($usdchf/100000, 0.036) * pow($usdjpy/1000, 0.136) * pow($usdsek/100000, 0.042)
+              / pow($eurusd/100000, 0.576) / pow($gbpusd/100000, 0.119);
+      $iOpen  = round($open * 1000);
+
+      $eurusd = $EURUSD[$i]['close'];
+      $gbpusd = $GBPUSD[$i]['close'];
+      $usdcad = $USDCAD[$i]['close'];
+      $usdchf = $USDCHF[$i]['close'];
+      $usdjpy = $USDJPY[$i]['close'];
+      $usdsek = $USDSEK[$i]['close'];
+      $close  = 50.14348112
+              * pow($usdcad/100000, 0.091) * pow($usdchf/100000, 0.036) * pow($usdjpy/1000, 0.136) * pow($usdsek/100000, 0.042)
+              / pow($eurusd/100000, 0.576) / pow($gbpusd/100000, 0.119);
+      $iClose = round($close * 1000);
+
+      $index[$i]['time' ] = $bar['time'];
+      $index[$i]['open' ] = $iOpen;
+      $index[$i]['high' ] = max($iOpen, $iClose);
+      $index[$i]['low'  ] = min($iOpen, $iClose);
+      $index[$i]['close'] = $iClose;
+      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
+   }
+   return $index;
+}
+
+
+/**
+ * Berechnet für die übergebenen Daten den USDLFX-Index.
+ *
+ * @param  int   $day     - Tag der zu berechnenden Daten
+ * @param  array $symbols - Array mit den Daten der beteiligten Instrumente für diesen Tag
+ *
+ * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
+ *
+ * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
+ *
+ *         Formel: USDLFX = ((USDCAD * USDCHF * USDJPY) / (AUDUSD * EURUSD * GBPUSD)) ^ 1/7
+ */
+function calculateUSDLFX($day, array $symbols) {
+   if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
+   $shortDate = date('D, d-M-Y', $day);
+
+   global $verbose;
+   if ($verbose > 1) echoPre('[Info]    USDLFX  '.$shortDate);
+
+   $AUDUSD = $symbols['AUDUSD']['bars'];
+   $EURUSD = $symbols['EURUSD']['bars'];
+   $GBPUSD = $symbols['GBPUSD']['bars'];
+   $USDCAD = $symbols['USDCAD']['bars'];
+   $USDCHF = $symbols['USDCHF']['bars'];
+   $USDJPY = $symbols['USDJPY']['bars'];
+   $index  = array();
+
+   foreach ($AUDUSD as $i => $bar) {
+      $audusd = $AUDUSD[$i]['open'];
+      $eurusd = $EURUSD[$i]['open'];
+      $gbpusd = $GBPUSD[$i]['open'];
+      $usdcad = $USDCAD[$i]['open'];
+      $usdchf = $USDCHF[$i]['open'];
+      $usdjpy = $USDJPY[$i]['open'];
+      $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7);
+      $iOpen  = round($open * 100000);
+
+      $audusd = $AUDUSD[$i]['close'];
+      $eurusd = $EURUSD[$i]['close'];
+      $gbpusd = $GBPUSD[$i]['close'];
+      $usdcad = $USDCAD[$i]['close'];
+      $usdchf = $USDCHF[$i]['close'];
+      $usdjpy = $USDJPY[$i]['close'];
+      $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7);
       $iClose = round($close * 100000);
 
       $index[$i]['time' ] = $bar['time'];
@@ -961,754 +1709,6 @@ function calculateUSDFX7($day, array $symbols) {
       $usdjpy = $USDJPY[$i]['close'];
       $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * (100000/$nzdusd) * 100, 1/7);
       $iClose = round($close * 100000);
-
-      $index[$i]['time' ] = $bar['time'];
-      $index[$i]['open' ] = $iOpen;
-      $index[$i]['high' ] = max($iOpen, $iClose);
-      $index[$i]['low'  ] = min($iOpen, $iClose);
-      $index[$i]['close'] = $iClose;
-      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
-   }
-   return $index;
-}
-
-
-/**
- * Berechnet für die übergebenen Daten den AUDLFX-Index.
- *
- * @param  int   $day     - Tag der zu berechnenden Daten
- * @param  array $symbols - Array mit den Daten der beteiligten Instrumente für diesen Tag
- *
- * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
- *
- * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
- *
- *         Formel: AUDLFX = ((AUDCAD * AUDCHF * AUDJPY * AUDUSD) / (EURAUD * GBPAUD)) ^ 1/7
- *           oder: AUDLFX = USDLFX * AUDUSD
- */
-function calculateAUDLFX($day, array $symbols) {
-   if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
-   $shortDate = date('D, d-M-Y', $day);
-
-   global $verbose;
-   if ($verbose > 1) echoPre('[Info]    AUDLFX  '.$shortDate);
-
-   $AUDUSD = $symbols['AUDUSD']['bars'];
-   $EURUSD = $symbols['EURUSD']['bars'];
-   $GBPUSD = $symbols['GBPUSD']['bars'];
-   $USDCAD = $symbols['USDCAD']['bars'];
-   $USDCHF = $symbols['USDCHF']['bars'];
-   $USDJPY = $symbols['USDJPY']['bars'];
-   $index  = array();
-
-   foreach ($AUDUSD as $i => $bar) {
-      $audusd = $AUDUSD[$i]['open'];
-      $eurusd = $EURUSD[$i]['open'];
-      $gbpusd = $GBPUSD[$i]['open'];
-      $usdcad = $USDCAD[$i]['open'];
-      $usdchf = $USDCHF[$i]['open'];
-      $usdjpy = $USDJPY[$i]['open'];
-      $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) * $audusd;
-      $iOpen  = round($open);
-
-      $audusd = $AUDUSD[$i]['close'];
-      $eurusd = $EURUSD[$i]['close'];
-      $gbpusd = $GBPUSD[$i]['close'];
-      $usdcad = $USDCAD[$i]['close'];
-      $usdchf = $USDCHF[$i]['close'];
-      $usdjpy = $USDJPY[$i]['close'];
-      $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) * $audusd;
-      $iClose = round($close);
-
-      $index[$i]['time' ] = $bar['time'];
-      $index[$i]['open' ] = $iOpen;
-      $index[$i]['high' ] = max($iOpen, $iClose);
-      $index[$i]['low'  ] = min($iOpen, $iClose);
-      $index[$i]['close'] = $iClose;
-      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
-   }
-   return $index;
-}
-
-
-/**
- * Berechnet für die übergebenen Daten den CADLFX-Index.
- *
- * @param  int   $day     - Tag der zu berechnenden Daten
- * @param  array $symbols - Array mit den Daten der beteiligten Instrumente für diesen Tag
- *
- * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
- *
- * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
- *
- *         Formel: CADLFX = ((CADCHF * CADJPY) / (AUDCAD * EURCAD * GBPCAD * USDCAD)) ^ 1/7
- *           oder: CADLFX = USDLFX / USDCAD
- */
-function calculateCADLFX($day, array $symbols) {
-   if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
-   $shortDate = date('D, d-M-Y', $day);
-
-   global $verbose;
-   if ($verbose > 1) echoPre('[Info]    CADLFX  '.$shortDate);
-
-   $AUDUSD = $symbols['AUDUSD']['bars'];
-   $EURUSD = $symbols['EURUSD']['bars'];
-   $GBPUSD = $symbols['GBPUSD']['bars'];
-   $USDCAD = $symbols['USDCAD']['bars'];
-   $USDCHF = $symbols['USDCHF']['bars'];
-   $USDJPY = $symbols['USDJPY']['bars'];
-   $index  = array();
-
-   foreach ($AUDUSD as $i => $bar) {
-      $audusd = $AUDUSD[$i]['open'];
-      $eurusd = $EURUSD[$i]['open'];
-      $gbpusd = $GBPUSD[$i]['open'];
-      $usdcad = $USDCAD[$i]['open'];
-      $usdchf = $USDCHF[$i]['open'];
-      $usdjpy = $USDJPY[$i]['open'];
-      $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdcad * 100000;
-      $iOpen  = round($open * 100000);
-
-      $audusd = $AUDUSD[$i]['close'];
-      $eurusd = $EURUSD[$i]['close'];
-      $gbpusd = $GBPUSD[$i]['close'];
-      $usdcad = $USDCAD[$i]['close'];
-      $usdchf = $USDCHF[$i]['close'];
-      $usdjpy = $USDJPY[$i]['close'];
-      $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdcad * 100000;
-      $iClose = round($close * 100000);
-
-      $index[$i]['time' ] = $bar['time'];
-      $index[$i]['open' ] = $iOpen;
-      $index[$i]['high' ] = max($iOpen, $iClose);
-      $index[$i]['low'  ] = min($iOpen, $iClose);
-      $index[$i]['close'] = $iClose;
-      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
-   }
-   return $index;
-}
-
-
-/**
- * Berechnet für die übergebenen Daten den CHFLFX-Index.
- *
- * @param  int   $day     - Tag der zu berechnenden Daten
- * @param  array $symbols - Array mit den Daten der beteiligten Instrumente für diesen Tag
- *
- * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
- *
- * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
- *
- *         Formel: CHFLFX = (CHFJPY / (AUDCHF * CADCHF * EURCHF * GBPCHF * USDCHF)) ^ 1/7
- *           oder: CHFLFX = UDLFX / USDCHF
- */
-function calculateCHFLFX($day, array $symbols) {
-   if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
-   $shortDate = date('D, d-M-Y', $day);
-
-   global $verbose;
-   if ($verbose > 1) echoPre('[Info]    CHFLFX  '.$shortDate);
-
-   $AUDUSD = $symbols['AUDUSD']['bars'];
-   $EURUSD = $symbols['EURUSD']['bars'];
-   $GBPUSD = $symbols['GBPUSD']['bars'];
-   $USDCAD = $symbols['USDCAD']['bars'];
-   $USDCHF = $symbols['USDCHF']['bars'];
-   $USDJPY = $symbols['USDJPY']['bars'];
-   $index  = array();
-
-   foreach ($AUDUSD as $i => $bar) {
-      $audusd = $AUDUSD[$i]['open'];
-      $eurusd = $EURUSD[$i]['open'];
-      $gbpusd = $GBPUSD[$i]['open'];
-      $usdcad = $USDCAD[$i]['open'];
-      $usdchf = $USDCHF[$i]['open'];
-      $usdjpy = $USDJPY[$i]['open'];
-      $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdchf * 100000;
-      $iOpen  = round($open * 100000);
-
-      $audusd = $AUDUSD[$i]['close'];
-      $eurusd = $EURUSD[$i]['close'];
-      $gbpusd = $GBPUSD[$i]['close'];
-      $usdcad = $USDCAD[$i]['close'];
-      $usdchf = $USDCHF[$i]['close'];
-      $usdjpy = $USDJPY[$i]['close'];
-      $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdchf * 100000;
-      $iClose = round($close * 100000);
-
-      $index[$i]['time' ] = $bar['time'];
-      $index[$i]['open' ] = $iOpen;
-      $index[$i]['high' ] = max($iOpen, $iClose);
-      $index[$i]['low'  ] = min($iOpen, $iClose);
-      $index[$i]['close'] = $iClose;
-      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
-   }
-   return $index;
-}
-
-
-/**
- * Berechnet für die übergebenen Daten den EURLFX-Index.
- *
- * @param  int   $day     - Tag der zu berechnenden Daten
- * @param  array $symbols - Array mit den Daten der beteiligten Instrumente für diesen Tag
- *
- * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
- *
- * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
- *
- *         Formel: EURLFX = (EURAUD * EURCAD * EURCHF * EURGBP * EURJPY * EURUSD) ^ 1/7
- *           oder: EURLFX = USDLFX * EURUSD
- */
-function calculateEURLFX($day, array $symbols) {
-   if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
-   $shortDate = date('D, d-M-Y', $day);
-
-   global $verbose;
-   if ($verbose > 1) echoPre('[Info]    EURLFX  '.$shortDate);
-
-   $AUDUSD = $symbols['AUDUSD']['bars'];
-   $EURUSD = $symbols['EURUSD']['bars'];
-   $GBPUSD = $symbols['GBPUSD']['bars'];
-   $USDCAD = $symbols['USDCAD']['bars'];
-   $USDCHF = $symbols['USDCHF']['bars'];
-   $USDJPY = $symbols['USDJPY']['bars'];
-   $index  = array();
-
-   foreach ($AUDUSD as $i => $bar) {
-      $audusd = $AUDUSD[$i]['open'];
-      $eurusd = $EURUSD[$i]['open'];
-      $gbpusd = $GBPUSD[$i]['open'];
-      $usdcad = $USDCAD[$i]['open'];
-      $usdchf = $USDCHF[$i]['open'];
-      $usdjpy = $USDJPY[$i]['open'];
-      $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) * $eurusd;
-      $iOpen  = round($open);
-
-      $audusd = $AUDUSD[$i]['close'];
-      $eurusd = $EURUSD[$i]['close'];
-      $gbpusd = $GBPUSD[$i]['close'];
-      $usdcad = $USDCAD[$i]['close'];
-      $usdchf = $USDCHF[$i]['close'];
-      $usdjpy = $USDJPY[$i]['close'];
-      $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) * $eurusd;
-      $iClose = round($close);
-
-      $index[$i]['time' ] = $bar['time'];
-      $index[$i]['open' ] = $iOpen;
-      $index[$i]['high' ] = max($iOpen, $iClose);
-      $index[$i]['low'  ] = min($iOpen, $iClose);
-      $index[$i]['close'] = $iClose;
-      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
-   }
-   return $index;
-}
-
-
-/**
- * Berechnet für die übergebenen Daten den GBPLFX-Index.
- *
- * @param  int   $day     - Tag der zu berechnenden Daten
- * @param  array $symbols - Array mit den Daten der beteiligten Instrumente für diesen Tag
- *
- * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
- *
- * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
- *
- *         Formel: GBPLFX = ((GBPAUD * GBPCAD * GBPCHF * GBPJPY * GBPUSD) / EURGBP) ^ 1/7
- *           oder: GBPLFX = USDLFX * GBPUSD
- */
-function calculateGBPLFX($day, array $symbols) {
-   if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
-   $shortDate = date('D, d-M-Y', $day);
-
-   global $verbose;
-   if ($verbose > 1) echoPre('[Info]    GBPLFX  '.$shortDate);
-
-   $AUDUSD = $symbols['AUDUSD']['bars'];
-   $EURUSD = $symbols['EURUSD']['bars'];
-   $GBPUSD = $symbols['GBPUSD']['bars'];
-   $USDCAD = $symbols['USDCAD']['bars'];
-   $USDCHF = $symbols['USDCHF']['bars'];
-   $USDJPY = $symbols['USDJPY']['bars'];
-   $index  = array();
-
-   foreach ($AUDUSD as $i => $bar) {
-      $audusd = $AUDUSD[$i]['open'];
-      $eurusd = $EURUSD[$i]['open'];
-      $gbpusd = $GBPUSD[$i]['open'];
-      $usdcad = $USDCAD[$i]['open'];
-      $usdchf = $USDCHF[$i]['open'];
-      $usdjpy = $USDJPY[$i]['open'];
-      $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) * $gbpusd;
-      $iOpen  = round($open);
-
-      $audusd = $AUDUSD[$i]['close'];
-      $eurusd = $EURUSD[$i]['close'];
-      $gbpusd = $GBPUSD[$i]['close'];
-      $usdcad = $USDCAD[$i]['close'];
-      $usdchf = $USDCHF[$i]['close'];
-      $usdjpy = $USDJPY[$i]['close'];
-      $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) * $gbpusd;
-      $iClose = round($close);
-
-      $index[$i]['time' ] = $bar['time'];
-      $index[$i]['open' ] = $iOpen;
-      $index[$i]['high' ] = max($iOpen, $iClose);
-      $index[$i]['low'  ] = min($iOpen, $iClose);
-      $index[$i]['close'] = $iClose;
-      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
-   }
-   return $index;
-}
-
-
-/**
- * Berechnet für die übergebenen Daten den JPYLFX-Index.
- *
- * @param  int   $day     - Tag der zu berechnenden Daten
- * @param  array $symbols - Array mit den Daten der beteiligten Instrumente für diesen Tag
- *
- * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
- *
- * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
- *
- *         Formel: JPYLFX = 100 * (1 / (AUDJPY * CADJPY * CHFJPY * EURJPY * GBPJPY * USDJPY)) ^ 1/7
- *           oder: JPYLFX = 100 * USDLFX / USDJPY
- */
-function calculateJPYLFX($day, array $symbols) {
-   if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
-   $shortDate = date('D, d-M-Y', $day);
-
-   global $verbose;
-   if ($verbose > 1) echoPre('[Info]    JPYLFX  '.$shortDate);
-
-   $AUDUSD = $symbols['AUDUSD']['bars'];
-   $EURUSD = $symbols['EURUSD']['bars'];
-   $GBPUSD = $symbols['GBPUSD']['bars'];
-   $USDCAD = $symbols['USDCAD']['bars'];
-   $USDCHF = $symbols['USDCHF']['bars'];
-   $USDJPY = $symbols['USDJPY']['bars'];
-   $index  = array();
-
-   foreach ($AUDUSD as $i => $bar) {
-      $audusd = $AUDUSD[$i]['open'];
-      $eurusd = $EURUSD[$i]['open'];
-      $gbpusd = $GBPUSD[$i]['open'];
-      $usdcad = $USDCAD[$i]['open'];
-      $usdchf = $USDCHF[$i]['open'];
-      $usdjpy = $USDJPY[$i]['open'];
-      $open   = 100 * pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdjpy * 1000;
-      $iOpen  = round($open * 100000);
-
-      $audusd = $AUDUSD[$i]['close'];
-      $eurusd = $EURUSD[$i]['close'];
-      $gbpusd = $GBPUSD[$i]['close'];
-      $usdcad = $USDCAD[$i]['close'];
-      $usdchf = $USDCHF[$i]['close'];
-      $usdjpy = $USDJPY[$i]['close'];
-      $close  = 100 * pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdjpy * 1000;
-      $iClose = round($close * 100000);
-
-      $index[$i]['time' ] = $bar['time'];
-      $index[$i]['open' ] = $iOpen;
-      $index[$i]['high' ] = max($iOpen, $iClose);
-      $index[$i]['low'  ] = min($iOpen, $iClose);
-      $index[$i]['close'] = $iClose;
-      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
-   }
-   return $index;
-}
-
-
-/**
- * Berechnet für die übergebenen Daten den NZDLFX-Index. Dieser Index entspricht dem NZDFX7.
- *
- * @param  int    $day     - Tag der zu berechnenden Daten
- * @param  array  $symbols - Array mit den Daten der beteiligten Instrumente für diesen Tag
- * @param  string $name    - optionaler Name (um die Funktion für NZDLFX und NZDFX7 benutzen zu können)
- *
- * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
- *
- * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
- *
- *         Formel: NZDLFX = ((NZDCAD * NZDCHF * NZDJPY * NZDUSD) / (AUDNZD * EURNZD * GBPNZD)) ^ 1/7
- *           oder: NZDLFX = USDLFX * NZDUSD
- */
-function calculateNZDLFX($day, array $symbols, $name='NZDLFX') {
-   if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
-   $shortDate = date('D, d-M-Y', $day);
-
-   global $verbose;
-   if ($verbose > 1) echoPre('[Info]    '.$name.'  '.$shortDate);
-
-   $AUDUSD = $symbols['AUDUSD']['bars'];
-   $EURUSD = $symbols['EURUSD']['bars'];
-   $GBPUSD = $symbols['GBPUSD']['bars'];
-   $USDCAD = $symbols['USDCAD']['bars'];
-   $USDCHF = $symbols['USDCHF']['bars'];
-   $USDJPY = $symbols['USDJPY']['bars'];
-   $NZDUSD = $symbols['NZDUSD']['bars'];
-   $index  = array();
-
-   foreach ($AUDUSD as $i => $bar) {
-      $audusd = $AUDUSD[$i]['open'];
-      $eurusd = $EURUSD[$i]['open'];
-      $gbpusd = $GBPUSD[$i]['open'];
-      $usdcad = $USDCAD[$i]['open'];
-      $usdchf = $USDCHF[$i]['open'];
-      $usdjpy = $USDJPY[$i]['open'];
-      $nzdusd = $NZDUSD[$i]['open'];
-      $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) * $nzdusd;
-      $iOpen  = round($open);
-
-      $audusd = $AUDUSD[$i]['close'];
-      $eurusd = $EURUSD[$i]['close'];
-      $gbpusd = $GBPUSD[$i]['close'];
-      $usdcad = $USDCAD[$i]['close'];
-      $usdchf = $USDCHF[$i]['close'];
-      $usdjpy = $USDJPY[$i]['close'];
-      $nzdusd = $NZDUSD[$i]['close'];
-      $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) * $nzdusd;
-      $iClose = round($close);
-
-      $index[$i]['time' ] = $bar['time'];
-      $index[$i]['open' ] = $iOpen;
-      $index[$i]['high' ] = max($iOpen, $iClose);
-      $index[$i]['low'  ] = min($iOpen, $iClose);
-      $index[$i]['close'] = $iClose;
-      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
-   }
-   return $index;
-}
-
-
-/**
- * Berechnet für die übergebenen Daten den NZDFX7-Index.
- *
- * @param  int   $day     - Tag der zu berechnenden Daten
- * @param  array $symbols - Array mit den Daten der beteiligten Instrumente für diesen Tag
- *
- * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
- *
- * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
- *
- *         Formel: NZDFX7 = ((NZDCAD * NZDCHF * NZDJPY * NZDUSD) / (AUDNZD * EURNZD * GBPNZD)) ^ 1/7
- */
-function calculateNZDFX7($day, array $symbols) {
-   return calculateNZDLFX($day, $symbols, 'NZDFX7');
-}
-
-
-/**
- * Berechnet für die übergebenen Daten den NOKFX7-Index.
- *
- * @param  int   $day     - Tag der zu berechnenden Daten
- * @param  array $symbols - Array mit den Daten der beteiligten Instrumente für diesen Tag
- *
- * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
- *
- * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
- *
- *         Formel: NOKFX7 = 10 * (NOKJPY / (AUDNOK * CADNOK * CHFNOK * EURNOK * GBPNOK * USDNOK)) ^ 1/7
- *           oder: NOKFX7 = 10 * USDLFX / USDNOK
- */
-function calculateNOKFX7($day, array $symbols) {
-   if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
-   $shortDate = date('D, d-M-Y', $day);
-
-   global $verbose;
-   if ($verbose > 1) echoPre('[Info]    NOKFX7  '.$shortDate);
-
-   $AUDUSD = $symbols['AUDUSD']['bars'];
-   $EURUSD = $symbols['EURUSD']['bars'];
-   $GBPUSD = $symbols['GBPUSD']['bars'];
-   $USDCAD = $symbols['USDCAD']['bars'];
-   $USDCHF = $symbols['USDCHF']['bars'];
-   $USDJPY = $symbols['USDJPY']['bars'];
-   $USDNOK = $symbols['USDNOK']['bars'];
-   $index  = array();
-
-   foreach ($AUDUSD as $i => $bar) {
-      $audusd = $AUDUSD[$i]['open'];
-      $eurusd = $EURUSD[$i]['open'];
-      $gbpusd = $GBPUSD[$i]['open'];
-      $usdcad = $USDCAD[$i]['open'];
-      $usdchf = $USDCHF[$i]['open'];
-      $usdjpy = $USDJPY[$i]['open'];
-      $usdnok = $USDNOK[$i]['open'];
-      $open   = 10 * pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdnok * 100000;
-      $iOpen  = round($open * 100000);
-
-      $audusd = $AUDUSD[$i]['close'];
-      $eurusd = $EURUSD[$i]['close'];
-      $gbpusd = $GBPUSD[$i]['close'];
-      $usdcad = $USDCAD[$i]['close'];
-      $usdchf = $USDCHF[$i]['close'];
-      $usdjpy = $USDJPY[$i]['close'];
-      $usdnok = $USDNOK[$i]['close'];
-      $close  = 10 * pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdnok * 100000;
-      $iClose = round($close * 100000);
-
-      $index[$i]['time' ] = $bar['time'];
-      $index[$i]['open' ] = $iOpen;
-      $index[$i]['high' ] = max($iOpen, $iClose);
-      $index[$i]['low'  ] = min($iOpen, $iClose);
-      $index[$i]['close'] = $iClose;
-      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
-   }
-   return $index;
-}
-
-
-/**
- * Berechnet für die übergebenen Daten den SEKFX7-Index.
- *
- * @param  int   $day     - Tag der zu berechnenden Daten
- * @param  array $symbols - Array mit den Daten der beteiligten Instrumente für diesen Tag
- *
- * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
- *
- * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
- *
- *         Formel: SEKFX7 = 10 * (SEKJPY / (AUDSEK * CADSEK * CHFSEK * EURSEK * GBPSEK * USDSEK)) ^ 1/7
- *           oder: SEKFX7 = 10 * USDLFX / USDSEK
- */
-function calculateSEKFX7($day, array $symbols) {
-   if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
-   $shortDate = date('D, d-M-Y', $day);
-
-   global $verbose;
-   if ($verbose > 1) echoPre('[Info]    SEKFX7  '.$shortDate);
-
-   $AUDUSD = $symbols['AUDUSD']['bars'];
-   $EURUSD = $symbols['EURUSD']['bars'];
-   $GBPUSD = $symbols['GBPUSD']['bars'];
-   $USDCAD = $symbols['USDCAD']['bars'];
-   $USDCHF = $symbols['USDCHF']['bars'];
-   $USDJPY = $symbols['USDJPY']['bars'];
-   $USDSEK = $symbols['USDSEK']['bars'];
-   $index  = array();
-
-   foreach ($AUDUSD as $i => $bar) {
-      $audusd = $AUDUSD[$i]['open'];
-      $eurusd = $EURUSD[$i]['open'];
-      $gbpusd = $GBPUSD[$i]['open'];
-      $usdcad = $USDCAD[$i]['open'];
-      $usdchf = $USDCHF[$i]['open'];
-      $usdjpy = $USDJPY[$i]['open'];
-      $usdsek = $USDSEK[$i]['open'];
-      $open   = 10 * pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdsek * 100000;
-      $iOpen  = round($open * 100000);
-
-      $audusd = $AUDUSD[$i]['close'];
-      $eurusd = $EURUSD[$i]['close'];
-      $gbpusd = $GBPUSD[$i]['close'];
-      $usdcad = $USDCAD[$i]['close'];
-      $usdchf = $USDCHF[$i]['close'];
-      $usdjpy = $USDJPY[$i]['close'];
-      $usdsek = $USDSEK[$i]['close'];
-      $close  = 10 * pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdsek * 100000;
-      $iClose = round($close * 100000);
-
-      $index[$i]['time' ] = $bar['time'];
-      $index[$i]['open' ] = $iOpen;
-      $index[$i]['high' ] = max($iOpen, $iClose);
-      $index[$i]['low'  ] = min($iOpen, $iClose);
-      $index[$i]['close'] = $iClose;
-      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
-   }
-   return $index;
-}
-
-
-/**
- * Berechnet für die übergebenen Daten den SGDFX7-Index.
- *
- * @param  int   $day     - Tag der zu berechnenden Daten
- * @param  array $symbols - Array mit den Daten der beteiligten Instrumente für diesen Tag
- *
- * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
- *
- * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
- *
- *         Formel: SGDFX7 = (SGDJPY / (AUDSGD * CADSGD * CHFSGD * EURSGD * GBPSGD * USDSGD)) ^ 1/7
- *           oder: SGDFX7 = USDLFX / USDSGD
- */
-function calculateSGDFX7($day, array $symbols) {
-}
-
-
-/**
- * Berechnet für die übergebenen Daten den USDLFX-Index.
- *
- * @param  int   $day     - Tag der zu berechnenden Daten
- * @param  array $symbols - Array mit den Daten der beteiligten Instrumente für diesen Tag
- *
- * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
- *
- * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
- *
- *         Formel: USDLFX = ((USDCAD * USDCHF * USDJPY) / (AUDUSD * EURUSD * GBPUSD)) ^ 1/7
- */
-function calculateUSDLFX($day, array $symbols) {
-   if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
-   $shortDate = date('D, d-M-Y', $day);
-
-   global $verbose;
-   if ($verbose > 1) echoPre('[Info]    USDLFX  '.$shortDate);
-
-   $AUDUSD = $symbols['AUDUSD']['bars'];
-   $EURUSD = $symbols['EURUSD']['bars'];
-   $GBPUSD = $symbols['GBPUSD']['bars'];
-   $USDCAD = $symbols['USDCAD']['bars'];
-   $USDCHF = $symbols['USDCHF']['bars'];
-   $USDJPY = $symbols['USDJPY']['bars'];
-   $index  = array();
-
-   foreach ($AUDUSD as $i => $bar) {
-      $audusd = $AUDUSD[$i]['open'];
-      $eurusd = $EURUSD[$i]['open'];
-      $gbpusd = $GBPUSD[$i]['open'];
-      $usdcad = $USDCAD[$i]['open'];
-      $usdchf = $USDCHF[$i]['open'];
-      $usdjpy = $USDJPY[$i]['open'];
-      $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7);
-      $iOpen  = round($open * 100000);
-
-      $audusd = $AUDUSD[$i]['close'];
-      $eurusd = $EURUSD[$i]['close'];
-      $gbpusd = $GBPUSD[$i]['close'];
-      $usdcad = $USDCAD[$i]['close'];
-      $usdchf = $USDCHF[$i]['close'];
-      $usdjpy = $USDJPY[$i]['close'];
-      $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7);
-      $iClose = round($close * 100000);
-
-      $index[$i]['time' ] = $bar['time'];
-      $index[$i]['open' ] = $iOpen;
-      $index[$i]['high' ] = max($iOpen, $iClose);
-      $index[$i]['low'  ] = min($iOpen, $iClose);
-      $index[$i]['close'] = $iClose;
-      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
-   }
-   return $index;
-}
-
-
-/**
- * Berechnet für die übergebenen Daten den EURX-Index (ICE).
- *
- * @param  int   $day     - Tag der zu berechnenden Daten
- * @param  array $symbols - Array mit den Daten der beteiligten Instrumente für diesen Tag
- *
- * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
- *
- * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
- *
- *         Formel: EURX = 34.38805726 * EURCHF^0.1113 * EURGBP^0.3056 * EURJPY^0.1891 * EURSEK^0.0785 * EURUSD^0.3155
- */
-function calculateEURX($day, array $symbols) {
-   if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
-   $shortDate = date('D, d-M-Y', $day);
-
-   global $verbose;
-   if ($verbose > 1) echoPre('[Info]    EURX  '.$shortDate);
-
-   $EURUSD = $symbols['EURUSD']['bars'];
-   $GBPUSD = $symbols['GBPUSD']['bars'];
-   $USDCHF = $symbols['USDCHF']['bars'];
-   $USDJPY = $symbols['USDJPY']['bars'];
-   $USDSEK = $symbols['USDSEK']['bars'];
-   $index  = array();
-
-   foreach ($EURUSD as $i => $bar) {
-      $eurusd = $EURUSD[$i]['open'];
-      $gbpusd = $GBPUSD[$i]['open'];
-      $usdchf = $USDCHF[$i]['open'];
-      $usdjpy = $USDJPY[$i]['open'];
-      $usdsek = $USDSEK[$i]['open'];
-      $open   = 34.38805726
-              * pow($eurusd/100000 * $usdchf/100000, 0.1113)
-              * pow($eurusd        / $gbpusd       , 0.3056)
-              * pow($eurusd/100000 * $usdjpy/1000  , 0.1891)
-              * pow($eurusd/100000 * $usdsek/100000, 0.0785)
-              * pow($eurusd/100000                 , 0.3155);
-      $iOpen  = round($open * 1000);
-
-      $eurusd = $EURUSD[$i]['close'];
-      $gbpusd = $GBPUSD[$i]['close'];
-      $usdchf = $USDCHF[$i]['close'];
-      $usdjpy = $USDJPY[$i]['close'];
-      $usdsek = $USDSEK[$i]['close'];
-      $close  = 34.38805726
-              * pow($eurusd/100000 * $usdchf/100000, 0.1113)
-              * pow($eurusd        / $gbpusd       , 0.3056)
-              * pow($eurusd/100000 * $usdjpy/1000  , 0.1891)
-              * pow($eurusd/100000 * $usdsek/100000, 0.0785)
-              * pow($eurusd/100000                 , 0.3155);
-      $iClose = round($close * 1000);
-
-      $index[$i]['time' ] = $bar['time'];
-      $index[$i]['open' ] = $iOpen;
-      $index[$i]['high' ] = max($iOpen, $iClose);
-      $index[$i]['low'  ] = min($iOpen, $iClose);
-      $index[$i]['close'] = $iClose;
-      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
-   }
-   return $index;
-}
-
-
-/**
- * Berechnet für die übergebenen Daten den USDX-Index (ICE).
- *
- * @param  int   $day     - Tag der zu berechnenden Daten
- * @param  array $symbols - Array mit den Daten der beteiligten Instrumente für diesen Tag
- *
- * @return MYFX_BAR[] - Array mit den resultierenden Indexdaten
- *
- * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
- *
- *         Formel: USDX = 50.14348112 * (USDCAD^0.091 * USDCHF^0.036 * USDJPY^0.136 * USDSEK^0.042) / (EURUSD^0.576 * GBPUSD^0.119)
- */
-function calculateUSDX($day, array $symbols) {
-   if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
-   $shortDate = date('D, d-M-Y', $day);
-
-   global $verbose;
-   if ($verbose > 1) echoPre('[Info]    USDX  '.$shortDate);
-
-   $EURUSD = $symbols['EURUSD']['bars'];
-   $GBPUSD = $symbols['GBPUSD']['bars'];
-   $USDCAD = $symbols['USDCAD']['bars'];
-   $USDCHF = $symbols['USDCHF']['bars'];
-   $USDJPY = $symbols['USDJPY']['bars'];
-   $USDSEK = $symbols['USDSEK']['bars'];
-   $index  = array();
-
-   foreach ($EURUSD as $i => $bar) {
-      $eurusd = $EURUSD[$i]['open'];
-      $gbpusd = $GBPUSD[$i]['open'];
-      $usdcad = $USDCAD[$i]['open'];
-      $usdchf = $USDCHF[$i]['open'];
-      $usdjpy = $USDJPY[$i]['open'];
-      $usdsek = $USDSEK[$i]['open'];
-      $open   = 50.14348112
-              * pow($usdcad/100000, 0.091) * pow($usdchf/100000, 0.036) * pow($usdjpy/1000, 0.136) * pow($usdsek/100000, 0.042)
-              / pow($eurusd/100000, 0.576) / pow($gbpusd/100000, 0.119);
-      $iOpen  = round($open * 1000);
-
-      $eurusd = $EURUSD[$i]['close'];
-      $gbpusd = $GBPUSD[$i]['close'];
-      $usdcad = $USDCAD[$i]['close'];
-      $usdchf = $USDCHF[$i]['close'];
-      $usdjpy = $USDJPY[$i]['close'];
-      $usdsek = $USDSEK[$i]['close'];
-      $close  = 50.14348112
-              * pow($usdcad/100000, 0.091) * pow($usdchf/100000, 0.036) * pow($usdjpy/1000, 0.136) * pow($usdsek/100000, 0.042)
-              / pow($eurusd/100000, 0.576) / pow($gbpusd/100000, 0.119);
-      $iClose = round($close * 1000);
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
