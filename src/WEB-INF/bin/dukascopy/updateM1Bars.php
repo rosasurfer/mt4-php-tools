@@ -105,7 +105,7 @@ function updateSymbol($symbol, $startTime) {
 
 
    // (1) Prüfen, ob sich der Startzeitpunkt des Symbols geändert hat
-   if (array_search($symbol, array('USDNOK', 'USDSEK', 'USDSGD')) !== false) {
+   if (array_search($symbol, array('USDNOK', 'USDSEK', 'USDSGD')) === false) {
       $content = downloadData($symbol, $startTime-1*DAY, 'bid', true, false, false);   // Statusmeldungen unterdrücken, nichts speichern
       if (strLen($content)) {
          echoPre('[Notice]  '.$symbol.' history was extended. Please update the history start time.');

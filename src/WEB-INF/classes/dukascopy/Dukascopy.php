@@ -124,7 +124,7 @@ Dukascopy::$historyStart_M1 = array('AUDUSD' => strToTime('2003-08-03 00:00:00 G
                                     'USDJPY' => strToTime('2003-05-04 00:00:00 GMT'),
                                     'USDNOK' => strToTime('2003-08-05 00:00:00 GMT'),  // TODO: !!! Start ist der 04.08.2003
                                     'USDSEK' => strToTime('2003-08-05 00:00:00 GMT'),  // TODO: !!! Start ist der 04.08.2003
-                                    'USDSGD' => strToTime('2004-11-16 00:00:00 GMT'),
+                                    'USDSGD' => strToTime('2004-11-17 00:00:00 GMT'),  // TODO: !!! Start ist der 16.11.2004
 );
 
 // Start der Tick-History der Dukascopy-Instrumente
