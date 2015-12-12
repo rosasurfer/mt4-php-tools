@@ -122,10 +122,10 @@ Dukascopy::$historyStart_M1 = array('AUDUSD' => strToTime('2003-08-03 00:00:00 G
                                     'USDCAD' => strToTime('2003-08-03 00:00:00 GMT'),
                                     'USDCHF' => strToTime('2003-05-04 00:00:00 GMT'),
                                     'USDJPY' => strToTime('2003-05-04 00:00:00 GMT'),
-                                    'USDNOK' => strToTime('2003-08-05 00:00:00 GMT'),  // TODO: !!! Start ist der 04.08.2003
-                                    'USDSEK' => strToTime('2003-08-05 00:00:00 GMT'),  // TODO: !!! Start ist der 04.08.2003
-                                    'USDSGD' => strToTime('2004-11-17 00:00:00 GMT'),  // TODO: !!! Start ist der 16.11.2004
-                                    'USDZAR' => strToTime('1997-10-13 00:00:00 GMT'),
+                                    'USDNOK' => strToTime('2003-08-05 00:00:00 GMT'),  // TODO: Start ist der 04.08.2003
+                                    'USDSEK' => strToTime('2003-08-05 00:00:00 GMT'),  // TODO: Start ist der 04.08.2003
+                                    'USDSGD' => strToTime('2004-11-17 00:00:00 GMT'),  // TODO: Start ist der 16.11.2004
+                                    'USDZAR' => strToTime('1997-10-14 00:00:00 GMT'),  // TODO: Start ist der 13.11.1997
 
                                   //'USDHUF' => strToTime('2007-03-13 00:00:00 GMT'),
                                   //'USDMXN' => strToTime('2007-03-13 00:00:00 GMT'),
