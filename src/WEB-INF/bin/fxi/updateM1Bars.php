@@ -1410,8 +1410,8 @@ function calculateNZDFX7($day, array $symbols) {
  *
  * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
  *
- *         Formel: NOKFX7 = (NOKJPY / (AUDNOK * CADNOK * CHFNOK * EURNOK * GBPNOK * USDNOK)) ^ 1/7
- *           oder: NOKFX7 = USDLFX / USDNOK
+ *         Formel: NOKFX7 = 10 * (NOKJPY / (AUDNOK * CADNOK * CHFNOK * EURNOK * GBPNOK * USDNOK)) ^ 1/7
+ *           oder: NOKFX7 = 10 * USDLFX / USDNOK
  */
 function calculateNOKFX7($day, array $symbols) {
    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
@@ -1437,12 +1437,8 @@ function calculateNOKFX7($day, array $symbols) {
       $usdchf = $USDCHF[$i]['open'];
       $usdjpy = $USDJPY[$i]['open'];
       $usdnok = $USDNOK[$i]['open'];
-      $open = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdnok * 100000;
+      $open   = 10 * pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdnok * 100000;
       $iOpen  = round($open * 100000);
-
-      echoPre('NOKFX7 = '.$open);
-      exit();
-
 
       $audusd = $AUDUSD[$i]['close'];
       $eurusd = $EURUSD[$i]['close'];
@@ -1451,7 +1447,7 @@ function calculateNOKFX7($day, array $symbols) {
       $usdchf = $USDCHF[$i]['close'];
       $usdjpy = $USDJPY[$i]['close'];
       $usdnok = $USDNOK[$i]['close'];
-      $close  = 10 * pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdsek * 100000;
+      $close  = 10 * pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdnok * 100000;
       $iClose = round($close * 100000);
 
       $index[$i]['time' ] = $bar['time'];
