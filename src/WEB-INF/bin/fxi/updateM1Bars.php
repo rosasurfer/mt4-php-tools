@@ -1776,8 +1776,8 @@ function calculateUSDFX7($day, array $symbols) {
  *
  * @see    MetaTrader::mql4\indicators\LFX-Recorder.mq4
  *
- *         Formel: ZARFX7 = (ZARJPY / (AUDZAR * CADZAR * CHFZAR * EURZAR * GBPZAR * USDZAR)) ^ 1/7
- *           oder: ZARFX7 = USDLFX / USDZAR
+ *         Formel: ZARFX7 = 100 * (ZARJPY / (AUDZAR * CADZAR * CHFZAR * EURZAR * GBPZAR * USDZAR)) ^ 1/7
+ *           oder: ZARFX7 = 100 * USDLFX / USDZAR
  */
 function calculateZARFX7($day, array $symbols) {
    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
