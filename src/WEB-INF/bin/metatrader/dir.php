@@ -2,13 +2,6 @@
 <?php
 /**
  * Verzeichnislisting für MetaTrader-Historydateien
- *
- *
- * Folgende Einträge zur Datei <path>/4NT/alias.lst hinzufügen:
- * ------------------------------------------------------------
- *  mt4dir     =mt4dir.php
- *  mt4dir.php =<project_dir>/src/WEB-INF/bin/metatrader/mt4dir.php
- *  mtdir      =mt4dir
  */
 require(dirName(realPath(__FILE__)).'/../../config.php');
 
@@ -25,16 +18,16 @@ else                       $hstHeaderFormat = 'Vformat/Z64description/Z12symbol/
 $args = array_slice($_SERVER['argv'], 1);
 !$args && ($args[0]='*');
 
-$arg0 = $args[0];                                           // Die Funktion glob() kann nicht verwendet werden, da sie beim Patternmatching
-if (realPath($arg0)) {                                      // unter Windows Groß-/Kleinschreibung unterscheidet. Stattdessen werden Directory-
-   $arg0 = realPath($arg0);                                 // Funktionen benutzt.
+$arg0 = $args[0];                                                       // Die Funktion glob() kann nicht verwendet werden, da sie beim Patternmatching
+if (realPath($arg0)) {                                                  // unter Windows Groß-/Kleinschreibung unterscheidet. Stattdessen werden Directory-
+   $arg0 = realPath($arg0);                                             // Funktionen benutzt.
    if (is_dir($arg0)) { $dirName = $arg0;          $baseName = '';              }
-   else               { $dirName = dirName($arg0); $baseName = baseName($arg0); }
-}
+   else               { $dirName = dirName($arg0); $baseName = baseName($arg0); }   // TODO: Nur der erste Parameter wird ausgewertet. Die Bash-Shell expandiert
+}                                                                                   //       Wildcards und übergibt dem Script eine Liste von Dateinamen.
 else                  { $dirName = dirName($arg0); $baseName = baseName($arg0); }
 
 !$baseName && ($baseName='*');
-$baseName = str_replace('*', '.*', str_replace('.', '\.', $baseName));
+$baseName = str_replace('*', '.*', str_replace('.', '\.', $baseName));  // für RegExp in (3.1): * erweitern, . escapen
 
 
 // (2) Verzeichnis öffnen
@@ -48,7 +41,7 @@ $fileNames = $formats = $symbols = $periods = $aDigits = $syncMarks = $lastSyncs
 while (($fileName=$dir->read()) !== false) {
    if (preg_match("/^$baseName$/i", $fileName) && preg_match('/^(.+)\.hst$/i', $fileName, $match)) {
       $fileNames[] = $fileName;
-      $fileSize    = fileSize($fileName);
+      $fileSize    = fileSize($dirName.'/'.$fileName);
 
       if ($fileSize < HISTORY_HEADER_SIZE) {
          $formats    [] = null;
@@ -65,7 +58,7 @@ while (($fileName=$dir->read()) !== false) {
          continue;
       }
 
-      $hFile     = fOpen($fileName, 'rb');
+      $hFile     = fOpen($dirName.'/'.$fileName, 'rb');
       $hstHeader = unpack($hstHeaderFormat, fRead($hFile, HISTORY_HEADER_SIZE));
       extract($hstHeader);
 
