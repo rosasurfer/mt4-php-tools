@@ -11,7 +11,7 @@ require(dirName(realPath(__FILE__)).'/../../config.php');
 
 // (1) Befehlszeilenargumente einlesen und validieren
 $args = array_slice($_SERVER['argv'], 1);
-
+help();
 
 exit(0);
 
@@ -32,7 +32,7 @@ function help($message=null) {
 
 echo <<<END
 
- Syntax:  $self [file-pattern [...]]
+ Syntax:  $self  file [...]
 
 
 END;

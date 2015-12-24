@@ -168,7 +168,7 @@ function help($message=null) {
 
 echo <<<END
 
-  Syntax: $self <file-pattern>
+  Syntax: $self  [file-pattern [...]]
 
 
 END;
