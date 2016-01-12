@@ -1,7 +1,7 @@
 #!/usr/bin/php
 <?php
 /**
- * Aktualisiert die MyFX-M1-History der angegebenen FX-Indizes. Nach Möglichkeit werden zur Berechnung vorhandene Tickdaten benutzt.
+ * Aktualisiert die MyFX-M1-History der angegebenen FX-Indizes. Zur Zeit werden zur Berechnung nur M1-Daten benutzt.
  *
  * Unterstützte Instrumente:
  *    • ICE-Indizes:    EURX, USDX
