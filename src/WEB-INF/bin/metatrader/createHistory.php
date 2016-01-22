@@ -2,7 +2,7 @@
 <?php
 /**
  * Konvertiert die MyFX-History ein oder mehrerer Symbole ins MetaTrader-Format und legt sie im MyFX-Serververzeichnis ab.
- * Es wird nicht geprüft, ob die Symbole in die Datei "symbols.raw" des Serververzeichnisses eingetragen wurden.
+ * Es wird nicht überprüft, ob die Symbole in der Datei "symbols.raw" des Serververzeichnisses existieren.
  */
 require(dirName(realPath(__FILE__)).'/../../config.php');
 date_default_timezone_set('GMT');
