@@ -1,8 +1,8 @@
 #!/usr/bin/php
 <?php
 /**
- * Konvertiert die MyFX-History ein oder mehrerer Symbole ins MetaTrader-Format und legt sie im MyFX-Serververzeichnis ab.
- * Es wird nicht überprüft, ob die Symbole in der Datei "symbols.raw" des Serververzeichnisses existieren.
+ * Konvertiert die M1-History ein oder mehrerer Dukascopy-Instrumente ins MetaTrader-Format und legt sie im
+ * Historyverzeichnis "mt4/MyFX-Dukascopy" ab.
  */
 require(dirName(realPath(__FILE__)).'/../../config.php');
 date_default_timezone_set('GMT');

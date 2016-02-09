@@ -1,7 +1,9 @@
 #!/usr/bin/php
 <?php
 /**
- * Aktualisiert die MyFX-M1-History der angegebenen FX-Indizes. Zur Zeit werden die Indizes nur anhand von M1-Daten berechnet.
+ * Erzeugt aus Dukascopy-M1-Daten die M1-History der angegebenen FX-Indizes und speichert sie im MyFX-Historyverzeichnis.
+ * Gegebenenfalls schon existierende MyFX-Historydaten des Instruments müssen vorm Aufruf gelöscht werden.
+ *
  *
  * Unterstützte Instrumente:
  *    • ICE-Indizes:    EURX, USDX

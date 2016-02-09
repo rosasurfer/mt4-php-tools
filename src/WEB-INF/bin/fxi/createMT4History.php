@@ -1,8 +1,8 @@
 #!/usr/bin/php
 <?php
 /**
- * Konvertiert die MyFX-History ein oder mehrerer FX-Indizes ins MetaTrader-Format und legt sie im MyFX-Serververzeichnis ab.
- * Es wird nicht geprüft, ob die Symbole in die Datei "symbols.raw" des Serververzeichnisses eingetragen wurden.
+ * Konvertiert die M1-History ein oder mehrerer FX-Indizes ins MetaTrader-Format und legt sie im
+ * Historyverzeichnis "mt4/MyFX-Dukascopy" ab.
  */
 require(dirName(realPath(__FILE__)).'/../../config.php');
 date_default_timezone_set('GMT');
@@ -49,7 +49,7 @@ exit(0);
 
 
 /**
- * Erzeugt die MetaTrader-History eines Symbol.
+ * Erzeugt die MetaTrader-History eines Instruments.
  *
  * @param  string $symbol - Symbol
  *
