@@ -13,17 +13,20 @@ else                       $hstHeaderFormat = 'Vformat/Z64description/Z12symbol/
 
 
 // -- Start ----------------------------------------------------------------------------------------------------------------------------------------
+$byteOffset = false;
+$barOffset  = false;
+$quietMode  = false;
 
 
 // (1) Befehlszeilenargumente einlesen und validieren
 $args = array_slice($_SERVER['argv'], 1);
 
 // (1.1) Optionen parsen
-$byteOffset = $barOffset = false;
 foreach ($args as $i => $arg) {
    $arg = strToLower($arg);
    if (in_array($arg, array('-h','--help'))) help() & exit(1);             // Hilfe
-   if ($arg == '-c') { $byteOffset=true; unset($args[$i]); continue; }     // -c: byte, not bar offset
+   if ($arg == '-c') { $byteOffset=true; unset($args[$i]); continue; }     // -c: byte offset
+   if ($arg == '-q') { $quietMode =true; unset($args[$i]); continue; }     // -q: quiet mode
 }
 $barOffset = !$byteOffset;
 
@@ -99,8 +102,11 @@ while ($i != -1) {
 
 
 // (5) Ergebnis ausgeben
-if ($byteOffset) echoPre('byte offset: '.(HISTORY_HEADER_SIZE + $i*$barSize));
-else             echoPre('bar offset: '.$i);
+if ($byteOffset) $result = HISTORY_HEADER_SIZE + $i*$barSize;
+else             $result = $i;
+if      ($quietMode ) echo $result;
+else if ($byteOffset) echoPre('byte offset: '.$result);
+else                  echoPre('bar offset: ' .$result);
 
 exit(0);
 
@@ -120,11 +126,12 @@ function help($message=null) {
    $self = baseName($_SERVER['PHP_SELF']);
 
 echo <<<END
- Returns the offset of the first bar in a MetaTrader history file at or after a specified time or -1 if no such bar is found.
+ Finds the offset of the first bar in a MetaTrader history file at or after a specified time or -1 if no such bar is found.
 
   Syntax:  $self  [OPTION]... TIME FILE
 
-  Options:  -c  Character offset of the first bar. The default return value is the bar offset.
+  Options:  -c  Prints the character offset of the found bar instead of the bar offset.
+            -q  Quiet mode. Prints only the numeric result value.
             -h  This help screen.
 
 
