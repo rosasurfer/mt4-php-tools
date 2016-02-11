@@ -125,7 +125,7 @@ function help($message=null) {
    $self = baseName($_SERVER['PHP_SELF']);
 
 echo <<<END
- Finds the offset of the first bar in a MetaTrader history file at or after a specified time or -1 if no such bar is found.
+Finds the offset of the first bar in a MetaTrader history file at or after a specified time or -1 if no such bar is found.
 
   Syntax:  $self  [OPTION]... TIME FILE
 
