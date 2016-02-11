@@ -107,7 +107,10 @@ if      ($quietMode ) echo $result;
 else if ($byteOffset) echoPre('byte offset: '.$result);
 else                  echoPre('bar offset: ' .$result);
 
+if ($i == -1)
+   exit(2);
 exit(0);
+
 
 
 // --- Funktionen ----------------------------------------------------------------------------------------------------------------------------------
