@@ -104,6 +104,7 @@ while ($i != -1) {
 // (5) Ergebnis ausgeben
 if ($byteOffset) $result = HISTORY_HEADER_SIZE + $i*$barSize;
 else             $result = $i;
+
 if      ($quietMode ) echo $result;
 else if ($byteOffset) echoPre('byte offset: '.$result);
 else                  echoPre('bar offset: ' .$result);
