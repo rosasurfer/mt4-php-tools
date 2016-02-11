@@ -14,7 +14,6 @@ else                       $hstHeaderFormat = 'Vformat/Z64description/Z12symbol/
 
 // -- Start ----------------------------------------------------------------------------------------------------------------------------------------
 $byteOffset = false;
-$barOffset  = false;
 $quietMode  = false;
 
 
@@ -28,7 +27,6 @@ foreach ($args as $i => $arg) {
    if ($arg == '-c') { $byteOffset=true; unset($args[$i]); continue; }     // -c: byte offset
    if ($arg == '-q') { $quietMode =true; unset($args[$i]); continue; }     // -q: quiet mode
 }
-$barOffset = !$byteOffset;
 
 // (1.2) Das verbleibende erste Argument muß ein Zeitpunkt sein.
 if (sizeOf($args) < 2) help() & exit(1);
