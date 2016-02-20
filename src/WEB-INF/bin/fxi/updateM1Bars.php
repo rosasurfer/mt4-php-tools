@@ -7,12 +7,12 @@
  *
  * Unterstützte Instrumente:
  *  • ICE-Indizes: EURX, USDX
- *  • LFX-Indizes: LiteForex, sind bis auf NZDLFX gestauchte FX6-Indizes
+ *  • LFX-Indizes: LiteForex (sind bis auf NZDLFX gestauchte FX6-Indizes)
  *  • FX6-Indizes: AUDFX6, CADFX6, CHFFX6, EURFX6, GBPFX6, JPYFX6, USDFX6
- *  • FX7-Indizes: AUDFX7, CADFX7, CHFFX7, EURFX7, GBPFX7, JPYFX7, USDFX7, NOKFX7, NZDFX7=NZDLFX, SEKFX7, ZARFX7
+ *  • FX7-Indizes: AUDFX7, CADFX7, CHFFX7, EURFX7, GBPFX7, JPYFX7, USDFX7, NOKFX7, NZDFX7=NZDLFX, SEKFX7, SGDFX7, ZARFX7
  *
- *  TODO: NOKFX8: NOK vs USDFX7
- *        SEKFX8: SEK vs USDFX7
+ *  TODO: AUDFX5, CADFX5, CHFFX5, EURFX5, GBPFX5, USDFX5 (ohne JPY)
+ *        NOKFX6, SEKFX6, SGDFX6, ZARFX6                 (ohne JPY)
  *
  * @see  MetaTrader::indicators\LFX-Monitor.mq4
  */
@@ -23,8 +23,8 @@ date_default_timezone_set('GMT');
 // -- Konfiguration --------------------------------------------------------------------------------------------------------------------------------
 
 
-$verbose         = 0;                                 // output verbosity
-$saveRawMyFXData = true;                              // ob unkomprimierte MyFX-Historydaten gespeichert werden sollen
+$verbose         = 0;                                       // output verbosity
+$saveRawMyFXData = true;                                    // ob unkomprimierte MyFX-Historydaten gespeichert werden sollen
 
 
 // Indizes und die zu ihrer Berechnung benötigten Instrumente
