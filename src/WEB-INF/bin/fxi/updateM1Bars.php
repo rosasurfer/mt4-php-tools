@@ -11,10 +11,10 @@
  *  • FX6-Indizes: AUDFX6, CADFX6, CHFFX6, EURFX6, GBPFX6, JPYFX6, USDFX6
  *  • FX7-Indizes: AUDFX7, CADFX7, CHFFX7, EURFX7, GBPFX7, JPYFX7, USDFX7, NOKFX7, NZDFX7=NZDLFX, SEKFX7, ZARFX7
  *
- *  • SEKFX8: SEK vs USDFX7
- *  • NOKFX8: NOK vs USDFX7
+ *  TODO: NOKFX8: NOK vs USDFX7
+ *        SEKFX8: SEK vs USDFX7
  *
- * @see  MetaTrader::mql4\indicators\LFX-Monitor.mq4
+ * @see  MetaTrader::indicators\LFX-Monitor.mq4
  */
 require(dirName(realPath(__FILE__)).'/../../config.php');
 date_default_timezone_set('GMT');
@@ -109,17 +109,17 @@ function createIndex($index) {
    if (!is_string($index)) throw new IllegalTypeException('Illegal type of parameter $index: '.getType($index));
    if (!strLen($index))    throw new plInvalidArgumentException('Invalid parameter $index: ""');
 
-   global $verbose, $indexes;
+   global $verbose, $indexes, $saveRawMyFXData;
 
    // (1) Starttag der benötigten Daten ermitteln
    $startTime = 0;
-   $pairs = array_flip($indexes[$index]);                                              // array('AUDUSD', ...) => array('AUDUSD'=>null, ...)
+   $pairs = array_flip($indexes[$index]);                                     // array('AUDUSD', ...) => array('AUDUSD'=>null, ...)
    foreach($pairs as $pair => &$data) {
-      $data      = array();                                                            // $data initialisieren: array('AUDUSD'=>[], ...)
+      $data      = array();                                                   // $data initialisieren: array('AUDUSD'=>[], ...)
       $startTime = max($startTime, Dukascopy::$historyStart_M1[$pair]);
    }
-   $startDay = $startTime     - $startTime%DAY;                                        // 00:00 Starttag
-   $today    = ($today=time())- $today    %DAY;                                        // 00:00 aktueller Tag
+   $startDay = $startTime     - $startTime%DAY;                               // 00:00 Starttag
+   $today    = ($today=time())- $today    %DAY;                               // 00:00 aktueller Tag
 
 
    // (2) Gesamte Zeitspanne tageweise durchlaufen
@@ -130,25 +130,36 @@ function createIndex($index) {
          $lastMonth = $month;
       }
 
-      if (!MyFX::isWeekend($day)) {                                                    // außer an Wochenenden
-         // M1-History der benötigten Instrumente für diesen Tag einlesen
-         foreach($pairs as $pair => $data) {
-            if      (is_file($file=getVar('myfxSource.compressed', $pair, $day))) {}   // komprimierte oder
-            else if (is_file($file=getVar('myfxSource.raw'       , $pair, $day))) {}   // unkomprimierte MyFX-Datei
-            else {
-               echoPre('[Error]   '.$pair.' history for '.date('D, d-M-Y', $day).' not found');
-               return false;
-            }
-            // M1-Bars des Tages zwischenspeichern
-            $pairs[$pair]['bars'] = MyFX::readBarFile($file);                          // array('AUDUSD'=>array('bars'=>[]), ...)
+      if (!MyFX::isWeekend($day)) {                                           // außer an Wochenenden
+         $shortDate = date('D, d-M-Y', $day);
+
+         // Prüfen, ob die History bereits existiert
+         if (is_file($file=getVar('myfxTarget.compressed', $index, $day))) {
+            if ($verbose > 1) echoPre('[Ok]    '.$shortDate.'   '.$index.' compressed history file: '.baseName($file));
          }
+         else if (is_file($file=getVar('myfxTarget.raw', $index, $day))) {
+            if ($verbose > 1) echoPre('[Ok]    '.$shortDate.'   '.$index.' raw history file: '.baseName($file));
+         }
+         else {
+            // History aktualisieren: M1-Bars der benötigten Instrumente dieses Tages einlesen
+            foreach($pairs as $pair => $data) {
+               if      (is_file($file=getVar('myfxSource.compressed', $pair, $day))) {}   // komprimierte oder
+               else if (is_file($file=getVar('myfxSource.raw'       , $pair, $day))) {}   // unkomprimierte MyFX-Datei
+               else {
+                  echoPre('[Error]   '.$pair.' history for '.$shortDate.' not found');
+                  return false;
+               }
+               // M1-Bars zwischenspeichern
+               $pairs[$pair]['bars'] = MyFX::readBarFile($file);                          // array('AUDUSD'=>array('bars'=>[]), ...)
+            }
 
-         // Indexdaten für diesen Tag berechnen
-         $function = 'calculate'.$index;
-         $ixBars   = $function($day, $pairs); if (!$ixBars) return false;
+            // Indexdaten für diesen Tag berechnen
+            $function = 'calculate'.$index;
+            $ixBars   = $function($day, $pairs); if (!$ixBars) return false;
 
-         // Indexdaten speichern
-         if (!saveBars($index, $day, $ixBars)) return false;
+            // Indexdaten speichern
+            if (!saveBars($index, $day, $ixBars)) return false;
+         }
       }
    }
    echoPre('[Ok]    '.$index);
@@ -1824,7 +1835,7 @@ function saveBars($symbol, $day, array $bars) {
    }
 
 
-   // (4) binäre Daten komprimieren und speichern
+   // (4) TODO: binäre Daten komprimieren und speichern
 
    return true;
 }
