@@ -2,14 +2,12 @@
 <?php
 /**
  * Erzeugt aus Dukascopy-M1-Daten die M1-History der angegebenen FX-Indizes und speichert sie im MyFX-Historyverzeichnis.
- * Gegebenenfalls schon existierende MyFX-Historydaten des Instruments müssen vorm Aufruf gelöscht werden.
- *
  *
  * Unterstützte Instrumente:
- *  • ICE-Indizes: EURX, USDX
- *  • LFX-Indizes: LiteForex (sind bis auf NZDLFX gestauchte FX6-Indizes)
+ *  • LFX-Indizes: LiteForex (gestauchte FX6-Indizes, außer NZDLFX=NZDFX7)
  *  • FX6-Indizes: AUDFX6, CADFX6, CHFFX6, EURFX6, GBPFX6, JPYFX6, USDFX6
- *  • FX7-Indizes: AUDFX7, CADFX7, CHFFX7, EURFX7, GBPFX7, JPYFX7, USDFX7, NOKFX7, NZDFX7=NZDLFX, SEKFX7, SGDFX7, ZARFX7
+ *  • FX7-Indizes: AUDFX7, CADFX7, CHFFX7, EURFX7, GBPFX7, JPYFX7, USDFX7, NOKFX7, NZDFX7, SEKFX7, SGDFX7, ZARFX7
+ *  • ICE-Indizes: EURX, USDX
  *
  *  TODO: AUDFX5, CADFX5, CHFFX5, EURFX5, GBPFX5, USDFX5 (ohne JPY)
  *        NOKFX6, SEKFX6, SGDFX6, ZARFX6                 (ohne JPY)
