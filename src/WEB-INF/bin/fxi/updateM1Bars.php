@@ -1,7 +1,7 @@
 #!/usr/bin/php
 <?php
 /**
- * Erzeugt aus Dukascopy-M1-Daten die M1-History der angegebenen FX-Indizes und speichert sie im MyFX-Historyverzeichnis.
+ * Aktualisiert anhand von Dukascopy-Daten die M1-History der angegebenen FX-Indizes und speichert sie im MyFX-Historyverzeichnis.
  *
  * Unterstützte Instrumente:
  *  • LFX-Indizes: LiteForex (gestauchte FX6-Indizes, außer NZDLFX=NZDFX7)
