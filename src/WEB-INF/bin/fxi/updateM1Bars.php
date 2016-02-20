@@ -124,11 +124,6 @@ function createIndex($index) {
 
    // (2) Gesamte Zeitspanne tageweise durchlaufen
    for ($day=$startDay, $lastMonth=-1; $day < $today; $day+=1*DAY) {
-      $month = iDate('m', $day);
-      if ($month != $lastMonth) {
-         echoPre('[Info]    '.date('M-Y', $day));
-         $lastMonth = $month;
-      }
 
       if (!MyFX::isWeekend($day)) {                                           // außer an Wochenenden
          $shortDate = date('D, d-M-Y', $day);
@@ -141,6 +136,12 @@ function createIndex($index) {
             if ($verbose > 1) echoPre('[Ok]    '.$shortDate.'   '.$index.' raw history file: '.baseName($file));
          }
          else {
+            $month = iDate('m', $day);
+            if ($month != $lastMonth) {
+               echoPre('[Info]    '.$index.' '.date('M-Y', $day));
+               $lastMonth = $month;
+            }
+
             // History aktualisieren: M1-Bars der benötigten Instrumente dieses Tages einlesen
             foreach($pairs as $pair => $data) {
                if      (is_file($file=getVar('myfxSource.compressed', $pair, $day))) {}   // komprimierte oder
@@ -162,7 +163,7 @@ function createIndex($index) {
          }
       }
    }
-   echoPre('[Ok]    '.$index);
+   echoPre('[Ok]      '.$index);
    return true;
 }
 
