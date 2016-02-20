@@ -1,6 +1,6 @@
 <?php
 /**
- * MT4/MQL related functionality
+ * MetaTrader related functionality
  */
 class MT4 extends StaticClass {
 
