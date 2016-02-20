@@ -71,25 +71,24 @@ $args = array_slice($_SERVER['argv'], 1);
 
 // Optionen parsen
 foreach ($args as $i => $arg) {
-   if ($arg == '-h'  )   help() & exit(1);                                             // Hilfe
-   if ($arg == '-v'  ) { $verbose = max($verbose, 1); unset($args[$i]); continue; }    // verbose output
-   if ($arg == '-vv' ) { $verbose = max($verbose, 2); unset($args[$i]); continue; }    // more verbose output
-   if ($arg == '-vvv') { $verbose = max($verbose, 3); unset($args[$i]); continue; }    // very verbose output
+   if ($arg == '-h'  )   help() & exit(1);                                          // Hilfe
+   if ($arg == '-v'  ) { $verbose = max($verbose, 1); unset($args[$i]); continue; } // verbose output
+   if ($arg == '-vv' ) { $verbose = max($verbose, 2); unset($args[$i]); continue; } // more verbose output
+   if ($arg == '-vvv') { $verbose = max($verbose, 3); unset($args[$i]); continue; } // very verbose output
 }
-if (!$args) help() & exit(1);
 
 // Symbole parsen
 foreach ($args as $i => $arg) {
    $arg = strToUpper($arg);
-   if (!array_key_exists($arg, $indexes)) help('error: unsupported symbol "'.$args[$i].'"') & exit(1);
+   if (!array_key_exists($arg, $indexes)) help('error: unknown or unsupported index "'.$args[$i].'"') & exit(1);
    $args[$i] = $arg;
 }
-$args = array_unique($args);
+$args = $args ? array_unique($args) : array_keys($indexes);                         // ohne Angabe werden alle Indizes aktualisiert
 
 
-// (2) Index berechnen
+// (2) Indizes berechnen
 foreach ($args as $index) {
-   if (!createIndex($index))
+   if (!updateIndex($index))
       exit(1);
 }
 exit(0);
@@ -99,13 +98,13 @@ exit(0);
 
 
 /**
- * Berechnet die M1-History eines Indexes und speichert sie im MyFX-Format.
+ * Aktualisiert die M1-History eines Indexes (MyFX-Format).
  *
- * @param  string $index - Symbol des Indexes
+ * @param  string $index - Indexsymbol
  *
  * @return bool - Erfolgsstatus
  */
-function createIndex($index) {
+function updateIndex($index) {
    if (!is_string($index)) throw new IllegalTypeException('Illegal type of parameter $index: '.getType($index));
    if (!strLen($index))    throw new plInvalidArgumentException('Invalid parameter $index: ""');
 

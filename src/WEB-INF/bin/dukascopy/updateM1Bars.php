@@ -64,7 +64,7 @@ foreach ($args as $i => $arg) {
    if (!isSet(Dukascopy::$historyStart_M1[$arg])) help('error: unknown or unsupported symbol "'.$args[$i].'"') & exit(1);
    $args[$i] = $arg;
 }
-$args = $args ? array_unique($args) : array_keys(Dukascopy::$historyStart_M1);      // ohne Symbol werden alle Symbole aktualisiert
+$args = $args ? array_unique($args) : array_keys(Dukascopy::$historyStart_M1);      // ohne Angabe werden alle Symbole aktualisiert
 
 
 // (2) Daten aktualisieren
