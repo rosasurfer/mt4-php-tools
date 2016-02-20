@@ -52,10 +52,10 @@ if (!$args) help() & exit(1);
 // Optionen parsen
 $looping = $fileSyncOnly = false;
 foreach ($args as $i => $arg) {
-   if (in_array($arg, array('-h','--help'))) help() & exit(1);                   // Hilfe
-   if ($arg == '-v'  ) { $verbose = 1; unset($args[$i]); continue; }             // verbose output
-   if ($arg == '-vv' ) { $verbose = 2; unset($args[$i]); continue; }             // more verbose output
-   if ($arg == '-vvv') { $verbose = 3; unset($args[$i]); continue; }             // very verbose output
+   if (in_array($arg, array('-h','--help'))) help() & exit(1);                      // Hilfe
+   if ($arg == '-v'  ) { $verbose = max($verbose, 1); unset($args[$i]); continue; } // verbose output
+   if ($arg == '-vv' ) { $verbose = max($verbose, 2); unset($args[$i]); continue; } // more verbose output
+   if ($arg == '-vvv') { $verbose = max($verbose, 3); unset($args[$i]); continue; } // very verbose output
 }
 
 // Symbole parsen
@@ -68,7 +68,7 @@ foreach ($args as $i => $arg) {
       $args[$i] = $arg;
    }
 }
-$args = in_array('*', $args) ? array_keys($startTimes) : array_unique($args);    // '*' wird durch alle Symbole ersetzt
+$args = in_array('*', $args) ? array_keys($startTimes) : array_unique($args);       // '*' wird durch alle Symbole ersetzt
 
 
 

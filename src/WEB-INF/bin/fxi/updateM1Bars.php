@@ -71,10 +71,10 @@ $args = array_slice($_SERVER['argv'], 1);
 
 // Optionen parsen
 foreach ($args as $i => $arg) {
-   if ($arg == '-h'  )   help() & exit(1);                              // Hilfe
-   if ($arg == '-v'  ) { $verbose = 1; unset($args[$i]); continue; }    // verbose output
-   if ($arg == '-vv' ) { $verbose = 2; unset($args[$i]); continue; }    // more verbose output
-   if ($arg == '-vvv') { $verbose = 3; unset($args[$i]); continue; }    // very verbose output
+   if ($arg == '-h'  )   help() & exit(1);                                             // Hilfe
+   if ($arg == '-v'  ) { $verbose = max($verbose, 1); unset($args[$i]); continue; }    // verbose output
+   if ($arg == '-vv' ) { $verbose = max($verbose, 2); unset($args[$i]); continue; }    // more verbose output
+   if ($arg == '-vvv') { $verbose = max($verbose, 3); unset($args[$i]); continue; }    // very verbose output
 }
 if (!$args) help() & exit(1);
 
@@ -126,7 +126,7 @@ function createIndex($index) {
    for ($day=$startDay, $lastMonth=-1; $day < $today; $day+=1*DAY) {
       $month = iDate('m', $day);
       if ($month != $lastMonth) {
-         if ($verbose > 0) echoPre('[Info]    '.date('M-Y', $day));
+         echoPre('[Info]    '.date('M-Y', $day));
          $lastMonth = $month;
       }
 

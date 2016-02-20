@@ -52,10 +52,10 @@ $args = array_slice($_SERVER['argv'], 1);
 
 // Optionen parsen
 foreach ($args as $i => $arg) {
-   if ($arg == '-h'  )   help() & exit(1);                              // Hilfe
-   if ($arg == '-v'  ) { $verbose = 1; unset($args[$i]); continue; }    // verbose output
-   if ($arg == '-vv' ) { $verbose = 2; unset($args[$i]); continue; }    // more verbose output
-   if ($arg == '-vvv') { $verbose = 3; unset($args[$i]); continue; }    // very verbose output
+   if ($arg == '-h'  )   help() & exit(1);                                          // Hilfe
+   if ($arg == '-v'  ) { $verbose = max($verbose, 1); unset($args[$i]); continue; } // verbose output
+   if ($arg == '-vv' ) { $verbose = max($verbose, 2); unset($args[$i]); continue; } // more verbose output
+   if ($arg == '-vvv') { $verbose = max($verbose, 3); unset($args[$i]); continue; } // very verbose output
 }
 
 // Symbole parsen
@@ -64,7 +64,7 @@ foreach ($args as $i => $arg) {
    if (!isSet(Dukascopy::$historyStart_M1[$arg])) help('error: unknown or unsupported symbol "'.$args[$i].'"') & exit(1);
    $args[$i] = $arg;
 }
-$args = $args ? array_unique($args) : array_keys(Dukascopy::$historyStart_M1);   // ohne Symbol werden alle Symbole aktualisiert
+$args = $args ? array_unique($args) : array_keys(Dukascopy::$historyStart_M1);      // ohne Symbol werden alle Symbole aktualisiert
 
 
 // (2) Daten aktualisieren
