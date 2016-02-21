@@ -369,8 +369,8 @@ class HistorySet extends Object {
          // Wechsel zur nächsten W1-Bar erkennen
          if ($bar['time'] >= $this->history[PERIOD_W1]['currentCloseTime']) {
             // neue Bar beginnen
-            $dow = iDate('w', $bar['time']);
-            $bar['time']                                 -= $bar['time'] % 1*DAY - (($dow+6)%7)*DAYS;   // 00:00, Montag
+            $dow = iDate('w', $bar['time']);                                  // +: -= faßt den rechten Ausdruck zusammen
+            $bar['time']                                 -= $bar['time'] % 1*DAY + (($dow+6)%7)*DAYS;    // 00:00, Montag
             $this->history[PERIOD_W1]['currentCloseTime'] = $bar['time'] + 1*WEEK;
             $this->history[PERIOD_W1]['bars'          ][] = $bar;
             $currentBar =& $this->history[PERIOD_W1]['bars'][$sizeW1Bars++];
@@ -406,8 +406,8 @@ class HistorySet extends Object {
             // neue Bar beginnen
             $dom = iDate('d', $bar['time']);
             $m   = iDate('m', $bar['time']);
-            $y   = iDate('Y', $bar['time']);
-            $bar['time']                                  -= $bar['time']%DAYS - ($dom-1)*DAYS;   // 00:00, 1. des Monats
+            $y   = iDate('Y', $bar['time']);                                // +: -= faßt den rechten Ausdruck zusammen
+            $bar['time']                                  -= $bar['time']%DAYS + ($dom-1)*DAYS;    // 00:00, 1. des Monats
             $this->history[PERIOD_MN1]['currentCloseTime'] = gmMkTime(0, 0, 0, $m+1, 1, $y);       // 00:00, 1. des nächsten Monats
             $this->history[PERIOD_MN1]['bars'          ][] = $bar;
             $currentBar =& $this->history[PERIOD_MN1]['bars'][$sizeMN1Bars++];
