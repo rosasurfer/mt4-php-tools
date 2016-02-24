@@ -135,9 +135,9 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
       $myfxDirDate   = $self('myfxDirDate', null, $time, null);
       $result        = "$dataDirectory/history/dukascopy/$symbol/$myfxDirDate";
    }
-   else if ($id == 'myfxFile.raw') {         // $myfxDir/M1.bin                                          // lokale Datei ungepackt
+   else if ($id == 'myfxFile.raw') {         // $myfxDir/M1.myfx                                         // lokale Datei ungepackt
       $myfxDir = $self('myfxDir' , $symbol, $time, null);
-      $result  = "$myfxDir/M1.bin";
+      $result  = "$myfxDir/M1.myfx";
    }
    else if ($id == 'myfxFile.compressed') {  // $myfxDir/M1.rar                                          // lokale Datei gepackt
       $myfxDir = $self('myfxDir' , $symbol, $time, null);

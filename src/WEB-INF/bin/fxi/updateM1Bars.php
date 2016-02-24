@@ -1904,17 +1904,17 @@ function getVar($id, $symbol=null, $time=null) {
       $myfxDirDate   = $self('myfxDirDate', null, $time);
       $result        = "$dataDirectory/history/myfx/$symbol/$myfxDirDate";
    }
-   else if ($id == 'myfxSource.raw') {          // $myfxSourceDir/M1.bin                                 // lokale Quell-Datei ungepackt
+   else if ($id == 'myfxSource.raw') {          // $myfxSourceDir/M1.myfx                                // lokale Quell-Datei ungepackt
       $myfxSourceDir = $self('myfxSourceDir', $symbol, $time);
-      $result        = "$myfxSourceDir/M1.bin";
+      $result        = "$myfxSourceDir/M1.myfx";
    }
    else if ($id == 'myfxSource.compressed') {   // $myfxSourceDir/M1.rar                                 // lokale Quell-Datei gepackt
       $myfxSourceDir = $self('myfxSourceDir', $symbol, $time);
       $result        = "$myfxSourceDir/M1.rar";
    }
-   else if ($id == 'myfxTarget.raw') {          // $myfxTargetDir/M1.bin                                 // lokale Ziel-Datei ungepackt
+   else if ($id == 'myfxTarget.raw') {          // $myfxTargetDir/M1.myfx                                // lokale Ziel-Datei ungepackt
       $myfxTargetDir = $self('myfxTargetDir' , $symbol, $time);
-      $result        = "$myfxTargetDir/M1.bin";
+      $result        = "$myfxTargetDir/M1.myfx";
    }
    else if ($id == 'myfxTarget.compressed') {   // $myfxTargetDir/M1.rar                                 // lokale Ziel-Datei gepackt
       $myfxTargetDir = $self('myfxTargetDir' , $symbol, $time);
