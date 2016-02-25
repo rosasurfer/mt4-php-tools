@@ -1,7 +1,7 @@
 #!/usr/bin/php
 <?php
 /**
- * Aktualisiert die lokalen Dukascopy-M1-Daten. Bid und Ask werden zu Median gemerged, nach FXT konvertiert und im
+ * Aktualisiert die lokal vorhandenen Dukascopy-M1-Daten. Bid und Ask werden zu Median gemerged, nach FXT konvertiert und im
  * MyFX-Format gespeichert. Die Dukascopy-Daten sind durchgehend, Feiertage werden, Wochenenden werden nicht gespeichert.
  * Die Daten des aktuellen Tags sind frühestens am nächsten Tag verfügbar.
  *
@@ -11,7 +11,7 @@
  *
  * Instrumente:   http://www.dukascopy.com/free/candelabrum/data.json
  *
- * History-Start: http://www.dukascopy.com/datafeed/metadata/HistoryStart.bi5  (unbekanntes Format)
+ * History-Start: http://www.dukascopy.com/datafeed/metadata/HistoryStart.bi5  (Format unbekannt)
  *
  * URL-Format:    Durchgehend eine Datei je Kalendertag ab History-Start,
  *                z.B.: (Januar = 00)
@@ -93,7 +93,7 @@ function updateSymbol($symbol, $startTime) {
    if (!is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
    $symbol = strToUpper($symbol);
    if (!is_int($startTime)) throw new IllegalTypeException('Illegal type of parameter $startTime: '.getType($startTime));
-   $startTime -= $startTime % DAY;                                   // 00:00 GMT
+   $startTime -= $startTime % DAY;                                   // Stundenbeginn GMT
 
    global $verbose, $barBuffer;
    $barBuffer        = null;                                         // Barbuffer zurücksetzen
@@ -104,11 +104,11 @@ function updateSymbol($symbol, $startTime) {
    echoPre('[Info]    '.$symbol);
 
 
-   // (1) Prüfen, ob sich der Startzeitpunkt des Symbols geändert hat
+   // (1) Prüfen, ob sich der Startzeitpunkt der History des Symbols geändert hat
    if (array_search($symbol, array('USDNOK', 'USDSEK', 'USDSGD', 'USDZAR')) === false) {
       $content = downloadData($symbol, $startTime-1*DAY, 'bid', true, false, false);   // Statusmeldungen unterdrücken, nichts speichern
       if (strLen($content)) {
-         echoPre('[Notice]  '.$symbol.' history was extended. Please update the history start time.');
+         echoPre('[Notice]  '.$symbol.' M1 history was extended. Please update the history start time.');
          return false;
       }
    }
@@ -371,7 +371,7 @@ function mergeHistory($symbol, $day) {
 
 
 /**
- * Lädt eine Dukascopy-Datei und gibt ihren Inhalt zurück.
+ * Lädt eine Dukascopy-M1-Datei und gibt ihren Inhalt zurück.
  *
  * @param  string $symbol    - Symbol der herunterzuladenen Datei
  * @param  int    $day       - Tag der herunterzuladenen Datei

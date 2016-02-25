@@ -55,15 +55,15 @@ foreach ($lines as $i => $line) {
    $values = explode("\t", $line);                                         // Spaltenanzahl prüfen
    if (sizeOf($values) != 22) exit("Invalid file format (unexpected number of columns in line ".($i+1).")\n");
 
-   // MT4-Zeiten in FXT konvertieren und entsprechende GMT-Timestamps berechnen (MetaTrader versteht nur GMT)
+   // MT4-Zeit nach FXT konvertieren und FXT-Timestamp berechnen (MetaTrader versteht nur GMT)
    $date = new DateTime(gmDate('Y-m-d H:i:s', $values[11]), $serverTimezone);
    $date->setTimezone($newYorkTimezone);
    $date->modify('+7 hours');
-   $dow = $date->format('w');
+   $dow = (int) $date->format('w');
    if ($dow==SATURDAY || $dow==SUNDAY) throw new plRuntimeException('Timestamp error for ticket #'.$values[0].': '.gmDate('"Y-m-d H:i:s \F\X\T" \i\s \a l', $values[11]));
 
    $csvHistory[] = array((int) $values[11],                                // ServerTime
-                         strToTime($date->format('Y-m-d H:i:s \G\M\T')),   // GMT-Timestamp der FXT der ServerTime; FXT = America/New_York+0700
+                         strToTime($date->format('Y-m-d H:i:s \G\M\T')),   // FXT-Timestamp der ServerTime; FXT = America/New_York+0700
                          (double) $values[20]);                            // Balance
 }
 !$csvHistory && exit("Empty CSV history file - nothing to do.\n");

@@ -37,7 +37,33 @@ class MyFX extends StaticClass {
 
 
    /**
-    * Parst eine FXT-Zeit in einen Unix-Timestamp.
+    * Gibt den FXT-Timestamp der angegebenen Zeit zurück. Ohne Argument wird der FXT-Timestamp der aktuellen Zeit
+    * zurückgegeben. Analog zu time(), der zurückgegebene Wert sind jedoch die Sekunden seit dem 01.01.1970 FXT.
+    *
+    * @param  int $gmtTime - GMT-Timestamp (default: aktuelle Zeit)
+    *
+    * @return int - FXT-Timestamp
+    */
+   public static function fxtTime($gmtTime=null) {
+      if (is_null($gmtTime)) $gmtTime = time();
+      else if (!is_int($gmtTime)) throw new IllegalTypeException('Illegal type of parameter $gmtTime: '.getType($gmtTime));
+
+      $oldTimezone = date_default_timezone_get();
+      try {
+         date_default_timezone_set('America/New_York');
+
+         $estOffset = iDate('Z', $gmtTime);
+         $fxtTime   = $gmtTime + $estOffset + 7*HOURS;
+
+         date_default_timezone_set($oldTimezone);
+         return $fxtTime;
+      }
+      catch(Exception $ex) { date_default_timezone_set($oldTimezone); throw $ex; }
+   }
+
+
+   /**
+    * Parst eine FXT-Zeit in einen GMT-Timestamp.
     *
     * @param  string $time - FXT-Zeit in einem der Funktion strToTime() verständlichen Format
     *
@@ -62,39 +88,37 @@ class MyFX extends StaticClass {
 
 
    /**
-    * Formatiert einen Timestamp als FXT-Zeit.
+    * Formatiert einen GMT-Timestamp als FXT-Zeit.
     *
-    * @param  int    $timestamp - Zeitpunkt (default: aktuelle Zeit)
-    * @param  string $format    - date()-Formatstring (default: 'Y-m-d H:i:s')
+    * @param  int    $timestamp - Zeitpunkt (GMT, default: aktuelle Zeit)
+    * @param  string $format    - Formatstring (default: 'Y-m-d H:i:s')
     *
     * @return string - FXT-String
+    *
+    * Analogous to the date() function except that the time returned is Forex Time (FXT).
     */
    public static function fxtDate($timestamp=null, $format='Y-m-d H:i:s') {
-      if (!is_int($timestamp) && !is_null($timestamp)) throw new IllegalTypeException('Illegal type of parameter $timestamp: '.getType($timestamp));
-      is_null($timestamp) && $timestamp=time();
-      if (!is_string($format)) throw new IllegalTypeException('Illegal type of parameter $format: '.getType($format));
+      if (is_null($timestamp)) $timestamp = time();
+      else if (!is_int($timestamp)) throw new IllegalTypeException('Illegal type of parameter $timestamp: '.getType($timestamp));
+      if (!is_string($format))      throw new IllegalTypeException('Illegal type of parameter $format: '.getType($format));
 
-      $oldTimezone = date_default_timezone_get();
-      try {
-         date_default_timezone_set('America/New_York');
+      // FXT = America/New_York +0700     (von 17:00 bis 24:00 = 7h)
+      // $timestamp += 7*HOURS reicht nicht aus, da dann keine FXT-Repräsentation von Zeiten, die in
+      // New York in eine Zeitumstellung fallen, möglich ist. Dies ist nur mit einer Zone ohne DST möglich.
+      // Der GMT-Timestamp muß in einen FXT-Timestamp konvertiert und dieser als GMT-Timestamp formatiert werden.
 
-         $result = date($format, $timestamp + 7*HOURS);
-
-         date_default_timezone_set($oldTimezone);
-         return $result;
-      }
-      catch(Exception $ex) { date_default_timezone_set($oldTimezone); throw $ex; }
+      return gmDate($format, self::fxtTime($timestamp));
    }
 
 
    /**
     * Gibt den Offset der angegebenen Zeit zu FXT (Forex Time) zurück.
     *
-    * @param  int   $timestamp      - Zeitpunkt (default: aktuelle Zeit)
-    * @param  array $prevTransition - Wenn angegeben, enthält dieser Parameter nach Rückkehr ein Array
+    * @param  int   $timestamp      - Zeitpunkt relativ zu GMT (default: aktuelle Zeit)
+    * @param  array $prevTransition - Wenn angegeben, enthält die Variable nach Rückkehr ein Array
     *                                 ['time'=>{timestamp}, 'offset'=>{offset}] mit dem Zeitpunkt des vorherigen Zeitwechsels
     *                                 und dem Offset vor diesem Zeitpunkt.
-    * @param  array $nextTransition - Wenn angegeben, enthält dieser Parameter nach Rückkehr ein Array
+    * @param  array $nextTransition - Wenn angegeben, enthält die Variable nach Rückkehr ein Array
     *                                 ['time'=>{timestamp}, 'offset'=>{offset}] mit dem Zeitpunkt des nächsten Zeitwechsels
     *                                 und dem Offset nach diesem Zeitpunkt.
     *
