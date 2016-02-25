@@ -86,7 +86,7 @@ class OpenPosition extends PersistableObject {
    public function getOpenTime($format='Y-m-d H:i:s') {
       if ($format == 'Y-m-d H:i:s')
          return $this->openTime;
-      return formatDate($format, $this->openTime);
+      return formatDateStr($this->openTime, $format);
    }
 
 

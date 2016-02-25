@@ -38,16 +38,48 @@ class MyFX extends StaticClass {
 
    /**
     * Gibt den FXT-Timestamp der angegebenen Zeit zurück. Ohne Argument wird der FXT-Timestamp der aktuellen Zeit
-    * zurückgegeben. Analog zu time(), der zurückgegebene Wert sind jedoch die Sekunden seit dem 01.01.1970 FXT.
+    * zurückgegeben. Der zurückgegebene Wert sind die Sekunden seit dem 01.01.1970 FXT.
     *
-    * @param  int $gmtTime - GMT-Timestamp (default: aktuelle Zeit)
+    * @param  int    $time       - Timestamp (default: aktuelle Zeit)
+    * @param  string $timezoneId - Timezone-Identifier des Timestamps (default: GMT=Unix-Timestamp).
+    *                              Zusätzlich zu den standardmäßigen IDs wird 'FXT' für FXT-basierte Timestamps unterstützt
+    *                              (wenn auch explizit selten sinnvoll, da: fxtTime($timestamp, 'FXT') == $timestamp).
     *
     * @return int - FXT-Timestamp
     */
-   public static function fxtTime($gmtTime=null) {
-      if (is_null($gmtTime)) $gmtTime = time();
-      else if (!is_int($gmtTime)) throw new IllegalTypeException('Illegal type of parameter $gmtTime: '.getType($gmtTime));
+   public static function fxtTime($time=null, $timezoneId=null) {
+      if (is_null($time)) $time = time();
+      else if (!is_int($time))                          throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+      if (func_num_args()>1 && !is_string($timezoneId)) throw new IllegalTypeException('Illegal type of parameter $timezoneId: '.getType($timezoneId));
 
+      $gmtTime = null;
+
+      if (is_null($timezoneId) || strToUpper($timezoneId)=='GMT' || strToUpper($timezoneId)=='UTC') {
+         $gmtTime = $time;
+      }
+      else if (strToUpper($timezoneId) == 'FXT') {
+         return $time;                                               // Eingabe und Ergebnis sind identisch: Rückkehr
+      }
+      else {
+         // $time in GMT-Timestamp konvertieren
+         $oldTimezone = date_default_timezone_get();
+         try {
+            date_default_timezone_set($timezoneId);
+
+            $offsetA = iDate('Z', $time);
+            $gmtTime = $time + $offsetA;                             // $gmtTime ist die GMT-basierte Zeit für $time
+            $offsetB = iDate('Z', $gmtTime);
+            if ($offsetA != $offsetB) {
+               // TODO: wenn DST-Wechsel in genau diesem Zeitfenster
+            }
+
+            date_default_timezone_set($oldTimezone);
+         }
+         catch(Exception $ex) { date_default_timezone_set($oldTimezone); throw $ex; }
+      }
+
+
+      // GMT-Timestamp in FXT-Timestamp konvertieren
       $oldTimezone = date_default_timezone_get();
       try {
          date_default_timezone_set('America/New_York');
@@ -63,11 +95,13 @@ class MyFX extends StaticClass {
 
 
    /**
-    * Parst eine FXT-Zeit in einen GMT-Timestamp.
+    * Parst die String-Repräsentation einer FXT-Zeit in einen GMT-Timestamp.
     *
     * @param  string $time - FXT-Zeit in einem der Funktion strToTime() verständlichen Format
     *
     * @return int - Timestamp
+    *
+    * TODO:  Funktion unnötig: strToTime() überladen und um Erkennung der FXT-Zeitzone erweitern
     */
    public static function fxtStrToTime($time) {
       if (!is_string($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
@@ -107,7 +141,7 @@ class MyFX extends StaticClass {
       // New York in eine Zeitumstellung fallen, möglich ist. Dies ist nur mit einer Zone ohne DST möglich.
       // Der GMT-Timestamp muß in einen FXT-Timestamp konvertiert und dieser als GMT-Timestamp formatiert werden.
 
-      return gmDate($format, self::fxtTime($timestamp));
+      return gmDate($format, self::fxtTime($timestamp, 'GMT'));
    }
 
 
@@ -290,46 +324,68 @@ class MyFX extends StaticClass {
 
 
    /**
-    * Ob ein FXT-Zeitpunkt auf einen regulären Handelstag fällt.
+    * Ob ein Zeitpunkt in der Zeitzone FXT auf einen Forex-Handelstag fällt.
     *
-    * @param  int $fxtTime - FXT-Timestamp
-    *
+    * @param  int    $time       - Timestamp
+    * @param  string $timezoneId - Timezone-Identifier des Timestamps (default: GMT=Unix-Timestamp). Zusätzlich zu den
+    *                              standardmäßigen IDs wird 'FXT' für FXT-basierte Timestamps unterstützt.
     * @return bool
     */
-   public static function isTradingDay($fxtTime) {
-      if (!is_int($fxtTime)) throw new IllegalTypeException('Illegal type of parameter $fxtTime: '.getType($fxtTime));
+   public static function isForexTradingDay($time, $timezoneId=null) {
+      if (!is_int($time))                           throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+      $argsSize = func_num_args();
+      if ($argsSize > 1 && !is_string($timezoneId)) throw new IllegalTypeException('Illegal type of parameter $timezoneId: '.getType($timezoneId));
 
-      return (!self::isWeekend($fxtTime) && !self::isHoliday($fxtTime));
+      if ($argsSize == 1)
+         return (!self::isForexWeekend($time) && !self::isForexHoliday($time));  // NULL als Timezone-ID ist nicht zulässig
+
+      return (!self::isForexWeekend($time, $timezoneId) && !self::isForexHoliday($time, $timezoneId));
    }
 
 
    /**
-    * Ob der Wochentag eines FXT-Zeitpunkts ein Sonnabend oder Sonntag ist.
+    * Ob der Wochentag eines Zeitpunkts in der Zeitzone FXT ein Sonnabend oder Sonntag ist.
     *
-    * @param  int $fxtTime - FXT-Timestamp
-    *
+    * @param  int    $time       - Timestamp
+    * @param  string $timezoneId - Timezone-Identifier des Timestamps (default: GMT=Unix-Timestamp). Zusätzlich zu den
+    *                              standardmäßigen IDs wird 'FXT' für FXT-basierte Timestamps unterstützt.
     * @return bool
     */
-   public static function isWeekend($fxtTime) {
-      if (!is_int($fxtTime)) throw new IllegalTypeException('Illegal type of parameter $fxtTime: '.getType($fxtTime));
+   public static function isForexWeekend($time, $timezoneId=null) {
+      if (!is_int($time))                           throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+      $argsSize = func_num_args();
+      if ($argsSize > 1 && !is_string($timezoneId)) throw new IllegalTypeException('Illegal type of parameter $timezoneId: '.getType($timezoneId));
 
-      $dow = iDate('w', $fxtTime);
+      // $time in FXT-Timestamp konvertieren
+      if ($argsSize == 1) $fxtTime = self::fxtTime($time);                 // NULL als Timezone-ID ist nicht zulässig
+      else                $fxtTime = self::fxtTime($time, $timezoneId);
+
+      // fxtTime als GMT-Timestamp prüfen
+      $dow = (int) gmDate('w', $fxtTime);
       return ($dow==SATURDAY || $dow==SUNDAY);
    }
 
 
    /**
-    * Ob ein FXT-Zeitpunkt auf einen Forex-Feiertag fällt.
+    * Ob ein Zeitpunkt in der Zeitzone FXT auf einen Forex-Feiertag fällt.
     *
-    * @param  int $fxtTime - FXT-Timestamp
-    *
+    * @param  int    $time       - Timestamp
+    * @param  string $timezoneId - Timezone-Identifier des Timestamps (default: GMT=Unix-Timestamp). Zusätzlich zu den
+    *                              standardmäßigen IDs wird 'FXT' für FXT-basierte Timestamps unterstützt.
     * @return bool
     */
-   public static function isHoliday($fxtTime) {
-      if (!is_int($fxtTime)) throw new IllegalTypeException('Illegal type of parameter $fxtTime: '.getType($fxtTime));
+   public static function isForexHoliday($time, $timezoneId=null) {
+      if (!is_int($time))                           throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+      $argsSize = func_num_args();
+      if ($argsSize > 1 && !is_string($timezoneId)) throw new IllegalTypeException('Illegal type of parameter $timezoneId: '.getType($timezoneId));
 
-      $dom = iDate('d', $fxtTime);
-      $m   = iDate('m', $fxtTime);
+      // $time in FXT-Timestamp konvertieren
+      if ($argsSize == 1) $fxtTime = self::fxtTime($time);                 // NULL als Timezone-ID ist nicht zulässig
+      else                $fxtTime = self::fxtTime($time, $timezoneId);
+
+      // fxtTime als GMT-Timestamp prüfen
+      $dom = (int) gmDate('j', $time);
+      $m   = (int) gmDate('n', $time);
 
       if ($dom==1 && $m==1)            // 1. Januar
          return true;

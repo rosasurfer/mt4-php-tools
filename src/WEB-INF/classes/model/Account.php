@@ -100,7 +100,7 @@ class Account extends PersistableObject {
       if (!$this->lastUpdate || $format=='Y-m-d H:i:s')
          return $this->lastUpdate;
 
-      return formatDate($format, $this->lastUpdate);
+      return formatDateStr($this->lastUpdate, $format);
    }
 
 
