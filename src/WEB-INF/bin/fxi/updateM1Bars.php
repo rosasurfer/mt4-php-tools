@@ -114,9 +114,9 @@ function updateIndex($index) {
       $data      = array();                                                   // $data initialisieren: array('AUDUSD'=>[], ...)
       $startTime = max($startTime, Dukascopy::$historyStart_M1[$pair]);       // GMT-Timestamp
    }
-   $startTime = fxtTime($startTime);                                          // FXT-Timestamp
-   $startDay  = $startTime    - $startTime%DAY;                               // 00:00 Starttag FXT
-   $today     = ($today=fxtTime())- $today%DAY;                               // 00:00 aktueller Tag FXT
+   $startTime = MyFX::fxtTime($startTime);                                    // FXT-Timestamp
+   $startDay  = $startTime - $startTime%DAY;                                  // 00:00 Starttag FXT
+   $today     = ($today=MyFX::fxtTime()) - $today%DAY;                        // 00:00 aktueller Tag FXT
 
 
    // (2) Gesamte Zeitspanne tageweise durchlaufen

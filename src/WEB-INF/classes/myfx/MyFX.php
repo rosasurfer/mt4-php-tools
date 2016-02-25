@@ -43,7 +43,7 @@ class MyFX extends StaticClass {
     * @param  int    $time       - Timestamp (default: aktuelle Zeit)
     * @param  string $timezoneId - Timezone-Identifier des Timestamps (default: GMT=Unix-Timestamp).
     *                              Zusätzlich zu den standardmäßigen IDs wird 'FXT' für FXT-basierte Timestamps unterstützt
-    *                              (wenn auch explizit selten sinnvoll, da: fxtTime($timestamp, 'FXT') == $timestamp).
+    *                              (wenn auch explizit selten sinnvoll, da: MyFX::fxtTime($timestamp, 'FXT') == $timestamp).
     *
     * @return int - FXT-Timestamp
     */
