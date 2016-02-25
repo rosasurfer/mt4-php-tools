@@ -114,14 +114,14 @@ function updateIndex($index) {
       $data      = array();                                                   // $data initialisieren: array('AUDUSD'=>[], ...)
       $startTime = max($startTime, Dukascopy::$historyStart_M1[$pair]);
    }
-   $startDay = $startTime     - $startTime%DAY;                               // 00:00 Starttag
-   $today    = ($today=time())- $today    %DAY;                               // 00:00 aktueller Tag
+   $startDay = $startTime     - $startTime%DAY;                               // 00:00 Starttag GMT
+   $today    = ($today=time())- $today    %DAY;                               // 00:00 aktueller Tag GMT
 
 
-   // (2) Gesamte Zeitspanne tageweise durchlaufen
+   // (2) Gesamte Zeitspanne auﬂer an Wochenenden tageweise durchlaufen
    for ($day=$startDay, $lastMonth=-1; $day < $today; $day+=1*DAY) {
 
-      if (!MyFX::isWeekend($day)) {                                           // auﬂer an Wochenenden
+      if (!MyFX::isForexWeekend($day, 'FXT')) {                               // um 00:00 GMT sind GMT- und FXT-Wochentag immer gleich
          $shortDate = date('D, d-M-Y', $day);
 
          // Pr¸fen, ob die History bereits existiert
