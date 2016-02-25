@@ -8,14 +8,14 @@ class SimpleTrader extends StaticClass {
    // URLs und Referers zum Download der letzten 500 Trades und der kompletten History
    private static $urls = array(
       array(
-         'recent'  => 'http://cp.forexsignals.com/signal/{signal_ref_id}/signal.html',
-         'full'    => 'http://cp.forexsignals.com/signals.php?do=view&id={signal_ref_id}&showAllClosedTrades=1',
-         'referer' => 'http://cp.forexsignals.com/forex-signals.html',
+         'currentHistory' => 'http://cp.forexsignals.com/signal/{signal_ref_id}/signal.html',
+         'fullHistory'    => 'http://cp.forexsignals.com/signals.php?do=view&id={signal_ref_id}&showAllClosedTrades=1',
+         'referer'        => 'http://cp.forexsignals.com/forex-signals.html',
       ),
       array(
-         'recent'  => 'https://www.simpletrader.net/signal/{signal_ref_id}/signal.html',
-         'full'    => 'https://www.simpletrader.net/signals.php?do=view&id={signal_ref_id}&showAllClosedTrades=1',
-         'referer' => 'https://www.simpletrader.net/forex-signals.html'
+         'currentHistory' => 'https://www.simpletrader.net/signal/{signal_ref_id}/signal.html',
+         'fullHistory'    => 'https://www.simpletrader.net/signals.php?do=view&id={signal_ref_id}&showAllClosedTrades=1',
+         'referer'        => 'https://www.simpletrader.net/forex-signals.html'
       ),
    );
 
@@ -58,7 +58,7 @@ class SimpleTrader extends StaticClass {
 
 
       // (2) HTTP-Request ausführen
-      $key     = $fullHistory ? 'full':'recent';
+      $key     = $fullHistory ? 'fullHistory':'currentHistory';
       $counter = 0;
       while (true) {
          $i       = $counter % sizeof(self::$urls);            // bei Neuversuchen abwechselnd alle URL's durchprobieren
