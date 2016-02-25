@@ -60,8 +60,9 @@ function createHistory($symbol) {
    if (!strLen($symbol))    throw new plInvalidArgumentException('Invalid parameter $symbol: ""');
 
    global $verbose;
-   $startDay = ($startDay=Dukascopy::$historyStart_M1[$symbol]) - $startDay%DAY;     // 00:00 Starttag
-   $today    = ($today=time())                                  - $today   %DAY;     // 00:00 aktueller Tag
+   $startDay  = MyFX::fxtTime(Dukascopy::$historyStart_M1[$symbol]);                // FXT
+   $startDay -= $startDay%DAY;                                                      // 00:00 FXT Starttag
+   $today     = ($today=MyFX::fxtTime()) - $today%DAY;                              // 00:00 FXT aktueller Tag
 
 
    // MT4-HistorySet erzeugen
@@ -71,18 +72,18 @@ function createHistory($symbol) {
 
    // Gesamte Zeitspanne tageweise durchlaufen
    for ($day=$startDay, $lastMonth=-1; $day < $today; $day+=1*DAY) {
-      $month = iDate('m', $day);
+      $month = (int) gmDate('m', $day);
       if ($month != $lastMonth) {
-         if ($verbose > 0) echoPre('[Info]    '.date('M-Y', $day));
+         if ($verbose > 0) echoPre('[Info]    '.gmDate('M-Y', $day));
          $lastMonth = $month;
       }
 
       // außer an Wochenenden: MyFX-History verarbeiten
-      if (!MyFX::isWeekend($day)) {
+      if (!MyFX::isForexWeekend($day, 'FXT')) {
          if      (is_file($file=getVar('myfxFile.compressed', $symbol, $day))) {}   // wenn komprimierte MyFX-Datei existiert
          else if (is_file($file=getVar('myfxFile.raw'       , $symbol, $day))) {}   // wenn unkomprimierte MyFX-Datei existiert
          else continue;
-         if ($verbose > 1) echoPre('[Info]    '.date('D, d-M-Y', $day).'   MyFX history file: '.baseName($file));
+         if ($verbose > 1) echoPre('[Info]    '.gmDate('D, d-M-Y', $day).'   MyFX history file: '.baseName($file));
 
          // Bars einlesen und der MT4-History hinzufügen
          $bars = MyFX::readBarFile($file);
@@ -103,7 +104,7 @@ function createHistory($symbol) {
  *
  * @param  string $id     - eindeutiger Bezeichner der Variable (ID)
  * @param  string $symbol - Symbol oder NULL
- * @param  int    $time   - Timestamp oder NULL
+ * @param  int    $time   - FXT-Timestamp oder NULL
  * @param  string $type   - Kurstyp (bid|ask) oder NULL
  *
  * @return string - Variable
@@ -126,7 +127,7 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
 
    if ($id == 'myfxDirDate') {               // $yyyy/$mm/$dd                                            // lokales Pfad-Datum
       if (!$time)   throw new plInvalidArgumentException('Invalid parameter $time: '.$time);
-      $result = date('Y/m/d', $time);
+      $result = gmDate('Y/m/d', $time);
    }
    else if ($id == 'myfxDir') {              // $dataDirectory/history/dukascopy/$symbol/$myfxDirDate    // lokales Verzeichnis
       if (!$symbol) throw new plInvalidArgumentException('Invalid parameter $symbol: '.$symbol);

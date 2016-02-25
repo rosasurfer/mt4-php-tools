@@ -67,8 +67,8 @@ while (($fileName=$dir->read()) !== false) {
          $symbols    [] = strToUpper($symbol);
          $periods    [] =            $period;
          $aDigits    [] =            $digits;
-         $syncMarks  [] =            $syncMark ? date('Y.m.d H:i:s', $syncMark) : null;
-         $lastSyncs  [] =            $lastSync ? date('Y.m.d H:i:s', $lastSync) : null;
+         $syncMarks  [] =            $syncMark ? gmDate('Y.m.d H:i:s', $syncMark) : null;
+         $lastSyncs  [] =            $lastSync ? gmDate('Y.m.d H:i:s', $lastSync) : null;
          $timezoneIds[] =            $timezoneId;
 
          if ($format == 400) { $barSize = HISTORY_BAR_400_SIZE; $barFormat = 'Vtime/dopen/dlow/dhigh/dclose/dticks';                          }
