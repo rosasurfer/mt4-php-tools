@@ -60,9 +60,9 @@ function createHistory($symbol) {
    if (!strLen($symbol))    throw new plInvalidArgumentException('Invalid parameter $symbol: ""');
 
    global $verbose;
-   $startDay  = MyFX::fxtTime(MyFX::$fxIndizesHistoryStart_M1[$symbol]);            // FXT
+   $startDay  = fxtTime(MyFX::$fxIndizesHistoryStart_M1[$symbol]);                  // FXT
    $startDay -= $startDay%DAY;                                                      // 00:00 FXT Starttag
-   $today     = ($today=MyFX::fxtTime()) - $today%DAY;                              // 00:00 FXT aktueller Tag
+   $today     = ($today=fxtTime()) - $today%DAY;                                    // 00:00 FXT aktueller Tag
 
 
    // MT4-HistorySet erzeugen

@@ -28,7 +28,7 @@ if (!isSet($_SERVER['REQUEST_METHOD']))
  * @see    MyFX::fxtTime()
  */
 function fxtTime($time=null, $timezoneId=null) {
-   if (func_num_args() == 1)
+   if (func_num_args() <= 1)
       return MyFX::fxtTime($time);
    return MyFX::fxtTime($time, $timezoneId);
 }
