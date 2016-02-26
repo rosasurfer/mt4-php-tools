@@ -92,8 +92,8 @@ function updateSymbol($symbol) {
    if (!is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
    $symbol = strToUpper($symbol);
 
-   $startTime = Dukascopy::$historyStart_M1[$symbol];                // Beginns der Dukascopy-Daten dieses Symbols in GMT
-   $startDay -= $startTime % DAY;                                    // 00:00 GMT
+   $startTime  = Dukascopy::$historyStart_M1[$symbol];               // Beginns der Dukascopy-Daten dieses Symbols in GMT
+   $startTime -= $startTime % DAY;                                   // 00:00 GMT
 
    global $verbose, $barBuffer;
    $barBuffer        = null;                                         // Barbuffer zurücksetzen
@@ -106,7 +106,7 @@ function updateSymbol($symbol) {
 
    // (1) Prüfen, ob sich der Startzeitpunkt der History des Symbols geändert hat
    if (array_search($symbol, array('USDNOK', 'USDSEK', 'USDSGD', 'USDZAR')) === false) {
-      $content = downloadData($symbol, $startDay-1*DAY, 'bid', true, false, false);   // Statusmeldungen unterdrücken, nichts speichern
+      $content = downloadData($symbol, $startTime-1*DAY, 'bid', true, false, false);   // Statusmeldungen unterdrücken, nichts speichern
       if (strLen($content)) {
          echoPre('[Notice]  '.$symbol.' M1 history was extended. Please update the history start time.');
          return false;
@@ -119,7 +119,7 @@ function updateSymbol($symbol) {
    static $lastMonth=-1;
    $today = ($today=time()) - $today%DAY;                            // 00:00 GMT aktueller Tag
 
-   for ($day=$startDay; $day < $today; $day+=1*DAY) {
+   for ($day=$startTime; $day < $today; $day+=1*DAY) {
       $month = (int) gmDate('m', $day);
       if ($month != $lastMonth) {
          if ($verbose > 0) echoPre('[Info]    '.gmDate('M-Y', $day));

@@ -122,9 +122,9 @@ class MyFX extends StaticClass {
 
 
    /**
-    * Formatiert einen GMT-Timestamp als FXT-Zeit.
+    * Formatiert einen Unix-Timestamp als FXT-Zeit.
     *
-    * @param  int    $timestamp - Zeitpunkt (GMT, default: aktuelle Zeit)
+    * @param  int    $timestamp - Zeitpunkt (default: aktuelle Zeit)
     * @param  string $format    - Formatstring (default: 'Y-m-d H:i:s')
     *
     * @return string - FXT-String
@@ -136,19 +136,19 @@ class MyFX extends StaticClass {
       else if (!is_int($timestamp)) throw new IllegalTypeException('Illegal type of parameter $timestamp: '.getType($timestamp));
       if (!is_string($format))      throw new IllegalTypeException('Illegal type of parameter $format: '.getType($format));
 
-      // FXT = America/New_York +0700     (von 17:00 bis 24:00 = 7h)
-      // $timestamp += 7*HOURS reicht nicht aus, da dann keine FXT-Repräsentation von Zeiten, die in
-      // New York in eine Zeitumstellung fallen, möglich ist. Dies ist nur mit einer Zone ohne DST möglich.
-      // Der GMT-Timestamp muß in einen FXT-Timestamp konvertiert und dieser als GMT-Timestamp formatiert werden.
+      // FXT = America/New_York +0700           (von 17:00 bis 24:00 = 7h)
+      // date($timestamp+7*HOURS) in der Zone 'America/New_York' reicht nicht aus, da dann keine FXT-Repräsentation
+      // von Zeiten, die in New York in eine Zeitumstellung fallen, möglich ist. Dies ist nur mit einer Zone ohne DST
+      // möglich. Der GMT-Timestamp muß in einen FXT-Timestamp konvertiert und dieser als GMT-Timestamp formatiert werden.
 
       return gmDate($format, self::fxtTime($timestamp, 'GMT'));
    }
 
 
    /**
-    * Gibt den Offset der angegebenen Zeit zu FXT (Forex Time) und ggf. die nächsten angrenzenden Transitionsdaten zurück.
+    * Gibt den FXT-Offset einer Zeit zu GMT und ggf. die beiden jeweils angrenzenden nächsten DST-Transitionsdaten zurück.
     *
-    * @param  int   $timestamp      - GMT-Zeitpunkt (default: aktuelle Zeit)
+    * @param  int   $time           - GMT-Zeitpunkt (default: aktuelle Zeit)
     * @param  array $prevTransition - Wenn angegeben, enthält diese Variable nach Rückkehr ein Array
     *                                 ['time'=>{timestamp}, 'offset'=>{offset}] mit dem GMT-Timestamp des vorherigen Zeitwechsels
     *                                 und dem Offset vor diesem Zeitpunkt.
@@ -156,12 +156,16 @@ class MyFX extends StaticClass {
     *                                 ['time'=>{timestamp}, 'offset'=>{offset}] mit dem GMT-Timestamp des nächsten Zeitwechsels
     *                                 und dem Offset nach diesem Zeitpunkt.
     *
-    * @return int - Offset in Sekunden (es gilt: FXT + Offset = GMT) oder NULL, wenn der Zeitpunkt außerhalb der bekannten
-    *               Transitionsdaten liegt
+    * @return int - Offset in Sekunden oder NULL, wenn der Zeitpunkt außerhalb der bekannten Transitionsdaten liegt.
+    *               FXT liegt östlich von GMT, der Offset ist also immer positiv. Es gilt: GMT + Offset = FXT
+    *
+    *
+    * Note: Analog zu date('Z', $time) verhält sich diese Funktion, als wenn lokal die (in PHP nicht existierende) Zeitzone 'FXT'
+    *       eingestellt worden wäre.
     */
-   public static function getGmtToFxtTimeOffset($timestamp=null, &$prevTransition=array(), &$nextTransition=array()) {
-      if (!is_int($timestamp) && !is_null($timestamp)) throw new IllegalTypeException('Illegal type of parameter $timestamp: '.getType($timestamp));
-      is_null($timestamp) && $timestamp=time();
+   public static function fxtTimezoneOffset($time=null, &$prevTransition=array(), &$nextTransition=array()) {
+      if (is_null($time)) $time = time();
+      else if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
 
       static $transitions = null;
       if (!$transitions) {
@@ -171,51 +175,51 @@ class MyFX extends StaticClass {
 
       $i = -2;
       foreach ($transitions as $i => $transition) {
-         if ($transition['ts'] > $timestamp) {
-            $i--;                                                    // $i zeigt auf die aktuelle Periode
-            break;
+         if ($transition['ts'] > $time) {
+            $i--;
+            break;                                                   // hier zeigt $i auf die aktuelle Periode
          }
       }
 
-      $size = sizeOf($transitions);
-      $args = func_num_args();
+      $transSize = sizeOf($transitions);
+      $argsSize  = func_num_args();
 
       // $prevTransition definieren
-      if ($args > 1) {
+      if ($argsSize > 1) {
          $prevTransition = array();
 
-         if ($i < 0) {                                               // $transitions ist leer oder $timestamp
+         if ($i < 0) {                                               // $transitions ist leer oder $time
             $prevTransition['time'  ] = null;                        // liegt vor der ersten Periode
             $prevTransition['offset'] = null;
          }
-         else if ($i == 0) {                                         // $timestamp liegt in erster Periode
+         else if ($i == 0) {                                         // $time liegt in erster Periode
             $prevTransition['time'  ] = $transitions[0]['ts'];
             $prevTransition['offset'] = null;                        // vorheriger Offset unbekannt
          }
          else {
-            $prevTransition['time'  ] =   $transitions[$i  ]['ts'];
-            $prevTransition['offset'] = -($transitions[$i-1]['offset'] + 7*HOURS);
+            $prevTransition['time'  ] = $transitions[$i  ]['ts'    ];
+            $prevTransition['offset'] = $transitions[$i-1]['offset'] + 7*HOURS;
          }
       }
 
       // $nextTransition definieren
-      if ($args > 2) {
+      if ($argsSize > 2) {
          $nextTransition = array();
 
-         if ($i==-2 || $i >= $size-1) {                              // $transitions ist leer oder
-            $nextTransition['time'  ] = null;                        // $timestamp liegt in letzter Periode
+         if ($i==-2 || $i >= $transSize-1) {                         // $transitions ist leer oder
+            $nextTransition['time'  ] = null;                        // $time liegt in letzter Periode
             $nextTransition['offset'] = null;
          }
          else {
-            $nextTransition['time'  ] =   $transitions[$i+1]['ts'];
-            $nextTransition['offset'] = -($transitions[$i+1]['offset'] + 7*HOURS);
+            $nextTransition['time'  ] = $transitions[$i+1]['ts'    ];
+            $nextTransition['offset'] = $transitions[$i+1]['offset'] + 7*HOURS;
          }
       }
 
       // Rückgabewert definieren
       $offset = null;
       if ($i >= 0)                                                   // $transitions ist nicht leer und
-         $offset = -($transitions[$i]['offset'] + 7*HOURS);          // $timestamp liegt nicht vor der ersten Periode
+         $offset = $transitions[$i]['offset'] + 7*HOURS;             // $time liegt nicht vor der ersten Periode
       return $offset;
    }
 
