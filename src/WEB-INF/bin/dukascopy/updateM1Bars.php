@@ -278,9 +278,9 @@ function loadHistory($symbol, $day, $type) {
    // • ggf. Dukascopy-Datei herunterladen und verarbeiten
    if (!$previousDayData) {
       $data = downloadData($symbol, $previousDay, $type, false, $saveCompressedDukascopyFiles);
-      if (!$data)                                                                            // HTTP status 404 (file not found)
-         return false;                                                                       // FALSE => Komplettabbruch
-      if (!processCompressedDukascopyData($data, $symbol, $previousDay, $type))              // TRUE  => continue (nächste Kursreihe)
+      if (!$data)                                                                // bei HTTP status 404 (file not found) Abbruch
+         return false;
+      if (!processCompressedDukascopyData($data, $symbol, $previousDay, $type))
          return false;
       $previousDayData = true;
    }
