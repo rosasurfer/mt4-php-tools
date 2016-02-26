@@ -515,7 +515,7 @@ function processRawDukascopyData($data, $symbol, $day, $type) {
       if ($bar['time_gmt'] >= $next['time'])
          $fxtOffset = $next['offset'];                               // $fxtOffset on-the-fly aktualisieren
       $bar['time_fxt' ] = $bar['time_gmt'] + $fxtOffset;             // Es gilt: FXT = GMT + Offset
-      $bar['delta_fxt'] = $bar['time_fxt'] % DAY;                    //     und: GMT = FXT - Offset
+      $bar['delta_fxt'] = $bar['time_fxt'] % DAY;                    //     bzw: GMT = FXT - Offset
       unset($bar['timeDelta']);
    }
 
