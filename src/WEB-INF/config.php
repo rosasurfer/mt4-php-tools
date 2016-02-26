@@ -15,3 +15,20 @@ include(APPLICATION_ROOT.'/WEB-INF/classes/classes.php');                  // zu
 // kein Time-Limit, falls wir in einer Shell laufen
 if (!isSet($_SERVER['REQUEST_METHOD']))
    set_time_limit(0);
+
+
+/**
+ * Alias für MyFX::fxtTime()
+ *
+ * @param  int    $time       - Timestamp (default: aktuelle Zeit)
+ * @param  string $timezoneId - Timezone-Identifier des Timestamps (default: GMT=Unix-Timestamp).
+ *
+ * @return int - FXT-Timestamp
+ *
+ * @see    MyFX::fxtTime()
+ */
+function fxtTime($time=null, $timezoneId=null) {
+   if (func_num_args() == 1)
+      return MyFX::fxtTime($time);
+   return MyFX::fxtTime($time, $timezoneId);
+}
