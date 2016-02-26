@@ -122,26 +122,26 @@ class MyFX extends StaticClass {
 
 
    /**
-    * Formatiert einen Unix-Timestamp als FXT-Zeit.
+    * Formatiert einen Zeitpunkt als FXT-Zeit.
     *
-    * @param  int    $timestamp - Zeitpunkt (default: aktuelle Zeit)
-    * @param  string $format    - Formatstring (default: 'Y-m-d H:i:s')
+    * @param  int    $time   - Zeitpunkt (default: aktuelle Zeit)
+    * @param  string $format - Formatstring (default: 'Y-m-d H:i:s')
     *
     * @return string - FXT-String
     *
     * Analogous to the date() function except that the time returned is Forex Time (FXT).
     */
-   public static function fxtDate($timestamp=null, $format='Y-m-d H:i:s') {
-      if (is_null($timestamp)) $timestamp = time();
-      else if (!is_int($timestamp)) throw new IllegalTypeException('Illegal type of parameter $timestamp: '.getType($timestamp));
-      if (!is_string($format))      throw new IllegalTypeException('Illegal type of parameter $format: '.getType($format));
+   public static function fxtDate($time=null, $format='Y-m-d H:i:s') {
+      if (is_null($time)) $time = time();
+      else if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+      if (!is_string($format)) throw new IllegalTypeException('Illegal type of parameter $format: '.getType($format));
 
       // FXT = America/New_York +0700           (von 17:00 bis 24:00 = 7h)
-      // date($timestamp+7*HOURS) in der Zone 'America/New_York' reicht nicht aus, da dann keine FXT-Repräsentation
+      // date($time+7*HOURS) in der Zone 'America/New_York' reicht nicht aus, da dann keine FXT-Repräsentation
       // von Zeiten, die in New York in eine Zeitumstellung fallen, möglich ist. Dies ist nur mit einer Zone ohne DST
       // möglich. Der GMT-Timestamp muß in einen FXT-Timestamp konvertiert und dieser als GMT-Timestamp formatiert werden.
 
-      return gmDate($format, self::fxtTime($timestamp, 'GMT'));
+      return gmDate($format, self::fxtTime($time, 'GMT'));
    }
 
 

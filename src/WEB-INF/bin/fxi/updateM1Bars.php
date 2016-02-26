@@ -1870,7 +1870,7 @@ function showBuffer($bars) {
  *
  * @param  string $id     - eindeutiger Bezeichner der Variable (ID)
  * @param  string $symbol - Symbol oder NULL
- * @param  int    $time   - FXT-Timestamp oder NULL
+ * @param  int    $time   - Timestamp oder NULL
  *
  * @return string - Variable
  */

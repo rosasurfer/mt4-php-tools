@@ -626,7 +626,7 @@ function saveBars($symbol, $day) {
 
 
 /**
- * Erzeugt und verwaltet dynamisch generierte Variablen.
+ * Verwaltet dynamisch generierte Variablen.
  *
  * Evaluiert und cacht ständig wiederbenutzte dynamische Variablen an einem zentralen Ort. Vereinfacht die Logik,
  * da die Variablen nicht global gespeichert oder über viele Funktionsaufrufe hinweg weitergereicht werden müssen,
@@ -634,7 +634,7 @@ function saveBars($symbol, $day) {
  *
  * @param  string $id     - eindeutiger Bezeichner der Variable (ID)
  * @param  string $symbol - Symbol oder NULL
- * @param  int    $time   - 00:00 eines GMT-Timestamp oder NULL (damit der Wochentag von GMT und FXT derselbe ist)
+ * @param  int    $time   - Timestamp oder NULL
  * @param  string $type   - Kurstyp (bid|ask) oder NULL
  *
  * @return string - Variable
