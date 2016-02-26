@@ -266,13 +266,13 @@ function loadHistory($symbol, $day, $type) {
    // • dekomprimierte Dukascopy-Datei suchen und verarbeiten
    if (!$previousDayData) {
       if (is_file($file=getVar('dukaFile.raw', $symbol, $previousDay, $type)))
-         if (!$previousDayData=processRawDukascopyFile($file, $symbol, $previousDay, $type))
+         if (!$previousDayData=processRawDukascopyBarFile($file, $symbol, $previousDay, $type))
             return false;
    }
    // • komprimierte Dukascopy-Datei suchen und verarbeiten
    if (!$previousDayData) {
       if (is_file($file=getVar('dukaFile.compressed', $symbol, $previousDay, $type)))
-         if (!$previousDayData=processCompressedDukascopyFile($file, $symbol, $previousDay, $type))
+         if (!$previousDayData=processCompressedDukascopyBarFile($file, $symbol, $previousDay, $type))
             return false;
    }
    // • ggf. Dukascopy-Datei herunterladen und verarbeiten
@@ -280,7 +280,7 @@ function loadHistory($symbol, $day, $type) {
       $data = downloadData($symbol, $previousDay, $type, false, $saveCompressedDukascopyFiles);
       if (!$data)                                                                // bei HTTP status 404 (file not found) Abbruch
          return false;
-      if (!processCompressedDukascopyData($data, $symbol, $previousDay, $type))
+      if (!processCompressedDukascopyBarData($data, $symbol, $previousDay, $type))
          return false;
       $previousDayData = true;
    }
@@ -295,13 +295,13 @@ function loadHistory($symbol, $day, $type) {
    // • dekomprimierte Dukascopy-Datei suchen und verarbeiten
    if (!$currentDayData) {
       if (is_file($file=getVar('dukaFile.raw', $symbol, $currentDay, $type)))
-         if (!$currentDayData=processRawDukascopyFile($file, $symbol, $currentDay, $type))
+         if (!$currentDayData=processRawDukascopyBarFile($file, $symbol, $currentDay, $type))
             return false;
    }
    // • komprimierte Dukascopy-Datei suchen und verarbeiten
    if (!$currentDayData) {
       if (is_file($file=getVar('dukaFile.compressed', $symbol, $currentDay, $type)))
-         if (!$currentDayData=processCompressedDukascopyFile($file, $symbol, $currentDay, $type))
+         if (!$currentDayData=processCompressedDukascopyBarFile($file, $symbol, $currentDay, $type))
             return false;
    }
    // • ggf. Dukascopy-Datei herunterladen und verarbeiten
@@ -310,9 +310,9 @@ function loadHistory($symbol, $day, $type) {
       $saveFile = ($saveCompressedDukascopyFiles || $currentDay==$yesterday);                // beim letzten Durchlauf immer speichern
 
       $data = downloadData($symbol, $currentDay, $type, false, $saveFile);
-      if (!$data)                                                                            // HTTP status 404 (file not found)
-         return false;                                                                       // FALSE => Komplettabbruch
-      if (!processCompressedDukascopyData($data, $symbol, $currentDay, $type))               // TRUE  => continue (nächste Kursreihe)
+      if (!$data)                                                                            // HTTP status 404 (file not found) => Abbruch
+         return false;
+      if (!processCompressedDukascopyBarData($data, $symbol, $currentDay, $type))
          return false;
       $currentDayData = true;
    }
@@ -377,10 +377,10 @@ function mergeHistory($symbol, $day) {
  * @param  int    $day       - Tag der herunterzuladenen Datei
  * @param  string $type      - Kurstyp der herunterzuladenen Datei: 'bid'|'ask'
  * @param  bool   $quiet     - ob Statusmeldungen unterdrückt werden sollen (default: nein)
- * @param  bool   $saveData  - ob die Daten zusätzlich gespeichert werden sollen (default: nein)
- * @param  bool   $saveError - ob ein 404-Fehler in einer entsprechenden Datei gespeichert werden soll (default: ja)
+ * @param  bool   $saveData  - ob die Datei gespeichert werden soll (default: nein)
+ * @param  bool   $saveError - ob ein 404-Fehler mit einer entsprechenden Fehlerdatei signalisiert werden soll (default: ja)
  *
- * @return string - Content der heruntergeladenen Datei oder Leerstring, wenn die Resource nicht gefunden wurde (404).
+ * @return string - Content der heruntergeladenen Datei oder Leerstring, wenn die Resource nicht gefunden wurde (404-Fehler).
  */
 function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $saveError=true) {
    if (!is_int($day))        throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
@@ -411,7 +411,7 @@ function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $save
    $status   = $response->getStatus();
    if ($status!=200 && $status!=404) throw new plRuntimeException('Unexpected HTTP status '.$status.' ('.HttpResponse::$sc[$status].') for url "'.$url.'"'.NL.printFormatted($response, true));
 
-   // eine leere Antwort ist möglich und wird wie 404 behandelt
+   // eine leere Antwort ist möglich und wird wie ein 404-Fehler behandelt
    $content = $response->getContent();
    if (!strLen($content))
       $status = 404;
@@ -451,49 +451,49 @@ function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $save
 /**
  * @return bool - Erfolgsstatus
  */
-function processCompressedDukascopyFile($file, $symbol, $day, $type) {
+function processCompressedDukascopyBarFile($file, $symbol, $day, $type) {
    if (!is_string($file)) throw new IllegalTypeException('Illegal type of parameter $file: '.getType($file));
    if (!is_int($day))     throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
 
    global $verbose;
    if ($verbose > 0) echoPre('[Info]    '.gmDate('D, d-M-Y', $day).'   Dukascopy compressed file: '.baseName($file));
 
-   return processCompressedDukascopyData(file_get_contents($file), $symbol, $day, $type);
+   return processCompressedDukascopyBarData(file_get_contents($file), $symbol, $day, $type);
 }
 
 
 /**
  * @return bool - Erfolgsstatus
  */
-function processCompressedDukascopyData($data, $symbol, $day, $type) {
+function processCompressedDukascopyBarData($data, $symbol, $day, $type) {
    if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
 
    global $saveRawDukascopyFiles;
    $saveAs = $saveRawDukascopyFiles ? getVar('dukaFile.raw', $symbol, $day, $type) : null;
 
    $rawData = Dukascopy ::decompressBarData($data, $saveAs);
-   return processRawDukascopyData($rawData, $symbol, $day, $type);
+   return processRawDukascopyBarData($rawData, $symbol, $day, $type);
 }
 
 
 /**
  * @return bool - Erfolgsstatus
  */
-function processRawDukascopyFile($file, $symbol, $day, $type) {
+function processRawDukascopyBarFile($file, $symbol, $day, $type) {
    if (!is_string($file)) throw new IllegalTypeException('Illegal type of parameter $file: '.getType($file));
    if (!is_int($day))     throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
 
    global $verbose;
    if ($verbose > 0) echoPre('[Info]    '.gmDate('D, d-M-Y', $day).'   Dukascopy raw history file: '.baseName($file));
 
-   return processRawDukascopyData(file_get_contents($file), $symbol, $day, $type);
+   return processRawDukascopyBarData(file_get_contents($file), $symbol, $day, $type);
 }
 
 
 /**
  * @return bool - Erfolgsstatus
  */
-function processRawDukascopyData($data, $symbol, $day, $type) {
+function processRawDukascopyBarData($data, $symbol, $day, $type) {
    if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
    if (!is_int($day))     throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
    if (!is_string($type)) throw new IllegalTypeException('Illegal type of parameter $type: '.getType($type));
