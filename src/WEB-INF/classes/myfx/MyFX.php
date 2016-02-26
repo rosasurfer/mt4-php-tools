@@ -146,14 +146,14 @@ class MyFX extends StaticClass {
 
 
    /**
-    * Gibt den Offset der angegebenen Zeit zu FXT (Forex Time) zurück.
+    * Gibt den Offset der angegebenen Zeit zu FXT (Forex Time) und ggf. die nächsten angrenzenden Transitionsdaten zurück.
     *
-    * @param  int   $timestamp      - Zeitpunkt relativ zu GMT (default: aktuelle Zeit)
-    * @param  array $prevTransition - Wenn angegeben, enthält die Variable nach Rückkehr ein Array
-    *                                 ['time'=>{timestamp}, 'offset'=>{offset}] mit dem Zeitpunkt des vorherigen Zeitwechsels
+    * @param  int   $timestamp      - GMT-Zeitpunkt (default: aktuelle Zeit)
+    * @param  array $prevTransition - Wenn angegeben, enthält diese Variable nach Rückkehr ein Array
+    *                                 ['time'=>{timestamp}, 'offset'=>{offset}] mit dem GMT-Timestamp des vorherigen Zeitwechsels
     *                                 und dem Offset vor diesem Zeitpunkt.
-    * @param  array $nextTransition - Wenn angegeben, enthält die Variable nach Rückkehr ein Array
-    *                                 ['time'=>{timestamp}, 'offset'=>{offset}] mit dem Zeitpunkt des nächsten Zeitwechsels
+    * @param  array $nextTransition - Wenn angegeben, enthält diese Variable nach Rückkehr ein Array
+    *                                 ['time'=>{timestamp}, 'offset'=>{offset}] mit dem GMT-Timestamp des nächsten Zeitwechsels
     *                                 und dem Offset nach diesem Zeitpunkt.
     *
     * @return int - Offset in Sekunden (es gilt: FXT + Offset = GMT) oder NULL, wenn der Zeitpunkt außerhalb der bekannten

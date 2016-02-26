@@ -69,7 +69,7 @@ $args = $args ? array_unique($args) : array_keys(Dukascopy::$historyStart_M1);  
 
 // (2) Daten aktualisieren
 foreach ($args as $symbol) {
-   if (!updateSymbol($symbol, Dukascopy::$historyStart_M1[$symbol]))
+   if (!updateSymbol($symbol))
       exit(1);
 }
 exit(0);
@@ -84,16 +84,16 @@ exit(0);
  * Eine Dukascopy-Datei enthält immer anteilige Daten zweier FXT-Tage. Zum Update eines FXT-Tages sind immer die Daten
  * zweier Dukascopy-Tage notwendig. Die Daten des aktuellen Tags sind frühestens am nächsten Tag verfügbar.
  *
- * @param  string $symbol    - Symbol
- * @param  int    $startTime - GMT-Timestamp des Beginns der Dukascopy-Daten dieses Symbols
+ * @param  string $symbol - Symbol
  *
  * @return bool - Erfolgsstatus
  */
-function updateSymbol($symbol, $startTime) {
+function updateSymbol($symbol) {
    if (!is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
    $symbol = strToUpper($symbol);
-   if (!is_int($startTime)) throw new IllegalTypeException('Illegal type of parameter $startTime: '.getType($startTime));
-   $startTime -= $startTime % DAY;                                   // 00:00 GMT
+
+   $startTime = Dukascopy::$historyStart_M1[$symbol];                // Beginns der Dukascopy-Daten dieses Symbols in GMT
+   $startDay -= $startTime % DAY;                                    // 00:00 GMT
 
    global $verbose, $barBuffer;
    $barBuffer        = null;                                         // Barbuffer zurücksetzen
@@ -106,7 +106,7 @@ function updateSymbol($symbol, $startTime) {
 
    // (1) Prüfen, ob sich der Startzeitpunkt der History des Symbols geändert hat
    if (array_search($symbol, array('USDNOK', 'USDSEK', 'USDSGD', 'USDZAR')) === false) {
-      $content = downloadData($symbol, $startTime-1*DAY, 'bid', true, false, false);   // Statusmeldungen unterdrücken, nichts speichern
+      $content = downloadData($symbol, $startDay-1*DAY, 'bid', true, false, false);   // Statusmeldungen unterdrücken, nichts speichern
       if (strLen($content)) {
          echoPre('[Notice]  '.$symbol.' M1 history was extended. Please update the history start time.');
          return false;
@@ -119,7 +119,7 @@ function updateSymbol($symbol, $startTime) {
    static $lastMonth=-1;
    $today = ($today=time()) - $today%DAY;                            // 00:00 GMT aktueller Tag
 
-   for ($day=$startTime; $day < $today; $day+=1*DAY) {
+   for ($day=$startDay; $day < $today; $day+=1*DAY) {
       $month = (int) gmDate('m', $day);
       if ($month != $lastMonth) {
          if ($verbose > 0) echoPre('[Info]    '.gmDate('M-Y', $day));
@@ -134,7 +134,7 @@ function updateSymbol($symbol, $startTime) {
 
 
 /**
- * Prüft den Stand der MyFX-History eines einzelnen FXT-Tages und stößt ggf. das Update an.
+ * Prüft den Stand der MyFX-History eines einzelnen Forex-Tages und stößt ggf. das Update an.
  *
  * @param  string $symbol - Symbol
  * @param  int    $day    - GMT-Timestamp des zu prüfenden Tages
@@ -158,7 +158,7 @@ function checkHistory($symbol, $day) {
       else if ($saveRawMyFXData && is_file($file=getVar('myfxFile.raw', $symbol, $day))) {
          if ($verbose > 1) echoPre('[Ok]    '.$shortDate.'   MyFX raw history file: '.baseName($file));
       }
-      // History aktualisieren
+      // andererseits History aktualisieren
       else if (!updateHistory($symbol, $day)) {                   // da 00:00, kann der GMT- als FXT-Timestamp übergeben werden
          return false;
       }
