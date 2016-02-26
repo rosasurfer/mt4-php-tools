@@ -32,3 +32,20 @@ function fxtTime($time=null, $timezoneId=null) {
       return MyFX::fxtTime($time);
    return MyFX::fxtTime($time, $timezoneId);
 }
+
+
+/**
+ * Alias für MyFX::fxtDate()
+ *
+ * Formatiert einen Zeitpunkt als FXT-Zeit.
+ *
+ * @param  int    $timestamp - Zeitpunkt (default: aktuelle Zeit)
+ * @param  string $format    - Formatstring (default: 'Y-m-d H:i:s')
+ *
+ * @return string - FXT-String
+ *
+ * Analogous to the date() function except that the time returned is Forex Time (FXT).
+ */
+function fxtDate($time=null, $format='Y-m-d H:i:s') {
+   return MyFX::fxtDate($time, $format);
+}
