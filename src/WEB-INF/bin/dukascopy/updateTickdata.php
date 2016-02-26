@@ -1,10 +1,33 @@
 #!/usr/bin/php
 <?php
 /**
- * Aktualisiert die vorhandenen Dukascopy-Tickdaten.
- * Die Daten der aktuellen Stunde sind frühestens ab der nächsten Stunde verfügbar.
+ * Aktualisiert die lokal vorhandenen Dukascopy-Tickdaten. Die Daten werden nach FXT konvertiert und im MyFX-Format
+ * gespeichert. Die Dukascopy-Daten sind am Wochenende und können an Feiertagen leer sein, in beiden Fällen werden
+ * sie lokal nicht gespeichert. Die Daten der aktuellen Stunde sind frühestens ab der nächsten Stunde verfügbar.
  *
- * http://www.dukascopy.com/datafeed/EURUSD/2013/05/10/07h_ticks.bi5
+ *
+ * Webseite:      http://www.dukascopy.com/swiss/english/marketwatch/historical/
+ *                http://www.dukascopy.com/free/candelabrum/
+ *
+ * Instrumente:   http://www.dukascopy.com/free/candelabrum/data.json
+ *
+ * History-Start: http://www.dukascopy.com/datafeed/metadata/HistoryStart.bi5  (Format unbekannt)
+ *
+ * URL-Format:    Eine Datei je Tagestunde,
+ *                z.B.: (Januar = 00)
+ *                • http://www.dukascopy.com/datafeed/EURUSD/2013/00/02/10h_ticks.bi5
+ *                • http://www.dukascopy.com/datafeed/EURUSD/2013/05/10/00h_ticks.bi5
+ *
+ * Dateiformat:   Binär, LZMA-gepackt, Zeiten in GMT (keine Sommerzeit).
+ *
+ *                @see class Dukascopy
+ *
+ *      +------------------------+------------+------------+------------+------------------------+------------------------+
+ * FXT: |   Sunday      Monday   |  Tuesday   | Wednesday  |  Thursday  |   Friday     Saturday  |   Sunday      Monday   |
+ *      +------------------------+------------+------------+------------+------------------------+------------------------+
+ *          +------------------------+------------+------------+------------+------------------------+------------------------+
+ * GMT:     |   Sunday      Monday   |  Tuesday   | Wednesday  |  Thursday  |   Friday     Saturday  |   Sunday      Monday   |
+ *          +------------------------+------------+------------+------------+------------------------+------------------------+
  */
 require(dirName(__FILE__).'/../../config.php');
 date_default_timezone_set('GMT');
@@ -13,46 +36,31 @@ date_default_timezone_set('GMT');
 // -- Konfiguration --------------------------------------------------------------------------------------------------------------------------------
 
 
-$verbose = 0;                                                        // output verbosity
+$verbose = 0;                                   // output verbosity
 
-
-// History-Start der einzelnen Instrumente bei Dukascopy
-$data = array('AUDJPY' => strToTime('2007-03-30 16:01:15 GMT'),      // Zeitzone der Daten ist GMT (keine Sommerzeit)
-              'AUDNZD' => strToTime('2008-12-22 16:16:02 GMT'),
-              'AUDUSD' => strToTime('2007-03-30 16:01:16 GMT'),
-              'CADJPY' => strToTime('2007-03-30 16:01:16 GMT'),
-              'CHFJPY' => strToTime('2007-03-30 16:01:15 GMT'),
-              'EURAUD' => strToTime('2007-03-30 16:01:19 GMT'),
-              'EURCAD' => strToTime('2008-09-23 11:32:09 GMT'),
-              'EURCHF' => strToTime('2007-03-30 16:01:15 GMT'),
-              'EURGBP' => strToTime('2007-03-30 16:01:17 GMT'),
-              'EURJPY' => strToTime('2007-03-30 16:01:16 GMT'),
-              'EURNOK' => strToTime('2007-03-30 16:01:19 GMT'),
-              'EURSEK' => strToTime('2007-03-30 16:01:31 GMT'),
-              'EURUSD' => strToTime('2007-03-30 16:01:15 GMT'),
-              'GBPCHF' => strToTime('2007-03-30 16:01:15 GMT'),
-              'GBPJPY' => strToTime('2007-03-30 16:01:15 GMT'),
-              'GBPUSD' => strToTime('2007-03-30 16:01:15 GMT'),
-              'NZDUSD' => strToTime('2007-03-30 16:01:53 GMT'),
-              'USDCAD' => strToTime('2007-03-30 16:01:16 GMT'),
-              'USDCHF' => strToTime('2007-03-30 16:01:15 GMT'),
-              'USDJPY' => strToTime('2007-03-30 16:01:15 GMT'),
-              'USDNOK' => strToTime('2008-09-28 22:04:55 GMT'),
-              'USDSEK' => strToTime('2008-09-28 23:30:31 GMT')
-);
+$saveCompressedDukascopyFiles = false;          // ob heruntergeladene Dukascopy-Dateien zwischengespeichert werden sollen
+$saveRawDukascopyFiles        = false;          // ob entpackte Dukascopy-Dateien zwischengespeichert werden sollen
+$saveRawMyFXData              = true;           // ob unkomprimierte MyFX-Historydaten gespeichert werden sollen
 
 
 // -- Start ----------------------------------------------------------------------------------------------------------------------------------------
 
 
+$result = MyFX::isForexWeekend(strToTime('2016-02-21 23:00:00 GMT'), 'FXT');
+
+echoPre('isForexWeekend = '.(int)$result);
+
+
+exit();
+
+
+
 // (1) Befehlszeilenargumente einlesen und validieren
 $args = array_slice($_SERVER['argv'], 1);
-if (!$args) help() & exit(1);
 
 // Optionen parsen
-$looping = $fileSyncOnly = false;
 foreach ($args as $i => $arg) {
-   if (in_array($arg, array('-h','--help'))) help() & exit(1);                      // Hilfe
+   if ($arg == '-h'  )   help() & exit(1);                                          // Hilfe
    if ($arg == '-v'  ) { $verbose = max($verbose, 1); unset($args[$i]); continue; } // verbose output
    if ($arg == '-vv' ) { $verbose = max($verbose, 2); unset($args[$i]); continue; } // more verbose output
    if ($arg == '-vvv') { $verbose = max($verbose, 3); unset($args[$i]); continue; } // very verbose output
@@ -60,15 +68,67 @@ foreach ($args as $i => $arg) {
 
 // Symbole parsen
 foreach ($args as $i => $arg) {
-   if ($arg=="'*'" || $arg=='"*"')
-      $args[$i] = $arg = '*';
-   if ($arg != '*') {
-      $arg = strToUpper($arg);
-      if (!isSet($startTimes[$arg])) help('error: unknown symbol "'.$args[$i].'"') & exit(1);
-      $args[$i] = $arg;
-   }
+   $arg = strToUpper($arg);
+   if (!isSet(Dukascopy::$historyStart_Ticks[$arg])) help('error: unknown or unsupported symbol "'.$args[$i].'"') & exit(1);
+   $args[$i] = $arg;
 }
-$args = in_array('*', $args) ? array_keys($startTimes) : array_unique($args);       // '*' wird durch alle Symbole ersetzt
+$args = $args ? array_unique($args) : array_keys(Dukascopy::$historyStart_Ticks);   // ohne Angabe werden alle Symbole aktualisiert
+
+
+// (2) Daten aktualisieren
+foreach ($args as $symbol) {
+   if (!updateSymbol($symbol, Dukascopy::$historyStart_Ticks[$symbol]))
+      exit(1);
+}
+exit(0);
+
+
+// --- Funktionen ----------------------------------------------------------------------------------------------------------------------------------
+
+
+/**
+ * Aktualisiert die Tickdaten eines Symbol.
+ *
+ * Eine Dukascopy-Datei enthält eine Stunde Tickdaten. Die Daten der aktuellen Stunde sind frühestens
+ * ab der nächsten Stunde verfügbar.
+ *
+ * @param  string $symbol    - Symbol
+ * @param  int    $startTime - Beginn der Tickdaten dieses Symbols
+ *
+ * @return bool - Erfolgsstatus
+ */
+function updateSymbol($symbol, $startTimeGMT) {
+   if (!is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
+   $symbol = strToUpper($symbol);
+   if (!is_int($startTimeGMT)) throw new IllegalTypeException('Illegal type of parameter $startTimeGMT: '.getType($startTimeGMT));
+   $startTimeGMT -= $startTimeGMT % HOUR;                            // Stundenbeginn GMT
+
+   global $verbose;
+   echoPre('[Info]    '.$symbol);
+
+   // Gesamte Zeitspanne inklusive Wochenenden stundenweise durchlaufen, um von vorherigen Durchlaufen ggf. vorhandene
+   // Zwischendateien finden und löschen zu können.
+   static $lastMonth=-1;
+   $thisHour = ($thisHour=time()) - $thisHour%HOUR;                  // Beginn der aktuellen Stunde GMT
+   $lastHour = $thisHour - 1*HOUR;                                   // Beginn der letzten Stunde GMT
+
+   for ($hour=$startTimeGMT; $hour < $lastHour; $hour+=1*HOUR) {
+      $month = iDate('m', $hour);
+      if ($month != $lastMonth) {
+         if ($verbose > 0) echoPre('[Info]    '.date('M-Y', $hour));
+         $lastMonth = $month;
+      }
+      if (!checkHistory($symbol, $hour)) return false;
+   }
+   echoPre('[Ok]      '.$symbol);
+
+   return true;
+}
+
+
+
+
+
 
 
 
@@ -84,7 +144,7 @@ foreach ($data as $symbol => $start) {
 
    for ($time=$start; $time < $thisHour; $time+=HOUR) {              // Daten der aktuellen Stunde können noch nicht existieren
       date_default_timezone_set('America/New_York');
-      $dow = date('w', $time + 7*HOURS);
+      $dow = (int) date('w', $time + 7*HOURS);
       if ($dow==SATURDAY || $dow==SUNDAY)                            // Wochenenden überspringen, Sessionbeginn/-ende ist America/New_York+0700
          continue;
 
@@ -128,9 +188,6 @@ foreach ($data as $symbol => $start) {
    }
 }
 exit(0);
-
-
-// -- Ende -----------------------------------------------------------------------------------------------------------------------------------------
 
 
 /**
