@@ -15,8 +15,8 @@
  *
  * URL-Format:    Eine Datei je Tagestunde,
  *                z.B.: (Januar = 00)
- *                • http://www.dukascopy.com/datafeed/EURUSD/2013/00/02/10h_ticks.bi5
- *                • http://www.dukascopy.com/datafeed/EURUSD/2013/05/10/00h_ticks.bi5
+ *                • http://www.dukascopy.com/datafeed/EURUSD/2013/00/02/10h_ticks.bi5 - Ticks vom 02.01.2013 10:00:00-10:59:59
+ *                • http://www.dukascopy.com/datafeed/EURUSD/2013/05/10/00h_ticks.bi5 - Ticks vom 10.06.2013 00:00:00-00:59:59
  *
  * Dateiformat:   Binär, LZMA-gepackt, Zeiten in GMT (keine Sommerzeit).
  *
