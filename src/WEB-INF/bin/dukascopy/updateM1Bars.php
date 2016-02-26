@@ -508,20 +508,20 @@ function processRawDukascopyData($data, $symbol, $day, $type) {
 
    // (2) Timestamps und FXT-Daten zu den Bars hinzufügen
    $prev = $next = null;                                             // Die Daten der Datei können einen DST-Wechsel abdecken, wenn
-   $fxtOffset = MyFX::getGmtToFxtTimeOffset($day, $prev, $next);     // $day = "Sun, 00:00 GMT" ist. In diesem Fall muß innerhalb
+   $fxtOffset = MyFX::fxtTimezoneOffset($day, $prev, $next);         // $day = "Sun, 00:00 GMT" ist. In diesem Fall muß innerhalb
    foreach ($bars as &$bar) {                                        // der Datenreihe bei der Ermittlung von time_fxt und delta_fxt
       $bar['time_gmt' ] = $day + $bar['timeDelta'];                  // auf den nächsten DST-Offset gewechselt werden.
       $bar['delta_gmt'] =        $bar['timeDelta'];
       if ($bar['time_gmt'] >= $next['time'])
          $fxtOffset = $next['offset'];                               // $fxtOffset on-the-fly aktualisieren
-      $bar['time_fxt' ] = $bar['time_gmt'] - $fxtOffset;
-      $bar['delta_fxt'] = $bar['time_fxt'] % DAY;
+      $bar['time_fxt' ] = $bar['time_gmt'] + $fxtOffset;             // Es gilt: FXT = GMT + Offset
+      $bar['delta_fxt'] = $bar['time_fxt'] % DAY;                    //     und: GMT = FXT - Offset
       unset($bar['timeDelta']);
    }
 
 
    // (3) Index von 00:00 FXT bestimmen und Bars FXT-tageweise im Buffer speichern
-   $newDayOffset = $size + $fxtOffset/MINUTES;
+   $newDayOffset = $size - $fxtOffset/MINUTES;
    if ($fxtOffset == $next['offset']) {                              // bei DST-Change sicherheitshalber Interest prüfen
       $lastBar  = $bars[$newDayOffset-1];
       $firstBar = $bars[$newDayOffset];
