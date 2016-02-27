@@ -191,7 +191,7 @@ Dukascopy::$historyStart_M1    = array('AUDUSD' => strToTime('2003-08-03 00:00:0
 
 // Start der Tick-History der Dukascopy-Instrumente
 Dukascopy::$historyStart_Ticks = array(
-                                       'AUDUSD' => strToTime('2007-03-30 16:01:16 GMT'),  // TODO: Werte sind nicht aktuell
+                                       'AUDUSD' => strToTime('2007-03-29 16:01:16 GMT'),  // TODO: Werte sind nicht aktuell
                                        'EURUSD' => strToTime('2007-03-30 16:01:15 GMT'),
                                        'GBPUSD' => strToTime('2007-03-30 16:01:15 GMT'),
                                        'NZDUSD' => strToTime('2007-03-30 16:01:53 GMT'),

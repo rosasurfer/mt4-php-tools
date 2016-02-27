@@ -11,6 +11,7 @@ $__classes['UploadFTPConfigurationAction'      ] = $dir.'actions/UploadFTPConfig
 $__classes['UploadFTPConfigurationActionForm'  ] = $dir.'actions/UploadFTPConfigurationActionForm';
 
 $__classes['Dukascopy'                         ] = $dir.'dukascopy/Dukascopy';
+$__classes['DukascopyException'                ] = $dir.'dukascopy/DukascopyException';
 
 $__classes['HistorySet'                        ] = $dir.'metatrader/HistorySet';
 $__classes['MT4'                               ] = $dir.'metatrader/MT4';

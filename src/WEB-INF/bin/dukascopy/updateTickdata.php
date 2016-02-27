@@ -179,7 +179,7 @@ function checkHistory($symbol, $gmtHour, $fxtHour) {
          try {
             if (!updateTicks($symbol, $gmtHour, $fxtHour)) return false;
          }
-         catch (BusinessRuleException $ex) {       // bei leerem Response fortfahren (Fehler wurde schon gespeichert)
+         catch (DukascopyException $ex) {    // bei leerem Response fortfahren (Fehler wurde schon gespeichert)
             if (!strStartsWithI($ex->getMessage(), 'empty response for url:')) throw $ex;
          }
       }
@@ -414,8 +414,8 @@ function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=f
          fClose(fOpen($file, 'wb'));
       }
 
-      // bei leerem Response BusinessRuleException werfen, damit ggf. fortgefahren werden kann
-      if ($status != 404) throw new BusinessRuleException('empty response for url: '.$url);
+      // bei leerem Response Exception werfen, damit ggf. fortgefahren werden kann
+      if ($status != 404) throw new DukascopyException('empty response for url: '.$url);
    }
    return $content;
 }
@@ -570,10 +570,10 @@ function getVar($id, $symbol=null, $time=null) {
       $hour    = gmDate('H', $time);
       $result  = "$myfxDir/${hour}h_ticks.404";
    }
-   else if ($id == 'dukaFile.empty') {       // $myfxDir/${hour}h_ticks.empty                         // Download-Fehler leerer Response
+   else if ($id == 'dukaFile.empty') {       // $myfxDir/${hour}h_ticks.na                            // Download-Fehler leerer Response
       $myfxDir = $self('myfxDir', $symbol, $time);
       $hour    = gmDate('H', $time);
-      $result  = "$myfxDir/${hour}h_ticks.empty";
+      $result  = "$myfxDir/${hour}h_ticks.na";
    }
    else {
      throw new plInvalidArgumentException('Unknown parameter $id: "'.$id.'"');
