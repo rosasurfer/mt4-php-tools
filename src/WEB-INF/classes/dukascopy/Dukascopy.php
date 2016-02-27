@@ -94,7 +94,7 @@ class Dukascopy extends StaticClass {
       $bars    = array();
       $i       = -1;
 
-      $isLittleEndian = isLittleEndian();
+      static $isLittleEndian = null; is_null($isLittleEndian) && $isLittleEndian=isLittleEndian();
 
       // unpack() unterstützt keinen expliziten Big-Endian-Float, die Byte-Order von 'lots' muß ggf. manuell reversed werden.
       while ($offset < $lenData) {
@@ -138,7 +138,7 @@ class Dukascopy extends StaticClass {
       $ticks   = array();
       $i       = -1;
 
-      $isLittleEndian = isLittleEndian();
+      static $isLittleEndian = null; is_null($isLittleEndian) && $isLittleEndian=isLittleEndian();
 
       // unpack() unterstützt keinen expliziten Big-Endian-Float, die Byte-Order von 'bidSize' und 'askSize' muß ggf. manuell
       // reversed werden.

@@ -112,12 +112,25 @@ class MT4 extends StaticClass {
     * @return int - Anzahl der geschriebenen Bytes
     */
    public static function addHistoryBar400($hFile, $time, $open, $high, $low, $close, $ticks) {
-      return fWrite($hFile, pack('Vddddd', $time,     // V
-                                           $open,     // d
-                                           $low,      // d
-                                           $high,     // d
-                                           $close,    // d
-                                           $ticks));  // d
+      $data = pack('Vddddd', $time,    // V
+                             $open,    // d
+                             $low,     // d
+                             $high,    // d
+                             $close,   // d
+                             $ticks);  // d
+
+      // pack() unterstützt keinen expliziten Little-Endian-Double, die Byte-Order der Doubles muß ggf. manuell reversed werden.
+      static $isLittleEndian = null; is_null($isLittleEndian) && $isLittleEndian=isLittleEndian();
+      if (!$isLittleEndian) {
+         $time  =        substr($data,  0, 4);
+         $open  = strRev(substr($data,  4, 8));
+         $low   = strRev(substr($data, 12, 8));
+         $high  = strRev(substr($data, 20, 8));
+         $close = strRev(substr($data, 28, 8));
+         $ticks = strRev(substr($data, 36, 8));
+         $data  = $time.$open.$low.$high.$close.$ticks;
+      }
+      return fWrite($hFile, $data);
    }
 
 
