@@ -604,7 +604,7 @@ function saveBars($symbol, $day) {
    }
 
 
-   // (3) binäre Daten ggf. speichern
+   // (3) binäre Daten ggf. unkomprimiert speichern
    if ($saveRawMyFXData) {
       if (is_file($file=getVar('myfxFile.raw', $symbol, $day))) {
          echoPre('[Error]   '.$symbol.' history for '.$shortDate.' already exists');
@@ -619,7 +619,7 @@ function saveBars($symbol, $day) {
    }
 
 
-   // (4) binäre Daten komprimieren und speichern
+   // (4) binäre Daten ggf. komprimieren und speichern
 
    return true;
 }

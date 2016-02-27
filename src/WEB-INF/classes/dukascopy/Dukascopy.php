@@ -89,32 +89,21 @@ class Dukascopy extends StaticClass {
    public static function readBarData($data) {
       if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
 
-      $size   = strLen($data); if ($size % DUKASCOPY_BAR_SIZE) throw new plRuntimeException('Odd length of passed $data: '.$size.' (not an even DUKASCOPY_BAR_SIZE)');
-      $offset = 0;
-      $bars   = array();
-      $i      = -1;
+      $lenData = strLen($data); if (!$lenData || $lenData%DUKASCOPY_BAR_SIZE) throw new plRuntimeException('Odd length of passed data: '.$lenData.' (not an even DUKASCOPY_BAR_SIZE)');
+      $offset  = 0;
+      $bars    = array();
+      $i       = -1;
 
-      // unpack() unterstützt keinen expliziten Big-Endian-Float, die Byteorder des Elements 'lots' muß manuell reversed werden.
-      if (PHP_VERSION < '5.5.0') {
-         // Es gibt keinen Format-Code, der einzelne Zeichen oder binäre Strings ungekürzt entpackt ('a' und 'A' kürzen).
-         while ($offset < $size) {
-            $i++;
-            $bars[] = unpack("@$offset/NtimeDelta/Nopen/Nclose/Nlow/Nhigh", $data);
-            $char   = unpack('@'.($offset+20).'/C4', $data);
-            $lots   = unpack('f', pack('C4', $char[4], $char[3], $char[2], $char[1]));
-            $bars[$i]['lots'] = round($lots[1], 2);
-            $offset += DUKASCOPY_BAR_SIZE;
-         }
-      }
-      else {
-         // Der Format-Code 'a' schneidet an NULL-Bytes nicht mehr ab.
-         while ($offset < $size) {
-            $i++;
-            $bars[] = unpack("@$offset/NtimeDelta/Nopen/Nclose/Nlow/Nhigh/a4lots", $data);
-            $lots   = unpack('f', strRev($bars[$i]['lots']));
-            $bars[$i]['lots'] = round($lots[1], 2);
-            $offset += DUKASCOPY_BAR_SIZE;
-         }
+      $isLittleEndian = isLittleEndian();
+
+      // unpack() unterstützt keinen expliziten Big-Endian-Float, die Byte-Order von 'lots' muß ggf. manuell reversed werden.
+      while ($offset < $lenData) {
+         $i++;
+         $bars[] = unpack("@$offset/NtimeDelta/Nopen/Nclose/Nlow/Nhigh", $data);
+         $s      = subStr($data, $offset+20, 4);
+         $lots   = unpack('f', $isLittleEndian ? strRev($s) : $s);
+         $bars[$i]['lots'] = round($lots[1], 2);
+         $offset += DUKASCOPY_BAR_SIZE;
       }
       return $bars;
    }
@@ -144,35 +133,24 @@ class Dukascopy extends StaticClass {
    public static function readTickData($data) {
       if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
 
-      $size   = strLen($data); if ($size % DUKASCOPY_TICK_SIZE) throw new plRuntimeException('Odd length of passed $data: '.$size.' (not an even DUKASCOPY_TICK_SIZE)');
-      $offset = 0;
-      $ticks  = array();
-      $i      = -1;
+      $lenData = strLen($data); if (!$lenData || $lenData%DUKASCOPY_TICK_SIZE) throw new plRuntimeException('Odd length of passed data: '.$lenData.' (not an even DUKASCOPY_TICK_SIZE)');
+      $offset  = 0;
+      $ticks   = array();
+      $i       = -1;
 
-      // unpack() unterstützt keinen expliziten Big-Endian-Float, die Byteorder der Elemente 'bidSize' und 'askSize' muß manuell
+      $isLittleEndian = isLittleEndian();
+
+      // unpack() unterstützt keinen expliziten Big-Endian-Float, die Byte-Order von 'bidSize' und 'askSize' muß ggf. manuell
       // reversed werden.
-      if (PHP_VERSION < '5.5.0') {
-         // Es gibt keinen Format-Code, der einzelne Zeichen oder binäre Strings ungekürzt entpackt ('a' und 'A' kürzen).
-         while ($offset < $size) {
-            $i++;
-            $ticks[] = unpack("@$offset/NtimeDelta/Nask/Nbid", $data);
-            $char    = unpack('@'.($offset+12).'/C8', $data);
-            $size    = unpack('fask/fbid', pack('C8', $char[4], $char[3], $char[2], $char[1], $char[8], $char[7], $char[6], $char[5]));
-            $ticks[$i]['askSize'] = round($size['ask'], 2);
-            $ticks[$i]['bidSize'] = round($size['bid'], 2);
-            $offset += DUKASCOPY_TICK_SIZE;
-         }
-      }
-      else {
-         // Der Format-Code 'a' schneidet an NULL-Bytes nicht mehr ab.
-         while ($offset < $size) {
-            $i++;
-            $ticks[] = unpack("@$offset/NtimeDelta/Nask/Nbid/a4askSize/a4bidSize", $data);
-            $size    = unpack('fask/fbid', strRev($ticks[$i]['askSize']).strRev($ticks[$i]['bidSize']));
-            $ticks[$i]['askSize'] = round($size['ask'], 2);
-            $ticks[$i]['bidSize'] = round($size['bid'], 2);
-            $offset += DUKASCOPY_TICK_SIZE;
-         }
+      while ($offset < $lenData) {
+         $i++;
+         $ticks[] = unpack("@$offset/NtimeDelta/Nask/Nbid", $data);
+         $s1      = subStr($data, $offset+12, 4);
+         $s2      = subStr($data, $offset+16, 4);
+         $size    = unpack('fask/fbid', $isLittleEndian ? strRev($s1).strRev($s2) : $s1.$s2);
+         $ticks[$i]['askSize'] = round($size['ask'], 2);
+         $ticks[$i]['bidSize'] = round($size['bid'], 2);
+         $offset += DUKASCOPY_TICK_SIZE;
       }
       return $ticks;
    }
