@@ -191,15 +191,15 @@ Dukascopy::$historyStart_M1    = array('AUDUSD' => strToTime('2003-08-03 00:00:0
 
 // Start der Tick-History der Dukascopy-Instrumente
 Dukascopy::$historyStart_Ticks = array(
-                                       'AUDUSD' => strToTime('2007-03-29 16:01:16 GMT'),  // TODO: Werte sind nicht aktuell
-                                       'EURUSD' => strToTime('2007-03-30 16:01:15 GMT'),
-                                       'GBPUSD' => strToTime('2007-03-30 16:01:15 GMT'),
-                                       'NZDUSD' => strToTime('2007-03-30 16:01:53 GMT'),
-                                       'USDCAD' => strToTime('2007-03-30 16:01:16 GMT'),
-                                       'USDCHF' => strToTime('2007-03-30 16:01:15 GMT'),
-                                       'USDJPY' => strToTime('2007-03-30 16:01:15 GMT'),
-                                       'USDNOK' => strToTime('2008-09-28 22:04:55 GMT'),
-                                       'USDSEK' => strToTime('2008-09-28 23:30:31 GMT'),
-                                     //'USDSGD' => strToTime('???'),
-                                     //'USDZAR' => strToTime('???'),
+                                       'AUDUSD' => strToTime('2003-08-03 21:00:00 GMT'),
+                                       'EURUSD' => strToTime('2003-05-04 21:00:00 GMT'),
+                                       'GBPUSD' => strToTime('2003-05-04 21:00:00 GMT'),
+                                       'NZDUSD' => strToTime('2003-08-03 21:00:00 GMT'),
+                                       'USDCAD' => strToTime('2003-08-03 21:00:00 GMT'),
+                                       'USDCHF' => strToTime('2003-05-04 21:00:00 GMT'),
+                                       'USDJPY' => strToTime('2003-05-04 21:00:00 GMT'),
+                                       'USDNOK' => strToTime('2003-08-03 21:00:00 GMT'),
+                                       'USDSEK' => strToTime('2003-08-03 21:00:00 GMT'),
+                                       'USDSGD' => strToTime('2004-11-16 18:00:00 GMT'),
+                                       'USDZAR' => strToTime('1997-10-13 18:00:00 GMT'),
 );
