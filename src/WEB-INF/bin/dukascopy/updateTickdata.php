@@ -92,7 +92,6 @@ function updateSymbol($symbol) {
    if (!is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
    $symbol = strToUpper($symbol);
 
-   global $verbose;
    echoPre('[Info]    '.$symbol);
 
 
@@ -356,10 +355,12 @@ function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=f
    if (!is_bool($quiet))     throw new IllegalTypeException('Illegal type of parameter $quiet: '.getType($quiet));
    if (!is_bool($saveData))  throw new IllegalTypeException('Illegal type of parameter $saveData: '.getType($saveData));
    if (!is_bool($saveError)) throw new IllegalTypeException('Illegal type of parameter $saveError: '.getType($saveError));
+   global$verbose;
 
    $shortDate = gmDate('D, d-M-Y H:i', $fxtHour);
    $url       = getVar('dukaUrl', $symbol, $gmtHour);
-   if (!$quiet) echoPre('[Info]    '.$shortDate.'   url: '.$url);
+   if (!$quiet && $verbose > 1) echoPre('[Info]    '.$shortDate.'   url: '.$url);
+
 
    // (1) Standard-Browser simulieren
    $userAgent = Config ::get('myfx.useragent'); if (!$userAgent) throw new plInvalidArgumentException('Invalid user agent configuration: "'.$userAgent.'"');
