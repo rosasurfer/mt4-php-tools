@@ -9,7 +9,7 @@
  *    uint  close;                        4            8        in Points
  *    uint  low;                          4           12        in Points
  *    uint  high;                         4           16        in Points
- *    float lots                          4           20        kumulierte Angebotsseite in Lots (siehe DUKASCOPY_TICK)
+ *    float lots;                         4           20        kumulierte Angebotsseite in Lots (siehe DUKASCOPY_TICK)
  * };                                  = 24 byte
  *
  *

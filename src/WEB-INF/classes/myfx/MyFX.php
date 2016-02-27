@@ -1,9 +1,26 @@
 <?php
 /**
  * MyFX related functionality
+ *
+ *                                      size        offset      description
+ * struct little-endian MYFX_BAR {      ----        ------      ------------------------------------------------
+ *    uint time;                          4            0        FXT-Timestamp (Sekunden seit dem 01.01.1970 FXT)
+ *    uint open;                          4            4        in Points
+ *    uint high;                          4            8        in Points
+ *    uint low;                           4           12        in Points
+ *    uint close;                         4           16        in Points
+ *    uint ticks;                         4           20
+ * };                                  = 24 byte
+ *
+ *
+ *                                      size        offset      description
+ * struct little-endian MYFX_TICK {     ----        ------      ------------------------------------------------
+ *    uint timeDelta;                     4            0        Millisekunden seit Beginn der Stunde
+ *    uint bid;                           4            4        in Points
+ *    uint ask;                           4            8        in Points
+ * };                                  = 12 byte
  */
 class MyFX extends StaticClass {
-
 
    // Start der M1-History der FX-Indizes
    public static $fxIndizesHistoryStart_M1 = null;                // @see static initializer at end of file
@@ -409,15 +426,13 @@ class MyFX extends StaticClass {
    public static function readBarData($data) {
       if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
 
-      $size   = strLen($data); if ($size % MYFX_BAR_SIZE) throw new plRuntimeException('Odd length of passed $data: '.$size.' (not an even MYFX_BAR_SIZE)');
-      $offset = 0;
-      $i      = 0;
-      $bars   = array();
+      $lenData = strLen($lenData); if ($lenData%MYFX_BAR_SIZE) throw new plRuntimeException('Odd length of passed data: '.$lenData.' (not an even MYFX_BAR_SIZE)');
+      $offset  = 0;
+      $bars    = array();
 
-      while ($offset < $size) {
+      while ($offset < $lenData) {
          $bars[] = unpack("@$offset/Vtime/Vopen/Vhigh/Vlow/Vclose/Vticks", $data);
          $offset += MYFX_BAR_SIZE;
-         $i++;
       }
       return $bars;
    }

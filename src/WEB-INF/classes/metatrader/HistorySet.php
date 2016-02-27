@@ -118,7 +118,7 @@ class HistorySet extends Object {
    /**
     * Fügt dem HistorySet M1-Bardaten hinzu. Die Bardaten werden am Ende der Timeframes gespeichert.
     *
-    * @param  MYFX_BAR[] $bars - Array von MyFX-Bars
+    * @param  array $bars - Array mit MYFX_BAR-Daten
     */
    public function addM1Bars(array $bars) {
       $this->addToM1 ($bars);
@@ -136,7 +136,7 @@ class HistorySet extends Object {
    /**
     * Fügt der M1-History des Sets weitere Bars hinzu.
     *
-    * @param  MYFX_BAR[] $bars
+    * @param  array $bars - Array mit MYFX_BAR-Daten
     */
    private function addToM1(array $bars) {
       $this->history[PERIOD_M1]['bars'] = array_merge($this->history[PERIOD_M1]['bars'], $bars);
@@ -153,7 +153,7 @@ class HistorySet extends Object {
    /**
     * Fügt der M5-History des Sets weitere M1-Daten hinzu.
     *
-    * @param  MYFX_BAR[] $bars
+    * @param  array $bars - Array mit MYFX_BAR-Daten
     */
    private function addToM5(array $bars) {
       $sizeM5Bars = sizeOf($this->history[PERIOD_M5]['bars']);
@@ -187,7 +187,7 @@ class HistorySet extends Object {
    /**
     * Fügt der M15-History des Sets weitere M1-Daten hinzu.
     *
-    * @param  MYFX_BAR[] $bars
+    * @param  array $bars - Array mit MYFX_BAR-Daten
     */
    private function addToM15(array $bars) {
       $sizeM15Bars = sizeOf($this->history[PERIOD_M15]['bars']);
@@ -221,7 +221,7 @@ class HistorySet extends Object {
    /**
     * Fügt der M30-History des Sets weitere M1-Daten hinzu.
     *
-    * @param  MYFX_BAR[] $bars
+    * @param  array $bars - Array mit MYFX_BAR-Daten
     */
    private function addToM30(array $bars) {
       $sizeM30Bars = sizeOf($this->history[PERIOD_M30]['bars']);
@@ -255,7 +255,7 @@ class HistorySet extends Object {
    /**
     * Fügt der H1-History des Sets weitere M1-Daten hinzu.
     *
-    * @param  MYFX_BAR[] $bars
+    * @param  array $bars - Array mit MYFX_BAR-Daten
     */
    private function addToH1(array $bars) {
       $sizeH1Bars = sizeOf($this->history[PERIOD_H1]['bars']);
@@ -289,7 +289,7 @@ class HistorySet extends Object {
    /**
     * Fügt der H4-History des Sets weitere M1-Daten hinzu.
     *
-    * @param  MYFX_BAR[] $bars
+    * @param  array $bars - Array mit MYFX_BAR-Daten
     */
    private function addToH4(array $bars) {
       $sizeH4Bars = sizeOf($this->history[PERIOD_H4]['bars']);
@@ -323,7 +323,7 @@ class HistorySet extends Object {
    /**
     * Fügt der D1-History des Sets weitere M1-Daten hinzu.
     *
-    * @param  MYFX_BAR[] $bars
+    * @param  array $bars - Array mit MYFX_BAR-Daten
     */
    private function addToD1(array $bars) {
       $sizeD1Bars = sizeOf($this->history[PERIOD_D1]['bars']);
@@ -357,7 +357,7 @@ class HistorySet extends Object {
    /**
     * Fügt der W1-History des Sets weitere M1-Daten hinzu.
     *
-    * @param  MYFX_BAR[] $bars
+    * @param  array $bars - Array mit MYFX_BAR-Daten
     */
    private function addToW1(array $bars) {
       $sizeW1Bars =  sizeOf($this->history[PERIOD_W1]['bars']);
@@ -392,7 +392,7 @@ class HistorySet extends Object {
    /**
     * Fügt der MN1-History des Sets weitere M1-Daten hinzu.
     *
-    * @param  MYFX_BAR[] $bars
+    * @param  array $bars - Array mit MYFX_BAR-Daten
     */
    private function addToMN1(array $bars) {
       $sizeMN1Bars =  sizeOf($this->history[PERIOD_MN1]['bars']);
