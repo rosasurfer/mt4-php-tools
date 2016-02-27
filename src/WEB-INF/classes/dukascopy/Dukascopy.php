@@ -190,21 +190,9 @@ Dukascopy::$historyStart_M1    = array('AUDUSD' => strToTime('2003-08-03 00:00:0
 );
 
 // Start der Tick-History der Dukascopy-Instrumente
-Dukascopy::$historyStart_Ticks = array('AUDJPY' => strToTime('2007-03-30 16:01:15 GMT'),  // TODO: Werte sind nicht mehr aktuell
-                                       'AUDNZD' => strToTime('2008-12-22 16:16:02 GMT'),
-                                       'AUDUSD' => strToTime('2007-03-30 16:01:16 GMT'),
-                                       'CADJPY' => strToTime('2007-03-30 16:01:16 GMT'),
-                                       'CHFJPY' => strToTime('2007-03-30 16:01:15 GMT'),
-                                       'EURAUD' => strToTime('2007-03-30 16:01:19 GMT'),
-                                       'EURCAD' => strToTime('2008-09-23 11:32:09 GMT'),
-                                       'EURCHF' => strToTime('2007-03-30 16:01:15 GMT'),
-                                       'EURGBP' => strToTime('2007-03-30 16:01:17 GMT'),
-                                       'EURJPY' => strToTime('2007-03-30 16:01:16 GMT'),
-                                       'EURNOK' => strToTime('2007-03-30 16:01:19 GMT'),
-                                       'EURSEK' => strToTime('2007-03-30 16:01:31 GMT'),
+Dukascopy::$historyStart_Ticks = array(
+                                       'AUDUSD' => strToTime('2007-03-30 16:01:16 GMT'),  // TODO: Werte sind nicht aktuell
                                        'EURUSD' => strToTime('2007-03-30 16:01:15 GMT'),
-                                       'GBPCHF' => strToTime('2007-03-30 16:01:15 GMT'),
-                                       'GBPJPY' => strToTime('2007-03-30 16:01:15 GMT'),
                                        'GBPUSD' => strToTime('2007-03-30 16:01:15 GMT'),
                                        'NZDUSD' => strToTime('2007-03-30 16:01:53 GMT'),
                                        'USDCAD' => strToTime('2007-03-30 16:01:16 GMT'),
@@ -212,4 +200,6 @@ Dukascopy::$historyStart_Ticks = array('AUDJPY' => strToTime('2007-03-30 16:01:1
                                        'USDJPY' => strToTime('2007-03-30 16:01:15 GMT'),
                                        'USDNOK' => strToTime('2008-09-28 22:04:55 GMT'),
                                        'USDSEK' => strToTime('2008-09-28 23:30:31 GMT'),
+                                     //'USDSGD' => strToTime('???'),
+                                     //'USDZAR' => strToTime('???'),
 );
