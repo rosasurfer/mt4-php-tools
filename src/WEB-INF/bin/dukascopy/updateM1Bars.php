@@ -456,7 +456,7 @@ function processCompressedDukascopyBarFile($file, $symbol, $day, $type) {
    if (!is_int($day))     throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
 
    global $verbose;
-   if ($verbose > 0) echoPre('[Info]    '.gmDate('D, d-M-Y', $day).'   Dukascopy compressed file: '.baseName($file));
+   if ($verbose > 0) echoPre('[Info]    '.gmDate('D, d-M-Y', $day).'   Dukascopy compressed bar file: '.baseName($file));
 
    return processCompressedDukascopyBarData(file_get_contents($file), $symbol, $day, $type);
 }
@@ -471,7 +471,7 @@ function processCompressedDukascopyBarData($data, $symbol, $day, $type) {
    global $saveRawDukascopyFiles;
    $saveAs = $saveRawDukascopyFiles ? getVar('dukaFile.raw', $symbol, $day, $type) : null;
 
-   $rawData = Dukascopy ::decompressBarData($data, $saveAs);
+   $rawData = Dukascopy ::decompressHistoryData($data, $saveAs);
    return processRawDukascopyBarData($rawData, $symbol, $day, $type);
 }
 
@@ -484,7 +484,7 @@ function processRawDukascopyBarFile($file, $symbol, $day, $type) {
    if (!is_int($day))     throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
 
    global $verbose;
-   if ($verbose > 0) echoPre('[Info]    '.gmDate('D, d-M-Y', $day).'   Dukascopy raw history file: '.baseName($file));
+   if ($verbose > 0) echoPre('[Info]    '.gmDate('D, d-M-Y', $day).'   Dukascopy raw bar file: '.baseName($file));
 
    return processRawDukascopyBarData(file_get_contents($file), $symbol, $day, $type);
 }
@@ -522,11 +522,11 @@ function processRawDukascopyBarData($data, $symbol, $day, $type) {
 
    // (3) Index von 00:00 FXT bestimmen und Bars FXT-tageweise im Buffer speichern
    $newDayOffset = $size - $fxtOffset/MINUTES;
-   if ($fxtOffset == $next['offset']) {                              // bei DST-Change sicherheitshalber Interest prüfen
+   if ($fxtOffset == $next['offset']) {                              // bei DST-Change sicherheitshalber Lots prüfen
       $lastBar  = $bars[$newDayOffset-1];
       $firstBar = $bars[$newDayOffset];
-      if ($lastBar['interest']!=0 || $firstBar['interest']==0) {
-         echoPre('[Warn]    '.$shortDate.'   bar interest mis-match during DST change.');
+      if ($lastBar['lots'] || !$firstBar['lots']) {
+         echoPre('[Warn]    '.$shortDate.'   lots mis-match during DST change.');
          echoPre('Day of DST change ('.gmDate('D, d-M-Y', $lastBar['time_fxt']).') ended with:');
          echoPre($bars[$newDayOffset-1]);
          echoPre('Day after DST change ('.gmDate('D, d-M-Y', $firstBar['time_fxt']).') started with:');

@@ -107,6 +107,7 @@ define('I_STH_COMMENT'    , 13);
 
 // Struct-Sizes
 define('DUKASCOPY_BAR_SIZE'  ,  24);
+define('DUKASCOPY_TICK_SIZE' ,  20);
 define('HISTORY_HEADER_SIZE' , 148);
 define('HISTORY_BAR_400_SIZE',  44);
 define('HISTORY_BAR_401_SIZE',  60);
