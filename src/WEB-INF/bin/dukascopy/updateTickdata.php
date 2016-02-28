@@ -406,16 +406,18 @@ function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=f
 
    // (4) Download-Fehler: ist das Flag $saveError gesetzt, Fehler speichern
    else {
-      if (!$quiet)
-         echoPre('[Error]   '.$shortDate.'   '.($status==404 ? 'url not found (404)':'empty response').': '.$url);
-
       if ($saveError) {                                              // Fehlerdatei unter FXT-Namen speichern
          $file = getVar($status==404 ? 'dukaFile.404':'dukaFile.empty', $symbol, $fxtHour);
          mkDirWritable(dirName($file), 0700);
          fClose(fOpen($file, 'wb'));
       }
 
-      // bei leerem Response Exception werfen, damit ggf. fortgefahren werden kann
+      if (!$quiet) {
+         if ($status==404) echoPre('[Error]   '.$shortDate.'   url not found (404): '.$url);
+         else              echoPre('[Warn]    '.$shortDate.'   empty response: '.$url);
+      }
+
+      // bei leerem Response Exception werfen, damit eine Schleife ggf. fortgesetzt werden kann
       if ($status != 404) throw new DukascopyException('empty response for url: '.$url);
    }
    return $content;
