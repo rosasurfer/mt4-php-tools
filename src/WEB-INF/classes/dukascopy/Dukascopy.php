@@ -198,8 +198,8 @@ Dukascopy::$historyStart_Ticks = array(
                                        'USDCAD' => strToTime('2003-08-03 21:00:00 GMT'),
                                        'USDCHF' => strToTime('2003-05-04 21:00:00 GMT'),
                                        'USDJPY' => strToTime('2003-05-04 21:00:00 GMT'),
-                                       'USDNOK' => strToTime('2003-08-03 21:00:00 GMT'),
-                                       'USDSEK' => strToTime('2003-08-03 21:00:00 GMT'),
+                                       'USDNOK' => strToTime('2003-08-04 00:00:00 GMT'),
+                                       'USDSEK' => strToTime('2003-08-04 00:00:00 GMT'),
                                        'USDSGD' => strToTime('2004-11-16 18:00:00 GMT'),
                                        'USDZAR' => strToTime('1997-10-13 18:00:00 GMT'),
 );
