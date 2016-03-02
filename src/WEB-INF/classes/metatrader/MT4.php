@@ -266,4 +266,96 @@ class MT4 extends StaticClass {
          }
       }
    }
+
+
+   /**
+    * Ob ein String ein gültiges MetaTrader-Symbol darstellt.
+    *
+    * @return bool
+    */
+   public static function isValidSymbol($string) {
+      static $pattern = '/^[a-z0-9_.#]+$/i';
+      return is_string($string) && strLen($string) && strLen($string)<MAX_SYMBOL_LENGTH && preg_match($pattern, $string);
+   }
+
+
+   /**
+    * Ob die angegebene Timeframe-ID einen eingebauten MetaTrader-Timeframe darstellt.
+    *
+    * @param  int $timeframe - Timeframe-ID
+    *
+    * @return bool
+    */
+   public static function isBuiltinTimeframe($timeframe) {
+      if (is_int($timeframe)) {
+         switch ($timeframe) {
+            case PERIOD_M1 : return true;
+            case PERIOD_M5 : return true;
+            case PERIOD_M15: return true;
+            case PERIOD_M30: return true;
+            case PERIOD_H1 : return true;
+            case PERIOD_H4 : return true;
+            case PERIOD_D1 : return true;
+            case PERIOD_W1 : return true;
+            case PERIOD_MN1: return true;
+         }
+      }
+      return false;
+   }
+
+
+   /**
+    * Ob der angegebene Wert die gültige Beschreibung eines MetaTrader-Timeframes darstellt.
+    *
+    * @param  string $value - Beschreibung
+    *
+    * @return bool
+    */
+   public static function isTimeframeDescription($value) {
+      if (is_string($value)) {
+         if (strStartsWith($value, 'PERIOD_'))
+            $value = strRight($value, -7);
+
+         switch ($value) {
+            case 'M1' : return true;
+            case 'M5' : return true;
+            case 'M15': return true;
+            case 'M30': return true;
+            case 'H1' : return true;
+            case 'H4' : return true;
+            case 'D1' : return true;
+            case 'W1' : return true;
+            case 'MN1': return true;
+         }
+      }
+      return false;
+   }
+
+
+   /**
+    * Konvertiert den angegebenen Timeframe-Bezeichner in die entsprechende Timeframe-ID.
+    *
+    * @param  string $value - Bezeichner
+    *
+    * @return int - Timeframe-ID
+    */
+   public static function timeframeToId($value) {
+      if (!is_string($value)) throw new IllegalTypeException('Illegal type of parameter $value: '.$value.' ('.getType($value).')');
+
+      if (strStartsWith($value, 'PERIOD_'))
+         $value = strRight($value, -7);
+
+      switch ($value) {
+         case 'M1' : return PERIOD_M1;
+         case 'M5' : return PERIOD_M5;
+         case 'M15': return PERIOD_M15;
+         case 'M30': return PERIOD_M30;
+         case 'H1' : return PERIOD_H1;
+         case 'H4' : return PERIOD_H4;
+         case 'D1' : return PERIOD_D1;
+         case 'W1' : return PERIOD_W1;
+         case 'MN1': return PERIOD_MN1;
+      }
+      throw new plInvalidArgumentException('Invalid argument $value: '.$value.' (not a timeframe)');
+   }
 }

@@ -32,7 +32,7 @@ function help($message=null) {
 
 echo <<<END
 
- Syntax:  $self  file [...]
+  Syntax:  $self  file [...]
 
 
 END;

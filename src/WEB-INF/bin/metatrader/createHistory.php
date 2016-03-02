@@ -163,7 +163,7 @@ function help($message=null) {
 
 echo <<<END
 
- Syntax:  $self [symbol ...]
+  Syntax:  $self [symbol ...]
 
 
 END;
