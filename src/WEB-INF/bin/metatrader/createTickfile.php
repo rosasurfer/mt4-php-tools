@@ -32,33 +32,34 @@ foreach ($args as $i => $arg) {
 
    // -s=SYMBOL
    if (strStartsWith($arg, '-s=')) {
+      if (isSet($options['symbol'])) help('invalid/multiple symbol arguments: -s='.$arg) & exit(1);
       $value = $arg = strRight($arg, -3);
       if (strIsQuoted($value))
          $value = strLeft(strRight($value, -1), 1);
       if (!MT4::isValidSymbol($value)) help('invalid symbol: '.$arg) & exit(1);
       $options['symbol'] = $value;
-      unset($args[$i]);
       continue;
    }
 
    // -p=PERIOD
    if (strStartsWith($arg, '-p=')) {
+      if (isSet($options['period'])) help('invalid/multiple period arguments: -p='.$arg) & exit(1);
       $value = $arg = strRight($arg, -3);
       if (strIsQuoted($value))
          $value = strLeft(strRight($value, -1), 1);
       if (strIsDigit($value) && $value{0}!='0') {
          $value = (int) $value;
-         if (!MT4::isBuiltinTimeframe($value)) help('invalid timeframe: '.$arg) & exit(1);
+         if (!MT4::isBuiltinTimeframe($value)) help('invalid period: '.$arg) & exit(1);
          $options['period'] = $value;
       }
-      else if (!MT4::isTimeframeDescription($value)) help('invalid timeframe: '.$arg) & exit(1);
+      else if (!MT4::isTimeframeDescription($value)) help('invalid period: '.$arg) & exit(1);
       else $options['period'] = MT4::timeframeToId($value);
-      unset($args[$i]);
       continue;
    }
 
    // -from=DATE
    if (strStartsWith($arg, '-from=')) {
+      if (isSet($options['startDate'])) help('invalid/multiple start date arguments: -from='.$arg) & exit(1);
       $value = $arg = strRight($arg, -6);
       if (strIsQuoted($value))
          $value = strLeft(strRight($value, -1), 1);
@@ -68,12 +69,12 @@ foreach ($args as $i => $arg) {
       if (isSet($options['endDate']) && $options['startDate'] > $options['endDate']) {
          help('start date/end date mis-match: '.gmDate('Y.m.d', $options['startDate']).' > '.gmDate('Y.m.d', $options['endDate'])) & exit(1);
       }
-      unset($args[$i]);
       continue;
    }
 
    // -to=DATE
    if (strStartsWith($arg, '-to=')) {
+      if (isSet($options['endDate'])) help('invalid/multiple end date arguments: -to='.$arg) & exit(1);
       $value = $arg = strRight($arg, -4);
       if (strIsQuoted($value))
          $value = strLeft(strRight($value, -1), 1);
@@ -83,26 +84,45 @@ foreach ($args as $i => $arg) {
       if (isSet($options['startDate']) && $options['startDate'] > $options['endDate']) {
          help('start date/end date mis-match: '.gmDate('Y.m.d', $options['startDate']).' > '.gmDate('Y.m.d', $options['endDate'])) & exit(1);
       }
-      unset($args[$i]);
       continue;
    }
 
-   // -model=TYPE: (E)VERYTICK|(S)IMULATEDTICKS|(B)AROPEN
+   // -model=TYPE
    if (strStartsWith($arg, '-model=')) {
+      if (isSet($options['model'])) help('invalid/multiple model arguments: -model='.$arg) & exit(1);
       $arg   = strRight($arg, -7);
       $value = strToUpper($arg);
       if (strIsQuoted($value))
          $value = strLeft(strRight($value, -1), 1);
-      if     (strStartsWith('EVERYTICK',      $value)) $options['model'] = 'EVERYTICK';
+      if     (strStartsWith('REALTICKS',      $value)) $options['model'] = 'REALTICKS';
       elseif (strStartsWith('SIMULATEDTICKS', $value)) $options['model'] = 'SIMULATEDTICKS';
       elseif (strStartsWith('BAROPEN',        $value)) $options['model'] = 'BAROPEN';
       else                                    help('invalid model type: '.$arg) & exit(1);
-      unset($args[$i]);
+      continue;
+   }
+
+   // -spread=PIPS
+   if (strStartsWith($arg, '-spread=')) {
+      if (isSet($options['spread'])) help('invalid/multiple spread arguments: -spread='.$arg) & exit(1);
+      $value = $arg = strRight($arg, -8);
+      if (strIsQuoted($value))
+         $value = strLeft(strRight($value, -1), 1);
+      if (!is_numeric($value) || strStartsWithI($value, '0x')) help('invalid spread: '.$arg) & exit(1);
+      $value = (double) $value;
+      if ($value < 0) help('invalid spread: '.$arg) & exit(1);
+      $spread = round($value, 1);
+      if ($spread != $value) help('invalid spread: '.$arg) & exit(1);
+      $options['spread'] = $spread;
       continue;
    }
 }
+if (!isSet($options['symbol'   ])) help('missing symbol argument') & exit(1);
+if (!isSet($options['period'   ])) help('missing period argument') & exit(1);
+if (!isSet($options['startDate'])) $options['startDate'] = 0;
+if (!isSet($options['endDate'  ])) $options['endDate'  ] = 0;
+if (!isSet($options['model'    ])) $options['model'    ] = 'REALTICKS';
+if (!isSet($options['spread'   ])) $options['spread'   ] = 0;
 
-//  [-model=TYPE] [-spread=PIPS] [...]
 
 echoPre($options);
 exit(0);
@@ -127,11 +147,11 @@ $message
   Syntax:  $self -s=SYMBOL -p=PERIOD [-from=DATE] [-to=DATE] [-model=TYPE] [-spread=PIPS] [...]
 
   Options:  -s=SYMBOL       The symbol to generate the tick file for.
-            -p=PERIOD       Timeframe of the generated tick file in minutes.
-            -from=DATE      Testing start date of the generated tick file.                     default: start of data
-            -to=DATE        Testing end date of the generated tick file.                       default: end of data
-            -model=[E|S|B]  Tick generation algorythm: (E)VERYTICK|(S)IMULATEDTICKS|(B)AROPEN. default: every tick
-            -spread=PIPS    Fixed spread of the generated tick file in (fractional) pips.      default: 1 point
+            -p=PERIOD       Timeframe of the generated tick file as an id or in minutes.
+            -from=DATE      Testing start date of the generated tick file (default: start of data).
+            -to=DATE        Testing end date of the generated tick file (default: end of data).
+            -model=[R|S|B]  Tick generation algorythm: (R)EALTICKS|(S)IMULATEDTICKS|(B)AROPEN (default: real ticks).
+            -spread=PIPS    Fixed spread of the generated tick file in fractional pips (default: 1 point).
             -v              Verbose output.
             -vv             More verbose output.
             -vvv            Most verbose output.
