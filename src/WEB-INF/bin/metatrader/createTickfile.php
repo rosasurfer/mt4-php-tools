@@ -32,32 +32,77 @@ foreach ($args as $i => $arg) {
 
    // -s=SYMBOL
    if (strStartsWith($arg, '-s=')) {
-      $symbol = strRight($arg, -3);
-      if (strIsQuoted($symbol))
-         $symbol = strLeft(strRight($symbol, -1), 1);
-      if (!MT4::isValidSymbol($symbol)) help('invalid symbol: '.$symbol) & exit(1);
-      $options['symbol'] = $symbol;
+      $value = $arg = strRight($arg, -3);
+      if (strIsQuoted($value))
+         $value = strLeft(strRight($value, -1), 1);
+      if (!MT4::isValidSymbol($value)) help('invalid symbol: '.$arg) & exit(1);
+      $options['symbol'] = $value;
       unset($args[$i]);
       continue;
    }
 
    // -p=PERIOD
    if (strStartsWith($arg, '-p=')) {
-      $period = strRight($arg, -3);
-      if (strIsQuoted($period))
-         $period = strLeft(strRight($period, -1), 1);
-      if (strIsDigit($period) && $period{0}!='0') {
-         if (!MT4::isBuiltinTimeframe((int) $period)) help('invalid timeframe: '.$period) & exit(1);
-         $options['period'] = (int) $period;
+      $value = $arg = strRight($arg, -3);
+      if (strIsQuoted($value))
+         $value = strLeft(strRight($value, -1), 1);
+      if (strIsDigit($value) && $value{0}!='0') {
+         $value = (int) $value;
+         if (!MT4::isBuiltinTimeframe($value)) help('invalid timeframe: '.$arg) & exit(1);
+         $options['period'] = $value;
       }
-      else if (!MT4::isTimeframeDescription($period)) help('invalid timeframe: '.$period) & exit(1);
-      else $options['period'] = MT4::timeframeToId($period);
+      else if (!MT4::isTimeframeDescription($value)) help('invalid timeframe: '.$arg) & exit(1);
+      else $options['period'] = MT4::timeframeToId($value);
+      unset($args[$i]);
+      continue;
+   }
+
+   // -from=DATE
+   if (strStartsWith($arg, '-from=')) {
+      $value = $arg = strRight($arg, -6);
+      if (strIsQuoted($value))
+         $value = strLeft(strRight($value, -1), 1);
+      $timestamp = Validator::isDate($value, array('Y-m-d', 'Y.m.d', 'd.m.Y', 'd/m/Y'));
+      if (!is_int($timestamp) || $timestamp<0) help('invalid start date: '.$arg) & exit(1);
+      $options['startDate'] = $timestamp;
+      if (isSet($options['endDate']) && $options['startDate'] > $options['endDate']) {
+         help('start date/end date mis-match: '.gmDate('Y.m.d', $options['startDate']).' > '.gmDate('Y.m.d', $options['endDate'])) & exit(1);
+      }
+      unset($args[$i]);
+      continue;
+   }
+
+   // -to=DATE
+   if (strStartsWith($arg, '-to=')) {
+      $value = $arg = strRight($arg, -4);
+      if (strIsQuoted($value))
+         $value = strLeft(strRight($value, -1), 1);
+      $timestamp = Validator::isDate($value, array('Y-m-d', 'Y.m.d', 'd.m.Y', 'd/m/Y'));
+      if (!is_int($timestamp) || $timestamp<=0) help('invalid end date: '.$arg) & exit(1);
+      $options['endDate'] = $timestamp;
+      if (isSet($options['startDate']) && $options['startDate'] > $options['endDate']) {
+         help('start date/end date mis-match: '.gmDate('Y.m.d', $options['startDate']).' > '.gmDate('Y.m.d', $options['endDate'])) & exit(1);
+      }
+      unset($args[$i]);
+      continue;
+   }
+
+   // -model=TYPE: (E)VERYTICK|(S)IMULATEDTICKS|(B)AROPEN
+   if (strStartsWith($arg, '-model=')) {
+      $arg   = strRight($arg, -7);
+      $value = strToUpper($arg);
+      if (strIsQuoted($value))
+         $value = strLeft(strRight($value, -1), 1);
+      if     (strStartsWith('EVERYTICK',      $value)) $options['model'] = 'EVERYTICK';
+      elseif (strStartsWith('SIMULATEDTICKS', $value)) $options['model'] = 'SIMULATEDTICKS';
+      elseif (strStartsWith('BAROPEN',        $value)) $options['model'] = 'BAROPEN';
+      else                                    help('invalid model type: '.$arg) & exit(1);
       unset($args[$i]);
       continue;
    }
 }
 
-//  [-from=DATE] [-to=DATE] [-model=TYPE] [-spread=PIPS] [...]
+//  [-model=TYPE] [-spread=PIPS] [...]
 
 echoPre($options);
 exit(0);
@@ -72,13 +117,12 @@ exit(0);
  * @param  string $message - zusätzlich zur Syntax anzuzeigende Message (default: keine)
  */
 function help($message=null) {
-   if (!is_null($message))
-      echo($message.NL.NL);
-
+   if (is_null($message))
+      $message = 'Generates a MetaTrader Strategy Tester tick file for the specified symbol and timeframe.';
    $self = baseName($_SERVER['PHP_SELF']);
 
 echo <<<END
-Generates a MetaTrader Strategy Tester tick file for the specified symbol and timeframe.
+$message
 
   Syntax:  $self -s=SYMBOL -p=PERIOD [-from=DATE] [-to=DATE] [-model=TYPE] [-spread=PIPS] [...]
 
@@ -87,7 +131,7 @@ Generates a MetaTrader Strategy Tester tick file for the specified symbol and ti
             -from=DATE      Testing start date of the generated tick file.                     default: start of data
             -to=DATE        Testing end date of the generated tick file.                       default: end of data
             -model=[E|S|B]  Tick generation algorythm: (E)VERYTICK|(S)IMULATEDTICKS|(B)AROPEN. default: every tick
-            -spread=PIPS    Fixed spread of the generated tick file in (fractional) pips.      default: 0.1 pip
+            -spread=PIPS    Fixed spread of the generated tick file in (fractional) pips.      default: 1 point
             -v              Verbose output.
             -vv             More verbose output.
             -vvv            Most verbose output.
