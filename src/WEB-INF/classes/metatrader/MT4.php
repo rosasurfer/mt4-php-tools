@@ -5,6 +5,42 @@
 class MT4 extends StaticClass {
 
    /**
+    * Struct-Size des FXT-Headers (Tester-Tickdateien "*.fxt")
+    */
+   const FXT_HEADER_SIZE = 728;
+
+   /**
+    * Struct-Size einer History-Bar Version 400 (History-Dateien "*.hst")
+    */
+   const HISTORY_BAR_400_SIZE = 44;
+
+   /**
+    * Struct-Size einer History-Bar Version 401 (History-Dateien "*.hst")
+    */
+   const HISTORY_BAR_401_SIZE = 60;
+
+   /**
+    * Struct-Size des History-Headers (History-Dateien "*.hst")
+    */
+   const HISTORY_HEADER_SIZE = 148;
+
+   /**
+    * Struct-Size eines Symbols (Symboldatei "symbols.raw")
+    */
+   const SYMBOL_SIZE = 1936;
+
+   /**
+    * Struct-Size eine Symbolgruppe (Symbolgruppendatei "symgroups.raw")
+    */
+   const SYMBOL_GROUP_SIZE = 80;
+
+   /**
+    * Struct-Size eines SelectedSymbol (Symboldatei "symbols.sel")
+    */
+   const SYMBOL_SELECTED_SIZE = 128;
+
+
+   /**
     * History-Header
     *
     * @see  Definition in Expander.dll::Expander.h
@@ -56,6 +92,66 @@ class MT4 extends StaticClass {
                                              'ticks'  => 0,
                                              'spread' => 0,
                                              'volume' => 0);
+
+   /**
+    * Gibt den Formatstring zum Entpacken eines SYMBOL-Structs zurück.
+    *
+    * @return string - Format für unpack()
+    *
+    * @see  Definition in MT4Expander.dll::Expander.h
+    */
+   public static function SYMBOL_unpackFormat() {
+      static $format = null;
+
+      if (is_null($format)) {
+         $format = '
+            /a12   name
+            /a54   description
+            /a10   origin
+            /a12   altName
+            /a12   baseCurrency
+            /V     group
+            /V     digits
+            /V     undocumented_1
+            /V     backgroundColor
+            /V     id
+            /x1508 undocumented_2
+            /V     undocumented_3
+            /x8    undocumented_4
+            /d     undocumented_5
+            /x12   undocumented_6
+            /V     spread
+            /x16   undocumented_7
+            /d     swapLong
+            /d     swapShort
+            /V     undocumented_8
+            /V     undocumented_9
+            /d     lotSize
+            /x16   undocumented_10
+            /V     orderStopDistance
+            /x12   undocumented_11
+            /d     marginInit
+            /d     marginMaintenance
+            /d     marginHedged
+            /d     undocumented_12
+            /d     pointSize
+            /d     pointsPerUnit
+            /x24   undocumented_13
+            /a12   marginCurrency
+            /x104  undocumented_14
+            /V     undocumented_15
+         ';
+
+         // since PHP 5.5.0: The 'a' code now retains trailing NULL bytes, 'Z' replaces the former 'a'.
+         if (PHP_VERSION >= '5.5.0') $format = str_replace('/a', '/Z', $format);
+
+         // remove white space and leading format separator
+         $format = preg_replace('/\s/', '', $format);
+         if ($format[0] == '/') $format = substr($format, 1);
+      }
+      return $format;
+   }
+
 
    /**
     * Erzeugt eine mit Defaultwerten gefüllte HistoryHeader-Struktur und gibt sie zurück.
@@ -275,7 +371,7 @@ class MT4 extends StaticClass {
     */
    public static function isValidSymbol($string) {
       static $pattern = '/^[a-z0-9_.#]+$/i';
-      return is_string($string) && strLen($string) && strLen($string)<MAX_SYMBOL_LENGTH && preg_match($pattern, $string);
+      return is_string($string) && strLen($string) && strLen($string)<MT4::MAX_SYMBOL_LENGTH && preg_match($pattern, $string);
    }
 
 

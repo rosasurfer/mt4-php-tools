@@ -22,6 +22,16 @@
  */
 class MyFX extends StaticClass {
 
+   /**
+    * Struct-Size des MyFX-Bar-Datenformats (MyFX-Historydateien "M{PERIOD}.myfx")
+    */
+   const BAR_SIZE = 24;
+
+   /**
+    * Struct-Size des MyFX-Tick-Datenformats (MyFX-Tickdateien "{HOUR}h_ticks.myfx")
+    */
+   const TICK_SIZE = 12;
+
    // Start der M1-History der FX-Indizes
    public static $fxIndizesHistoryStart_M1 = null;                // @see static initializer at end of file
 
@@ -426,13 +436,13 @@ class MyFX extends StaticClass {
    public static function readBarData($data) {
       if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
 
-      $lenData = strLen($lenData); if ($lenData%MYFX_BAR_SIZE) throw new plRuntimeException('Odd length of passed data: '.$lenData.' (not an even MYFX_BAR_SIZE)');
+      $lenData = strLen($lenData); if ($lenData % MyFX::BAR_SIZE) throw new plRuntimeException('Odd length of passed data: '.$lenData.' (not an even MyFX::BAR_SIZE)');
       $offset  = 0;
       $bars    = array();
 
       while ($offset < $lenData) {
          $bars[] = unpack("@$offset/Vtime/Vopen/Vhigh/Vlow/Vclose/Vticks", $data);
-         $offset += MYFX_BAR_SIZE;
+         $offset += MyFX::BAR_SIZE;
       }
       return $bars;
    }

@@ -132,7 +132,7 @@ exit(0);
 
 
 /**
- * Hilfefunktion: Zeigt die Syntax des Aufrufs an.
+ * Hilfefunktion
  *
  * @param  string $message - zusätzlich zur Syntax anzuzeigende Message (default: keine)
  */

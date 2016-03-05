@@ -2,13 +2,18 @@
 <?php
 /**
  * Verzeichnislisting für MetaTrader-Historydateien
+ *
+ * @see Struct-Formate in MT4Expander.dll::Expander.h
  */
 require(dirName(realPath(__FILE__)).'/../../config.php');
 
 
-// Unpack-Formate des History-Headers: PHP 5.5.0 - The "a" code now retains trailing NULL bytes, "Z" replaces the former "a".
-if (PHP_VERSION < '5.5.0') $hstHeaderFormat = 'Vformat/a64description/a12symbol/Vperiod/Vdigits/VsyncMark/VlastSync/VtimezoneId/x48';
-else                       $hstHeaderFormat = 'Vformat/Z64description/Z12symbol/Vperiod/Vdigits/VsyncMark/VlastSync/VtimezoneId/x48';
+// -- Konfiguration --------------------------------------------------------------------------------------------------------------------------------
+
+
+// Unpack-Format des History-Headers: since PHP 5.5.0 - The 'a' code now retains trailing NULL bytes, 'Z' replaces the former 'a'.
+$hstHeaderFormat = 'Vformat/a64description/a12symbol/Vperiod/Vdigits/VsyncMark/VlastSync/VtimezoneId/x48';
+if (PHP_VERSION >= '5.5.0') $hstHeaderFormat = str_replace('/a', '/Z', $hstHeaderFormat);
 
 
 // -- Start ----------------------------------------------------------------------------------------------------------------------------------------
@@ -43,7 +48,7 @@ while (($fileName=$dir->read()) !== false) {
       $fileNames[] = $fileName;
       $fileSize    = fileSize($dirName.'/'.$fileName);
 
-      if ($fileSize < HISTORY_HEADER_SIZE) {
+      if ($fileSize < MT4::HISTORY_HEADER_SIZE) {
          $formats    [] = null;
          $symbols    [] = strToUpper($match[1]);
          $periods    [] = null;
@@ -59,7 +64,7 @@ while (($fileName=$dir->read()) !== false) {
       }
 
       $hFile     = fOpen($dirName.'/'.$fileName, 'rb');
-      $hstHeader = unpack($hstHeaderFormat, fRead($hFile, HISTORY_HEADER_SIZE));
+      $hstHeader = unpack($hstHeaderFormat, fRead($hFile, MT4::HISTORY_HEADER_SIZE));
       extract($hstHeader);
 
       if ($format==400 || $format==401) {
@@ -71,15 +76,15 @@ while (($fileName=$dir->read()) !== false) {
          $lastSyncs  [] =            $lastSync ? gmDate('Y.m.d H:i:s', $lastSync) : null;
          $timezoneIds[] =            $timezoneId;
 
-         if ($format == 400) { $barSize = HISTORY_BAR_400_SIZE; $barFormat = 'Vtime/dopen/dlow/dhigh/dclose/dticks';                          }
-         else         /*401*/{ $barSize = HISTORY_BAR_401_SIZE; $barFormat = 'Vtime/x4/dopen/dhigh/dlow/dclose/Vticks/x4/lspread/Vvolume/x4'; }
+         if ($format == 400) { $barSize = MT4::HISTORY_BAR_400_SIZE; $barFormat = 'Vtime/dopen/dlow/dhigh/dclose/dticks';                          }
+         else         /*401*/{ $barSize = MT4::HISTORY_BAR_401_SIZE; $barFormat = 'Vtime/x4/dopen/dhigh/dlow/dclose/Vticks/x4/lspread/Vvolume/x4'; }
 
-         $bars    = floor(($fileSize-HISTORY_HEADER_SIZE)/$barSize);
+         $bars    = floor(($fileSize-MT4::HISTORY_HEADER_SIZE)/$barSize);
          $barFrom = $barTo = array();
          if ($bars) {
             $barFrom  = unpack($barFormat, fRead($hFile, $barSize));
             if ($bars > 1) {
-               fSeek($hFile, HISTORY_HEADER_SIZE + $barSize*($bars-1));
+               fSeek($hFile, MT4::HISTORY_HEADER_SIZE + $barSize*($bars-1));
                $barTo = unpack($barFormat, fRead($hFile, $barSize));
             }
          }
@@ -95,7 +100,7 @@ while (($fileName=$dir->read()) !== false) {
             $error = 'file name/data mis-match: data='.$symbol.','.MyFX::periodDescription($period);
          }
          else {
-            $trailingBytes = ($fileSize-HISTORY_HEADER_SIZE) % $barSize;
+            $trailingBytes = ($fileSize-MT4::HISTORY_HEADER_SIZE) % $barSize;
             $error = !$trailingBytes ? null : 'corrupted ('.$trailingBytes.' trailing bytes)';
          }
          $errors[] = $error;

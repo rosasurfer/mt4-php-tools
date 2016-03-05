@@ -32,7 +32,7 @@ class HistorySet extends Object {
    public function __construct($symbol, $description, $digits, $format, $directory=null) {
       if (!is_string($symbol))                                throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
       if (!strLen($symbol))                                   throw new plInvalidArgumentException('Invalid parameter $symbol: ""');
-      if (strLen($symbol) > MAX_SYMBOL_LENGTH)                throw new plInvalidArgumentException('Invalid parameter $symbol: "'.$symbol.'" (max '.MAX_SYMBOL_LENGTH.' characters)');
+      if (strLen($symbol) > MT4::MAX_SYMBOL_LENGTH)           throw new plInvalidArgumentException('Invalid parameter $symbol: "'.$symbol.'" (max '.MT4::MAX_SYMBOL_LENGTH.' characters)');
       if (!is_null($description) && !is_string($description)) throw new IllegalTypeException('Illegal type of parameter $description: '.getType($description));
       if (!is_int($digits))                                   throw new IllegalTypeException('Illegal type of parameter $digits: '.getType($digits));
       if ($digits < 0)                                        throw new plInvalidArgumentException('Invalid parameter $digits: '.$digits);
