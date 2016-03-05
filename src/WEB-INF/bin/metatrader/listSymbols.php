@@ -83,7 +83,7 @@ foreach ($args as $i => $arg) {
 // Default-Parameter setzen
 if (!isSet($options['file'])) {
    $file = 'symbols.raw';
-   if (!is_file($file)) help('file "symbols.raw" not found in current directory') & exit(1);
+   if (!is_file($file)) help('No file "symbols.raw" in current directory') & exit(1);
    $options['file'    ] = $file;
    $options['fullFile'] = realPath($file);
 }
@@ -245,10 +245,10 @@ $message
 
             -f=FILE  Source file of the displayed information (default: "symbols.raw" in current directory).
 
-  Options:  ++     Displays all available fields.
-            +NAME  Displays the field named NAME.
-            -NAME  Does not display the field named NAME.
-            -l     Lists available fields.
+  Options:  ++     Display all fields.
+            +NAME  Include the named field in the display.
+            -NAME  Exclude the named field from displaying.
+            -l     List available fields.
             -h     This help screen.
 
 
