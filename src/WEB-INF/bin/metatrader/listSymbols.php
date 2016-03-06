@@ -142,15 +142,17 @@ function listMT4Symbols(array $options, array $fieldArgs) {
    }
 
    // anzuzeigende Felder bestimmen
-   $availableFields      = array_keys($symbols[0]);                                          // (int)      => real-name
-   $availableFieldsLower = array_change_key_case(array_flip($availableFields), CASE_LOWER);  // lower-name => (int)
-   $displayedFields      = array();
+   $availableFields         = array_keys($symbols[0]);                                          // (int)      => real-name
+   $availableFieldsLower    = array_change_key_case(array_flip($availableFields), CASE_LOWER);  // lower-name => (int)
+   $displayedFields['name'] = 'symbol';                                                         // wird immer und an 1. Stelle angezeigt
 
    foreach ($fieldArgs as $arg) {
       if ($arg == '++') {
          $displayedFields = array_flip($availableFields);                  // real-name => (int)
-         foreach ($displayedFields as $realName => &$value)
+         foreach ($displayedFields as $realName => &$value) {
             $value = $realName;                                            // real-name => real-name
+         } unset($value);
+         $displayedFields['name'] = 'symbol';                              // real-name => display-name
          continue;
       }
       if ($arg[0] == '+') {
@@ -166,39 +168,51 @@ function listMT4Symbols(array $options, array $fieldArgs) {
          if (array_key_exists($name, $availableFieldsLower)) {
             $realName = $availableFields[$availableFieldsLower[$name]];    // real-name
             if (isSet($displayedFields[$realName]))
-               $displayedFields[$realName] = null;                         // real-name => (null)     // isSet() returns FALSE
+               $displayedFields[$realName] = null;                         // real-name => (null)        isSet() returns FALSE
+         }
+      }
+   }
+   $displayedFields['name'] = 'symbol';                                    // Symbol immer anzeigen (falls -name angegeben wurde)
+   $fieldLengths            = $displayedFields;
+   foreach ($fieldLengths as &$value) {
+      $value = strLen($value);                                             // real-name => (int)
+   } unset($value);
+
+   // Daten einlesen und maximale Feldlängen bestimmen
+   foreach ($symbols as $symbol) {
+      foreach ($symbol as $field => $value) {
+         if (isSet($displayedFields[$field])) {
+            if (is_double($value) && ($e=(int) strRightFrom($s=(string)$value, 'E-'))) {
+               $decimals = strLeftTo(strRightFrom($s, '.'), 'E');
+               $decimals = ($decimals=='0' ? 0 : strLen($decimals)) + $e;
+               if ($decimals <= 8)                                      // ab 9 Dezimalstellen wissenschaftliche Anzeige
+                  $value = number_format($value, $decimals);
+            }
+            $fieldValues [$field][] = $value;
+            $fieldLengths[$field]   = max(strLen($value), $fieldLengths[$field]);
          }
       }
    }
 
-   // Tabellen-Header ausgeben
-   $tableHeader = 'Symbol';
+   // Tabellen-Header anzeigen
+   $tableHeader = '';
    foreach ($displayedFields as $name => $value) {
-      if (isSet($displayedFields[$name])) {
-         $tableHeader .= '  '.ucFirst($name);
-      }
+      if (isSet($displayedFields[$name]))
+         $tableHeader .= str_pad(ucFirst($value), $fieldLengths[$name], ' ',  STR_PAD_RIGHT).'  ';
    }
+   $tableHeader    = trim($tableHeader);
    $tableSeparator = str_repeat('-', strLen($tableHeader));
    echoPre($tableHeader);
    echoPre($tableSeparator);
 
    // Daten anzeigen
-   foreach ($symbols as $symbol) {
-      $line = 'symbol='.$symbol['name'].'  ';
-      foreach ($symbol as $field => $value) {
-         if (isSet($displayedFields[$field])) {
-            if (is_double($value) && $value < 1 && $value > -1) {
-               $s = (string) $value;
-               if ($e=(int) strRightFrom($s, 'E-')) {
-                  $decimals = strLeftTo(strRightFrom($s, '.'), 'E');
-                  $decimals = ($decimals=='0' ? 0 : strLen($decimals)) + $e;
-                  if ($decimals <= 8)                                      // ab 9 Dezimalstellen wissenschaftliche Anzeige
-                     $value = number_format($value, $decimals);
-               }
-            }
-            $line .= $field.'='.$value.'  ';
-         }
+   foreach ($symbols as $i => $symbol) {
+      $line = '';
+      foreach ($displayedFields as $name => $value) {
+         if (isSet($displayedFields[$name]))
+            $line .= str_pad($fieldValues[$name][$i], $fieldLengths[$name], ' ',  STR_PAD_RIGHT).'  ';
       }
+      $line = trim($line);
       echoPre($line);
    }
 
