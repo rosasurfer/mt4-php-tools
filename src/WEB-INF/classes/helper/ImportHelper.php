@@ -86,7 +86,7 @@ class ImportHelper extends StaticClass {
                continue;
          }
          if ($row[AH_OPENTIME] >= $row[AH_CLOSETIME]) throw new plInvalidArgumentException('ticket #'.$row[AH_TICKET].' - illegal order times: open = "'.gmDate('Y.m.d H:i:s', $row[AH_OPENTIME]).'", close = "'.gmDate('Y.m.d H:i:s', $row[AH_CLOSETIME]).'"');
-      }
+      } unset($row);
 
       // (1.3) Transaktionen für SQL-Import formatieren und in die hochgeladene Datei zurückschreiben
       $accountId       = $account->getId();

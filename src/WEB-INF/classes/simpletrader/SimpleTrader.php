@@ -227,7 +227,8 @@ class SimpleTrader extends StaticClass {
                $row['ticket'] = (int)$sValue;
 
                unset($row[0], $row[1], $row[2], $row[3], $row[4], $row[5], $row[6], $row[7], $row[8], $row[9], $row[10]);
-            }
+            } unset($row);
+
             // offene Positionen sortieren: ORDER BY OpenTime asc, Ticket asc
             uSort($openTrades, __CLASS__.'::compareTradesByOpenTimeTicket');
          }
@@ -348,11 +349,12 @@ class SimpleTrader extends StaticClass {
                $row['ticket'] = (int)$sValue;
 
                unset($row[0], $row[1], $row[2], $row[3], $row[4], $row[5], $row[6], $row[7], $row[8], $row[9], $row[10], $row[11], $row[12], $row[13]);
-            }
+            } unset($row);
+
             // History sortieren: : ORDER BY CloseTime asc, OpenTime asc, Ticket asc
             uSort($history, __CLASS__.'::compareTradesByCloseTimeOpenTimeTicket');
          }
-      }
+      } unset($table);
 
       if ($openTradeRows != $matchedOpenTrades    ) throw new plRuntimeException('Could not match '.($openTradeRows-$matchedOpenTrades  ).' row'.($openTradeRows-$matchedOpenTrades  ==1 ? '':'s'));
       if ($historyRows   != $matchedHistoryEntries) throw new plRuntimeException('Could not match '.($historyRows-$matchedHistoryEntries).' row'.($historyRows-$matchedHistoryEntries==1 ? '':'s'));

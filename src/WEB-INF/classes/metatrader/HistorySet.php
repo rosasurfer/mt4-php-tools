@@ -106,7 +106,7 @@ class HistorySet extends Object {
                $hTmp=$hFile; $hFile=null;
                fClose($hTmp);
             }
-         }
+         } unset($data);
       }
       catch (Exception $ex) {
          Logger::handleException($ex, $inShutdownOnly=true);

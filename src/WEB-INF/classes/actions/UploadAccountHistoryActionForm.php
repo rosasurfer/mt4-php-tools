@@ -282,7 +282,7 @@ class UploadAccountHistoryActionForm extends ActionForm {
                             AH_COMMENT     => $comment,           // 12
                            );
          }
-      }
+      } unset($line);
       $this->data =& $data;
 
       return !$request->isActionError();
