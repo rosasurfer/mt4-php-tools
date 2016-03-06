@@ -134,7 +134,7 @@ function listMT4Symbols(array $options, array $fieldArgs) {
 
    // ggf. verfügbare Felder anzeigen und abbrechen
    if (isSet($options['listFields'])) {
-      echoPre($s='In "'.$file.'" available fields:');
+      echoPre($s='Available fields:');
       echoPre(str_repeat('-', strLen($s)));
       foreach ($symbols[0] as $field => $value)
          echoPre($field);
@@ -200,7 +200,7 @@ function listMT4Symbols(array $options, array $fieldArgs) {
       if (isSet($displayedFields[$name]))
          $tableHeader .= str_pad(ucFirst($value), $fieldLengths[$name], ' ',  STR_PAD_RIGHT).'  ';
    }
-   $tableHeader    = trim($tableHeader);
+   $tableHeader    = strLeft($tableHeader, -2);
    $tableSeparator = str_repeat('-', strLen($tableHeader));
    echoPre($tableHeader);
    echoPre($tableSeparator);
@@ -212,7 +212,7 @@ function listMT4Symbols(array $options, array $fieldArgs) {
          if (isSet($displayedFields[$name]))
             $line .= str_pad($fieldValues[$name][$i], $fieldLengths[$name], ' ',  STR_PAD_RIGHT).'  ';
       }
-      $line = trim($line);
+      $line = strLeft($line, -2);
       echoPre($line);
    }
 
