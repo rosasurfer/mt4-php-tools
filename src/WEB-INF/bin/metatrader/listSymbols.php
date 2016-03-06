@@ -134,56 +134,66 @@ function listMT4Symbols(array $options, array $fieldArgs) {
 
    // ggf. verfügbare Felder anzeigen und abbrechen
    if (isSet($options['listFields'])) {
-      echoPre('Available symbol fields:');
-      echoPre('------------------------');
-      foreach ($symbols[0] as $field => $value) {
+      echoPre($s='In "'.$file.'" available fields:');
+      echoPre(str_repeat('-', strLen($s)));
+      foreach ($symbols[0] as $field => $value)
          echoPre($field);
-      }
       return true;
    }
 
    // anzuzeigende Felder bestimmen
-   $availableFields = array_flip(array_keys($symbols[0]));
-   $displayedFields = array();
+   $availableFields      = array_keys($symbols[0]);                                          // (int)      => real-name
+   $availableFieldsLower = array_change_key_case(array_flip($availableFields), CASE_LOWER);  // lower-name => (int)
+   $displayedFields      = array();
 
    foreach ($fieldArgs as $arg) {
       if ($arg == '++') {
-         $displayedFields = $availableFields;
+         $displayedFields = array_flip($availableFields);                  // real-name => (int)
+         foreach ($displayedFields as $realName => &$value)
+            $value = $realName;                                            // real-name => real-name
          continue;
       }
       if ($arg[0] == '+') {
-         $name = subStr($arg, 1);
-         if (isSet($availableFields[$name]) && !isSet($displayedFields[$name])) {
-            $displayedFields[$name] = null;
+         $name = strToLower(strRight($arg, -1));
+         if (array_key_exists($name, $availableFieldsLower)) {
+            $realName = $availableFields[$availableFieldsLower[$name]];    // real-name
+            if (!isSet($displayedFields[$realName]))
+               $displayedFields[$realName] = $realName;                    // real-name => real-name
          }
       }
       else if ($arg[0] == '-') {
-         $name = subStr($arg, 1);
-         if (isSet($displayedFields[$name])) {
-            $names = array_flip($displayedFields);
-            array_splice($names, array_search($name, $names), 1);
-            $displayedFields = array_flip($names);
+         $name = strToLower(strRight($arg, -1));
+         if (array_key_exists($name, $availableFieldsLower)) {
+            $realName = $availableFields[$availableFieldsLower[$name]];    // real-name
+            if (isSet($displayedFields[$realName]))
+               $displayedFields[$realName] = null;                         // real-name => (null)     // isSet() returns FALSE
          }
       }
    }
-   foreach ($displayedFields as &$value) {
-      $value = true;
+
+   // Tabellen-Header ausgeben
+   $tableHeader = 'Symbol';
+   foreach ($displayedFields as $name => $value) {
+      if (isSet($displayedFields[$name])) {
+         $tableHeader .= '  '.ucFirst($name);
+      }
    }
+   $tableSeparator = str_repeat('-', strLen($tableHeader));
+   echoPre($tableHeader);
+   echoPre($tableSeparator);
 
    // Daten anzeigen
-   foreach ($symbols as $i => $symbol) {
+   foreach ($symbols as $symbol) {
       $line = 'symbol='.$symbol['name'].'  ';
       foreach ($symbol as $field => $value) {
          if (isSet($displayedFields[$field])) {
-            if (is_double($value) && $value < 1) {
-               $s = (string)$value;
-               $i = strPos($s, 'E');
-               if ($i !== false) {
-                  $dot      = strPos($s, '.');
-                  $decimals = subStr($s, $dot+1, $i-$dot-1);
-                  $decimals = ($decimals=='0') ? 0:strLen($decimals);
-                  $decimals = $decimals + subStr($s, $i+2);
-                  $value = number_format($value, $decimals);
+            if (is_double($value) && $value < 1 && $value > -1) {
+               $s = (string) $value;
+               if ($e=(int) strRightFrom($s, 'E-')) {
+                  $decimals = strLeftTo(strRightFrom($s, '.'), 'E');
+                  $decimals = ($decimals=='0' ? 0 : strLen($decimals)) + $e;
+                  if ($decimals <= 8)                                      // ab 9 Dezimalstellen wissenschaftliche Anzeige
+                     $value = number_format($value, $decimals);
                }
             }
             $line .= $field.'='.$value.'  ';
@@ -192,38 +202,6 @@ function listMT4Symbols(array $options, array $fieldArgs) {
       echoPre($line);
    }
 
-
-   /*
-   Array (
-      [name] => GBPLFX
-      [description] => GBP Index (LiteForex FX6 index)
-      [origin] =>
-      [altName] =>
-      [group] => 1
-      [id] => 505
-      [baseCurrency] => GBP
-      [digits] => 5
-      [backgroundColor] => 13959039
-      [undocumented_1] => 1
-      [undocumented_3] => 1000
-      [undocumented_5] => 0.001
-      [spread] => 0
-      [swapLong] => 0
-      [swapShort] => 0
-      [undocumented_8] => 3
-      [undocumented_9] => 0
-      [lotSize] => 100000
-      [orderStopsLevel] => 0
-      [marginInit] => 0
-      [marginMaintenance] => 0
-      [marginHedged] => 50000
-      [undocumented_12] => 1
-      [pointSize] => 1.0E-5
-      [pointsPerUnit] => 100000
-      [marginCurrency] => GBP
-      [undocumented_15] => 0
-   )
-   */
    return true;
 }
 
@@ -245,10 +223,10 @@ $message
 
             -f=FILE  Source file of the displayed information (default: "symbols.raw" in current directory).
 
-  Options:  ++     Display all fields.
-            +NAME  Include the named field in the display.
-            -NAME  Exclude the named field from displaying.
-            -l     List available fields.
+  Options:  -l     List the available fields of the specified file.
+            ++     Display all fields.
+            +NAME  Include the named field in list of displayed fields.
+            -NAME  Exclude the named field from the list of displayed fields.
             -h     This help screen.
 
 
