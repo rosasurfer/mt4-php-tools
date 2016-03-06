@@ -80,7 +80,23 @@ foreach ($args as $i => $arg) {
    }
 }
 
-// Default-Parameter setzen
+
+// (2) ggf. verfügbare Felder anzeigen und abbrechen
+if (isSet($options['listFields'])) {
+   echoPre($s='Available fields:');
+   echoPre(str_repeat('-', strLen($s)));
+
+   $fields = MT4::SYMBOL_getFields();                                // Feld 'leverage' dynamisch hinzufügen
+   //array_splice($fields, array_search('marginDivider', $fields)+1, 0, array('leverage'));
+
+   foreach ($fields as $field) {
+      echoPre(ucFirst($field));
+   }
+   exit(0);
+}
+
+
+// (3) Default-Parameter setzen
 if (!isSet($options['file'])) {
    $file = 'symbols.raw';
    if (!is_file($file)) help('No file "symbols.raw" in current directory') & exit(1);
@@ -89,12 +105,12 @@ if (!isSet($options['file'])) {
 }
 
 
-// (2) Informationen auflisten
+// (4) Symbolinformationen auflisten
 if (!listMT4Symbols($options, $fields))
    exit(1);
 
 
-// (3) erfolgreiches Programm-Ende
+// (5) erfolgreiches Programm-Ende
 exit(0);
 
 
@@ -128,20 +144,12 @@ function listMT4Symbols(array $options, array $fieldArgs) {
    // Symbole auslesen
    $hFile = fOpen($file, 'rb');
    for ($i=0; $i < $symbolsSize; $i++) {
-      $symbols[] = unpack(MT4::SYMBOL_unpackFormat(), fRead($hFile, MT4::SYMBOL_SIZE));
+      $symbols[] = unpack(MT4::SYMBOL_getUnpackFormat(), fRead($hFile, MT4::SYMBOL_SIZE));
    }
    fClose($hFile);
 
-   // ggf. verfügbare Felder anzeigen und abbrechen
-   if (isSet($options['listFields'])) {
-      echoPre($s='Available fields:');
-      echoPre(str_repeat('-', strLen($s)));
-      foreach ($symbols[0] as $field => $value)
-         echoPre($field);
-      return true;
-   }
-
    // anzuzeigende Felder bestimmen
+ //$availableFields         = MT4::SYMBOL_getFields();
    $availableFields         = array_keys($symbols[0]);                                          // (int)      => real-name
    $availableFieldsLower    = array_change_key_case(array_flip($availableFields), CASE_LOWER);  // lower-name => (int)
    $displayedFields['name'] = 'symbol';                                                         // wird immer und an 1. Stelle angezeigt
@@ -185,7 +193,7 @@ function listMT4Symbols(array $options, array $fieldArgs) {
             if (is_double($value) && ($e=(int) strRightFrom($s=(string)$value, 'E-'))) {
                $decimals = strLeftTo(strRightFrom($s, '.'), 'E');
                $decimals = ($decimals=='0' ? 0 : strLen($decimals)) + $e;
-               if ($decimals <= 8)                                      // ab 9 Dezimalstellen wissenschaftliche Anzeige
+               if ($decimals <= 14)                                        // ab 15 Dezimalstellen wissenschaftliche Anzeige
                   $value = number_format($value, $decimals);
             }
             $fieldValues [$field][] = $value;

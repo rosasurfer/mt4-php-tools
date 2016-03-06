@@ -94,53 +94,79 @@ class MT4 extends StaticClass {
                                              'volume' => 0);
 
    /**
-    * Gibt den Formatstring zum Entpacken eines SYMBOL-Structs zurück.
-    *
-    * @return string - Format für unpack()
+    * Formatbeschreibung eines struct SYMBOL.
     *
     * @see  Definition in MT4Expander.dll::Expander.h
+    * @see  self::SYMBOL_unpackFormat() zum Verwenden als unpack()-Formatstring
     */
-   public static function SYMBOL_unpackFormat() {
+   private static $SYMBOL_format = '
+      /a12   name
+      /a54   description
+      /a10   origin
+      /a12   altName
+      /a12   baseCurrency
+      /V     group
+      /V     digits
+      /V     tradeMode
+      /V     backgroundColor
+      /V     id
+      /x1508 unknown_1
+      /V     unknown_2
+      /x8    unknown_3
+      /d     unknown_4
+      /x12   unknown_5
+      /V     spread
+      /x16   unknown_6
+      /d     swapLong
+      /d     swapShort
+      /V     unknown_7
+      /V     unknown_8
+      /d     contractSize
+      /x16   unknown_9
+      /V     stopDistance
+      /x12   unknown_10
+      /d     marginInit
+      /d     marginMaintenance
+      /d     marginHedged
+      /d     marginDivider
+      /d     pointSize
+      /d     pointsPerUnit
+      /x24   unknown_11
+      /a12   marginCurrency
+      /x104  unknown_12
+      /V     unknown_13
+   ';
+
+
+   /**
+    * Gibt die Namen der Felder eines struct SYMBOL zurück.
+    *
+    * @return string[] - Array mit SYMBOL-Feldern
+    */
+   public static function SYMBOL_getFields() {
+      static $fields = null;
+
+      if (is_null($fields)) {
+         $lines = explode("\n", trim(self::$SYMBOL_format));
+         foreach ($lines as $i => &$line) {
+            $line = trim(strRightFrom(trim($line), ' '));
+         } unset($line);
+         $fields = $lines;
+      }
+      return $fields;
+   }
+
+
+   /**
+    * Gibt den Formatstring zum Entpacken eines struct SYMBOL zurück.
+    *
+    * @return string - unpack()-Formatstring
+    */
+   public static function SYMBOL_getUnpackFormat() {
       static $format = null;
 
       if (is_null($format)) {
-         $format = '
-            /a12   name
-            /a54   description
-            /a10   origin
-            /a12   altName
-            /a12   baseCurrency
-            /V     group
-            /V     digits
-            /V     tradeMode
-            /V     backgroundColor
-            /V     id
-            /x1508 unknown_1
-            /V     unknown_2
-            /x8    unknown_3
-            /d     unknown_4
-            /x12   unknown_5
-            /V     spread
-            /x16   unknown_6
-            /d     swapLong
-            /d     swapShort
-            /V     unknown_7
-            /V     unknown_8
-            /d     contractSize
-            /x16   unknown_9
-            /V     stopDistance
-            /x12   unknown_10
-            /d     marginInit
-            /d     marginMaintenance
-            /d     marginHedged
-            /d     marginDivider
-            /d     pointSize
-            /d     pointsPerUnit
-            /x24   unknown_11
-            /a12   marginCurrency
-            /x104  unknown_12
-            /V     unknown_13
-         ';
+         $format = self::$SYMBOL_format;
 
          // since PHP 5.5.0: The 'a' code now retains trailing NULL bytes, 'Z' replaces the former 'a'.
          if (PHP_VERSION >= '5.5.0') $format = str_replace('/a', '/Z', $format);
@@ -370,7 +396,7 @@ class MT4 extends StaticClass {
     * @return bool
     */
    public static function isValidSymbol($string) {
-      static $pattern = '/^[a-z0-9_.#]+$/i';
+      static $pattern = '/^[a-z0-9_.#&\'-]+$/i';
       return is_string($string) && strLen($string) && strLen($string)<MT4::MAX_SYMBOL_LENGTH && preg_match($pattern, $string);
    }
 
