@@ -115,31 +115,31 @@ class MT4 extends StaticClass {
             /V     tradeMode
             /V     backgroundColor
             /V     id
-            /x1508 undocumented_1
-            /V     undocumented_2
-            /x8    undocumented_3
-            /d     undocumented_4
-            /x12   undocumented_5
+            /x1508 unknown_1
+            /V     unknown_2
+            /x8    unknown_3
+            /d     unknown_4
+            /x12   unknown_5
             /V     spread
-            /x16   undocumented_6
+            /x16   unknown_6
             /d     swapLong
             /d     swapShort
-            /V     undocumented_7
-            /V     undocumented_8
+            /V     unknown_7
+            /V     unknown_8
             /d     contractSize
-            /x16   undocumented_9
+            /x16   unknown_9
             /V     stopDistance
-            /x12   undocumented_10
+            /x12   unknown_10
             /d     marginInit
             /d     marginMaintenance
             /d     marginHedged
             /d     marginDivider
             /d     pointSize
             /d     pointsPerUnit
-            /x24   undocumented_12
+            /x24   unknown_11
             /a12   marginCurrency
-            /x104  undocumented_13
-            /V     undocumented_14
+            /x104  unknown_12
+            /V     unknown_13
          ';
 
          // since PHP 5.5.0: The 'a' code now retains trailing NULL bytes, 'Z' replaces the former 'a'.
