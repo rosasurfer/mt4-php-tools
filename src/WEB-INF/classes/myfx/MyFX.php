@@ -436,7 +436,7 @@ class MyFX extends StaticClass {
    public static function readBarData($data) {
       if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
 
-      $lenData = strLen($lenData); if ($lenData % MyFX::BAR_SIZE) throw new plRuntimeException('Odd length of passed data: '.$lenData.' (not an even MyFX::BAR_SIZE)');
+      $lenData = strLen($data); if ($lenData % MyFX::BAR_SIZE) throw new plRuntimeException('Odd length of passed data: '.$lenData.' (not an even MyFX::BAR_SIZE)');
       $offset  = 0;
       $bars    = array();
 

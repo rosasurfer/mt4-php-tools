@@ -39,6 +39,11 @@ class MT4 extends StaticClass {
     */
    const SYMBOL_SELECTED_SIZE = 128;
 
+   /**
+    * Höchstlänge eines MetaTrader-Symbols
+    */
+   const MAX_SYMBOL_LENGTH = 11;
+
 
    /**
     * History-Header
@@ -397,7 +402,7 @@ class MT4 extends StaticClass {
     */
    public static function isValidSymbol($string) {
       static $pattern = '/^[a-z0-9_.#&\'-]+$/i';
-      return is_string($string) && strLen($string) && strLen($string)<MT4::MAX_SYMBOL_LENGTH && preg_match($pattern, $string);
+      return is_string($string) && strLen($string) && strLen($string) < MT4::MAX_SYMBOL_LENGTH && preg_match($pattern, $string);
    }
 
 
