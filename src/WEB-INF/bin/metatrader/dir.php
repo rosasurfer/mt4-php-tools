@@ -8,16 +8,7 @@
 require(dirName(realPath(__FILE__)).'/../../config.php');
 
 
-//echoPre($_SERVER['argv']);
-//echoPre($_SERVER);
-//exit();
-
 // -- Konfiguration --------------------------------------------------------------------------------------------------------------------------------
-
-
-// Unpack-Format des History-Headers: since PHP 5.5.0 - The 'a' code now retains trailing NULL bytes, 'Z' replaces the former 'a'.
-$hstHeaderFormat = 'Vformat/a64description/a12symbol/Vperiod/Vdigits/VsyncMark/VlastSync/VtimezoneId/x48';
-if (PHP_VERSION >= '5.5.0') $hstHeaderFormat = str_replace('/a', '/Z', $hstHeaderFormat);
 
 
 // -- Start ----------------------------------------------------------------------------------------------------------------------------------------
@@ -26,138 +17,153 @@ if (PHP_VERSION >= '5.5.0') $hstHeaderFormat = str_replace('/a', '/Z', $hstHeade
 // (1) Befehlszeilenparameter auswerten
 $args = array_slice($_SERVER['argv'], 1);
 !$args && ($args[0]='*');
-
-$arg0 = $args[0];                                                       // Die Funktion glob() kann nicht verwendet werden, da sie beim Patternmatching
-if (realPath($arg0)) {                                                  // unter Windows Groß-/Kleinschreibung unterscheidet. Stattdessen werden Directory-
-   $arg0 = realPath($arg0);                                             // Funktionen benutzt.
-   if (is_dir($arg0)) { $dirName = $arg0;          $baseName = '';              }
-   else               { $dirName = dirName($arg0); $baseName = baseName($arg0); }   // TODO: Nur der erste Parameter wird ausgewertet. Die Bash-Shell expandiert
-}                                                                                   //       Wildcards und übergibt dem Script eine Liste von Dateinamen.
-else                  { $dirName = dirName($arg0); $baseName = baseName($arg0); }
-
+$arg0 = $args[0];                                                                // TODO: Noch wird nur der erste Parameter ausgewertet.
+realPath($arg0) && ($arg0=realPath($arg0));
+if (is_dir($arg0)) { $dirName = $arg0;          $baseName = '';              }   // Die Funktion glob() kann nicht verwendet werden, da sie
+else               { $dirName = dirName($arg0); $baseName = baseName($arg0); }   // beim Patternmatching unter Windows Groß-/Kleinschreibung
+                                                                                 // unterscheidet.
 !$baseName && ($baseName='*');
-$baseName = str_replace('*', '.*', str_replace('.', '\.', $baseName));  // für RegExp in (3.1): * erweitern, . escapen
+$baseName = str_replace('*', '.*', str_replace('.', '\.', $baseName));           // für RegExp in (4.1): '*' erweitern, '.' escapen
 
 
-// (2) Verzeichnis öffnen
-$dir = Dir($dirName);
-!$dir && exit("No history files found for \"$args[0]\"\n");
+// (2) Source-Verzeichnis(se) bestimmen
+$dirs = is_dir($dirName) ? array($dirName) : glob($dirName, GLOB_NOESCAPE|GLOB_ONLYDIR);
+!$dirs && echoPre('directory not found "'.$args[0].'"') & exit(1);
 
 
-// (3.1) Dateinamen einlesen, filtern und Daten auslesen und zwischenspeichern
-$fileNames = $formats = $symbols = $periods = $aDigits = $syncMarks = $lastSyncs = $timezoneIds = $aBars = $barsFrom = $barsTo = $errors = array();
+$foundFiles = 0;
 
-while (($fileName=$dir->read()) !== false) {
-   if (preg_match("/^$baseName$/i", $fileName) && preg_match('/^(.+)\.hst$/i', $fileName, $match)) {
-      $fileNames[] = $fileName;
-      $fileSize    = fileSize($dirName.'/'.$fileName);
 
-      if ($fileSize < MT4::HISTORY_HEADER_SIZE) {
-         $formats    [] = null;
-         $symbols    [] = strToUpper($match[1]);
-         $periods    [] = null;
-         $aDigits    [] = null;
-         $syncMarks  [] = null;
-         $lastSyncs  [] = null;
-         $timezoneIds[] = null;
-         $aBars      [] = null;
-         $barsFrom   [] = null;
-         $barsTo     [] = null;
-         $errors     [] = 'invalid or unsupported file format: file size of '.$fileSize.' < minFileSize of '.MT4::HISTORY_HEADER_SIZE;
-         continue;
-      }
+// (3) alle Verzeichnisse durchlaufen
+foreach ($dirs as $dirName) {
+   $files   = array();
+   $formats = $symbols = $periods = $aDigits = $syncMarks = $lastSyncs = $timezoneIds = array();
+   $bars    = $barsFrom = $barsTo = $errors = array();
 
-      $hFile     = fOpen($dirName.'/'.$fileName, 'rb');
-      $hstHeader = unpack($hstHeaderFormat, fRead($hFile, MT4::HISTORY_HEADER_SIZE));
-      extract($hstHeader);
+   // (4.1) Verzeichnis öffnen, Dateinamen einlesen und filtern
+   $dir = Dir($dirName);
 
-      if ($format==400 || $format==401) {
-         $formats    [] =            $format;
-         $symbols    [] = strToUpper($symbol);
-         $periods    [] =            $period;
-         $aDigits    [] =            $digits;
-         $syncMarks  [] =            $syncMark ? gmDate('Y.m.d H:i:s', $syncMark) : null;
-         $lastSyncs  [] =            $lastSync ? gmDate('Y.m.d H:i:s', $lastSync) : null;
-         $timezoneIds[] =            $timezoneId;
+   while (($fileName=$dir->read()) !== false) {
+      if (preg_match("/^$baseName$/i", $fileName) && preg_match('/^(.+)\.hst$/i', $fileName, $match)) {
+         // (4.2) Daten auslesen und zum Sortieren zwischenspeichern
+         $files[]  = $fileName;
+         $fileSize = fileSize($dir->path.'/'.$fileName);
 
-         if ($format == 400) { $barSize = MT4::HISTORY_BAR_400_SIZE; $barFormat = 'Vtime/dopen/dlow/dhigh/dclose/dticks';                          }
-         else         /*401*/{ $barSize = MT4::HISTORY_BAR_401_SIZE; $barFormat = 'Vtime/x4/dopen/dhigh/dlow/dclose/Vticks/x4/lspread/Vvolume/x4'; }
-
-         $bars    = floor(($fileSize-MT4::HISTORY_HEADER_SIZE)/$barSize);
-         $barFrom = $barTo = array();
-         if ($bars) {
-            $barFrom  = unpack($barFormat, fRead($hFile, $barSize));
-            if ($bars > 1) {
-               fSeek($hFile, MT4::HISTORY_HEADER_SIZE + $barSize*($bars-1));
-               $barTo = unpack($barFormat, fRead($hFile, $barSize));
-            }
+         if ($fileSize < MT4::HISTORY_HEADER_SIZE) {
+            // Fehlermeldung zwischenspeichern
+            $formats    [] = null;
+            $symbols    [] = strToUpper($match[1]);
+            $periods    [] = null;
+            $aDigits    [] = null;
+            $syncMarks  [] = null;
+            $lastSyncs  [] = null;
+            $timezoneIds[] = null;
+            $bars       [] = null;
+            $barsFrom   [] = null;
+            $barsTo     [] = null;
+            $errors     [] = 'invalid or unsupported file format: file size of '.$fileSize.' < minFileSize of '.MT4::HISTORY_HEADER_SIZE;
+            continue;
          }
 
-         $aBars   [] = $bars;
-         $barsFrom[] = $barFrom ? gmDate('Y.m.d H:i:s', $barFrom['time']) : null;
-         $barsTo  [] = $barTo   ? gmDate('Y.m.d H:i:s', $barTo  ['time']) : null;
+         $hFile  = fOpen($dir->path.'/'.$fileName, 'rb');
+         $header = unpack(MT4::HISTORY_HEADER_getUnpackFormat(), fRead($hFile, MT4::HISTORY_HEADER_SIZE));
 
-         if (strToUpper($fileName) != strToUpper($symbol.$period.'.hst')) {
-            $formats[sizeOf($formats)-1] = null;
-            $symbols[sizeOf($symbols)-1] = strToUpper($match[1]);
-            $periods[sizeOf($periods)-1] = null;
-            $error = 'file name/data mis-match: data='.$symbol.','.MyFX::periodDescription($period);
+         if ($header['format']==400 || $header['format']==401) {
+            // Daten zwischenspeichern
+            $formats    [] =            $header['format'    ];
+            $symbols    [] = strToUpper($header['symbol'    ]);
+            $periods    [] =            $header['period'    ];
+            $aDigits    [] =            $header['digits'    ];
+            $syncMarks  [] =            $header['syncMark'  ] ? gmDate('Y.m.d H:i:s', $header['syncMark']) : null;
+            $lastSyncs  [] =            $header['lastSync'  ] ? gmDate('Y.m.d H:i:s', $header['lastSync']) : null;
+            $timezoneIds[] =            $header['timezoneId'];
+
+            if ($header['format'] == 400) { $barSize = MT4::HISTORY_BAR_400_SIZE; $barFormat = 'Vtime/dopen/dlow/dhigh/dclose/dticks';                          }
+            else                   /*401*/{ $barSize = MT4::HISTORY_BAR_401_SIZE; $barFormat = 'Vtime/x4/dopen/dhigh/dlow/dclose/Vticks/x4/lspread/Vvolume/x4'; }
+
+            $iBars    = floor(($fileSize-MT4::HISTORY_HEADER_SIZE)/$barSize);
+            $barFrom = $barTo = array();
+            if ($iBars) {
+               $barFrom  = unpack($barFormat, fRead($hFile, $barSize));
+               if ($iBars > 1) {
+                  fSeek($hFile, MT4::HISTORY_HEADER_SIZE + $barSize*($iBars-1));
+                  $barTo = unpack($barFormat, fRead($hFile, $barSize));
+               }
+            }
+
+            $bars    [] = $iBars;
+            $barsFrom[] = $barFrom ? gmDate('Y.m.d H:i:s', $barFrom['time']) : null;
+            $barsTo  [] = $barTo   ? gmDate('Y.m.d H:i:s', $barTo  ['time']) : null;
+
+            if (!strCompareI($fileName, $header['symbol'].$header['period'].'.hst')) {
+               $formats[sizeOf($formats)-1] = null;
+               $symbols[sizeOf($symbols)-1] = strToUpper($match[1]);
+               $periods[sizeOf($periods)-1] = null;
+               $error = 'file name/data mis-match: data='.$header['symbol'].','.MyFX::periodDescription($header['period']);
+            }
+            else {
+               $trailingBytes = ($fileSize-MT4::HISTORY_HEADER_SIZE) % $barSize;
+               $error = !$trailingBytes ? null : 'corrupted ('.$trailingBytes.' trailing bytes)';
+            }
+            $errors[] = $error;
          }
          else {
-            $trailingBytes = ($fileSize-MT4::HISTORY_HEADER_SIZE) % $barSize;
-            $error = !$trailingBytes ? null : 'corrupted ('.$trailingBytes.' trailing bytes)';
+            // Fehlermeldung zwischenspeichern
+            $formats    [] = null;
+            $symbols    [] = strToUpper($match[1]);
+            $periods    [] = null;
+            $aDigits    [] = null;
+            $syncMarks  [] = null;
+            $lastSyncs  [] = null;
+            $timezoneIds[] = null;
+            $bars       [] = null;
+            $barsFrom   [] = null;
+            $barsTo     [] = null;
+            $errors     [] = 'invalid or unsupported history file format: '.$header['format'];
          }
-         $errors[] = $error;
+         fClose($hFile);
+      }
+   }
+   $dir->close();
+   if (!$files) continue;
+   $foundFiles += sizeOf($files);
+
+   // (4.3) Daten sortieren: ORDER by Symbol, Periode (ASC ist default); alle anderen "Spalten" mitsortieren
+   array_multisort($symbols, SORT_ASC, $periods, SORT_ASC/*bis_hier*/, array_keys($symbols), $files, $formats, $aDigits, $syncMarks, $lastSyncs, $timezoneIds, $bars, $barsFrom, $barsTo, $errors);
+
+   // (4.4) Tabellen-Format definieren und Header ausgeben
+   $tableHeader    = 'Symbol           Digits  SyncMark             LastSync                  Bars  From                 To                   Format';
+   $tableSeparator = '------------------------------------------------------------------------------------------------------------------------------';
+   $tableRowFormat = '%-15s    %d     %-19s  %-19s  %9s  %-19s  %-19s    %s  %s';
+   echoPre(NL);
+   if (sizeOf($dirs) > 1)
+      echoPre($dir->path.':');
+   echoPre($tableHeader);
+
+   // (4.5) sortierte Daten ausgeben
+   $lastSymbol = null;
+   foreach ($files as $i => $fileName) {
+      if ($symbols[$i] != $lastSymbol)
+         echoPre($tableSeparator);
+
+      if ($formats[$i]) {
+         $period = MyFX::periodDescription($periods[$i]);
+         echoPre(sprintf($tableRowFormat, $symbols[$i].','.$period, $aDigits[$i], $syncMarks[$i], $lastSyncs[$i], number_format($bars[$i]), $barsFrom[$i], $barsTo[$i], $formats[$i], $errors[$i]));
       }
       else {
-         $formats    [] = null;
-         $symbols    [] = strToUpper($match[1]);
-         $periods    [] = null;
-         $aDigits    [] = null;
-         $syncMarks  [] = null;
-         $lastSyncs  [] = null;
-         $timezoneIds[] = null;
-         $aBars      [] = null;
-         $barsFrom   [] = null;
-         $barsTo     [] = null;
-         $errors     [] = 'invalid or unknown history file format: '.$format;
+         echoPre(str_pad($fileName, 18).' '.$errors[$i]);
       }
-      fClose($hFile);
+      $lastSymbol = $symbols[$i];
    }
-}
-$dir->close();
-!$fileNames && exit("No history files found for \"$args[0]\"\n");
-
-// (3.2) Daten sortieren: ORDER by Symbol, Periode (ASC ist default); alle anderen "Spalten" mitsortieren
-array_multisort($symbols, SORT_ASC, $periods, SORT_ASC/*bis_hier*/, array_keys($symbols), $fileNames, $formats, $aDigits, $syncMarks, $lastSyncs, $timezoneIds, $aBars, $barsFrom, $barsTo, $errors);
-
-
-// (4) Tabellen-Format definieren und Header ausgeben
-$tableHeader    = 'Symbol           Digits  SyncMark             LastSync                  Bars  From                 To                   Format';
-$tableSeparator = '------------------------------------------------------------------------------------------------------------------------------';
-$tableRowFormat = '%-15s    %d     %-19s  %-19s  %9s  %-19s  %-19s    %s  %s';
-echoPre($tableHeader);
-
-
-// (5) sortierte Daten anzeigen
-$lastSymbol = null;
-
-foreach ($fileNames as $i => $fileName) {
-   if ($symbols[$i] != $lastSymbol)
-      echoPre($tableSeparator);
-
-   if ($formats[$i]) {
-      $period = MyFX::periodDescription($periods[$i]);
-      echoPre(sprintf($tableRowFormat, $symbols[$i].','.$period, $aDigits[$i], $syncMarks[$i], $lastSyncs[$i], number_format($aBars[$i]), $barsFrom[$i], $barsTo[$i], $formats[$i], $errors[$i]));
-   }
-   else {
-      echoPre(str_pad($fileName, 18).' '.$errors[$i]);
-   }
-   $lastSymbol = $symbols[$i];
+   echoPre($tableSeparator);
 }
 
 
-// reguläres Programm-Ende
+// (5) Gesamtzusammenfassung für alle Verzeichnisse
+!$foundFiles && echoPre('no history files found for "'.$args[0].'"') & exit(1);
+
+
+// (6) reguläres Programm-Ende
 exit(0);
 
 
