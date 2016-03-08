@@ -154,7 +154,7 @@ foreach ($dirs as $dirName) {
 }
 
 
-// (5) Gesamtzusammenfassung für alle Verzeichnisse
+// (5) bei Mißerfolg Gesamtzusammenfassung für alle Verzeichnisse
 !$foundFiles && echoPre('no history files found for "'.$args[0].'"') & exit(1);
 
 
