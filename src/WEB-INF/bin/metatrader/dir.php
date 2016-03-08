@@ -8,6 +8,10 @@
 require(dirName(realPath(__FILE__)).'/../../config.php');
 
 
+//echoPre($_SERVER['argv']);
+//echoPre($_SERVER);
+//exit();
+
 // -- Konfiguration --------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -59,7 +63,7 @@ while (($fileName=$dir->read()) !== false) {
          $aBars      [] = null;
          $barsFrom   [] = null;
          $barsTo     [] = null;
-         $errors     [] = 'invalid or unknown history file format: fileSize '.$fileSize.' < minFileSize';
+         $errors     [] = 'invalid or unsupported file format: file size of '.$fileSize.' < minFileSize of '.MT4::HISTORY_HEADER_SIZE;
          continue;
       }
 
@@ -153,7 +157,7 @@ foreach ($fileNames as $i => $fileName) {
 }
 
 
-// Programm-Ende
+// reguläres Programm-Ende
 exit(0);
 
 
