@@ -144,6 +144,25 @@ class MT4 extends StaticClass {
 
 
    /**
+    * Formatbeschreibung eines struct HISTORY_HEADER.
+    *
+    * @see  Definition in MT4Expander.dll::Expander.h
+    * @see  self::HISTORY_HEADER_unpackFormat() zum Verwenden als unpack()-Formatstring
+    */
+   private static $HISTORY_HEADER_format = '
+      /V   format
+      /a64 description
+      /a12 symbol
+      /V   period
+      /V   digits
+      /V   syncMark
+      /V   lastSync
+      /V   timezoneId
+      /x48 reserved
+   ';
+
+
+   /**
     * Gibt die Namen der Felder eines struct SYMBOL zurück.
     *
     * @return string[] - Array mit SYMBOL-Feldern
@@ -172,6 +191,28 @@ class MT4 extends StaticClass {
 
       if (is_null($format)) {
          $format = self::$SYMBOL_format;
+
+         // since PHP 5.5.0: The 'a' code now retains trailing NULL bytes, 'Z' replaces the former 'a'.
+         if (PHP_VERSION >= '5.5.0') $format = str_replace('/a', '/Z', $format);
+
+         // remove white space and leading format separator
+         $format = preg_replace('/\s/', '', $format);
+         if ($format[0] == '/') $format = substr($format, 1);
+      }
+      return $format;
+   }
+
+
+   /**
+    * Gibt den Formatstring zum Entpacken eines struct HISTORY_HEADER zurück.
+    *
+    * @return string - unpack()-Formatstring
+    */
+   public static function HISTORY_HEADER_getUnpackFormat() {
+      static $format = null;
+
+      if (is_null($format)) {
+         $format = self::$HISTORY_HEADER_format;
 
          // since PHP 5.5.0: The 'a' code now retains trailing NULL bytes, 'Z' replaces the former 'a'.
          if (PHP_VERSION >= '5.5.0') $format = str_replace('/a', '/Z', $format);

@@ -7,14 +7,14 @@ require(dirName(realPath(__FILE__)).'/../../config.php');
 date_default_timezone_set('GMT');
 
 
-// Unpack-Formate des History-Headers: PHP 5.5.0 - The "a" code now retains trailing NULL bytes, "Z" replaces the former "a".
-if (PHP_VERSION < '5.5.0') $hstHeaderFormat = 'Vformat/a64description/a12symbol/Vperiod/Vdigits/VsyncMark/VlastSync/VtimezoneId/x48';
-else                       $hstHeaderFormat = 'Vformat/Z64description/Z12symbol/Vperiod/Vdigits/VsyncMark/VlastSync/VtimezoneId/x48';
+// -- Konfiguration --------------------------------------------------------------------------------------------------------------------------------
+
+
+$byteOffset = false;
+$quietMode  = false;
 
 
 // -- Start ----------------------------------------------------------------------------------------------------------------------------------------
-$byteOffset = false;
-$quietMode  = false;
 
 
 // (1) Befehlszeilenargumente einlesen und validieren
@@ -47,7 +47,7 @@ $fileName = $arg = array_shift($args);
 $fileSize = fileSize($fileName);
 ($fileSize < MT4::HISTORY_HEADER_SIZE) && echoPre('invalid or unknown history file format: file size of "'.$fileName.'" < minFileSize ('.MT4::HISTORY_HEADER_SIZE.')') & exit(1);
 $hFile     = fOpen($fileName, 'rb');
-$hstHeader = unpack($hstHeaderFormat, fRead($hFile, MT4::HISTORY_HEADER_SIZE));
+$hstHeader = unpack(MT4::HISTORY_HEADER_getUnpackFormat(), fRead($hFile, MT4::HISTORY_HEADER_SIZE));
 extract($hstHeader);
 if      ($format == 400) { $barSize = MT4::HISTORY_BAR_400_SIZE; $barFormat = 'Vtime/dopen/dlow/dhigh/dclose/dticks';                          }
 else if ($format == 401) { $barSize = MT4::HISTORY_BAR_401_SIZE; $barFormat = 'Vtime/x4/dopen/dhigh/dlow/dclose/Vticks/x4/lspread/Vvolume/x4'; }

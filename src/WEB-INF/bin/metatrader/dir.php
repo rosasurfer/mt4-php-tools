@@ -2,8 +2,6 @@
 <?php
 /**
  * Verzeichnislisting für MetaTrader-Historydateien
- *
- * @see Struct-Formate in MT4Expander.dll::Expander.h
  */
 require(dirName(realPath(__FILE__)).'/../../config.php');
 
