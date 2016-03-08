@@ -32,7 +32,7 @@ $foundFiles = 0;
 // (3) alle Verzeichnisse durchlaufen
 foreach ($dirs as $dirName) {
    $files   = array();
-   $formats = $symbols = $periods = $digits = $syncMarks = $lastSyncs = $timezoneIds = array();
+   $formats = $symbols = $symbolsU = $periods = $digits = $syncMarks = $lastSyncs = $timezoneIds = array();
    $bars    = $barsFrom = $barsTo = $errors = array();
 
    // (4.1) Verzeichnis öffnen, Dateinamen einlesen und filtern
@@ -47,7 +47,8 @@ foreach ($dirs as $dirName) {
          if ($fileSize < MT4::HISTORY_HEADER_SIZE) {
             // Fehlermeldung zwischenspeichern
             $formats    [] = null;
-            $symbols    [] = strToUpper($match[1]);
+            $symbols    [] =            $match[1];
+            $symbolsU   [] = strToUpper($match[1]);
             $periods    [] = null;
             $digits     [] = null;
             $syncMarks  [] = null;
@@ -66,7 +67,8 @@ foreach ($dirs as $dirName) {
          if ($header['format']==400 || $header['format']==401) {
             // Daten zwischenspeichern
             $formats    [] =            $header['format'    ];
-            $symbols    [] = strToUpper($header['symbol'    ]);
+            $symbols    [] =            $header['symbol'    ];
+            $symbolsU   [] = strToUpper($header['symbol'    ]);
             $periods    [] =            $header['period'    ];
             $digits     [] =            $header['digits'    ];
             $syncMarks  [] =            $header['syncMark'  ] ? gmDate('Y.m.d H:i:s', $header['syncMark']) : null;
@@ -91,9 +93,10 @@ foreach ($dirs as $dirName) {
             $barsTo  [] = $barTo   ? gmDate('Y.m.d H:i:s', $barTo  ['time']) : null;
 
             if (!strCompareI($fileName, $header['symbol'].$header['period'].'.hst')) {
-               $formats[sizeOf($formats)-1] = null;
-               $symbols[sizeOf($symbols)-1] = strToUpper($match[1]);
-               $periods[sizeOf($periods)-1] = null;
+               $formats [sizeOf($formats )-1] = null;
+               $symbols [sizeOf($symbols )-1] =            $match[1];
+               $symbolsU[sizeOf($symbolsU)-1] = strToUpper($match[1]);
+               $periods [sizeOf($periods )-1] = null;
                $error = 'file name/data mis-match: data='.$header['symbol'].','.MyFX::periodDescription($header['period']);
             }
             else {
@@ -105,7 +108,8 @@ foreach ($dirs as $dirName) {
          else {
             // Fehlermeldung zwischenspeichern
             $formats    [] = null;
-            $symbols    [] = strToUpper($match[1]);
+            $symbols    [] =            $match[1];
+            $symbolsU   [] = strToUpper($match[1]);
             $periods    [] = null;
             $digits     [] = null;
             $syncMarks  [] = null;
@@ -124,7 +128,7 @@ foreach ($dirs as $dirName) {
    $foundFiles += sizeOf($files);
 
    // (4.3) Daten sortieren: ORDER by Symbol, Periode (ASC ist default); alle anderen "Spalten" mitsortieren
-   array_multisort($symbols, SORT_ASC, $periods, SORT_ASC/*bis_hierher*/, array_keys($symbols), $files, $formats, $digits, $syncMarks, $lastSyncs, $timezoneIds, $bars, $barsFrom, $barsTo, $errors);
+   array_multisort($symbolsU, SORT_ASC, $periods, SORT_ASC/*bis_hierher*/, array_keys($symbolsU), $symbols, $files, $formats, $digits, $syncMarks, $lastSyncs, $timezoneIds, $bars, $barsFrom, $barsTo, $errors);
 
    // (4.4) Tabellen-Format definieren und Header ausgeben
    $tableHeader    = 'Symbol           Digits  SyncMark             LastSync                  Bars  From                 To                   Format';
@@ -143,7 +147,7 @@ foreach ($dirs as $dirName) {
 
       if ($formats[$i]) {
          $period = MyFX::periodDescription($periods[$i]);
-         echoPre(sprintf($tableRowFormat, $symbols[$i].','.$period, $digits[$i], $syncMarks[$i], $lastSyncs[$i], number_format($bars[$i]), $barsFrom[$i], $barsTo[$i], $formats[$i], $errors[$i]));
+         echoPre(trim(sprintf($tableRowFormat, $symbols[$i].','.$period, $digits[$i], $syncMarks[$i], $lastSyncs[$i], number_format($bars[$i]), $barsFrom[$i], $barsTo[$i], $formats[$i], $errors[$i])));
       }
       else {
          echoPre(str_pad($fileName, 18).' '.$errors[$i]);
