@@ -32,7 +32,7 @@ $foundFiles = 0;
 // (3) alle Verzeichnisse durchlaufen
 foreach ($dirs as $dirName) {
    $files   = array();
-   $formats = $symbols = $periods = $aDigits = $syncMarks = $lastSyncs = $timezoneIds = array();
+   $formats = $symbols = $periods = $digits = $syncMarks = $lastSyncs = $timezoneIds = array();
    $bars    = $barsFrom = $barsTo = $errors = array();
 
    // (4.1) Verzeichnis öffnen, Dateinamen einlesen und filtern
@@ -49,7 +49,7 @@ foreach ($dirs as $dirName) {
             $formats    [] = null;
             $symbols    [] = strToUpper($match[1]);
             $periods    [] = null;
-            $aDigits    [] = null;
+            $digits     [] = null;
             $syncMarks  [] = null;
             $lastSyncs  [] = null;
             $timezoneIds[] = null;
@@ -68,7 +68,7 @@ foreach ($dirs as $dirName) {
             $formats    [] =            $header['format'    ];
             $symbols    [] = strToUpper($header['symbol'    ]);
             $periods    [] =            $header['period'    ];
-            $aDigits    [] =            $header['digits'    ];
+            $digits     [] =            $header['digits'    ];
             $syncMarks  [] =            $header['syncMark'  ] ? gmDate('Y.m.d H:i:s', $header['syncMark']) : null;
             $lastSyncs  [] =            $header['lastSync'  ] ? gmDate('Y.m.d H:i:s', $header['lastSync']) : null;
             $timezoneIds[] =            $header['timezoneId'];
@@ -107,7 +107,7 @@ foreach ($dirs as $dirName) {
             $formats    [] = null;
             $symbols    [] = strToUpper($match[1]);
             $periods    [] = null;
-            $aDigits    [] = null;
+            $digits     [] = null;
             $syncMarks  [] = null;
             $lastSyncs  [] = null;
             $timezoneIds[] = null;
@@ -124,7 +124,7 @@ foreach ($dirs as $dirName) {
    $foundFiles += sizeOf($files);
 
    // (4.3) Daten sortieren: ORDER by Symbol, Periode (ASC ist default); alle anderen "Spalten" mitsortieren
-   array_multisort($symbols, SORT_ASC, $periods, SORT_ASC/*bis_hier*/, array_keys($symbols), $files, $formats, $aDigits, $syncMarks, $lastSyncs, $timezoneIds, $bars, $barsFrom, $barsTo, $errors);
+   array_multisort($symbols, SORT_ASC, $periods, SORT_ASC/*bis_hierher*/, array_keys($symbols), $files, $formats, $digits, $syncMarks, $lastSyncs, $timezoneIds, $bars, $barsFrom, $barsTo, $errors);
 
    // (4.4) Tabellen-Format definieren und Header ausgeben
    $tableHeader    = 'Symbol           Digits  SyncMark             LastSync                  Bars  From                 To                   Format';
@@ -143,7 +143,7 @@ foreach ($dirs as $dirName) {
 
       if ($formats[$i]) {
          $period = MyFX::periodDescription($periods[$i]);
-         echoPre(sprintf($tableRowFormat, $symbols[$i].','.$period, $aDigits[$i], $syncMarks[$i], $lastSyncs[$i], number_format($bars[$i]), $barsFrom[$i], $barsTo[$i], $formats[$i], $errors[$i]));
+         echoPre(sprintf($tableRowFormat, $symbols[$i].','.$period, $digits[$i], $syncMarks[$i], $lastSyncs[$i], number_format($bars[$i]), $barsFrom[$i], $barsTo[$i], $formats[$i], $errors[$i]));
       }
       else {
          echoPre(str_pad($fileName, 18).' '.$errors[$i]);
