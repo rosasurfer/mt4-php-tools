@@ -14,9 +14,9 @@ $args = array_slice($_SERVER['argv'], 1);
 !$args && ($args[0]='*');
 $arg0 = $args[0];                                                                // TODO: Noch wird nur der erste Parameter ausgewertet.
 realPath($arg0) && ($arg0=realPath($arg0));
-if (is_dir($arg0)) { $dirName = $arg0;          $baseName = '';              }   // Die Funktion glob() kann nicht verwendet werden, da sie
-else               { $dirName = dirName($arg0); $baseName = baseName($arg0); }   // beim Patternmatching unter Windows Groß-/Kleinschreibung
-                                                                                 // unterscheidet.
+if (is_dir($arg0)) { $dirName = $arg0;          $baseName = '';              }   // glob() wurde hier nicht verwendet, da es beim
+else               { $dirName = dirName($arg0); $baseName = baseName($arg0); }   // Patternmatching Groß-/Kleinschreibung unterscheidet.
+
 !$baseName && ($baseName='*');
 $baseName = str_replace('*', '.*', str_replace('.', '\.', $baseName));           // für RegExp in (4.1): '*' erweitern, '.' escapen
 
