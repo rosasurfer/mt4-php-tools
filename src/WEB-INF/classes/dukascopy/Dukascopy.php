@@ -25,13 +25,6 @@
 class Dukascopy extends StaticClass {
 
 
-   // Start der M1-History der Dukascopy-Instrumente
-   public static $historyStart_M1    = null;             // @see static initializer at end of file
-
-   // Start der Tick-History der Dukascopy-Instrumente
-   public static $historyStart_Ticks = null;             // @see static initializer at end of file
-
-
    /**
     * Dekomprimiert einen komprimierten String mit Dukascopy-Historydaten und gibt ihn zurück. Wird ein Dateiname angegeben,
     * wird der dekomprimierte Inhalt zusätzlich in dieser Datei gespeichert.
@@ -175,37 +168,3 @@ class Dukascopy extends StaticClass {
       return self::readTickData(file_get_contents($fileName));
    }
 }
-
-
-/**
- * Workaround für in PHP nicht existierende static initializer
- */
-
-// Start der M1-History der Dukascopy-Instrumente
-Dukascopy::$historyStart_M1    = array('AUDUSD' => strToTime('2003-08-03 00:00:00 GMT'),
-                                       'EURUSD' => strToTime('2003-05-04 00:00:00 GMT'),
-                                       'GBPUSD' => strToTime('2003-05-04 00:00:00 GMT'),
-                                       'NZDUSD' => strToTime('2003-08-03 00:00:00 GMT'),
-                                       'USDCAD' => strToTime('2003-08-03 00:00:00 GMT'),
-                                       'USDCHF' => strToTime('2003-05-04 00:00:00 GMT'),
-                                       'USDJPY' => strToTime('2003-05-04 00:00:00 GMT'),
-                                       'USDNOK' => strToTime('2003-08-05 00:00:00 GMT'),  // TODO: Start ist der 04.08.2003
-                                       'USDSEK' => strToTime('2003-08-05 00:00:00 GMT'),  // TODO: Start ist der 04.08.2003
-                                       'USDSGD' => strToTime('2004-11-17 00:00:00 GMT'),  // TODO: Start ist der 16.11.2004
-                                       'USDZAR' => strToTime('1997-10-14 00:00:00 GMT'),  // TODO: Start ist der 13.11.1997
-);
-
-// Start der Tick-History der Dukascopy-Instrumente
-Dukascopy::$historyStart_Ticks = array(
-                                       'AUDUSD' => strToTime('2003-08-03 21:00:00 GMT'),
-                                       'EURUSD' => strToTime('2003-05-04 21:00:00 GMT'),
-                                       'GBPUSD' => strToTime('2003-05-04 21:00:00 GMT'),
-                                       'NZDUSD' => strToTime('2003-08-03 21:00:00 GMT'),
-                                       'USDCAD' => strToTime('2003-08-03 21:00:00 GMT'),
-                                       'USDCHF' => strToTime('2003-05-04 21:00:00 GMT'),
-                                       'USDJPY' => strToTime('2003-05-04 21:00:00 GMT'),
-                                       'USDNOK' => strToTime('2003-08-04 00:00:00 GMT'),
-                                       'USDSEK' => strToTime('2003-08-04 00:00:00 GMT'),
-                                       'USDSGD' => strToTime('2004-11-16 18:00:00 GMT'),
-                                       'USDZAR' => strToTime('1997-10-13 18:00:00 GMT'),
-);

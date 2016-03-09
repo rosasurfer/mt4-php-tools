@@ -9,6 +9,7 @@ class HistorySet extends Object {
    protected /*string*/  $description;
    protected /*int   */  $digits;
    protected /*int   */  $format;
+   protected /*int   */  $timezoneId;
    protected /*string*/  $directory;
 
    protected /*array[]*/ $history;
@@ -24,32 +25,33 @@ class HistorySet extends Object {
     * @param  string $description - Beschreibung des Symbols
     * @param  int    $digits      - Digits der Datenreihe
     * @param  int    $format      - Speicherformat der Datenreihe:
-    *                               • 400 - wie MetaTrader bis Build 509
-    *                               • 401 - wie MetaTrader ab Build 510
-    * @param  string $directory   - Serververzeichnis, in dem die Historydateien des Sets gespeichert und das Symbol in die Datei
-    *                               "symbols.raw" eingetragen werden (default: aktuelles Verzeichnis).
+    *                               • 400 - MetaTrader bis Build 509
+    *                               • 401 - MetaTrader ab Build 510
+    * @param  int    $timezoneId  - ID der Zeitzone des Sets (default: aktuelle Serverzeitzone)
+    * @param  string $directory   - Serververzeichnis, in dem die Historydateien des Sets gespeichert werden
+    *                               (default: aktuelles Verzeichnis)
     */
-   public function __construct($symbol, $description, $digits, $format, $directory=null) {
+   public function __construct($symbol, $description, $digits, $format, $timezoneId=0, $directory=null) {
       if (!is_string($symbol))                                throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
       if (!strLen($symbol))                                   throw new plInvalidArgumentException('Invalid parameter $symbol: ""');
       if (strLen($symbol) > MT4::MAX_SYMBOL_LENGTH)           throw new plInvalidArgumentException('Invalid parameter $symbol: "'.$symbol.'" (max '.MT4::MAX_SYMBOL_LENGTH.' characters)');
-      if (!is_null($description) && !is_string($description)) throw new IllegalTypeException('Illegal type of parameter $description: '.getType($description));
+      if (!is_string($description))                           throw new IllegalTypeException('Illegal type of parameter $description: '.getType($description));
       if (!is_int($digits))                                   throw new IllegalTypeException('Illegal type of parameter $digits: '.getType($digits));
       if ($digits < 0)                                        throw new plInvalidArgumentException('Invalid parameter $digits: '.$digits);
       if (!is_int($format))                                   throw new IllegalTypeException('Illegal type of parameter $format: '.getType($format));
       if ($format!=400 && $format!=401)                       throw new plInvalidArgumentException('Invalid parameter $format: '.$format.' (needs to be 400 or 401)');
-      if (!is_null($directory)) {
-         if (!is_string($directory))                          throw new IllegalTypeException('Illegal type of parameter $directory: '.getType($directory));
-         if (!strLen($directory))                             throw new plInvalidArgumentException('Invalid parameter $directory: ""');
-      }
+      if (!is_int($timezoneId))                               throw new IllegalTypeException('Illegal type of parameter $timezoneId: '.getType($timezoneId));
+      if ($timezoneId < 0)                                    throw new plInvalidArgumentException('Invalid parameter $timezoneId: '.$timezoneId.' (invalid timezone)');
+      if (is_null($directory)) $directory = '.';
+      else if (!is_string($directory))                        throw new IllegalTypeException('Illegal type of parameter $directory: '.getType($directory));
+      else if (!is_dir($directory))                           throw new plInvalidArgumentException('Directory "'.$directory.'" not found');
 
       $this->symbol      = $symbol;
-      $this->description = strLeft($description, 63);                   // ein zu langer String wird gekürzt
+      $this->description = strLeft($description, 63);                // ein zu langer String wird gekürzt
       $this->digits      = $digits;
       $this->format      = $format;
+      $this->timezoneId  = $timezoneId;
       $this->directory   = $directory;
-      if (is_null($directory))
-         $this->directory = MyFX::getConfigPath('myfx.data_directory').'/history/mt4/MyFX-Dukascopy';
       mkDirWritable($this->directory);
 
       $this->history[PERIOD_M1 ]['bars']             = array();      // Timeframes initialisieren
@@ -78,7 +80,7 @@ class HistorySet extends Object {
       $hh['description'] = $this->description;
       $hh['symbol'     ] = $this->symbol;
       $hh['digits'     ] = $this->digits;
-      $hh['timezoneId' ] = TIMEZONE_ID_FXT;
+      $hh['timezoneId' ] = $this->timezoneId;
 
       // alle HistoryFiles erzeugen bzw. zurücksetzen und Header neuschreiben
       foreach ($this->history as $timeframe => $data) {

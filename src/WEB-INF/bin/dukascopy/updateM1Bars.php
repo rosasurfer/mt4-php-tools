@@ -61,10 +61,11 @@ foreach ($args as $i => $arg) {
 // Symbole parsen
 foreach ($args as $i => $arg) {
    $arg = strToUpper($arg);
-   if (!isSet(Dukascopy::$historyStart_M1[$arg])) help('error: unknown or unsupported symbol "'.$args[$i].'"') & exit(1);
+   if (!isSet(MyFX::$symbols[$arg]) || MyFX::$symbols[$arg]['type']!='forex')
+      help('unknown or unsupported symbol "'.$args[$i].'"') & exit(1);
    $args[$i] = $arg;
-}
-$args = $args ? array_unique($args) : array_keys(Dukascopy::$historyStart_M1);      // ohne Angabe werden alle Symbole aktualisiert
+}                                                                                   // ohne Angabe werden alle Symbole aktualisiert
+$args = $args ? array_unique($args) : array_keys(MyFX::filterSymbols(array('type'=>'forex')));
 
 
 // (2) Daten aktualisieren
@@ -92,7 +93,7 @@ function updateSymbol($symbol) {
    if (!is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
    $symbol = strToUpper($symbol);
 
-   $startTime  = Dukascopy::$historyStart_M1[$symbol];               // Beginns der Dukascopy-Daten dieses Symbols in GMT
+   $startTime  = MyFX::$symbols[$symbol]['historyStart']['M1'];      // Beginns der Dukascopy-Daten dieses Symbols in GMT
    $startTime -= $startTime % DAY;                                   // 00:00 GMT
 
    global $verbose, $barBuffer;
