@@ -463,7 +463,7 @@ class HistorySet extends Object {
          $C = $bar['close']/$divisor;
          $V = $bar['ticks'];
 
-         MT4::addHistoryBar400($hFile, $T, $O, $H, $L, $C, $V);
+         MT4::addHistoryBar400($hFile, $this->digits, $T, $O, $H, $L, $C, $V);
          if ($i+1 == $todo)
             break;
       }
