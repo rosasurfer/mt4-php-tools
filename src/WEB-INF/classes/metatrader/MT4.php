@@ -267,10 +267,11 @@ class MT4 extends StaticClass {
 
 
    /**
-    * Fügt eine einzelne Bar an die zum Handle gehörende Datei an.
+    * Fügt eine einzelne Bar an die zum Handle gehörende Datei an. Die Bardaten werden vorm Schreiben validiert.
     *
-    * @param  resource $hFile - File-Handle eines History-Files, muß Schreibzugriff erlauben
-    * @param  int      $time  - Timestamp der Bar
+    * @param  resource $hFile  - File-Handle eines History-Files, muß Schreibzugriff erlauben
+    * @param  int      $digits - Digits des Symbols (für Normalisierung)
+    * @param  int      $time   - Timestamp der Bar
     * @param  double   $open
     * @param  double   $high
     * @param  double   $low
@@ -279,7 +280,21 @@ class MT4 extends StaticClass {
     *
     * @return int - Anzahl der geschriebenen Bytes
     */
-   public static function addHistoryBar400($hFile, $time, $open, $high, $low, $close, $ticks) {
+   public static function addHistoryBar400($hFile, $digits, $time, $open, $high, $low, $close, $ticks) {
+      // Bardaten normalisieren...
+      $open  = round($open , $digits);
+      $high  = round($high , $digits);
+      $low   = round($low  , $digits);
+      $close = round($close, $digits);
+
+      // ...vorm Schreiben nochmals prüfen (nicht mit min()/max(), da nicht performant)
+      if ($open  > $high ||
+          $open  < $low  ||                  // aus (H >= O && O >= L) folgt (H >= L)
+          $close > $high ||
+          $close < $low  ||
+         !$ticks) throw new plRuntimeException('Illegal history bar of '.gmDate('D, d-M-Y', $time).": O=$open H=$high L=$low C=$close V=$ticks");
+
+      // Bardaten in Binärstring umwandeln
       $data = pack('Vddddd', $time,    // V
                              $open,    // d
                              $low,     // d

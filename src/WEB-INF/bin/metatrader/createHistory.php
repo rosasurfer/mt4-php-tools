@@ -31,10 +31,11 @@ foreach ($args as $i => $arg) {
 // Symbole parsen
 foreach ($args as $i => $arg) {
    $arg = strToUpper($arg);
-   if (!isSet(Dukascopy::$historyStart_M1[$arg])) help('error: unknown or unsupported symbol "'.$args[$i].'"') & exit(1);
+   if (!isSet(MyFX::$symbols[$arg]) || MyFX::$symbols[$arg]['type']!='forex')
+      help('error: unknown or unsupported symbol "'.$args[$i].'"') & exit(1);
    $args[$i] = $arg;
-}
-$args = $args ? array_unique($args) : array_keys(Dukascopy::$historyStart_M1);      // ohne Symbol werden alle Symbole verarbeitet
+}                                                                                   // ohne Symbol werden alle Symbole verarbeitet
+$args = $args ? array_unique($args) : array_keys(MyFX::filterSymbols(array('type'=>'forex')));
 
 
 // (2) History erstellen
@@ -49,7 +50,7 @@ exit(0);
 
 
 /**
- * Erzeugt die MetaTrader-History eines Symbol.
+ * Erzeugt die MetaTrader-History eines Symbols.
  *
  * @param  string $symbol - Symbol
  *
@@ -60,14 +61,18 @@ function createHistory($symbol) {
    if (!strLen($symbol))    throw new plInvalidArgumentException('Invalid parameter $symbol: ""');
 
    global $verbose;
-   $startDay  = fxtTime(Dukascopy::$historyStart_M1[$symbol]);                      // FXT
+   $startDay  = fxtTime(MyFX::$symbols[$symbol]['historyStart']['M1']);             // FXT
    $startDay -= $startDay%DAY;                                                      // 00:00 FXT Starttag
    $today     = ($today=fxtTime()) - $today%DAY;                                    // 00:00 FXT aktueller Tag
 
 
    // MT4-HistorySet erzeugen
-   $digits  = (strEndsWith($symbol, 'JPY') || array_search($symbol, array('USDX', 'EURX'))!==false) ? 3:5;
-   $history = new HistorySet($symbol, $description=null, $digits, $format=400);
+   $description = MyFX::$symbols[$symbol]['longName'];
+   $digits      = MyFX::$symbols[$symbol]['digits'  ];
+   $format      = 400;
+   $timezoneId  = TIMEZONE_ID_FXT;
+   $directory   = MyFX::getConfigPath('myfx.data_directory').'/history/mt4/MyFX-Dukascopy';
+   $history     = new HistorySet($symbol, $description, $digits, $format, $timezoneId, $directory);
 
 
    // Gesamte Zeitspanne tageweise durchlaufen

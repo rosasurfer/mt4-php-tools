@@ -452,7 +452,8 @@ class MyFX extends StaticClass {
 
 
    /**
-    * Interpretiert die MyFX-Bardaten eines Strings und liest sie in ein Array ein.
+    * Interpretiert die MyFX-Bardaten eines Strings und liest sie in ein Array ein. Die resultierenden Bars werden
+    * nach dem Lesen validiert.
     *
     * @param  string $data - String mit MyFX-Bardaten
     *
@@ -464,10 +465,19 @@ class MyFX extends StaticClass {
       $lenData = strLen($data); if ($lenData % MyFX::BAR_SIZE) throw new plRuntimeException('Odd length of passed data: '.$lenData.' (not an even MyFX::BAR_SIZE)');
       $offset  = 0;
       $bars    = array();
+      $i       = -1;
 
       while ($offset < $lenData) {
+         $i++;
          $bars[] = unpack("@$offset/Vtime/Vopen/Vhigh/Vlow/Vclose/Vticks", $data);
          $offset += MyFX::BAR_SIZE;
+
+         // Bars validieren
+         if ($bars[$i]['open' ] > $bars[$i]['high'] ||      // aus (H >= O && O >= L) folgt (H >= L)
+             $bars[$i]['open' ] < $bars[$i]['low' ] ||      // nicht mit min()/max(), da nicht performant
+             $bars[$i]['close'] > $bars[$i]['high'] ||
+             $bars[$i]['close'] < $bars[$i]['low' ] ||
+            !$bars[$i]['ticks']) throw new plRuntimeException("Illegal data for bar[$i]: O=$bars[$i][open] H=$bars[$i][high] L=$bars[$i][low] C=$bars[$i][close] V=$bars[$i][ticks] T=".gmDate('D, d-M-Y H:i:s', $bars[$i]['time']));
       }
       return $bars;
    }
