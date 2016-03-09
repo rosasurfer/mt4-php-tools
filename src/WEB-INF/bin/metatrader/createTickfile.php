@@ -63,7 +63,7 @@ foreach ($args as $i => $arg) {
       $value = $arg = strRight($arg, -6);
       if (strIsQuoted($value))
          $value = strLeft(strRight($value, -1), 1);
-      $timestamp = Validator::isDate($value, array('Y-m-d', 'Y.m.d', 'd.m.Y', 'd/m/Y'));
+      $timestamp = is_datetime($value, array('Y-m-d', 'Y.m.d', 'd.m.Y', 'd/m/Y'));
       if (!is_int($timestamp) || $timestamp<0) help('invalid start date: '.$arg) & exit(1);
       $options['startDate'] = $timestamp;
       if (isSet($options['endDate']) && $options['startDate'] > $options['endDate']) {
@@ -78,7 +78,7 @@ foreach ($args as $i => $arg) {
       $value = $arg = strRight($arg, -4);
       if (strIsQuoted($value))
          $value = strLeft(strRight($value, -1), 1);
-      $timestamp = Validator::isDate($value, array('Y-m-d', 'Y.m.d', 'd.m.Y', 'd/m/Y'));
+      $timestamp = is_datetime($value, array('Y-m-d', 'Y.m.d', 'd.m.Y', 'd/m/Y'));
       if (!is_int($timestamp) || $timestamp<=0) help('invalid end date: '.$arg) & exit(1);
       $options['endDate'] = $timestamp;
       if (isSet($options['startDate']) && $options['startDate'] > $options['endDate']) {

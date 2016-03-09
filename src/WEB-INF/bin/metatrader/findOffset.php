@@ -23,29 +23,27 @@ $args = array_slice($_SERVER['argv'], 1);
 // (1.1) Optionen parsen
 foreach ($args as $i => $arg) {
    $arg = strToLower($arg);
-   if (in_array($arg, array('-h','--help'))) help() & exit(1);             // Hilfe
+   if ($arg == '-h')   help() & exit(1);                                   // Hilfe
    if ($arg == '-c') { $byteOffset=true; unset($args[$i]); continue; }     // -c: byte offset
    if ($arg == '-q') { $quietMode =true; unset($args[$i]); continue; }     // -q: quiet mode
 }
 
 // (1.2) Das verbleibende erste Argument muß ein Zeitpunkt sein.
-if (sizeOf($args) < 2) help() & exit(1);
+(sizeOf($args) < 2) && help() & exit(1);
 $sTime = $arg = array_shift($args);
 
-if      (strStartsWith($sTime, "'") && strEndsWith($sTime, "'")) $sTime = trim($sTime, " '");
-else if (strStartsWith($sTime, '"') && strEndsWith($sTime, '"')) $sTime = trim($sTime, ' "');
-(!is_datetime($sTime, 'Y-m-d') && !is_datetime($sTime, 'Y-m-d H:i') && !is_datetime($sTime, 'Y-m-d H:i:s')) && echoPre('invalid argument datetime = '.$arg) & exit(1);
-
+if (strIsQuoted($sTime)) $sTime = trim(strLeft(strRight($sTime, -1), -1));
+!is_datetime($sTime, array('Y-m-d', 'Y-m-d H:i', 'Y-m-d H:i:s')) && echoPre('invalid argument datetime = '.$arg) & exit(1);
 $datetime = strToTime($sTime.' GMT');
 
 // (1.2) Das verbleibende zweite Argument muß ein History-File sein.
-$fileName = $arg = array_shift($args);
+$fileName = array_shift($args);
 !is_file($fileName) && echoPre('file not found "'.$fileName.'"') & exit(1);
 
 
 // (2) Datei öffnen, Header auslesen und History-Format bestimmen
 $fileSize = fileSize($fileName);
-($fileSize < MT4::HISTORY_HEADER_SIZE) && echoPre('invalid or unknown history file format: file size of "'.$fileName.'" < minFileSize ('.MT4::HISTORY_HEADER_SIZE.')') & exit(1);
+($fileSize < MT4::HISTORY_HEADER_SIZE) && echoPre('invalid or unknown history file format: file size of "'.$fileName.'" < MinFileSize ('.MT4::HISTORY_HEADER_SIZE.')') & exit(1);
 $hFile     = fOpen($fileName, 'rb');
 $hstHeader = unpack(MT4::HISTORY_HEADER_getUnpackFormat(), fRead($hFile, MT4::HISTORY_HEADER_SIZE));
 extract($hstHeader);

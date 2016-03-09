@@ -42,9 +42,7 @@ foreach ($args as $i => $arg) {
    // list available fields
    if ($arg == '-l') {
       $options['listFields'] = true;
-      if (isSet($options['file']))
-         break;
-      continue;
+      break;
    }
 
    // display all fields
@@ -57,9 +55,7 @@ foreach ($args as $i => $arg) {
    if (strStartsWith($arg, '+')) {
       $key = subStr($arg, 1);
       if (!strLen($key)) help('invalid field specifier: '.$arg) & exit(1);
-      if (($index=array_search('-'.$key, $fields)) !== false) {
-         array_splice($fields, $index, 1);
-      }
+      unset($fields['-'.$key]);                                               // drops element if it exists
       if (!in_array('++', $fields) && !in_array('+'.$key, $fields)) {
          $fields[] = '+'.$key;
       }
@@ -70,9 +66,7 @@ foreach ($args as $i => $arg) {
    if (strStartsWith($arg, '-')) {
       $key = subStr($arg, 1);
       if (!strLen($key)) help('invalid field specifier: '.$arg) & exit(1);
-      if (($index=array_search('+'.$key, $fields)) !== false) {
-         array_splice($fields, $index, 1);
-      }
+      unset($fields['+'.$key]);                                               // drops element if it exists
       if (in_array('++', $fields) && !in_array('-'.$key, $fields)) {
          $fields[] = '-'.$key;
       }
