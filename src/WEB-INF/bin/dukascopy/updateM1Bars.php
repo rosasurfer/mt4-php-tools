@@ -346,12 +346,6 @@ function mergeHistory($symbol, $day) {
    foreach ($barBuffer['bid'][$shortDate] as $i => $bid) {
       $ask = $barBuffer['ask'][$shortDate][$i];
 
-      // resultierende Avg-Bar validieren (Bid- und Ask-Bar für sich allein sind schon validiert)
-      if ($bid['open' ] > $ask['open' ] ||
-          $bid['high' ] > $ask['high' ] ||
-          $bid['low'  ] > $ask['low'  ] ||
-          $bid['close'] > $ask['close']) throw new plRuntimeException('Illegal prices for '.gmDate('D, d-M-Y H:i:s', $bid['time_fxt'])."\nBid: O=$bid[open] H=$bid[high] L=$bid[low] C=$bid[close]\nAsk: O=$ask[open] H=$ask[high] L=$ask[low] C=$ask[close]");
-
       $avg = array();
       $avg['time_fxt' ] =              $bid['time_fxt' ];
       $avg['delta_fxt'] =              $bid['delta_fxt'];
@@ -360,10 +354,17 @@ function mergeHistory($symbol, $day) {
       $avg['low'      ] = (int) round(($bid['low'      ] + $ask['low'  ])/2);
       $avg['close'    ] = (int) round(($bid['close'    ] + $ask['close'])/2);
 
+      // Resultierende Avg-Bar validieren (Bid- und Ask-Bar für sich allein sind schon validiert).
+      // Es kann Spikes mit negativem Spread geben. In diesem Fall werden Open und Close normal berechnet (Average),
+      // und High und Low auf das Extrem gesetzt.
+      if ($bid['open'] > $ask['open'] || $bid['high'] > $ask['high'] || $bid['low'] > $ask['low'] || $bid['close'] > $ask['close']) {
+         $avg['high'] = max($avg['open'], $avg['high'], $avg['low'], $avg['close']);
+         $avg['low' ] = min($avg['open'], $avg['high'], $avg['low'], $avg['close']);
+      }
+
       // Ursprünglich wurden die Ticks von Bid- und Ask-Bar einzeln berechnet und diese Werte addiert.
       // Ziel ist jedoch ein möglichst kleiner Tickwert (um Tests nicht unnötig zu verlangsamen).
       // Daher werden die Ticks nur noch von der Avg-Bar berechnet und dieser eine Wert gespeichert.
-
       $ticks = ($avg['high'] - $avg['low']) << 1;                                            // unchanged bar (O == C)
       if      ($avg['open'] < $avg['close']) $ticks += ($avg['open' ] - $avg['close']);      // bull bar
       else if ($avg['open'] > $avg['close']) $ticks += ($avg['close'] - $avg['open' ]);      // bear bar
