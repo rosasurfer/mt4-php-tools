@@ -104,6 +104,12 @@ class Dukascopy extends StaticClass {
          $lots   = unpack('f', $isLittleEndian ? strRev($s) : $s);
          $bars[$i]['lots'] = round($lots[1], 2);
          $offset += DUKASCOPY_BAR_SIZE;
+
+         // Bar validieren
+         if ($bars[$i]['open' ] > $bars[$i]['high'] ||      // aus (H >= O && O >= L) folgt (H >= L)
+             $bars[$i]['open' ] < $bars[$i]['low' ] ||      // nicht mit min()/max(), da nicht performant
+             $bars[$i]['close'] > $bars[$i]['high'] ||
+             $bars[$i]['close'] < $bars[$i]['low' ]) throw new plRuntimeException("Illegal data for bar[$i]: O=$bars[$i][open] H=$bars[$i][high] L=$bars[$i][low] C=$bars[$i][close]");
       }
       return $bars;
    }

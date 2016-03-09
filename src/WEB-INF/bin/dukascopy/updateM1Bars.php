@@ -154,7 +154,7 @@ function checkHistory($symbol, $day) {
       if (is_file($file=getVar('myfxFile.compressed', $symbol, $day))) {
          if ($verbose > 1) echoPre('[Ok]    '.$shortDate.'   MyFX compressed history file: '.baseName($file));
       }
-      // History ist ok, ...oder die unkomprimierte MyFX-Datei gespeichert wird und existiert
+      // ...oder die unkomprimierte MyFX-Datei gespeichert wird und existiert
       else if ($saveRawMyFXData && is_file($file=getVar('myfxFile.raw', $symbol, $day))) {
          if ($verbose > 1) echoPre('[Ok]    '.$shortDate.'   MyFX raw history file: '.baseName($file));
       }
@@ -584,7 +584,7 @@ function saveBars($symbol, $day) {
    global $barBuffer, $saveRawMyFXData;
 
 
-   // (1) gepufferte Daten nochmal prüfen
+   // (1) gepufferte Datenreihe nochmal prüfen
    $errorMsg = null;
    if (!$errorMsg && !isSet($barBuffer['avg'][$shortDate]))                                    $errorMsg = 'No "avg" bars of '.$shortDate.' in buffer';
    if (!$errorMsg && ($size=sizeOf($barBuffer['avg'][$shortDate]))!=1*DAY/MINUTES)             $errorMsg = 'Invalid number of "avg" bars for '.$shortDate.' in buffer: '.$size;
@@ -597,9 +597,16 @@ function saveBars($symbol, $day) {
    }
 
 
-   // (2) Bars binär packen
+   // (2) Bars in Binärstring umwandeln
    $data = null;
    foreach ($barBuffer['avg'][$shortDate] as $bar) {
+      // Bardaten nochmal prüfen (für sichere Wiederverwendbarkeit dieses Codes)
+      if ($bar['open' ] > $bar['high'] ||
+          $bar['open' ] < $bar['low' ] ||          // aus (H >= O && O >= L) folgt (H >= L)
+          $bar['close'] > $bar['high'] ||          // nicht mit min()/max(), da nicht performant
+          $bar['close'] < $bar['low' ] ||
+         !$bar['ticks']) throw new plRuntimeException('Illegal data for Avg bar of '.gmDate('D, d-M-Y', $bar['time_fxt']).": O=$bar[open] H=$bar[high] L=$bar[low] C=$bar[close] V=$bar[ticks]");
+
       $data .= pack('VVVVVV', $bar['time_fxt'],
                               $bar['open'    ],
                               $bar['high'    ],
