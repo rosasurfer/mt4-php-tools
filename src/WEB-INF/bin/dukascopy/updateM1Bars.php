@@ -346,6 +346,12 @@ function mergeHistory($symbol, $day) {
    foreach ($barBuffer['bid'][$shortDate] as $i => $bid) {
       $ask = $barBuffer['ask'][$shortDate][$i];
 
+      // resultierende Avg-Bar validieren (Bid- und Ask-Bar für sich allein sind schon validiert)
+      if ($bid['open' ] > $ask['open' ] ||
+          $bid['high' ] > $ask['high' ] ||
+          $bid['low'  ] > $ask['low'  ] ||
+          $bid['close'] > $ask['close']) throw new plRuntimeException('Illegal prices for '.gmDate('D, d-M-Y H:i:s', $bid['time_fxt'])."\nBid: O=$bid[open] H=$bid[high] L=$bid[low] C=$bid[close]\nAsk: O=$ask[open] H=$ask[high] L=$ask[low] C=$ask[close]");
+
       $avg = array();
       $avg['time_fxt' ] =              $bid['time_fxt' ];
       $avg['delta_fxt'] =              $bid['delta_fxt'];
@@ -354,15 +360,14 @@ function mergeHistory($symbol, $day) {
       $avg['low'      ] = (int) round(($bid['low'      ] + $ask['low'  ])/2);
       $avg['close'    ] = (int) round(($bid['close'    ] + $ask['close'])/2);
 
-      $ticksB = ($bid['high'] - $bid['low']) << 1;                                           // unchanged bar (O == C)
-      if      ($bid['open'] < $bid['close']) $ticksB += ($bid['open' ] - $bid['close']);     // bull bar
-      else if ($bid['open'] > $bid['close']) $ticksB += ($bid['close'] - $bid['open' ]);     // bear bar
+      // Ursprünglich wurden die Ticks von Bid- und Ask-Bar einzeln berechnet und diese Werte addiert.
+      // Ziel ist jedoch ein möglichst kleiner Tickwert (um Tests nicht unnötig zu verlangsamen).
+      // Daher werden die Ticks nur noch von der Avg-Bar berechnet und dieser eine Wert gespeichert.
 
-      $ticksA = ($ask['high'] - $ask['low']) << 1;                                           // unchanged bar (O == C)
-      if      ($ask['open'] < $ask['close']) $ticksB += ($ask['open' ] - $ask['close']);     // bull bar
-      else if ($ask['open'] > $ask['close']) $ticksB += ($ask['close'] - $ask['open' ]);     // bear bar
-
-      $avg['ticks'] = $ticksB + $ticksA;                                                     // Bid-Ticks + Ask-Ticks addieren
+      $ticks = ($avg['high'] - $avg['low']) << 1;                                            // unchanged bar (O == C)
+      if      ($avg['open'] < $avg['close']) $ticks += ($avg['open' ] - $avg['close']);      // bull bar
+      else if ($avg['open'] > $avg['close']) $ticks += ($avg['close'] - $avg['open' ]);      // bear bar
+      $avg['ticks'] = $ticks ? $ticks : 1;                                                   // Ticks mindestens auf 1 setzen
 
       $barBuffer['avg'][$shortDate][$i] = $avg;
    }
