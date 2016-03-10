@@ -1,7 +1,8 @@
 #!/usr/bin/php
 <?php
 /**
- * Aktualisiert anhand von Dukascopy-Daten die M1-History der angegebenen FX-Indizes und speichert sie im MyFX-Historyverzeichnis.
+ * Aktualisiert anhand existierender Dukascopy-Daten die M1-History der angegebenen FX-Indizes und speichert sie
+ * im MyFX-Historyverzeichnis.
  *
  * Unterstützte Instrumente:
  *  • LFX-Indizes: LiteForex (gestauchte FX6-Indizes, außer NZDLFX=NZDFX7)
@@ -109,20 +110,20 @@ function updateIndex($index) {
 
    // (1) Starttag der benötigten Daten ermitteln
    $startTime = 0;
-   $pairs = array_flip($indexes[$index]);                                     // array('AUDUSD', ...) => array('AUDUSD'=>null, ...)
+   $pairs = array_flip($indexes[$index]);                                                 // array('AUDUSD', ...) => array('AUDUSD'=>null, ...)
    foreach($pairs as $pair => &$data) {
-      $data      = array();                                                   // $data initialisieren: array('AUDUSD'=>[], ...)
-      $startTime = max($startTime, Dukascopy::$historyStart_M1[$pair]);       // GMT-Timestamp
+      $data      = array();                                                               // $data initialisieren: array('AUDUSD'=>[], ...)
+      $startTime = max($startTime, MyFX::$symbols[$pair]['historyStart']['M1']);          // GMT-Timestamp
    } unset($data);
-   $startTime = fxtTime($startTime);                                          // FXT-Timestamp
-   $startDay  = $startTime - $startTime%DAY;                                  // 00:00 Starttag FXT
-   $today     = ($today=fxtTime()) - $today%DAY;                              // 00:00 aktueller Tag FXT
+   $startTime = fxtTime($startTime);                                                      // FXT-Timestamp
+   $startDay  = $startTime - $startTime%DAY;                                              // 00:00 Starttag FXT
+   $today     = ($today=fxtTime()) - $today%DAY;                                          // 00:00 aktueller Tag FXT
 
 
    // (2) Gesamte Zeitspanne tageweise durchlaufen
    for ($day=$startDay, $lastMonth=-1; $day < $today; $day+=1*DAY) {
 
-      if (!MyFX::isForexWeekend($day, 'FXT')) {                               // außer an Wochenenden
+      if (!MyFX::isForexWeekend($day, 'FXT')) {                                           // außer an Wochenenden
          $shortDate = gmDate('D, d-M-Y', $day);
 
          // Prüfen, ob die History bereits existiert
@@ -153,10 +154,10 @@ function updateIndex($index) {
 
             // Indexdaten für diesen Tag berechnen
             $function = 'calculate'.$index;
-            $ixBars   = $function($day, $pairs); if (!$ixBars) return false;
+            $fxiBars   = $function($day, $pairs); if (!$fxiBars) return false;
 
             // Indexdaten speichern
-            if (!saveBars($index, $day, $ixBars)) return false;
+            if (!saveBars($index, $day, $fxiBars)) return false;
          }
       }
    }
@@ -211,10 +212,10 @@ function calculateAUDFX6($day, array $data) {
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
-      $index[$i]['high' ] = max($iOpen, $iClose);
-      $index[$i]['low'  ] = min($iOpen, $iClose);
+      $index[$i]['high' ] = $iOpen > $iClose ? $iOpen : $iClose;        // min()/max() ist nicht performant
+      $index[$i]['low'  ] = $iOpen < $iClose ? $iOpen : $iClose;
       $index[$i]['close'] = $iClose;
-      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
+      $index[$i]['ticks'] = $iOpen==$iClose ? 1 : (abs($iOpen-$iClose) << 1);
    }
    return $index;
 }
@@ -269,10 +270,10 @@ function calculateAUDFX7($day, array $data) {
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
-      $index[$i]['high' ] = max($iOpen, $iClose);
-      $index[$i]['low'  ] = min($iOpen, $iClose);
+      $index[$i]['high' ] = $iOpen > $iClose ? $iOpen : $iClose;        // min()/max() ist nicht performant
+      $index[$i]['low'  ] = $iOpen < $iClose ? $iOpen : $iClose;
       $index[$i]['close'] = $iClose;
-      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
+      $index[$i]['ticks'] = $iOpen==$iClose ? 1 : (abs($iOpen-$iClose) << 1);
    }
    return $index;
 }
@@ -325,10 +326,10 @@ function calculateAUDLFX($day, array $data) {
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
-      $index[$i]['high' ] = max($iOpen, $iClose);
-      $index[$i]['low'  ] = min($iOpen, $iClose);
+      $index[$i]['high' ] = $iOpen > $iClose ? $iOpen : $iClose;        // min()/max() ist nicht performant
+      $index[$i]['low'  ] = $iOpen < $iClose ? $iOpen : $iClose;
       $index[$i]['close'] = $iClose;
-      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
+      $index[$i]['ticks'] = $iOpen==$iClose ? 1 : (abs($iOpen-$iClose) << 1);
    }
    return $index;
 }
@@ -380,10 +381,10 @@ function calculateCADFX6($day, array $data) {
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
-      $index[$i]['high' ] = max($iOpen, $iClose);
-      $index[$i]['low'  ] = min($iOpen, $iClose);
+      $index[$i]['high' ] = $iOpen > $iClose ? $iOpen : $iClose;        // min()/max() ist nicht performant
+      $index[$i]['low'  ] = $iOpen < $iClose ? $iOpen : $iClose;
       $index[$i]['close'] = $iClose;
-      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
+      $index[$i]['ticks'] = $iOpen==$iClose ? 1 : (abs($iOpen-$iClose) << 1);
    }
    return $index;
 }
@@ -438,10 +439,10 @@ function calculateCADFX7($day, array $data) {
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
-      $index[$i]['high' ] = max($iOpen, $iClose);
-      $index[$i]['low'  ] = min($iOpen, $iClose);
+      $index[$i]['high' ] = $iOpen > $iClose ? $iOpen : $iClose;        // min()/max() ist nicht performant
+      $index[$i]['low'  ] = $iOpen < $iClose ? $iOpen : $iClose;
       $index[$i]['close'] = $iClose;
-      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
+      $index[$i]['ticks'] = $iOpen==$iClose ? 1 : (abs($iOpen-$iClose) << 1);
    }
    return $index;
 }
@@ -494,10 +495,10 @@ function calculateCADLFX($day, array $data) {
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
-      $index[$i]['high' ] = max($iOpen, $iClose);
-      $index[$i]['low'  ] = min($iOpen, $iClose);
+      $index[$i]['high' ] = $iOpen > $iClose ? $iOpen : $iClose;        // min()/max() ist nicht performant
+      $index[$i]['low'  ] = $iOpen < $iClose ? $iOpen : $iClose;
       $index[$i]['close'] = $iClose;
-      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
+      $index[$i]['ticks'] = $iOpen==$iClose ? 1 : (abs($iOpen-$iClose) << 1);
    }
    return $index;
 }
@@ -549,10 +550,10 @@ function calculateCHFFX6($day, array $data) {
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
-      $index[$i]['high' ] = max($iOpen, $iClose);
-      $index[$i]['low'  ] = min($iOpen, $iClose);
+      $index[$i]['high' ] = $iOpen > $iClose ? $iOpen : $iClose;        // min()/max() ist nicht performant
+      $index[$i]['low'  ] = $iOpen < $iClose ? $iOpen : $iClose;
       $index[$i]['close'] = $iClose;
-      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
+      $index[$i]['ticks'] = $iOpen==$iClose ? 1 : (abs($iOpen-$iClose) << 1);
    }
    return $index;
 }
@@ -607,10 +608,10 @@ function calculateCHFFX7($day, array $data) {
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
-      $index[$i]['high' ] = max($iOpen, $iClose);
-      $index[$i]['low'  ] = min($iOpen, $iClose);
+      $index[$i]['high' ] = $iOpen > $iClose ? $iOpen : $iClose;        // min()/max() ist nicht performant
+      $index[$i]['low'  ] = $iOpen < $iClose ? $iOpen : $iClose;
       $index[$i]['close'] = $iClose;
-      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
+      $index[$i]['ticks'] = $iOpen==$iClose ? 1 : (abs($iOpen-$iClose) << 1);
    }
    return $index;
 }
@@ -663,10 +664,10 @@ function calculateCHFLFX($day, array $data) {
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
-      $index[$i]['high' ] = max($iOpen, $iClose);
-      $index[$i]['low'  ] = min($iOpen, $iClose);
+      $index[$i]['high' ] = $iOpen > $iClose ? $iOpen : $iClose;        // min()/max() ist nicht performant
+      $index[$i]['low'  ] = $iOpen < $iClose ? $iOpen : $iClose;
       $index[$i]['close'] = $iClose;
-      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
+      $index[$i]['ticks'] = $iOpen==$iClose ? 1 : (abs($iOpen-$iClose) << 1);
    }
    return $index;
 }
@@ -718,10 +719,10 @@ function calculateEURFX6($day, array $data) {
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
-      $index[$i]['high' ] = max($iOpen, $iClose);
-      $index[$i]['low'  ] = min($iOpen, $iClose);
+      $index[$i]['high' ] = $iOpen > $iClose ? $iOpen : $iClose;        // min()/max() ist nicht performant
+      $index[$i]['low'  ] = $iOpen < $iClose ? $iOpen : $iClose;
       $index[$i]['close'] = $iClose;
-      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
+      $index[$i]['ticks'] = $iOpen==$iClose ? 1 : (abs($iOpen-$iClose) << 1);
    }
    return $index;
 }
@@ -776,10 +777,10 @@ function calculateEURFX7($day, array $data) {
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
-      $index[$i]['high' ] = max($iOpen, $iClose);
-      $index[$i]['low'  ] = min($iOpen, $iClose);
+      $index[$i]['high' ] = $iOpen > $iClose ? $iOpen : $iClose;        // min()/max() ist nicht performant
+      $index[$i]['low'  ] = $iOpen < $iClose ? $iOpen : $iClose;
       $index[$i]['close'] = $iClose;
-      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
+      $index[$i]['ticks'] = $iOpen==$iClose ? 1 : (abs($iOpen-$iClose) << 1);
    }
    return $index;
 }
@@ -832,10 +833,10 @@ function calculateEURLFX($day, array $data) {
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
-      $index[$i]['high' ] = max($iOpen, $iClose);
-      $index[$i]['low'  ] = min($iOpen, $iClose);
+      $index[$i]['high' ] = $iOpen > $iClose ? $iOpen : $iClose;        // min()/max() ist nicht performant
+      $index[$i]['low'  ] = $iOpen < $iClose ? $iOpen : $iClose;
       $index[$i]['close'] = $iClose;
-      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
+      $index[$i]['ticks'] = $iOpen==$iClose ? 1 : (abs($iOpen-$iClose) << 1);
    }
    return $index;
 }
@@ -894,10 +895,10 @@ function calculateEURX($day, array $data) {
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
-      $index[$i]['high' ] = max($iOpen, $iClose);
-      $index[$i]['low'  ] = min($iOpen, $iClose);
+      $index[$i]['high' ] = $iOpen > $iClose ? $iOpen : $iClose;        // min()/max() ist nicht performant
+      $index[$i]['low'  ] = $iOpen < $iClose ? $iOpen : $iClose;
       $index[$i]['close'] = $iClose;
-      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
+      $index[$i]['ticks'] = $iOpen==$iClose ? 1 : (abs($iOpen-$iClose) << 1);
    }
    return $index;
 }
@@ -949,10 +950,10 @@ function calculateGBPFX6($day, array $data) {
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
-      $index[$i]['high' ] = max($iOpen, $iClose);
-      $index[$i]['low'  ] = min($iOpen, $iClose);
+      $index[$i]['high' ] = $iOpen > $iClose ? $iOpen : $iClose;        // min()/max() ist nicht performant
+      $index[$i]['low'  ] = $iOpen < $iClose ? $iOpen : $iClose;
       $index[$i]['close'] = $iClose;
-      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
+      $index[$i]['ticks'] = $iOpen==$iClose ? 1 : (abs($iOpen-$iClose) << 1);
    }
    return $index;
 }
@@ -1007,10 +1008,10 @@ function calculateGBPFX7($day, array $data) {
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
-      $index[$i]['high' ] = max($iOpen, $iClose);
-      $index[$i]['low'  ] = min($iOpen, $iClose);
+      $index[$i]['high' ] = $iOpen > $iClose ? $iOpen : $iClose;        // min()/max() ist nicht performant
+      $index[$i]['low'  ] = $iOpen < $iClose ? $iOpen : $iClose;
       $index[$i]['close'] = $iClose;
-      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
+      $index[$i]['ticks'] = $iOpen==$iClose ? 1 : (abs($iOpen-$iClose) << 1);
    }
    return $index;
 }
@@ -1063,10 +1064,10 @@ function calculateGBPLFX($day, array $data) {
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
-      $index[$i]['high' ] = max($iOpen, $iClose);
-      $index[$i]['low'  ] = min($iOpen, $iClose);
+      $index[$i]['high' ] = $iOpen > $iClose ? $iOpen : $iClose;        // min()/max() ist nicht performant
+      $index[$i]['low'  ] = $iOpen < $iClose ? $iOpen : $iClose;
       $index[$i]['close'] = $iClose;
-      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
+      $index[$i]['ticks'] = $iOpen==$iClose ? 1 : (abs($iOpen-$iClose) << 1);
    }
    return $index;
 }
@@ -1118,10 +1119,10 @@ function calculateJPYFX6($day, array $data) {
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
-      $index[$i]['high' ] = max($iOpen, $iClose);
-      $index[$i]['low'  ] = min($iOpen, $iClose);
+      $index[$i]['high' ] = $iOpen > $iClose ? $iOpen : $iClose;        // min()/max() ist nicht performant
+      $index[$i]['low'  ] = $iOpen < $iClose ? $iOpen : $iClose;
       $index[$i]['close'] = $iClose;
-      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
+      $index[$i]['ticks'] = $iOpen==$iClose ? 1 : (abs($iOpen-$iClose) << 1);
    }
    return $index;
 }
@@ -1176,10 +1177,10 @@ function calculateJPYFX7($day, array $data) {
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
-      $index[$i]['high' ] = max($iOpen, $iClose);
-      $index[$i]['low'  ] = min($iOpen, $iClose);
+      $index[$i]['high' ] = $iOpen > $iClose ? $iOpen : $iClose;        // min()/max() ist nicht performant
+      $index[$i]['low'  ] = $iOpen < $iClose ? $iOpen : $iClose;
       $index[$i]['close'] = $iClose;
-      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
+      $index[$i]['ticks'] = $iOpen==$iClose ? 1 : (abs($iOpen-$iClose) << 1);
    }
    return $index;
 }
@@ -1232,10 +1233,10 @@ function calculateJPYLFX($day, array $data) {
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
-      $index[$i]['high' ] = max($iOpen, $iClose);
-      $index[$i]['low'  ] = min($iOpen, $iClose);
+      $index[$i]['high' ] = $iOpen > $iClose ? $iOpen : $iClose;        // min()/max() ist nicht performant
+      $index[$i]['low'  ] = $iOpen < $iClose ? $iOpen : $iClose;
       $index[$i]['close'] = $iClose;
-      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
+      $index[$i]['ticks'] = $iOpen==$iClose ? 1 : (abs($iOpen-$iClose) << 1);
    }
    return $index;
 }
@@ -1291,10 +1292,10 @@ function calculateNOKFX7($day, array $data) {
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
-      $index[$i]['high' ] = max($iOpen, $iClose);
-      $index[$i]['low'  ] = min($iOpen, $iClose);
+      $index[$i]['high' ] = $iOpen > $iClose ? $iOpen : $iClose;        // min()/max() ist nicht performant
+      $index[$i]['low'  ] = $iOpen < $iClose ? $iOpen : $iClose;
       $index[$i]['close'] = $iClose;
-      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
+      $index[$i]['ticks'] = $iOpen==$iClose ? 1 : (abs($iOpen-$iClose) << 1);
    }
    return $index;
 }
@@ -1366,10 +1367,10 @@ function calculateNZDLFX($day, array $data, $name='NZDLFX') {
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
-      $index[$i]['high' ] = max($iOpen, $iClose);
-      $index[$i]['low'  ] = min($iOpen, $iClose);
+      $index[$i]['high' ] = $iOpen > $iClose ? $iOpen : $iClose;        // min()/max() ist nicht performant
+      $index[$i]['low'  ] = $iOpen < $iClose ? $iOpen : $iClose;
       $index[$i]['close'] = $iClose;
-      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
+      $index[$i]['ticks'] = $iOpen==$iClose ? 1 : (abs($iOpen-$iClose) << 1);
    }
    return $index;
 }
@@ -1425,10 +1426,10 @@ function calculateSEKFX7($day, array $data) {
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
-      $index[$i]['high' ] = max($iOpen, $iClose);
-      $index[$i]['low'  ] = min($iOpen, $iClose);
+      $index[$i]['high' ] = $iOpen > $iClose ? $iOpen : $iClose;        // min()/max() ist nicht performant
+      $index[$i]['low'  ] = $iOpen < $iClose ? $iOpen : $iClose;
       $index[$i]['close'] = $iClose;
-      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
+      $index[$i]['ticks'] = $iOpen==$iClose ? 1 : (abs($iOpen-$iClose) << 1);
    }
    return $index;
 }
@@ -1484,10 +1485,10 @@ function calculateSGDFX7($day, array $data) {
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
-      $index[$i]['high' ] = max($iOpen, $iClose);
-      $index[$i]['low'  ] = min($iOpen, $iClose);
+      $index[$i]['high' ] = $iOpen > $iClose ? $iOpen : $iClose;        // min()/max() ist nicht performant
+      $index[$i]['low'  ] = $iOpen < $iClose ? $iOpen : $iClose;
       $index[$i]['close'] = $iClose;
-      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
+      $index[$i]['ticks'] = $iOpen==$iClose ? 1 : (abs($iOpen-$iClose) << 1);
    }
    return $index;
 }
@@ -1539,10 +1540,10 @@ function calculateUSDFX6($day, array $data) {
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
-      $index[$i]['high' ] = max($iOpen, $iClose);
-      $index[$i]['low'  ] = min($iOpen, $iClose);
+      $index[$i]['high' ] = $iOpen > $iClose ? $iOpen : $iClose;        // min()/max() ist nicht performant
+      $index[$i]['low'  ] = $iOpen < $iClose ? $iOpen : $iClose;
       $index[$i]['close'] = $iClose;
-      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
+      $index[$i]['ticks'] = $iOpen==$iClose ? 1 : (abs($iOpen-$iClose) << 1);
    }
    return $index;
 }
@@ -1597,10 +1598,10 @@ function calculateUSDFX7($day, array $data) {
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
-      $index[$i]['high' ] = max($iOpen, $iClose);
-      $index[$i]['low'  ] = min($iOpen, $iClose);
+      $index[$i]['high' ] = $iOpen > $iClose ? $iOpen : $iClose;        // min()/max() ist nicht performant
+      $index[$i]['low'  ] = $iOpen < $iClose ? $iOpen : $iClose;
       $index[$i]['close'] = $iClose;
-      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
+      $index[$i]['ticks'] = $iOpen==$iClose ? 1 : (abs($iOpen-$iClose) << 1);
    }
    return $index;
 }
@@ -1652,10 +1653,10 @@ function calculateUSDLFX($day, array $data) {
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
-      $index[$i]['high' ] = max($iOpen, $iClose);
-      $index[$i]['low'  ] = min($iOpen, $iClose);
+      $index[$i]['high' ] = $iOpen > $iClose ? $iOpen : $iClose;        // min()/max() ist nicht performant
+      $index[$i]['low'  ] = $iOpen < $iClose ? $iOpen : $iClose;
       $index[$i]['close'] = $iClose;
-      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
+      $index[$i]['ticks'] = $iOpen==$iClose ? 1 : (abs($iOpen-$iClose) << 1);
    }
    return $index;
 }
@@ -1711,10 +1712,10 @@ function calculateUSDX($day, array $data) {
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
-      $index[$i]['high' ] = max($iOpen, $iClose);
-      $index[$i]['low'  ] = min($iOpen, $iClose);
+      $index[$i]['high' ] = $iOpen > $iClose ? $iOpen : $iClose;        // min()/max() ist nicht performant
+      $index[$i]['low'  ] = $iOpen < $iClose ? $iOpen : $iClose;
       $index[$i]['close'] = $iClose;
-      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
+      $index[$i]['ticks'] = $iOpen==$iClose ? 1 : (abs($iOpen-$iClose) << 1);
    }
    return $index;
 }
@@ -1770,10 +1771,10 @@ function calculateZARFX7($day, array $data) {
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
-      $index[$i]['high' ] = max($iOpen, $iClose);
-      $index[$i]['low'  ] = min($iOpen, $iClose);
+      $index[$i]['high' ] = $iOpen > $iClose ? $iOpen : $iClose;        // min()/max() ist nicht performant
+      $index[$i]['low'  ] = $iOpen < $iClose ? $iOpen : $iClose;
       $index[$i]['close'] = $iClose;
-      $index[$i]['ticks'] = abs($iOpen-$iClose) << 1;
+      $index[$i]['ticks'] = $iOpen==$iClose ? 1 : (abs($iOpen-$iClose) << 1);
    }
    return $index;
 }
@@ -1806,9 +1807,16 @@ function saveBars($symbol, $day, array $bars) {
    }
 
 
-   // (2) Bars binär packen
+   // (2) Bars in Binärstring umwandeln
    $data = null;
    foreach ($bars as $bar) {
+      // Bardaten vorm Schreiben validieren
+      if ($bar['open' ] > $bar['high'] ||
+          $bar['open' ] < $bar['low' ] ||          // aus (H >= O && O >= L) folgt (H >= L)
+          $bar['close'] > $bar['high'] ||          // nicht mit min()/max(), da nicht performant
+          $bar['close'] < $bar['low' ] ||
+         !$bar['ticks']) throw new plRuntimeException('Illegal data for MYFX_BAR of '.gmDate('D, d-M-Y H:i:s', $bar['time']).": O=$bar[open] H=$bar[high] L=$bar[low] C=$bar[close] V=$bar[ticks]");
+
       $data .= pack('VVVVVV', $bar['time' ],
                               $bar['open' ],
                               $bar['high' ],
