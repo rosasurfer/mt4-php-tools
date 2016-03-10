@@ -127,6 +127,7 @@ class SignalDAO extends CommonDAO {
                  where s.alias != 'alexprofit'     -- eingestellt (Margin Call)
                    and s.alias != 'asta'           -- eingestellt (Looser)
                    and s.alias != 'dayfox'         -- eingestellt (Looser, Alpari)
+                   and s.alias != 'novolr'         -- PHP-Fehler
                    and s.alias != 'overtrader'     -- eingestellt (Looser)
                    and s.alias != 'yenfortress'    -- Looser
                  order by s.alias";
