@@ -204,7 +204,13 @@ class SimpleTrader extends StaticClass {
 
                // 6:Type
                $sValue = trim(strToLower($row[I_STOP_TYPE]));
-               if ($sValue!='buy' && $sValue!='sell') throw new plRuntimeException('Invalid OperationType found in open position row '.($i+1).': "'.$row[I_STOP_TYPE].'", HTML:'.NL.NL.$row[0]);
+               // Bekannte Tickets mit fehlerhaften OperationType überspringen
+               if ($sValue!='buy' && $sValue!='sell') {
+                  $sTicket = trim($row[I_STOP_COMMENT]);
+                  if ($signalAlias=='novolr' && $sTicket=='3488580')          // permanente Fehler nicht jedesmal anzeigen
+                     continue;
+                  throw new plRuntimeException('Invalid OperationType found in open position row '.($i+1).': "'.$row[I_STOP_TYPE].'", HTML:'.NL.NL.$row[0]);
+               }
                $row['type'] = $sValue;
 
                // 7:Symbol
