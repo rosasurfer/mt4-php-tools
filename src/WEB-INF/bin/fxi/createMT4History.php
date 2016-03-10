@@ -1,7 +1,7 @@
 #!/usr/bin/php
 <?php
 /**
- * Konvertiert die M1-History ein oder mehrerer FX-Indizes ins MetaTrader-Format und legt sie im
+ * Konvertiert die M1-History ein oder mehrerer MyFX-Instrumente ins MetaTrader-Format und legt sie im
  * Historyverzeichnis "mt4/MyFX-Dukascopy" ab.
  */
 require(dirName(realPath(__FILE__)).'/../../config.php');
@@ -31,11 +31,11 @@ foreach ($args as $i => $arg) {
 // Symbole parsen
 foreach ($args as $i => $arg) {
    $arg = strToUpper($arg);
-   if (!isSet(MyFX::$symbols[$arg]) || MyFX::$symbols[$arg]['type']!='index')
-      help('unknown or unsupported index symbol "'.$args[$i].'"') & exit(1);
+   if (!isSet(MyFX::$symbols[$arg]) || MyFX::$symbols[$arg]['provider']!='myfx')
+      help('unknown or unsupported MyFX symbol "'.$args[$i].'"') & exit(1);
    $args[$i] = $arg;
-}                                                                                   // ohne Angabe werden alle Indizes verarbeitet
-$args = $args ? array_unique($args) : array_keys(MyFX::filterSymbols(array('type'=>'index')));
+}                                                                                   // ohne Angabe werden alle MyFX-Instrumente verarbeitet
+$args = $args ? array_unique($args) : array_keys(MyFX::filterSymbols(array('provider'=>'myfx')));
 
 
 // (2) History erstellen

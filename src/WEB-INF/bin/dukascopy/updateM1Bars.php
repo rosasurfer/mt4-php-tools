@@ -61,11 +61,11 @@ foreach ($args as $i => $arg) {
 // Symbole parsen
 foreach ($args as $i => $arg) {
    $arg = strToUpper($arg);
-   if (!isSet(MyFX::$symbols[$arg]) || MyFX::$symbols[$arg]['type']!='forex')
+   if (!isSet(MyFX::$symbols[$arg]) || MyFX::$symbols[$arg]['provider']!='dukascopy')
       help('unknown or unsupported symbol "'.$args[$i].'"') & exit(1);
    $args[$i] = $arg;
-}                                                                                   // ohne Angabe werden alle Symbole aktualisiert
-$args = $args ? array_unique($args) : array_keys(MyFX::filterSymbols(array('type'=>'forex')));
+}                                                                                   // ohne Angabe werden alle Dukascopy-Instrumente aktualisiert
+$args = $args ? array_unique($args) : array_keys(MyFX::filterSymbols(array('provider'=>'dukascopy')));
 
 
 // (2) Daten aktualisieren

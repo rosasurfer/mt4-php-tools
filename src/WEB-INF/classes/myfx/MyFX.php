@@ -632,4 +632,6 @@ MyFX::$symbols = array('AUDUSD' => array('type'=>'forex', 'name'=>'AUDUSD', 'lon
 
                        'EURX'   => array('type'=>'index', 'name'=>'EURX'  , 'longName'=>'EUR Index (ICE)'                 , 'digits'=>3, 'pip'=>0.01  , 'point'=>0.001  , 'priceFormat'=>".2'", 'historyStart'=>array('ticks'=>null                                , 'M1'=>strToTime('2003-08-04 00:00:00 GMT')), 'provider'=>'myfx'     ),
                        'USDX'   => array('type'=>'index', 'name'=>'USDX'  , 'longName'=>'USD Index (ICE)'                 , 'digits'=>3, 'pip'=>0.01  , 'point'=>0.001  , 'priceFormat'=>".2'", 'historyStart'=>array('ticks'=>null                                , 'M1'=>strToTime('2003-08-04 00:00:00 GMT')), 'provider'=>'myfx'     ),
+
+                       'XAUUSD' => array('type'=>'metal', 'name'=>'XAUUSD', 'longName'=>'Gold vc US Dollor'               , 'digits'=>3, 'pip'=>0.01  , 'point'=>0.001  , 'priceFormat'=>".2'", 'historyStart'=>array('ticks'=>strToTime('2003-05-05 00:00:00 GMT'), 'M1'=>strToTime('1999-09-01 00:00:00 GMT')), 'provider'=>'dukascopy'),
 );
