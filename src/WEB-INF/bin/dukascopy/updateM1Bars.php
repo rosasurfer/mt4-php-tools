@@ -106,7 +106,7 @@ function updateSymbol($symbol) {
 
 
    // (1) Prüfen, ob sich der Startzeitpunkt der History des Symbols geändert hat
-   if (array_search($symbol, array('USDNOK', 'USDSEK', 'USDSGD', 'USDZAR')) === false) {
+   if (array_search($symbol, array('USDNOK', 'USDSEK', 'USDSGD', 'USDZAR', 'XAUUSD')) === false) {
       $content = downloadData($symbol, $startTime-1*DAY, 'bid', true, false, false);   // Statusmeldungen unterdrücken, nichts speichern
       if (strLen($content)) {
          echoPre('[Notice]  '.$symbol.' M1 history was extended. Please update the history start time.');
