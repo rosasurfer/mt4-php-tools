@@ -477,7 +477,7 @@ class MyFX extends StaticClass {
              $bars[$i]['open' ] < $bars[$i]['low' ] ||      // nicht mit min()/max(), da nicht performant
              $bars[$i]['close'] > $bars[$i]['high'] ||
              $bars[$i]['close'] < $bars[$i]['low' ] ||
-            !$bars[$i]['ticks']) throw new plRuntimeException("Illegal data for bar[$i]: O=$bars[$i][open] H=$bars[$i][high] L=$bars[$i][low] C=$bars[$i][close] V=$bars[$i][ticks] T=".gmDate('D, d-M-Y H:i:s', $bars[$i]['time']));
+            !$bars[$i]['ticks']) throw new plRuntimeException("Illegal data for bar[$i]: O={$bars[$i]['open']} H={$bars[$i]['high']} L={$bars[$i]['low']} C={$bars[$i]['close']} V={$bars[$i]['ticks']} T=".gmDate('D, d-M-Y H:i:s', $bars[$i]['time']));
       }
       return $bars;
    }

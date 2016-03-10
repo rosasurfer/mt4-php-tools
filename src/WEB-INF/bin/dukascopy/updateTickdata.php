@@ -2,8 +2,8 @@
 <?php
 /**
  * Aktualisiert die lokal vorhandenen Dukascopy-Tickdaten. Die Daten werden nach FXT konvertiert und im MyFX-Format
- * gespeichert. Die Dukascopy-Daten sind am Wochenende und können an Feiertagen leer sein, in beiden Fällen werden
- * sie lokal nicht gespeichert. Montags früh können die Daten erst um 01:00 FXT beginnen.
+ * gespeichert. Am Wochenende, an Feiertagen und wenn keine Tickdaten verfügbar sind, sind die Dukascopy-Dateien leer.
+ * Wochenenden werden lokal nicht gespeichert. Montags früh können die Daten erst um 01:00 FXT beginnen.
  * Die Daten der aktuellen Stunde sind frühestens ab der nächsten Stunde verfügbar.
  *
  *
@@ -14,10 +14,10 @@
  *
  * History-Start: http://www.dukascopy.com/datafeed/metadata/HistoryStart.bi5  (Format unbekannt)
  *
- * URL-Format:    Eine Datei je Tagestunde,
+ * URL-Format:    Eine Datei je Tagestunde GMT,
  *                z.B.: (Januar = 00)
- *                • http://www.dukascopy.com/datafeed/EURUSD/2013/00/06/00h_ticks.bi5 - Ticks vom 06.01.2013 00:00:00-00:59:59 GMT
- *                • http://www.dukascopy.com/datafeed/EURUSD/2013/05/10/23h_ticks.bi5 - Ticks vom 10.06.2013 23:00:00-23:59:59 GMT
+ *                • http://www.dukascopy.com/datafeed/EURUSD/2013/00/06/00h_ticks.bi5
+ *                • http://www.dukascopy.com/datafeed/EURUSD/2013/05/10/23h_ticks.bi5
  *
  * Dateiformat:   Binär, LZMA-gepackt, Zeiten in GMT (keine Sommerzeit).
  *
@@ -61,10 +61,11 @@ foreach ($args as $i => $arg) {
 // Symbole parsen
 foreach ($args as $i => $arg) {
    $arg = strToUpper($arg);
-   if (!isSet(Dukascopy::$historyStart_Ticks[$arg])) help('error: unknown or unsupported symbol "'.$args[$i].'"') & exit(1);
+   if (!isSet(MyFX::$symbol[$arg]) || MyFX::$symbol[$arg]['provider']!='dukascopy')
+      help('unknown or unsupported symbol "'.$args[$i].'"') & exit(1);
    $args[$i] = $arg;
-}
-$args = $args ? array_unique($args) : array_keys(Dukascopy::$historyStart_Ticks);   // ohne Angabe werden alle Symbole aktualisiert
+}                                                                                   // ohne Angabe werden alle Dukascopy-Instrumente aktualisiert
+$args = $args ? array_unique($args) : array_keys(MyFX::filterSymbols(array('provider'=>'dukascopy')));
 
 
 // (2) Daten aktualisieren
@@ -96,7 +97,7 @@ function updateSymbol($symbol) {
 
 
    // (1) Beginn des nächsten Forex-Tages ermitteln
-   $startTimeGMT = Dukascopy::$historyStart_Ticks[$symbol];             // Beginn der Tickdaten des Symbols GMT
+   $startTimeGMT = MyFX::$symbols[$symbol]['historyStart']['ticks'];    // Beginn der Tickdaten des Symbols GMT
    $prev = $next = null;
    $fxtOffset = MyFX::fxtTimezoneOffset($startTimeGMT, $prev, $next);   // es gilt: FXT = GMT + Offset
    $startTimeFXT = $startTimeGMT + $fxtOffset;                          // Beginn der Tickdaten FXT
