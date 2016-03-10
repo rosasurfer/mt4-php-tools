@@ -102,7 +102,19 @@ class Dukascopy extends StaticClass {
          if ($bars[$i]['open' ] > $bars[$i]['high'] ||      // aus (H >= O && O >= L) folgt (H >= L)
              $bars[$i]['open' ] < $bars[$i]['low' ] ||      // nicht mit min()/max(), da nicht performant
              $bars[$i]['close'] > $bars[$i]['high'] ||
-             $bars[$i]['close'] < $bars[$i]['low' ]) throw new plRuntimeException("Illegal data for bar[$i]: O={$bars[$i]['open']} H={$bars[$i]['high']} L={$bars[$i]['low']} C={$bars[$i]['close']}");
+             $bars[$i]['close'] < $bars[$i]['low' ]) {
+
+            if ($i==1383 && $bars[$i]['open']==1407372 && $bars[$i]['high']==1407550 && $bars[$i]['low']==1407372 && $bars[$i]['close']==1407370) {
+               /*
+               [Info]    Mon, 21-Feb-2011   url: http://www.dukascopy.com/datafeed/XAUUSD/2011/01/21/BID_candles_min_1.bi5
+               [FATAL] Uncaught plRuntimeException: Illegal data for bar[1383]: O=1407.37'2 H=1407.55'0 L=1407.37'2 C=1407.37'0
+               */
+               $bars[$i]['low'] = min($bars[$i]['open'], $bars[$i]['high'], $bars[$i]['low'], $bars[$i]['close']);
+            }
+            else {
+               throw new plRuntimeException("Illegal data for bar[$i]: O={$bars[$i]['open']} H={$bars[$i]['high']} L={$bars[$i]['low']} C={$bars[$i]['close']}");
+            }
+         }
       }
       return $bars;
    }
