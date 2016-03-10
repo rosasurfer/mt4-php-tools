@@ -452,15 +452,15 @@ class HistorySet extends Object {
          return 0;
 
       $hFile   = $this->history[$timeframe]['hFile'];
-      $divisor = pow(10, $this->digits);
+      $divider = pow(10, $this->digits);
       $i = 0;
 
       foreach ($this->history[$timeframe]['bars'] as $i => $bar) {
          $T = $bar['time' ];
-         $O = $bar['open' ]/$divisor;
-         $H = $bar['high' ]/$divisor;
-         $L = $bar['low'  ]/$divisor;
-         $C = $bar['close']/$divisor;
+         $O = $bar['open' ]/$divider;
+         $H = $bar['high' ]/$divider;
+         $L = $bar['low'  ]/$divider;
+         $C = $bar['close']/$divider;
          $V = $bar['ticks'];
 
          MT4::addHistoryBar400($hFile, $this->digits, $T, $O, $H, $L, $C, $V);

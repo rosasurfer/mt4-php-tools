@@ -509,7 +509,7 @@ function processRawDukascopyBarData($data, $symbol, $day, $type) {
    global $barBuffer; $barBuffer[$type];
 
    // (1) Bars einlesen
-   $bars = Dukascopy ::readBarData($data);
+   $bars = Dukascopy ::readBarData($data, $symbol, $type, $day);
    $size = sizeOf($bars); if ($size != 1*DAY/MINUTES) throw new plRuntimeException('Unexpected number of Dukascopy bars in '.getVar('dukaName', null, null, $type).': '.$size.' ('.($size > 1*DAY/MINUTES ? 'more':'less').' then a day)');
 
 

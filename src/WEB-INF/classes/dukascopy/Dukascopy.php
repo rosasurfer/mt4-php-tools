@@ -75,11 +75,15 @@ class Dukascopy extends StaticClass {
    /**
     * Interpretiert die in einem String enthaltenen Dukascopy-Bardaten und liest sie in ein Array ein.
     *
-    * @param  string $data - String mit Dukascopy-Bardaten
+    * @param  string $data   - String mit Dukascopy-Bardaten
+    *
+    * @param  string $symbol - Meta-Informationen für eine evt. Fehlermeldung (die Dukascopy-Daten sind nicht einwandfrei)
+    * @param  string $type   - ...
+    * @param  int    $time   - ...
     *
     * @return DUKASCOPY_BAR[] - Array mit Bardaten
     */
-   public static function readBarData($data) {
+   public static function readBarData($data, $symbol, $type, $time) {
       if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
 
       $lenData = strLen($data); if (!$lenData || $lenData%DUKASCOPY_BAR_SIZE) throw new plRuntimeException('Odd length of passed data: '.$lenData.' (not an even DUKASCOPY_BAR_SIZE)');
@@ -104,16 +108,19 @@ class Dukascopy extends StaticClass {
              $bars[$i]['close'] > $bars[$i]['high'] ||
              $bars[$i]['close'] < $bars[$i]['low' ]) {
 
-            Logger::log("Illegal data for bar[$i]: O={$bars[$i]['open']} H={$bars[$i]['high']} L={$bars[$i]['low']} C={$bars[$i]['close']}, adjusting...", L_WARN, __CLASS__);
+            $digits  = MyFX::$symbols[$symbol]['digits'];
+            $divider = pow(10, $digits);
+
+            $O = number_format($bars[$i]['open' ]/$divider, $digits);
+            $H = number_format($bars[$i]['high' ]/$divider, $digits);
+            $L = number_format($bars[$i]['low'  ]/$divider, $digits);
+            $C = number_format($bars[$i]['close']/$divider, $digits);
+
+            //throw new plRuntimeException("Illegal $symbol $type data for bar[$i] of ".gmDate('D, d-M-Y H:i:s', $time).": O=$O H=$H L=$L C=$C");
+            Logger::log("Illegal $symbol $type data for bar[$i] of ".gmDate('D, d-M-Y H:i:s', $time).": O=$O H=$H L=$L C=$C, adjusting high/low...", L_WARN, __CLASS__);
 
             $bars[$i]['high'] = max($bars[$i]['open'], $bars[$i]['high'], $bars[$i]['low'], $bars[$i]['close']);
             $bars[$i]['low' ] = min($bars[$i]['open'], $bars[$i]['high'], $bars[$i]['low'], $bars[$i]['close']);
-
-            /*
-            [Info]    Mon, 21-Feb-2011   url: http://www.dukascopy.com/datafeed/XAUUSD/2011/01/21/BID_candles_min_1.bi5
-            [FATAL] Uncaught plRuntimeException: Illegal data for bar[1383]: O=1407.37'2 H=1407.55'0 L=1407.37'2 C=1407.37'0
-            */
-            //throw new plRuntimeException("Illegal data for bar[$i]: O={$bars[$i]['open']} H={$bars[$i]['high']} L={$bars[$i]['low']} C={$bars[$i]['close']}");
          }
       }
       return $bars;
@@ -125,12 +132,16 @@ class Dukascopy extends StaticClass {
     *
     * @param  string $fileName - Name der Datei mit Dukascopy-Bardaten
     *
+    * @param  string $symbol   - Meta-Informationen für eine evt. Fehlermeldung (die Dukascopy-Daten sind nicht einwandfrei)
+    * @param  string $type     - ...
+    * @param  int    $time     - ...
+    *
     * @return DUKASCOPY_BAR[] - Array mit Bardaten
     */
-   public static function readBarFile($fileName) {
+   public static function readBarFile($fileName, $symbol, $type, $time) {
       if (!is_string($fileName)) throw new IllegalTypeException('Illegal type of parameter $fileName: '.getType($fileName));
 
-      return self::readBarData(file_get_contents($fileName));
+      return self::readBarData(file_get_contents($fileName), $symbol, $type, $time);
    }
 
 
