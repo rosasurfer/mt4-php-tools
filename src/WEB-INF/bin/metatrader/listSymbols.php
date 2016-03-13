@@ -39,6 +39,12 @@ foreach ($args as $i => $arg) {
       continue;
    }
 
+   // count symbols
+   if ($arg == '-c') {
+      $options['countSymbols'] = true;
+      break;
+   }
+
    // list available fields
    if ($arg == '-l') {
       $options['listFields'] = true;
@@ -93,7 +99,7 @@ if (isSet($options['listFields'])) {
 // (3) Default-Parameter setzen
 if (!isSet($options['file'])) {
    $file = 'symbols.raw';
-   if (!is_file($file)) help('No file "symbols.raw" in current directory') & exit(1);
+   if (!is_file($file)) help('No file "symbols.raw" found in current directory') & exit(1);
    $options['file'    ] = $file;
    $options['fullFile'] = realPath($file);
 }
@@ -141,6 +147,12 @@ function listMT4Symbols(array $options, array $fieldArgs) {
       $symbols[] = unpack(MT4::SYMBOL_getUnpackFormat(), fRead($hFile, MT4::SYMBOL_SIZE));
    }
    fClose($hFile);
+
+   // ggf. Anzahl der Symbole anzeigen und abbrechen
+   if (isSet($options['countSymbols'])) {
+      echoPre(($size=sizeof($symbols)).' symbol'.($size==1 ? '':'s').' ('.$options['file'].')');
+      return true;
+   }
 
    // anzuzeigende Felder bestimmen
  //$availableFields         = MT4::SYMBOL_getFields();
@@ -239,10 +251,11 @@ $message
 
             -f=FILE  Source file of the displayed information (default: "symbols.raw" in current directory).
 
-  Options:  -l     List the available fields of the specified file.
-            ++     Display all fields.
-            +NAME  Include the named field in list of displayed fields.
-            -NAME  Exclude the named field from the list of displayed fields.
+  Options:  -c     Count symbols contained in the specified file.
+            -l     List available SYMBOL fields.
+            ++     Include all fields in the output.
+            +NAME  Include the named field in the output.
+            -NAME  Exclude the named field from the output.
             -h     This help screen.
 
 
