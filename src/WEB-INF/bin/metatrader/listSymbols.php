@@ -241,7 +241,7 @@ function listMT4Symbols(array $options, array $fieldArgs) {
  */
 function help($message=null) {
    if (is_null($message))
-      $message = 'Displays symbol informations contained in a MetaTrader "symbols.raw" file.';
+      $message = 'Displays symbol informations contained in MetaTrader "symbols.raw" files.';
    $self = baseName($_SERVER['PHP_SELF']);
 
 echo <<<END
@@ -249,9 +249,10 @@ $message
 
   Syntax:  $self [-f=FILE] [OPTIONS]
 
-            -f=FILE  Source file of the displayed information (default: "symbols.raw" in current directory).
+            -f=FILE  File of the displayed information (default: "symbols.raw" in current directory). If FILE contains
+                     wildcards, symbol information of all matching files will be displayed.
 
-  Options:  -c     Count symbols contained in the specified file.
+  Options:  -c     Count symbols of the specified file(s).
             -l     List available SYMBOL fields.
             ++     Include all fields in the output.
             +NAME  Include the named field in the output.
