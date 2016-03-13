@@ -42,7 +42,7 @@ foreach ($args as $i => $arg) {
    // count symbols
    if ($arg == '-c') {
       $options['countSymbols'] = true;
-      break;
+      continue;
    }
 
    // list available fields
@@ -249,13 +249,13 @@ $message
 
   Syntax:  $self [-f=FILE] [OPTIONS]
 
-            -f=FILE  File of the displayed information (default: "symbols.raw" in current directory). If FILE contains
-                     wildcards, symbol information of all matching files will be displayed.
+            -f=FILE  File(s) of the displayed information. If FILE contains wildcards symbol information
+                     of all matching files will be displayed (default: "symbols.raw").
 
   Options:  -c     Count symbols of the specified file(s).
             -l     List available SYMBOL fields.
-            ++     Include all fields in the output.
             +NAME  Include the named field in the output.
+            ++     Include all fields in the output.
             -NAME  Exclude the named field from the output.
             -h     This help screen.
 
