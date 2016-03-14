@@ -21,7 +21,7 @@ $fields  = array();
 // (1) Befehlszeilenargumente einlesen und auswerten
 $args = array_slice($_SERVER['argv'], 1);
 
-// Hilfe
+// Hilfe ?
 foreach ($args as $i => $arg) {
    if ($arg == '-h') help() & exit(1);
 }
@@ -30,12 +30,26 @@ foreach ($args as $i => $arg) {
 foreach ($args as $i => $arg) {
    // -f=FILE
    if (strStartsWith($arg, '-f=')) {
-      if (isSet($options['symbol'])) help('invalid/multiple file arguments: -f='.$arg) & exit(1);
+      if (isSet($options['file'])) help('invalid/multiple file arguments: -f='.$arg) & exit(1);
       $value = $arg = strRight($arg, -3);
       if (strIsQuoted($value)) $value = strLeft(strRight($value, -1), 1);
-      if (!is_file($value)) help('file not found: '.$arg) & exit(1);
-      $options['file'    ] = $value;
-      $options['fullFile'] = realPath($value);
+
+      if (file_exists($arg)) {                        // existierendes Verzeichnis/Datei
+         is_dir($arg) && !is_file(($arg.='/symbols.raw')) && help('file not found: '.$arg) & exit(1);
+         $options['file'] = $arg;
+      }
+      else {                                          // Argument existiert nicht, Wildcards expandieren und existierende Dateien einlesen
+         $entries = glob($arg, GLOB_NOESCAPE|GLOB_BRACE|GLOB_ERR);
+         foreach ($entries as $entry) {
+            $entry = rtrim($entry, "/\\");
+            if (!is_file($entry) && !is_file($entry.='/symbols.raw'))
+               continue;
+            $options['file'][] = $entry;
+         }
+         !isSet($options['file']) && help('file not found: '.$arg) & exit(1);
+         if (sizeOf($options['file']) == 1)           // String-Array ggf. auf einzelnen String reduzieren
+            $options['file'] = $options['file'][0];
+      }
       continue;
    }
 
@@ -78,6 +92,9 @@ foreach ($args as $i => $arg) {
       }
       continue;
    }
+
+   // unrecognized arguments
+   help('invalid argument: '.$arg) & exit(1);
 }
 
 
@@ -100,8 +117,7 @@ if (isSet($options['listFields'])) {
 if (!isSet($options['file'])) {
    $file = 'symbols.raw';
    if (!is_file($file)) help('No file "symbols.raw" found in current directory') & exit(1);
-   $options['file'    ] = $file;
-   $options['fullFile'] = realPath($file);
+   $options['file'] = $file;
 }
 
 
@@ -120,17 +136,30 @@ exit(0);
 /**
  * Listet die Informationen einer Symboldatei auf.
  *
- * @param  array $options - Optionen
- * @param  array $fields  - anzuzeigende Felder
+ * @param  array $options       - Optionen
+ * @param  array $fields        - anzuzeigende Felder
+ * @param  bool  $printFileName - ob der Dateiname mit ausgegeben werden soll (nur bei mehrfachen Dateien)
  *
  * @return bool - Erfolgsstatus
  */
-function listMT4Symbols(array $options, array $fieldArgs) {
+function listMT4Symbols(array $options, array $fieldArgs, $printFileName=false) {
+   if (is_array($options['file'])) {
+      $self  = __FUNCTION__;
+      $files = $options['file'];
+
+      foreach ($files as $file) {
+         $options['file'] = $file;
+         if (!$self($options, $fieldArgs, $printFileName=true))
+            return false;
+      }
+      return true;
+   }
+
    $file     = $options['file'];
    $fileSize = fileSize($file);
 
    if ($fileSize < MT4::SYMBOL_SIZE) {
-      echoPre('invalid or unsupported file format: file size of '.$fileSize.' < MinFileSize of '.MT4::SYMBOL_SIZE);
+      echoPre('invalid or unsupported file format: file size of '.$fileSize.' < MinFileSize of '.MT4::SYMBOL_SIZE.'  '.$file);
       return false;
    }
 
@@ -249,8 +278,9 @@ $message
 
   Syntax:  $self [-f=FILE] [OPTIONS]
 
-            -f=FILE  File(s) of the displayed information. If FILE contains wildcards symbol information
-                     of all matching files will be displayed (default: "symbols.raw").
+            -f=FILE  File(s) to analyze (default: "symbols.raw").
+                     If FILE contains wildcards symbols of all matching files will be analyzed.
+                     If FILE is a directory "symbols.raw" in this directory will be analyzed.
 
   Options:  -c     Count symbols of the specified file(s).
             -l     List available SYMBOL fields.
