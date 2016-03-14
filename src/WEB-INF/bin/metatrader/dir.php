@@ -28,7 +28,7 @@ foreach ($args as $arg) {
       $globPattern = $value.'/*.[Hh][Ss][Tt]';                    // *.hst in beliebiger Groß/Kleinschreibung
    }
    else {
-      // Argument existiert nicht, Namen selbst expandieren und auf Existenz prüfen (z.B. immer unter Windows)
+      // Argument existiert nicht, Wildcards expandieren und Ergebnisse prüfen (z.B. unter Windows)
       strEndsWith($value, array('/', '\\')) && ($value.='*');
       $dirName  = dirName($value);
       $baseName = baseName($value); strEndsWith($baseName, '*') && ($baseName.='.hst');
