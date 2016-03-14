@@ -15,21 +15,23 @@ $args = array_slice($_SERVER['argv'], 1);
 $expandedArgs = array();
 
 foreach ($args as $arg) {
-   strIsQuoted($arg) && ($arg=strLeft(strRight($arg, -1), -1));
+   $value = $arg;
+   strIsQuoted($value) && ($value=strLeft(strRight($value, -1), -1));
 
-   if (file_exists($arg)) {
+   if (file_exists($value)) {
       // explizites Argument oder Argument von Shell expandiert
-      if (is_file($arg)) {                                        // existierende Datei beliebigen Typs (alle werden analysiert)
-         $expandedArgs[] = dirName($arg).'/'.baseName($arg);      // durch dirName() haben wir immer ein Verzeichnis für die Ausgabe (ggf. '.')
+      if (is_file($value)) {                                      // existierende Datei beliebigen Typs (alle werden analysiert)
+         $expandedArgs[] = dirName($value).'/'.baseName($value);  // durch dirName() haben wir immer ein Verzeichnis für die Ausgabe (ggf. '.')
          continue;
       }
       // Verzeichnis, Glob-Pattern bereitstellen (siehe unten)
-      $globPattern = $arg.'/*.[Hh][Ss][Tt]';                      // *.hst in beliebiger Groß/Kleinschreibung
+      $globPattern = $value.'/*.[Hh][Ss][Tt]';                    // *.hst in beliebiger Groß/Kleinschreibung
    }
    else {
       // Argument existiert nicht, Namen selbst expandieren und auf Existenz prüfen (z.B. immer unter Windows)
-      $dirName  = dirName($arg);
-      $baseName = baseName($arg); strEndsWith($baseName, '*') && ($baseName.='.hst');
+      strEndsWith($value, array('/', '\\')) && ($value.='*');
+      $dirName  = dirName($value);
+      $baseName = baseName($value); strEndsWith($baseName, '*') && ($baseName.='.hst');
 
       // um Groß-/Kleinschreibung von Symbolen ignorieren zu können, wird $baseName modifiziert
       $len = strLen($baseName); $s = ''; $inBrace = $inBracket = false;
@@ -55,7 +57,7 @@ foreach ($args as $arg) {
 sort($expandedArgs);                                              // alles sortieren (Dateien im aktuellen Verzeichnis ans Ende)
 
 
-// (2) gefundene Dateien Verzeichnis-weise verarbeiten
+// (2) gefundene Dateien verzeichnisweise verarbeiten
 $files   = array();
 $formats = $symbols = $symbolsU = $periods = $digits = $syncMarks = $lastSyncs = $timezoneIds = array();
 $bars    = $barsFrom = $barsTo = $errors = array();
