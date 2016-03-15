@@ -353,7 +353,7 @@ function compareFileNames($fileA, $fileB) {
  */
 function help($message=null) {
    if (is_null($message))
-      $message = 'Lists symbol information of MetaTrader "symbols.raw" files.';
+      $message = 'List symbol information of MetaTrader "symbols.raw" files.';
    $self = baseName($_SERVER['PHP_SELF']);
 
 echo <<<END
