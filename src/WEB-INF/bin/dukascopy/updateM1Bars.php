@@ -532,7 +532,7 @@ function processRawDukascopyBarData($data, $symbol, $day, $type) {
    if ($fxtOffset == $next['offset']) {                              // bei DST-Change sicherheitshalber Lots prüfen
       $lastBar  = $bars[$newDayOffset-1];
       $firstBar = $bars[$newDayOffset];
-      if ($lastBar['lots'] || !$firstBar['lots']) {
+      if ($lastBar['lots']/*|| !$firstBar['lots']*/) {
          echoPre('[Warn]    '.$shortDate.'   lots mis-match during DST change.');
          echoPre('Day of DST change ('.gmDate('D, d-M-Y', $lastBar['time_fxt']).') ended with:');
          echoPre($bars[$newDayOffset-1]);
