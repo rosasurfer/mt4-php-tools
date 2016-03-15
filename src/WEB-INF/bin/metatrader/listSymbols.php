@@ -353,7 +353,7 @@ function compareFileNames($fileA, $fileB) {
  */
 function help($message=null) {
    if (is_null($message))
-      $message = 'Displays symbol informations contained in MetaTrader "symbols.raw" files.';
+      $message = 'Lists symbol information of MetaTrader "symbols.raw" files.';
    $self = baseName($_SERVER['PHP_SELF']);
 
 echo <<<END
@@ -362,7 +362,7 @@ $message
   Syntax:  $self [-f=FILE] [OPTIONS]
 
             -f=FILE  File(s) to analyze (default: "symbols.raw").
-                     If FILE contains wildcards symbols of all matching files will be analyzed.
+                     If FILE contains wildcards symbols of the matching files will be analyzed.
                      If FILE is a directory "symbols.raw" in that directory will be analyzed.
 
   Options:  -c     Count symbols of the specified file(s).
