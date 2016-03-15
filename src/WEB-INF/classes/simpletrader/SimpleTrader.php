@@ -380,7 +380,7 @@ class SimpleTrader extends StaticClass {
     *               negativer Wert, wenn $tradeA vor $tradeB geöffnet wurde;
     *               0, wenn beide Trades zum selben Zeitpunkt geöffnet wurden
     */
-   private static function compareTradesByOpenTimeTicket(array &$tradeA, array &$tradeB) {
+   private static function compareTradesByOpenTimeTicket(array $tradeA, array $tradeB) {
       if (!$tradeA) return $tradeB ? -1 : 0;
       if (!$tradeB) return $tradeA ?  1 : 0;
 
@@ -405,7 +405,7 @@ class SimpleTrader extends StaticClass {
     *               negativer Wert, wenn $tradeA vor $tradeB geschlossen wurde;
     *               0, wenn beide Trades zum selben Zeitpunkt geöffnet und geschlossen wurden
     */
-   private static function compareTradesByCloseTimeOpenTimeTicket(array &$tradeA, array &$tradeB) {
+   private static function compareTradesByCloseTimeOpenTimeTicket(array $tradeA, array $tradeB) {
       if (!$tradeA) return $tradeB ? -1 : 0;
       if (!$tradeB) return $tradeA ?  1 : 0;
 
