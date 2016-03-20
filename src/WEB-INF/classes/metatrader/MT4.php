@@ -102,33 +102,33 @@ class MT4 extends StaticClass {
       /V     digits
       /V     tradeMode
       /V     backgroundColor
-      /V     sortId
+      /V     arrayKey
       /V     id
-      /x1504 unknown1_char1504
-      /V     unknown2_int
-      /H16   unknown3_char8
-      /d     unknown4_double
-      /H24   unknown5_char12
+      /x1504 unknown1:char1504
+      /V     unknown2:int
+      /H16   unknown3:char8
+      /d     unknown4:double
+      /H24   unknown5:char12
       /V     spread
-      /H32   unknown6_char16
+      /H32   unknown6:char16
       /d     swapLong
       /d     swapShort
-      /V     unknown7_int
-      /V     unknown8_int
+      /V     unknown7:int
+      /V     unknown8:int
       /d     contractSize
-      /x16   unknown9_char16
+      /x16   unknown9:char16
       /V     stopDistance
-      /x12   unknown10_char12
+      /x12   unknown10:char12
       /d     marginInit
       /d     marginMaintenance
       /d     marginHedged
       /d     marginDivider
       /d     pointSize
       /d     pointsPerUnit
-      /x24   unknown11_char24
+      /x24   unknown11:char24
       /a12   marginCurrency
-      /x104  unknown12_char104
-      /V     unknown13_int
+      /x104  unknown12:char104
+      /V     unknown13:int
    ';
 
 
