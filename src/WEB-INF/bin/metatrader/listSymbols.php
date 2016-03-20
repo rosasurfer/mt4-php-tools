@@ -98,16 +98,8 @@ foreach ($args as $i => $arg) {
 
 
 // (2) ggf. verfügbare Felder anzeigen und danach abbrechen
-$allFields = array_flip(MT4::SYMBOL_getFields());     // Feld 'leverage' dynamisch hinzufügen / array_splice($fields, array_search('marginDivider', $fields)+1, 0, array('leverage'));
-unset($allFields['unknown_1'],
-      $allFields['unknown_3'],                        // Binärfelder löschen (stehen noch nicht zur Verfügung)
-      $allFields['unknown_5'],
-      $allFields['unknown_6'],
-      $allFields['unknown_9'],
-      $allFields['unknown_10'],
-      $allFields['unknown_11'],
-      $allFields['unknown_12']);
-$allFields = array_keys($allFields);
+$allFields = array_flip(MT4::SYMBOL_getFields());     // TODO: Feld 'leverage' dynamisch hinzufügen
+$allFields = array_keys($allFields);                  // array_splice($fields, array_search('marginDivider', $fields)+1, 0, array('leverage'));
 
 if (isSet($options['listFields'])) {
    echoPre($s='Available symbol fields:');
@@ -202,14 +194,18 @@ function collectData($file, array &$fields, array &$data, array $options) {
       $data[$file]['meta:warn'][] = 'file contains '.($fileSize % MT4::SYMBOL_SIZE).' trailing bytes';
 
 
-   // (2) Anzahl der Symbole ermitteln und speichern
-   $symbolsSize = (int)($fileSize/MT4::SYMBOL_SIZE); //$symbolsSize = min($symbolsSize, 3);
-   $data[$file]['meta:symbolsSize'] = $symbolsSize;
-   if (isSet($options['countSymbols']))                  // ggf. sofort zurückkehren      // Die Meta-Daten liegen in derselben Arrayebene wie
-      return true;                                                                        // die Symboldaten und müssen Namen haben, die mit den
-                                                                                          // Feldnamen der Symbole nicht kollidieren können.
+   // (2) Länge des längsten Dateinamens speichern
+   $data['meta:maxFileLength'] = max(strLen($file), isSet($data['meta:maxFileLength']) ? $data['meta:maxFileLength'] : 0);
 
-   // (3) Daten auslesen
+
+   // (3) Anzahl der Symbole ermitteln und speichern
+   $symbolsSize = (int)($fileSize/MT4::SYMBOL_SIZE);
+   $data[$file]['meta:symbolsSize'] = $symbolsSize;
+   if (isSet($options['countSymbols']))                                             // Die Meta-Daten liegen in derselben Arrayebene wie
+      return true;                           // ggf. sofort zurückkehren            // die Symboldaten und müssen Namen haben, die mit den
+                                                                                    // Feldnamen der Symbole nicht kollidieren können.
+
+   // (4) Daten auslesen
    $hFile   = fOpen($file, 'rb');
    $symbols = array();
    for ($i=0; $i < $symbolsSize; $i++) {
@@ -218,24 +214,19 @@ function collectData($file, array &$fields, array &$data, array $options) {
    fClose($hFile);
 
 
-   // (4) Daten speichern und dabei maximale Feldlängen ermitteln
+   // (5) Daten auslesen und maximale Feldlängen speichern
    $values = $lengths = array();
    foreach ($symbols as $i => $symbol) {
-      foreach ($symbol as $field => $value) {
-         if (isSet($fields[$field])) {
-            if (is_double($value) && ($e=(int) strRightFrom($s=(string)$value, 'E-'))) {
-               $decimals = strLeftTo(strRightFrom($s, '.'), 'E');
-               $decimals = ($decimals=='0' ? 0 : strLen($decimals)) + $e;
-               if ($decimals <= 14)                                                       // ab 15 Dezimalstellen wissenschaftliche Anzeige
-                  $value = number_format($value, $decimals);
-            }
-            if ($i && $field=='id' && $value <= $values[$field][$i-1]) {                  // Marker setzen, wenn die ID's nicht aufsteigend sind
-               $data[$file]['meta:warn'][] = 'id '.$value.' follows id '.$values[$field][$i-1];
-               $value .= '*';
-            }
-            $values[$field][]         = $value;                                           // real-name[n]      => value
-            $fields[$field]['length'] = max(strLen($value), $fields[$field]['length']);   // real-name[length] => (int)
+      foreach ($fields as $name => $v) {
+         $value = isSet($symbol[$name]) ? $symbol[$name] : '?';                     // typenlose Felder (x) werden markiert
+         if (is_double($value) && ($e=(int) strRightFrom($s=(string)$value, 'E-'))) {
+            $decimals = strLeftTo(strRightFrom($s, '.'), 'E');
+            $decimals = ($decimals=='0' ? 0 : strLen($decimals)) + $e;
+            if ($decimals <= 14)                                                    // ab 15 Dezimalstellen wissenschaftliche Anzeige
+               $value = number_format($value, $decimals);
          }
+         $values[$name][]         = $value;                                         // real-name[n]      => value
+         $fields[$name]['length'] = max(strLen($value), $fields[$name]['length']);  // real-name[length] => (int)
       }
    }
    $data[$file] = array_merge($data[$file], $values);
@@ -273,9 +264,11 @@ function printData(array $files, array $fields, array $data, array $options) {
       $tableSeparator = str_repeat('-', max(strLen($file), strLen($tableHeader), strLen($tableSeparator)));
       $fileSeparator  = str_repeat('=', strLen($tableSeparator));
 
-      echoPre($file.':');
-      if ($countSymbols)
+      if ($countSymbols) {
+         echoPre(str_pad($file.':', $data['meta:maxFileLength']+1, ' ',  STR_PAD_RIGHT).' '.$symbolsSize.' symbols');
          continue;
+      }
+      echoPre($file.':');
       echoPre($tableHeader);
       echoPre($tableSeparator);
 

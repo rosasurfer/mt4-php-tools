@@ -48,7 +48,7 @@ class MT4 extends StaticClass {
    /**
     * History-Header
     *
-    * @see  Definition in Expander.dll::Expander.h
+    * @see  Definition in MT4Expander.dll::Expander.h
     */
    private static $tpl_HistoryHeader = array('format'      => 0,
                                              'description' => "\0",
@@ -61,14 +61,9 @@ class MT4 extends StaticClass {
                                              'reserved'    => 0);
 
    /**
-    * struct HISTORY_BAR_400 {
-    *    uint   time;                     //     4             // open time
-    *    double open;                     //     8
-    *    double low;                      //     8
-    *    double high;                     //     8
-    *    double close;                    //     8
-    *    double ticks;                    //     8             // immer Ganzzahl
-    * };                                  //  = 44 bytes
+    * History-Bar v400
+    *
+    * @see  Definition in MT4Expander.dll::Expander.h
     */
    private static $tpl_HistoryBar400 = array('time'  => 0,
                                              'open'  => 0,
@@ -78,16 +73,9 @@ class MT4 extends StaticClass {
                                              'ticks' => 0);
 
    /**
-    * struct HISTORY_BAR_401 {
-    *    int64  time;                     //     8             // open time
-    *    double open;                     //     8
-    *    double high;                     //     8
-    *    double low;                      //     8
-    *    double close;                    //     8
-    *    uint64 ticks;                    //     8
-    *    int    spread;                   //     4             // unbenutzt
-    *    uint64 volume;                   //     8             // unbenutzt
-    * };                                  //  = 60 bytes
+    * History-Bar v401
+    *
+    * @see  Definition in MT4Expander.dll::Expander.h
     */
    private static $tpl_HistoryBar401 = array('time'   => 0,
                                              'open'   => 0,
@@ -102,7 +90,7 @@ class MT4 extends StaticClass {
     * Formatbeschreibung eines struct SYMBOL.
     *
     * @see  Definition in MT4Expander.dll::Expander.h
-    * @see  self::SYMBOL_unpackFormat() zum Verwenden als unpack()-Formatstring
+    * @see  MT4::SYMBOL_unpackFormat() zum Verwenden als unpack()-Formatstring
     */
    private static $SYMBOL_format = '
       /a12   name
@@ -114,14 +102,15 @@ class MT4 extends StaticClass {
       /V     digits
       /V     tradeMode
       /V     backgroundColor
+      /V     orderId
       /V     id
-      /x1508 unknown_1
+      /x1504 unknown_1
       /V     unknown_2
-      /x8    unknown_3
+      /H16   unknown_3
       /d     unknown_4
-      /x12   unknown_5
+      /H24   unknown_5
       /V     spread
-      /x16   unknown_6
+      /H32   unknown_6
       /d     swapLong
       /d     swapShort
       /V     unknown_7
