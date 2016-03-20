@@ -90,7 +90,7 @@ class MT4 extends StaticClass {
     * Formatbeschreibung eines struct SYMBOL.
     *
     * @see  Definition in MT4Expander.dll::Expander.h
-    * @see  MT4::SYMBOL_unpackFormat() zum Verwenden als unpack()-Formatstring
+    * @see  MT4::SYMBOL_getUnpackFormat() zum Verwenden als unpack()-Formatstring
     */
    private static $SYMBOL_format = '
       /a12   name
@@ -102,33 +102,33 @@ class MT4 extends StaticClass {
       /V     digits
       /V     tradeMode
       /V     backgroundColor
-      /V     orderId
+      /V     sortId
       /V     id
-      /x1504 unknown_1
-      /V     unknown_2
-      /H16   unknown_3
-      /d     unknown_4
-      /H24   unknown_5
+      /x1504 unknown1_char1504
+      /V     unknown2_int
+      /H16   unknown3_char8
+      /d     unknown4_double
+      /H24   unknown5_char12
       /V     spread
-      /H32   unknown_6
+      /H32   unknown6_char16
       /d     swapLong
       /d     swapShort
-      /V     unknown_7
-      /V     unknown_8
+      /V     unknown7_int
+      /V     unknown8_int
       /d     contractSize
-      /x16   unknown_9
+      /x16   unknown9_char16
       /V     stopDistance
-      /x12   unknown_10
+      /x12   unknown10_char12
       /d     marginInit
       /d     marginMaintenance
       /d     marginHedged
       /d     marginDivider
       /d     pointSize
       /d     pointsPerUnit
-      /x24   unknown_11
+      /x24   unknown11_char24
       /a12   marginCurrency
-      /x104  unknown_12
-      /V     unknown_13
+      /x104  unknown12_char104
+      /V     unknown13_int
    ';
 
 
@@ -136,7 +136,7 @@ class MT4 extends StaticClass {
     * Formatbeschreibung eines struct HISTORY_HEADER.
     *
     * @see  Definition in MT4Expander.dll::Expander.h
-    * @see  self::HISTORY_HEADER_unpackFormat() zum Verwenden als unpack()-Formatstring
+    * @see  self::HISTORY_HEADER_getUnpackFormat() zum Verwenden als unpack()-Formatstring
     */
    private static $HISTORY_HEADER_format = '
       /V   format
