@@ -220,7 +220,7 @@ function collectData($file, array &$fields, array &$data, array $options) {
 
    // (4) Daten speichern und dabei maximale Feldlängen ermitteln
    $values = $lengths = array();
-   foreach ($symbols as $symbol) {
+   foreach ($symbols as $i => $symbol) {
       foreach ($symbol as $field => $value) {
          if (isSet($fields[$field])) {
             if (is_double($value) && ($e=(int) strRightFrom($s=(string)$value, 'E-'))) {
