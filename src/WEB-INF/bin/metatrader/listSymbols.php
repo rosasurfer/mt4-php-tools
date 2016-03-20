@@ -229,6 +229,10 @@ function collectData($file, array &$fields, array &$data, array $options) {
                if ($decimals <= 14)                                                       // ab 15 Dezimalstellen wissenschaftliche Anzeige
                   $value = number_format($value, $decimals);
             }
+            if ($i && $field=='id' && $value <= $values[$field][$i-1]) {                  // Marker setzen, wenn die ID's nicht aufsteigend sind
+               $data[$file]['meta:warn'][] = 'id '.$value.' follows id '.$values[$field][$i-1];
+               $value .= '*';
+            }
             $values[$field][]         = $value;                                           // real-name[n]      => value
             $fields[$field]['length'] = max(strLen($value), $fields[$field]['length']);   // real-name[length] => (int)
          }
