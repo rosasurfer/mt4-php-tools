@@ -1906,12 +1906,12 @@ function getVar($id, $symbol=null, $time=null) {
       $myfxDirDate   = $self('myfxDirDate', null, $time);
       $result        = "$dataDirectory/history/dukascopy/$symbol/$myfxDirDate";
    }
-   else if ($id == 'fxiTargetDir') {            // $dataDirectory/history/fxi/$symbol/$myfxDirDate       // lokales Ziel-Verzeichnis
+   else if ($id == 'fxiTargetDir') {            // $dataDirectory/history/dukascopy/$symbol/$myfxDirDate // lokales Ziel-Verzeichnis
       if (!$symbol) throw new plInvalidArgumentException('Invalid parameter $symbol: '.$symbol);
       if (!$dataDirectory)
       $dataDirectory = MyFX::getConfigPath('myfx.data_directory');
       $myfxDirDate   = $self('myfxDirDate', null, $time);
-      $result        = "$dataDirectory/history/fxi/$symbol/$myfxDirDate";
+      $result        = "$dataDirectory/history/dukascopy/$symbol/$myfxDirDate";
    }
    else if ($id == 'fxiSource.raw') {           // $fxiSourceDir/M1.myfx                                 // lokale Quell-Datei ungepackt
       $fxiSourceDir = $self('fxiSourceDir', $symbol, $time);
@@ -1953,7 +1953,7 @@ function help($message=null) {
 
 echo <<<END
 
- Syntax:  $self [symbol ...]
+  Syntax:  $self [symbol ...]
 
 
 END;
