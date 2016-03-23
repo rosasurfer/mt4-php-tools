@@ -23,19 +23,19 @@
 class MyFX extends StaticClass {
 
    /**
-    * Struct-Size des MyFX-Bar-Datenformats (MyFX-Historydateien "M{PERIOD}.myfx")
+    * Struct-Size des MyFX-Bardatenformats (MyFX-Historydateien "M{PERIOD}.myfx")
     */
    const BAR_SIZE = 24;
 
    /**
-    * Struct-Size des MyFX-Tick-Datenformats (MyFX-Tickdateien "{HOUR}h_ticks.myfx")
+    * Struct-Size des MyFX-Tickdatenformats (MyFX-Tickdateien "{HOUR}h_ticks.myfx")
     */
    const TICK_SIZE = 12;
 
    /**
     * Symbol-Stammdaten
     */
-   public static $symbols = null;                                 // @see static initializer at the end of file
+   public static $symbols = array();                              // @see static initializer at the end of file
 
 
    /**

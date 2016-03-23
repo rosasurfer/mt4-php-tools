@@ -113,8 +113,8 @@ class MT4 extends StaticClass {
       /H16   unknown6:char8
       /V     swapEnabled
       /V     swapType
-      /d     swapLong
-      /d     swapShort
+      /d     swapLongValue
+      /d     swapShortValue
       /V     tripleRolloverDay
       /V     unknown7:int
       /d     contractSize
