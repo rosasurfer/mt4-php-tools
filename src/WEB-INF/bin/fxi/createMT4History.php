@@ -85,8 +85,8 @@ function createHistory($symbol) {
 
       // außer an Wochenenden: MyFX-History verarbeiten
       if (!MyFX::isForexWeekend($day, 'FXT')) {
-         if      (is_file($file=getVar('myfxFile.compressed', $symbol, $day))) {}   // wenn komprimierte MyFX-Datei existiert
-         else if (is_file($file=getVar('myfxFile.raw'       , $symbol, $day))) {}   // wenn unkomprimierte MyFX-Datei existiert
+         if      (is_file($file=getVar('fxiFile.compressed', $symbol, $day))) {}    // wenn komprimierte MyFX-Datei existiert
+         else if (is_file($file=getVar('fxiFile.raw'       , $symbol, $day))) {}    // wenn unkomprimierte MyFX-Datei existiert
          else continue;
          if ($verbose > 1) echoPre('[Info]    '.gmDate('D, d-M-Y', $day).'   MyFX history file: '.baseName($file));
 
@@ -129,20 +129,20 @@ function getVar($id, $symbol=null, $time=null) {
       if (!$time)   throw new plInvalidArgumentException('Invalid parameter $time: '.$time);
       $result = gmDate('Y/m/d', $time);
    }
-   else if ($id == 'myfxDir') {              // $dataDirectory/history/myfx/$symbol/$myfxDirDate         // lokales Verzeichnis
+   else if ($id == 'fxiDir') {               // $dataDirectory/history/fxi/$symbol/$myfxDirDate          // lokales Verzeichnis
       if (!$symbol) throw new plInvalidArgumentException('Invalid parameter $symbol: '.$symbol);
       static $dataDirectory; if (!$dataDirectory)
       $dataDirectory = MyFX::getConfigPath('myfx.data_directory');
       $myfxDirDate   = $self('myfxDirDate', null, $time);
-      $result        = "$dataDirectory/history/myfx/$symbol/$myfxDirDate";
+      $result        = "$dataDirectory/history/fxi/$symbol/$myfxDirDate";
    }
-   else if ($id == 'myfxFile.raw') {         // $myfxDir/M1.myfx                                         // lokale Datei ungepackt
-      $myfxDir = $self('myfxDir' , $symbol, $time);
-      $result  = "$myfxDir/M1.myfx";
+   else if ($id == 'fxiFile.raw') {          // $fxiDir/M1.myfx                                          // lokale Datei ungepackt
+      $fxiDir = $self('fxiDir' , $symbol, $time);
+      $result = "$fxiDir/M1.myfx";
    }
-   else if ($id == 'myfxFile.compressed') {  // $myfxDir/M1.rar                                          // lokale Datei gepackt
-      $myfxDir = $self('myfxDir' , $symbol, $time);
-      $result  = "$myfxDir/M1.rar";
+   else if ($id == 'fxiFile.compressed') {   // $fxiDir/M1.rar                                          // lokale Datei gepackt
+      $fxiDir = $self('fxiDir' , $symbol, $time);
+      $result = "$fxiDir/M1.rar";
    }
    else {
      throw new plInvalidArgumentException('Unknown parameter $id: "'.$id.'"');

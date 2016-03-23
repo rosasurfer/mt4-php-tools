@@ -127,10 +127,10 @@ function updateIndex($index) {
          $shortDate = gmDate('D, d-M-Y', $day);
 
          // Prüfen, ob die History bereits existiert
-         if (is_file($file=getVar('myfxTarget.compressed', $index, $day))) {
+         if (is_file($file=getVar('fxiTarget.compressed', $index, $day))) {
             if ($verbose > 1) echoPre('[Ok]    '.$shortDate.'   '.$index.' compressed history file: '.baseName($file));
          }
-         else if (is_file($file=getVar('myfxTarget.raw', $index, $day))) {
+         else if (is_file($file=getVar('fxiTarget.raw', $index, $day))) {
             if ($verbose > 1) echoPre('[Ok]    '.$shortDate.'   '.$index.' raw history file: '.baseName($file));
          }
          else {
@@ -142,8 +142,8 @@ function updateIndex($index) {
 
             // History aktualisieren: M1-Bars der benötigten Instrumente dieses Tages einlesen
             foreach($pairs as $pair => $data) {
-               if      (is_file($file=getVar('myfxSource.compressed', $pair, $day))) {}   // komprimierte oder
-               else if (is_file($file=getVar('myfxSource.raw'       , $pair, $day))) {}   // unkomprimierte MyFX-Datei
+               if      (is_file($file=getVar('fxiSource.compressed', $pair, $day))) {}    // komprimierte oder
+               else if (is_file($file=getVar('fxiSource.raw'       , $pair, $day))) {}    // unkomprimierte MyFX-Datei
                else {
                   echoPre('[Error]   '.$pair.' history for '.$shortDate.' not found');
                   return false;
@@ -1828,7 +1828,7 @@ function saveBars($symbol, $day, array $bars) {
 
    // (3) binäre Daten ggf. speichern
    if ($saveRawMyFXData) {
-      if (is_file($file=getVar('myfxTarget.raw', $symbol, $day))) {
+      if (is_file($file=getVar('fxiTarget.raw', $symbol, $day))) {
          echoPre('[Error]   '.$symbol.' history for '.gmDate('D, d-M-Y', $day).' already exists');
          return false;
       }
@@ -1899,35 +1899,35 @@ function getVar($id, $symbol=null, $time=null) {
       if (!$time)   throw new plInvalidArgumentException('Invalid parameter $time: '.$time);
       $result = gmDate('Y/m/d', $time);
    }
-   else if ($id == 'myfxSourceDir') {           // $dataDirectory/history/dukascopy/$symbol/$myfxDirDate // lokales Quell-Verzeichnis
+   else if ($id == 'fxiSourceDir') {            // $dataDirectory/history/dukascopy/$symbol/$myfxDirDate // lokales Quell-Verzeichnis
       if (!$symbol) throw new plInvalidArgumentException('Invalid parameter $symbol: '.$symbol);
       if (!$dataDirectory)
       $dataDirectory = MyFX::getConfigPath('myfx.data_directory');
       $myfxDirDate   = $self('myfxDirDate', null, $time);
       $result        = "$dataDirectory/history/dukascopy/$symbol/$myfxDirDate";
    }
-   else if ($id == 'myfxTargetDir') {           // $dataDirectory/history/myfx/$symbol/$myfxDirDate      // lokales Ziel-Verzeichnis
+   else if ($id == 'fxiTargetDir') {            // $dataDirectory/history/fxi/$symbol/$myfxDirDate       // lokales Ziel-Verzeichnis
       if (!$symbol) throw new plInvalidArgumentException('Invalid parameter $symbol: '.$symbol);
       if (!$dataDirectory)
       $dataDirectory = MyFX::getConfigPath('myfx.data_directory');
       $myfxDirDate   = $self('myfxDirDate', null, $time);
-      $result        = "$dataDirectory/history/myfx/$symbol/$myfxDirDate";
+      $result        = "$dataDirectory/history/fxi/$symbol/$myfxDirDate";
    }
-   else if ($id == 'myfxSource.raw') {          // $myfxSourceDir/M1.myfx                                // lokale Quell-Datei ungepackt
-      $myfxSourceDir = $self('myfxSourceDir', $symbol, $time);
-      $result        = "$myfxSourceDir/M1.myfx";
+   else if ($id == 'fxiSource.raw') {           // $fxiSourceDir/M1.myfx                                 // lokale Quell-Datei ungepackt
+      $fxiSourceDir = $self('fxiSourceDir', $symbol, $time);
+      $result       = "$fxiSourceDir/M1.myfx";
    }
-   else if ($id == 'myfxSource.compressed') {   // $myfxSourceDir/M1.rar                                 // lokale Quell-Datei gepackt
-      $myfxSourceDir = $self('myfxSourceDir', $symbol, $time);
-      $result        = "$myfxSourceDir/M1.rar";
+   else if ($id == 'fxiSource.compressed') {    // $fxiSourceDir/M1.rar                                  // lokale Quell-Datei gepackt
+      $fxiSourceDir = $self('fxiSourceDir', $symbol, $time);
+      $result       = "$fxiSourceDir/M1.rar";
    }
-   else if ($id == 'myfxTarget.raw') {          // $myfxTargetDir/M1.myfx                                // lokale Ziel-Datei ungepackt
-      $myfxTargetDir = $self('myfxTargetDir' , $symbol, $time);
-      $result        = "$myfxTargetDir/M1.myfx";
+   else if ($id == 'fxiTarget.raw') {           // $fxiTargetDir/M1.myfx                                 // lokale Ziel-Datei ungepackt
+      $fxiTargetDir = $self('fxiTargetDir' , $symbol, $time);
+      $result       = "$fxiTargetDir/M1.myfx";
    }
-   else if ($id == 'myfxTarget.compressed') {   // $myfxTargetDir/M1.rar                                 // lokale Ziel-Datei gepackt
-      $myfxTargetDir = $self('myfxTargetDir' , $symbol, $time);
-      $result        = "$myfxTargetDir/M1.rar";
+   else if ($id == 'fxiTarget.compressed') {    // $fxiTargetDir/M1.rar                                  // lokale Ziel-Datei gepackt
+      $fxiTargetDir = $self('fxiTargetDir' , $symbol, $time);
+      $result       = "$fxiTargetDir/M1.rar";
    }
    else {
      throw new plInvalidArgumentException('Unknown parameter $id: "'.$id.'"');
