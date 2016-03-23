@@ -453,16 +453,17 @@ class MyFX extends StaticClass {
 
    /**
     * Interpretiert die MyFX-Bardaten eines Strings und liest sie in ein Array ein. Die resultierenden Bars werden
-    * nach dem Lesen validiert.
+    * beim Lesen validiert.
     *
-    * @param  string $data - String mit MyFX-Bardaten
+    * @param  string $data   - String mit MyFX-Bardaten
+    * @param  string $symbol - Meta-Information für eine evt. Fehlermeldung (falls die Daten fehlerhaft sind)
     *
     * @return MYFX_BAR[] - Array mit Bardaten
     */
-   public static function readBarData($data) {
+   public static function readBarData($data, $symbol) {
       if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
 
-      $lenData = strLen($data); if ($lenData % MyFX::BAR_SIZE) throw new plRuntimeException('Odd length of passed data: '.$lenData.' (not an even MyFX::BAR_SIZE)');
+      $lenData = strLen($data); if ($lenData % MyFX::BAR_SIZE) throw new plRuntimeException('Odd length of passed '.$symbol.' data: '.$lenData.' (not an even MyFX::BAR_SIZE)');
       $offset  = 0;
       $bars    = array();
       $i       = -1;
@@ -477,7 +478,7 @@ class MyFX extends StaticClass {
              $bars[$i]['open' ] < $bars[$i]['low' ] ||      // nicht mit min()/max(), da nicht performant
              $bars[$i]['close'] > $bars[$i]['high'] ||
              $bars[$i]['close'] < $bars[$i]['low' ] ||
-            !$bars[$i]['ticks']) throw new plRuntimeException("Illegal data for bar[$i]: O={$bars[$i]['open']} H={$bars[$i]['high']} L={$bars[$i]['low']} C={$bars[$i]['close']} V={$bars[$i]['ticks']} T=".gmDate('D, d-M-Y H:i:s', $bars[$i]['time']));
+            !$bars[$i]['ticks']) throw new plRuntimeException("Illegal $symbol data for bar[$i]: O={$bars[$i]['open']} H={$bars[$i]['high']} L={$bars[$i]['low']} C={$bars[$i]['close']} V={$bars[$i]['ticks']} T='".gmDate('D, d-M-Y H:i:s', $bars[$i]['time'])."'");
       }
       return $bars;
    }
@@ -487,12 +488,13 @@ class MyFX extends StaticClass {
     * Interpretiert die Bardaten einer MyFX-Datei und liest sie in ein Array ein.
     *
     * @param  string $fileName - Name der Datei mit MyFX-Bardaten
+    * @param  string $symbol   - Meta-Information für eine evt. Fehlermeldung (falls die Daten fehlerhaft sind)
     *
     * @return MYFX_BAR[] - Array mit Bardaten
     */
-   public static function readBarFile($fileName) {
+   public static function readBarFile($fileName, $symbol) {
       if (!is_string($fileName)) throw new IllegalTypeException('Illegal type of parameter $fileName: '.getType($fileName));
-      return self::readBarData(file_get_contents($fileName));
+      return self::readBarData(file_get_contents($fileName), $symbol);
    }
 
 

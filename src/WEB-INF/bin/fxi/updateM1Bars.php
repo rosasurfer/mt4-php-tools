@@ -149,7 +149,7 @@ function updateIndex($index) {
                   return false;
                }
                // M1-Bars zwischenspeichern
-               $pairs[$pair]['bars'] = MyFX::readBarFile($file);                          // array('AUDUSD'=>array('bars'=>[]), ...)
+               $pairs[$pair]['bars'] = MyFX::readBarFile($file, $pair);                   // array('AUDUSD'=>array('bars'=>[]), ...)
             }
 
             // Indexdaten für diesen Tag berechnen

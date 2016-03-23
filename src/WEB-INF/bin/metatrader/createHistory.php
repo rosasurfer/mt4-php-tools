@@ -90,7 +90,7 @@ function createHistory($symbol) {
          if ($verbose > 1) echoPre('[Info]    '.gmDate('D, d-M-Y', $day).'   MyFX history file: '.baseName($file));
 
          // Bars einlesen und der MT4-History hinzufügen
-         $bars = MyFX::readBarFile($file);
+         $bars = MyFX::readBarFile($file, $symbol);
          $history->addM1Bars($bars);
       }
    }
