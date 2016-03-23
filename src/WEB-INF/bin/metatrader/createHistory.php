@@ -1,8 +1,8 @@
 #!/usr/bin/php
 <?php
 /**
- * Konvertiert die M1-History ein oder mehrerer Dukascopy-Instrumente ins MetaTrader-Format und legt sie im
- * Historyverzeichnis "mt4/MyFX-Dukascopy" ab.
+ * Konvertiert die M1-History ein oder mehrerer Instrumente ins MetaTrader-Format und legt sie im Verzeichnis
+ * "{myfx.data_directory}/history/mt4/MyFX-Dukascopy" ab.
  */
 require(dirName(realPath(__FILE__)).'/../../config.php');
 date_default_timezone_set('GMT');
@@ -22,7 +22,7 @@ $args = array_slice($_SERVER['argv'], 1);
 
 // Optionen parsen
 foreach ($args as $i => $arg) {
-   if ($arg == '-h'  )   help() & exit(1);                                          // Hilfe
+   if ($arg == '-h'  )   exit(1|help());                                            // Hilfe
    if ($arg == '-v'  ) { $verbose = max($verbose, 1); unset($args[$i]); continue; } // verbose output
    if ($arg == '-vv' ) { $verbose = max($verbose, 2); unset($args[$i]); continue; } // more verbose output
    if ($arg == '-vvv') { $verbose = max($verbose, 3); unset($args[$i]); continue; } // very verbose output
@@ -31,11 +31,10 @@ foreach ($args as $i => $arg) {
 // Symbole parsen
 foreach ($args as $i => $arg) {
    $arg = strToUpper($arg);
-   if (!isSet(MyFX::$symbols[$arg]) || MyFX::$symbols[$arg]['provider']!='dukascopy')
-      help('error: unknown or unsupported symbol "'.$args[$i].'"') & exit(1);
+   if (!isSet(MyFX::$symbols[$arg])) exit(1|help('error: unknown or unsupported symbol "'.$args[$i].'"'));
    $args[$i] = $arg;
-}                                                                                   // ohne Symbol werden alle Dukascopy-Instrumente verarbeitet
-$args = $args ? array_unique($args) : array_keys(MyFX::filterSymbols(array('provider'=>'dukascopy')));
+}                                                                                   // ohne Symbol werden alle Instrumente verarbeitet
+$args = $args ? array_unique($args) : array_keys(MyFX::$symbols);
 
 
 // (2) History erstellen
@@ -50,7 +49,7 @@ exit(0);
 
 
 /**
- * Erzeugt die MetaTrader-History eines Symbols.
+ * Erzeugt die MetaTrader-History eines Instruments.
  *
  * @param  string $symbol - Symbol
  *
