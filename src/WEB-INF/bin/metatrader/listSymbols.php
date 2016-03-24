@@ -98,9 +98,11 @@ foreach ($args as $i => $arg) {
 
 
 // (2) ggf. verfügbare Felder anzeigen und danach abbrechen
-$allFields = array_flip(MT4::SYMBOL_getFields());     // TODO: Feld 'leverage' dynamisch hinzufügen
-$allFields = array_keys($allFields);                  // array_splice($fields, array_search('marginDivider', $fields)+1, 0, array('leverage'));
-
+$allFields = MT4::SYMBOL_getFields();                 // TODO: Feld 'leverage' dynamisch hinzufügen
+foreach ($allFields as $key => $value) {              // array_splice($fields, array_search('marginDivider', $fields)+1, 0, array('leverage'));
+   if ($value[0] == '_')
+      unset($allFields[$key]);                        // '_alignment*'-Felder löschen
+}
 if (isSet($options['listFields'])) {
    echoPre($s='Available symbol fields:');
    echoPre(str_repeat('-', strLen($s)));

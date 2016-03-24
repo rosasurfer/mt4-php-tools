@@ -104,23 +104,33 @@ class MT4 extends StaticClass {
       /V     backgroundColor
       /V     arrayKey
       /V     id
-      /x1504 unknown1:char1504
-      /V     unknown2:int
-      /H16   unknown3:char8
-      /d     unknown4:double
-      /H24   unknown5:char12
+      /x32   unknown1:char32
+      /x208  unknownM1:char208
+      /x208  unknownM5:char208
+      /x208  unknownM15:char208
+      /x208  unknownM30:char208
+      /x208  unknownH1:char208
+      /x208  unknownH4:char208
+      /x208  unknownD1:char208
+      /x16   unknown2:char16
+      /V     unknown3:int
+      /V     unknown4:int
+      /x4    _alignment1
+      /d     unknown5:double
+      /H24   unknown6:char12
       /V     spread
-      /H16   unknown6:char8
+      /H16   unknown7:char8
       /V     swapEnabled
       /V     swapType
       /d     swapLongValue
       /d     swapShortValue
-      /V     tripleRolloverDay
-      /V     unknown7:int
+      /V     swapTripleRolloverDay
+      /x4    _alignment2
       /d     contractSize
       /x16   unknown8:char16
       /V     stopDistance
-      /x12   unknown9:char12
+      /x8    unknown9:char8
+      /x4    _alignment3
       /d     marginInit
       /d     marginMaintenance
       /d     marginHedged
@@ -165,8 +175,10 @@ class MT4 extends StaticClass {
          $lines = explode("\n", trim(self::$SYMBOL_format));
          foreach ($lines as $i => &$line) {
             $line = trim(strRightFrom(trim($line), ' '));
+            if (!strlen($line))
+               unset($lines[$i]);
          } unset($line);
-         $fields = $lines;
+         $fields = array_values($lines);
       }
       return $fields;
    }
