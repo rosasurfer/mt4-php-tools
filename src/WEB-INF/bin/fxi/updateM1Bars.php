@@ -1899,21 +1899,21 @@ function getVar($id, $symbol=null, $time=null) {
       if (!$time)   throw new plInvalidArgumentException('Invalid parameter $time: '.$time);
       $result = gmDate('Y/m/d', $time);
    }
-   else if ($id == 'fxiSourceDir') {            // $dataDirectory/history/dukascopy/$type/$symbol/$myfxDirDate    // lokales Quell-Verzeichnis
+   else if ($id == 'fxiSourceDir') {            // $dataDirectory/history/myfx/$type/$symbol/$myfxDirDate         // lokales Quell-Verzeichnis
       if (!$symbol) throw new plInvalidArgumentException('Invalid parameter $symbol: '.$symbol);
       if (!$dataDirectory)
       $dataDirectory = MyFX::getConfigPath('myfx.data_directory');
       $type          = MyFX::$symbols[$symbol]['type'];
       $myfxDirDate   = $self('myfxDirDate', null, $time);
-      $result        = "$dataDirectory/history/dukascopy/$type/$symbol/$myfxDirDate";
+      $result        = "$dataDirectory/history/myfx/$type/$symbol/$myfxDirDate";
    }
-   else if ($id == 'fxiTargetDir') {            // $dataDirectory/history/dukascopy/$type/$symbol/$myfxDirDate    // lokales Ziel-Verzeichnis
+   else if ($id == 'fxiTargetDir') {            // $dataDirectory/history/myfx/$type/$symbol/$myfxDirDate         // lokales Ziel-Verzeichnis
       if (!$symbol) throw new plInvalidArgumentException('Invalid parameter $symbol: '.$symbol);
       if (!$dataDirectory)
       $dataDirectory = MyFX::getConfigPath('myfx.data_directory');
       $type          = MyFX::$symbols[$symbol]['type'];
       $myfxDirDate   = $self('myfxDirDate', null, $time);
-      $result        = "$dataDirectory/history/dukascopy/$type/$symbol/$myfxDirDate";
+      $result        = "$dataDirectory/history/myfx/$type/$symbol/$myfxDirDate";
    }
    else if ($id == 'fxiSource.raw') {           // $fxiSourceDir/M1.myfx                                          // lokale Quell-Datei ungepackt
       $fxiSourceDir = $self('fxiSourceDir', $symbol, $time);

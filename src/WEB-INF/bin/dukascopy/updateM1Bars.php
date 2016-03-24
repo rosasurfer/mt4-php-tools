@@ -675,13 +675,13 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
       if (!$time)   throw new plInvalidArgumentException('Invalid parameter $time: '.$time);
       $result = gmDate('Y/m/d', $time);
    }
-   else if ($id == 'myfxDir') {              // $dataDirectory/history/dukascopy/$type/$symbol/$dateL    // lokales Verzeichnis
+   else if ($id == 'myfxDir') {              // $dataDirectory/history/myfx/$type/$symbol/$dateL         // lokales Verzeichnis
       if (!$symbol) throw new plInvalidArgumentException('Invalid parameter $symbol: '.$symbol);
       static $dataDirectory; if (!$dataDirectory)
       $dataDirectory = MyFX::getConfigPath('myfx.data_directory');
       $type          = MyFX::$symbols[$symbol]['type'];
       $dateL         = $self('myfxDirDate', null, $time, null);
-      $result        = "$dataDirectory/history/dukascopy/$type/$symbol/$dateL";
+      $result        = "$dataDirectory/history/myfx/$type/$symbol/$dateL";
    }
    else if ($id == 'myfxFile.raw') {         // $myfxDir/M1.myfx                                         // lokale Datei ungepackt
       $myfxDir = $self('myfxDir' , $symbol, $time, null);
