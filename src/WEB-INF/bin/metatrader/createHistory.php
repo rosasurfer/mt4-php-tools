@@ -66,8 +66,8 @@ function createHistory($symbol) {
 
 
    // MT4-HistorySet erzeugen
-   $description = MyFX::$symbols[$symbol]['longName'];
-   $digits      = MyFX::$symbols[$symbol]['digits'  ];
+   $description = MyFX::$symbols[$symbol]['description'];
+   $digits      = MyFX::$symbols[$symbol]['digits'     ];
    $format      = 400;
    $timezoneId  = TIMEZONE_ID_FXT;
    $directory   = MyFX::getConfigPath('myfx.data_directory').'/history/mt4/MyFX-Dukascopy';
@@ -124,22 +124,23 @@ function getVar($id, $symbol=null, $time=null) {
 
    $self = __FUNCTION__;
 
-   if ($id == 'myfxDirDate') {               // $yyyy/$mm/$dd                                            // lokales Pfad-Datum
+   if ($id == 'myfxDirDate') {               // $yyyy/$mm/$dd                                                  // lokales Pfad-Datum
       if (!$time)   throw new plInvalidArgumentException('Invalid parameter $time: '.$time);
       $result = gmDate('Y/m/d', $time);
    }
-   else if ($id == 'myfxDir') {              // $dataDirectory/history/dukascopy/$symbol/$myfxDirDate    // lokales Verzeichnis
+   else if ($id == 'myfxDir') {              // $dataDirectory/history/dukascopy/$type/$symbol/$myfxDirDate    // lokales Verzeichnis
       if (!$symbol) throw new plInvalidArgumentException('Invalid parameter $symbol: '.$symbol);
       static $dataDirectory; if (!$dataDirectory)
       $dataDirectory = MyFX::getConfigPath('myfx.data_directory');
+      $type          = MyFX::$symbols[$symbol]['type'];
       $myfxDirDate   = $self('myfxDirDate', null, $time);
-      $result        = "$dataDirectory/history/dukascopy/$symbol/$myfxDirDate";
+      $result        = "$dataDirectory/history/dukascopy/$type/$symbol/$myfxDirDate";
    }
-   else if ($id == 'myfxFile.raw') {         // $myfxDir/M1.myfx                                         // lokale Datei ungepackt
+   else if ($id == 'myfxFile.raw') {         // $myfxDir/M1.myfx                                               // lokale Datei ungepackt
       $myfxDir = $self('myfxDir' , $symbol, $time);
       $result  = "$myfxDir/M1.myfx";
    }
-   else if ($id == 'myfxFile.compressed') {  // $myfxDir/M1.rar                                          // lokale Datei gepackt
+   else if ($id == 'myfxFile.compressed') {  // $myfxDir/M1.rar                                                // lokale Datei gepackt
       $myfxDir = $self('myfxDir' , $symbol, $time);
       $result  = "$myfxDir/M1.rar";
    }

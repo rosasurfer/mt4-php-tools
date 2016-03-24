@@ -1895,37 +1895,39 @@ function getVar($id, $symbol=null, $time=null) {
    static $dataDirectory;
    $self = __FUNCTION__;
 
-   if ($id == 'myfxDirDate') {                  // $yyyy/$mm/$dd                                         // lokales Pfad-Datum
+   if ($id == 'myfxDirDate') {                  // $yyyy/$mm/$dd                                                  // lokales Pfad-Datum
       if (!$time)   throw new plInvalidArgumentException('Invalid parameter $time: '.$time);
       $result = gmDate('Y/m/d', $time);
    }
-   else if ($id == 'fxiSourceDir') {            // $dataDirectory/history/dukascopy/$symbol/$myfxDirDate // lokales Quell-Verzeichnis
+   else if ($id == 'fxiSourceDir') {            // $dataDirectory/history/dukascopy/$type/$symbol/$myfxDirDate    // lokales Quell-Verzeichnis
       if (!$symbol) throw new plInvalidArgumentException('Invalid parameter $symbol: '.$symbol);
       if (!$dataDirectory)
       $dataDirectory = MyFX::getConfigPath('myfx.data_directory');
+      $type          = MyFX::$symbols[$symbol]['type'];
       $myfxDirDate   = $self('myfxDirDate', null, $time);
-      $result        = "$dataDirectory/history/dukascopy/$symbol/$myfxDirDate";
+      $result        = "$dataDirectory/history/dukascopy/$type/$symbol/$myfxDirDate";
    }
-   else if ($id == 'fxiTargetDir') {            // $dataDirectory/history/dukascopy/$symbol/$myfxDirDate // lokales Ziel-Verzeichnis
+   else if ($id == 'fxiTargetDir') {            // $dataDirectory/history/dukascopy/$type/$symbol/$myfxDirDate    // lokales Ziel-Verzeichnis
       if (!$symbol) throw new plInvalidArgumentException('Invalid parameter $symbol: '.$symbol);
       if (!$dataDirectory)
       $dataDirectory = MyFX::getConfigPath('myfx.data_directory');
+      $type          = MyFX::$symbols[$symbol]['type'];
       $myfxDirDate   = $self('myfxDirDate', null, $time);
-      $result        = "$dataDirectory/history/dukascopy/$symbol/$myfxDirDate";
+      $result        = "$dataDirectory/history/dukascopy/$type/$symbol/$myfxDirDate";
    }
-   else if ($id == 'fxiSource.raw') {           // $fxiSourceDir/M1.myfx                                 // lokale Quell-Datei ungepackt
+   else if ($id == 'fxiSource.raw') {           // $fxiSourceDir/M1.myfx                                          // lokale Quell-Datei ungepackt
       $fxiSourceDir = $self('fxiSourceDir', $symbol, $time);
       $result       = "$fxiSourceDir/M1.myfx";
    }
-   else if ($id == 'fxiSource.compressed') {    // $fxiSourceDir/M1.rar                                  // lokale Quell-Datei gepackt
+   else if ($id == 'fxiSource.compressed') {    // $fxiSourceDir/M1.rar                                           // lokale Quell-Datei gepackt
       $fxiSourceDir = $self('fxiSourceDir', $symbol, $time);
       $result       = "$fxiSourceDir/M1.rar";
    }
-   else if ($id == 'fxiTarget.raw') {           // $fxiTargetDir/M1.myfx                                 // lokale Ziel-Datei ungepackt
+   else if ($id == 'fxiTarget.raw') {           // $fxiTargetDir/M1.myfx                                          // lokale Ziel-Datei ungepackt
       $fxiTargetDir = $self('fxiTargetDir' , $symbol, $time);
       $result       = "$fxiTargetDir/M1.myfx";
    }
-   else if ($id == 'fxiTarget.compressed') {    // $fxiTargetDir/M1.rar                                  // lokale Ziel-Datei gepackt
+   else if ($id == 'fxiTarget.compressed') {    // $fxiTargetDir/M1.rar                                           // lokale Ziel-Datei gepackt
       $fxiTargetDir = $self('fxiTargetDir' , $symbol, $time);
       $result       = "$fxiTargetDir/M1.rar";
    }
