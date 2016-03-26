@@ -1,6 +1,6 @@
 <?php
 /**
- * Ein HistorySet zur Erzeugung einer vollständigen MetaTrader-History aus M1-Daten.
+ * Ein HistorySet zur Verwaltung der vollständigen MetaTrader-History eines Instruments.
  */
 class HistorySet extends Object {
 
@@ -10,9 +10,9 @@ class HistorySet extends Object {
    protected /*int   */  $digits;
    protected /*int   */  $format;
    protected /*int   */  $timezoneId;
-   protected /*string*/  $directory;
+   protected /*string*/  $serverDirectory;
 
-   protected /*array[]*/ $history;
+   protected /*array[]*/ $history;                    // History-Daten
    protected /*int    */ $flushLimit = 10000;         // maximale Anzahl von ungespeicherten Bars
 
 
@@ -21,38 +21,38 @@ class HistorySet extends Object {
     *
     * Erzeugt ein neues HistorySet mit den angegebenen Daten.
     *
-    * @param  string $symbol      - Symbol der HistorySet-Daten
-    * @param  string $description - Beschreibung des Symbols
-    * @param  int    $digits      - Digits der Datenreihe
-    * @param  int    $format      - Speicherformat der Datenreihe:
-    *                               • 400 - MetaTrader bis Build 509
-    *                               • 401 - MetaTrader ab Build 510
-    * @param  int    $timezoneId  - ID der Zeitzone des Sets (default: aktuelle Serverzeitzone)
-    * @param  string $directory   - Serververzeichnis, in dem die Historydateien des Sets gespeichert werden
-    *                               (default: aktuelles Verzeichnis)
+    * @param  string $symbol          - Symbol der HistorySet-Daten
+    * @param  string $description     - Beschreibung des Symbols
+    * @param  int    $digits          - Digits der Datenreihe
+    * @param  int    $format          - Speicherformat der Datenreihe:
+    *                                   • 400 - MetaTrader <= Build 509
+    *                                   • 401 - MetaTrader  > Build 509
+    * @param  int    $timezoneId      - ID der Zeitzone des Sets (default: aktuelle Serverzeitzone)
+    * @param  string $serverDirectory - Serververzeichnis, in dem die Historydateien des Sets gespeichert werden
+    *                                   (default: aktuelles Verzeichnis)
     */
-   public function __construct($symbol, $description, $digits, $format, $timezoneId=0, $directory=null) {
-      if (!is_string($symbol))                                throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
-      if (!strLen($symbol))                                   throw new plInvalidArgumentException('Invalid parameter $symbol: ""');
-      if (strLen($symbol) > MT4::MAX_SYMBOL_LENGTH)           throw new plInvalidArgumentException('Invalid parameter $symbol: "'.$symbol.'" (max '.MT4::MAX_SYMBOL_LENGTH.' characters)');
-      if (!is_string($description))                           throw new IllegalTypeException('Illegal type of parameter $description: '.getType($description));
-      if (!is_int($digits))                                   throw new IllegalTypeException('Illegal type of parameter $digits: '.getType($digits));
-      if ($digits < 0)                                        throw new plInvalidArgumentException('Invalid parameter $digits: '.$digits);
-      if (!is_int($format))                                   throw new IllegalTypeException('Illegal type of parameter $format: '.getType($format));
-      if ($format!=400 && $format!=401)                       throw new plInvalidArgumentException('Invalid parameter $format: '.$format.' (needs to be 400 or 401)');
-      if (!is_int($timezoneId))                               throw new IllegalTypeException('Illegal type of parameter $timezoneId: '.getType($timezoneId));
-      if ($timezoneId < 0)                                    throw new plInvalidArgumentException('Invalid parameter $timezoneId: '.$timezoneId.' (invalid timezone)');
-      if (is_null($directory)) $directory = '.';
-      else if (!is_string($directory))                        throw new IllegalTypeException('Illegal type of parameter $directory: '.getType($directory));
-      else if (!is_dir($directory))                           throw new plInvalidArgumentException('Directory "'.$directory.'" not found');
+   public function __construct($symbol, $description, $digits, $format, $timezoneId=0, $serverDirectory=null) {
+      if (!is_string($symbol))                      throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
+      if (!strLen($symbol))                         throw new plInvalidArgumentException('Invalid parameter $symbol: ""');
+      if (strLen($symbol) > MT4::MAX_SYMBOL_LENGTH) throw new plInvalidArgumentException('Invalid parameter $symbol: "'.$symbol.'" (max '.MT4::MAX_SYMBOL_LENGTH.' characters)');
+      if (!is_string($description))                 throw new IllegalTypeException('Illegal type of parameter $description: '.getType($description));
+      if (!is_int($digits))                         throw new IllegalTypeException('Illegal type of parameter $digits: '.getType($digits));
+      if ($digits < 0)                              throw new plInvalidArgumentException('Invalid parameter $digits: '.$digits);
+      if (!is_int($format))                         throw new IllegalTypeException('Illegal type of parameter $format: '.getType($format));
+      if ($format!=400 && $format!=401)             throw new plInvalidArgumentException('Invalid parameter $format: '.$format.' (can be 400 or 401)');
+      if (!is_int($timezoneId))                     throw new IllegalTypeException('Illegal type of parameter $timezoneId: '.getType($timezoneId));
+      if ($timezoneId < 0)                          throw new plInvalidArgumentException('Invalid parameter $timezoneId: '.$timezoneId.' (invalid timezone)');
+      if (is_null($serverDirectory)) $serverDirectory = '.';
+      else if (!is_string($serverDirectory))        throw new IllegalTypeException('Illegal type of parameter $serverDirectory: '.getType($serverDirectory));
+      else if (!is_dir($serverDirectory))           throw new plInvalidArgumentException('Directory "'.$serverDirectory.'" not found');
 
-      $this->symbol      = $symbol;
-      $this->description = strLeft($description, 63);                // ein zu langer String wird gekürzt
-      $this->digits      = $digits;
-      $this->format      = $format;
-      $this->timezoneId  = $timezoneId;
-      $this->directory   = $directory;
-      mkDirWritable($this->directory);
+      $this->symbol          = $symbol;
+      $this->description     = strLeft($description, 63);             // ein zu langer String wird gekürzt
+      $this->digits          = $digits;
+      $this->format          = $format;
+      $this->timezoneId      = $timezoneId;
+      $this->serverDirectory = $serverDirectory;
+      mkDirWritable($this->serverDirectory);
 
       $this->history[PERIOD_M1 ]['bars']             = array();      // Timeframes initialisieren
       $this->history[PERIOD_M5 ]['bars']             = array();
@@ -84,7 +84,7 @@ class HistorySet extends Object {
 
       // alle HistoryFiles erzeugen bzw. zurücksetzen und Header neuschreiben
       foreach ($this->history as $timeframe => $data) {
-         $file  = $this->directory.'/'.$symbol.$timeframe.'.hst';
+         $file  = $this->serverDirectory.'/'.$symbol.$timeframe.'.hst';
          $hFile = fOpen($file, 'wb');
          $this->history[$timeframe]['hFile'] = $hFile;
 
@@ -100,7 +100,6 @@ class HistorySet extends Object {
     * Sorgt bei Zerstörung des Objekts dafür, daß alle noch offenen Historydateien geschlossen werden.
     */
    public function __destruct() {
-      // Ein Destructor darf während des Shutdowns keine Exception werfen.
       try {
          foreach ($this->history as $timeframe => &$data) {                      // data by reference
             if (isSet($data['hFile']) && is_resource($hFile=&$data['hFile'])) {  // hFile by reference
@@ -108,12 +107,35 @@ class HistorySet extends Object {
                $hTmp=$hFile; $hFile=null;
                fClose($hTmp);
             }
-         } unset($data);
+         } unset($data, $hFile);
       }
       catch (Exception $ex) {
+         // Ein Destructor darf während des Shutdowns keine Exception werfen.
          Logger::handleException($ex, $inShutdownOnly=true);
          throw $ex;
       }
+   }
+
+
+   /**
+    * Öffnet ein vorhandenes HistorySet. Dazu muß mindestens ein HistoryFile des Symbols existieren. Nicht existierende
+    * HistoryFiles werden beim Speichern der ersten hinzugefügten Daten automatisch im alten Datenformat (400) erstellt.
+    * Mehrfachaufrufe dieser Funktion für dasselbe Symbol und Serververzeichnis geben dieselbe HistorySet-Instanz zurück.
+    *
+    * @param  string $symbol          - Symbol des HistorySets
+    * @param  string $serverDirectory - Serververzeichnis, in dem die Historydateien des Sets gespeichert sind
+    *                                   (default: aktuelles Verzeichnis)
+    *
+    * @return HistorySet
+    */
+   public static function get($symbol, $serverDirectory=null) {
+      if (!is_string($symbol))               throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
+      if (!strLen($symbol))                  throw new plInvalidArgumentException('Invalid parameter $symbol: ""');
+      if (is_null($serverDirectory)) $serverDirectory = '.';
+      else if (!is_string($serverDirectory)) throw new IllegalTypeException('Illegal type of parameter $serverDirectory: '.getType($serverDirectory));
+      else if (!is_dir($serverDirectory))    throw new plInvalidArgumentException('Directory "'.$serverDirectory.'" not found');
+
+      return null;
    }
 
 

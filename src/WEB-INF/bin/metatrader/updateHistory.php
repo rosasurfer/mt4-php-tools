@@ -58,6 +58,20 @@ function updateHistory($symbol) {
    if (!is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
    if (!strLen($symbol))    throw new plInvalidArgumentException('Invalid parameter $symbol: ""');
 
+   // MT4-HistorySet-Daten
+   $description = MyFX::$symbols[$symbol]['description'];
+   $digits      = MyFX::$symbols[$symbol]['digits'     ];
+   $format      = 400;
+   $timezoneId  = TIMEZONE_ID_FXT;
+   $directory   = MyFX::getConfigPath('myfx.data_directory').'/history/mt4/MyFX-Dukascopy';
+
+
+   // (1) prüfen, ob HistorySet existiert und ggf. ein neues Set erzeugen
+   $history = HistorySet::get($symbol, $directory);
+   if (!$history)
+      $history = new HistorySet($symbol, $description, $digits, $format, $timezoneId, $directory);
+
+
    // (1) wenn HistorySet existiert:
    //     HistorySet öffnen
    //     für jeden Timeframe Startzeitpunkt der Aktualisierung bestimmen, beginnend mit M1 aufsteigend
