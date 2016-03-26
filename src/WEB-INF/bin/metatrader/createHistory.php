@@ -88,7 +88,7 @@ function createHistory($symbol) {
          if      (is_file($file=getVar('myfxFile.compressed', $symbol, $day))) {}   // wenn komprimierte MyFX-Datei existiert
          else if (is_file($file=getVar('myfxFile.raw'       , $symbol, $day))) {}   // wenn unkomprimierte MyFX-Datei existiert
          else {
-            echoPre('[Error]   '.$symbol.' history for '.$shortDate.' not found');
+            echoPre('[Error]   '.$symbol.' MyFX history for '.$shortDate.' not found');
             return false;
          }
          if ($verbose > 1) echoPre('[Info]    '.$shortDate.'   MyFX history file: '.baseName($file));
