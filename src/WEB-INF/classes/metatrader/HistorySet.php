@@ -4,16 +4,20 @@
  */
 class HistorySet extends Object {
 
+   private static /*HistorySet[]*/ $instances = array(); // alle Instanzen dieser Klasse mit einem offenen Set
+
 
    protected /*string*/  $symbol;
+   protected /*string*/  $symbolUpper;
    protected /*string*/  $description;
    protected /*int   */  $digits;
    protected /*int   */  $format;
    protected /*int   */  $timezoneId;
-   protected /*string*/  $serverDirectory;
+   protected /*string*/  $serverDirectory;               // wie im Constructor angegeben
+   protected /*string*/  $realServerDirectory;           // tatsächlicher voller Verzeichnisname
 
-   protected /*array[]*/ $history;                    // History-Daten
-   protected /*int    */ $flushLimit = 10000;         // maximale Anzahl von ungespeicherten Bars
+   protected /*array[]*/ $history;                       // History-Daten
+   protected /*int    */ $flushLimit = 10000;            // maximale Anzahl von ungespeicherten Bars
 
 
    /**
@@ -46,12 +50,14 @@ class HistorySet extends Object {
       else if (!is_string($serverDirectory))        throw new IllegalTypeException('Illegal type of parameter $serverDirectory: '.getType($serverDirectory));
       else if (!is_dir($serverDirectory))           throw new plInvalidArgumentException('Directory "'.$serverDirectory.'" not found');
 
-      $this->symbol          = $symbol;
-      $this->description     = strLeft($description, 63);             // ein zu langer String wird gekürzt
-      $this->digits          = $digits;
-      $this->format          = $format;
-      $this->timezoneId      = $timezoneId;
-      $this->serverDirectory = $serverDirectory;
+      $this->symbol              = $symbol;
+      $this->symbolUpper         = strToUpper($symbol);
+      $this->description         = strLeft($description, 63);        // ein zu langer String wird gekürzt
+      $this->digits              = $digits;
+      $this->format              = $format;
+      $this->timezoneId          = $timezoneId;
+      $this->serverDirectory     = $serverDirectory;
+      $this->realServerDirectory = realPath($serverDirectory);
       mkDirWritable($this->serverDirectory);
 
       $this->history[PERIOD_M1 ]['bars']             = array();      // Timeframes initialisieren
@@ -84,8 +90,8 @@ class HistorySet extends Object {
 
       // alle HistoryFiles erzeugen bzw. zurücksetzen und Header neuschreiben
       foreach ($this->history as $timeframe => $data) {
-         $file  = $this->serverDirectory.'/'.$symbol.$timeframe.'.hst';
-         $hFile = fOpen($file, 'wb');
+         $fileName = $this->serverDirectory.'/'.$symbol.$timeframe.'.hst';
+         $hFile    = fOpen($fileName, 'wb');
          $this->history[$timeframe]['hFile'] = $hFile;
 
          $hh['period'] = $timeframe;
@@ -126,7 +132,7 @@ class HistorySet extends Object {
     * @param  string $serverDirectory - Serververzeichnis, in dem die Historydateien des Sets gespeichert sind
     *                                   (default: aktuelles Verzeichnis)
     *
-    * @return HistorySet
+    * @return HistorySet - Instance oder NULL, wenn keine entsprechenden Historydateien gefunden wurden
     */
    public static function get($symbol, $serverDirectory=null) {
       if (!is_string($symbol))               throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
@@ -134,6 +140,55 @@ class HistorySet extends Object {
       if (is_null($serverDirectory)) $serverDirectory = '.';
       else if (!is_string($serverDirectory)) throw new IllegalTypeException('Illegal type of parameter $serverDirectory: '.getType($serverDirectory));
       else if (!is_dir($serverDirectory))    throw new plInvalidArgumentException('Directory "'.$serverDirectory.'" not found');
+
+      $symbolUpper   = strToUpper($symbol);
+      $realDirectory = realPath($serverDirectory);
+
+
+      // (1) offene Instanzen durchsuchen und bei Erfolg die gefundene Instanz zurückgeben
+      foreach (self::$instances as $instance) {
+         if ($symbolUpper==$instance->symbolUpper && $realDirectory==$instance->realServerDirectory)
+            return $instance;
+      }
+
+
+      // (2) existierende HistoryFiles suchen
+      $timeframes = array(PERIOD_M1, PERIOD_M5, PERIOD_M15, PERIOD_M30, PERIOD_H1, PERIOD_H4, PERIOD_D1, PERIOD_W1, PERIOD_MN1);
+      foreach ($timeframes as $i => $timeframe) {
+         $fileName = $realDirectory.'/'.$symbol.$timeframe.'.hst';
+
+         /*
+         if (IsFile($fileName)) {                                       // wenn Datei existiert, öffnen
+            hFile = FileOpen($fileName, FILE_BIN|FILE_READ);             // FileOpenHistory() kann Unterverzeichnisse nicht handhaben => alle Zugriffe per FileOpen(symlink)
+
+            fileSize = FileSize(hFile);                                    // Datei geöffnet
+            if (fileSize < HISTORY_HEADER.size) {
+               FileClose(hFile);
+               warn("HistorySet.Get(4)  invalid history file \""+ $fileName +"\" found (size="+ fileSize +")");
+               continue;
+            }
+                                                                           // HISTORY_HEADER auslesen
+            HISTORY_HEADER hh[]; ArrayResize(hh, HISTORY_HEADER.intSize);
+            FileReadArray(hFile, hh, 0, HISTORY_HEADER.intSize);
+            FileClose(hFile);
+
+            size = Max(ArraySize(hs.hSet), 1) + 1;                         // neues HistorySet erstellen (minSize=2: auf Index[0] kann kein gültiges Handle liegen)
+            hs.__ResizeArrays(size);
+            iH   = size-1;
+            hSet = iH;                                                     // das Set-Handle entspricht jeweils dem Index in hs.*[]
+
+            hs.hSet       [iH] = hSet;
+            hs.symbol     [iH] = hh.Symbol     (hh);
+            hs.symbolU    [iH] = StringToUpper(hs.symbol[iH]);
+            hs.description[iH] = hh.Description(hh);
+            hs.digits     [iH] = hh.Digits     (hh);
+            hs.server     [iH] = server;
+            hs.format     [iH] = 400;                                      // Default für neu zu erstellende HistoryFiles
+
+            return hSet;                                                   // Rückkehr nach der ersten ausgewerteten Datei
+         }
+         */
+      }
 
       return null;
    }

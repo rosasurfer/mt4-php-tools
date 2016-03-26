@@ -66,16 +66,12 @@ function updateHistory($symbol) {
    $directory   = MyFX::getConfigPath('myfx.data_directory').'/history/mt4/MyFX-Dukascopy';
 
 
-   // (1) prüfen, ob HistorySet existiert und ggf. ein neues Set erzeugen
-   $history = HistorySet::get($symbol, $directory);
-   if (!$history)
+   // (1) vorhandenes HistorySet öffnen oder ggf. ein neues HistorySet erzeugen
+   if (!$history = HistorySet::get($symbol, $directory))
       $history = new HistorySet($symbol, $description, $digits, $format, $timezoneId, $directory);
 
-
-   // (1) wenn HistorySet existiert:
-   //     HistorySet öffnen
-   //     für jeden Timeframe Startzeitpunkt der Aktualisierung bestimmen, beginnend mit M1 aufsteigend
-   //     alle Timeframes synchronisieren
+   // (1.1) für jeden Timeframe Startzeitpunkt der Aktualisierung bestimmen, beginnend mit M1 aufsteigend
+   // (1.2) alle Timeframes synchronisieren
 
    // (2) reguläres Update machen
 
