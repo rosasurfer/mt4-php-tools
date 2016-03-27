@@ -75,9 +75,8 @@ class HistoryFile extends Object {
       // Header-Daten validieren
       if ($header['format']!=400 && $header['format']!=401)                          throw new MetaTraderException('version.unknown: Invalid or unsupported history format version of "'.$fileName.'": '.$header['format']);
       if (!strCompareI($this->fileName, $header['symbol'].$header['period'].'.hst')) throw new MetaTraderException('filename.mis-match: File name/header mis-match of "'.$fileName.'": header="'.$header['symbol'].','.MyFX::periodDescription($header['period']).'"');
-
-      //$trailingBytes = ($fileSize-HistoryHeader::STRUCT_SIZE) % $barSize;
-      //$error = !$trailingBytes ? null : 'corrupted ('.$trailingBytes.' trailing bytes)';
+      $barSize = ($header['format']==400) ? MT4::HISTORY_BAR_400_SIZE : MT4::HISTORY_BAR_401_SIZE;
+      if ($trailing=($fileSize-HistoryHeader::STRUCT_SIZE) % $barSize)               throw new MetaTraderException('filesize.trailing: Corrupted file "'.$fileName.'": '.$trailing.' trailing bytes');
 
       // Header-Daten speichern
       $this->format    = $header['format'  ];
@@ -87,6 +86,6 @@ class HistoryFile extends Object {
       $this->syncMark  = $header['syncMark'];
       $this->lastSync  = $header['lastSync'];
 
-      // TODO: Bars und From/To einlesen
+      // TODO: count(Bars) und From/To einlesen
    }
 }
