@@ -68,14 +68,14 @@ class HistorySet extends Object {
          }
 
          if (is_null($this->symbol)) {
-            // wenn erste Datei, Instanzdaten übernehmen
+            // wenn erste Datei, dann Instanzdaten übernehmen
             $this->symbol          = $file->getSymbol();
             $this->digits          = $file->getDigits();
             $this->serverName      = $file->getServerName();
             $this->serverDirectory = $file->getServerDirectory();
          }
          else {
-            // wenn weitere Datei, Daten mit Instanzdaten abgleichen
+            // wenn weitere Datei, dann Daten mit Instanzdaten abgleichen
          }
 
 
