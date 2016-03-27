@@ -13,7 +13,10 @@ $__classes['UploadFTPConfigurationActionForm'  ] = $dir.'actions/UploadFTPConfig
 $__classes['Dukascopy'                         ] = $dir.'dukascopy/Dukascopy';
 $__classes['DukascopyException'                ] = $dir.'dukascopy/DukascopyException';
 
+$__classes['HistoryFile'                       ] = $dir.'metatrader/HistoryFile';
+$__classes['HistoryHeader'                     ] = $dir.'metatrader/HistoryHeader';
 $__classes['HistorySet'                        ] = $dir.'metatrader/HistorySet';
+$__classes['MetaTraderException'               ] = $dir.'metatrader/MetaTraderException';
 $__classes['MT4'                               ] = $dir.'metatrader/MT4';
 
 $__classes['MyFX'                              ] = $dir.'myfx/MyFX';

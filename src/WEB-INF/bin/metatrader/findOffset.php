@@ -43,9 +43,9 @@ $fileName = array_shift($args);
 
 // (2) Datei öffnen, Header auslesen und History-Format bestimmen
 $fileSize = fileSize($fileName);
-($fileSize < MT4::HISTORY_HEADER_SIZE) && echoPre('invalid or unknown history file format: file size of "'.$fileName.'" < MinFileSize ('.MT4::HISTORY_HEADER_SIZE.')') & exit(1);
+($fileSize < HistoryHeader::STRUCT_SIZE) && echoPre('invalid or unknown history file format: file size of "'.$fileName.'" < MinFileSize ('.HistoryHeader::STRUCT_SIZE.')') & exit(1);
 $hFile     = fOpen($fileName, 'rb');
-$hstHeader = unpack(MT4::HISTORY_HEADER_getUnpackFormat(), fRead($hFile, MT4::HISTORY_HEADER_SIZE));
+$hstHeader = unpack(HistoryHeader::unpackFormat(), fRead($hFile, HistoryHeader::STRUCT_SIZE));
 extract($hstHeader);
 if      ($format == 400) { $barSize = MT4::HISTORY_BAR_400_SIZE; $barFormat = 'Vtime/dopen/dlow/dhigh/dclose/dticks';                          }
 else if ($format == 401) { $barSize = MT4::HISTORY_BAR_401_SIZE; $barFormat = 'Vtime/x4/dopen/dhigh/dlow/dclose/Vticks/x4/lspread/Vvolume/x4'; }
@@ -54,7 +54,7 @@ else echoPre('unsupported history file format "'.$format.'" in "'.$fileName.'"')
 
 // (3) Anzahl der Bars bestimmen und Beginn- und Endbar auslesen
 $i = 0;
-$allBars = $bars = ($fileSize-MT4::HISTORY_HEADER_SIZE)/$barSize;
+$allBars = $bars = ($fileSize-HistoryHeader::STRUCT_SIZE)/$barSize;
 if (!is_int($bars)) {
    echoPre('unexpected EOF of "'.$fileName.'"');;
    $allBars = $bars = (int) $bars;
@@ -66,7 +66,7 @@ if (!$bars) {
 else {
    $barFrom = unpack($barFormat, fRead($hFile, $barSize));
    $iFrom   = 0;
-   fSeek($hFile, MT4::HISTORY_HEADER_SIZE + $barSize*($bars-1));
+   fSeek($hFile, HistoryHeader::STRUCT_SIZE + $barSize*($bars-1));
    $barTo   = unpack($barFormat, fRead($hFile, $barSize));
    $iTo     = $bars-1;
 }
@@ -89,7 +89,7 @@ while ($i != -1) {
 
    $halfBars = ceil($bars/2);
    $iMiddle  = $iFrom+$halfBars-1;
-   fSeek($hFile, MT4::HISTORY_HEADER_SIZE + $barSize*($iMiddle));
+   fSeek($hFile, HistoryHeader::STRUCT_SIZE + $barSize*($iMiddle));
    $barMiddle = unpack($barFormat, fRead($hFile, $barSize));
    if ($barMiddle['time'] <= $datetime) { $barFrom = $barMiddle; $iFrom = $iMiddle; }
    else                                 { $barTo   = $barMiddle; $iTo   = $iMiddle; }
@@ -98,7 +98,7 @@ while ($i != -1) {
 
 
 // (5) Ergebnis ausgeben
-if ($i>=0 && $byteOffset) $result = MT4::HISTORY_HEADER_SIZE + $i*$barSize;
+if ($i>=0 && $byteOffset) $result = HistoryHeader::STRUCT_SIZE + $i*$barSize;
 else                      $result = $i;
 
 if      ($quietMode ) echo $result;

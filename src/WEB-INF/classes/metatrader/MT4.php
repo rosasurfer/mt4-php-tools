@@ -20,11 +20,6 @@ class MT4 extends StaticClass {
    const HISTORY_BAR_401_SIZE = 60;
 
    /**
-    * Struct-Size des History-Headers (History-Dateien "*.hst")
-    */
-   const HISTORY_HEADER_SIZE = 148;
-
-   /**
     * Struct-Size eines Symbols (Symboldatei "symbols.raw")
     */
    const SYMBOL_SIZE = 1936;
@@ -43,6 +38,12 @@ class MT4 extends StaticClass {
     * Höchstlänge eines MetaTrader-Symbols
     */
    const MAX_SYMBOL_LENGTH = 11;
+
+
+   /**
+    * MetaTrader Standard-Timeframes
+    */
+   public static $timeframes = array(PERIOD_M1, PERIOD_M5, PERIOD_M15, PERIOD_M30, PERIOD_H1, PERIOD_H4, PERIOD_D1, PERIOD_W1, PERIOD_MN1);
 
 
    /**
@@ -145,25 +146,6 @@ class MT4 extends StaticClass {
 
 
    /**
-    * Formatbeschreibung eines struct HISTORY_HEADER.
-    *
-    * @see  Definition in MT4Expander.dll::Expander.h
-    * @see  self::HISTORY_HEADER_getUnpackFormat() zum Verwenden als unpack()-Formatstring
-    */
-   private static $HISTORY_HEADER_format = '
-      /V   format
-      /a64 description
-      /a12 symbol
-      /V   period
-      /V   digits
-      /V   syncMark
-      /V   lastSync
-      /V   timezoneId
-      /x48 reserved
-   ';
-
-
-   /**
     * Gibt die Namen der Felder eines struct SYMBOL zurück.
     *
     * @return string[] - Array mit SYMBOL-Feldern
@@ -194,28 +176,6 @@ class MT4 extends StaticClass {
 
       if (is_null($format)) {
          $format = self::$SYMBOL_format;
-
-         // since PHP 5.5.0: The 'a' code now retains trailing NULL bytes, 'Z' replaces the former 'a'.
-         if (PHP_VERSION >= '5.5.0') $format = str_replace('/a', '/Z', $format);
-
-         // remove white space and leading format separator
-         $format = preg_replace('/\s/', '', $format);
-         if ($format[0] == '/') $format = substr($format, 1);
-      }
-      return $format;
-   }
-
-
-   /**
-    * Gibt den Formatstring zum Entpacken eines struct HISTORY_HEADER zurück.
-    *
-    * @return string - unpack()-Formatstring
-    */
-   public static function HISTORY_HEADER_getUnpackFormat() {
-      static $format = null;
-
-      if (is_null($format)) {
-         $format = self::$HISTORY_HEADER_format;
 
          // since PHP 5.5.0: The 'a' code now retains trailing NULL bytes, 'Z' replaces the former 'a'.
          if (PHP_VERSION >= '5.5.0') $format = str_replace('/a', '/Z', $format);

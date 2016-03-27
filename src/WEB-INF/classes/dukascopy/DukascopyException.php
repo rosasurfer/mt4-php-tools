@@ -2,7 +2,7 @@
 /**
  * DukascopyException
  *
- * Exception zur Markierung von DukascopyException-Fehlern
+ * Exception zur Markierung von Dukascopy-Fehlern
  */
 class DukascopyException extends plRuntimeException {
 }

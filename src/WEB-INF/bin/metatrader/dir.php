@@ -78,7 +78,7 @@ foreach ($expandedArgs as $fileName) {
    $files[]  = $baseName;
    $fileSize = fileSize($fileName);
 
-   if ($fileSize < MT4::HISTORY_HEADER_SIZE) {
+   if ($fileSize < HistoryHeader::STRUCT_SIZE) {
       // Fehlermeldung zwischenspeichern
       $formats    [] = null;
       $symbols    [] = ($name=strLeftTo($baseName, '.hst'));
@@ -91,12 +91,12 @@ foreach ($expandedArgs as $fileName) {
       $bars       [] = null;
       $barsFrom   [] = null;
       $barsTo     [] = null;
-      $errors     [] = 'invalid or unsupported file format: file size of '.$fileSize.' < minFileSize of '.MT4::HISTORY_HEADER_SIZE;
+      $errors     [] = 'invalid or unsupported file format: file size of '.$fileSize.' < minFileSize of '.HistoryHeader::STRUCT_SIZE;
       continue;
    }
 
    $hFile  = fOpen($fileName, 'rb');
-   $header = unpack(MT4::HISTORY_HEADER_getUnpackFormat(), fRead($hFile, MT4::HISTORY_HEADER_SIZE));
+   $header = unpack(HistoryHeader::unpackFormat(), fRead($hFile, HistoryHeader::STRUCT_SIZE));
 
    if ($header['format']==400 || $header['format']==401) {
       // Daten zwischenspeichern
@@ -112,12 +112,12 @@ foreach ($expandedArgs as $fileName) {
       if ($header['format'] == 400) { $barSize = MT4::HISTORY_BAR_400_SIZE; $barFormat = 'Vtime/dopen/dlow/dhigh/dclose/dticks';                          }
       else                   /*401*/{ $barSize = MT4::HISTORY_BAR_401_SIZE; $barFormat = 'Vtime/x4/dopen/dhigh/dlow/dclose/Vticks/x4/lspread/Vvolume/x4'; }
 
-      $iBars    = floor(($fileSize-MT4::HISTORY_HEADER_SIZE)/$barSize);
+      $iBars    = floor(($fileSize-HistoryHeader::STRUCT_SIZE)/$barSize);
       $barFrom = $barTo = array();
       if ($iBars) {
          $barFrom  = unpack($barFormat, fRead($hFile, $barSize));
          if ($iBars > 1) {
-            fSeek($hFile, MT4::HISTORY_HEADER_SIZE + $barSize*($iBars-1));
+            fSeek($hFile, HistoryHeader::STRUCT_SIZE + $barSize*($iBars-1));
             $barTo = unpack($barFormat, fRead($hFile, $barSize));
          }
       }
@@ -134,7 +134,7 @@ foreach ($expandedArgs as $fileName) {
          $error = 'file name/data mis-match: data='.$header['symbol'].','.MyFX::periodDescription($header['period']);
       }
       else {
-         $trailingBytes = ($fileSize-MT4::HISTORY_HEADER_SIZE) % $barSize;
+         $trailingBytes = ($fileSize-HistoryHeader::STRUCT_SIZE) % $barSize;
          $error = !$trailingBytes ? null : 'corrupted ('.$trailingBytes.' trailing bytes)';
       }
       $errors[] = $error;
