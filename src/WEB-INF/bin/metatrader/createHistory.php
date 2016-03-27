@@ -66,12 +66,10 @@ function createHistory($symbol) {
 
 
    // MT4-HistorySet erzeugen
-   $description = MyFX::$symbols[$symbol]['description'];
-   $digits      = MyFX::$symbols[$symbol]['digits'     ];
-   $format      = 400;
-   $timezoneId  = TIMEZONE_ID_FXT;
-   $directory   = MyFX::getConfigPath('myfx.data_directory').'/history/mt4/MyFX-Dukascopy';
-   $history     = new HistorySet($symbol, $description, $digits, $format, $timezoneId, $directory);
+   $digits    = MyFX::$symbols[$symbol]['digits'];
+   $format    = 400;
+   $directory = MyFX::getConfigPath('myfx.data_directory').'/history/mt4/MyFX-Dukascopy';
+   $history   = new HistorySet($symbol, $digits, $format, $directory);
 
 
    // Gesamte Zeitspanne tageweise durchlaufen

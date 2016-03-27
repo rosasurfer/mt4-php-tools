@@ -4,92 +4,130 @@
  */
 class HistorySet extends Object {
 
-   private static /*HistorySet[]*/ $instances = array(); // alle Instanzen dieser Klasse mit einem offenen Set
-
+   private static /*HistorySet[]*/ $openSets = array();  // alle Instanzen dieser Klasse mit einem offenen Set
 
    protected /*string*/  $symbol;
-   protected /*string*/  $symbolUpper;
-   protected /*string*/  $description;
    protected /*int   */  $digits;
-   protected /*int   */  $format;
-   protected /*int   */  $timezoneId;
-   protected /*string*/  $serverDirectory;               // wie im Constructor angegeben
-   protected /*string*/  $realServerDirectory;           // tatsächlicher voller Verzeichnisname
+   protected /*string*/  $serverName;
+   protected /*string*/  $serverDirectory;         // vollständiger Verzeichnisname
 
-   protected /*array[]*/ $history;                       // History-Daten
-   protected /*int    */ $flushLimit = 10000;            // maximale Anzahl von ungespeicherten Bars
+   protected /*array[]*/ $history = array(PERIOD_M1 =>array('hFile'=>null, 'bars'=>array(), 'currentCloseTime'=>PHP_INT_MIN),
+                                          PERIOD_M5 =>array('hFile'=>null, 'bars'=>array(), 'currentCloseTime'=>PHP_INT_MIN),
+                                          PERIOD_M15=>array('hFile'=>null, 'bars'=>array(), 'currentCloseTime'=>PHP_INT_MIN),
+                                          PERIOD_M30=>array('hFile'=>null, 'bars'=>array(), 'currentCloseTime'=>PHP_INT_MIN),
+                                          PERIOD_H1 =>array('hFile'=>null, 'bars'=>array(), 'currentCloseTime'=>PHP_INT_MIN),
+                                          PERIOD_H4 =>array('hFile'=>null, 'bars'=>array(), 'currentCloseTime'=>PHP_INT_MIN),
+                                          PERIOD_D1 =>array('hFile'=>null, 'bars'=>array(), 'currentCloseTime'=>PHP_INT_MIN),
+                                          PERIOD_W1 =>array('hFile'=>null, 'bars'=>array(), 'currentCloseTime'=>PHP_INT_MIN),
+                                          PERIOD_MN1=>array('hFile'=>null, 'bars'=>array(), 'currentCloseTime'=>PHP_INT_MIN),
+   );
+   protected /*int    */ $bufferSize = 10000;            // maximale Anzahl vor dem Schreiben zwischengespeicherter Bars
 
 
    /**
-    * Constructor
+    * Überladener Constructor.
     *
-    * Erzeugt ein neues HistorySet mit den angegebenen Daten.
+    * Signaturen:
+    * -----------
+    * new HistorySet($fileNames)
+    * new HistorySet($symbol, $digits, $format, $serverDirectory)
+    */
+   public function __construct($arg1=null, $arg2=null, $arg3=null, $arg4=null) {
+      $argc = func_num_args();
+
+      if      ($argc == 1) $this->__construct_1($arg1);
+      else if ($argc == 4) $this->__construct_2($arg1, $arg2, $arg3, $arg4);
+
+      else throw new plInvalidArgumentException('Invalid number of arguments: '.$argc);
+   }
+
+
+   /**
+    * Constructor 1
+    *
+    * Erzeugt eine HistorySet-Instanz aus mindestens teilweise vorhandenen HistoryFiles. Nach Rückkehr wurden alle noch nicht
+    * existierenden HistoryFiles im Format v400 angelegt und ein entsprechender HistoryHeader geschrieben. Existierende Daten
+    * wurden nicht gelöscht. Die Formate der einzelnen Dateien eines HistorySets können gemischt sein.
+    *
+    * @param  string[] $fileNames - mindestens ein vollständiger Name eines vorhandenen HistoryFiles
+    */
+   private function __construct_1(array $fileNames) {
+      foreach($fileNames as $key => $fileName) {
+         if (!is_string($fileName)) throw new IllegalTypeException('Illegal type of parameter $fileNames['.$key.']: '.getType($fileName));
+         if (!is_file($fileName))   throw new FileNotFoundException('Invalid parameter $fileNames['.$key.']: "'.$fileName.'" (file not found)');
+
+         // HistoryFile-Wrapper erzeugen
+         $file = null;
+         try {
+            $file = new HistoryFile($fileName);
+         }
+         catch (MetaTraderException $ex) {
+            if (strStartsWith($ex->getMessage(), 'filesize.insufficient')) { Logger::warn($ex, __CLASS__); continue; }
+            if (strStartsWith($ex->getMessage(), 'filename.mis-match'   )) { Logger::warn($ex, __CLASS__); continue; }
+            throw $ex;
+         }
+
+         if (is_null($this->symbol)) {
+            // wenn erste Datei, Instanzdaten übernehmen
+            $this->symbol          = $file->getSymbol();
+            $this->digits          = $file->getDigits();
+            $this->serverName      = $file->getServerName();
+            $this->serverDirectory = $file->getServerDirectory();
+         }
+         else {
+            // wenn weitere Datei, Daten mit Instanzdaten abgleichen
+         }
+
+
+         // FilePointer setzen
+      }
+
+      foreach ($this->history as $timeframe => $data) {
+         // fehlende Dateien neu anlegen
+      }
+   }
+
+
+   /**
+    * Constructor 2
+    *
+    * Erzeugt ein neues HistorySet mit den angegebenen Daten. Nach Rückkehr wurden alle HistoryFiles angelegt und ein
+    * entsprechender HistoryHeader geschrieben. Existierende Daten wurden gelöscht.
     *
     * @param  string $symbol          - Symbol der HistorySet-Daten
-    * @param  string $description     - Beschreibung des Symbols
     * @param  int    $digits          - Digits der Datenreihe
     * @param  int    $format          - Speicherformat der Datenreihe:
     *                                   • 400 - MetaTrader <= Build 509
     *                                   • 401 - MetaTrader  > Build 509
-    * @param  int    $timezoneId      - ID der Zeitzone des Sets (default: aktuelle Serverzeitzone)
     * @param  string $serverDirectory - Serververzeichnis, in dem die Historydateien des Sets gespeichert werden
-    *                                   (default: aktuelles Verzeichnis)
     */
-   public function __construct($symbol, $description, $digits, $format, $timezoneId=0, $serverDirectory=null) {
+   private function __construct_2($symbol, $digits, $format, $serverDirectory) {
       if (!is_string($symbol))                      throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
       if (!strLen($symbol))                         throw new plInvalidArgumentException('Invalid parameter $symbol: ""');
       if (strLen($symbol) > MT4::MAX_SYMBOL_LENGTH) throw new plInvalidArgumentException('Invalid parameter $symbol: "'.$symbol.'" (max '.MT4::MAX_SYMBOL_LENGTH.' characters)');
-      if (!is_string($description))                 throw new IllegalTypeException('Illegal type of parameter $description: '.getType($description));
       if (!is_int($digits))                         throw new IllegalTypeException('Illegal type of parameter $digits: '.getType($digits));
       if ($digits < 0)                              throw new plInvalidArgumentException('Invalid parameter $digits: '.$digits);
       if (!is_int($format))                         throw new IllegalTypeException('Illegal type of parameter $format: '.getType($format));
       if ($format!=400 && $format!=401)             throw new plInvalidArgumentException('Invalid parameter $format: '.$format.' (can be 400 or 401)');
-      if (!is_int($timezoneId))                     throw new IllegalTypeException('Illegal type of parameter $timezoneId: '.getType($timezoneId));
-      if ($timezoneId < 0)                          throw new plInvalidArgumentException('Invalid parameter $timezoneId: '.$timezoneId.' (invalid timezone)');
-      if (is_null($serverDirectory)) $serverDirectory = '.';
-      else if (!is_string($serverDirectory))        throw new IllegalTypeException('Illegal type of parameter $serverDirectory: '.getType($serverDirectory));
-      else if (!is_dir($serverDirectory))           throw new plInvalidArgumentException('Directory "'.$serverDirectory.'" not found');
+      if (!is_string($serverDirectory))             throw new IllegalTypeException('Illegal type of parameter $serverDirectory: '.getType($serverDirectory));
+      if (!is_dir($serverDirectory))                throw new plInvalidArgumentException('Directory "'.$serverDirectory.'" not found');
 
-      $this->symbol              = $symbol;
-      $this->symbolUpper         = strToUpper($symbol);
-      $this->description         = strLeft($description, 63);        // ein zu langer String wird gekürzt
-      $this->digits              = $digits;
-      $this->format              = $format;
-      $this->timezoneId          = $timezoneId;
-      $this->serverDirectory     = $serverDirectory;
-      $this->realServerDirectory = realPath($serverDirectory);
+      $this->symbol          = $symbol;
+      $this->digits          = $digits;
+      $this->format          = $format;
+      $this->serverDirectory = realPath($serverDirectory);
+      $this->serverName      = baseName($this->serverDirectory);
       mkDirWritable($this->serverDirectory);
-
-      $this->history[PERIOD_M1 ]['bars']             = array();      // Timeframes initialisieren
-      $this->history[PERIOD_M5 ]['bars']             = array();
-      $this->history[PERIOD_M15]['bars']             = array();
-      $this->history[PERIOD_M30]['bars']             = array();
-      $this->history[PERIOD_H1 ]['bars']             = array();
-      $this->history[PERIOD_H4 ]['bars']             = array();
-      $this->history[PERIOD_D1 ]['bars']             = array();
-      $this->history[PERIOD_W1 ]['bars']             = array();
-      $this->history[PERIOD_MN1]['bars']             = array();
-
-      $this->history[PERIOD_M1 ]['currentCloseTime'] = PHP_INT_MIN;
-      $this->history[PERIOD_M5 ]['currentCloseTime'] = PHP_INT_MIN;
-      $this->history[PERIOD_M15]['currentCloseTime'] = PHP_INT_MIN;
-      $this->history[PERIOD_M30]['currentCloseTime'] = PHP_INT_MIN;
-      $this->history[PERIOD_H1 ]['currentCloseTime'] = PHP_INT_MIN;
-      $this->history[PERIOD_H4 ]['currentCloseTime'] = PHP_INT_MIN;
-      $this->history[PERIOD_D1 ]['currentCloseTime'] = PHP_INT_MIN;
-      $this->history[PERIOD_W1 ]['currentCloseTime'] = PHP_INT_MIN;
-      $this->history[PERIOD_MN1]['currentCloseTime'] = PHP_INT_MIN;
 
       // neuen HistoryHeader initialisieren
       $hh = MT4::createHistoryHeader();
-      $hh['format'     ] = $this->format;
-      $hh['description'] = $this->description;
-      $hh['symbol'     ] = $this->symbol;
-      $hh['digits'     ] = $this->digits;
-      $hh['timezoneId' ] = $this->timezoneId;
+      $hh['format'   ] = $this->format;
+      $hh['copyright'] = MyFX::$symbols[strToUpper($symbol)]['description'];
+      $hh['symbol'   ] = $this->symbol;
+      $hh['digits'   ] = $this->digits;
 
       // alle HistoryFiles erzeugen bzw. zurücksetzen und Header neuschreiben
-      foreach ($this->history as $timeframe => $data) {
+      foreach (MT4::$timeframes as $timeframe) {
          $fileName = $this->serverDirectory.'/'.$symbol.$timeframe.'.hst';
          $hFile    = fOpen($fileName, 'wb');
          $this->history[$timeframe]['hFile'] = $hFile;
@@ -124,71 +162,41 @@ class HistorySet extends Object {
 
 
    /**
-    * Öffnet ein vorhandenes HistorySet. Dazu muß mindestens ein HistoryFile des Symbols existieren. Nicht existierende
-    * HistoryFiles werden beim Speichern der ersten hinzugefügten Daten automatisch im alten Datenformat (400) erstellt.
+    * Sucht und öffnet ein vorhandenes HistorySet. Dazu muß mindestens ein HistoryFile des Symbols existieren.
+    * Nicht existierende HistoryFiles werden beim Speichern der ersten hinzugefügten Daten im History-Format v400 angelegt.
     * Mehrfachaufrufe dieser Funktion für dasselbe Symbol und Serververzeichnis geben dieselbe HistorySet-Instanz zurück.
     *
     * @param  string $symbol          - Symbol des HistorySets
     * @param  string $serverDirectory - Serververzeichnis, in dem die Historydateien des Sets gespeichert sind
-    *                                   (default: aktuelles Verzeichnis)
     *
     * @return HistorySet - Instance oder NULL, wenn keine entsprechenden Historydateien gefunden wurden
     */
-   public static function get($symbol, $serverDirectory=null) {
-      if (!is_string($symbol))               throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
-      if (!strLen($symbol))                  throw new plInvalidArgumentException('Invalid parameter $symbol: ""');
-      if (is_null($serverDirectory)) $serverDirectory = '.';
-      else if (!is_string($serverDirectory)) throw new IllegalTypeException('Illegal type of parameter $serverDirectory: '.getType($serverDirectory));
-      else if (!is_dir($serverDirectory))    throw new plInvalidArgumentException('Directory "'.$serverDirectory.'" not found');
+   public static function get($symbol, $serverDirectory) {
+      if (!is_string($symbol))          throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
+      if (!strLen($symbol))             throw new plInvalidArgumentException('Invalid parameter $symbol: ""');
+      if (!is_string($serverDirectory)) throw new IllegalTypeException('Illegal type of parameter $serverDirectory: '.getType($serverDirectory));
+      if (!is_dir($serverDirectory))    throw new plInvalidArgumentException('Directory "'.$serverDirectory.'" not found');
 
+      // offene Instanzen durchsuchen und bei Erfolg die gefundene Instanz zurückgeben
       $symbolUpper   = strToUpper($symbol);
       $realDirectory = realPath($serverDirectory);
 
-
-      // (1) offene Instanzen durchsuchen und bei Erfolg die gefundene Instanz zurückgeben
-      foreach (self::$instances as $instance) {
-         if ($symbolUpper==$instance->symbolUpper && $realDirectory==$instance->realServerDirectory)
-            return $instance;
+      foreach (self::$openSets as $set) {
+         if ($symbolUpper==$set->symbolUpper && $realDirectory==$set->serverDirectory)
+            return $set;
       }
 
-
-      // (2) existierende HistoryFiles suchen
-      $timeframes = array(PERIOD_M1, PERIOD_M5, PERIOD_M15, PERIOD_M30, PERIOD_H1, PERIOD_H4, PERIOD_D1, PERIOD_W1, PERIOD_MN1);
-      foreach ($timeframes as $i => $timeframe) {
+      // existierende HistoryFiles suchen
+      $files = array();
+      foreach (MT4::$timeframes as $timeframe) {
          $fileName = $realDirectory.'/'.$symbol.$timeframe.'.hst';
-
-         /*
-         if (IsFile($fileName)) {                                       // wenn Datei existiert, öffnen
-            hFile = FileOpen($fileName, FILE_BIN|FILE_READ);             // FileOpenHistory() kann Unterverzeichnisse nicht handhaben => alle Zugriffe per FileOpen(symlink)
-
-            fileSize = FileSize(hFile);                                    // Datei geöffnet
-            if (fileSize < HISTORY_HEADER.size) {
-               FileClose(hFile);
-               warn("HistorySet.Get(4)  invalid history file \""+ $fileName +"\" found (size="+ fileSize +")");
-               continue;
-            }
-                                                                           // HISTORY_HEADER auslesen
-            HISTORY_HEADER hh[]; ArrayResize(hh, HISTORY_HEADER.intSize);
-            FileReadArray(hFile, hh, 0, HISTORY_HEADER.intSize);
-            FileClose(hFile);
-
-            size = Max(ArraySize(hs.hSet), 1) + 1;                         // neues HistorySet erstellen (minSize=2: auf Index[0] kann kein gültiges Handle liegen)
-            hs.__ResizeArrays(size);
-            iH   = size-1;
-            hSet = iH;                                                     // das Set-Handle entspricht jeweils dem Index in hs.*[]
-
-            hs.hSet       [iH] = hSet;
-            hs.symbol     [iH] = hh.Symbol     (hh);
-            hs.symbolU    [iH] = StringToUpper(hs.symbol[iH]);
-            hs.description[iH] = hh.Description(hh);
-            hs.digits     [iH] = hh.Digits     (hh);
-            hs.server     [iH] = server;
-            hs.format     [iH] = 400;                                      // Default für neu zu erstellende HistoryFiles
-
-            return hSet;                                                   // Rückkehr nach der ersten ausgewerteten Datei
-         }
-         */
+         if (is_file($fileName))
+            $files[] = $fileName;
       }
+
+      // bei Erfolg HistorySet der existierenden Dateien zurückgeben
+      if ($files)
+         return new HistorySet($files);
 
       return null;
    }
@@ -224,8 +232,8 @@ class HistorySet extends Object {
       $lastBar    = $this->history[PERIOD_M1]['bars'][$sizeM1Bars-1];
       $this->history[PERIOD_M1]['currentCloseTime'] = $lastBar['time'] + 1*MINUTE;
 
-      if ($sizeM1Bars > $this->flushLimit)
-         $sizeM1Bars -= $this->flushBars(PERIOD_M1, $this->flushLimit);
+      if ($sizeM1Bars > $this->bufferSize)
+         $sizeM1Bars -= $this->flushBars(PERIOD_M1, $this->bufferSize);
    }
 
 
@@ -249,8 +257,8 @@ class HistorySet extends Object {
             $this->history[PERIOD_M5]['bars'          ][] = $bar;
             $currentBar =& $this->history[PERIOD_M5]['bars'][$sizeM5Bars++];
 
-            if ($sizeM5Bars > $this->flushLimit)
-               $sizeM5Bars -= $this->flushBars(PERIOD_M5, $this->flushLimit);
+            if ($sizeM5Bars > $this->bufferSize)
+               $sizeM5Bars -= $this->flushBars(PERIOD_M5, $this->bufferSize);
          }
          else {
             // letzte Bar aktualisieren ('time' und 'open' unverändert)
@@ -283,8 +291,8 @@ class HistorySet extends Object {
             $this->history[PERIOD_M15]['bars'          ][] = $bar;
             $currentBar =& $this->history[PERIOD_M15]['bars'][$sizeM15Bars++];
 
-            if ($sizeM15Bars > $this->flushLimit)
-               $sizeM15Bars -= $this->flushBars(PERIOD_M15, $this->flushLimit);
+            if ($sizeM15Bars > $this->bufferSize)
+               $sizeM15Bars -= $this->flushBars(PERIOD_M15, $this->bufferSize);
          }
          else {
             // letzte Bar aktualisieren ('time' und 'open' unverändert)
@@ -317,8 +325,8 @@ class HistorySet extends Object {
             $this->history[PERIOD_M30]['bars'          ][] = $bar;
             $currentBar =& $this->history[PERIOD_M30]['bars'][$sizeM30Bars++];
 
-            if ($sizeM30Bars > $this->flushLimit)
-               $sizeM30Bars -= $this->flushBars(PERIOD_M30, $this->flushLimit);
+            if ($sizeM30Bars > $this->bufferSize)
+               $sizeM30Bars -= $this->flushBars(PERIOD_M30, $this->bufferSize);
          }
          else {
             // letzte Bar aktualisieren ('time' und 'open' unverändert)
@@ -351,8 +359,8 @@ class HistorySet extends Object {
             $this->history[PERIOD_H1]['bars'          ][] = $bar;
             $currentBar =& $this->history[PERIOD_H1]['bars'][$sizeH1Bars++];
 
-            if ($sizeH1Bars > $this->flushLimit)
-               $sizeH1Bars -= $this->flushBars(PERIOD_H1, $this->flushLimit);
+            if ($sizeH1Bars > $this->bufferSize)
+               $sizeH1Bars -= $this->flushBars(PERIOD_H1, $this->bufferSize);
          }
          else {
             // letzte Bar aktualisieren ('time' und 'open' unverändert)
@@ -385,8 +393,8 @@ class HistorySet extends Object {
             $this->history[PERIOD_H4]['bars'          ][] = $bar;
             $currentBar =& $this->history[PERIOD_H4]['bars'][$sizeH4Bars++];
 
-            if ($sizeH4Bars > $this->flushLimit)
-               $sizeH4Bars -= $this->flushBars(PERIOD_H4, $this->flushLimit);
+            if ($sizeH4Bars > $this->bufferSize)
+               $sizeH4Bars -= $this->flushBars(PERIOD_H4, $this->bufferSize);
          }
          else {
             // letzte Bar aktualisieren ('time' und 'open' unverändert)
@@ -419,8 +427,8 @@ class HistorySet extends Object {
             $this->history[PERIOD_D1]['bars'          ][] = $bar;
             $currentBar =& $this->history[PERIOD_D1]['bars'][$sizeD1Bars++];
 
-            if ($sizeD1Bars > $this->flushLimit)
-               $sizeD1Bars -= $this->flushBars(PERIOD_D1, $this->flushLimit);
+            if ($sizeD1Bars > $this->bufferSize)
+               $sizeD1Bars -= $this->flushBars(PERIOD_D1, $this->bufferSize);
          }
          else {
             // letzte Bar aktualisieren ('time' und 'open' unverändert)
@@ -454,8 +462,8 @@ class HistorySet extends Object {
             $this->history[PERIOD_W1]['bars'          ][] = $bar;
             $currentBar =& $this->history[PERIOD_W1]['bars'][$sizeW1Bars++];
 
-            if ($sizeW1Bars > $this->flushLimit)
-               $sizeW1Bars -= $this->flushBars(PERIOD_W1, $this->flushLimit);
+            if ($sizeW1Bars > $this->bufferSize)
+               $sizeW1Bars -= $this->flushBars(PERIOD_W1, $this->bufferSize);
          }
          else {
             // letzte Bar aktualisieren ('time' und 'open' unverändert)
@@ -491,8 +499,8 @@ class HistorySet extends Object {
             $this->history[PERIOD_MN1]['bars'          ][] = $bar;
             $currentBar =& $this->history[PERIOD_MN1]['bars'][$sizeMN1Bars++];
 
-            if ($sizeMN1Bars > $this->flushLimit)
-               $sizeMN1Bars -= $this->flushBars(PERIOD_MN1, $this->flushLimit);
+            if ($sizeMN1Bars > $this->bufferSize)
+               $sizeMN1Bars -= $this->flushBars(PERIOD_MN1, $this->bufferSize);
          }
          else {
             // letzte Bar aktualisieren ('time' und 'open' unverändert)
@@ -514,14 +522,11 @@ class HistorySet extends Object {
     * @return int - Anzahl der geschriebenen und aus dem Buffer gelöschten Bars
     */
    private function flushBars($timeframe, $count=null) {
-      if (!is_int($timeframe))                throw new IllegalTypeException('Illegal type of parameter $timeframe: '.getType($timeframe));
-      if (!isSet($this->history[$timeframe])) throw new plInvalidArgumentException('Invalid parameter $timeframe: '.$timeframe);
+      if (!is_int($timeframe))                  throw new IllegalTypeException('Illegal type of parameter $timeframe: '.getType($timeframe));
+      if (!MT4::isBuiltinTimeframe($timeframe)) throw new plInvalidArgumentException('Invalid parameter $timeframe: '.$timeframe);
       if (is_null($count)) $count = PHP_INT_MAX;
-      if (!is_int($count))                    throw new IllegalTypeException('Illegal type of parameter $count: '.getType($count));
-      if ($count < 0)                         throw new plInvalidArgumentException('Invalid parameter $count: '.$count);
-
-      if (!isSet($this->history[$timeframe]['bars']))
-         return 0;
+      if (!is_int($count))                      throw new IllegalTypeException('Illegal type of parameter $count: '.getType($count));
+      if ($count < 0)                           throw new plInvalidArgumentException('Invalid parameter $count: '.$count);
 
       $size = sizeOf($this->history[$timeframe]['bars']);
       $todo = min($size, $count);

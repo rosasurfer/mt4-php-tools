@@ -51,15 +51,14 @@ class MT4 extends StaticClass {
     *
     * @see  Definition in MT4Expander.dll::Expander.h
     */
-   private static $tpl_HistoryHeader = array('format'      => 0,
-                                             'description' => "\0",
-                                             'symbol'      => "\0",
-                                             'period'      => 0,
-                                             'digits'      => 0,
-                                             'syncMark'    => 0,
-                                             'lastSync'    => 0,
-                                             'timezoneId'  => 0,
-                                             'reserved'    => 0);
+   private static $tpl_HistoryHeader = array('format'    => 0,
+                                             'copyright' => "\0",
+                                             'symbol'    => "\0",
+                                             'period'    => 0,
+                                             'digits'    => 0,
+                                             'syncMark'  => 0,
+                                             'lastSync'  => 0,
+                                             'reserved'  => 0);
 
    /**
     * History-Bar v400
@@ -214,18 +213,21 @@ class MT4 extends StaticClass {
 
       $hh = array_merge(self::$tpl_HistoryHeader, $hh);
 
+      $hh['copyright'] = strLeft($hh['copyright'], 63);
+      $hh['symbol'   ] = strLeft($hh['symbol'   ], 11);
+      $hh['reserved' ] = '';
+
       // TODO: Struct-Daten validieren
 
       fSeek($hFile, 0);
-      return fWrite($hFile, pack('Va64a12VVVVVa48', $hh['format'     ],    // V
-                                                    $hh['description'],    // a64
-                                                    $hh['symbol'     ],    // a12
-                                                    $hh['period'     ],    // V
-                                                    $hh['digits'     ],    // V
-                                                    $hh['syncMark'   ],    // V
-                                                    $hh['lastSync'   ],    // V
-                                                    $hh['timezoneId' ],    // V
-                                                    $hh['reserved'   ]));  // a48
+      return fWrite($hFile, pack('Va64a12VVVVa52', $hh['format'   ],       // V
+                                                   $hh['copyright'],       // a64
+                                                   $hh['symbol'   ],       // a12
+                                                   $hh['period'   ],       // V
+                                                   $hh['digits'   ],       // V
+                                                   $hh['syncMark' ],       // V
+                                                   $hh['lastSync' ],       // V
+                                                   $hh['reserved' ]));     // a52
    }
 
 

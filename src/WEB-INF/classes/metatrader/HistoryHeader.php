@@ -7,7 +7,7 @@ class HistoryHeader extends Object {
    /**
     * Struct-Size eines HistoryHeaders
     */
-   const SIZE = 148;
+   const STRUCT_SIZE = 148;
 
 
    /**
@@ -18,14 +18,13 @@ class HistoryHeader extends Object {
     */
    private static $format = '
       /V   format
-      /a64 description
+      /a64 copyright
       /a12 symbol
       /V   period
       /V   digits
       /V   syncMark
       /V   lastSync
-      /V   timezoneId
-      /x48 reserved
+      /x52 reserved
    ';
 
 
