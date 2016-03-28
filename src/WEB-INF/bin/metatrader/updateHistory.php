@@ -58,6 +58,8 @@ function updateHistory($symbol) {
    if (!is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
    if (!strLen($symbol))    throw new plInvalidArgumentException('Invalid parameter $symbol: ""');
 
+   global $verbose;
+
    // HistorySet-Daten
    $digits    = MyFX::$symbols[$symbol]['digits'];
    $format    = 400;
@@ -94,14 +96,14 @@ function updateHistory($symbol) {
             // Bars einlesen und MT4-History aktualisieren
             $bars = MyFX::readBarFile($file, $symbol);
 
-            echoPre('updating existing history: '.$shortDate);
+            if ($verbose > 0) echoPre('updating existing history: '.$shortDate);
             $history->update($bars);
          }
          $startDay += 1*DAY;
       }
       else {
          // (1.3) $lastSyncTime=0: HistorySet verwerfen und komplett neuschreiben lassen
-         echoPre('disposing existing history ($lastSyncTime=0)');
+         if ($verbose > 0) echoPre('disposing existing history ($lastSyncTime=0)');
          $history->dispose();
          $history = null;
       }
@@ -110,7 +112,7 @@ function updateHistory($symbol) {
 
    // (2) ggf. neues HistorySet erzeugen
    if (!$history) {
-      echoPre('creating new history');
+      if ($verbose > 0) echoPre('creating new history');
       $history = HistorySet::create($symbol, $digits, $format, $directory);
    }
 

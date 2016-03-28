@@ -94,7 +94,7 @@ function createHistory($symbol) {
       }
    }
 
-   echoPre('[Ok]    '.$symbol);
+   echoPre('[Ok]      '.$symbol);
    return true;
 }
 
