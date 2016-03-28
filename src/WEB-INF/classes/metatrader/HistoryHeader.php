@@ -22,8 +22,8 @@ class HistoryHeader extends Object {
       /a12 symbol
       /V   period
       /V   digits
-      /V   syncMark
-      /V   lastSync
+      /V   syncMarker
+      /V   lastSyncTime
       /x52 reserved
    ';
 

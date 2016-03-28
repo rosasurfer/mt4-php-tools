@@ -51,14 +51,14 @@ class MT4 extends StaticClass {
     *
     * @see  Definition in MT4Expander.dll::Expander.h
     */
-   private static $tpl_HistoryHeader = array('format'    => 0,
-                                             'copyright' => "\0",
-                                             'symbol'    => "\0",
-                                             'period'    => 0,
-                                             'digits'    => 0,
-                                             'syncMark'  => 0,
-                                             'lastSync'  => 0,
-                                             'reserved'  => 0);
+   private static $tpl_HistoryHeader = array('format'       => 0,
+                                             'copyright'    => "\0",
+                                             'symbol'       => "\0",
+                                             'period'       => 0,
+                                             'digits'       => 0,
+                                             'syncMarker'   => 0,          // wird vom Terminal u.U. überschrieben
+                                             'lastSyncTime' => 0,          // wird vom Terminal nicht überschrieben
+                                             'reserved'     => 0);
 
    /**
     * History-Bar v400
@@ -220,14 +220,14 @@ class MT4 extends StaticClass {
       // TODO: Struct-Daten validieren
 
       fSeek($hFile, 0);
-      return fWrite($hFile, pack('Va64a12VVVVa52', $hh['format'   ],       // V
-                                                   $hh['copyright'],       // a64
-                                                   $hh['symbol'   ],       // a12
-                                                   $hh['period'   ],       // V
-                                                   $hh['digits'   ],       // V
-                                                   $hh['syncMark' ],       // V
-                                                   $hh['lastSync' ],       // V
-                                                   $hh['reserved' ]));     // a52
+      return fWrite($hFile, pack('Va64a12VVVVa52', $hh['format'      ],       // V
+                                                   $hh['copyright'   ],       // a64
+                                                   $hh['symbol'      ],       // a12
+                                                   $hh['period'      ],       // V
+                                                   $hh['digits'      ],       // V
+                                                   $hh['syncMarker'  ],       // V           // wird vom Terminal u.U. überschrieben
+                                                   $hh['lastSyncTime'],       // V           // wird vom Terminal nicht überschrieben
+                                                   $hh['reserved'    ]));     // a52
    }
 
 

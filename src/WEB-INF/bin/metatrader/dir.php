@@ -59,7 +59,7 @@ sort($expandedArgs);                                              // alles sorti
 
 // (2) gefundene Dateien verzeichnisweise verarbeiten
 $files   = array();
-$formats = $symbols = $symbolsU = $periods = $digits = $syncMarks = $lastSyncs = array();
+$formats = $symbols = $symbolsU = $periods = $digits = $syncMarkers = $lastSyncTimes = array();
 $bars    = $barsFrom = $barsTo = $errors = array();
 $dirName = $lastDir = null;
 
@@ -67,9 +67,9 @@ foreach ($expandedArgs as $fileName) {
    $dirName  = dirName($fileName);
    $baseName = baseName($fileName);
    if ($dirName!=$lastDir && $files) {                            // bei jedem neuen Verzeichnis vorherige angesammelte Daten anzeigen
-      showDirResults($dirName, $files, $formats, $symbols, $symbolsU, $periods, $digits, $syncMarks, $lastSyncs, $bars, $barsFrom, $barsTo, $errors);
+      showDirResults($dirName, $files, $formats, $symbols, $symbolsU, $periods, $digits, $syncMarkers, $lastSyncTimes, $bars, $barsFrom, $barsTo, $errors);
       $files   = array();
-      $formats = $symbols = $symbolsU = $periods = $digits = $syncMarks = $lastSyncs = array();
+      $formats = $symbols = $symbolsU = $periods = $digits = $syncMarkers = $lastSyncTimes = array();
       $bars    = $barsFrom = $barsTo = $errors = array();
    }
    $lastDir = $dirName;
@@ -80,17 +80,17 @@ foreach ($expandedArgs as $fileName) {
 
    if ($fileSize < HistoryHeader::STRUCT_SIZE) {
       // Fehlermeldung zwischenspeichern
-      $formats  [] = null;
-      $symbols  [] = ($name=strLeftTo($baseName, '.hst'));
-      $symbolsU [] = strToUpper($name);
-      $periods  [] = null;
-      $digits   [] = null;
-      $syncMarks[] = null;
-      $lastSyncs[] = null;
-      $bars     [] = null;
-      $barsFrom [] = null;
-      $barsTo   [] = null;
-      $errors   [] = 'invalid or unsupported file format: file size of '.$fileSize.' < minFileSize of '.HistoryHeader::STRUCT_SIZE;
+      $formats      [] = null;
+      $symbols      [] = ($name=strLeftTo($baseName, '.hst'));
+      $symbolsU     [] = strToUpper($name);
+      $periods      [] = null;
+      $digits       [] = null;
+      $syncMarkers  [] = null;
+      $lastSyncTimes[] = null;
+      $bars         [] = null;
+      $barsFrom     [] = null;
+      $barsTo       [] = null;
+      $errors       [] = 'invalid or unsupported file format: file size of '.$fileSize.' < minFileSize of '.HistoryHeader::STRUCT_SIZE;
       continue;
    }
 
@@ -99,13 +99,13 @@ foreach ($expandedArgs as $fileName) {
 
    if ($header['format']==400 || $header['format']==401) {
       // Daten zwischenspeichern
-      $formats  [] =            $header['format'    ];
-      $symbols  [] =            $header['symbol'    ];
-      $symbolsU [] = strToUpper($header['symbol'    ]);
-      $periods  [] =            $header['period'    ];
-      $digits   [] =            $header['digits'    ];
-      $syncMarks[] =            $header['syncMark'  ] ? gmDate('Y.m.d H:i:s', $header['syncMark']) : null;
-      $lastSyncs[] =            $header['lastSync'  ] ? gmDate('Y.m.d H:i:s', $header['lastSync']) : null;
+      $formats      [] =            $header['format'      ];
+      $symbols      [] =            $header['symbol'      ];
+      $symbolsU     [] = strToUpper($header['symbol'      ]);
+      $periods      [] =            $header['period'      ];
+      $digits       [] =            $header['digits'      ];
+      $syncMarkers  [] =            $header['syncMarker'  ] ? gmDate('Y.m.d H:i:s', $header['syncMarker'  ]) : null;
+      $lastSyncTimes[] =            $header['lastSyncTime'] ? gmDate('Y.m.d H:i:s', $header['lastSyncTime']) : null;
 
       if ($header['format'] == 400) { $barSize = MT4::HISTORY_BAR_400_SIZE; $barFormat = 'Vtime/dopen/dlow/dhigh/dclose/dticks';                          }
       else                   /*401*/{ $barSize = MT4::HISTORY_BAR_401_SIZE; $barFormat = 'Vtime/x4/dopen/dhigh/dlow/dclose/Vticks/x4/lspread/Vvolume/x4'; }
@@ -139,24 +139,24 @@ foreach ($expandedArgs as $fileName) {
    }
    else {
       // Fehlermeldung zwischenspeichern
-      $formats  [] = null;
-      $symbols  [] = ($name=strLeftTo($baseName, '.hst'));
-      $symbolsU [] = strToUpper($name);
-      $periods  [] = null;
-      $digits   [] = null;
-      $syncMarks[] = null;
-      $lastSyncs[] = null;
-      $bars     [] = null;
-      $barsFrom [] = null;
-      $barsTo   [] = null;
-      $errors   [] = 'invalid or unsupported history file format: '.$header['format'];
+      $formats      [] = null;
+      $symbols      [] = ($name=strLeftTo($baseName, '.hst'));
+      $symbolsU     [] = strToUpper($name);
+      $periods      [] = null;
+      $digits       [] = null;
+      $syncMarkers  [] = null;
+      $lastSyncTimes[] = null;
+      $bars         [] = null;
+      $barsFrom     [] = null;
+      $barsTo       [] = null;
+      $errors       [] = 'invalid or unsupported history file format: '.$header['format'];
    }
    fClose($hFile);
 }
 
 // abschließende Ausgabe für das letzte Verzeichnis
 if ($files) {
-   showDirResults($dirName, $files, $formats, $symbols, $symbolsU, $periods, $digits, $syncMarks, $lastSyncs, $bars, $barsFrom, $barsTo, $errors);
+   showDirResults($dirName, $files, $formats, $symbols, $symbolsU, $periods, $digits, $syncMarkers, $lastSyncTimes, $bars, $barsFrom, $barsTo, $errors);
 }
 
 
@@ -173,12 +173,12 @@ exit(0);
  * @param  string $dirName
  * @param  array  ...
  */
-function showDirResults($dirName, array $files, array $formats, array $symbols, array $symbolsU, array $periods, array $digits, array $syncMarks, array $lastSyncs, array $bars, array $barsFrom, array $barsTo, array $errors) {
+function showDirResults($dirName, array $files, array $formats, array $symbols, array $symbolsU, array $periods, array $digits, array $syncMarkers, array $lastSyncTimes, array $bars, array $barsFrom, array $barsTo, array $errors) {
    // Daten sortieren: ORDER by Symbol, Periode (ASC ist default); alle anderen "Spalten" mitsortieren
-   array_multisort($symbolsU, SORT_ASC, $periods, SORT_ASC/*bis_hierher*/, array_keys($symbolsU), $symbols, $files, $formats, $digits, $syncMarks, $lastSyncs, $bars, $barsFrom, $barsTo, $errors);
+   array_multisort($symbolsU, SORT_ASC, $periods, SORT_ASC/*bis_hierher*/, array_keys($symbolsU), $symbols, $files, $formats, $digits, $syncMarkers, $lastSyncTimes, $bars, $barsFrom, $barsTo, $errors);
 
    // Tabellen-Format definieren und Header ausgeben
-   $tableHeader    = 'Symbol           Digits  SyncMark             LastSync                  Bars  From                 To                   Format';
+   $tableHeader    = 'Symbol           Digits  SyncMarker           LastSyncTime              Bars  From                 To                   Format';
    $tableSeparator = '------------------------------------------------------------------------------------------------------------------------------';
    $tableRowFormat = '%-15s    %d     %-19s  %-19s  %9s  %-19s  %-19s    %s  %s';
    echoPre(NL);
@@ -193,7 +193,7 @@ function showDirResults($dirName, array $files, array $formats, array $symbols, 
 
       if ($formats[$i]) {
          $period = MyFX::periodDescription($periods[$i]);
-         echoPre(trim(sprintf($tableRowFormat, $symbols[$i].','.$period, $digits[$i], $syncMarks[$i], $lastSyncs[$i], number_format($bars[$i]), $barsFrom[$i], $barsTo[$i], $formats[$i], $errors[$i])));
+         echoPre(trim(sprintf($tableRowFormat, $symbols[$i].','.$period, $digits[$i], $syncMarkers[$i], $lastSyncTimes[$i], number_format($bars[$i]), $barsFrom[$i], $barsTo[$i], $formats[$i], $errors[$i])));
       }
       else {
          echoPre(str_pad($fileName, 18).' '.$errors[$i]);

@@ -59,7 +59,6 @@ function createHistory($symbol) {
    if (!is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
    if (!strLen($symbol))    throw new plInvalidArgumentException('Invalid parameter $symbol: ""');
 
-   global $verbose;
    $startDay  = fxtTime(MyFX::$symbols[$symbol]['historyStart']['M1']);             // FXT
    $startDay -= $startDay%DAY;                                                      // 00:00 FXT Starttag
    $today     = ($today=fxtTime()) - $today%DAY;                                    // 00:00 FXT aktueller Tag
@@ -77,7 +76,7 @@ function createHistory($symbol) {
       $shortDate = gmDate('D, d-M-Y', $day);
       $month     = (int) gmDate('m', $day);
       if ($month != $lastMonth) {
-         if ($verbose > 0) echoPre('[Info]    '.gmDate('M-Y', $day));
+         echoPre('[Info]    '.gmDate('M-Y', $day));
          $lastMonth = $month;
       }
 

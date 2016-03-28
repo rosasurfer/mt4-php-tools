@@ -584,6 +584,59 @@ class MyFX extends StaticClass {
    public static function timeframeDescription($timeframe) {
       return self::periodDescription($timeframe);
    }
+
+
+   /**
+    * Erzeugt und verwaltet dynamisch generierte Variablen.
+    *
+    * Evaluiert und cacht häufig wiederbenutzte dynamische Variablen an einem zentralen Ort. Vereinfacht die Logik,
+    * da die Variablen nicht global gespeichert oder über viele Funktionsaufrufe hinweg weitergereicht werden müssen,
+    * aber trotzdem nicht bei jeder Verwendung neu ermittelt werden brauchen.
+    *
+    * @param  string $id     - eindeutiger Bezeichner der Variable
+    * @param  string $symbol - Symbol oder NULL
+    * @param  int    $time   - Timestamp oder NULL
+    *
+    * @return string - Variable
+    */
+   public static function getVar($id, $symbol=null, $time=null) {
+      static $varCache = array();
+      if (array_key_exists(($key=$id.'|'.$symbol.'|'.$time), $varCache))
+         return $varCache[$key];
+
+      if (!is_string($id))                          throw new IllegalTypeException('Illegal type of parameter $id: '.getType($id));
+      if (!is_null($symbol) && !is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
+      if (!is_null($time) && !is_int($time))        throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+
+      $me = __FUNCTION__;
+
+      if ($id == 'myfxDirDate') {                  // $yyyy/$mm/$dd                                            // lokales Pfad-Datum
+         if (!$time)   throw new plInvalidArgumentException('Invalid parameter $time: '.$time);
+         $result = gmDate('Y/m/d', $time);
+      }
+      else if ($id == 'myfxDir') {                 // $dataDirectory/history/myfx/$type/$symbol/$myfxDirDate   // lokales Verzeichnis
+         if (!$symbol) throw new plInvalidArgumentException('Invalid parameter $symbol: '.$symbol);
+         static $dataDirectory; if (!$dataDirectory)
+         $dataDirectory = self::getConfigPath('myfx.data_directory');
+         $type          = self::$symbols[$symbol]['type'];
+         $myfxDirDate   = self::$me('myfxDirDate', null, $time);
+         $result        = "$dataDirectory/history/myfx/$type/$symbol/$myfxDirDate";
+      }
+      else if ($id == 'myfxFile.M1.raw') {         // $myfxDir/M1.myfx                                         // MyFX-M1-Datei ungepackt
+         $myfxDir = self::$me('myfxDir' , $symbol, $time);
+         $result  = "$myfxDir/M1.myfx";
+      }
+      else if ($id == 'myfxFile.M1.compressed') {  // $myfxDir/M1.rar                                          // MyFX-M1-Datei gepackt
+         $myfxDir = self::$me('myfxDir' , $symbol, $time);
+         $result  = "$myfxDir/M1.rar";
+      }
+      else throw new plInvalidArgumentException('Unknown parameter $id: "'.$id.'"');
+
+      $varCache[$key] = $result;
+      (sizeof($varCache) > ($maxSize=128)) && array_shift($varCache) && echoPre('var cache size limit of '.$maxSize.' hit');
+
+      return $result;
+   }
 }
 
 
