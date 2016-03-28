@@ -21,6 +21,17 @@ class HistorySet extends Object {
                                           PERIOD_W1 =>array('hFile'=>null, 'bars'=>array(), 'currentCloseTime'=>PHP_INT_MIN),
                                           PERIOD_MN1=>array('hFile'=>null, 'bars'=>array(), 'currentCloseTime'=>PHP_INT_MIN),
    );
+   protected /*HistoryFile[]*/ $historyFiles = array(PERIOD_M1  => null,
+                                                     PERIOD_M5  => null,
+                                                     PERIOD_M15 => null,
+                                                     PERIOD_M30 => null,
+                                                     PERIOD_H1  => null,
+                                                     PERIOD_H4  => null,
+                                                     PERIOD_D1  => null,
+                                                     PERIOD_W1  => null,
+                                                     PERIOD_MN1 => null,
+   );
+
    protected /*int    */ $bufferSize = 10000;            // maximale Anzahl vor dem Schreiben zwischengespeicherter Bars
 
 
@@ -45,18 +56,18 @@ class HistorySet extends Object {
    /**
     * Constructor 1
     *
-    * Erzeugt eine HistorySet-Instanz aus mindestens teilweise vorhandenen HistoryFiles. Nach Rückkehr wurden alle noch nicht
-    * existierenden HistoryFiles im Format v400 angelegt und ein entsprechender HistoryHeader geschrieben. Existierende Daten
-    * wurden nicht gelöscht. Die Formate der einzelnen Dateien eines HistorySets können gemischt sein.
+    * Erzeugt eine HistorySet-Instanz aus mindestens teilweise vorhandenen HistoryFiles. Nach Rückkehr wurden alle
+    * noch nicht existierenden HistoryFiles angelegt und ein entsprechender HistoryHeader geschrieben. Existierende Daten
+    * werden nicht gelöscht. Die Formate der einzelnen Dateien eines HistorySets können gemischt sein.
     *
     * @param  string[] $fileNames - mindestens ein vollständiger Name eines vorhandenen HistoryFiles
     */
    private function __construct_1(array $fileNames) {
+      // (1) für alle übergebenen Dateinamen HistoryFile-Wrapper erzeugen
       foreach($fileNames as $key => $fileName) {
          if (!is_string($fileName)) throw new IllegalTypeException('Illegal type of parameter $fileNames['.$key.']: '.getType($fileName));
          if (!is_file($fileName))   throw new FileNotFoundException('Invalid parameter $fileNames['.$key.']: "'.$fileName.'" (file not found)');
 
-         // HistoryFile-Wrapper erzeugen
          $file = null;
          try {
             $file = new HistoryFile($fileName);
@@ -76,15 +87,25 @@ class HistorySet extends Object {
          }
          else {
             // wenn weitere Datei, dann Daten mit Instanzdaten abgleichen
+            if (!strCompareI($this->symbol, $file->getSymbol()))       throw new plRuntimeException('Symbol mis-match in "'.$fileName.'": '.$file->getSymbol().' instead of '.$this->symbol);
+            if ($this->digits != $file->getDigits())                   throw new plRuntimeException('Digits mis-match in "'.$fileName.'": '.$file->getDigits().' instead of '.$this->digits);
+            if ($this->serverDirectory != $file->getServerDirectory()) throw new plRuntimeException('Server mis-match in "'.$fileName.'": '.$file->getServerDirectory().' instead of '.$this->serverDirectory);
+            if (isSet($this->historyFiles[$file->getTimeframe()]))     throw new plRuntimeException('Multiple parameters for timeframe '.MT4::periodDescription($file->getTimeframe()).': '.print_r($fileNames, true));
          }
 
-
-         // FilePointer setzen
+         // HistoryFile speichern
+         $this->historyFiles[$file->getTimeframe()] = $file;
+      }
+      if (is_null($this->symbol)) {
+         if ($fileNames) throw new MetaTraderException('files.invalid: No valid history files found');
+         else            throw new plInvalidArgumentException('Invalid parameter $fileNames: (empty)');
       }
 
-      foreach ($this->history as $timeframe => $data) {
-         // fehlende Dateien neu anlegen
-      }
+
+      // (2) fehlende HistoryFiles neu anlegen
+      foreach ($this->historyFiles as $timeframe => &$file) {
+         if (!$file) $file = new HistoryFile($this->symbol, $timeframe, $this->digits, $format=400, $this->serverDirectory);
+      } unset($file);
    }
 
 
@@ -92,14 +113,14 @@ class HistorySet extends Object {
     * Constructor 2
     *
     * Erzeugt ein neues HistorySet mit den angegebenen Daten. Nach Rückkehr wurden alle HistoryFiles angelegt und ein
-    * entsprechender HistoryHeader geschrieben. Existierende Daten wurden gelöscht.
+    * entsprechender HistoryHeader geschrieben. Existierende Daten werden gelöscht.
     *
     * @param  string $symbol          - Symbol der HistorySet-Daten
     * @param  int    $digits          - Digits der Datenreihe
     * @param  int    $format          - Speicherformat der Datenreihe:
     *                                   • 400 - MetaTrader <= Build 509
     *                                   • 401 - MetaTrader  > Build 509
-    * @param  string $serverDirectory - Serververzeichnis, in dem die Historydateien des Sets gespeichert werden
+    * @param  string $serverDirectory - Serververzeichnis der Historydateien des Sets
     */
    private function __construct_2($symbol, $digits, $format, $serverDirectory) {
       if (!is_string($symbol))                      throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
@@ -194,9 +215,8 @@ class HistorySet extends Object {
             $files[] = $fileName;
       }
 
-      // bei Erfolg HistorySet der existierenden Dateien zurückgeben
-      if ($files)
-         return new HistorySet($files);
+      // bei Erfolg HistorySet anhand der existierenden Dateien zurückgeben
+      if ($files) return new HistorySet($files);
 
       return null;
    }

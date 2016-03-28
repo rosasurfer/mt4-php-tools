@@ -58,13 +58,13 @@ function updateHistory($symbol) {
    if (!is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
    if (!strLen($symbol))    throw new plInvalidArgumentException('Invalid parameter $symbol: ""');
 
-   // MT4-HistorySet-Daten
-   $digits    = MyFX::$symbols[$symbol]['digits'     ];
+   // HistorySet-Daten
+   $digits    = MyFX::$symbols[$symbol]['digits'];
    $format    = 400;
    $directory = MyFX::getConfigPath('myfx.data_directory').'/history/mt4/MyFX-Dukascopy';
 
 
-   // (1) vorhandenes HistorySet öffnen oder ggf. ein neues HistorySet erzeugen
+   // (1) vorhandenes HistorySet öffnen oder ggf. neues HistorySet erzeugen
    if (!$history = HistorySet::get($symbol, $directory))
       $history = new HistorySet($symbol, $digits, $format, $directory);
 

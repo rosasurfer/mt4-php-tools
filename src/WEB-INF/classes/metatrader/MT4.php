@@ -428,15 +428,15 @@ class MT4 extends StaticClass {
 
 
    /**
-    * Ob die angegebene Timeframe-ID einen eingebauten MetaTrader-Timeframe darstellt.
+    * Ob der angegebene Wert einen eingebauten MetaTrader-Timeframe darstellt.
     *
-    * @param  int $timeframe - Timeframe-ID
+    * @param  int $value - Timeframe-ID
     *
     * @return bool
     */
-   public static function isBuiltinTimeframe($timeframe) {
-      if (is_int($timeframe)) {
-         switch ($timeframe) {
+   public static function isBuiltinTimeframe($value) {
+      if (is_int($value)) {
+         switch ($value) {
             case PERIOD_M1 : return true;
             case PERIOD_M5 : return true;
             case PERIOD_M15: return true;

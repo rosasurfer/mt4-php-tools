@@ -34,7 +34,7 @@ class HistoryFile extends Object {
     * Signaturen:
     * -----------
     * new HistoryFile($fileName)
-    * new HistoryFile($symbol, $digits, $format, $serverDirectory)
+    * new HistoryFile($symbol, $timeframe, $digits, $format, $serverDirectory)
     */
    public function __construct($arg1=null, $arg2=null, $arg3=null, $arg4=null, $arg5=null) {
       $argc = func_num_args();
@@ -87,5 +87,56 @@ class HistoryFile extends Object {
       $this->lastSync  = $header['lastSync'];
 
       // TODO: count(Bars) und From/To einlesen
+   }
+
+
+   /**
+    * Constructor 2
+    *
+    * Erzeugt eine neue Instanz und setzt eine existierende Datei zurück.
+    *
+    * @param  string $symbol          - Symbol
+    * @param  int    $timeframe       - Timeframe
+    * @param  int    $digits          - Digits
+    * @param  int    $format          - Speicherformat der Datenreihe:
+    *                                   • 400 - MetaTrader <= Build 509
+    *                                   • 401 - MetaTrader  > Build 509
+    * @param  string $serverDirectory - Speicherort der Datei
+    */
+   private function __construct_2($symbol, $timeframe, $digits, $format, $serverDirectory) {
+      if (!is_string($symbol))                      throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
+      if (!strLen($symbol))                         throw new plInvalidArgumentException('Invalid parameter $symbol: ""');
+      if (strLen($symbol) > MT4::MAX_SYMBOL_LENGTH) throw new plInvalidArgumentException('Invalid parameter $symbol: "'.$symbol.'" (max '.MT4::MAX_SYMBOL_LENGTH.' characters)');
+      if (!is_int($timeframe))                      throw new IllegalTypeException('Illegal type of parameter $timeframe: '.getType($timeframe));
+      if (!MT4::isBuiltinTimeframe($timeframe))     throw new plInvalidArgumentException('Invalid parameter $timeframe: '.$timeframe);
+      if (!is_int($digits))                         throw new IllegalTypeException('Illegal type of parameter $digits: '.getType($digits));
+      if ($digits < 0)                              throw new plInvalidArgumentException('Invalid parameter $digits: '.$digits);
+      if (!is_int($format))                         throw new IllegalTypeException('Illegal type of parameter $format: '.getType($format));
+      if ($format!=400 && $format!=401)             throw new plInvalidArgumentException('Invalid parameter $format: '.$format.' (can be 400 or 401)');
+      if (!is_string($serverDirectory))             throw new IllegalTypeException('Illegal type of parameter $serverDirectory: '.getType($serverDirectory));
+      if (!is_dir($serverDirectory))                throw new plInvalidArgumentException('Directory "'.$serverDirectory.'" not found');
+
+      $this->symbol          = $symbol;
+      $this->timeframe       = $timeframe;
+      $this->digits          = $digits;
+      $this->format          = $format;
+      $this->serverDirectory = realPath($serverDirectory);
+      $this->serverName      = baseName($this->serverDirectory);
+      $this->fileName        = $symbol.$timeframe.'.hst';
+      mkDirWritable($this->serverDirectory);
+
+      // neuen HistoryHeader initialisieren
+      $hh = MT4::createHistoryHeader();
+      $hh['format'   ] = $this->format;
+      $hh['copyright'] = MyFX::$symbols[strToUpper($symbol)]['description'];
+      $hh['symbol'   ] = $this->symbol;
+      $hh['period'   ] = $this->timeframe;
+      $hh['digits'   ] = $this->digits;
+
+      // HistoryFile erzeugen bzw. zurücksetzen und Header neuschreiben
+      $fileName = $this->serverDirectory.'/'.$this->fileName;
+      $hFile    = fOpen($fileName, 'wb');
+      MT4::writeHistoryHeader($hFile, $hh);
+      fClose($hFile);
    }
 }
