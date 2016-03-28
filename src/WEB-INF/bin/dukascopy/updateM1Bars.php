@@ -153,11 +153,11 @@ function checkHistory($symbol, $day) {
    if (!MyFX::isForexWeekend($day, 'FXT')) {                      // um 00:00 GMT sind GMT- und FXT-Wochentag immer gleich
       // History ist ok, wenn entweder die komprimierte MyFX-Datei existiert...
       if (is_file($file=getVar('myfxFile.compressed', $symbol, $day))) {
-         if ($verbose > 1) echoPre('[Ok]    '.$shortDate.'   MyFX compressed history file: '.baseName($file));
+         if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'   MyFX compressed history file: '.baseName($file));
       }
       // ...oder die unkomprimierte MyFX-Datei gespeichert wird und existiert
       else if ($saveRawMyFXData && is_file($file=getVar('myfxFile.raw', $symbol, $day))) {
-         if ($verbose > 1) echoPre('[Ok]    '.$shortDate.'   MyFX raw history file: '.baseName($file));
+         if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'   MyFX raw history file: '.baseName($file));
       }
       // andererseits History aktualisieren
       else if (!updateHistory($symbol, $day)) {                   // da 00:00, kann der GMT- als FXT-Timestamp übergeben werden

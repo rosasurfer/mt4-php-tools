@@ -633,7 +633,7 @@ class MyFX extends StaticClass {
       else throw new plInvalidArgumentException('Unknown parameter $id: "'.$id.'"');
 
       $varCache[$key] = $result;
-      (sizeof($varCache) > ($maxSize=128)) && array_shift($varCache) && echoPre('var cache size limit of '.$maxSize.' hit');
+      (sizeof($varCache) > ($maxSize=256)) && array_shift($varCache)/* && echoPre('var cache size limit of '.$maxSize.' hit')*/;
 
       return $result;
    }

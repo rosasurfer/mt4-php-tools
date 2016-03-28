@@ -168,11 +168,11 @@ function checkHistory($symbol, $gmtHour, $fxtHour) {
 
       // History ist ok, wenn entweder die komprimierte MyFX-Datei existiert...
       if (is_file($file=getVar('myfxFile.compressed', $symbol, $fxtHour))) {
-         if ($verbose > 1) echoPre('[Ok]    '.$shortDate.'   MyFX compressed tick file: '.baseName($file));
+         if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'   MyFX compressed tick file: '.baseName($file));
       }
       // History ist ok, ...oder die unkomprimierte MyFX-Datei gespeichert wird und existiert
       else if ($saveRawMyFXData && is_file($file=getVar('myfxFile.raw', $symbol, $fxtHour))) {
-         if ($verbose > 1) echoPre('[Ok]    '.$shortDate.'   MyFX raw tick file: '.baseName($file));
+         if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'   MyFX raw tick file: '.baseName($file));
       }
       // andererseits Tickdaten aktualisieren
       else {

@@ -128,10 +128,10 @@ function updateIndex($index) {
 
          // Prüfen, ob die History bereits existiert
          if (is_file($file=getVar('fxiTarget.compressed', $index, $day))) {
-            if ($verbose > 1) echoPre('[Ok]    '.$shortDate.'   '.$index.' compressed history file: '.baseName($file));
+            if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'   '.$index.' compressed history file: '.baseName($file));
          }
          else if (is_file($file=getVar('fxiTarget.raw', $index, $day))) {
-            if ($verbose > 1) echoPre('[Ok]    '.$shortDate.'   '.$index.' raw history file: '.baseName($file));
+            if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'   '.$index.' raw history file: '.baseName($file));
          }
          else {
             $month = (int) gmDate('m', $day);
