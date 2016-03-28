@@ -96,14 +96,14 @@ function updateHistory($symbol) {
             // Bars einlesen und MT4-History aktualisieren
             $bars = MyFX::readBarFile($file, $symbol);
 
-            if ($verbose > 0) echoPre('updating existing history: '.$shortDate);
+            if ($verbose > 0) echoPre('[Info]    updating existing history: '.$shortDate);
             $history->update($bars);
          }
          $startDay += 1*DAY;
       }
       else {
          // (1.3) $lastSyncTime=0: HistorySet verwerfen und komplett neuschreiben lassen
-         if ($verbose > 0) echoPre('disposing existing history ($lastSyncTime=0)');
+         if ($verbose > 0) echoPre('[Info]    disposing existing history ($lastSyncTime=0)');
          $history->dispose();
          $history = null;
       }
@@ -112,7 +112,7 @@ function updateHistory($symbol) {
 
    // (2) ggf. neues HistorySet erzeugen
    if (!$history) {
-      if ($verbose > 0) echoPre('creating new history');
+      if ($verbose > 0) echoPre('[Info]    creating new history');
       $history = HistorySet::create($symbol, $digits, $format, $directory);
    }
 
@@ -139,7 +139,7 @@ function updateHistory($symbol) {
       }
    }
 
-   echoPre('[Ok]    '.$symbol);  // beim Schließen des Sets muß automatisch der Sync-Zeitpunkt gespeichert werden
+   echoPre('[Ok]      '.$symbol);  // beim Schließen des Sets muß automatisch der Sync-Zeitpunkt gespeichert werden
    return true;
 }
 
