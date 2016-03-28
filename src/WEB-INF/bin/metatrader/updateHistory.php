@@ -75,7 +75,6 @@ function updateHistory($symbol) {
 
    // (1.1) vorhandenes HistorySet öffnen
    if ($history=HistorySet::get($symbol, $directory)) {
-      echoPre('existing history opened');
       $lastSyncTime = $history->getLastSyncTime();
       if ($lastSyncTime) {
          // (1.2) den letzten aktualisierten Tag nochmals aktualisieren
@@ -102,13 +101,10 @@ function updateHistory($symbol) {
       }
       else {
          // (1.3) $lastSyncTime=0: HistorySet verwerfen und komplett neuschreiben lassen
-         echoPre('$lastSyncTime=0, disposing existing history');
+         echoPre('disposing existing history ($lastSyncTime=0)');
          $history->dispose();
          $history = null;
       }
-   }
-   else {
-      echoPre('no existing history found');
    }
 
 
