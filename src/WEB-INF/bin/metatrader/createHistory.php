@@ -69,7 +69,7 @@ function createHistory($symbol) {
    $digits    = MyFX::$symbols[$symbol]['digits'];
    $format    = 400;
    $directory = MyFX::getConfigPath('myfx.data_directory').'/history/mt4/MyFX-Dukascopy';
-   $history   = new HistorySet($symbol, $digits, $format, $directory);
+   $history   = HistorySet::create($symbol, $digits, $format, $directory);
 
 
    // Gesamte Zeitspanne tageweise durchlaufen
@@ -89,13 +89,12 @@ function createHistory($symbol) {
             echoPre('[Error]   '.$symbol.' MyFX history for '.$shortDate.' not found');
             return false;
          }
-         if ($verbose > 1) echoPre('[Info]    '.$shortDate.'   MyFX history file: '.baseName($file));
-
          // Bars einlesen und der MT4-History hinzufügen
          $bars = MyFX::readBarFile($file, $symbol);
          $history->addM1Bars($bars);
       }
    }
+
    echoPre('[Ok]    '.$symbol);
    return true;
 }
@@ -104,7 +103,7 @@ function createHistory($symbol) {
 /**
  * Erzeugt und verwaltet dynamisch generierte Variablen.
  *
- * Evaluiert und cacht ständig wiederbenutzte dynamische Variablen an einem zentralen Ort. Vereinfacht die Logik,
+ * Evaluiert und cacht häufig wiederbenutzte dynamische Variablen an einem zentralen Ort. Vereinfacht die Logik,
  * da die Variablen nicht global gespeichert oder über viele Funktionsaufrufe hinweg weitergereicht werden müssen,
  * aber trotzdem nicht bei jeder Verwendung neu ermittelt werden brauchen.
  *
