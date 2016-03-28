@@ -58,8 +58,6 @@ function updateHistory($symbol) {
    if (!is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
    if (!strLen($symbol))    throw new plInvalidArgumentException('Invalid parameter $symbol: ""');
 
-   global $verbose;
-
    // HistorySet-Daten
    $digits    = MyFX::$symbols[$symbol]['digits'];
    $format    = 400;
@@ -91,7 +89,7 @@ function updateHistory($symbol) {
                echoPre('[Error]   '.$symbol.' MyFX history for '.$shortDate.' not found');
                return false;
             }
-            if ($verbose > 0) echoPre('[Info]    '.gmDate('M-Y', $startDay));
+            echoPre('[Info]    '.gmDate('M-Y', $startDay));
             $lastMonth = (int) gmDate('m', $startDay);
 
             // Bars einlesen und MT4-History aktualisieren
@@ -126,7 +124,7 @@ function updateHistory($symbol) {
       $shortDate = gmDate('D, d-M-Y', $day);
       $month     = (int) gmDate('m', $day);
       if ($month != $lastMonth) {
-         if ($verbose > 0) echoPre('[Info]    '.gmDate('M-Y', $day));
+         echoPre('[Info]    '.gmDate('M-Y', $day));
          $lastMonth = $month;
       }
 
