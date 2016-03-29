@@ -99,10 +99,7 @@ foreach ($args as $i => $arg) {
 
 // (2) ggf. verfügbare Felder anzeigen und danach abbrechen
 $allFields = MT4::SYMBOL_getFields();                 // TODO: Feld 'leverage' dynamisch hinzufügen
-foreach ($allFields as $key => $value) {              // array_splice($fields, array_search('marginDivider', $fields)+1, 0, array('leverage'));
-   if ($value[0] == '_')
-      unset($allFields[$key]);                        // '_alignment*'-Felder löschen
-}
+                                                      // array_splice($fields, array_search('marginDivider', $fields)+1, 0, array('leverage'));
 if (isSet($options['listFields'])) {
    echoPre($s='Available symbol fields:');
    echoPre(str_repeat('-', strLen($s)));
