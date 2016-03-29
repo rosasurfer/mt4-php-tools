@@ -41,20 +41,27 @@ $fileName = array_shift($args);
 !is_file($fileName) && echoPre('file not found "'.$fileName.'"') & exit(1);
 
 
-// (2) Datei öffnen, Header auslesen und History-Format bestimmen
+// (2) Datei öffnen und Header auslesen
 $fileSize = fileSize($fileName);
-($fileSize < HistoryHeader::STRUCT_SIZE) && echoPre('invalid or unknown history file format: file size of "'.$fileName.'" < MinFileSize ('.HistoryHeader::STRUCT_SIZE.')') & exit(1);
-$hFile     = fOpen($fileName, 'rb');
-$hstHeader = unpack(HistoryHeader::unpackFormat(), fRead($hFile, HistoryHeader::STRUCT_SIZE));
-extract($hstHeader);
-if      ($format == 400) { $barSize = MT4::HISTORY_BAR_400_SIZE; $barFormat = 'Vtime/dopen/dlow/dhigh/dclose/dticks';                          }
-else if ($format == 401) { $barSize = MT4::HISTORY_BAR_401_SIZE; $barFormat = 'Vtime/x4/dopen/dhigh/dlow/dclose/Vticks/x4/lspread/Vvolume/x4'; }
-else echoPre('unsupported history file format "'.$format.'" in "'.$fileName.'"') & exit(1);
+($fileSize < HistoryHeader::SIZE) && echoPre('invalid or unknown history file format: file size of "'.$fileName.'" < MinFileSize ('.HistoryHeader::SIZE.')') & exit(1);
+$hFile  = fOpen($fileName, 'rb');
+$header = null;
+try {
+   $header = new HistoryHeader(fRead($hFile, HistoryHeader::SIZE));
+}
+catch (MetaTraderException $ex) {
+   if (strStartsWith($ex->getMessage(), 'version.unsupported'))
+      echoPre('unsupported history format in "'.$fileName.'": '.$ex->getMessage()) & exit(1);
+   throw $ex;
+}
+
+if ($header->getFormat() == 400) { $barSize = MT4::HISTORY_BAR_400_SIZE; $barFormat = 'Vtime/dopen/dlow/dhigh/dclose/dticks';                          }
+else                      /*401*/{ $barSize = MT4::HISTORY_BAR_401_SIZE; $barFormat = 'Vtime/x4/dopen/dhigh/dlow/dclose/Vticks/x4/lspread/Vvolume/x4'; }
 
 
 // (3) Anzahl der Bars bestimmen und Beginn- und Endbar auslesen
 $i = 0;
-$allBars = $bars = ($fileSize-HistoryHeader::STRUCT_SIZE)/$barSize;
+$allBars = $bars = ($fileSize-HistoryHeader::SIZE)/$barSize;
 if (!is_int($bars)) {
    echoPre('unexpected EOF of "'.$fileName.'"');;
    $allBars = $bars = (int) $bars;
@@ -66,7 +73,7 @@ if (!$bars) {
 else {
    $barFrom = unpack($barFormat, fRead($hFile, $barSize));
    $iFrom   = 0;
-   fSeek($hFile, HistoryHeader::STRUCT_SIZE + $barSize*($bars-1));
+   fSeek($hFile, HistoryHeader::SIZE + $barSize*($bars-1));
    $barTo   = unpack($barFormat, fRead($hFile, $barSize));
    $iTo     = $bars-1;
 }
@@ -89,7 +96,7 @@ while ($i != -1) {
 
    $halfBars = ceil($bars/2);
    $iMiddle  = $iFrom+$halfBars-1;
-   fSeek($hFile, HistoryHeader::STRUCT_SIZE + $barSize*($iMiddle));
+   fSeek($hFile, HistoryHeader::SIZE + $barSize*($iMiddle));
    $barMiddle = unpack($barFormat, fRead($hFile, $barSize));
    if ($barMiddle['time'] <= $datetime) { $barFrom = $barMiddle; $iFrom = $iMiddle; }
    else                                 { $barTo   = $barMiddle; $iTo   = $iMiddle; }
@@ -98,7 +105,7 @@ while ($i != -1) {
 
 
 // (5) Ergebnis ausgeben
-if ($i>=0 && $byteOffset) $result = HistoryHeader::STRUCT_SIZE + $i*$barSize;
+if ($i>=0 && $byteOffset) $result = HistoryHeader::SIZE + $i*$barSize;
 else                      $result = $i;
 
 if      ($quietMode ) echo $result;

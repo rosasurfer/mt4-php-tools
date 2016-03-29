@@ -107,15 +107,15 @@ class HistoryFile extends Object {
 
       // Dateigröße validieren
       $fileSize = fileSize($fileName);
-      if ($fileSize < HistoryHeader::STRUCT_SIZE) throw new MetaTraderException('filesize.insufficient: Invalid or unsupported format of "'.$fileName.'": fileSize='.$fileSize.' (minFileSize='.HistoryHeader::STRUCT_SIZE.')');
+      if ($fileSize < HistoryHeader::SIZE) throw new MetaTraderException('filesize.insufficient: Invalid or unsupported format of "'.$fileName.'": fileSize='.$fileSize.' (minFileSize='.HistoryHeader::SIZE.')');
 
       // Datei öffnen, Header einlesen und validieren
       $this->hFile     = fOpen($fileName, 'r+b');               // FILE_READ|FILE_WRITE
-      $this->hstHeader = new HistoryHeader(fRead($this->hFile, HistoryHeader::STRUCT_SIZE));
+      $this->hstHeader = new HistoryHeader(fRead($this->hFile, HistoryHeader::SIZE));
 
       if (!strCompareI($this->fileName, $this->getSymbol().$this->getTimeframe().'.hst')) throw new MetaTraderException('filename.mis-match: File name/header mis-match of "'.$fileName.'": header="'.$this->getSymbol().','.MyFX::periodDescription($this->getTimeframe()).'"');
       $barSize = ($this->getFormat()==400) ? MT4::HISTORY_BAR_400_SIZE : MT4::HISTORY_BAR_401_SIZE;
-      if ($trailing=($fileSize-HistoryHeader::STRUCT_SIZE) % $barSize)                    throw new MetaTraderException('filesize.trailing: Corrupted file "'.$fileName.'": '.$trailing.' trailing bytes');
+      if ($trailing=($fileSize-HistoryHeader::SIZE) % $barSize)                           throw new MetaTraderException('filesize.trailing: Corrupted file "'.$fileName.'": '.$trailing.' trailing bytes');
 
       // TODO: count(Bars) und From/To einlesen
    }

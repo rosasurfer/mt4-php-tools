@@ -78,7 +78,7 @@ foreach ($expandedArgs as $fileName) {
    $files[]  = $baseName;
    $fileSize = fileSize($fileName);
 
-   if ($fileSize < HistoryHeader::STRUCT_SIZE) {
+   if ($fileSize < HistoryHeader::SIZE) {
       // Fehlermeldung zwischenspeichern
       $formats      [] = null;
       $symbols      [] = ($name=strLeftTo($baseName, '.hst'));
@@ -90,32 +90,39 @@ foreach ($expandedArgs as $fileName) {
       $bars         [] = null;
       $barsFrom     [] = null;
       $barsTo       [] = null;
-      $errors       [] = 'invalid or unsupported file format: file size of '.$fileSize.' < minFileSize of '.HistoryHeader::STRUCT_SIZE;
+      $errors       [] = 'invalid or unsupported file format: file size of '.$fileSize.' < minFileSize of '.HistoryHeader::SIZE;
       continue;
    }
 
    $hFile  = fOpen($fileName, 'rb');
-   $header = unpack(HistoryHeader::unpackFormat(), fRead($hFile, HistoryHeader::STRUCT_SIZE));
+   $header = null;
+   try {
+      $header = new HistoryHeader(fRead($hFile, HistoryHeader::SIZE));
+   }
+   catch (MetaTraderException $ex) {
+      if (!strStartsWith($ex->getMessage(), 'version.unsupported')) throw $ex;
+      $header = $ex->getMessage();
+   }
 
-   if ($header['format']==400 || $header['format']==401) {
+   if (is_object($header)) {
       // Daten zwischenspeichern
-      $formats      [] =            $header['format'      ];
-      $symbols      [] =            $header['symbol'      ];
-      $symbolsU     [] = strToUpper($header['symbol'      ]);
-      $periods      [] =            $header['period'      ];
-      $digits       [] =            $header['digits'      ];
-      $syncMarkers  [] =            $header['syncMarker'  ] ? gmDate('Y.m.d H:i:s', $header['syncMarker'  ]) : null;
-      $lastSyncTimes[] =            $header['lastSyncTime'] ? gmDate('Y.m.d H:i:s', $header['lastSyncTime']) : null;
+      $formats      [] =            $header->getFormat();
+      $symbols      [] =            $header->getSymbol();
+      $symbolsU     [] = strToUpper($header->getSymbol());
+      $periods      [] =            $header->getPeriod();
+      $digits       [] =            $header->getDigits();
+      $syncMarkers  [] =            $header->getSyncMarker()   ? gmDate('Y.m.d H:i:s', $header->getSyncMarker()  ) : null;
+      $lastSyncTimes[] =            $header->getLastSyncTime() ? gmDate('Y.m.d H:i:s', $header->getLastSyncTime()) : null;
 
-      if ($header['format'] == 400) { $barSize = MT4::HISTORY_BAR_400_SIZE; $barFormat = 'Vtime/dopen/dlow/dhigh/dclose/dticks';                          }
-      else                   /*401*/{ $barSize = MT4::HISTORY_BAR_401_SIZE; $barFormat = 'Vtime/x4/dopen/dhigh/dlow/dclose/Vticks/x4/lspread/Vvolume/x4'; }
+      if ($header->getFormat() == 400) { $barSize = MT4::HISTORY_BAR_400_SIZE; $barFormat = 'Vtime/dopen/dlow/dhigh/dclose/dticks';                          }
+      else                      /*401*/{ $barSize = MT4::HISTORY_BAR_401_SIZE; $barFormat = 'Vtime/x4/dopen/dhigh/dlow/dclose/Vticks/x4/lspread/Vvolume/x4'; }
 
-      $iBars    = floor(($fileSize-HistoryHeader::STRUCT_SIZE)/$barSize);
+      $iBars    = floor(($fileSize-HistoryHeader::SIZE)/$barSize);
       $barFrom = $barTo = array();
       if ($iBars) {
          $barFrom  = unpack($barFormat, fRead($hFile, $barSize));
          if ($iBars > 1) {
-            fSeek($hFile, HistoryHeader::STRUCT_SIZE + $barSize*($iBars-1));
+            fSeek($hFile, HistoryHeader::SIZE + $barSize*($iBars-1));
             $barTo = unpack($barFormat, fRead($hFile, $barSize));
          }
       }
@@ -124,15 +131,15 @@ foreach ($expandedArgs as $fileName) {
       $barsFrom[] = $barFrom ? gmDate('Y.m.d H:i:s', $barFrom['time']) : null;
       $barsTo  [] = $barTo   ? gmDate('Y.m.d H:i:s', $barTo  ['time']) : null;
 
-      if (!strCompareI($baseName, $header['symbol'].$header['period'].'.hst')) {
+      if (!strCompareI($baseName, $header->getSymbol().$header->getPeriod().'.hst')) {
          $formats [sizeOf($formats )-1] = null;
          $symbols [sizeOf($symbols )-1] = ($name=strLeftTo($baseName, '.hst'));
          $symbolsU[sizeOf($symbolsU)-1] = strToUpper($name);
          $periods [sizeOf($periods )-1] = null;
-         $error = 'file name/data mis-match: data='.$header['symbol'].','.MyFX::periodDescription($header['period']);
+         $error = 'file name/data mis-match: data='.$header->getSymbol().','.MyFX::periodDescription($header->getPeriod());
       }
       else {
-         $trailingBytes = ($fileSize-HistoryHeader::STRUCT_SIZE) % $barSize;
+         $trailingBytes = ($fileSize-HistoryHeader::SIZE) % $barSize;
          $error = !$trailingBytes ? null : 'corrupted ('.$trailingBytes.' trailing bytes)';
       }
       $errors[] = $error;
@@ -149,7 +156,7 @@ foreach ($expandedArgs as $fileName) {
       $bars         [] = null;
       $barsFrom     [] = null;
       $barsTo       [] = null;
-      $errors       [] = 'invalid or unsupported history file format: '.$header['format'];
+      $errors       [] = $header;   // ist $header kein Object, ist es ein String (Fehlermeldung einer Exception)
    }
    fClose($hFile);
 }
