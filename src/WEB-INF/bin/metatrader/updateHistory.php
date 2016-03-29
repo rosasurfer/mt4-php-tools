@@ -70,7 +70,7 @@ function updateHistory($symbol) {
    $startDay -= $startDay%DAY;                                                                     // 00:00 FXT des History-Starts
 
    $today     = ($today=fxtTime()) - $today%DAY;                                                   // 00:00 FXT des aktuellen Tages
-   $today     = ($today=fxtTime(strToTime('2003-08-13 05:00:00 GMT'))) - $today%DAY;
+   $today     = ($today=fxtTime(strToTime('2003-09-27 05:00:00 GMT'))) - $today%DAY;
 
    $lastMonth = -1;
 

@@ -4,31 +4,30 @@
  */
 class HistoryFile extends Object {
 
-   protected /*int       */ $format;
-   protected /*string    */ $symbol;
-   protected /*int       */ $timeframe;
-   protected /*int       */ $digits;
-   protected /*int       */ $syncMarker;
-   protected /*int       */ $lastSyncTime;
+   protected /*HistoryHeader*/ $hstHeader;
 
-   protected /*int       */ $hFile;                            // File-Handle einer geöffneten Datei
-   protected /*string    */ $fileName;                         // einfacher Dateiname
-   protected /*string    */ $serverName;                       // einfacher Servername
-   protected /*string    */ $serverDirectory;                  // vollständiger Name des Serververzeichnisses
+   protected /*int          */ $hFile;                            // File-Handle einer geöffneten Datei
+   protected /*string       */ $fileName;                         // einfacher Dateiname
+   protected /*string       */ $serverName;                       // einfacher Servername
+   protected /*string       */ $serverDirectory;                  // vollständiger Name des Serververzeichnisses
 
-   protected /*MYFX_BAR[]*/ $barBuffer        = array();
-   protected /*int       */ $bufferSize       = 10000;         // Default-Size des Barbuffers (ungespeicherte Bars)
-   protected /*int       */ $currentCloseTime = PHP_INT_MIN;
-   protected /*bool      */ $disposed         = false;         // ob die Resourcen dieser Instanz freigegeben sind
+   protected /*MYFX_BAR[]   */ $barBuffer        = array();
+   protected /*int          */ $bufferSize       = 10000;         // Default-Size des Barbuffers (ungespeicherte Bars)
+   protected /*int          */ $currentCloseTime = PHP_INT_MIN;
+   protected /*bool         */ $disposed         = false;         // ob die Resourcen dieser Instanz freigegeben sind
+
+   protected /*MYFX_BAR[]   */ $lastSyncedBarPeriod;
+   protected /*MYFX_BAR[]   */ $lastSyncedBarTime;
 
 
    // Getter
-   public function getFormat()          { return $this->format;           }
-   public function getSymbol()          { return $this->symbol;           }
-   public function getTimeframe()       { return $this->timeframe;        }
-   public function getDigits()          { return $this->digits;           }
-   public function getSyncMarker()      { return $this->syncMarker;       }
-   public function getLastSyncTime()    { return $this->lastSyncTime;     }
+   public function getFormat()          { return $this->hstHeader->getFormat();       }
+   public function getSymbol()          { return $this->hstHeader->getSymbol();       }
+   public function getTimeframe()       { return $this->hstHeader->getPeriod();       }
+   public function getPeriod()          { return $this->hstHeader->getPeriod();       }      // Alias
+   public function getDigits()          { return $this->hstHeader->getDigits();       }
+   public function getSyncMarker()      { return $this->hstHeader->getSyncMarker();   }
+   public function getLastSyncTime()    { return $this->hstHeader->getLastSyncTime(); }
 
    public function getFileName()        { return $this->fileName;         }
    public function getServerName()      { return $this->serverName;       }
@@ -73,34 +72,19 @@ class HistoryFile extends Object {
       if (strLen($symbol) > MT4::MAX_SYMBOL_LENGTH) throw new plInvalidArgumentException('Invalid parameter $symbol: "'.$symbol.'" (max '.MT4::MAX_SYMBOL_LENGTH.' characters)');
       if (!is_int($timeframe))                      throw new IllegalTypeException('Illegal type of parameter $timeframe: '.getType($timeframe));
       if (!MT4::isBuiltinTimeframe($timeframe))     throw new plInvalidArgumentException('Invalid parameter $timeframe: '.$timeframe);
-      if (!is_int($digits))                         throw new IllegalTypeException('Illegal type of parameter $digits: '.getType($digits));
-      if ($digits < 0)                              throw new plInvalidArgumentException('Invalid parameter $digits: '.$digits);
-      if (!is_int($format))                         throw new IllegalTypeException('Illegal type of parameter $format: '.getType($format));
-      if ($format!=400 && $format!=401)             throw new plInvalidArgumentException('Invalid parameter $format: '.$format.' (can be 400 or 401)');
       if (!is_string($serverDirectory))             throw new IllegalTypeException('Illegal type of parameter $serverDirectory: '.getType($serverDirectory));
       if (!is_dir($serverDirectory))                throw new plInvalidArgumentException('Directory "'.$serverDirectory.'" not found');
 
-      $this->symbol          = $symbol;
-      $this->timeframe       = $timeframe;
-      $this->digits          = $digits;
-      $this->format          = $format;
+      $this->hstHeader       = new HistoryHeader($format, null, $symbol, $timeframe, $digits, null, null);
       $this->serverDirectory = realPath($serverDirectory);
       $this->serverName      = baseName($this->serverDirectory);
       $this->fileName        = $symbol.$timeframe.'.hst';
-      mkDirWritable($this->serverDirectory);
-
-      // neuen HistoryHeader initialisieren
-      $hh = MT4::createHistoryHeader();
-      $hh['format'   ] = $this->format;
-      $hh['copyright'] = MyFX::$symbols[strToUpper($symbol)]['description'];
-      $hh['symbol'   ] = $this->symbol;
-      $hh['period'   ] = $this->timeframe;
-      $hh['digits'   ] = $this->digits;
 
       // HistoryFile erzeugen bzw. zurücksetzen und Header neuschreiben
+      mkDirWritable($this->serverDirectory);
       $fileName    = $this->serverDirectory.'/'.$this->fileName;
-      $this->hFile = fOpen($fileName, 'wb');             // FILE_WRITE
-      MT4::writeHistoryHeader($this->hFile, $hh);
+      $this->hFile = fOpen($fileName, 'wb');                      // FILE_WRITE
+      $this->writeHistoryHeader($restoreFilePointer=false);       // der FilePointer steht jetzt hinter dem Header (an der ersten Bar)
    }
 
 
@@ -123,25 +107,15 @@ class HistoryFile extends Object {
 
       // Dateigröße validieren
       $fileSize = fileSize($fileName);
-      if ($fileSize < HistoryHeader::STRUCT_SIZE) throw new MetaTraderException('filesize.insufficient: Invalid or unsupported format of "'.$fileName.'": fileSize='.$fileSize.', minFileSize='.HistoryHeader::STRUCT_SIZE);
+      if ($fileSize < HistoryHeader::STRUCT_SIZE) throw new MetaTraderException('filesize.insufficient: Invalid or unsupported format of "'.$fileName.'": fileSize='.$fileSize.' (minFileSize='.HistoryHeader::STRUCT_SIZE.')');
 
-      // Datei öffnen und Header einlesen
-      $this->hFile = fOpen($fileName, 'r+b');               // FILE_READ|FILE_WRITE
-      $header      = unpack(HistoryHeader::unpackFormat(), fRead($this->hFile, HistoryHeader::STRUCT_SIZE));
+      // Datei öffnen, Header einlesen und validieren
+      $this->hFile     = fOpen($fileName, 'r+b');               // FILE_READ|FILE_WRITE
+      $this->hstHeader = new HistoryHeader(fRead($this->hFile, HistoryHeader::STRUCT_SIZE));
 
-      // Header-Daten validieren
-      if ($header['format']!=400 && $header['format']!=401)                          throw new MetaTraderException('version.unknown: Invalid or unsupported history format version of "'.$fileName.'": '.$header['format']);
-      if (!strCompareI($this->fileName, $header['symbol'].$header['period'].'.hst')) throw new MetaTraderException('filename.mis-match: File name/header mis-match of "'.$fileName.'": header="'.$header['symbol'].','.MyFX::periodDescription($header['period']).'"');
-      $barSize = ($header['format']==400) ? MT4::HISTORY_BAR_400_SIZE : MT4::HISTORY_BAR_401_SIZE;
-      if ($trailing=($fileSize-HistoryHeader::STRUCT_SIZE) % $barSize)               throw new MetaTraderException('filesize.trailing: Corrupted file "'.$fileName.'": '.$trailing.' trailing bytes');
-
-      // Header-Daten speichern
-      $this->format       = $header['format'      ];
-      $this->symbol       = $header['symbol'      ];
-      $this->timeframe    = $header['period'      ];
-      $this->digits       = $header['digits'      ];
-      $this->syncMarker   = $header['syncMarker'  ];
-      $this->lastSyncTime = $header['lastSyncTime'];
+      if (!strCompareI($this->fileName, $this->getSymbol().$this->getTimeframe().'.hst')) throw new MetaTraderException('filename.mis-match: File name/header mis-match of "'.$fileName.'": header="'.$this->getSymbol().','.MyFX::periodDescription($this->getTimeframe()).'"');
+      $barSize = ($this->getFormat()==400) ? MT4::HISTORY_BAR_400_SIZE : MT4::HISTORY_BAR_401_SIZE;
+      if ($trailing=($fileSize-HistoryHeader::STRUCT_SIZE) % $barSize)                    throw new MetaTraderException('filesize.trailing: Corrupted file "'.$fileName.'": '.$trailing.' trailing bytes');
 
       // TODO: count(Bars) und From/To einlesen
    }
@@ -173,8 +147,20 @@ class HistoryFile extends Object {
       if ($this->isDisposed())
          return false;
 
-      if (is_resource($this->hFile)) {
+      if ($this->barBuffer) {
          $this->flushBars();
+      }
+
+      if ($this->lastSyncedBarTime) {
+         $syncTime = $this->lastSyncedBarTime + $this->lastSyncedBarPeriod*MINUTES; // Sync-Zeitpunkt ist das Ende der Barperiode
+
+         if ($syncTime != $this->hstHeader->getLastSyncTime()) {
+            $this->hstHeader->setLastSyncTime($syncTime);
+            $this->writeHistoryHeader($restoreFilePointer=false);
+         }
+      }
+
+      if (is_resource($this->hFile)) {
          $hTmp=$this->hFile; $this->hFile=null;
          fClose($hTmp);
       }
@@ -188,7 +174,7 @@ class HistoryFile extends Object {
     * @param  int $size - Buffergröße
     */
    public function setBufferSize($size) {
-      if ($this->disposed) throw new IllegalStateException('cannot modify a disposed '.__CLASS__.' instance');
+      if ($this->disposed) throw new IllegalStateException('Cannot process a disposed '.__CLASS__.' instance');
       if (!is_int($size))  throw new IllegalTypeException('Illegal type of parameter $size: '.getType($size));
       if ($size < 0)       throw new plInvalidArgumentException('Invalid parameter $size: '.$size);
 
@@ -197,14 +183,14 @@ class HistoryFile extends Object {
 
 
    /**
-    * Fügt dieser Instanz M1-Bardaten hinzu. Die Bardaten werden am Ende der Zeitreihe gespeichert.
+    * Fügt dieser Instanz weitere M1-Bardaten hinzu. Die Daten werden am Ende der Zeitreihe gespeichert.
     *
-    * @param  array $bars - Array mit MYFX_BAR-Daten der Periode M1
+    * @param  MYFX_BAR[] $bars - Bardaten der Periode M1
     */
    public function addM1Bars(array $bars) {
-      if ($this->disposed) throw new IllegalStateException('cannot modify a disposed '.__CLASS__.' instance');
+      if ($this->disposed) throw new IllegalStateException('Cannot process a disposed '.__CLASS__.' instance');
 
-      switch ($this->timeframe) {
+      switch ($this->getTimeframe()) {
          case PERIOD_M1 : $this->addToM1 ($bars); break;
          case PERIOD_M5 : $this->addToM5 ($bars); break;
          case PERIOD_M15: $this->addToM15($bars); break;
@@ -215,7 +201,12 @@ class HistoryFile extends Object {
          case PERIOD_W1 : $this->addToW1 ($bars); break;
          case PERIOD_MN1: $this->addToMN1($bars); break;
 
-         default: throw new plRuntimeException('unsupported timeframe '.$this->timeframe);
+         default: throw new plRuntimeException('unsupported timeframe '.$this->getTimeframe());
+      }
+
+      if ($size=sizeOf($bars)) {
+         $this->lastSyncedBarTime   = $bars[$size-1]['time'];
+         $this->lastSyncedBarPeriod = PERIOD_M1;
       }
    }
 
@@ -514,13 +505,14 @@ class HistoryFile extends Object {
 
 
    /**
-    * Schreibt eine Anzahl Bars der Instanz in die entsprechende History-Datei und löscht sie aus dem Barbuffer.
+    * Schreibt eine Anzahl Bars aus dem Barbuffer in die entsprechende History-Datei.
     *
     * @param  int $count - Anzahl zu schreibender Bars (default: alle Bars)
     *
     * @return int - Anzahl der geschriebenen und aus dem Buffer gelöschten Bars
     */
-   private function flushBars($count=PHP_INT_MAX) {
+   public function flushBars($count=PHP_INT_MAX) {
+      if ($this->disposed) throw new IllegalStateException('Cannot process a disposed '.__CLASS__.' instance');
       if (!is_int($count)) throw new IllegalTypeException('Illegal type of parameter $count: '.getType($count));
       if ($count < 0)      throw new plInvalidArgumentException('Invalid parameter $count: '.$count);
 
@@ -529,7 +521,7 @@ class HistoryFile extends Object {
       if (!$todo)
          return 0;
 
-      $divider = pow(10, $this->digits);
+      $divider = pow(10, $this->getDigits());
       $i = 0;
 
       foreach ($this->barBuffer as $i => $bar) {
@@ -540,7 +532,7 @@ class HistoryFile extends Object {
          $C = $bar['close']/$divider;
          $V = $bar['ticks'];
 
-         MT4::addHistoryBar400($this->hFile, $this->digits, $T, $O, $H, $L, $C, $V);
+         MT4::addHistoryBar400($this->hFile, $this->getDigits(), $T, $O, $H, $L, $C, $V);
          if ($i+1 == $todo)
             break;
       }
@@ -549,5 +541,38 @@ class HistoryFile extends Object {
       else                $this->barBuffer = array_slice($this->barBuffer, $todo);
 
       return $todo;
+   }
+
+
+   /**
+    * Schreibt den HistoryHeader in die Datei.
+    *
+    * @param  bool $restoreFilePointer - ob der FilePointer nach dem Schreiben restauriert werden soll
+    *
+    * @return int - Anzahl der geschriebenen Bytes
+    */
+   private function writeHistoryHeader($restoreFilePointer) {
+      if (!is_bool($restoreFilePointer)) throw new IllegalTypeException('Illegal type of parameter $restoreFilePointer: '.getType($restoreFilePointer));
+
+      $offset  = fTell($this->hFile);
+      $written = 0;
+      try {
+         fSeek($this->hFile, 0);
+         $format  = HistoryHeader::packFormat();
+         $written = fWrite($this->hFile, pack($format, $this->hstHeader->getFormat(),           // V
+                                                       $this->hstHeader->getCopyright(),        // a64
+                                                       $this->hstHeader->getSymbol(),           // a12
+                                                       $this->hstHeader->getPeriod(),           // V
+                                                       $this->hstHeader->getDigits(),           // V
+                                                       $this->hstHeader->getSyncMarker(),       // V
+                                                       $this->hstHeader->getLastSyncTime()));   // V
+         $restoreFilePointer && fSeek($this->hFile, $offset);                                   // x52
+      }
+      catch (Exception $ex) {
+         $restoreFilePointer && fSeek($this->hFile, $offset);
+         throw $ex;
+      }
+
+      return $written;
    }
 }

@@ -47,20 +47,6 @@ class MT4 extends StaticClass {
 
 
    /**
-    * History-Header
-    *
-    * @see  Definition in MT4Expander.dll::Expander.h
-    */
-   private static $tpl_HistoryHeader = array('format'       => 0,
-                                             'copyright'    => "\0",
-                                             'symbol'       => "\0",
-                                             'period'       => 0,
-                                             'digits'       => 0,
-                                             'syncMarker'   => 0,          // wird vom Terminal u.U. überschrieben
-                                             'lastSyncTime' => 0,          // wird vom Terminal nicht überschrieben
-                                             'reserved'     => 0);
-
-   /**
     * History-Bar v400
     *
     * @see  Definition in MT4Expander.dll::Expander.h
@@ -93,17 +79,17 @@ class MT4 extends StaticClass {
     * @see  MT4::SYMBOL_getUnpackFormat() zum Verwenden als unpack()-Formatstring
     */
    private static $SYMBOL_format = '
-      /a12   name
-      /a54   description
-      /a10   origin
-      /a12   altName
-      /a12   baseCurrency
-      /V     group
-      /V     digits
-      /V     tradeMode
-      /V     backgroundColor
-      /V     arrayKey
-      /V     id
+      /a12   name                      // szchar
+      /a54   description               // szchar
+      /a10   origin                    // szchar (ccustom)
+      /a12   altName                   // szchar
+      /a12   baseCurrency              // szchar
+      /V     group                     // int
+      /V     digits                    // int
+      /V     tradeMode                 // int
+      /V     backgroundColor           // int
+      /V     arrayKey                  // int
+      /V     id                        // int
       /x32   unknown1:char32
       /x208  unknownM1:char208
       /x208  unknownM5:char208
@@ -118,27 +104,27 @@ class MT4 extends StaticClass {
       /x4    _alignment1
       /d     unknown5:double
       /H24   unknown6:char12
-      /V     spread
+      /V     spread                    // int
       /H16   unknown7:char8
-      /V     swapEnabled
-      /V     swapType
-      /d     swapLongValue
-      /d     swapShortValue
-      /V     swapTripleRolloverDay
+      /V     swapEnabled               // bool
+      /V     swapType                  // int
+      /d     swapLongValue             // double
+      /d     swapShortValue            // double
+      /V     swapTripleRolloverDay     // int
       /x4    _alignment2
-      /d     contractSize
+      /d     contractSize              // double
       /x16   unknown8:char16
-      /V     stopDistance
+      /V     stopDistance              // int
       /x8    unknown9:char8
       /x4    _alignment3
-      /d     marginInit
-      /d     marginMaintenance
-      /d     marginHedged
-      /d     marginDivider
-      /d     pointSize
-      /d     pointsPerUnit
+      /d     marginInit                // double
+      /d     marginMaintenance         // double
+      /d     marginHedged              // double
+      /d     marginDivider             // double
+      /d     pointSize                 // double
+      /d     pointsPerUnit             // double
       /x24   unknown10:char24
-      /a12   marginCurrency
+      /a12   marginCurrency            // szchar
       /x104  unknown11:char104
       /V     unknown12:int
    ';
@@ -153,13 +139,14 @@ class MT4 extends StaticClass {
       static $fields = null;
 
       if (is_null($fields)) {
-         $lines = explode("\n", trim(self::$SYMBOL_format));
+         $lines = explode("\n", self::$SYMBOL_format);
          foreach ($lines as $i => &$line) {
-            $line = trim(strRightFrom(trim($line), ' '));
-            if (!strlen($line))
+            $line = strLeftTo($line, '//');                             // Kommentare entfernen
+            $line = trim(strRightFrom(trim($line), ' '));               // Format-Code entfernen
+            if (!strLen($line) || strStartsWith($line, '_alignment'))   // Leerzeilen und Alignment-Felder löschen
                unset($lines[$i]);
          } unset($line);
-         $fields = array_values($lines);
+         $fields = array_values($lines);                                // Indizes neuordnen
       }
       return $fields;
    }
@@ -174,60 +161,19 @@ class MT4 extends StaticClass {
       static $format = null;
 
       if (is_null($format)) {
-         $format = self::$SYMBOL_format;
+         $lines = explode("\n", self::$SYMBOL_format);
+         foreach ($lines as $i => &$line) {
+            $line = strLeftTo($line, '//');                          // Kommentare entfernen
+         } unset($line);
+         $format = join('', $lines);
 
          // since PHP 5.5.0: The 'a' code now retains trailing NULL bytes, 'Z' replaces the former 'a'.
          if (PHP_VERSION >= '5.5.0') $format = str_replace('/a', '/Z', $format);
 
-         // remove white space and leading format separator
-         $format = preg_replace('/\s/', '', $format);
-         if ($format[0] == '/') $format = substr($format, 1);
+         $format = preg_replace('/\s/', '', $format);                // remove white space
+         if ($format[0] == '/') $format = strRight($format, -1);     // remove leading format separator
       }
       return $format;
-   }
-
-
-   /**
-    * Erzeugt eine mit Defaultwerten gefüllte HistoryHeader-Struktur und gibt sie zurück.
-    *
-    * @return array - struct HISTORY_HEADER
-    *
-    * @see  Definition in Expander.dll::Expander.h
-    */
-   public static function createHistoryHeader() {
-      return self ::$tpl_HistoryHeader;
-   }
-
-
-   /**
-    * Schreibt einen HistoryHeader mit den angegebenen Daten in die zum Handle gehörende Datei.
-    *
-    * @param  resource $hFile - File-Handle eines History-Files, muß Schreibzugriff erlauben
-    * @param  mixed[]  $hh    - zu setzende Headerdaten (nicht angegebene Werte werden durch Defaultwerte ergänzt)
-    *
-    * @return int - Anzahl der geschriebenen Bytes
-    */
-   public static function writeHistoryHeader($hFile, array $hh) {
-      if (!is_resource($hFile)) throw new IllegalTypeException('Illegal type of parameter $hFile: '.$hFile.' ('.getType($hFile).')');
-      if (!$hh)                 throw new plInvalidArgumentException('Invalid parameter $hh: '.print_r($hh, true));
-
-      $hh = array_merge(self::$tpl_HistoryHeader, $hh);
-
-      $hh['copyright'] = strLeft($hh['copyright'], 63);
-      $hh['symbol'   ] = strLeft($hh['symbol'   ], 11);
-      $hh['reserved' ] = '';
-
-      // TODO: Struct-Daten validieren
-
-      fSeek($hFile, 0);
-      return fWrite($hFile, pack('Va64a12VVVVa52', $hh['format'      ],       // V
-                                                   $hh['copyright'   ],       // a64
-                                                   $hh['symbol'      ],       // a12
-                                                   $hh['period'      ],       // V
-                                                   $hh['digits'      ],       // V
-                                                   $hh['syncMarker'  ],       // V           // wird vom Terminal u.U. überschrieben
-                                                   $hh['lastSyncTime'],       // V           // wird vom Terminal nicht überschrieben
-                                                   $hh['reserved'    ]));     // a52
    }
 
 
@@ -423,7 +369,7 @@ class MT4 extends StaticClass {
     */
    public static function isValidSymbol($string) {
       static $pattern = '/^[a-z0-9_.#&\'-]+$/i';
-      return is_string($string) && strLen($string) && strLen($string) < MT4::MAX_SYMBOL_LENGTH && preg_match($pattern, $string);
+      return is_string($string) && strLen($string) && strLen($string) <= self::MAX_SYMBOL_LENGTH && preg_match($pattern, $string);
    }
 
 

@@ -122,8 +122,11 @@ class HistorySet extends Object {
                   $file = new HistoryFile($fileName);
                }
                catch (MetaTraderException $ex) {
-                  if (!strStartsWith($ex->getMessage(), 'filesize.insufficient')) throw $ex;
-                  Logger::warn($ex, __CLASS__);                // eine zu kurze Datei wird später überschrieben
+                  if (strStartsWith($ex->getMessage(), 'filesize.insufficient')) {
+                     Logger::warn($ex->getMessage(), __CLASS__);           // eine zu kurze Datei wird später überschrieben
+                     continue;
+                  }
+                  throw $ex;
                }
                if (!strCompareI($file->getSymbol(), $this->getSymbol())) throw new plRuntimeException('Symbol mis-match in "'.$fileName.'": '.$file->getSymbol().' instead of '.$this->getSymbol());
                if ($file->getDigits() != $this->getDigits())             throw new plRuntimeException('Digits mis-match in "'.$fileName.'": '.$file->getDigits().' instead of '.$this->getDigits());
@@ -212,8 +215,10 @@ class HistorySet extends Object {
             try {
                $file = new HistoryFile($fileName);
             }
-            catch (MetaTraderException $ex) { Logger::warn($ex, __CLASS__); continue; }
-
+            catch (MetaTraderException $ex) {
+               Logger::warn($ex->getMessage(), __CLASS__);
+               continue;
+            }
             $set = new self($file);
             break;
          }
@@ -264,9 +269,9 @@ class HistorySet extends Object {
 
 
    /**
-    * Fügt dieser Instanz M1-Bardaten hinzu. Die Bardaten werden am Ende der Zeitreihe gespeichert.
+    * Fügt dem gesamten Set weitere M1-Bardaten hinzu.
     *
-    * @param  array $bars - Array mit MYFX_BAR-Daten der Periode M1
+    * @param  MYFX_BAR[] $bars - Bardaten der Periode M1
     */
    public function addM1Bars(array $bars) {
       if ($this->disposed) throw new IllegalStateException('cannot modify a disposed '.__CLASS__.' instance');
@@ -275,6 +280,17 @@ class HistorySet extends Object {
          !$file && $file=$this->getFile($timeframe);
          $file->addM1Bars($bars);
       }
+   }
+
+
+   /**
+    * Synchronisiert das Set anhand der übergebenen M1-Bardaten.
+    *
+    * @param  MYFX_BAR[] $bars - Bardaten der Periode M1
+    */
+   public function update(array $bars) {
+      if ($this->disposed) throw new IllegalStateException('cannot modify a disposed '.__CLASS__.' instance');
+      throw new UnimplementedFeatureException(__METHOD__);
    }
 
 
