@@ -81,7 +81,7 @@ class SimpleTrader extends StaticClass {
                 strStartsWith($msg, 'CURL error CURLE_GOT_NOTHING'         ) ||
                 strStartsWith($msg, 'Empty reply from server'              )) {
                if ($counter < 10) {                            // bis zu 10 Versuche, eine URL zu laden
-                  Logger ::log($msg."\nretrying ... ($counter)", L_WARN, __CLASS__);
+                  Logger ::warn($msg."\nretrying ... ($counter)", __CLASS__);
                   sleep(10);                                   // vor jedem weiteren Versuch einige Sekunden warten
                   continue;
                }

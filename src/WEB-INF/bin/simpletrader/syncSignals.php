@@ -119,7 +119,7 @@ function processSignal($alias, $fileSyncOnly) {
          if ($errorMsg) {
             echoPre($errorMsg);
             if ($counter >= 5) throw new plRuntimeException($signal->getName().': '.$errorMsg);
-            Logger ::log($signal->getName().': '.$errorMsg."\nretrying...", L_WARN, __CLASS__);
+            Logger::warn($signal->getName().': '.$errorMsg."\nretrying...", __CLASS__);
             continue;
          }
 

@@ -92,7 +92,7 @@ class UploadAccountHistoryActionForm extends ActionForm {
          $request->setActionError('', $errors[$file['error']]);
       }
       elseif ($request->getContentType()=='multipart/form-data' && !is_uploaded_file($file['tmp_name'])) {
-         Logger ::log('Possible file upload attack:  is_uploaded_file("'.$file['tmp_name'].'") => false', L_WARN, __CLASS__);
+         Logger::warn('Possible file upload attack:  is_uploaded_file("'.$file['tmp_name'].'") => false', __CLASS__);
          $request->setActionError('', '101: Error while uploading the file');
       }
       elseif ($file['size'] == 0) {
