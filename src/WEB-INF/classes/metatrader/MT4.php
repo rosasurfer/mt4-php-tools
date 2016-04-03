@@ -363,12 +363,12 @@ class MT4 extends StaticClass {
 
 
    /**
-    * Ob ein String ein gültiges MetaTrader-Symbol darstellt.
+    * Ob ein String ein gültiges MetaTrader-Symbol darstellt. Insbesondere darf ein Symbol keine Leerzeichen enthalten.
     *
     * @return bool
     */
    public static function isValidSymbol($string) {
-      static $pattern = '/^[a-z0-9_.#&\'-]+$/i';
+      static $pattern = '/^[a-z0-9_.#&\'~-]+$/i';
       return is_string($string) && strLen($string) && strLen($string) <= self::MAX_SYMBOL_LENGTH && preg_match($pattern, $string);
    }
 
