@@ -48,7 +48,7 @@ exit(0);
 
 
 /**
- * Aktualisirrt die MT4-History eines Instruments.
+ * Aktualisiert die MT4-History eines Instruments.
  *
  * @param  string $symbol - Symbol
  *
