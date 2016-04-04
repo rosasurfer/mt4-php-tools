@@ -289,7 +289,7 @@ class HistorySet extends Object {
     */
    public function update(array $bars) {
       if ($this->disposed) throw new IllegalStateException('cannot modify a disposed '.__CLASS__.' instance');
-      throw new UnimplementedFeatureException(__METHOD__);
+      //throw new UnimplementedFeatureException(__METHOD__);
    }
 
 
