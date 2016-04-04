@@ -71,7 +71,7 @@ function updateHistory($symbol) {
    $lastMonth = -1;
 
 
-   // (1.1) versuchen, ein vorhandenes HistorySet zu öffnen
+   // (1.1) ein vorhandenes HistorySet öffnen
    if ($history=HistorySet::get($symbol, $directory)) {
       $lastSyncTime = $history->getLastSyncTime();
       if ($lastSyncTime) {
@@ -99,7 +99,7 @@ function updateHistory($symbol) {
       }
       else {
          // (1.3) $lastSyncTime=0: HistorySet verwerfen und komplett neuschreiben lassen
-         if ($verbose > 0) echoPre('[Info]    disposing existing history ($lastSyncTime=0)');
+         if ($verbose > 0) echoPre('[Info]    dismissing existing history ($lastSyncTime=0)');
          $history->dispose();
          $history = null;
       }
@@ -135,7 +135,7 @@ function updateHistory($symbol) {
          $history->addM1Bars($bars);
       }
    }
-   $history->close();
+   //$history->close();
 
    echoPre('[Ok]      '.$symbol);
    return true;

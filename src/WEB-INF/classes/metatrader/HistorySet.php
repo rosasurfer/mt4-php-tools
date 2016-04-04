@@ -141,7 +141,7 @@ class HistorySet extends Object {
    /**
     * Destructor
     *
-    * Sorgt bei Zerstörung des Objekts dafür, daß alle noch offenen Historydateien geschlossen werden.
+    * Sorgt bei Zerstörung der Instanz dafür, daß alle gehaltenen Resourcen freigegeben werden.
     */
    public function __destruct() {
       // Ein Destructor darf während des Shutdowns keine Exception werfen.
@@ -156,8 +156,7 @@ class HistorySet extends Object {
 
 
    /**
-    * Gibt die Resourcen dieses HistorySets frei. Wird aufgerufen, wenn eine neue Instanz für dasselbe Symbol desselben Servers
-    * erzeugt wird. Nach dem Aufruf kann die alte Instanz nicht mehr verwendet werden.
+    * Gibt alle Resourcen dieser Instanz frei. Nach dem Aufruf kann die Instanz nicht mehr verwendet werden.
     *
     * @return bool - Erfolgsstatus; FALSE, wenn die Instanz bereits disposed war
     */
