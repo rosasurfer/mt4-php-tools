@@ -32,8 +32,8 @@ foreach ($args as $i => $arg) {
    $arg = strToUpper($arg);
    if (!isSet(MyFX::$symbols[$arg])) exit(1|help('error: unknown or unsupported symbol "'.$args[$i].'"'));
    $args[$i] = $arg;
-}                                                                                   // ohne Symbol werden alle Instrumente verarbeitet
-$args = $args ? array_unique($args) : array_keys(MyFX::$symbols);
+}
+$args = $args ? array_unique($args) : array_keys(MyFX::$symbols);                   // ohne Symbol werden alle Instrumente verarbeitet
 
 
 // (2) History aktualisieren
@@ -59,10 +59,6 @@ function updateHistory($symbol) {
    if (!strLen($symbol))    throw new plInvalidArgumentException('Invalid parameter $symbol: ""');
 
    global $verbose;
-
-   // HistorySet-Daten
-   $digits    = MyFX::$symbols[$symbol]['digits'];
-   $format    = 400;
    $directory = MyFX::getConfigPath('myfx.data_directory').'/history/mt4/MyFX-Dukascopy';
 
    // Zeitrange für komplette Aktualisierung
@@ -75,7 +71,7 @@ function updateHistory($symbol) {
    $lastMonth = -1;
 
 
-   // (1.1) vorhandenes HistorySet öffnen
+   // (1.1) versuchen, ein vorhandenes HistorySet zu öffnen
    if ($history=HistorySet::get($symbol, $directory)) {
       $lastSyncTime = $history->getLastSyncTime();
       if ($lastSyncTime) {
@@ -113,7 +109,8 @@ function updateHistory($symbol) {
    // (2) ggf. neues HistorySet erzeugen
    if (!$history) {
       if ($verbose > 0) echoPre('[Info]    creating new history');
-      $history = HistorySet::create($symbol, $digits, $format, $directory);
+      $digits  = MyFX::$symbols[$symbol]['digits'];
+      $history = HistorySet::create($symbol, $digits, $format=400, $directory);                    // neue Sets im Format 400 erstellen
    }
 
 
@@ -138,8 +135,9 @@ function updateHistory($symbol) {
          $history->addM1Bars($bars);
       }
    }
+   $history->close();
 
-   echoPre('[Ok]      '.$symbol);  // beim Schließen des Sets muß automatisch der Sync-Zeitpunkt gespeichert werden
+   echoPre('[Ok]      '.$symbol);
    return true;
 }
 

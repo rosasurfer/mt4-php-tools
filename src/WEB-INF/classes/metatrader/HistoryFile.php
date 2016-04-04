@@ -147,10 +147,12 @@ class HistoryFile extends Object {
       if ($this->isDisposed())
          return false;
 
+      // Barbuffer leeren
       if ($this->barBuffer) {
          $this->flushBars();
       }
 
+      // LastSyncTime aktualisieren
       if ($this->lastSyncedBarTime) {
          $syncTime = $this->lastSyncedBarTime + $this->lastSyncedBarPeriod*MINUTES; // Sync-Zeitpunkt ist das Ende der Barperiode
 
@@ -160,6 +162,7 @@ class HistoryFile extends Object {
          }
       }
 
+      // Datei schließen
       if (is_resource($this->hFile)) {
          $hTmp=$this->hFile; $this->hFile=null;
          fClose($hTmp);
