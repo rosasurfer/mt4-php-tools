@@ -212,24 +212,6 @@ class HistoryFile extends Object {
       $this->full_to_openTime          = $this->stored_to_openTime;
       $this->full_to_closeTime         = $this->stored_to_closeTime;
       $this->full_to_nextCloseTime     = $this->stored_to_nextCloseTime;
-
-      /*
-      if ($this->getPeriod() == PERIOD_M1) {
-         echoPre('$lastSyncTime              = '.($this->lastSyncTime              ? gmDate('D, d-M-Y H:i:s', $this->lastSyncTime             ) : 0));
-         echoPre('$barSize                   = '. $this->barSize);
-         echoPre('$barPackFormat             = '. $this->barPackFormat);
-         echoPre('$barUnpackFormat           = '. $this->barUnpackFormat);
-         echoPre('$stored_bars               = '. $this->stored_bars);
-         echoPre('$stored_from_offset        = '. $this->stored_from_offset);
-         echoPre('$stored_from_openTime      = '.($this->stored_from_openTime      ? gmDate('D, d-M-Y H:i:s', $this->stored_from_openTime     ) : 0));
-         echoPre('$stored_from_closeTime     = '.($this->stored_from_closeTime     ? gmDate('D, d-M-Y H:i:s', $this->stored_from_closeTime    ) : 0));
-         echoPre('$stored_from_nextCloseTime = '.($this->stored_from_nextCloseTime ? gmDate('D, d-M-Y H:i:s', $this->stored_from_nextCloseTime) : 0));
-         echoPre('$stored_to_offset          = '. $this->stored_to_offset);
-         echoPre('$stored_to_openTime        = '.($this->stored_to_openTime        ? gmDate('D, d-M-Y H:i:s', $this->stored_to_openTime       ) : 0));
-         echoPre('$stored_to_closeTime       = '.($this->stored_to_closeTime       ? gmDate('D, d-M-Y H:i:s', $this->stored_to_closeTime      ) : 0));
-         echoPre('$stored_to_nextCloseTime   = '.($this->stored_to_nextCloseTime   ? gmDate('D, d-M-Y H:i:s', $this->stored_to_nextCloseTime  ) : 0));
-      }
-      */
    }
 
 
@@ -308,7 +290,48 @@ class HistoryFile extends Object {
       if ($this->closed) throw new IllegalStateException('Cannot process a closed '.__CLASS__);
       if (!$bars) return false;
 
+      $method = __FUNCTION__.MyFX::periodDescription($this->getPeriod());     // synchronizeM1() etc.
+      $this->$method($bars);
+
+      return false;
       return true;
+   }
+
+
+   /**
+    * Synchronisiert die M1-History dieser Instanz.
+    *
+    * @param  MYFX_BAR[] $bars - Bardaten der Periode M1
+    */
+   private function synchronizeM1(array $bars) {
+      $period            = $this->getPeriod();
+      $barsSize          = sizeof($bars);
+      $barsFrom_openTime = $bars[          0]['time'];
+      $barsTo_openTime   = $bars[$barsSize-1]['time'];
+      $barsTo_closeTime  = $barsTo_openTime + $period*MINUTES;
+      $lastSyncTime      = $this->getLastSyncTime();
+
+      if ($barsFrom_openTime > $lastSyncTime) throw new plRuntimeException('Cannot synchronize history (lastSyncTime='.gmDate('D, d-M-Y H:i:s', $lastSyncTime).') with bars starting at '.gmDate('D, d-M-Y H:i:s', $barsFrom_openTime));
+
+
+      foreach ($bars as $i => $bar) {
+         if ($bar['time'] >= $lastSyncTime) {
+            echoPre($barsSize.' bars, first bar for synchronizing: offset='.$i);
+            break;
+         }
+      }
+
+
+      $Pxx = MyFX::periodDescription($period);
+      echoPre($Pxx.'::stored_bars               = '. $this->stored_bars);
+      echoPre($Pxx.'::stored_from_offset        = '. $this->stored_from_offset);
+      echoPre($Pxx.'::stored_from_openTime      = '.($this->stored_from_openTime      ? gmDate('D, d-M-Y H:i:s', $this->stored_from_openTime     ) : 0));
+      echoPre($Pxx.'::stored_from_closeTime     = '.($this->stored_from_closeTime     ? gmDate('D, d-M-Y H:i:s', $this->stored_from_closeTime    ) : 0));
+      echoPre($Pxx.'::stored_from_nextCloseTime = '.($this->stored_from_nextCloseTime ? gmDate('D, d-M-Y H:i:s', $this->stored_from_nextCloseTime) : 0));
+      echoPre($Pxx.'::stored_to_offset          = '. $this->stored_to_offset);
+      echoPre($Pxx.'::stored_to_openTime        = '.($this->stored_to_openTime        ? gmDate('D, d-M-Y H:i:s', $this->stored_to_openTime       ) : 0));
+      echoPre($Pxx.'::stored_to_closeTime       = '.($this->stored_to_closeTime       ? gmDate('D, d-M-Y H:i:s', $this->stored_to_closeTime      ) : 0));
+      echoPre($Pxx.'::stored_to_nextCloseTime   = '.($this->stored_to_nextCloseTime   ? gmDate('D, d-M-Y H:i:s', $this->stored_to_nextCloseTime  ) : 0));
    }
 
 
@@ -321,29 +344,18 @@ class HistoryFile extends Object {
       if ($this->closed) throw new IllegalStateException('Cannot process a closed '.__CLASS__);
       if (!$bars) return;
 
-      switch ($this->getTimeframe()) {
-         case PERIOD_M1 : $this->addToM1 ($bars); break;
-         case PERIOD_M5 : $this->addToM5 ($bars); break;
-         case PERIOD_M15: $this->addToM15($bars); break;
-         case PERIOD_M30: $this->addToM30($bars); break;
-         case PERIOD_H1 : $this->addToH1 ($bars); break;
-         case PERIOD_H4 : $this->addToH4 ($bars); break;
-         case PERIOD_D1 : $this->addToD1 ($bars); break;
-         case PERIOD_W1 : $this->addToW1 ($bars); break;
-         case PERIOD_MN1: $this->addToMN1($bars); break;
-
-         default: throw new plRuntimeException('unsupported timeframe '.$this->getTimeframe());
-      }
+      $method = 'addTo'.MyFX::periodDescription($this->getPeriod());
+      $this->$method($bars);                                            // addToM1() etc.
 
       $size = sizeOf($bars);
-      $this->lastSyncTime = $bars[$size-1]['time'] + 1*MINUTE;          // Zeitpunkt ist das Barende
+      $this->lastSyncTime = $bars[$size-1]['time'] + 1*MINUTE;          // Zeitpunkt ist das Ende der letzten hinzugefügten Bar
    }
 
 
    /**
     * Fügt der M1-History dieser Instanz weitere Daten hinzu.
     *
-    * @param  array $bars - Array mit MYFX_BAR-Daten
+    * @param  MYFX_BAR[] $bars - Bardaten der Periode M1
     */
    private function addToM1(array $bars) {
       $this->barBuffer = array_merge($this->barBuffer, $bars);
@@ -360,7 +372,7 @@ class HistoryFile extends Object {
    /**
     * Fügt der M5-History dieser Instanz weitere Daten hinzu.
     *
-    * @param  array $bars - Array mit MYFX_BAR-Daten
+    * @param  MYFX_BAR[] $bars - Bardaten der Periode M1
     */
    private function addToM5(array $bars) {
       $size       = sizeOf($this->barBuffer);
@@ -394,7 +406,7 @@ class HistoryFile extends Object {
    /**
     * Fügt der M15-History dieser Instanz weitere Daten hinzu.
     *
-    * @param  array $bars - Array mit MYFX_BAR-Daten
+    * @param  MYFX_BAR[] $bars - Bardaten der Periode M1
     */
    private function addToM15(array $bars) {
       $size       = sizeOf($this->barBuffer);
@@ -428,7 +440,7 @@ class HistoryFile extends Object {
    /**
     * Fügt der M30-History dieser Instanz weitere Daten hinzu.
     *
-    * @param  array $bars - Array mit MYFX_BAR-Daten
+    * @param  MYFX_BAR[] $bars - Bardaten der Periode M1
     */
    private function addToM30(array $bars) {
       $size       = sizeOf($this->barBuffer);
@@ -462,7 +474,7 @@ class HistoryFile extends Object {
    /**
     * Fügt der H1-History dieser Instanz weitere Daten hinzu.
     *
-    * @param  array $bars - Array mit MYFX_BAR-Daten
+    * @param  MYFX_BAR[] $bars - Bardaten der Periode M1
     */
    private function addToH1(array $bars) {
       $size       = sizeOf($this->barBuffer);
@@ -496,7 +508,7 @@ class HistoryFile extends Object {
    /**
     * Fügt der H4-History dieser Instanz weitere Daten hinzu.
     *
-    * @param  array $bars - Array mit MYFX_BAR-Daten
+    * @param  MYFX_BAR[] $bars - Bardaten der Periode M1
     */
    private function addToH4(array $bars) {
       $size       = sizeOf($this->barBuffer);
@@ -530,7 +542,7 @@ class HistoryFile extends Object {
    /**
     * Fügt der D1-History dieser Instanz weitere Daten hinzu.
     *
-    * @param  array $bars - Array mit MYFX_BAR-Daten
+    * @param  MYFX_BAR[] $bars - Bardaten der Periode M1
     */
    private function addToD1(array $bars) {
       $size       = sizeOf($this->barBuffer);
@@ -564,7 +576,7 @@ class HistoryFile extends Object {
    /**
     * Fügt der W1-History dieser Instanz weitere Daten hinzu.
     *
-    * @param  array $bars - Array mit MYFX_BAR-Daten
+    * @param  MYFX_BAR[] $bars - Bardaten der Periode M1
     */
    private function addToW1(array $bars) {
       $size       =  sizeOf($this->barBuffer);
@@ -599,7 +611,7 @@ class HistoryFile extends Object {
    /**
     * Fügt der MN1-History dieser Instanz weitere Daten hinzu.
     *
-    * @param  array $bars - Array mit MYFX_BAR-Daten
+    * @param  MYFX_BAR[] $bars - Bardaten der Periode M1
     */
    private function addToMN1(array $bars) {
       $size       =  sizeOf($this->barBuffer);

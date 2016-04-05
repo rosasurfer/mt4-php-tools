@@ -185,8 +185,8 @@ function showDirResults($dirName, array $files, array $formats, array $symbols, 
    array_multisort($symbolsU, SORT_ASC, $periods, SORT_ASC/*bis_hierher*/, array_keys($symbolsU), $symbols, $files, $formats, $digits, $syncMarkers, $lastSyncTimes, $bars, $barsFrom, $barsTo, $errors);
 
    // Tabellen-Format definieren und Header ausgeben
-   $tableHeader    = 'Symbol           Digits  SyncMarker           LastSyncTime              Bars  From                 To                   Version';
-   $tableSeparator = '-------------------------------------------------------------------------------------------------------------------------------';
+   $tableHeader    = 'Symbol           Digits  SyncMarker           LastSyncTime              Bars  From                 To                   Format';
+   $tableSeparator = '------------------------------------------------------------------------------------------------------------------------------';
    $tableRowFormat = '%-15s    %d     %-19s  %-19s  %9s  %-19s  %-19s    %s  %s';
    echoPre(NL);
    echoPre($dirName.':');

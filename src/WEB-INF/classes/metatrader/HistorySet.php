@@ -307,7 +307,8 @@ class HistorySet extends Object {
       if (!$bars) return false;
 
       $historyM1 = $this->getFile(PERIOD_M1);
-      $historyM1->synchronize($bars);
+      if (!$historyM1->synchronize($bars))
+         return false;
 
       return true;
    }

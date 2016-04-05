@@ -102,7 +102,8 @@ function updateHistory($symbol) {
 
          $method = $lastSyncTime ? 'synchronize':'addBars';
          $bars   = MyFX::readBarFile($file, $symbol);
-         $history->$method($bars);
+         if (!$history->$method($bars))
+            break;
       }
    }
    $history->close();
