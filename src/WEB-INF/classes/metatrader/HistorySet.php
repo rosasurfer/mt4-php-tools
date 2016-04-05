@@ -9,14 +9,14 @@ class HistorySet extends Object {
    protected /*int   */ $digits;
    protected /*string*/ $serverName;                  // einfacher Servername
    protected /*string*/ $serverDirectory;             // vollständiger Verzeichnisname
-   protected /*bool  */ $disposed = false;            // ob die Resourcen dieses Sets freigegeben sind
+   protected /*bool  */ $closed = false;              // ob das Set geschlossen und seine Resourcen freigegeben sind
 
    // Getter
    public function getSymbol()          { return       $this->symbol;          }
    public function getDigits()          { return       $this->digits;          }
    public function getServerName()      { return       $this->serverName;      }
    public function getServerDirectory() { return       $this->serverDirectory; }
-   public function isDisposed()         { return (bool)$this->disposed;        }
+   public function isClosed()           { return (bool)$this->closed;          }
 
    protected /*HistoryFile[]*/ $historyFiles = array(PERIOD_M1  => null,
                                                      PERIOD_M5  => null,
@@ -75,11 +75,11 @@ class HistorySet extends Object {
       $this->serverDirectory = realPath($serverDirectory);
       $this->serverName      = baseName($this->serverDirectory);
 
-      // offene Sets durchsuchen und Sets desselben Symbols freigeben
+      // offene Sets durchsuchen und Sets desselben Symbols schließen
       $symbolUpper = strToUpper($this->symbol);
       foreach (self::$instances as $instance) {
-         if (!$instance->isDisposed() && $symbolUpper==strToUpper($instance->getSymbol()) && $this->serverDirectory==$instance->getServerDirectory())
-            $instance->dispose();
+         if (!$instance->isClosed() && $symbolUpper==strToUpper($instance->getSymbol()) && $this->serverDirectory==$instance->getServerDirectory())
+            $instance->close();
       }
 
       // alle HistoryFiles zurücksetzen
@@ -109,8 +109,8 @@ class HistorySet extends Object {
 
       $symbolUpper = strToUpper($this->symbol);
       foreach (self::$instances as $instance) {
-         if (!$instance->isDisposed() && $symbolUpper==strToUpper($instance->getSymbol()) && $this->serverDirectory==$instance->getServerDirectory())
-            throw plRuntimeException('Multiple undisposed HistorySets for "'.$this->serverName.'::'.$this->symbol.'"');
+         if (!$instance->isClosed() && $symbolUpper==strToUpper($instance->getSymbol()) && $this->serverDirectory==$instance->getServerDirectory())
+            throw plRuntimeException('Multiple open HistorySets for "'.$this->serverName.'::'.$this->symbol.'"');
       }
 
       // alle übrigen existierenden HistoryFiles öffnen und validieren (nicht existierende Dateien werden bei Bedarf erstellt)
@@ -146,7 +146,7 @@ class HistorySet extends Object {
    public function __destruct() {
       // Ein Destructor darf während des Shutdowns keine Exception werfen.
       try {
-         $this->dispose();
+         $this->close();
       }
       catch (Exception $ex) {
          Logger::handleException($ex, $inShutdownOnly=true);
@@ -156,18 +156,18 @@ class HistorySet extends Object {
 
 
    /**
-    * Gibt alle Resourcen dieser Instanz frei. Nach dem Aufruf kann die Instanz nicht mehr verwendet werden.
+    * Schließt dieses HistorySet. Gibt alle Resourcen dieser Instanz frei. Nach dem Aufruf kann die Instanz nicht mehr verwendet werden.
     *
-    * @return bool - Erfolgsstatus; FALSE, wenn die Instanz bereits disposed war
+    * @return bool - Erfolgsstatus; FALSE, wenn die Instanz bereits geschlossen war
     */
-   public function dispose() {
-      if ($this->isDisposed())
+   public function close() {
+      if ($this->isClosed())
          return false;
 
       foreach ($this->historyFiles as $file) {
-         $file && $file->dispose();
+         $file && $file->close();
       }
-      return $this->disposed=true;
+      return $this->closed=true;
    }
 
 
@@ -202,7 +202,7 @@ class HistorySet extends Object {
       $symbolUpper     = strToUpper($symbol);
       $serverDirectory = realPath($serverDirectory);
       foreach (self::$instances as $instance) {
-         if (!$instance->isDisposed() && $symbolUpper==strToUpper($instance->getSymbol()) && $serverDirectory==$instance->getServerDirectory())
+         if (!$instance->isClosed() && $symbolUpper==strToUpper($instance->getSymbol()) && $serverDirectory==$instance->getServerDirectory())
             return $instance;
       }
 
@@ -268,27 +268,28 @@ class HistorySet extends Object {
 
 
    /**
-    * Fügt dem gesamten Set weitere M1-Bardaten hinzu.
+    * Fügt dem Ende der Zeitreihen des Sets weitere Bardaten hinzu. Vorhandene Daten werden nicht geändert.
     *
     * @param  MYFX_BAR[] $bars - Bardaten der Periode M1
     */
-   public function addM1Bars(array $bars) {
-      if ($this->disposed) throw new IllegalStateException('cannot modify a disposed '.__CLASS__.' instance');
+   public function addBars(array $bars) {
+      if ($this->closed) throw new IllegalStateException('Cannot process a closed '.__CLASS__.' instance');
 
       foreach ($this->historyFiles as $timeframe => $file) {
          !$file && $file=$this->getFile($timeframe);
-         $file->addM1Bars($bars);
+         $file->addBars($bars);
       }
    }
 
 
    /**
-    * Synchronisiert das Set anhand der übergebenen M1-Bardaten.
+    * Synchronisiert die Zeitreihen des Sets mit den übergebenen Bardaten. Vorhandene Daten, die nach dem letzten
+    * Synchronisationszeitpunkt der Zeitreihe geschrieben wurden, werden ersetzt.
     *
     * @param  MYFX_BAR[] $bars - Bardaten der Periode M1
     */
-   public function update(array $bars) {
-      if ($this->disposed) throw new IllegalStateException('cannot modify a disposed '.__CLASS__.' instance');
+   public function synchronize(array $bars) {
+      if ($this->closed) throw new IllegalStateException('Cannot process a closed '.__CLASS__.' instance');
       //throw new UnimplementedFeatureException(__METHOD__);
    }
 

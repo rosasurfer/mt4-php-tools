@@ -59,64 +59,31 @@ function updateHistory($symbol) {
    if (!strLen($symbol))    throw new plInvalidArgumentException('Invalid parameter $symbol: ""');
 
    global $verbose;
-   $directory = MyFX::getConfigPath('myfx.data_directory').'/history/mt4/MyFX-Dukascopy';
-   $today     = ($today=fxtTime()) - $today%DAY;                                                   // 00:00 FXT des aktuellen Tages
-   $today     = ($today=fxtTime(strToTime('2003-10-05 05:00:00 GMT'))) - $today%DAY;
-   $lastMonth = -1;
+   $digits       = MyFX::$symbols[$symbol]['digits'];
+   $directory    = MyFX::getConfigPath('myfx.data_directory').'/history/mt4/MyFX-Dukascopy';
+   $lastSyncTime = null;
+   echoPre('[Info]    '.$symbol);
 
-
-   // (1.1) ein vorhandenes HistorySet öffnen
+   // HistorySet öffnen bzw. neues Set erstellen
    if ($history=HistorySet::get($symbol, $directory)) {
-      $lastSyncTime = $history->getLastSyncTime();
-      if ($lastSyncTime) {
+      if ($lastSyncTime=$history->getLastSyncTime()) {
          if ($verbose > 0) echoPre('[Info]    lastSyncTime: '.gmDate('D, d-M-Y H:i:s', $lastSyncTime));
-
-         // (1.2) den letzten aktualisierten Tag nochmals aktualisieren
-         $startDay = $lastSyncTime - $lastSyncTime%DAY;                                            // 00:00 des zuletzt aktualisierten Tages
-
-         for ($day=$startDay; $day < $today; $day+=1*DAY) {
-            $shortDate = gmDate('D, d-M-Y', $day);
-            $month     = (int) gmDate('m', $day);
-            if ($month != $lastMonth) {
-               echoPre('[Info]    '.gmDate('M-Y', $day));
-               $lastMonth = $month;
-            }
-
-            if (!MyFX::isForexWeekend($day, 'FXT')) {                                              // außer an Wochenenden
-               if      (is_file($file=MyFX::getVar('myfxFile.M1.compressed', $symbol, $day))) {}   // wenn komprimierte MyFX-Datei existiert
-               else if (is_file($file=MyFX::getVar('myfxFile.M1.raw'       , $symbol, $day))) {}   // wenn unkomprimierte MyFX-Datei existiert
-               else {
-                  echoPre('[Error]   '.$symbol.' MyFX history for '.$shortDate.' not found');
-                  return false;
-               }
-               if ($verbose > 0) echoPre('[Info]    updating '.$shortDate);
-
-               // Bars einlesen und MT4-History aktualisieren
-               $bars = MyFX::readBarFile($file, $symbol);
-               $history->update($bars);
-            }
-         }
       }
       else {
-         // (1.3) $lastSyncTime=0: HistorySet verwerfen und komplett neuschreiben lassen
          if ($verbose > 0) echoPre('[Info]    discarding existing history (lastSyncTime=0)');
-         $history->dispose();
+         $history->close();
          $history = null;
       }
    }
+   !$history && $history=HistorySet::create($symbol, $digits, $format=400, $directory);      // neue Sets im Format 400 erstellen
 
+   // History beginnend mit dem letzten synchronisierten Tag aktualisieren
+   $startTime = $lastSyncTime ? $lastSyncTime : fxtTime(MyFX::$symbols[$symbol]['historyStart']['M1']);
+   $startDay  = $startTime - $startTime%DAY;                                                 // 00:00 der Startzeit
+   $today     = ($time=fxtTime()) - $time%DAY;                                               // 00:00 des aktuellen Tages
+   $today     = $startDay + 5*DAYS;                   // zu Testzwecken
+   $lastMonth = -1;
 
-   // (2) ggf. neues HistorySet erzeugen
-   if (!$history) {
-      if ($verbose > 0) echoPre('[Info]    creating new history');
-      $startDay  = fxtTime(MyFX::$symbols[$symbol]['historyStart']['M1']);
-      $startDay -= $startDay%DAY;                                                                  // 00:00 FXT des History-Starts
-      $digits    = MyFX::$symbols[$symbol]['digits'];
-      $history   = HistorySet::create($symbol, $digits, $format=400, $directory);                  // neue Sets im Format 400 erstellen
-   }
-
-
-   // (3) alle weiteren verfügbaren Daten regulär zur History hinzufügen
    for ($day=$startDay; $day < $today; $day+=1*DAY) {
       $shortDate = gmDate('D, d-M-Y', $day);
       $month     = (int) gmDate('m', $day);
@@ -124,20 +91,20 @@ function updateHistory($symbol) {
          echoPre('[Info]    '.gmDate('M-Y', $day));
          $lastMonth = $month;
       }
-
-      if (!MyFX::isForexWeekend($day, 'FXT')) {                                                    // außer an Wochenenden
-         if      (is_file($file=MyFX::getVar('myfxFile.M1.compressed', $symbol, $day))) {}         // wenn komprimierte MyFX-Datei existiert
-         else if (is_file($file=MyFX::getVar('myfxFile.M1.raw'       , $symbol, $day))) {}         // wenn unkomprimierte MyFX-Datei existiert
+      if (!MyFX::isForexWeekend($day, 'FXT')) {                                              // außer an Wochenenden
+         if      (is_file($file=MyFX::getVar('myfxFile.M1.compressed', $symbol, $day))) {}   // wenn komprimierte MyFX-Datei existiert
+         else if (is_file($file=MyFX::getVar('myfxFile.M1.raw'       , $symbol, $day))) {}   // wenn unkomprimierte MyFX-Datei existiert
          else {
             echoPre('[Error]   '.$symbol.' MyFX history for '.$shortDate.' not found');
             return false;
          }
-         // Bars einlesen und der MT4-History hinzufügen
-         $bars = MyFX::readBarFile($file, $symbol);
-         $history->addM1Bars($bars);
+         if ($verbose > 0) echoPre('[Info]    updating '.$shortDate);
+         $method = $lastSyncTime ? 'synchronize':'addBars';
+         $bars   = MyFX::readBarFile($file, $symbol);
+         $history->$method($bars);
       }
    }
-   //$history->close();
+   $history->close();
 
    echoPre('[Ok]      '.$symbol);
    return true;

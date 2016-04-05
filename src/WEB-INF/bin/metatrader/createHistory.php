@@ -90,7 +90,7 @@ function createHistory($symbol) {
          }
          // Bars einlesen und der MT4-History hinzufügen
          $bars = MyFX::readBarFile($file, $symbol);
-         $history->addM1Bars($bars);
+         $history->addBars($bars);
       }
    }
 

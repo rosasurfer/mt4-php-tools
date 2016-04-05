@@ -14,7 +14,7 @@ class HistoryFile extends Object {
    protected /*MYFX_BAR[]   */ $barBuffer        = array();
    protected /*int          */ $bufferSize       = 10000;         // Default-Size des Barbuffers (ungespeicherte Bars)
    protected /*int          */ $currentCloseTime = PHP_INT_MIN;
-   protected /*bool         */ $disposed         = false;         // ob die Resourcen dieser Instanz freigegeben sind
+   protected /*bool         */ $closed           = false;         // ob die Instanz geschlossen und seine Resourcen freigegeben sind
 
    protected /*MYFX_BAR[]   */ $lastSyncedBarPeriod;
    protected /*MYFX_BAR[]   */ $lastSyncedBarTime;
@@ -34,7 +34,7 @@ class HistoryFile extends Object {
    public function getServerDirectory() { return $this->serverDirectory;  }
 
    public function getBufferSize()      { return $this->bifferSize;       }
-   public function isDisposed()         { return (bool)$this->disposed;   }
+   public function isClosed()           { return (bool)$this->closed;     }
 
 
    /**
@@ -129,7 +129,7 @@ class HistoryFile extends Object {
    public function __destruct() {
       // Ein Destructor darf während des Shutdowns keine Exception werfen.
       try {
-         $this->dispose();
+         $this->close();
       }
       catch (Exception $ex) {
          Logger::handleException($ex, $inShutdownOnly=true);
@@ -139,12 +139,12 @@ class HistoryFile extends Object {
 
 
    /**
-    * Gibt die Resourcen dieser Instanz frei. Nach dem Aufruf kann die Instanz nicht mehr verwendet werden.
+    * Schließt dieses HistoryFile. Gibt die Resourcen dieser Instanz frei. Nach dem Aufruf kann die Instanz nicht mehr verwendet werden.
     *
-    * @return bool - Erfolgsstatus; FALSE, wenn die Instanz bereits disposed war
+    * @return bool - Erfolgsstatus; FALSE, wenn die Instanz bereits geschlossen war
     */
-   public function dispose() {
-      if ($this->isDisposed())
+   public function close() {
+      if ($this->isClosed())
          return false;
 
       // Barbuffer leeren
@@ -167,7 +167,7 @@ class HistoryFile extends Object {
          $hTmp=$this->hFile; $this->hFile=null;
          fClose($hTmp);
       }
-      return $this->disposed=true;
+      return $this->closed=true;
    }
 
 
@@ -177,9 +177,9 @@ class HistoryFile extends Object {
     * @param  int $size - Buffergröße
     */
    public function setBufferSize($size) {
-      if ($this->disposed) throw new IllegalStateException('Cannot process a disposed '.__CLASS__.' instance');
-      if (!is_int($size))  throw new IllegalTypeException('Illegal type of parameter $size: '.getType($size));
-      if ($size < 0)       throw new plInvalidArgumentException('Invalid parameter $size: '.$size);
+      if ($this->closed)  throw new IllegalStateException('Cannot process a closed '.__CLASS__.' instance');
+      if (!is_int($size)) throw new IllegalTypeException('Illegal type of parameter $size: '.getType($size));
+      if ($size < 0)      throw new plInvalidArgumentException('Invalid parameter $size: '.$size);
 
       $this->bufferSize = $size;
    }
@@ -190,8 +190,8 @@ class HistoryFile extends Object {
     *
     * @param  MYFX_BAR[] $bars - Bardaten der Periode M1
     */
-   public function addM1Bars(array $bars) {
-      if ($this->disposed) throw new IllegalStateException('Cannot process a disposed '.__CLASS__.' instance');
+   public function addBars(array $bars) {
+      if ($this->closed) throw new IllegalStateException('Cannot process a closed '.__CLASS__.' instance');
 
       switch ($this->getTimeframe()) {
          case PERIOD_M1 : $this->addToM1 ($bars); break;
@@ -515,7 +515,7 @@ class HistoryFile extends Object {
     * @return int - Anzahl der geschriebenen und aus dem Buffer gelöschten Bars
     */
    public function flushBars($count=PHP_INT_MAX) {
-      if ($this->disposed) throw new IllegalStateException('Cannot process a disposed '.__CLASS__.' instance');
+      if ($this->closed)   throw new IllegalStateException('Cannot process a closed '.__CLASS__.' instance');
       if (!is_int($count)) throw new IllegalTypeException('Illegal type of parameter $count: '.getType($count));
       if ($count < 0)      throw new plInvalidArgumentException('Invalid parameter $count: '.$count);
 
