@@ -255,15 +255,14 @@ class HistorySet extends Object {
     *               0, wenn mindestens eines der HistoryFiles noch gar nicht synchronisiert wurde
     */
    public function getLastSyncTime() {
-      $allTime = null;
-      foreach ($this->historyFiles as $timeframe => $file) {
+      $minTime = null;
+      foreach ($this->historyFiles as $file) {
          $time = $file ? $file->getLastSyncTime() : 0;   // existiert die Datei nicht, wurde sie auch noch nicht synchronisiert
-
-         is_null($allTime) && $allTime=$time;
-         if ($time != $allTime)
-            return 0;                                    // vorerst muß die LastSyncTime aller Dateien übereinstimmen
+         if (is_null($minTime))
+            $minTime = $time;
+         $minTime = min($minTime, $time);
       }
-      return $allTime;
+      return $minTime;
    }
 
 
@@ -271,26 +270,34 @@ class HistorySet extends Object {
     * Fügt dem Ende der Zeitreihen des Sets weitere Bardaten hinzu. Vorhandene Daten werden nicht geändert.
     *
     * @param  MYFX_BAR[] $bars - Bardaten der Periode M1
+    *
+    * @return bool - Erfolgsstatus
     */
    public function addBars(array $bars) {
-      if ($this->closed) throw new IllegalStateException('Cannot process a closed '.__CLASS__.' instance');
+      if ($this->closed) throw new IllegalStateException('Cannot process a closed '.__CLASS__);
 
       foreach ($this->historyFiles as $timeframe => $file) {
          !$file && $file=$this->getFile($timeframe);
          $file->addBars($bars);
       }
+      return true;
    }
 
 
    /**
-    * Synchronisiert die Zeitreihen des Sets mit den übergebenen Bardaten. Vorhandene Daten, die nach dem letzten
-    * Synchronisationszeitpunkt der Zeitreihe geschrieben wurden, werden ersetzt.
+    * Synchronisiert die Zeitreihen des Sets mit den übergebenen Bardaten. Vorhandene Bars, die nach dem letzten
+    * Synchronisationszeitpunkt der Zeitreihe geschrieben wurden und die sich mit den übergebenen Bars überschneiden,
+    * werden ersetzt. Vorhandene Bars, die sich mit den übergebenen Bars nicht überschneiden, bleiben unverändert.
     *
     * @param  MYFX_BAR[] $bars - Bardaten der Periode M1
+    *
+    * @return bool - Erfolgsstatus
     */
    public function synchronize(array $bars) {
-      if ($this->closed) throw new IllegalStateException('Cannot process a closed '.__CLASS__.' instance');
+      if ($this->closed) throw new IllegalStateException('Cannot process a closed '.__CLASS__);
+
       //throw new UnimplementedFeatureException(__METHOD__);
+      return true;
    }
 
 

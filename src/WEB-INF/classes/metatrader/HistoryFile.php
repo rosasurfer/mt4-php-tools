@@ -177,7 +177,7 @@ class HistoryFile extends Object {
     * @param  int $size - Buffergröße
     */
    public function setBufferSize($size) {
-      if ($this->closed)  throw new IllegalStateException('Cannot process a closed '.__CLASS__.' instance');
+      if ($this->closed)  throw new IllegalStateException('Cannot process a closed '.__CLASS__);
       if (!is_int($size)) throw new IllegalTypeException('Illegal type of parameter $size: '.getType($size));
       if ($size < 0)      throw new plInvalidArgumentException('Invalid parameter $size: '.$size);
 
@@ -191,7 +191,7 @@ class HistoryFile extends Object {
     * @param  MYFX_BAR[] $bars - Bardaten der Periode M1
     */
    public function addBars(array $bars) {
-      if ($this->closed) throw new IllegalStateException('Cannot process a closed '.__CLASS__.' instance');
+      if ($this->closed) throw new IllegalStateException('Cannot process a closed '.__CLASS__);
 
       switch ($this->getTimeframe()) {
          case PERIOD_M1 : $this->addToM1 ($bars); break;
@@ -515,7 +515,7 @@ class HistoryFile extends Object {
     * @return int - Anzahl der geschriebenen und aus dem Buffer gelöschten Bars
     */
    public function flushBars($count=PHP_INT_MAX) {
-      if ($this->closed)   throw new IllegalStateException('Cannot process a closed '.__CLASS__.' instance');
+      if ($this->closed)   throw new IllegalStateException('Cannot process a closed '.__CLASS__);
       if (!is_int($count)) throw new IllegalTypeException('Illegal type of parameter $count: '.getType($count));
       if ($count < 0)      throw new plInvalidArgumentException('Invalid parameter $count: '.$count);
 
