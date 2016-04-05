@@ -114,16 +114,16 @@ foreach ($expandedArgs as $fileName) {
       $syncMarkers  [] =            $header->getSyncMarker()   ? gmDate('Y.m.d H:i:s', $header->getSyncMarker()  ) : null;
       $lastSyncTimes[] =            $header->getLastSyncTime() ? gmDate('Y.m.d H:i:s', $header->getLastSyncTime()) : null;
 
-      if ($header->getFormat() == 400) { $barSize = MT4::HISTORY_BAR_400_SIZE; $barFormat = 'Vtime/dopen/dlow/dhigh/dclose/dticks';                          }
-      else                      /*401*/{ $barSize = MT4::HISTORY_BAR_401_SIZE; $barFormat = 'Vtime/x4/dopen/dhigh/dlow/dclose/Vticks/x4/lspread/Vvolume/x4'; }
+      $barVersion = $header->getFormat();
+      $barSize    = ($barVersion==400) ? MT4::HISTORY_BAR_400_SIZE : MT4::HISTORY_BAR_401_SIZE;
+      $iBars      = floor(($fileSize-HistoryHeader::SIZE)/$barSize);
 
-      $iBars    = floor(($fileSize-HistoryHeader::SIZE)/$barSize);
       $barFrom = $barTo = array();
       if ($iBars) {
-         $barFrom  = unpack($barFormat, fRead($hFile, $barSize));
+         $barFrom  = unpack(MT4::BAR_getUnpackFormat($barVersion), fRead($hFile, $barSize));
          if ($iBars > 1) {
             fSeek($hFile, HistoryHeader::SIZE + $barSize*($iBars-1));
-            $barTo = unpack($barFormat, fRead($hFile, $barSize));
+            $barTo = unpack(MT4::BAR_getUnpackFormat($barVersion), fRead($hFile, $barSize));
          }
       }
 
@@ -185,8 +185,8 @@ function showDirResults($dirName, array $files, array $formats, array $symbols, 
    array_multisort($symbolsU, SORT_ASC, $periods, SORT_ASC/*bis_hierher*/, array_keys($symbolsU), $symbols, $files, $formats, $digits, $syncMarkers, $lastSyncTimes, $bars, $barsFrom, $barsTo, $errors);
 
    // Tabellen-Format definieren und Header ausgeben
-   $tableHeader    = 'Symbol           Digits  SyncMarker           LastSyncTime              Bars  From                 To                   Format';
-   $tableSeparator = '------------------------------------------------------------------------------------------------------------------------------';
+   $tableHeader    = 'Symbol           Digits  SyncMarker           LastSyncTime              Bars  From                 To                   Version';
+   $tableSeparator = '-------------------------------------------------------------------------------------------------------------------------------';
    $tableRowFormat = '%-15s    %d     %-19s  %-19s  %9s  %-19s  %-19s    %s  %s';
    echoPre(NL);
    echoPre($dirName.':');
