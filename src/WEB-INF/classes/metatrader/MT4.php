@@ -78,18 +78,18 @@ class MT4 extends StaticClass {
     * @see  Definition in MT4Expander.dll::Expander.h
     * @see  MT4::SYMBOL_getUnpackFormat() zum Verwenden als unpack()-Formatstring
     */
-   private static $SYMBOL_format = '
+   private static $SYMBOL_formatStr = '
       /a12   name                      // szchar
       /a54   description               // szchar
-      /a10   origin                    // szchar (ccustom)
+      /a10   origin                    // szchar (custom)
       /a12   altName                   // szchar
       /a12   baseCurrency              // szchar
-      /V     group                     // int
-      /V     digits                    // int
-      /V     tradeMode                 // int
-      /V     backgroundColor           // int
-      /V     arrayKey                  // int
-      /V     id                        // int
+      /V     group                     // uint
+      /V     digits                    // uint
+      /V     tradeMode                 // uint
+      /V     backgroundColor           // uint
+      /V     arrayKey                  // uint
+      /V     id                        // uint
       /x32   unknown1:char32
       /x208  unknownM1:char208
       /x208  unknownM5:char208
@@ -104,17 +104,17 @@ class MT4 extends StaticClass {
       /x4    _alignment1
       /d     unknown5:double
       /H24   unknown6:char12
-      /V     spread                    // int
+      /V     spread                    // uint
       /H16   unknown7:char8
       /V     swapEnabled               // bool
-      /V     swapType                  // int
+      /V     swapType                  // uint
       /d     swapLongValue             // double
       /d     swapShortValue            // double
-      /V     swapTripleRolloverDay     // int
+      /V     swapTripleRolloverDay     // uint
       /x4    _alignment2
       /d     contractSize              // double
       /x16   unknown8:char16
-      /V     stopDistance              // int
+      /V     stopDistance              // uint
       /x8    unknown9:char8
       /x4    _alignment3
       /d     marginInit                // double
@@ -131,6 +131,43 @@ class MT4 extends StaticClass {
 
 
    /**
+    * Formatbeschreibung eines struct HISTORY_BAR_400.
+    *
+    * @see  Definition in MT4Expander.dll::Expander.h
+    * @see  MT4::BAR_getUnpackFormat() zum Verwenden als unpack()-Formatstring
+    */
+   private static $BAR_400_formatStr = '
+      /V   time            // uint
+      /d   open            // double
+      /d   low             // double
+      /d   high            // double
+      /d   close           // double
+      /d   ticks           // double
+   ';
+
+
+   /**
+    * Formatbeschreibung eines struct HISTORY_BAR_401.
+    *
+    * @see  Definition in MT4Expander.dll::Expander.h
+    * @see  MT4::BAR_getUnpackFormat() zum Verwenden als unpack()-Formatstring
+    */
+   private static $BAR_401_formatStr = '
+      /V   time            // uint (int64)
+      /x4
+      /d   open            // double
+      /d   high            // double
+      /d   low             // double
+      /d   close           // double
+      /V   ticks           // uint (uint64)
+      /x4
+      /V   spread          // uint
+      /V   volume          // uint (uint64)
+      /x4
+   ';
+
+
+   /**
     * Gibt die Namen der Felder eines struct SYMBOL zurück.
     *
     * @return string[] - Array mit SYMBOL-Feldern
@@ -139,7 +176,7 @@ class MT4 extends StaticClass {
       static $fields = null;
 
       if (is_null($fields)) {
-         $lines = explode("\n", self::$SYMBOL_format);
+         $lines = explode("\n", self::$SYMBOL_formatStr);
          foreach ($lines as $i => &$line) {
             $line = strLeftTo($line, '//');                             // Kommentare entfernen
             $line = trim(strRightFrom(trim($line), ' '));               // Format-Code entfernen
@@ -161,7 +198,7 @@ class MT4 extends StaticClass {
       static $format = null;
 
       if (is_null($format)) {
-         $lines = explode("\n", self::$SYMBOL_format);
+         $lines = explode("\n", self::$SYMBOL_formatStr);
          foreach ($lines as $i => &$line) {
             $line = strLeftTo($line, '//');                          // Kommentare entfernen
          } unset($line);
@@ -174,6 +211,73 @@ class MT4 extends StaticClass {
          if ($format[0] == '/') $format = strRight($format, -1);     // remove leading format separator
       }
       return $format;
+   }
+
+
+   /**
+    * Gibt den Formatstring zum Packen eines struct HISTORY_BAR_400 oder HISTORY_BAR_401 zurück.
+    *
+    * @param  int $version - Barversion: 400 oder 401
+    *
+    * @return string - pack()-Formatstring
+    */
+   public static function BAR_getPackFormat($version) {
+      if (!is_int($version))              throw new IllegalTypeException('Illegal type of parameter $version: '.getType($version));
+      if ($version!=400 && $version!=401) throw new MetaTraderException('version.unsupported: Invalid parameter $version: '.$version.' (must be 400 or 401)');
+
+      static $format_400 = null;
+      static $format_401 = null;
+
+      if (is_null(${'format_'.$version})) {
+         $lines = explode("\n", self::${'BAR_'.$version.'_formatStr'});
+         foreach ($lines as &$line) {
+            $line = strLeftTo($line, '//');                          // Kommentare entfernen
+         } unset($line);
+
+         $values = explode('/', join('', $lines));                   // in Format-Codes zerlegen
+
+         foreach ($values as $i => &$value) {
+            $value = trim($value);
+            $value = strLeftTo($value, ' ');                         // dem Code folgende Bezeichner entfernen
+            if (!strLen($value))
+               unset($values[$i]);
+         } unset($value);
+         $format = join('', $values);
+         ${'format_'.$version} = $format;
+      }
+      return ${'format_'.$version};
+   }
+
+
+   /**
+    * Gibt den Formatstring zum Entpacken eines struct HISTORY_BAR_400 oder HISTORY_BAR_401 zurück.
+    *
+    * @param  int $version - Barversion: 400 oder 401
+    *
+    * @return string - unpack()-Formatstring
+    */
+   public static function BAR_getUnpackFormat($version) {
+      if (!is_int($version))              throw new IllegalTypeException('Illegal type of parameter $version: '.getType($version));
+      if ($version!=400 && $version!=401) throw new MetaTraderException('version.unsupported: Invalid parameter $version: '.$version.' (must be 400 or 401)');
+
+      static $format_400 = null;
+      static $format_401 = null;
+
+      if (is_null(${'format_'.$version})) {
+         $lines = explode("\n", self::${'BAR_'.$version.'_formatStr'});
+         foreach ($lines as $i => &$line) {
+            $line = strLeftTo($line, '//');                          // Kommentare entfernen
+         } unset($line);
+         $format = join('', $lines);
+
+         // since PHP 5.5.0: The 'a' code now retains trailing NULL bytes, 'Z' replaces the former 'a'.
+         if (PHP_VERSION >= '5.5.0') $format = str_replace('/a', '/Z', $format);
+
+         $format = preg_replace('/\s/', '', $format);                // remove white space
+         if ($format[0] == '/') $format = strRight($format, -1);     // remove leading format separator
+         ${'format_'.$version} = $format;
+      }
+      return ${'format_'.$version};
    }
 
 

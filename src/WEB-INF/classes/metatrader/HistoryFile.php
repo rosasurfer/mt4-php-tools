@@ -13,8 +13,8 @@ class HistoryFile extends Object {
    protected /*HistoryHeader*/ $hstHeader;
    protected /*int          */ $lastSyncTime = 0;                 // Zeitpunkt, bis zu dem die Datei synchronisiert wurde
    protected /*int          */ $barSize      = 0;                 // Größe einer Bar entsprechend dem Datenformat
-   protected /*string       */ $barPackFormat;
-   protected /*string       */ $barUnpackFormat;
+   protected /*string       */ $barPackFormat;                    // Formatstring für pack()
+   protected /*string       */ $barUnpackFormat;                  // Formatstring für unpack()
    protected /*MYFX_BAR[]   */ $barBuffer     = array();
    protected /*int          */ $barBufferSize = 10000;            // Default-Größe des Buffers für ungespeicherte Bars
 
