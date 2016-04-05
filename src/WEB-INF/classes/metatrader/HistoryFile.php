@@ -4,37 +4,52 @@
  */
 class HistoryFile extends Object {
 
+   protected /*int          */ $hFile;                      // File-Handle einer geöffneten Datei
+   protected /*string       */ $fileName;                   // einfacher Dateiname
+   protected /*string       */ $serverName;                 // einfacher Servername
+   protected /*string       */ $serverDirectory;            // vollständiger Name des Serververzeichnisses
+   protected /*bool         */ $closed = false;             // ob die Instanz geschlossen und seine Resourcen freigegeben sind
+
    protected /*HistoryHeader*/ $hstHeader;
+   protected /*int          */ $lastSyncTime;               // Zeitpunkt, bis zu dem die Datei synchronisiert wurde
+   protected /*int          */ $barSize;                    // Größe einer Bar entsprechend dem Datenformat
+   protected /*MYFX_BAR[]   */ $barBuffer  = array();
+   protected /*int          */ $bufferSize = 10000;         // Default-Größe des Buffers für ungespeicherte Bars
 
-   protected /*int          */ $hFile;                            // File-Handle einer geöffneten Datei
-   protected /*string       */ $fileName;                         // einfacher Dateiname
-   protected /*string       */ $serverName;                       // einfacher Servername
-   protected /*string       */ $serverDirectory;                  // vollständiger Name des Serververzeichnisses
+   // Metadaten: gespeichert
+   protected /*int          */ $stored_size;                // Größe der gespeicherten Datei
+   protected /*int          */ $stored_bars;                // Anzahl der gespeicherten Bars der Datei
+   protected /*int          */ $stored_from_offset;         // Offset der ersten gespeicherten Bar der Datei
+   protected /*int          */ $stored_from_openTime;       // OpenTime der ersten gespeicherten Bar der Datei
+   protected /*int          */ $stored_from_closeTime;      // CloseTime der ersten gespeicherten Bar der Datei
+   protected /*int          */ $stored_to_offset;           // Offset der letzten gespeicherten Bar der Datei
+   protected /*int          */ $stored_to_openTime;         // OpenTime der letzten gespeicherten Bar der Datei
+   protected /*int          */ $stored_to_closeTime;        // CloseTime der letzten gespeicherten Bar der Datei
 
-   protected /*MYFX_BAR[]   */ $barBuffer        = array();
-   protected /*int          */ $bufferSize       = 10000;         // Default-Size des Barbuffers (ungespeicherte Bars)
-   protected /*int          */ $currentCloseTime = PHP_INT_MIN;
-   protected /*bool         */ $closed           = false;         // ob die Instanz geschlossen und seine Resourcen freigegeben sind
-
-   protected /*MYFX_BAR[]   */ $lastSyncedBarPeriod;
-   protected /*MYFX_BAR[]   */ $lastSyncedBarTime;
+   // Metadaten: gespeichert + ungespeichert
+   protected /*int          */ $full_size;                  // Größe der Datei inkl. ungespeicherter Daten im Schreibpuffer
+   protected /*int          */ $full_bars;                  // Anzahl der Bars der Datei inkl. ungespeicherter Daten im Schreibpuffer
+   protected /*int          */ $full_from_offset;           // Offset der ersten Bar der Datei inkl. ungespeicherter Daten im Schreibpuffer
+   protected /*int          */ $full_from_openTime;         // OpenTime der ersten Bar der Datei inkl. ungespeicherter Daten im Schreibpuffer
+   protected /*int          */ $full_from_closeTime;        // CloseTime der ersten Bar der Datei inkl. ungespeicherter Daten im Schreibpuffer
+   protected /*int          */ $full_to_offset;             // Offset der letzten Bar der Datei inkl. ungespeicherter Daten im Schreibpuffer
+   protected /*int          */ $full_to_openTime;           // OpenTime der letzten Bar der Datei inkl. ungespeicherter Daten im Schreibpuffer
+   protected /*int          */ $full_to_closeTime;          // CloseTime der letzten Bar der Datei inkl. ungespeicherter Daten im Schreibpuffer
 
 
    // Getter
-   public function getFormat()          { return $this->hstHeader->getFormat();       }
-   public function getSymbol()          { return $this->hstHeader->getSymbol();       }
-   public function getTimeframe()       { return $this->hstHeader->getPeriod();       }
-   public function getPeriod()          { return $this->hstHeader->getPeriod();       }      // Alias
-   public function getDigits()          { return $this->hstHeader->getDigits();       }
-   public function getSyncMarker()      { return $this->hstHeader->getSyncMarker();   }
-   public function getLastSyncTime()    { return $this->hstHeader->getLastSyncTime(); }
+   public function getFileName()        { return $this->fileName;                   }
+   public function getServerName()      { return $this->serverName;                 }
+   public function getServerDirectory() { return $this->serverDirectory;            }
+   public function isClosed()           { return (bool)$this->closed;               }
 
-   public function getFileName()        { return $this->fileName;         }
-   public function getServerName()      { return $this->serverName;       }
-   public function getServerDirectory() { return $this->serverDirectory;  }
-
-   public function getBufferSize()      { return $this->bifferSize;       }
-   public function isClosed()           { return (bool)$this->closed;     }
+   public function getFormat()          { return $this->hstHeader->getFormat();     }
+   public function getSymbol()          { return $this->hstHeader->getSymbol();     }
+   public function getTimeframe()       { return $this->hstHeader->getPeriod();     }
+   public function getPeriod()          { return $this->hstHeader->getPeriod();     }  // Alias
+   public function getDigits()          { return $this->hstHeader->getDigits();     }
+   public function getSyncMarker()      { return $this->hstHeader->getSyncMarker(); }  // wird vom Terminal u.U. überschrieben
+   public function getLastSyncTime()    { return $this->lastSyncTime;               }  // wird vom Terminal nicht überschrieben
 
 
    /**
@@ -50,6 +65,14 @@ class HistoryFile extends Object {
       if      ($argc == 5) $this->__construct_1($arg1, $arg2, $arg3, $arg4, $arg5);
       else if ($argc == 1) $this->__construct_2($arg1);
       else throw new plInvalidArgumentException('Invalid number of arguments: '.$argc);
+
+      // Metadaten einlesen
+      $this->lastSyncTime = $this->hstHeader->getLastSyncTime();
+
+
+      if ($this->getPeriod() == PERIOD_M1) {
+         //echoPre(__METHOD__.'()  lastSyncTime='.gmDate('D, d-M-Y H:i:s', $this->lastSyncTime));
+      }
    }
 
 
@@ -113,11 +136,9 @@ class HistoryFile extends Object {
       $this->hFile     = fOpen($fileName, 'r+b');               // FILE_READ|FILE_WRITE
       $this->hstHeader = new HistoryHeader(fRead($this->hFile, HistoryHeader::SIZE));
 
-      if (!strCompareI($this->fileName, $this->getSymbol().$this->getTimeframe().'.hst')) throw new MetaTraderException('filename.mis-match: File name/header mis-match of "'.$fileName.'": header="'.$this->getSymbol().','.MyFX::periodDescription($this->getTimeframe()).'"');
+      if (!strCompareI($this->fileName, $this->getSymbol().$this->getTimeframe().'.hst')) throw new MetaTraderException('filename.mis-match: File name/symbol mis-match of "'.$fileName.'": header="'.$this->getSymbol().','.MyFX::periodDescription($this->getTimeframe()).'"');
       $barSize = ($this->getFormat()==400) ? MT4::HISTORY_BAR_400_SIZE : MT4::HISTORY_BAR_401_SIZE;
       if ($trailing=($fileSize-HistoryHeader::SIZE) % $barSize)                           throw new MetaTraderException('filesize.trailing: Corrupted file "'.$fileName.'": '.$trailing.' trailing bytes');
-
-      // TODO: count(Bars) und From/To einlesen
    }
 
 
@@ -153,11 +174,9 @@ class HistoryFile extends Object {
       }
 
       // LastSyncTime aktualisieren
-      if ($this->lastSyncedBarTime) {
-         $syncTime = $this->lastSyncedBarTime + $this->lastSyncedBarPeriod*MINUTES; // Sync-Zeitpunkt ist das Ende der Barperiode
-
-         if ($syncTime != $this->hstHeader->getLastSyncTime()) {
-            $this->hstHeader->setLastSyncTime($syncTime);
+      if ($this->lastSyncTime) {
+         if ($this->lastSyncTime != $this->hstHeader->getLastSyncTime()) {
+            $this->hstHeader->setLastSyncTime($this->lastSyncTime);
             $this->writeHistoryHeader($restoreFilePointer=false);
          }
       }
@@ -186,12 +205,30 @@ class HistoryFile extends Object {
 
 
    /**
-    * Fügt dieser Instanz weitere M1-Bardaten hinzu. Die Daten werden am Ende der Zeitreihe gespeichert.
+    * Synchronisiert die Historydatei dieser Instanz mit den übergebenen Daten. Vorhandene Bars, die nach dem letzten
+    * Synchronisationszeitpunkt der Datei hinzugefügt wurden und sich mit den übergebenen Daten überschneiden, werden
+    * ersetzt. Vorhandene Bars, die sich mit den übergebenen Daten nicht überschneiden, bleiben unverändert.
+    *
+    * @param  MYFX_BAR[] $bars - Bardaten der Periode M1 (werden automatisch in die Periode der Historydatei konvertiert)
+    *
+    * @return bool - Erfolgsstatus
+    */
+   public function synchronize(array $bars) {
+      if ($this->closed) throw new IllegalStateException('Cannot process a closed '.__CLASS__);
+      if (!$bars) return false;
+
+      return true;
+   }
+
+
+   /**
+    * Fügt der Historydatei dieser Instanz Bardaten hinzu. Die Daten werden ans Ende der Zeitreihe angefügt.
     *
     * @param  MYFX_BAR[] $bars - Bardaten der Periode M1
     */
    public function addBars(array $bars) {
       if ($this->closed) throw new IllegalStateException('Cannot process a closed '.__CLASS__);
+      if (!$bars) return;
 
       switch ($this->getTimeframe()) {
          case PERIOD_M1 : $this->addToM1 ($bars); break;
@@ -207,10 +244,8 @@ class HistoryFile extends Object {
          default: throw new plRuntimeException('unsupported timeframe '.$this->getTimeframe());
       }
 
-      if ($size=sizeOf($bars)) {
-         $this->lastSyncedBarTime   = $bars[$size-1]['time'];
-         $this->lastSyncedBarPeriod = PERIOD_M1;
-      }
+      $size = sizeOf($bars);
+      $this->lastSyncTime = $bars[$size-1]['time'] + 1*MINUTE;          // Zeitpunkt ist das Barende
    }
 
 
@@ -224,7 +259,7 @@ class HistoryFile extends Object {
 
       $size    = sizeOf($this->barBuffer);
       $lastBar = $this->barBuffer[$size-1];
-      $this->currentCloseTime = $lastBar['time'] + 1*MINUTE;
+      $this->full_to_closeTime = $lastBar['time'] + 1*MINUTE;
 
       if ($size > $this->bufferSize)
          $this->flushBars($this->bufferSize);
@@ -244,12 +279,12 @@ class HistoryFile extends Object {
 
       foreach ($bars as $bar) {
          // Wechsel zur nächsten M5-Bar erkennen
-         if ($bar['time'] >= $this->currentCloseTime) {
+         if ($bar['time'] >= $this->full_to_closeTime) {
             // neue Bar beginnen
-            $bar['time']           -=  $bar['time'] % 5*MINUTES;
-            $this->currentCloseTime =  $bar['time'] + 5*MINUTES;
-            $this->barBuffer[]      =  $bar;
-            $currentBar             =& $this->barBuffer[$size++];
+            $bar['time']            -=  $bar['time'] % 5*MINUTES;
+            $this->full_to_closeTime =  $bar['time'] + 5*MINUTES;
+            $this->barBuffer[]       =  $bar;
+            $currentBar              =& $this->barBuffer[$size++];
 
             if ($size > $this->bufferSize)
                $size -= $this->flushBars($this->bufferSize);
@@ -278,12 +313,12 @@ class HistoryFile extends Object {
 
       foreach ($bars as $bar) {
          // Wechsel zur nächsten M15-Bar erkennen
-         if ($bar['time'] >= $this->currentCloseTime) {
+         if ($bar['time'] >= $this->full_to_closeTime) {
             // neue Bar beginnen
-            $bar['time']           -=  $bar['time'] % 15*MINUTES;
-            $this->currentCloseTime =  $bar['time'] + 15*MINUTES;
-            $this->barBuffer[]      =  $bar;
-            $currentBar             =& $this->barBuffer[$size++];
+            $bar['time']            -=  $bar['time'] % 15*MINUTES;
+            $this->full_to_closeTime =  $bar['time'] + 15*MINUTES;
+            $this->barBuffer[]       =  $bar;
+            $currentBar              =& $this->barBuffer[$size++];
 
             if ($size > $this->bufferSize)
                $size -= $this->flushBars($this->bufferSize);
@@ -312,12 +347,12 @@ class HistoryFile extends Object {
 
       foreach ($bars as $bar) {
          // Wechsel zur nächsten M30-Bar erkennen
-         if ($bar['time'] >= $this->currentCloseTime) {
+         if ($bar['time'] >= $this->full_to_closeTime) {
             // neue Bar beginnen
-            $bar['time']           -=  $bar['time'] % 30*MINUTES;
-            $this->currentCloseTime =  $bar['time'] + 30*MINUTES;
-            $this->barBuffer[]      =  $bar;
-            $currentBar             =& $this->barBuffer[$size++];
+            $bar['time']            -=  $bar['time'] % 30*MINUTES;
+            $this->full_to_closeTime =  $bar['time'] + 30*MINUTES;
+            $this->barBuffer[]       =  $bar;
+            $currentBar              =& $this->barBuffer[$size++];
 
             if ($size > $this->bufferSize)
                $size -= $this->flushBars($this->bufferSize);
@@ -346,12 +381,12 @@ class HistoryFile extends Object {
 
       foreach ($bars as $bar) {
          // Wechsel zur nächsten H1-Bar erkennen
-         if ($bar['time'] >= $this->currentCloseTime) {
+         if ($bar['time'] >= $this->full_to_closeTime) {
             // neue Bar beginnen
-            $bar['time']           -=  $bar['time'] % HOUR;
-            $this->currentCloseTime =  $bar['time'] + 1*HOUR;
-            $this->barBuffer[]      =  $bar;
-            $currentBar             =& $this->barBuffer[$size++];
+            $bar['time']            -=  $bar['time'] % HOUR;
+            $this->full_to_closeTime =  $bar['time'] + 1*HOUR;
+            $this->barBuffer[]       =  $bar;
+            $currentBar              =& $this->barBuffer[$size++];
 
             if ($size > $this->bufferSize)
                $size -= $this->flushBars($this->bufferSize);
@@ -380,12 +415,12 @@ class HistoryFile extends Object {
 
       foreach ($bars as $bar) {
          // Wechsel zur nächsten H4-Bar erkennen
-         if ($bar['time'] >= $this->currentCloseTime) {
+         if ($bar['time'] >= $this->full_to_closeTime) {
             // neue Bar beginnen
-            $bar['time']           -=  $bar['time'] % 4*HOURS;
-            $this->currentCloseTime =  $bar['time'] + 4*HOURS;
-            $this->barBuffer[]      =  $bar;
-            $currentBar             =& $this->barBuffer[$size++];
+            $bar['time']            -=  $bar['time'] % 4*HOURS;
+            $this->full_to_closeTime =  $bar['time'] + 4*HOURS;
+            $this->barBuffer[]       =  $bar;
+            $currentBar              =& $this->barBuffer[$size++];
 
             if ($size > $this->bufferSize)
                $size -= $this->flushBars($this->bufferSize);
@@ -414,12 +449,12 @@ class HistoryFile extends Object {
 
       foreach ($bars as $bar) {
          // Wechsel zur nächsten D1-Bar erkennen
-         if ($bar['time'] >= $this->currentCloseTime) {
+         if ($bar['time'] >= $this->full_to_closeTime) {
             // neue Bar beginnen
-            $bar['time']           -=  $bar['time'] % DAY;
-            $this->currentCloseTime =  $bar['time'] + 1*DAY;
-            $this->barBuffer[]      =  $bar;
-            $currentBar             =& $this->barBuffer[$size++];
+            $bar['time']            -=  $bar['time'] % DAY;
+            $this->full_to_closeTime =  $bar['time'] + 1*DAY;
+            $this->barBuffer[]       =  $bar;
+            $currentBar              =& $this->barBuffer[$size++];
 
             if ($size > $this->bufferSize)
                $size -= $this->flushBars($this->bufferSize);
@@ -448,13 +483,13 @@ class HistoryFile extends Object {
 
       foreach ($bars as $bar) {
          // Wechsel zur nächsten W1-Bar erkennen
-         if ($bar['time'] >= $this->currentCloseTime) {
+         if ($bar['time'] >= $this->full_to_closeTime) {
             // neue Bar beginnen
             $dow = (int) gmDate('w', $bar['time']);
-            $bar['time']           -=  $bar['time']%DAY + (($dow+6)%7)*DAYS;  // 00:00, Montag (Operator-Precedence beachten)
-            $this->currentCloseTime =  $bar['time'] + 1*WEEK;
-            $this->barBuffer[]      =  $bar;
-            $currentBar             =& $this->barBuffer[$size++];
+            $bar['time']            -=  $bar['time']%DAY + (($dow+6)%7)*DAYS;  // 00:00, Montag (Operator-Precedence beachten)
+            $this->full_to_closeTime =  $bar['time'] + 1*WEEK;
+            $this->barBuffer[]       =  $bar;
+            $currentBar              =& $this->barBuffer[$size++];
 
             if ($size > $this->bufferSize)
                $size -= $this->flushBars($this->bufferSize);
@@ -483,15 +518,15 @@ class HistoryFile extends Object {
 
       foreach ($bars as $bar) {
          // Wechsel zur nächsten MN1-Bar erkennen
-         if ($bar['time'] >= $this->currentCloseTime) {
+         if ($bar['time'] >= $this->full_to_closeTime) {
             // neue Bar beginnen
             $dom = (int) gmDate('d', $bar['time']);
             $m   = (int) gmDate('m', $bar['time']);
             $y   = (int) gmDate('Y', $bar['time']);
-            $bar['time']           -=  $bar['time']%DAYS + ($dom-1)*DAYS;    // 00:00, 1. des Monats (Operator-Precedence beachten)
-            $this->currentCloseTime =  gmMkTime(0, 0, 0, $m+1, 1, $y);       // 00:00, 1. des nächsten Monats
-            $this->barBuffer[]      =  $bar;
-            $currentBar             =& $this->barBuffer[$size++];
+            $bar['time']            -=  $bar['time']%DAYS + ($dom-1)*DAYS;    // 00:00, 1. des Monats (Operator-Precedence beachten)
+            $this->full_to_closeTime =  gmMkTime(0, 0, 0, $m+1, 1, $y);       // 00:00, 1. des nächsten Monats
+            $this->barBuffer[]       =  $bar;
+            $currentBar              =& $this->barBuffer[$size++];
 
             if ($size > $this->bufferSize)
                $size -= $this->flushBars($this->bufferSize);

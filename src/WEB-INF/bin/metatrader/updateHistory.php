@@ -98,7 +98,8 @@ function updateHistory($symbol) {
             echoPre('[Error]   '.$symbol.' MyFX history for '.$shortDate.' not found');
             return false;
          }
-         if ($verbose > 0) echoPre('[Info]    updating '.$shortDate);
+         if ($verbose > 0) echoPre('[Info]    '.($lastSyncTime ? 'synchronizing':'adding').' '.$shortDate);
+
          $method = $lastSyncTime ? 'synchronize':'addBars';
          $bars   = MyFX::readBarFile($file, $symbol);
          $history->$method($bars);

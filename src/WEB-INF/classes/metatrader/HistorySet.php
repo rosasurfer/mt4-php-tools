@@ -113,7 +113,7 @@ class HistorySet extends Object {
             throw plRuntimeException('Multiple open HistorySets for "'.$this->serverName.'::'.$this->symbol.'"');
       }
 
-      // alle übrigen existierenden HistoryFiles öffnen und validieren (nicht existierende Dateien werden bei Bedarf erstellt)
+      // alle übrigen existierenden HistoryFiles öffnen und validieren (nicht existierende Dateien werden erst bei Bedarf erstellt)
       foreach ($this->historyFiles as $timeframe => &$file) {
          if (!$file) {
             $fileName = $this->serverDirectory.'/'.$this->symbol.$timeframe.'.hst';
@@ -128,8 +128,7 @@ class HistorySet extends Object {
                   }
                   throw $ex;
                }
-               if (!strCompareI($file->getSymbol(), $this->getSymbol())) throw new plRuntimeException('Symbol mis-match in "'.$fileName.'": '.$file->getSymbol().' instead of '.$this->getSymbol());
-               if ($file->getDigits() != $this->getDigits())             throw new plRuntimeException('Digits mis-match in "'.$fileName.'": '.$file->getDigits().' instead of '.$this->getDigits());
+               if ($file->getDigits() != $this->getDigits()) throw new plRuntimeException('Digits mis-match in "'.$fileName.'": file.digits='.$file->getDigits().' instead of set.digits='.$this->getDigits());
             }
          }
       } unset($file);
@@ -227,7 +226,7 @@ class HistorySet extends Object {
 
 
    /**
-    * Gibt das HistoryFile des angegebenen Timeframes zurück. Existiert es nicht, wird eine neue Instanz ereugt.
+    * Gibt das HistoryFile des angegebenen Timeframes zurück. Existiert es nicht, wird es erzeugt.
     *
     * @param  int $timeframe
     *
@@ -236,13 +235,22 @@ class HistorySet extends Object {
    private function getFile($timeframe) {
       if (!isSet($this->historyFiles[$timeframe])) {
          $fileName = $this->serverDirectory.'/'.$this->symbol.$timeframe.'.hst';
-         $file     = null;
-         if (!$file)
-            $file = new HistoryFile($this->symbol, $timeframe, $this->digits, $format=400, $this->serverDirectory);
 
+         $file = null;
+         if (is_file($fileName)) {
+            try {
+               $file = new HistoryFile($fileName);
+            }
+            catch (MetaTraderException $ex) {
+               if (!strStartsWith($ex->getMessage(), 'filesize.insufficient')) throw $ex;
+               Logger::warn($ex->getMessage(), __CLASS__);              // eine zu kurze Datei wird mit einer neuen Datei überschrieben
+            }
+            if ($file->getDigits() != $this->getDigits()) throw new plRuntimeException('Digits mis-match in "'.$fileName.'": file.digits='.$file->getDigits().' instead of set.digits='.$this->getDigits());
+         }
+
+         if (!$file) $file = new HistoryFile($this->symbol, $timeframe, $this->digits, $format=400, $this->serverDirectory);
          $this->historyFiles[$timeframe] = $file;
       }
-
       return $this->historyFiles[$timeframe];
    }
 
@@ -275,6 +283,7 @@ class HistorySet extends Object {
     */
    public function addBars(array $bars) {
       if ($this->closed) throw new IllegalStateException('Cannot process a closed '.__CLASS__);
+      if (!$bars) return false;
 
       foreach ($this->historyFiles as $timeframe => $file) {
          !$file && $file=$this->getFile($timeframe);
@@ -295,8 +304,11 @@ class HistorySet extends Object {
     */
    public function synchronize(array $bars) {
       if ($this->closed) throw new IllegalStateException('Cannot process a closed '.__CLASS__);
+      if (!$bars) return false;
 
-      //throw new UnimplementedFeatureException(__METHOD__);
+      $historyM1 = $this->getFile(PERIOD_M1);
+      $historyM1->synchronize($bars);
+
       return true;
    }
 
