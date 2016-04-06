@@ -191,7 +191,7 @@ class HistoryFile extends Object {
       $this->barPackFormat   = $barPackFormat;
       $this->barUnpackFormat = $barUnpackFormat;
 
-      // Metadaten: gespeicherte Bars
+      // Metadaten: nur gespeicherte Bars
       $this->stored_bars               = $bars;
       $this->stored_from_offset        = $from_offset;
       $this->stored_from_openTime      = $from_openTime;
@@ -310,8 +310,15 @@ class HistoryFile extends Object {
       $lastSyncTime      = $this->getLastSyncTime();
       if ($barsFrom_openTime > $lastSyncTime) throw new plRuntimeException('Cannot synchronize history (lastSyncTime='.gmDate('D, d-M-Y H:i:s', $lastSyncTime).') with bars starting at '.gmDate('D, d-M-Y H:i:s', $barsFrom_openTime));
 
-      // Offset der Bar suchen, die $lastSyncTime abdeckt oder abdecken würde, wenn dort eine Lücke ist (z.B. Wochenende)
+      // Offset der ersten Bar suchen, die an oder nach $lastSyncTime beginnt
       $offset = MyFX::findBarOffset($bars, $lastSyncTime);
+
+      echoPre('$offset = '.$offset.' = '.gmDate('d-M-Y H:i:s', $bars[$offset]['time']));
+      exit();
+
+
+
+
 
       // alle Bars vor Offset verwerfen
       if ($offset == $barsSize) return;                              // alle Bars liegen vor $lastSyncTime

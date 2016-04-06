@@ -511,6 +511,42 @@ class MyFX extends StaticClass {
 
 
    /**
+    * Gibt den Offset der ersten Bar zurück, die am oder nach dem angegebenen Zeitpunkt beginnt.
+    *
+    * @param  array $bars - zu durchsuchende Bars: MYFX_BARs oder HISTORY_BARs
+    * @param  int   $time - Zeitpunkt
+    *
+    * @return int - Offset oder -1, wenn keine solche Bar existiert
+    */
+   public static function findBarOffset(array $bars, $time) {
+      if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+
+      $size  = sizeof($bars); if (!$size)                         return -1;
+      $iFrom = 0;             if ($bars[$iFrom]['time'] >= $time) return  0;
+      $iTo   = $size-1;       if ($bars[$iTo  ]['time'] <  $time) return -1;
+      $i     = -1;
+
+      // Zeitfenster von Beginn- und Endbar rekursiv bis zum gesuchten Zeitpunkt verkleinern
+      while (true) {
+         if ($bars[$iFrom]['time'] >= $time) {
+            $i = $iFrom;
+            break;
+         }
+         if ($bars[$iTo]['time']==$time || $size==2) {
+            $i = $iTo;
+            break;
+         }
+         $midSize = ceil($size/2);                             // Fenster halbieren
+         $iMid    = $iFrom + $midSize - 1;
+         if ($bars[$iMid]['time'] <= $time) $iFrom = $iMid;
+         else                               $iTo   = $iMid;
+         $size = $iTo - $iFrom + 1;
+      }
+      return $i;
+   }
+
+
+   /**
     * Gibt die lesbare Konstante eines Timeframe-Codes zurück.
     *
     * @param  int period - Timeframe-Code bzw. Anzahl der Minuten je Bar
