@@ -68,6 +68,8 @@ function updateHistory($symbol) {
    if ($history=HistorySet::get($symbol, $directory)) {
       if ($lastSyncTime=$history->getLastSyncTime()) {
          if ($verbose > 0) echoPre('[Info]    lastSyncTime: '.gmDate('D, d-M-Y H:i:s', $lastSyncTime));
+         // TODO:
+         //if (!MyFX::isForexTradingDay($lastSyncTime, 'FXT')) $syncedToTime = 'nextTradingDay($symbol, $lastSyncTime)';
       }
       else {
          if ($verbose > 0) echoPre('[Info]    discarding existing history (lastSyncTime=0)');

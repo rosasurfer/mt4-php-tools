@@ -306,22 +306,34 @@ class HistoryFile extends Object {
    private function synchronizeM1(array $bars) {
       $period            = $this->getPeriod();
       $barsSize          = sizeof($bars);
-      $barsFrom_openTime = $bars[          0]['time'];
-      $barsTo_openTime   = $bars[$barsSize-1]['time'];
-      $barsTo_closeTime  = $barsTo_openTime + $period*MINUTES;
+      $barsFrom_openTime = $bars[0]['time'];
       $lastSyncTime      = $this->getLastSyncTime();
-
       if ($barsFrom_openTime > $lastSyncTime) throw new plRuntimeException('Cannot synchronize history (lastSyncTime='.gmDate('D, d-M-Y H:i:s', $lastSyncTime).') with bars starting at '.gmDate('D, d-M-Y H:i:s', $barsFrom_openTime));
 
+      // Offset der Bar suchen, die $lastSyncTime abdeckt oder abdecken würde, wenn dort eine Lücke ist (z.B. Wochenende)
+      $offset = MyFX::findBarOffset($bars, $lastSyncTime);
 
-      foreach ($bars as $i => $bar) {
-         if ($bar['time'] >= $lastSyncTime) {
-            echoPre($barsSize.' bars, first bar for synchronizing: offset='.$i);
-            break;
-         }
-      }
+      // alle Bars vor Offset verwerfen
+      if ($offset == $barsSize) return;                              // alle Bars liegen vor $lastSyncTime
+      $bars              = array_slice($bars, $offset);
+      $barsSize          = sizeof($bars);
+      $barsFrom_openTime = $bars[0]['time'];
+      $barsTo_openTime   = $bars[$barsSize-1]['time'];
+      $barsTo_closeTime  = $barsTo_openTime + $period*MINUTES;
+
+      // entsprechende History-Offsets der verbleibenden Bar-Range ermitteln
+      $hstFrom = $this->findOffset($barsFrom_openTime);
+      $hstTo   = $this->findOffset($barsTo_openTime);
+
+      // Bar-Range in History mit $bars ersetzen
+      $length = $hstTo - $hstFrom + 1;
+      $this->splice($hstFrom, $length, $bars);
+
+      // $lastSyncTime aktualisieren
+      $this->lastSyncTime = $barsTo_closeTime;
 
 
+      /*
       $Pxx = MyFX::periodDescription($period);
       echoPre($Pxx.'::stored_bars               = '. $this->stored_bars);
       echoPre($Pxx.'::stored_from_offset        = '. $this->stored_from_offset);
@@ -332,6 +344,7 @@ class HistoryFile extends Object {
       echoPre($Pxx.'::stored_to_openTime        = '.($this->stored_to_openTime        ? gmDate('D, d-M-Y H:i:s', $this->stored_to_openTime       ) : 0));
       echoPre($Pxx.'::stored_to_closeTime       = '.($this->stored_to_closeTime       ? gmDate('D, d-M-Y H:i:s', $this->stored_to_closeTime      ) : 0));
       echoPre($Pxx.'::stored_to_nextCloseTime   = '.($this->stored_to_nextCloseTime   ? gmDate('D, d-M-Y H:i:s', $this->stored_to_nextCloseTime  ) : 0));
+      */
    }
 
 

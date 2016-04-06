@@ -264,11 +264,14 @@ class HistorySet extends Object {
     */
    public function getLastSyncTime() {
       $minTime = null;
-      foreach ($this->historyFiles as $file) {
+      foreach ($this->historyFiles as $timeframe => $file) {
          $time = $file ? $file->getLastSyncTime() : 0;   // existiert die Datei nicht, wurde sie auch noch nicht synchronisiert
          if (is_null($minTime))
             $minTime = $time;
          $minTime = min($minTime, $time);
+
+         if ($timeframe == PERIOD_M1)                    // vorerst nur PERIOD_M1
+            break;
       }
       return $minTime;
    }
