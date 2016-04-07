@@ -161,29 +161,17 @@ class HistoryFile extends Object {
             fSeek($this->hFile, HistoryHeader::SIZE + ($bars-1)*$barSize);
             $barTo = unpack($barUnpackFormat, fRead($this->hFile, $barSize));
          }
-         $from_offset   = 0;
-         $from_openTime = $barFrom['time'];
+         $period = $this->getPeriod();
 
-         $to_offset     = $bars-1;
-         $to_openTime   = $barTo['time'];
+         $from_offset        = 0;
+         $from_openTime      = $barFrom['time'];
+         $from_closeTime     = MyFX::periodCloseTime($from_openTime,  $period);
+         $from_nextCloseTime = MyFX::periodCloseTime($from_closeTime, $period);
 
-         if (($period=$this->getPeriod()) <= PERIOD_W1) {
-            $from_closeTime     = $from_openTime  + $period*MINUTES;
-            $from_nextCloseTime = $from_closeTime + $period*MINUTES;
-            $to_closeTime       = $to_openTime    + $period*MINUTES;
-            $to_nextCloseTime   = $to_closeTime   + $period*MINUTES;
-         }
-         else if ($this->getPeriod() == PERIOD_MN1) {
-            $m = (int) gmDate('m', $from_openTime);
-            $y = (int) gmDate('Y', $from_openTime);
-            $from_closeTime     = gmMkTime(0, 0, 0, $m+1, 1, $y);          // 00:00, 1. des nächsten Monats
-            $from_nextCloseTime = gmMkTime(0, 0, 0, $m+2, 1, $y);          // 00:00, 1. des übernächsten Monats
-
-            $m = (int) gmDate('m', $to_openTime);
-            $y = (int) gmDate('Y', $to_openTime);
-            $to_closeTime       = gmMkTime(0, 0, 0, $m+1, 1, $y);          // 00:00, 1. des nächsten Monats
-            $to_nextCloseTime   = gmMkTime(0, 0, 0, $m+2, 1, $y);          // 00:00, 1. des übernächsten Monats
-         }
+         $to_offset          = $bars-1;
+         $to_openTime        = $barTo['time'];
+         $to_closeTime       = MyFX::periodCloseTime($to_openTime,  $period);
+         $to_nextCloseTime   = MyFX::periodCloseTime($to_closeTime, $period);
       }
 
       $this->lastSyncTime    = $lastSyncTime;
@@ -304,24 +292,24 @@ class HistoryFile extends Object {
     * @param  MYFX_BAR[] $bars - Bardaten der Periode M1
     */
    private function synchronizeM1(array $bars) {
-      $period            = $this->getPeriod();
-      $barsSize          = sizeof($bars);
-      $barsFrom_openTime = $bars[0]['time'];
-      $lastSyncTime      = $this->getLastSyncTime();
+      // Offset von $lastSyncTime und der Bar, die den Zeitpunkt abdeckt, ermitteln
+      $lastSyncTime = $this->getLastSyncTime();
+      $timeOffset   = MyFX::findTimeOffset($bars, $lastSyncTime);
+      $barOffset    = MyFX::findBarOffsetNext($bars, PERIOD_M1, $lastSyncTime);
 
-      // Offset von $lastSyncTime innerhalb der Bars ermitteln
-      $offset = MyFX::findTimeOffset($bars, $lastSyncTime);
-
-      echoPre('$offset = '.$offset.' = '.gmDate('d-M-Y H:i:s', $bars[$offset]['time']));
       exit();
 
 
 
 
+      $period            = $this->getPeriod();
+      $barsSize          = sizeof($bars);
+      $barsFrom_openTime = $bars[0]['time'];
+
 
       // alle Bars vor Offset verwerfen
-      if ($offset == $barsSize) return;                              // alle Bars liegen vor $lastSyncTime
-      $bars              = array_slice($bars, $offset);
+      if ($barOffset == $barsSize) return;                              // alle Bars liegen vor $lastSyncTime
+      $bars              = array_slice($bars, $barOffset);
       $barsSize          = sizeof($bars);
       $barsFrom_openTime = $bars[0]['time'];
       $barsTo_openTime   = $bars[$barsSize-1]['time'];

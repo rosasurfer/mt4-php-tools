@@ -631,8 +631,24 @@ class MyFX extends StaticClass {
       if (!MT4::isStdTimeframe($period)) throw new plInvalidArgumentException('Invalid parameter $period: '.$period.' (not a standard timeframe)');
       if (!is_int($time))                throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
 
-      throw new UnimplementedFeatureException(__METHOD__);
-   }
+      $size = sizeOf($bars);
+      if (!$size)
+         return -1;
+
+      $offset = MyFX::findTimeOffset($bars, $time);
+      if ($offset < 0) {                                                         // Zeitpunkt liegt nach der letzten bar[openTime]
+         $closeTime = self::periodCloseTime($bars[$size-1]['time'], $period);
+         return ($closeTime > $time) ? $offset : -1;
+      }
+
+      if ($bars[$offset]['time'] == $time)                                       // Zeitpunkt stimmt mit bar[openTime] überein
+         return $offset;
+
+      $closeTime = self::periodCloseTime($bars[$offset]['time'], $period);       // Zeitpunkt liegt nach bar[openTime]
+      if ($closeTime > $time)                                                    // Zeitpunkt liegt innerhalb der Bar
+         return $offset;
+      return ($offset+1 < $bars) ? $offset+1 : -1;                               // Zeitpunkt liegt nach bar[closeTime], also...
+   }                                                                             // Lücke zwischen dieser und der nächsten Bar
 
 
    /**
@@ -708,6 +724,38 @@ class MyFX extends StaticClass {
     */
    public static function timeframeDescription($timeframe) {
       return self::periodDescription($timeframe);
+   }
+
+
+   /**
+    * Gibt die CloseTime der Periode zurück, die die angegebene Zeit abdeckt.
+    *
+    * @param  int  $time   - Zeitpunkt
+    * @param  int  $period - Periode
+    *
+    * @return int - Zeit
+    */
+   public static function periodCloseTime($time, $period) {
+      if (!is_int($time))                throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+      if (!is_int($period))              throw new IllegalTypeException('Illegal type of parameter $period: '.getType($period));
+      if (!MT4::isStdTimeframe($period)) throw new plInvalidArgumentException('Invalid parameter $period: '.$period.' (not a standard timeframe)');
+
+      if ($period <= PERIOD_D1) {
+         $openTime  = $time - $time%$period*MINUTES;
+         $closeTime = $openTime + $period*MINUTES;
+      }
+      else if ($period == PERIOD_W1) {
+         $dow       = (int) gmDate('w', $time);
+         $openTime  = $time - $time%DAY - (($dow+6)%7)*DAYS;         // 00:00, Montag
+         $closeTime = $openTime + 1*WEEK;                            // 00:00, nächster Montag
+      }
+      else /*PERIOD_MN1*/ {
+         $m         = (int) gmDate('m', $time);
+         $y         = (int) gmDate('Y', $time);
+         $closeTime = gmMkTime(0, 0, 0, $m+1, 1, $y);                // 00:00, 1. des nächsten Monats
+      }
+
+      return $closeTime;
    }
 
 
