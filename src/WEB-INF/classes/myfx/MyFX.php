@@ -513,7 +513,7 @@ class MyFX extends StaticClass {
    /**
     * Gibt den Offset eines Zeitpunktes innerhalb einer Zeitreihe zurück.
     *
-    * @param  array $series - zu durchsuchende Reihe: Zeiten, Elemente mit dem Feld 'time' oder Objekte mit
+    * @param  array $series - zu durchsuchende Reihe: Zeiten, Arrays mit dem Feld 'time' oder Objekte mit
     *                         der Methode $object->getTime()
     * @param  int   $time   - Zeitpunkt
     *
