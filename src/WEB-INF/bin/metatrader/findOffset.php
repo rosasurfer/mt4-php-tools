@@ -95,12 +95,12 @@ while ($i != -1) {
       break;
    }
 
-   $halfBars = ceil($bars/2);
-   $iMiddle  = $iFrom+$halfBars-1;
-   fSeek($hFile, HistoryHeader::SIZE + $barSize*($iMiddle));
-   $barMiddle = unpack($barFormat, fRead($hFile, $barSize));
-   if ($barMiddle['time'] <= $datetime) { $barFrom = $barMiddle; $iFrom = $iMiddle; }
-   else                                 { $barTo   = $barMiddle; $iTo   = $iMiddle; }
+   $halfSize = ceil($bars/2);
+   $iMid     = $iFrom + $halfSize - 1;
+   fSeek($hFile, HistoryHeader::SIZE + $iMid*$barSize);
+   $barMid   = unpack($barFormat, fRead($hFile, $barSize));
+   if ($barMid['time'] <= $datetime) { $barFrom = $barMid; $iFrom = $iMid; }
+   else                              { $barTo   = $barMid; $iTo   = $iMid; }
    $bars = $iTo - $iFrom + 1;
 }
 
