@@ -608,8 +608,9 @@ class MyFX extends StaticClass {
     * @return int - Offset oder -1, wenn keine solche Bar existiert
     */
    public static function findBarOffsetPrevious(array $bars, $period, $time) {
-      if (!is_int($period)) throw new IllegalTypeException('Illegal type of parameter $period: '.getType($period));
-      if (!is_int($time))   throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+      if (!is_int($period))              throw new IllegalTypeException('Illegal type of parameter $period: '.getType($period));
+      if (!MT4::isStdTimeframe($period)) throw new plInvalidArgumentException('Invalid parameter $period: '.$period.' (not a standard timeframe)');
+      if (!is_int($time))                throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
 
       throw new UnimplementedFeatureException(__METHOD__);
    }
@@ -626,8 +627,9 @@ class MyFX extends StaticClass {
     * @return int - Offset oder -1, wenn keine solche Bar existiert
     */
    public static function findBarOffsetNext(array $bars, $period, $time) {
-      if (!is_int($period)) throw new IllegalTypeException('Illegal type of parameter $period: '.getType($period));
-      if (!is_int($time))   throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+      if (!is_int($period))              throw new IllegalTypeException('Illegal type of parameter $period: '.getType($period));
+      if (!MT4::isStdTimeframe($period)) throw new plInvalidArgumentException('Invalid parameter $period: '.$period.' (not a standard timeframe)');
+      if (!is_int($time))                throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
 
       throw new UnimplementedFeatureException(__METHOD__);
    }
