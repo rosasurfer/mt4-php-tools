@@ -49,7 +49,7 @@ foreach ($args as $i => $arg) {
          $value = strLeft(strRight($value, -1), 1);
       if (strIsDigit($value) && $value{0}!='0') {
          $value = (int) $value;
-         if (!MT4::isBuiltinTimeframe($value)) help('invalid period: '.$arg) & exit(1);
+         if (!MT4::isStdTimeframe($value)) help('invalid period: '.$arg) & exit(1);
          $options['period'] = $value;
       }
       else if (!MT4::isTimeframeDescription($value)) help('invalid period: '.$arg) & exit(1);

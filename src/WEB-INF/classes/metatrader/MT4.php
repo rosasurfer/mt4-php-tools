@@ -478,13 +478,13 @@ class MT4 extends StaticClass {
 
 
    /**
-    * Ob der angegebene Wert einen eingebauten MetaTrader-Timeframe darstellt.
+    * Ob der angegebene Wert einen MetaTrader-Standard-Timeframe darstellt.
     *
     * @param  int $value - Timeframe-ID
     *
     * @return bool
     */
-   public static function isBuiltinTimeframe($value) {
+   public static function isStdTimeframe($value) {
       if (is_int($value)) {
          switch ($value) {
             case PERIOD_M1 : return true;
