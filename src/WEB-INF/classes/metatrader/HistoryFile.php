@@ -308,10 +308,9 @@ class HistoryFile extends Object {
       $barsSize          = sizeof($bars);
       $barsFrom_openTime = $bars[0]['time'];
       $lastSyncTime      = $this->getLastSyncTime();
-      if ($barsFrom_openTime > $lastSyncTime) throw new plRuntimeException('Cannot synchronize history (lastSyncTime='.gmDate('D, d-M-Y H:i:s', $lastSyncTime).') with bars starting at '.gmDate('D, d-M-Y H:i:s', $barsFrom_openTime));
 
-      // Offset der ersten Bar suchen, die an oder nach $lastSyncTime beginnt
-      $offset = MyFX::findBarOffset($bars, $lastSyncTime);
+      // Offset von $lastSyncTime innerhalb der Bars ermitteln
+      $offset = MyFX::findTimeOffset($bars, $lastSyncTime);
 
       echoPre('$offset = '.$offset.' = '.gmDate('d-M-Y H:i:s', $bars[$offset]['time']));
       exit();

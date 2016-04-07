@@ -511,38 +511,126 @@ class MyFX extends StaticClass {
 
 
    /**
-    * Gibt den Offset der ersten Bar zurück, die am oder nach dem angegebenen Zeitpunkt beginnt.
+    * Gibt den Offset eines Zeitpunktes innerhalb einer Zeitreihe zurück.
     *
-    * @param  array $bars - zu durchsuchende Bars: MYFX_BARs oder HISTORY_BARs
-    * @param  int   $time - Zeitpunkt
+    * @param  array $series - zu durchsuchende Reihe: Zeiten, Elemente mit dem Feld 'time' oder Objekte mit
+    *                         der Methode $object->getTime()
+    * @param  int   $time   - Zeitpunkt
+    *
+    * @return int - Offset oder -1, wenn der Offset außerhalb der Arraygrenzen liegt
+    */
+   public static function findTimeOffset(array $series, $time) {
+      if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+
+      $size  = sizeof($series); if (!$size) return -1;
+      $i     = -1;
+      $iFrom = 0;
+
+      // Zeiten
+      if (is_int($series[0])) {
+         $iTo = $size-1; if ($series[$iTo] < $time) return -1;
+
+         while (true) {                                           // Zeitfenster von Beginn- und Endbar rekursiv bis zum
+            if ($series[$iFrom] >= $time) {                       // gesuchten Zeitpunkt verkleinern
+               $i = $iFrom;
+               break;
+            }
+            if ($series[$iTo]==$time || $size==2) {
+               $i = $iTo;
+               break;
+            }
+            $midSize = ceil($size/2);                             // Fenster halbieren
+            $iMid    = $iFrom + $midSize - 1;
+            if ($series[$iMid] <= $time) $iFrom = $iMid;
+            else                         $iTo   = $iMid;
+            $size = $iTo - $iFrom + 1;
+         }
+         return $i;
+      }
+
+      // Arrays
+      if (is_array($series[0])) {
+         if (!is_int($series[0]['time'])) throw new IllegalTypeException('Illegal type of element $series[0][time]: '.getType($series[0]['time']));
+         $iTo = $size-1; if ($series[$iTo]['time'] < $time) return -1;
+
+         while (true) {                                           // Zeitfenster von Beginn- und Endbar rekursiv bis zum
+            if ($series[$iFrom]['time'] >= $time) {               // gesuchten Zeitpunkt verkleinern
+               $i = $iFrom;
+               break;
+            }
+            if ($series[$iTo]['time']==$time || $size==2) {
+               $i = $iTo;
+               break;
+            }
+            $midSize = ceil($size/2);                             // Fenster halbieren
+            $iMid    = $iFrom + $midSize - 1;
+            if ($series[$iMid]['time'] <= $time) $iFrom = $iMid;
+            else                                 $iTo   = $iMid;
+            $size = $iTo - $iFrom + 1;
+         }
+         return $i;
+      }
+
+      // Objekte
+      if (is_object($series[0])) {
+         if (!is_int($series[0]->getTime())) throw new IllegalTypeException('Illegal type of property $series[0]->getTime(): '.getType($series[0]->getTime()));
+         $iTo = $size-1; if ($series[$iTo]->getTime() < $time) return -1;
+
+         while (true) {                                           // Zeitfenster von Beginn- und Endbar rekursiv bis zum
+            if ($series[$iFrom]->getTime() >= $time) {            // gesuchten Zeitpunkt verkleinern
+               $i = $iFrom;
+               break;
+            }
+            if ($series[$iTo]->getTime()==$time || $size==2) {
+               $i = $iTo;
+               break;
+            }
+            $midSize = ceil($size/2);                             // Fenster halbieren
+            $iMid    = $iFrom + $midSize - 1;
+            if ($series[$iMid]->getTime() <= $time) $iFrom = $iMid;
+            else                                    $iTo   = $iMid;
+            $size = $iTo - $iFrom + 1;
+         }
+         return $i;
+      }
+
+      throw new IllegalTypeException('Illegal type of element $series[0]: '.getType($series[0]));
+   }
+
+
+   /**
+    * Gibt den Offset der Bar zurück, die den angegebenen Zeitpunkt abdeckt. Existiert keine solche Bar, wird der Offset
+    * der letzten vorhergehenden Bar zurückgegeben.
+    *
+    * @param  array $bars   - zu durchsuchende Bars: MYFX_BARs oder HISTORY_BARs
+    * @param  int   $period - Barperiode
+    * @param  int   $time   - Zeitpunkt
     *
     * @return int - Offset oder -1, wenn keine solche Bar existiert
     */
-   public static function findBarOffset(array $bars, $time) {
-      if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+   public static function findBarOffsetPrevious(array $bars, $period, $time) {
+      if (!is_int($period)) throw new IllegalTypeException('Illegal type of parameter $period: '.getType($period));
+      if (!is_int($time))   throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
 
-      $size  = sizeof($bars); if (!$size)                         return -1;
-      $iFrom = 0;             if ($bars[$iFrom]['time'] >= $time) return  0;
-      $iTo   = $size-1;       if ($bars[$iTo  ]['time'] <  $time) return -1;
-      $i     = -1;
+      return -1;
+   }
 
-      // Zeitfenster von Beginn- und Endbar rekursiv bis zum gesuchten Zeitpunkt verkleinern
-      while (true) {
-         if ($bars[$iFrom]['time'] >= $time) {
-            $i = $iFrom;
-            break;
-         }
-         if ($bars[$iTo]['time']==$time || $size==2) {
-            $i = $iTo;
-            break;
-         }
-         $midSize = ceil($size/2);                             // Fenster halbieren
-         $iMid    = $iFrom + $midSize - 1;
-         if ($bars[$iMid]['time'] <= $time) $iFrom = $iMid;
-         else                               $iTo   = $iMid;
-         $size = $iTo - $iFrom + 1;
-      }
-      return $i;
+
+   /**
+    * Gibt den Offset der Bar zurück, die den angegebenen Zeitpunkt abdeckt. Existiert keine solche Bar, wird der Offset
+    * der nächsten folgenden Bar zurückgegeben.
+    *
+    * @param  array $bars   - zu durchsuchende Bars: MYFX_BARs oder HISTORY_BARs
+    * @param  int   $period - Barperiode
+    * @param  int   $time   - Zeitpunkt
+    *
+    * @return int - Offset oder -1, wenn keine solche Bar existiert
+    */
+   public static function findBarOffsetNext(array $bars, $period, $time) {
+      if (!is_int($period)) throw new IllegalTypeException('Illegal type of parameter $period: '.getType($period));
+      if (!is_int($time))   throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+
+      return -1;
    }
 
 
