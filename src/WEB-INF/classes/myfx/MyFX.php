@@ -612,7 +612,7 @@ class MyFX extends StaticClass {
       if (!is_int($period)) throw new IllegalTypeException('Illegal type of parameter $period: '.getType($period));
       if (!is_int($time))   throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
 
-      return -1;
+      throw new UnimplementedFeatureException(__METHOD__);
    }
 
 
@@ -630,7 +630,7 @@ class MyFX extends StaticClass {
       if (!is_int($period)) throw new IllegalTypeException('Illegal type of parameter $period: '.getType($period));
       if (!is_int($time))   throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
 
-      return -1;
+      throw new UnimplementedFeatureException(__METHOD__);
    }
 
 
