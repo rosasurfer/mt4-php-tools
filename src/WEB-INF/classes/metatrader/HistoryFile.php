@@ -266,6 +266,165 @@ class HistoryFile extends Object {
 
 
    /**
+    * Gibt den Offset eines Zeitpunktes innerhalb dieser Historydatei zurück. Dies ist die Position (Index), an der eine Bar
+    * mit der angegebenen OpenTime in dieser Historydatei einsortiert werden würde.
+    *
+    * @param  int $time - Zeitpunkt
+    *
+    * @return int - Offset oder -1, wenn der Zeitpunkt jünger als die jüngste Bar ist. Zum Schreiben einer Bar mit dieser
+    *               Zeit muß die Datei vergrößert werden.
+    */
+   public function findTimeOffset($time) {
+      if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+
+      $size    = $this->stored_bars; if (!$size)                 return -1;
+      $iFrom   = 0;
+      $iTo     = $size-1; if ($this->stored_to_openTime < $time) return -1;
+      $barFrom = array('time'=> $this->stored_from_openTime);
+      $barTo   = array('time'=> $this->stored_to_openTime);
+      $i       = -1;
+
+      while (true) {                                           // Zeitfenster von Beginn- und Endbar rekursiv bis zum
+         if ($barFrom['time'] >= $time) {                      // gesuchten Zeitpunkt verkleinern
+            $i = $iFrom;
+            break;
+         }
+         if ($barTo['time']==$time || $size==2) {
+            $i = $iTo;
+            break;
+         }
+
+         $midSize = ceil($size/2);                             // Fenster halbieren
+         $iMid    = $iFrom + $midSize - 1;
+
+         fSeek($this->hFile, HistoryHeader::SIZE + $iMid*$this->barSize);
+         $barMid = unpack($this->barUnpackFormat, fRead($this->hFile, $this->barSize));
+
+         if ($barMid['time'] <= $time) { $barFrom = $barMid; $iFrom = $iMid; }
+         else                          { $barTo   = $barMid; $iTo   = $iMid; }
+         $size = $iTo - $iFrom + 1;
+      }
+      return $i;
+   }
+
+
+   /**
+    * Gibt den Offset der Bar dieser Historydatei zurück, die den angegebenen Zeitpunkt exakt abdeckt.
+    *
+    * @param  int $time - Zeitpunkt
+    *
+    * @return int - Offset oder -1, wenn keine solche Bar existiert
+    */
+   public function findBarOffset($time) {
+      if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+
+      $size = sizeOf($this->stored_bars);
+      if (!$size)
+         return -1;
+
+      $offset = $this->findTimeOffset($time);
+
+      if ($offset < 0) {                                                         // Zeitpunkt liegt nach der jüngsten bar[openTime]
+         $closeTime = $this->stored_to_closeTime;
+         if ($time < $closeTime)                                                 // Zeitpunkt liegt innerhalb der jüngsten Bar
+            return $size-1;
+         return -1;
+      }
+
+      if ($offset == 0) {
+         if ($this->stored_from_openTime == $time)                               // Zeitpunkt liegt exakt auf der ältesten Bar
+            return 0;
+         return -1;                                                              // Zeitpunkt ist älter die älteste Bar
+      }
+
+      fSeek($this->hFile, HistoryHeader::SIZE + $offset*$this->barSize);
+      $bar = unpack($this->barUnpackFormat, fRead($this->hFile, $this->barSize));
+
+      if ($bar['time'] == $time)                                                 // Zeitpunkt liegt exakt auf der jeweiligen Bar
+         return $offset;
+
+      $offset--;
+      fSeek($this->hFile, HistoryHeader::SIZE + $offset*$this->barSize);
+      $bar = unpack($this->barUnpackFormat, fRead($this->hFile, $this->barSize));
+      $closeTime = self::periodCloseTime($bar['time'], $this->getPeriod());
+
+      if ($time < $closeTime)                                                    // Zeitpunkt liegt in der vorhergehenden Bar
+         return $offset;
+      return -1;                                                                 // Zeitpunkt liegt nicht in der vorhergehenden Bar,
+   }                                                                             // also Lücke zwischen der vorhergehenden und der
+                                                                                 // folgenden Bar
+
+   /**
+    * Gibt den Offset der Bar dieser Historydatei zurück, die den angegebenen Zeitpunkt abdeckt. Existiert keine solche Bar,
+    * wird der Offset der letzten vorhergehenden Bar zurückgegeben.
+    *
+    * @param  int $time - Zeitpunkt
+    *
+    * @return int - Offset oder -1, wenn keine solche Bar existiert (der Zeitpunkt ist älter als die älteste Bar)
+    */
+   public function findBarOffsetPrevious($time) {
+      if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+
+      $size = $this->stored_bars;
+      if (!$size)
+         return -1;
+
+      $offset = $this->findTimeOffset($time);
+
+      if ($offset < 0)                                                           // Zeitpunkt liegt nach der jüngsten bar[openTime]
+         return $size-1;
+
+      fSeek($this->hFile, HistoryHeader::SIZE + $offset*$this->barSize);
+      $bar = unpack($this->barUnpackFormat, fRead($this->hFile, $this->barSize));
+
+      if ($bar['time'] == $time)                                                 // Zeitpunkt liegt exakt auf der jeweiligen Bar
+         return $offset;
+      return $offset - 1;                                                        // Zeitpunkt ist älter als die Bar desselben Offsets
+   }
+
+
+   /**
+    * Gibt den Offset der Bar dieser Historydatei zurück, die den angegebenen Zeitpunkt abdeckt. Existiert keine solche Bar,
+    * wird der Offset der nächstfolgenden Bar zurückgegeben.
+    *
+    * @param  int $time - Zeitpunkt
+    *
+    * @return int - Offset oder -1, wenn keine solche Bar existiert (der Zeitpunkt ist jünger als das Ende der jüngsten Bar)
+    */
+   public function findBarOffsetNext($time) {
+      if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+
+      $size = $this->stored_bars;
+      if (!$size)
+         return -1;
+
+      $offset = $this->findTimeOffset($time);
+
+      if ($offset < 0) {                                                         // Zeitpunkt liegt nach der jüngsten bar[openTime]
+         $closeTime = $this->stored_to_closeTime;
+         return ($closeTime > $time) ? $size-1 : -1;
+      }
+      if ($offset == 0)                                                          // Zeitpunkt liegt vor oder exakt auf der ersten Bar
+         return 0;
+
+      fSeek($this->hFile, HistoryHeader::SIZE + $offset*$this->barSize);
+      $bar = unpack($this->barUnpackFormat, fRead($this->hFile, $this->barSize));
+
+      if ($bar['time'] == $time)                                                 // Zeitpunkt stimmt mit bar[openTime] überein
+         return $offset;
+      $offset--;                                                                 // Zeitpunkt liegt in der vorherigen oder zwischen der
+                                                                                 // vorherigen und der TimeOffset-Bar
+      fSeek($this->hFile, HistoryHeader::SIZE + $offset*$this->barSize);
+      $bar = unpack($this->barUnpackFormat, fRead($this->hFile, $this->barSize));
+
+      $closeTime = MyFX::periodCloseTime($bar['time'], $this->getPeriod());
+      if ($closeTime > $time)                                                    // Zeitpunkt liegt innerhalb dieser vorherigen Bar
+         return $offset;
+      return ($offset+1 < $size) ? $offset+1 : -1;                               // Zeitpunkt liegt nach bar[closeTime], also Lücke...
+   }                                                                             // zwischen der vorherigen und der folgenden Bar
+
+
+   /**
     * Synchronisiert die Historydatei dieser Instanz mit den übergebenen Daten. Vorhandene Bars, die nach dem letzten
     * Synchronisationszeitpunkt der Datei hinzugefügt wurden und sich mit den übergebenen Daten überschneiden, werden
     * ersetzt. Vorhandene Bars, die sich mit den übergebenen Daten nicht überschneiden, bleiben unverändert.
@@ -292,40 +451,29 @@ class HistoryFile extends Object {
     * @param  MYFX_BAR[] $bars - Bardaten der Periode M1
     */
    private function synchronizeM1(array $bars) {
-      // Offset von $lastSyncTime und der Bar, die den Zeitpunkt abdeckt, ermitteln
+      // Offset der Bar, die den Zeitpunkt abdeckt, ermitteln
       $lastSyncTime = $this->getLastSyncTime();
-      $timeOffset   = MyFX::findTimeOffset($bars, $lastSyncTime);
-      $barOffset    = MyFX::findBarOffsetNext($bars, PERIOD_M1, $lastSyncTime);
+      $offset       = MyFX::findBarOffsetNext($bars, PERIOD_M1, $lastSyncTime);
 
+      // Bars vor Offset verwerfen
+      if ($offset == -1)
+         return;                                                        // alle Bars liegen vor $lastSyncTime
+      $bars = array_slice($bars, $offset);
+      $size = sizeof($bars);
+      echoPre('inserting '.$size.' bars from '.gmDate('d-M-Y H:i:s', $bars[0]['time']).' to '.gmDate('d-M-Y H:i:s', $bars[$size-1]['time']));
+
+      // History-Offsets für die verbliebene Bar-Range ermitteln
+      $hstOffsetFrom = $this->findBarOffsetNext($bars[0]['time']);
+      $hstOffsetTo   = $this->findBarOffsetPrevious($bars[$size-1]['time']);
+      echoPre('replacing '.($hstOffsetTo - $hstOffsetFrom + 1).' history bars from offset '.$hstOffsetFrom.' to '.$hstOffsetTo);
+
+      // History-Range mit verbliebener Bar-Range ersetzen
+      $length = $hstOffsetTo - $hstOffsetFrom + 1;
+      $this->splice($hstOffsetFrom, $length, $bars);
       exit();
 
-
-
-
-      $period            = $this->getPeriod();
-      $barsSize          = sizeof($bars);
-      $barsFrom_openTime = $bars[0]['time'];
-
-
-      // alle Bars vor Offset verwerfen
-      if ($barOffset == $barsSize) return;                              // alle Bars liegen vor $lastSyncTime
-      $bars              = array_slice($bars, $barOffset);
-      $barsSize          = sizeof($bars);
-      $barsFrom_openTime = $bars[0]['time'];
-      $barsTo_openTime   = $bars[$barsSize-1]['time'];
-      $barsTo_closeTime  = $barsTo_openTime + $period*MINUTES;
-
-      // entsprechende History-Offsets der verbleibenden Bar-Range ermitteln
-      $hstFrom = $this->findOffset($barsFrom_openTime);
-      $hstTo   = $this->findOffset($barsTo_openTime);
-
-      // Bar-Range in History mit $bars ersetzen
-      $length = $hstTo - $hstFrom + 1;
-      $this->splice($hstFrom, $length, $bars);
-
       // $lastSyncTime aktualisieren
-      $this->lastSyncTime = $barsTo_closeTime;
-
+      $this->lastSyncTime = MyFX::periodCloseTime($bars[$size-1]['time'], PERIOD_M1);
 
       /*
       $Pxx = MyFX::periodDescription($period);

@@ -523,7 +523,7 @@ class MyFX extends StaticClass {
 
       $size  = sizeof($series); if (!$size) return -1;
       $i     = -1;
-      $iFrom = 0;
+      $iFrom =  0;
 
       // Zeiten
       if (is_int($series[0])) {
@@ -598,8 +598,7 @@ class MyFX extends StaticClass {
 
 
    /**
-    * Gibt den Offset der Bar zurück, die den angegebenen Zeitpunkt abdeckt. Existiert keine solche Bar, wird der Offset
-    * der letzten vorhergehenden Bar zurückgegeben.
+    * Gibt den Offset der Bar zurück, die den angegebenen Zeitpunkt exakt abdeckt.
     *
     * @param  array $bars   - zu durchsuchende Bars: MYFX_BARs oder HISTORY_BARs
     * @param  int   $period - Barperiode
@@ -607,24 +606,77 @@ class MyFX extends StaticClass {
     *
     * @return int - Offset oder -1, wenn keine solche Bar existiert
     */
-   public static function findBarOffsetPrevious(array $bars, $period, $time) {
+   public static function findBarOffset(array $bars, $period, $time) {
       if (!is_int($period))              throw new IllegalTypeException('Illegal type of parameter $period: '.getType($period));
       if (!MT4::isStdTimeframe($period)) throw new plInvalidArgumentException('Invalid parameter $period: '.$period.' (not a standard timeframe)');
       if (!is_int($time))                throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
 
-      throw new UnimplementedFeatureException(__METHOD__);
-   }
+      $size = sizeOf($bars);
+      if (!$size)
+         return -1;
 
+      $offset = MyFX::findTimeOffset($bars, $time);
+
+      if ($offset < 0) {                                                         // Zeitpunkt liegt nach der jüngsten bar[openTime]
+         $closeTime = self::periodCloseTime($bars[$size-1]['time'], $period);
+         if ($time < $closeTime)                                                 // Zeitpunkt liegt innerhalb der jüngsten Bar
+            return $size-1;
+         return -1;
+      }
+
+      if ($bars[$offset]['time'] == $time)                                       // Zeitpunkt liegt exakt auf der jeweiligen Bar
+         return $offset;
+
+      if ($offset == 0)                                                          // Zeitpunkt ist älter die älteste Bar
+         return -1;
+
+      $offset--;
+      $closeTime = self::periodCloseTime($bars[$offset]['time'], $period);
+      if ($time < $closeTime)                                                    // Zeitpunkt liegt in der vorhergehenden Bar
+         return $offset;
+      return -1;                                                                 // Zeitpunkt liegt nicht in der vorhergehenden Bar,
+   }                                                                             // also Lücke zwischen der vorhergehenden und der
+                                                                                 // folgenden Bar
 
    /**
     * Gibt den Offset der Bar zurück, die den angegebenen Zeitpunkt abdeckt. Existiert keine solche Bar, wird der Offset
-    * der nächsten folgenden Bar zurückgegeben.
+    * der letzten vorhergehenden Bar zurückgegeben.
     *
     * @param  array $bars   - zu durchsuchende Bars: MYFX_BARs oder HISTORY_BARs
     * @param  int   $period - Barperiode
     * @param  int   $time   - Zeitpunkt
     *
-    * @return int - Offset oder -1, wenn keine solche Bar existiert
+    * @return int - Offset oder -1, wenn keine solche Bar existiert (der Zeitpunkt ist älter als die älteste Bar)
+    */
+   public static function findBarOffsetPrevious(array $bars, $period, $time) {
+      if (!is_int($period))              throw new IllegalTypeException('Illegal type of parameter $period: '.getType($period));
+      if (!MT4::isStdTimeframe($period)) throw new plInvalidArgumentException('Invalid parameter $period: '.$period.' (not a standard timeframe)');
+      if (!is_int($time))                throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+
+      $size = sizeOf($bars);
+      if (!$size)
+         return -1;
+
+      $offset = MyFX::findTimeOffset($bars, $time);
+
+      if ($offset < 0)                                                           // Zeitpunkt liegt nach der jüngsten bar[openTime]
+         return $size-1;
+
+      if ($bars[$offset]['time'] == $time)                                       // Zeitpunkt liegt exakt auf der jeweiligen Bar
+         return $offset;
+      return $offset - 1;                                                        // Zeitpunkt ist älter als die Bar desselben Offsets
+   }
+
+
+   /**
+    * Gibt den Offset der Bar zurück, die den angegebenen Zeitpunkt abdeckt. Existiert keine solche Bar, wird der Offset
+    * der nächstfolgenden Bar zurückgegeben.
+    *
+    * @param  array $bars   - zu durchsuchende Bars: MYFX_BARs oder HISTORY_BARs
+    * @param  int   $period - Barperiode
+    * @param  int   $time   - Zeitpunkt
+    *
+    * @return int - Offset oder -1, wenn keine solche Bar existiert (der Zeitpunkt ist jünger als das Ende der jüngsten Bar)
     */
    public static function findBarOffsetNext(array $bars, $period, $time) {
       if (!is_int($period))              throw new IllegalTypeException('Illegal type of parameter $period: '.getType($period));
@@ -636,19 +688,23 @@ class MyFX extends StaticClass {
          return -1;
 
       $offset = MyFX::findTimeOffset($bars, $time);
-      if ($offset < 0) {                                                         // Zeitpunkt liegt nach der letzten bar[openTime]
+
+      if ($offset < 0) {                                                         // Zeitpunkt liegt nach der jüngsten bar[openTime]
          $closeTime = self::periodCloseTime($bars[$size-1]['time'], $period);
-         return ($closeTime > $time) ? $offset : -1;
+         return ($closeTime > $time) ? $size-1 : -1;
       }
+      if ($offset == 0)                                                          // Zeitpunkt liegt vor oder exakt auf der ersten Bar
+         return 0;
 
       if ($bars[$offset]['time'] == $time)                                       // Zeitpunkt stimmt mit bar[openTime] überein
          return $offset;
-
-      $closeTime = self::periodCloseTime($bars[$offset]['time'], $period);       // Zeitpunkt liegt nach bar[openTime]
-      if ($closeTime > $time)                                                    // Zeitpunkt liegt innerhalb der Bar
+      $offset--;                                                                 // Zeitpunkt liegt in der vorherigen oder zwischen der
+                                                                                 // vorherigen und der TimeOffset-Bar
+      $closeTime = self::periodCloseTime($bars[$offset]['time'], $period);
+      if ($closeTime > $time)                                                    // Zeitpunkt liegt innerhalb dieser vorherigen Bar
          return $offset;
-      return ($offset+1 < $bars) ? $offset+1 : -1;                               // Zeitpunkt liegt nach bar[closeTime], also...
-   }                                                                             // Lücke zwischen dieser und der nächsten Bar
+      return ($offset+1 < $bars) ? $offset+1 : -1;                               // Zeitpunkt liegt nach bar[closeTime], also Lücke...
+   }                                                                             // zwischen der vorherigen und der folgenden Bar
 
 
    /**
