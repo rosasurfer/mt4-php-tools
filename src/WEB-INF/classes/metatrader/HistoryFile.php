@@ -434,8 +434,7 @@ class HistoryFile extends Object {
     * @param  MYFX_BAR[] $bars   - an Stelle der entfernten Bars einzufügende Bars (default: keine)
     */
    public function splice($offset, $length=null, array $bars=null) {
-      echoPre('unimplemented feature: '.__METHOD__.'()');
-      exit();
+      throw new UnimplementedFeatureException(__METHOD__.'()');
    }
 
 
@@ -456,6 +455,16 @@ class HistoryFile extends Object {
       $this->$method($bars);
 
       return true;
+      /*
+      $Pxx = MyFX::periodDescription($this->getPeriod());
+      echoPre($Pxx.'::full_bars           = '. $this->full_bars);
+      echoPre($Pxx.'::full_from_offset    = '. $this->full_from_offset);
+      echoPre($Pxx.'::full_from_openTime  = '.($this->full_from_openTime  ? gmDate('D, d-M-Y H:i:s', $this->full_from_openTime ) : 0));
+      echoPre($Pxx.'::full_from_closeTime = '.($this->full_from_closeTime ? gmDate('D, d-M-Y H:i:s', $this->full_from_closeTime) : 0));
+      echoPre($Pxx.'::full_to_offset      = '. $this->full_to_offset);
+      echoPre($Pxx.'::full_to_openTime    = '.($this->full_to_openTime    ? gmDate('D, d-M-Y H:i:s', $this->full_to_openTime   ) : 0));
+      echoPre($Pxx.'::full_to_closeTime   = '.($this->full_to_closeTime   ? gmDate('D, d-M-Y H:i:s', $this->full_to_closeTime  ) : 0));
+      */
    }
 
 
@@ -492,17 +501,6 @@ class HistoryFile extends Object {
 
       // $lastSyncTime aktualisieren
       $this->lastSyncTime = MyFX::periodCloseTime($bars[$size-1]['time'], PERIOD_M1);
-
-      /*
-      $Pxx = MyFX::periodDescription($this->getPeriod());
-      echoPre($Pxx.'::full_bars           = '. $this->full_bars);
-      echoPre($Pxx.'::full_from_offset    = '. $this->full_from_offset);
-      echoPre($Pxx.'::full_from_openTime  = '.($this->full_from_openTime  ? gmDate('D, d-M-Y H:i:s', $this->full_from_openTime ) : 0));
-      echoPre($Pxx.'::full_from_closeTime = '.($this->full_from_closeTime ? gmDate('D, d-M-Y H:i:s', $this->full_from_closeTime) : 0));
-      echoPre($Pxx.'::full_to_offset      = '. $this->full_to_offset);
-      echoPre($Pxx.'::full_to_openTime    = '.($this->full_to_openTime    ? gmDate('D, d-M-Y H:i:s', $this->full_to_openTime   ) : 0));
-      echoPre($Pxx.'::full_to_closeTime   = '.($this->full_to_closeTime   ? gmDate('D, d-M-Y H:i:s', $this->full_to_closeTime  ) : 0));
-      */
    }
 
 
