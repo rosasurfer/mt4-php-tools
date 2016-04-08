@@ -455,7 +455,6 @@ class HistoryFile extends Object {
       $method = __FUNCTION__.MyFX::periodDescription($this->getPeriod());     // synchronizeM1() etc.
       $this->$method($bars);
 
-      return false;
       return true;
    }
 
@@ -471,35 +470,38 @@ class HistoryFile extends Object {
       $offset       = MyFX::findBarOffsetNext($bars, PERIOD_M1, $lastSyncTime);
 
       // Bars vor Offset verwerfen
-      if ($offset == -1)
-         return;                                                        // alle Bars liegen vor $lastSyncTime
+      if ($offset == -1)                                                      // alle Bars liegen vor $lastSyncTime
+         return;
       $bars = array_slice($bars, $offset);
       $size = sizeof($bars);
 
       // History-Offsets für die verbliebene Bar-Range ermitteln
-      $hstOffsetFrom = $this->findBarOffsetNext    ($bars[0]      ['time']);
-      $hstOffsetTo   = $this->findBarOffsetPrevious($bars[$size-1]['time']);
+      $hstOffsetFrom = $this->findBarOffsetNext($bars[0]['time']);
+      if ($hstOffsetFrom == -1) {                                             // Zeitpunkt ist jünger als die jüngste Bar, Bars
+         $this->addToM1($bars);
+      }
+      else {
+         // History-Range mit Bar-Range ersetzen
+         $hstOffsetTo = $this->findBarOffsetPrevious($bars[$size-1]['time']);
+         $length      = $hstOffsetTo - $hstOffsetFrom + 1;
 
-      echoPre('inserting '.$size.' bars from '.gmDate('d-M-Y H:i:s', $bars[0]['time']).' to '.gmDate('d-M-Y H:i:s', $bars[$size-1]['time']));
-      echoPre('replacing '.($hstOffsetTo - $hstOffsetFrom + 1).' history bars from offset '.$hstOffsetFrom.' to '.$hstOffsetTo);
-
-      // History-Range mit Bar-Range ersetzen
-      $length = $hstOffsetTo - $hstOffsetFrom + 1;
-      $this->splice($hstOffsetFrom, $length, $bars);
-      exit();
+         echoPre('inserting '.$size.' bars from '.gmDate('d-M-Y H:i:s', $bars[0]['time']).' to '.gmDate('d-M-Y H:i:s', $bars[$size-1]['time']));
+         echoPre('replacing '.($hstOffsetTo - $hstOffsetFrom + 1).' history bars from offset '.$hstOffsetFrom.' to '.$hstOffsetTo);
+         $this->splice($hstOffsetFrom, $length, $bars);
+      }
 
       // $lastSyncTime aktualisieren
       $this->lastSyncTime = MyFX::periodCloseTime($bars[$size-1]['time'], PERIOD_M1);
 
       /*
-      $Pxx = MyFX::periodDescription($period);
-      echoPre($Pxx.'::stored_bars           = '. $this->stored_bars);
-      echoPre($Pxx.'::stored_from_offset    = '. $this->stored_from_offset);
-      echoPre($Pxx.'::stored_from_openTime  = '.($this->stored_from_openTime  ? gmDate('D, d-M-Y H:i:s', $this->stored_from_openTime ) : 0));
-      echoPre($Pxx.'::stored_from_closeTime = '.($this->stored_from_closeTime ? gmDate('D, d-M-Y H:i:s', $this->stored_from_closeTime) : 0));
-      echoPre($Pxx.'::stored_to_offset      = '. $this->stored_to_offset);
-      echoPre($Pxx.'::stored_to_openTime    = '.($this->stored_to_openTime    ? gmDate('D, d-M-Y H:i:s', $this->stored_to_openTime   ) : 0));
-      echoPre($Pxx.'::stored_to_closeTime   = '.($this->stored_to_closeTime   ? gmDate('D, d-M-Y H:i:s', $this->stored_to_closeTime  ) : 0));
+      $Pxx = MyFX::periodDescription($this->getPeriod());
+      echoPre($Pxx.'::full_bars           = '. $this->full_bars);
+      echoPre($Pxx.'::full_from_offset    = '. $this->full_from_offset);
+      echoPre($Pxx.'::full_from_openTime  = '.($this->full_from_openTime  ? gmDate('D, d-M-Y H:i:s', $this->full_from_openTime ) : 0));
+      echoPre($Pxx.'::full_from_closeTime = '.($this->full_from_closeTime ? gmDate('D, d-M-Y H:i:s', $this->full_from_closeTime) : 0));
+      echoPre($Pxx.'::full_to_offset      = '. $this->full_to_offset);
+      echoPre($Pxx.'::full_to_openTime    = '.($this->full_to_openTime    ? gmDate('D, d-M-Y H:i:s', $this->full_to_openTime   ) : 0));
+      echoPre($Pxx.'::full_to_closeTime   = '.($this->full_to_closeTime   ? gmDate('D, d-M-Y H:i:s', $this->full_to_closeTime  ) : 0));
       */
    }
 
@@ -528,12 +530,19 @@ class HistoryFile extends Object {
     */
    private function addToM1(array $bars) {
       $this->barBuffer = array_merge($this->barBuffer, $bars);
+      $bufferSize      = sizeOf($this->barBuffer);
 
-      $size    = sizeOf($this->barBuffer);
-      $lastBar = $this->barBuffer[$size-1];
-      $this->full_to_closeTime = $lastBar['time'] + 1*MINUTE;
+      if (!$this->full_bars) {                                          // History ist noch leer
+         $this->full_from_offset    = 0;
+         $this->full_from_openTime  = $this->barBuffer[0]['time'];
+         $this->full_from_closeTime = $this->barBuffer[0]['time'] + 1*MINUTE;
+      }
+      $this->full_bars         = $this->stored_bars + $bufferSize;
+      $this->full_to_offset    = $this->full_bars - 1;
+      $this->full_to_openTime  = $this->barBuffer[$bufferSize-1]['time'];
+      $this->full_to_closeTime = $this->barBuffer[$bufferSize-1]['time'] + 1*MINUTE;
 
-      if ($size > $this->barBufferSize)
+      if ($bufferSize > $this->barBufferSize)
          $this->flushBars($this->barBufferSize);
    }
 
@@ -826,14 +835,15 @@ class HistoryFile extends Object {
       if (!is_int($count)) throw new IllegalTypeException('Illegal type of parameter $count: '.getType($count));
       if ($count < 0)      throw new plInvalidArgumentException('Invalid parameter $count: '.$count);
 
-      $size = sizeOf($this->barBuffer);
-      $todo = min($size, $count);
+      $bufferSize = sizeOf($this->barBuffer);
+      $todo       = min($bufferSize, $count);
       if (!$todo)
          return 0;
 
       $divider = pow(10, $this->getDigits());
       $i = 0;
 
+      // Bars schreiben
       foreach ($this->barBuffer as $i => $bar) {
          $T = $bar['time' ];
          $O = $bar['open' ]/$divider;
@@ -847,8 +857,22 @@ class HistoryFile extends Object {
             break;
       }
 
-      if ($todo == $size) $this->barBuffer = array();
-      else                $this->barBuffer = array_slice($this->barBuffer, $todo);
+      // Metadaten aktualisieren
+      if (!$this->stored_bars) {                                           // Datei war vorher leer
+         $this->stored_from_offset    = 0;
+         $this->stored_from_openTime  = $this->barBuffer[0]['time'];
+         $this->stored_from_closeTime = MyFX::periodCloseTime($this->stored_from_openTime, $this->getPeriod());
+      }
+      $this->stored_bars         = $this->stored_bars + $todo;
+      $this->stored_to_offset    = $this->stored_bars - 1;
+      $this->stored_to_openTime  = $this->barBuffer[$todo-1]['time'];
+      $this->stored_to_closeTime = MyFX::periodCloseTime($this->stored_to_openTime, $this->getPeriod());
+
+      //$this->full* ändert sich nicht
+
+      // Buffer entsprechend kürzen
+      if ($todo == $bufferSize) $this->barBuffer = array();
+      else                      $this->barBuffer = array_slice($this->barBuffer, $todo);
 
       return $todo;
    }
