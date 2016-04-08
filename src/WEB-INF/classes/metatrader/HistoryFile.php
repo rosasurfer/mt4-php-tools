@@ -835,8 +835,7 @@ class HistoryFile extends Object {
 
       $bufferSize = sizeOf($this->barBuffer);
       $todo       = min($bufferSize, $count);
-      if (!$todo)
-         return 0;
+      if (!$todo) return 0;
 
       $divider = pow(10, $this->getDigits());
       $i = 0;
@@ -865,7 +864,6 @@ class HistoryFile extends Object {
       $this->stored_to_offset    = $this->stored_bars - 1;
       $this->stored_to_openTime  = $this->barBuffer[$todo-1]['time'];
       $this->stored_to_closeTime = MyFX::periodCloseTime($this->stored_to_openTime, $this->getPeriod());
-
       //$this->full* ändert sich nicht
 
       // Buffer entsprechend kürzen
