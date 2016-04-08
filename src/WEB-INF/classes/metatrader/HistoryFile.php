@@ -144,18 +144,18 @@ class HistoryFile extends Object {
     * Liest die Metadaten der Datei aus und initialisiert die lokalen Variablen. Aufruf nur aus einem Constructor.
     */
    private function initMetaData() {
-      $lastSyncTime    = $this->hstHeader->getLastSyncTime();
-      $barSize         = $this->getVersion()==400 ? MT4::HISTORY_BAR_400_SIZE : MT4::HISTORY_BAR_401_SIZE;
-      $barPackFormat   = MT4::BAR_getPackFormat($this->getVersion());
-      $barUnpackFormat = MT4::BAR_getUnpackFormat($this->getVersion());
+      $this->lastSyncTime    = $this->hstHeader->getLastSyncTime();
+      $this->barSize         = $this->getVersion()==400 ? MT4::HISTORY_BAR_400_SIZE : MT4::HISTORY_BAR_401_SIZE;
+      $this->barPackFormat   = MT4::BAR_getPackFormat($this->getVersion());
+      $this->barUnpackFormat = MT4::BAR_getUnpackFormat($this->getVersion());
 
       $fileSize = fileSize($this->serverDirectory.'/'.$this->fileName);
       if ($fileSize > HistoryHeader::SIZE) {
-         $bars    = ($fileSize-HistoryHeader::SIZE) / $barSize;
-         $barFrom = $barTo = unpack($barUnpackFormat, fRead($this->hFile, $barSize));
+         $bars    = ($fileSize-HistoryHeader::SIZE) / $this->barSize;
+         $barFrom = $barTo = unpack($this->barUnpackFormat, fRead($this->hFile, $this->barSize));
          if ($bars > 1) {
-            fSeek($this->hFile, HistoryHeader::SIZE + ($bars-1)*$barSize);
-            $barTo = unpack($barUnpackFormat, fRead($this->hFile, $barSize));
+            fSeek($this->hFile, HistoryHeader::SIZE + ($bars-1)*$this->barSize);
+            $barTo = unpack($this->barUnpackFormat, fRead($this->hFile, $this->barSize));
          }
          $period = $this->getPeriod();
 
@@ -166,30 +166,25 @@ class HistoryFile extends Object {
          $to_offset      = $bars-1;
          $to_openTime    = $barTo['time'];
          $to_closeTime   = MyFX::periodCloseTime($to_openTime,  $period);
+
+         // Metadaten: nur gespeicherte Bars
+         $this->stored_bars           = $bars;
+         $this->stored_from_offset    = $from_offset;
+         $this->stored_from_openTime  = $from_openTime;
+         $this->stored_from_closeTime = $from_closeTime;
+         $this->stored_to_offset      = $to_offset;
+         $this->stored_to_openTime    = $to_openTime;
+         $this->stored_to_closeTime   = $to_closeTime;
+
+         // Metadaten: gespeicherte + gepufferte Bars
+         $this->full_bars             = $this->stored_bars;
+         $this->full_from_offset      = $this->stored_from_offset;
+         $this->full_from_openTime    = $this->stored_from_openTime;
+         $this->full_from_closeTime   = $this->stored_from_closeTime;
+         $this->full_to_offset        = $this->stored_to_offset;
+         $this->full_to_openTime      = $this->stored_to_openTime;
+         $this->full_to_closeTime     = $this->stored_to_closeTime;
       }
-
-      $this->lastSyncTime    = $lastSyncTime;
-      $this->barSize         = $barSize;
-      $this->barPackFormat   = $barPackFormat;
-      $this->barUnpackFormat = $barUnpackFormat;
-
-      // Metadaten: nur gespeicherte Bars
-      $this->stored_bars           = $bars;
-      $this->stored_from_offset    = $from_offset;
-      $this->stored_from_openTime  = $from_openTime;
-      $this->stored_from_closeTime = $from_closeTime;
-      $this->stored_to_offset      = $to_offset;
-      $this->stored_to_openTime    = $to_openTime;
-      $this->stored_to_closeTime   = $to_closeTime;
-
-      // Metadaten: gespeicherte + gepufferte Bars
-      $this->full_bars             = $this->stored_bars;
-      $this->full_from_offset      = $this->stored_from_offset;
-      $this->full_from_openTime    = $this->stored_from_openTime;
-      $this->full_from_closeTime   = $this->stored_from_closeTime;
-      $this->full_to_offset        = $this->stored_to_offset;
-      $this->full_to_openTime      = $this->stored_to_openTime;
-      $this->full_to_closeTime     = $this->stored_to_closeTime;
    }
 
 
