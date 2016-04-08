@@ -436,9 +436,9 @@ class HistoryFile extends Object {
     *
     * @param  int   $offset - Offset, ab dem Bars entfernt werden
     * @param  int   $length - Anzahl der zu entfernenden Bars
-    * @param  array $bars   - Bars, die an Stelle der entfernten Bars eingefügt werden (default: keine Bars werden eingefügt)
+    * @param  array $bars   - Bars, die an Stelle der entfernten Bars eingefügt werden (default: keine)
     */
-   public function splice($offset, $length, array $bars=null) {
+   public function splice($offset, $length=null, array $bars=null) {
       echoPre('unimplemented feature: '.__METHOD__.'()');
       exit();
    }
