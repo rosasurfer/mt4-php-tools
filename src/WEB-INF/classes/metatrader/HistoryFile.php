@@ -431,6 +431,20 @@ class HistoryFile extends Object {
 
 
    /**
+    * Entfernt einen Teil der HistoryDatei und ersetzt ihn ggf. mit den angegebenen Bardaten. Die Größe der Datei wird
+    * entsprechend angepaßt.
+    *
+    * @param  int   $offset - Offset, ab dem Bars entfernt werden
+    * @param  int   $length - Anzahl der zu entfernenden Bars
+    * @param  array $bars   - Bars, die an Stelle der entfernten Bars eingefügt werden (default: keine Bars werden eingefügt)
+    */
+   public function splice($offset, $length, array $bars=null) {
+      echoPre('unimplemented feature: '.__METHOD__.'()');
+      exit();
+   }
+
+
+   /**
     * Synchronisiert die Historydatei dieser Instanz mit den übergebenen Daten. Vorhandene Bars, die nach dem letzten
     * Synchronisationszeitpunkt der Datei hinzugefügt wurden und sich mit den übergebenen Daten überschneiden, werden
     * ersetzt. Vorhandene Bars, die sich mit den übergebenen Daten nicht überschneiden, bleiben unverändert.
@@ -473,7 +487,6 @@ class HistoryFile extends Object {
 
       echoPre('inserting '.$size.' bars from '.gmDate('d-M-Y H:i:s', $bars[0]['time']).' to '.gmDate('d-M-Y H:i:s', $bars[$size-1]['time']));
       echoPre('replacing '.($hstOffsetTo - $hstOffsetFrom + 1).' history bars from offset '.$hstOffsetFrom.' to '.$hstOffsetTo);
-      exit();
 
       // History-Range mit Bar-Range ersetzen
       $length = $hstOffsetTo - $hstOffsetFrom + 1;
