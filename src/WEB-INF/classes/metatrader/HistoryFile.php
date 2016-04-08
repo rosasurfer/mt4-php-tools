@@ -434,9 +434,9 @@ class HistoryFile extends Object {
     * Entfernt einen Teil der Historydatei und ersetzt ihn mit den angegebenen Bardaten. Die Größe der Datei wird
     * entsprechend angepaßt.
     *
-    * @param  int   $offset - Offset, ab dem Bars entfernt werden
-    * @param  int   $length - Anzahl der zu entfernenden Bars
-    * @param  array $bars   - Bars, die an Stelle der entfernten Bars eingefügt werden (default: keine)
+    * @param  int        $offset - Offset, ab dem Bars entfernt werden
+    * @param  int        $length - Anzahl der zu entfernenden Bars
+    * @param  MYFX_BAR[] $bars   - an Stelle der entfernten Bars einzufügende MYFX_BARs (default: keine)
     */
    public function splice($offset, $length=null, array $bars=null) {
       echoPre('unimplemented feature: '.__METHOD__.'()');
