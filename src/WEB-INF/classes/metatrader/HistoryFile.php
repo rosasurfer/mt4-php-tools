@@ -19,26 +19,22 @@ class HistoryFile extends Object {
    protected /*int          */ $barBufferSize = 10000;            // Default-Größe des Buffers für ungespeicherte Bars
 
    // Metadaten: gespeichert
-   protected /*int          */ $stored_bars               =  0;   // Anzahl der gespeicherten Bars der Datei
-   protected /*int          */ $stored_from_offset        = -1;   // Offset der ersten gespeicherten Bar der Datei
-   protected /*int          */ $stored_from_openTime      =  0;   // OpenTime der ersten gespeicherten Bar der Datei
-   protected /*int          */ $stored_from_closeTime     =  0;   // CloseTime der ersten gespeicherten Bar der Datei
-   protected /*int          */ $stored_from_nextCloseTime =  0;   // CloseTime der der ersten gespeicherten Bar der Datei folgenden Bar
-   protected /*int          */ $stored_to_offset          = -1;   // Offset der letzten gespeicherten Bar der Datei
-   protected /*int          */ $stored_to_openTime        =  0;   // OpenTime der letzten gespeicherten Bar der Datei
-   protected /*int          */ $stored_to_closeTime       =  0;   // CloseTime der letzten gespeicherten Bar der Datei
-   protected /*int          */ $stored_to_nextCloseTime   =  0;   // CloseTime der der letzten gespeicherten Bar der Datei folgenden Bar
+   protected /*int          */ $stored_bars           =  0;       // Anzahl der gespeicherten Bars der Datei
+   protected /*int          */ $stored_from_offset    = -1;       // Offset der ersten gespeicherten Bar der Datei
+   protected /*int          */ $stored_from_openTime  =  0;       // OpenTime der ersten gespeicherten Bar der Datei
+   protected /*int          */ $stored_from_closeTime =  0;       // CloseTime der ersten gespeicherten Bar der Datei
+   protected /*int          */ $stored_to_offset      = -1;       // Offset der letzten gespeicherten Bar der Datei
+   protected /*int          */ $stored_to_openTime    =  0;       // OpenTime der letzten gespeicherten Bar der Datei
+   protected /*int          */ $stored_to_closeTime   =  0;       // CloseTime der letzten gespeicherten Bar der Datei
 
    // Metadaten: gespeichert + ungespeichert
-   protected /*int          */ $full_bars                 =  0;   // Anzahl der Bars der Datei inkl. ungespeicherter Daten im Schreibpuffer
-   protected /*int          */ $full_from_offset          = -1;   // Offset der ersten Bar der Datei inkl. ungespeicherter Daten im Schreibpuffer
-   protected /*int          */ $full_from_openTime        =  0;   // OpenTime der ersten Bar der Datei inkl. ungespeicherter Daten im Schreibpuffer
-   protected /*int          */ $full_from_closeTime       =  0;   // CloseTime der ersten Bar der Datei inkl. ungespeicherter Daten im Schreibpuffer
-   protected /*int          */ $full_from_nextCloseTime   =  0;   // CloseTime der der ersten Bar der Datei inkl. ungespeicherter Daten im Schreibpuffer folgenden Bar
-   protected /*int          */ $full_to_offset            = -1;   // Offset der letzten Bar der Datei inkl. ungespeicherter Daten im Schreibpuffer
-   protected /*int          */ $full_to_openTime          =  0;   // OpenTime der letzten Bar der Datei inkl. ungespeicherter Daten im Schreibpuffer
-   protected /*int          */ $full_to_closeTime         =  0;   // CloseTime der letzten Bar der Datei inkl. ungespeicherter Daten im Schreibpuffer
-   protected /*int          */ $full_to_nextCloseTime     =  0;   // CloseTime dre der letzten Bar der Datei inkl. ungespeicherter Daten im Schreibpuffer folgenden Bar
+   protected /*int          */ $full_bars             =  0;       // Anzahl der Bars der Datei inkl. ungespeicherter Daten im Schreibpuffer
+   protected /*int          */ $full_from_offset      = -1;       // Offset der ersten Bar der Datei inkl. ungespeicherter Daten im Schreibpuffer
+   protected /*int          */ $full_from_openTime    =  0;       // OpenTime der ersten Bar der Datei inkl. ungespeicherter Daten im Schreibpuffer
+   protected /*int          */ $full_from_closeTime   =  0;       // CloseTime der ersten Bar der Datei inkl. ungespeicherter Daten im Schreibpuffer
+   protected /*int          */ $full_to_offset        = -1;       // Offset der letzten Bar der Datei inkl. ungespeicherter Daten im Schreibpuffer
+   protected /*int          */ $full_to_openTime      =  0;       // OpenTime der letzten Bar der Datei inkl. ungespeicherter Daten im Schreibpuffer
+   protected /*int          */ $full_to_closeTime     =  0;       // CloseTime der letzten Bar der Datei inkl. ungespeicherter Daten im Schreibpuffer
 
 
    // Getter
@@ -163,15 +159,13 @@ class HistoryFile extends Object {
          }
          $period = $this->getPeriod();
 
-         $from_offset        = 0;
-         $from_openTime      = $barFrom['time'];
-         $from_closeTime     = MyFX::periodCloseTime($from_openTime,  $period);
-         $from_nextCloseTime = MyFX::periodCloseTime($from_closeTime, $period);
+         $from_offset    = 0;
+         $from_openTime  = $barFrom['time'];
+         $from_closeTime = MyFX::periodCloseTime($from_openTime,  $period);
 
-         $to_offset          = $bars-1;
-         $to_openTime        = $barTo['time'];
-         $to_closeTime       = MyFX::periodCloseTime($to_openTime,  $period);
-         $to_nextCloseTime   = MyFX::periodCloseTime($to_closeTime, $period);
+         $to_offset      = $bars-1;
+         $to_openTime    = $barTo['time'];
+         $to_closeTime   = MyFX::periodCloseTime($to_openTime,  $period);
       }
 
       $this->lastSyncTime    = $lastSyncTime;
@@ -180,26 +174,22 @@ class HistoryFile extends Object {
       $this->barUnpackFormat = $barUnpackFormat;
 
       // Metadaten: nur gespeicherte Bars
-      $this->stored_bars               = $bars;
-      $this->stored_from_offset        = $from_offset;
-      $this->stored_from_openTime      = $from_openTime;
-      $this->stored_from_closeTime     = $from_closeTime;
-      $this->stored_from_nextCloseTime = $from_nextCloseTime;
-      $this->stored_to_offset          = $to_offset;
-      $this->stored_to_openTime        = $to_openTime;
-      $this->stored_to_closeTime       = $to_closeTime;
-      $this->stored_to_nextCloseTime   = $to_nextCloseTime;
+      $this->stored_bars           = $bars;
+      $this->stored_from_offset    = $from_offset;
+      $this->stored_from_openTime  = $from_openTime;
+      $this->stored_from_closeTime = $from_closeTime;
+      $this->stored_to_offset      = $to_offset;
+      $this->stored_to_openTime    = $to_openTime;
+      $this->stored_to_closeTime   = $to_closeTime;
 
       // Metadaten: gespeicherte + gepufferte Bars
-      $this->full_bars                 = $this->stored_bars;
-      $this->full_from_offset          = $this->stored_from_offset;
-      $this->full_from_openTime        = $this->stored_from_openTime;
-      $this->full_from_closeTime       = $this->stored_from_closeTime;
-      $this->full_from_nextCloseTime   = $this->stored_from_nextCloseTime;
-      $this->full_to_offset            = $this->stored_to_offset;
-      $this->full_to_openTime          = $this->stored_to_openTime;
-      $this->full_to_closeTime         = $this->stored_to_closeTime;
-      $this->full_to_nextCloseTime     = $this->stored_to_nextCloseTime;
+      $this->full_bars             = $this->stored_bars;
+      $this->full_from_offset      = $this->stored_from_offset;
+      $this->full_from_openTime    = $this->stored_from_openTime;
+      $this->full_from_closeTime   = $this->stored_from_closeTime;
+      $this->full_to_offset        = $this->stored_to_offset;
+      $this->full_to_openTime      = $this->stored_to_openTime;
+      $this->full_to_closeTime     = $this->stored_to_closeTime;
    }
 
 
@@ -266,6 +256,32 @@ class HistoryFile extends Object {
 
 
    /**
+    * Gibt die Bar am angegebenen Offset der Historydatei zurück.
+    *
+    * @param  int $offset
+    *
+    * @return array - • MYFX_BAR,    wenn die Bar im Schreibbuffer liegt
+    *                 • HISTORY_BAR, wenn die Bar aus der Datei gelesen wurde
+    *                 • NULL,        wenn keine solche Bar existiert (Offset ist größer als die Anzahl der Bars der Datei)
+    *
+    * @see    HistoryFile::getMyfxBar(), HistoryFile::getHistoryBar()
+    */
+   public function getBar($offset) {
+      if (!is_int($offset)) throw new IllegalTypeException('Illegal type of parameter $offset: '.getType($offset));
+      if ($offset < 0)      throw new plInvalidArgumentException('Invalid parameter $offset: '.$offset);
+
+      if ($offset >= $this->full_bars)                                           // bar[$offset] existiert nicht
+         return null;
+
+      if ($offset > $this->stored_to_offset)                                     // bar[$offset] liegt in buffered Bars (MYFX_BAR)
+         return $this->barBuffer[$offset-$this->stored_to_offset-1];
+
+      fSeek($this->hFile, HistoryHeader::SIZE + $offset*$this->barSize);         // bar[$offset] liegt in stored Bars (HISTORY_BAR)
+      return unpack($this->barUnpackFormat, fRead($this->hFile, $this->barSize));
+   }
+
+
+   /**
     * Gibt den Offset eines Zeitpunktes innerhalb dieser Historydatei zurück. Dies ist die Position (Index), an der eine Bar
     * mit der angegebenen OpenTime in dieser Historydatei einsortiert werden würde.
     *
@@ -277,15 +293,15 @@ class HistoryFile extends Object {
    public function findTimeOffset($time) {
       if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
 
-      $size    = $this->stored_bars; if (!$size)                 return -1;
+      $size    = $this->full_bars; if (!$size)                 return -1;
       $iFrom   = 0;
-      $iTo     = $size-1; if ($this->stored_to_openTime < $time) return -1;
-      $barFrom = array('time'=> $this->stored_from_openTime);
-      $barTo   = array('time'=> $this->stored_to_openTime);
+      $iTo     = $size-1; if ($this->full_to_openTime < $time) return -1;
+      $barFrom = array('time'=> $this->full_from_openTime);
+      $barTo   = array('time'=> $this->full_to_openTime);
       $i       = -1;
 
-      while (true) {                                           // Zeitfenster von Beginn- und Endbar rekursiv bis zum
-         if ($barFrom['time'] >= $time) {                      // gesuchten Zeitpunkt verkleinern
+      while (true) {                                                       // Zeitfenster von Beginn- und Endbar rekursiv bis zum
+         if ($barFrom['time'] >= $time) {                                  // gesuchten Zeitpunkt verkleinern
             $i = $iFrom;
             break;
          }
@@ -294,11 +310,9 @@ class HistoryFile extends Object {
             break;
          }
 
-         $midSize = ceil($size/2);                             // Fenster halbieren
+         $midSize = (int) ceil($size/2);                                   // Fenster halbieren
          $iMid    = $iFrom + $midSize - 1;
-
-         fSeek($this->hFile, HistoryHeader::SIZE + $iMid*$this->barSize);
-         $barMid = unpack($this->barUnpackFormat, fRead($this->hFile, $this->barSize));
+         $barMid  = $this->getBar($iMid);
 
          if ($barMid['time'] <= $time) { $barFrom = $barMid; $iFrom = $iMid; }
          else                          { $barTo   = $barMid; $iTo   = $iMid; }
@@ -318,34 +332,31 @@ class HistoryFile extends Object {
    public function findBarOffset($time) {
       if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
 
-      $size = sizeOf($this->stored_bars);
+      $size = sizeOf($this->full_bars);
       if (!$size)
          return -1;
 
       $offset = $this->findTimeOffset($time);
 
       if ($offset < 0) {                                                         // Zeitpunkt liegt nach der jüngsten bar[openTime]
-         $closeTime = $this->stored_to_closeTime;
+         $closeTime = $this->full_to_closeTime;
          if ($time < $closeTime)                                                 // Zeitpunkt liegt innerhalb der jüngsten Bar
             return $size-1;
          return -1;
       }
 
       if ($offset == 0) {
-         if ($this->stored_from_openTime == $time)                               // Zeitpunkt liegt exakt auf der ältesten Bar
+         if ($this->full_from_openTime == $time)                                 // Zeitpunkt liegt exakt auf der ältesten Bar
             return 0;
          return -1;                                                              // Zeitpunkt ist älter die älteste Bar
       }
 
-      fSeek($this->hFile, HistoryHeader::SIZE + $offset*$this->barSize);
-      $bar = unpack($this->barUnpackFormat, fRead($this->hFile, $this->barSize));
-
+      $bar = $this->getBar($offset);
       if ($bar['time'] == $time)                                                 // Zeitpunkt liegt exakt auf der jeweiligen Bar
          return $offset;
-
       $offset--;
-      fSeek($this->hFile, HistoryHeader::SIZE + $offset*$this->barSize);
-      $bar = unpack($this->barUnpackFormat, fRead($this->hFile, $this->barSize));
+
+      $bar       = $this->getBar($offset);
       $closeTime = self::periodCloseTime($bar['time'], $this->getPeriod());
 
       if ($time < $closeTime)                                                    // Zeitpunkt liegt in der vorhergehenden Bar
@@ -365,17 +376,15 @@ class HistoryFile extends Object {
    public function findBarOffsetPrevious($time) {
       if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
 
-      $size = $this->stored_bars;
+      $size = $this->full_bars;
       if (!$size)
          return -1;
 
       $offset = $this->findTimeOffset($time);
-
       if ($offset < 0)                                                           // Zeitpunkt liegt nach der jüngsten bar[openTime]
          return $size-1;
 
-      fSeek($this->hFile, HistoryHeader::SIZE + $offset*$this->barSize);
-      $bar = unpack($this->barUnpackFormat, fRead($this->hFile, $this->barSize));
+      $bar = $this->getBar($offset);
 
       if ($bar['time'] == $time)                                                 // Zeitpunkt liegt exakt auf der jeweiligen Bar
          return $offset;
@@ -394,28 +403,25 @@ class HistoryFile extends Object {
    public function findBarOffsetNext($time) {
       if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
 
-      $size = $this->stored_bars;
+      $size = $this->full_bars;
       if (!$size)
          return -1;
 
       $offset = $this->findTimeOffset($time);
 
       if ($offset < 0) {                                                         // Zeitpunkt liegt nach der jüngsten bar[openTime]
-         $closeTime = $this->stored_to_closeTime;
+         $closeTime = $this->full_to_closeTime;
          return ($closeTime > $time) ? $size-1 : -1;
       }
       if ($offset == 0)                                                          // Zeitpunkt liegt vor oder exakt auf der ersten Bar
          return 0;
 
-      fSeek($this->hFile, HistoryHeader::SIZE + $offset*$this->barSize);
-      $bar = unpack($this->barUnpackFormat, fRead($this->hFile, $this->barSize));
-
+      $bar = $this->getBar($offset);
       if ($bar['time'] == $time)                                                 // Zeitpunkt stimmt mit bar[openTime] überein
          return $offset;
+
       $offset--;                                                                 // Zeitpunkt liegt in der vorherigen oder zwischen der
-                                                                                 // vorherigen und der TimeOffset-Bar
-      fSeek($this->hFile, HistoryHeader::SIZE + $offset*$this->barSize);
-      $bar = unpack($this->barUnpackFormat, fRead($this->hFile, $this->barSize));
+      $bar = $this->getBar($offset);                                             // vorherigen und der TimeOffset-Bar
 
       $closeTime = MyFX::periodCloseTime($bar['time'], $this->getPeriod());
       if ($closeTime > $time)                                                    // Zeitpunkt liegt innerhalb dieser vorherigen Bar
@@ -460,14 +466,16 @@ class HistoryFile extends Object {
          return;                                                        // alle Bars liegen vor $lastSyncTime
       $bars = array_slice($bars, $offset);
       $size = sizeof($bars);
-      echoPre('inserting '.$size.' bars from '.gmDate('d-M-Y H:i:s', $bars[0]['time']).' to '.gmDate('d-M-Y H:i:s', $bars[$size-1]['time']));
 
       // History-Offsets für die verbliebene Bar-Range ermitteln
-      $hstOffsetFrom = $this->findBarOffsetNext($bars[0]['time']);
+      $hstOffsetFrom = $this->findBarOffsetNext    ($bars[0]      ['time']);
       $hstOffsetTo   = $this->findBarOffsetPrevious($bars[$size-1]['time']);
-      echoPre('replacing '.($hstOffsetTo - $hstOffsetFrom + 1).' history bars from offset '.$hstOffsetFrom.' to '.$hstOffsetTo);
 
-      // History-Range mit verbliebener Bar-Range ersetzen
+      echoPre('inserting '.$size.' bars from '.gmDate('d-M-Y H:i:s', $bars[0]['time']).' to '.gmDate('d-M-Y H:i:s', $bars[$size-1]['time']));
+      echoPre('replacing '.($hstOffsetTo - $hstOffsetFrom + 1).' history bars from offset '.$hstOffsetFrom.' to '.$hstOffsetTo);
+      exit();
+
+      // History-Range mit Bar-Range ersetzen
       $length = $hstOffsetTo - $hstOffsetFrom + 1;
       $this->splice($hstOffsetFrom, $length, $bars);
       exit();
@@ -477,15 +485,13 @@ class HistoryFile extends Object {
 
       /*
       $Pxx = MyFX::periodDescription($period);
-      echoPre($Pxx.'::stored_bars               = '. $this->stored_bars);
-      echoPre($Pxx.'::stored_from_offset        = '. $this->stored_from_offset);
-      echoPre($Pxx.'::stored_from_openTime      = '.($this->stored_from_openTime      ? gmDate('D, d-M-Y H:i:s', $this->stored_from_openTime     ) : 0));
-      echoPre($Pxx.'::stored_from_closeTime     = '.($this->stored_from_closeTime     ? gmDate('D, d-M-Y H:i:s', $this->stored_from_closeTime    ) : 0));
-      echoPre($Pxx.'::stored_from_nextCloseTime = '.($this->stored_from_nextCloseTime ? gmDate('D, d-M-Y H:i:s', $this->stored_from_nextCloseTime) : 0));
-      echoPre($Pxx.'::stored_to_offset          = '. $this->stored_to_offset);
-      echoPre($Pxx.'::stored_to_openTime        = '.($this->stored_to_openTime        ? gmDate('D, d-M-Y H:i:s', $this->stored_to_openTime       ) : 0));
-      echoPre($Pxx.'::stored_to_closeTime       = '.($this->stored_to_closeTime       ? gmDate('D, d-M-Y H:i:s', $this->stored_to_closeTime      ) : 0));
-      echoPre($Pxx.'::stored_to_nextCloseTime   = '.($this->stored_to_nextCloseTime   ? gmDate('D, d-M-Y H:i:s', $this->stored_to_nextCloseTime  ) : 0));
+      echoPre($Pxx.'::stored_bars           = '. $this->stored_bars);
+      echoPre($Pxx.'::stored_from_offset    = '. $this->stored_from_offset);
+      echoPre($Pxx.'::stored_from_openTime  = '.($this->stored_from_openTime  ? gmDate('D, d-M-Y H:i:s', $this->stored_from_openTime ) : 0));
+      echoPre($Pxx.'::stored_from_closeTime = '.($this->stored_from_closeTime ? gmDate('D, d-M-Y H:i:s', $this->stored_from_closeTime) : 0));
+      echoPre($Pxx.'::stored_to_offset      = '. $this->stored_to_offset);
+      echoPre($Pxx.'::stored_to_openTime    = '.($this->stored_to_openTime    ? gmDate('D, d-M-Y H:i:s', $this->stored_to_openTime   ) : 0));
+      echoPre($Pxx.'::stored_to_closeTime   = '.($this->stored_to_closeTime   ? gmDate('D, d-M-Y H:i:s', $this->stored_to_closeTime  ) : 0));
       */
    }
 

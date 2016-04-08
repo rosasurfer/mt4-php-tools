@@ -538,7 +538,7 @@ class MyFX extends StaticClass {
                $i = $iTo;
                break;
             }
-            $midSize = ceil($size/2);                             // Fenster halbieren
+            $midSize = (int) ceil($size/2);                       // Fenster halbieren
             $iMid    = $iFrom + $midSize - 1;
             if ($series[$iMid] <= $time) $iFrom = $iMid;
             else                         $iTo   = $iMid;
@@ -561,7 +561,7 @@ class MyFX extends StaticClass {
                $i = $iTo;
                break;
             }
-            $midSize = ceil($size/2);                             // Fenster halbieren
+            $midSize = (int) ceil($size/2);                       // Fenster halbieren
             $iMid    = $iFrom + $midSize - 1;
             if ($series[$iMid]['time'] <= $time) $iFrom = $iMid;
             else                                 $iTo   = $iMid;
@@ -584,7 +584,7 @@ class MyFX extends StaticClass {
                $i = $iTo;
                break;
             }
-            $midSize = ceil($size/2);                             // Fenster halbieren
+            $midSize = (int) ceil($size/2);                       // Fenster halbieren
             $iMid    = $iFrom + $midSize - 1;
             if ($series[$iMid]->getTime() <= $time) $iFrom = $iMid;
             else                                    $iTo   = $iMid;

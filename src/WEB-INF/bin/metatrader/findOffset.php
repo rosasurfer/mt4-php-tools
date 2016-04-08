@@ -95,7 +95,7 @@ while ($i != -1) {
       break;
    }
 
-   $halfSize = ceil($bars/2);
+   $halfSize = (int) ceil($bars/2);
    $iMid     = $iFrom + $halfSize - 1;
    fSeek($hFile, HistoryHeader::SIZE + $iMid*$barSize);
    $barMid   = unpack($barFormat, fRead($hFile, $barSize));
