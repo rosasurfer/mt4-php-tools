@@ -431,7 +431,7 @@ class HistoryFile extends Object {
 
 
    /**
-    * Entfernt einen Teil der HistoryDatei und ersetzt ihn ggf. mit den angegebenen Bardaten. Die Größe der Datei wird
+    * Entfernt einen Teil der Historydatei und ersetzt ihn mit den angegebenen Bardaten. Die Größe der Datei wird
     * entsprechend angepaßt.
     *
     * @param  int   $offset - Offset, ab dem Bars entfernt werden
