@@ -37,21 +37,8 @@ foreach ($args as $i => $arg) {
 $args = $args ? array_unique($args) : array_keys(MyFX::$symbols);
 
 
-// (2) SIGINT handler installieren
-if (!WINDOWS) {
-   //declare(ticks=1);
-
-   function onSignal($signal) {
-      switch($signal) {
-         case SIGINT:
-            echoPre('Caught SIGINT');
-            exit(0);
-      }
-   }
-
-   $result = pcntl_signal(SIGINT, 'onSignal');
-   echoPre('SIGINT handler installed = '.(int)$result);
-}
+// (2) SIGINT-Handler installieren
+if (!WINDOWS) pcntl_signal(SIGINT, 'onSignal');
 
 
 // (3) History erstellen
@@ -110,8 +97,7 @@ function createHistory($symbol) {
          $bars = MyFX::readBarFile($file, $symbol);
          $history->addBars($bars);
       }
-      if (!WINDOWS)
-         pcntl_signal_dispatch();
+      if (!WINDOWS) pcntl_signal_dispatch();
    }
 
    echoPre('[Ok]      '.$symbol);
@@ -172,6 +158,18 @@ function getVar($id, $symbol=null, $time=null) {
    (sizeof($varCache) > ($maxSize=128)) && array_shift($varCache) /*&& echoPre('cache size limit of '.$maxSize.' hit')*/;
 
    return $result;
+}
+
+
+/**
+ * Signalhandler
+ *
+ * @param  int $signal - das aufgetretene Signal
+ */
+function onSignal($signal) {
+   switch ($signal) {
+      case SIGINT: exit(0);      // Um bei Ctrl-C Destruktoren von Objekt-Instanzen auszuführen, reicht es,
+   }                             // wenn der SIGINT-Handler installiert ist. Er kann leer sein.
 }
 
 
