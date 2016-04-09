@@ -11,6 +11,7 @@ class HistoryFile extends Object {
    protected /*bool         */ $closed = false;                   // ob die Instanz geschlossen und seine Resourcen freigegeben sind
 
    protected /*HistoryHeader*/ $hstHeader;
+   protected /*int          */ $period;                           // Timeframe der Datei
    protected /*int          */ $lastM1DataTime = 0;               // OpenTime der letzten eingetroffenen M1-Daten
    protected /*int          */ $barSize        = 0;               // Größe einer Bar entsprechend dem Datenformat
    protected /*string       */ $barPackFormat;                    // Formatstring für pack()
@@ -47,8 +48,8 @@ class HistoryFile extends Object {
 
    public function getVersion()         { return $this->hstHeader->getFormat();     }
    public function getSymbol()          { return $this->hstHeader->getSymbol();     }
-   public function getTimeframe()       { return $this->hstHeader->getPeriod();     }
-   public function getPeriod()          { return $this->hstHeader->getPeriod();     }  // Alias
+   public function getPeriod()          { return $this->hstHeader->getPeriod();     }
+   public function getTimeframe()       { return $this->hstHeader->getPeriod();     }  // Alias
    public function getDigits()          { return $this->hstHeader->getDigits();     }
    public function getSyncMarker()      { return $this->hstHeader->getSyncMarker(); }
    public function getLastSyncTime()    { return $this->full_lastSyncTime;          }
@@ -146,6 +147,7 @@ class HistoryFile extends Object {
     * Liest die Metadaten der Datei aus und initialisiert die lokalen Variablen. Aufruf nur aus einem Constructor.
     */
    private function initMetaData() {
+      $this->period          = $this->hstHeader->getPeriod();
       $this->barSize         = $this->getVersion()==400 ? MT4::HISTORY_BAR_400_SIZE : MT4::HISTORY_BAR_401_SIZE;
       $this->barPackFormat   = MT4::BAR_getPackFormat($this->getVersion());
       $this->barUnpackFormat = MT4::BAR_getUnpackFormat($this->getVersion());
@@ -158,15 +160,13 @@ class HistoryFile extends Object {
             fSeek($this->hFile, HistoryHeader::SIZE + ($bars-1)*$this->barSize);
             $barTo = unpack($this->barUnpackFormat, fRead($this->hFile, $this->barSize));
          }
-         $period = $this->getPeriod();
-
          $from_offset    = 0;
          $from_openTime  = $barFrom['time'];
-         $from_closeTime = MyFX::periodCloseTime($from_openTime,  $period);
+         $from_closeTime = MyFX::periodCloseTime($from_openTime, $this->period);
 
          $to_offset      = $bars-1;
          $to_openTime    = $barTo['time'];
-         $to_closeTime   = MyFX::periodCloseTime($to_openTime,  $period);
+         $to_closeTime   = MyFX::periodCloseTime($to_openTime, $this->period);
 
          // Metadaten: gespeicherte Bars
          $this->stored_bars           = $bars;
@@ -349,7 +349,7 @@ class HistoryFile extends Object {
       $offset--;
 
       $bar       = $this->getBar($offset);
-      $closeTime = self::periodCloseTime($bar['time'], $this->getPeriod());
+      $closeTime = self::periodCloseTime($bar['time'], $this->period);
 
       if ($time < $closeTime)                                                    // Zeitpunkt liegt in der vorhergehenden Bar
          return $offset;
@@ -415,7 +415,7 @@ class HistoryFile extends Object {
       $offset--;                                                                 // Zeitpunkt liegt in der vorherigen oder zwischen der
       $bar = $this->getBar($offset);                                             // vorherigen und der TimeOffset-Bar
 
-      $closeTime = MyFX::periodCloseTime($bar['time'], $this->getPeriod());
+      $closeTime = MyFX::periodCloseTime($bar['time'], $this->period);
       if ($closeTime > $time)                                                    // Zeitpunkt liegt innerhalb dieser vorherigen Bar
          return $offset;
       return ($offset+1 < $size) ? $offset+1 : -1;                               // Zeitpunkt liegt nach bar[closeTime], also Lücke...
@@ -443,7 +443,7 @@ class HistoryFile extends Object {
     * @param  MYFX_BAR[] $bars - Bardaten der Periode M1 (werden automatisch in die Periode der Historydatei konvertiert)
     */
    public function synchronize(array $bars) {
-      switch ($this->getPeriod()) {
+      switch ($this->period) {
          case PERIOD_M1:  $this->synchronizeM1 ($bars); break;
          case PERIOD_M5:  $this->synchronizeM5 ($bars); break;
          case PERIOD_M15: $this->synchronizeM15($bars); break;
@@ -454,7 +454,7 @@ class HistoryFile extends Object {
          case PERIOD_W1:  $this->synchronizeW1 ($bars); break;
          case PERIOD_MN1: $this->synchronizeMN1($bars); break;
          default:
-            throw new plRuntimeException('Unsupported timeframe $this->period='.$this->getPeriod());
+            throw new plRuntimeException('Unsupported timeframe $this->period='.$this->period);
       }
    }
 
@@ -503,18 +503,18 @@ class HistoryFile extends Object {
     * @param  MYFX_BAR[] $bars - Bardaten der Periode M1
     */
    public function appendBars(array $bars) {
-      switch ($this->getPeriod()) {
-         case PERIOD_M1:  $this->appendToM1 ($bars); break;
-         case PERIOD_M5:  $this->appendToM5 ($bars); break;
-         case PERIOD_M15: $this->appendToM15($bars); break;
-         case PERIOD_M30: $this->appendToM30($bars); break;
-         case PERIOD_H1:  $this->appendToH1 ($bars); break;
-         case PERIOD_H4:  $this->appendToH4 ($bars); break;
-         case PERIOD_D1:  $this->appendToD1 ($bars); break;
-         case PERIOD_W1:  $this->appendToW1 ($bars); break;
-         case PERIOD_MN1: $this->appendToMN1($bars); break;
+      switch ($this->period) {
+         case PERIOD_M1:  $this->appendToM1($bars); break;
+         case PERIOD_M5:
+         case PERIOD_M15:
+         case PERIOD_M30:
+         case PERIOD_H1:
+         case PERIOD_H4:
+         case PERIOD_D1:  $this->appendToTimeframe($bars); break;
+         case PERIOD_W1:  $this->appendToW1       ($bars); break;
+         case PERIOD_MN1: $this->appendToMN1      ($bars); break;
          default:
-            throw new plRuntimeException('Unsupported timeframe $this->period='.$this->getPeriod());
+            throw new plRuntimeException('Unsupported timeframe $this->period='.$this->period);
       }
    }
 
@@ -551,11 +551,11 @@ class HistoryFile extends Object {
 
 
    /**
-    * Fügt der M5-History dieser Instanz weitere Daten hinzu.
+    * Fügt der History dieser Instanz weitere Daten hinzu.
     *
     * @param  MYFX_BAR[] $bars - Bardaten der Periode M1
     */
-   private function appendToM5(array $bars) {
+   private function appendToTimeframe(array $bars) {
       if ($this->closed)                             throw new IllegalStateException('Cannot process a closed '.__CLASS__);
       if (!$bars) return;
       if ($bars[0]['time'] <= $this->lastM1DataTime) throw new IllegalStateException('Cannot append bar(s) of '.gmDate('D, d-M-Y H:i:s', $bars[0]['time']).' to history ending at '.gmDate('D, d-M-Y H:i:s', $this->lastM1DataTime));
@@ -572,17 +572,14 @@ class HistoryFile extends Object {
             if ($bar['low' ] < $currentBar['low' ]) $currentBar['low'  ]  = $bar['low'  ];
                                                     $currentBar['close']  = $bar['close'];
                                                     $currentBar['ticks'] += $bar['ticks'];
-            // Metadaten aktualisieren
-            $this->lastM1DataTime    = $bar['time'];
-            $this->full_lastSyncTime = $this->lastM1DataTime + 1*MINUTE;
          }
          else {
             // neue Bar beginnen
-            $openTime           =  $bar['time'] - $bar['time']%5*MINUTES;
+            $openTime           =  $bar['time'] - $bar['time'] % $this->period*MINUTES;
             $this->barBuffer[]  =  $bar;
             $currentBar         =& $this->barBuffer[$bufferSize++];
             $currentBar['time'] =  $openTime;
-            $closeTime          =  $openTime + 5*MINUTES;
+            $closeTime          =  $openTime + $this->period*MINUTES;
 
             // Metadaten aktualisieren
             if (!$this->full_bars) {                                          // History ist noch leer
@@ -594,204 +591,13 @@ class HistoryFile extends Object {
             $this->full_to_offset    = $this->full_bars - 1;
             $this->full_to_openTime  = $openTime;
             $this->full_to_closeTime = $closeTime;
-
-            $this->lastM1DataTime    = $bar['time'];
-            $this->full_lastSyncTime = $this->lastM1DataTime + 1*MINUTE;
-
-            // ggf. Buffer flushen
-            if ($bufferSize > $this->barBufferSize)
-               $bufferSize -= $this->flush($this->barBufferSize);
          }
-      }
-   }
+         $this->lastM1DataTime    = $bar['time'];
+         $this->full_lastSyncTime = $this->lastM1DataTime + 1*MINUTE;
 
-
-   /**
-    * Fügt der M15-History dieser Instanz weitere Daten hinzu.
-    *
-    * @param  MYFX_BAR[] $bars - Bardaten der Periode M1
-    */
-   private function appendToM15(array $bars) {
-      if ($this->closed)                             throw new IllegalStateException('Cannot process a closed '.__CLASS__);
-      if (!$bars) return;
-      if ($bars[0]['time'] <= $this->lastM1DataTime) throw new IllegalStateException('Cannot append bar(s) of '.gmDate('D, d-M-Y H:i:s', $bars[0]['time']).' to history ending at '.gmDate('D, d-M-Y H:i:s', $this->lastM1DataTime));
-
-      $currentBar = null;
-      $bufferSize = sizeOf($this->barBuffer);
-      if ($bufferSize)
-         $currentBar =& $this->barBuffer[$bufferSize-1];
-
-      foreach ($bars as $bar) {
-         // Wechsel zur nächsten M15-Bar erkennen
-         if ($bar['time'] >= $this->full_to_closeTime) {
-            // neue Bar beginnen
-            $bar['time']            -=  $bar['time'] % 15*MINUTES;
-            $this->full_to_closeTime =  $bar['time'] + 15*MINUTES;
-            $this->barBuffer[]       =  $bar;
-            $currentBar              =& $this->barBuffer[$bufferSize++];
-
-            if ($bufferSize > $this->barBufferSize)
-               $bufferSize -= $this->flush($this->barBufferSize);
-         }
-         else {
-            // letzte Bar aktualisieren ('time' und 'open' unverändert)
-            if ($bar['high'] > $currentBar['high']) $currentBar['high' ]  = $bar['high' ];
-            if ($bar['low' ] < $currentBar['low' ]) $currentBar['low'  ]  = $bar['low'  ];
-                                                    $currentBar['close']  = $bar['close'];
-                                                    $currentBar['ticks'] += $bar['ticks'];
-         }
-      }
-   }
-
-
-   /**
-    * Fügt der M30-History dieser Instanz weitere Daten hinzu.
-    *
-    * @param  MYFX_BAR[] $bars - Bardaten der Periode M1
-    */
-   private function appendToM30(array $bars) {
-      if ($this->closed)                             throw new IllegalStateException('Cannot process a closed '.__CLASS__);
-      if (!$bars) return;
-      if ($bars[0]['time'] <= $this->lastM1DataTime) throw new IllegalStateException('Cannot append bar(s) of '.gmDate('D, d-M-Y H:i:s', $bars[0]['time']).' to history ending at '.gmDate('D, d-M-Y H:i:s', $this->lastM1DataTime));
-
-      $currentBar = null;
-      $bufferSize = sizeOf($this->barBuffer);
-      if ($bufferSize)
-         $currentBar =& $this->barBuffer[$bufferSize-1];
-
-      foreach ($bars as $bar) {
-         // Wechsel zur nächsten M30-Bar erkennen
-         if ($bar['time'] >= $this->full_to_closeTime) {
-            // neue Bar beginnen
-            $bar['time']            -=  $bar['time'] % 30*MINUTES;
-            $this->full_to_closeTime =  $bar['time'] + 30*MINUTES;
-            $this->barBuffer[]       =  $bar;
-            $currentBar              =& $this->barBuffer[$bufferSize++];
-
-            if ($bufferSize > $this->barBufferSize)
-               $bufferSize -= $this->flush($this->barBufferSize);
-         }
-         else {
-            // letzte Bar aktualisieren ('time' und 'open' unverändert)
-            if ($bar['high'] > $currentBar['high']) $currentBar['high' ]  = $bar['high' ];
-            if ($bar['low' ] < $currentBar['low' ]) $currentBar['low'  ]  = $bar['low'  ];
-                                                    $currentBar['close']  = $bar['close'];
-                                                    $currentBar['ticks'] += $bar['ticks'];
-         }
-      }
-   }
-
-
-   /**
-    * Fügt der H1-History dieser Instanz weitere Daten hinzu.
-    *
-    * @param  MYFX_BAR[] $bars - Bardaten der Periode M1
-    */
-   private function appendToH1(array $bars) {
-      if ($this->closed)                             throw new IllegalStateException('Cannot process a closed '.__CLASS__);
-      if (!$bars) return;
-      if ($bars[0]['time'] <= $this->lastM1DataTime) throw new IllegalStateException('Cannot append bar(s) of '.gmDate('D, d-M-Y H:i:s', $bars[0]['time']).' to history ending at '.gmDate('D, d-M-Y H:i:s', $this->lastM1DataTime));
-
-      $currentBar = null;
-      $bufferSize = sizeOf($this->barBuffer);
-      if ($bufferSize)
-         $currentBar =& $this->barBuffer[$bufferSize-1];
-
-      foreach ($bars as $bar) {
-         // Wechsel zur nächsten H1-Bar erkennen
-         if ($bar['time'] >= $this->full_to_closeTime) {
-            // neue Bar beginnen
-            $bar['time']            -=  $bar['time'] % HOUR;
-            $this->full_to_closeTime =  $bar['time'] + 1*HOUR;
-            $this->barBuffer[]       =  $bar;
-            $currentBar              =& $this->barBuffer[$bufferSize++];
-
-            if ($bufferSize > $this->barBufferSize)
-               $bufferSize -= $this->flush($this->barBufferSize);
-         }
-         else {
-            // letzte Bar aktualisieren ('time' und 'open' unverändert)
-            if ($bar['high'] > $currentBar['high']) $currentBar['high' ]  = $bar['high' ];
-            if ($bar['low' ] < $currentBar['low' ]) $currentBar['low'  ]  = $bar['low'  ];
-                                                    $currentBar['close']  = $bar['close'];
-                                                    $currentBar['ticks'] += $bar['ticks'];
-         }
-      }
-   }
-
-
-   /**
-    * Fügt der H4-History dieser Instanz weitere Daten hinzu.
-    *
-    * @param  MYFX_BAR[] $bars - Bardaten der Periode M1
-    */
-   private function appendToH4(array $bars) {
-      if ($this->closed)                             throw new IllegalStateException('Cannot process a closed '.__CLASS__);
-      if (!$bars) return;
-      if ($bars[0]['time'] <= $this->lastM1DataTime) throw new IllegalStateException('Cannot append bar(s) of '.gmDate('D, d-M-Y H:i:s', $bars[0]['time']).' to history ending at '.gmDate('D, d-M-Y H:i:s', $this->lastM1DataTime));
-
-      $currentBar = null;
-      $bufferSize = sizeOf($this->barBuffer);
-      if ($bufferSize)
-         $currentBar =& $this->barBuffer[$bufferSize-1];
-
-      foreach ($bars as $bar) {
-         // Wechsel zur nächsten H4-Bar erkennen
-         if ($bar['time'] >= $this->full_to_closeTime) {
-            // neue Bar beginnen
-            $bar['time']            -=  $bar['time'] % 4*HOURS;
-            $this->full_to_closeTime =  $bar['time'] + 4*HOURS;
-            $this->barBuffer[]       =  $bar;
-            $currentBar              =& $this->barBuffer[$bufferSize++];
-
-            if ($bufferSize > $this->barBufferSize)
-               $bufferSize -= $this->flush($this->barBufferSize);
-         }
-         else {
-            // letzte Bar aktualisieren ('time' und 'open' unverändert)
-            if ($bar['high'] > $currentBar['high']) $currentBar['high' ]  = $bar['high' ];
-            if ($bar['low' ] < $currentBar['low' ]) $currentBar['low'  ]  = $bar['low'  ];
-                                                    $currentBar['close']  = $bar['close'];
-                                                    $currentBar['ticks'] += $bar['ticks'];
-         }
-      }
-   }
-
-
-   /**
-    * Fügt der D1-History dieser Instanz weitere Daten hinzu.
-    *
-    * @param  MYFX_BAR[] $bars - Bardaten der Periode M1
-    */
-   private function appendToD1(array $bars) {
-      if ($this->closed)                             throw new IllegalStateException('Cannot process a closed '.__CLASS__);
-      if (!$bars) return;
-      if ($bars[0]['time'] <= $this->lastM1DataTime) throw new IllegalStateException('Cannot append bar(s) of '.gmDate('D, d-M-Y H:i:s', $bars[0]['time']).' to history ending at '.gmDate('D, d-M-Y H:i:s', $this->lastM1DataTime));
-
-      $currentBar = null;
-      $bufferSize = sizeOf($this->barBuffer);
-      if ($bufferSize)
-         $currentBar =& $this->barBuffer[$bufferSize-1];
-
-      foreach ($bars as $bar) {
-         // Wechsel zur nächsten D1-Bar erkennen
-         if ($bar['time'] >= $this->full_to_closeTime) {
-            // neue Bar beginnen
-            $bar['time']            -=  $bar['time'] % DAY;
-            $this->full_to_closeTime =  $bar['time'] + 1*DAY;
-            $this->barBuffer[]       =  $bar;
-            $currentBar              =& $this->barBuffer[$bufferSize++];
-
-            if ($bufferSize > $this->barBufferSize)
-               $bufferSize -= $this->flush($this->barBufferSize);
-         }
-         else {
-            // letzte Bar aktualisieren ('time' und 'open' unverändert)
-            if ($bar['high'] > $currentBar['high']) $currentBar['high' ]  = $bar['high' ];
-            if ($bar['low' ] < $currentBar['low' ]) $currentBar['low'  ]  = $bar['low'  ];
-                                                    $currentBar['close']  = $bar['close'];
-                                                    $currentBar['ticks'] += $bar['ticks'];
-         }
+         // ggf. Buffer flushen
+         if ($bufferSize > $this->barBufferSize)
+            $bufferSize -= $this->flush($this->barBufferSize);
       }
    }
 
@@ -811,26 +617,40 @@ class HistoryFile extends Object {
       if ($bufferSize)
          $currentBar =& $this->barBuffer[$bufferSize-1];
 
-      foreach ($bars as $bar) {
-         // Wechsel zur nächsten W1-Bar erkennen
-         if ($bar['time'] >= $this->full_to_closeTime) {
-            // neue Bar beginnen
-            $dow = (int) gmDate('w', $bar['time']);
-            $bar['time']            -=  $bar['time']%DAY + (($dow+6)%7)*DAYS;  // 00:00, Montag (Operator-Precedence beachten)
-            $this->full_to_closeTime =  $bar['time'] + 1*WEEK;
-            $this->barBuffer[]       =  $bar;
-            $currentBar              =& $this->barBuffer[$bufferSize++];
-
-            if ($bufferSize > $this->barBufferSize)
-               $bufferSize -= $this->flush($this->barBufferSize);
-         }
-         else {
+      foreach ($bars as $i => $bar) {
+         if ($bar['time'] < $this->full_to_closeTime) {                       // Wechsel zur nächsten W1-Bar erkennen
             // letzte Bar aktualisieren ('time' und 'open' unverändert)
             if ($bar['high'] > $currentBar['high']) $currentBar['high' ]  = $bar['high' ];
             if ($bar['low' ] < $currentBar['low' ]) $currentBar['low'  ]  = $bar['low'  ];
                                                     $currentBar['close']  = $bar['close'];
                                                     $currentBar['ticks'] += $bar['ticks'];
          }
+         else {
+            // neue Bar beginnen
+            $dow                = (int) gmDate('w', $bar['time']);            // 00:00, Montag
+            $openTime           =  $bar['time'] - $bar['time']%DAY - (($dow+6)%7)*DAYS;
+            $this->barBuffer[]  =  $bar;
+            $currentBar         =& $this->barBuffer[$bufferSize++];
+            $currentBar['time'] =  $openTime;
+            $closeTime          =  $openTime + 1*WEEK;
+
+            // Metadaten aktualisieren
+            if (!$this->full_bars) {                                          // History ist noch leer
+               $this->full_from_offset    = 0;
+               $this->full_from_openTime  = $openTime;
+               $this->full_from_closeTime = $closeTime;
+            }
+            $this->full_bars         = $this->stored_bars + $bufferSize;
+            $this->full_to_offset    = $this->full_bars - 1;
+            $this->full_to_openTime  = $openTime;
+            $this->full_to_closeTime = $closeTime;
+         }
+         $this->lastM1DataTime    = $bar['time'];
+         $this->full_lastSyncTime = $this->lastM1DataTime + 1*MINUTE;
+
+         // ggf. Buffer flushen
+         if ($bufferSize > $this->barBufferSize)
+            $bufferSize -= $this->flush($this->barBufferSize);
       }
    }
 
@@ -851,27 +671,41 @@ class HistoryFile extends Object {
          $currentBar =& $this->barBuffer[$bufferSize-1];
 
       foreach ($bars as $bar) {
-         // Wechsel zur nächsten MN1-Bar erkennen
-         if ($bar['time'] >= $this->full_to_closeTime) {
-            // neue Bar beginnen
-            $dom = (int) gmDate('d', $bar['time']);
-            $m   = (int) gmDate('m', $bar['time']);
-            $y   = (int) gmDate('Y', $bar['time']);
-            $bar['time']            -=  $bar['time']%DAYS + ($dom-1)*DAYS;    // 00:00, 1. des Monats (Operator-Precedence beachten)
-            $this->full_to_closeTime =  gmMkTime(0, 0, 0, $m+1, 1, $y);       // 00:00, 1. des nächsten Monats
-            $this->barBuffer[]       =  $bar;
-            $currentBar              =& $this->barBuffer[$bufferSize++];
-
-            if ($bufferSize > $this->barBufferSize)
-               $bufferSize -= $this->flush($this->barBufferSize);
-         }
-         else {
+         if ($bar['time'] < $this->full_to_closeTime) {                       // Wechsel zur nächsten MN1-Bar erkennen
             // letzte Bar aktualisieren ('time' und 'open' unverändert)
             if ($bar['high'] > $currentBar['high']) $currentBar['high' ]  = $bar['high' ];
             if ($bar['low' ] < $currentBar['low' ]) $currentBar['low'  ]  = $bar['low'  ];
                                                     $currentBar['close']  = $bar['close'];
                                                     $currentBar['ticks'] += $bar['ticks'];
          }
+         else {
+            // neue Bar beginnen
+            $dom = (int) gmDate('d', $bar['time']);
+            $m   = (int) gmDate('m', $bar['time']);
+            $y   = (int) gmDate('Y', $bar['time']);                           // 00:00, 1. des Monats
+            $openTime           = $bar['time'] - $bar['time']%DAYS - ($dom-1)*DAYS;
+            $this->barBuffer[]  =  $bar;
+            $currentBar         =& $this->barBuffer[$bufferSize++];
+            $currentBar['time'] =  $openTime;
+            $closeTime          =  gmMkTime(0, 0, 0, $m+1, 1, $y);            // 00:00, 1. des nächsten Monats
+
+            // Metadaten aktualisieren
+            if (!$this->full_bars) {                                          // History ist noch leer
+               $this->full_from_offset    = 0;
+               $this->full_from_openTime  = $openTime;
+               $this->full_from_closeTime = $closeTime;
+            }
+            $this->full_bars         = $this->stored_bars + $bufferSize;
+            $this->full_to_offset    = $this->full_bars - 1;
+            $this->full_to_openTime  = $openTime;
+            $this->full_to_closeTime = $closeTime;
+         }
+         $this->lastM1DataTime    = $bar['time'];
+         $this->full_lastSyncTime = $this->lastM1DataTime + 1*MINUTE;
+
+         // ggf. Buffer flushen
+         if ($bufferSize > $this->barBufferSize)
+            $bufferSize -= $this->flush($this->barBufferSize);
       }
    }
 
@@ -913,19 +747,19 @@ class HistoryFile extends Object {
          if ($i+1 == $todo)
             break;
       }
-      //if ($this->getPeriod()==PERIOD_M1) echoPre(__METHOD__.'()  wrote '.$todo.' bars, lastBar.time='.gmDate('D, d-M-Y H:i:s', $this->barBuffer[$todo-1]['time']));
+      //if ($this->period==PERIOD_M1) echoPre(__METHOD__.'()  wrote '.$todo.' bars, lastBar.time='.gmDate('D, d-M-Y H:i:s', $this->barBuffer[$todo-1]['time']));
 
 
       // (3) Metadaten aktualisieren
       if (!$this->stored_bars) {                                           // Datei war vorher leer
          $this->stored_from_offset    = 0;
          $this->stored_from_openTime  = $this->barBuffer[0]['time'];
-         $this->stored_from_closeTime = MyFX::periodCloseTime($this->stored_from_openTime, $this->getPeriod());
+         $this->stored_from_closeTime = MyFX::periodCloseTime($this->stored_from_openTime, $this->period);
       }
       $this->stored_bars         = $this->stored_bars + $todo;
       $this->stored_to_offset    = $this->stored_bars - 1;
       $this->stored_to_openTime  = $this->barBuffer[$todo-1]['time'];
-      $this->stored_to_closeTime = MyFX::periodCloseTime($this->stored_to_openTime, $this->getPeriod());
+      $this->stored_to_closeTime = MyFX::periodCloseTime($this->stored_to_openTime, $this->period);
 
       // lastSyncTime je nachdem setzen, ob noch weitere Daten im Buffer sind
       $this->stored_lastSyncTime = ($todo < $bufferSize) ? $this->stored_to_closeTime : $this->lastM1DataTime + 1*MINUTE;
@@ -962,7 +796,7 @@ class HistoryFile extends Object {
                                                     $this->hstHeader->getSyncMarker(),       // V
                                                     $this->hstHeader->getLastSyncTime()));   // V
                                                                                              // x52
-      //if ($this->getPeriod()==PERIOD_M1 && $this->hstHeader->getLastSyncTime()) $this->showMetaData();
+      //if ($this->period==PERIOD_M1 && $this->hstHeader->getLastSyncTime()) $this->showMetaData();
       return $written;
    }
 
@@ -971,7 +805,7 @@ class HistoryFile extends Object {
     * Nur zum Debuggen
     */
    public function showMetaData($showStored=true, $showFull=true, $showFile=true) {
-      $Pxx = MyFX::periodDescription($this->getPeriod());
+      $Pxx = MyFX::periodDescription($this->period);
 
       if ($showStored) {
          echoPre($Pxx.'::stored_bars           = '. $this->stored_bars);
