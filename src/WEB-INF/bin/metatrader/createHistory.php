@@ -8,19 +8,6 @@ require(dirName(realPath(__FILE__)).'/../../config.php');
 date_default_timezone_set('GMT');
 
 
-if (!WINDOWS) {
-   declare(ticks=1) {
-      function onSignal($signal) {
-         switch($signal) {
-            case SIGINT: print "Caught SIGINT\n"; exit(0);
-         }
-      }
-      $result = pcntl_signal(SIGINT, 'onSignal');
-      echoPre('signal handler installed = '.$result.' ('.typeof($result).')');
-   }
-}
-
-
 // -- Konfiguration --------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -50,7 +37,32 @@ foreach ($args as $i => $arg) {
 $args = $args ? array_unique($args) : array_keys(MyFX::$symbols);
 
 
-// (2) History erstellen
+// (2) SIGINT handler installieren
+if (!WINDOWS) {
+   declare(ticks=1);
+
+   function onSignal($signal) {
+      switch($signal) {
+         case SIGINT:
+            echoPre('Caught SIGINT');
+
+            if (isSet($GLOBALS['historySet'])) {
+               echoPre('closing history set...');
+               $GLOBALS['historySet']->close();
+            }
+            else {
+               echoPre('no history set found');
+            }
+            exit(0);
+      }
+   }
+
+   pcntl_signal(SIGINT, 'onSignal');
+   echoPre('SIGINT handler installed');
+}
+
+
+// (3) History erstellen
 foreach ($args as $symbol) {
    if (!createHistory($symbol))
       exit(1);
