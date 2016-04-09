@@ -38,12 +38,13 @@ $args = $args ? array_unique($args) : array_keys(MyFX::$symbols);
 
 
 // (2) SIGINT handler installieren
-if (false && !WINDOWS) {
+if (!WINDOWS) {
    declare(ticks=1);
 
    function onSignal($signal) {
       switch($signal) {
          case SIGINT:
+            exit();
             echoPre('Caught SIGINT');
 
             if (isSet($GLOBALS['HistorySet'])) {
