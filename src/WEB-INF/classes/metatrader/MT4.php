@@ -295,7 +295,7 @@ class MT4 extends StaticClass {
     *
     * @return int - Anzahl der geschriebenen Bytes
     */
-   public static function addHistoryBar400($hFile, $digits, $time, $open, $high, $low, $close, $ticks) {
+   public static function appendHistoryBar400($hFile, $digits, $time, $open, $high, $low, $close, $ticks) {
       // Bardaten normalisieren...
       $open  = round($open , $digits);
       $high  = round($high , $digits);

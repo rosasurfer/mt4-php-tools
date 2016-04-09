@@ -687,7 +687,7 @@ class MyFX extends StaticClass {
       if (!$size)
          return -1;
 
-      $offset = MyFX::findTimeOffset($bars, $time);
+      $offset = self::findTimeOffset($bars, $time);
 
       if ($offset < 0) {                                                         // Zeitpunkt liegt nach der jüngsten bar[openTime]
          $closeTime = self::periodCloseTime($bars[$size-1]['time'], $period);

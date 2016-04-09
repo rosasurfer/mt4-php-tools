@@ -221,7 +221,7 @@ class HistoryFile extends Object {
 
       // Barbuffer leeren
       if ($this->barBuffer) {
-         $this->flushBars();
+         $this->flush();
       }
 
       // Datei schließen
@@ -488,10 +488,10 @@ class HistoryFile extends Object {
          $hstOffsetTo = $this->findBarOffsetPrevious($bars[$size-1]['time']);
          $length      = $hstOffsetTo - $hstOffsetFrom + 1;
 
-         $this->showMetadata();
-
+         //$this->showMetaData();
          echoPre('inserting '.$size.' bars from '.gmDate('d-M-Y H:i:s', $bars[0]['time']).' to '.gmDate('d-M-Y H:i:s', $bars[$size-1]['time']));
          echoPre('replacing '.($hstOffsetTo - $hstOffsetFrom + 1).' history bars from offset '.$hstOffsetFrom.' to '.$hstOffsetTo);
+
          $this->splice($hstOffsetFrom, $length, $bars);
       }
    }
@@ -546,7 +546,7 @@ class HistoryFile extends Object {
       $this->full_lastSyncTime = $this->lastM1DataTime + 1*MINUTE;
 
       if ($bufferSize > $this->barBufferSize)
-         $this->flushBars($this->barBufferSize);
+         $this->flush($this->barBufferSize);
    }
 
 
@@ -575,7 +575,7 @@ class HistoryFile extends Object {
             $currentBar              =& $this->barBuffer[$size++];
 
             if ($size > $this->barBufferSize)
-               $size -= $this->flushBars($this->barBufferSize);
+               $size -= $this->flush($this->barBufferSize);
          }
          else {
             // letzte Bar aktualisieren ('time' und 'open' unverändert)
@@ -613,7 +613,7 @@ class HistoryFile extends Object {
             $currentBar              =& $this->barBuffer[$size++];
 
             if ($size > $this->barBufferSize)
-               $size -= $this->flushBars($this->barBufferSize);
+               $size -= $this->flush($this->barBufferSize);
          }
          else {
             // letzte Bar aktualisieren ('time' und 'open' unverändert)
@@ -651,7 +651,7 @@ class HistoryFile extends Object {
             $currentBar              =& $this->barBuffer[$size++];
 
             if ($size > $this->barBufferSize)
-               $size -= $this->flushBars($this->barBufferSize);
+               $size -= $this->flush($this->barBufferSize);
          }
          else {
             // letzte Bar aktualisieren ('time' und 'open' unverändert)
@@ -689,7 +689,7 @@ class HistoryFile extends Object {
             $currentBar              =& $this->barBuffer[$size++];
 
             if ($size > $this->barBufferSize)
-               $size -= $this->flushBars($this->barBufferSize);
+               $size -= $this->flush($this->barBufferSize);
          }
          else {
             // letzte Bar aktualisieren ('time' und 'open' unverändert)
@@ -727,7 +727,7 @@ class HistoryFile extends Object {
             $currentBar              =& $this->barBuffer[$size++];
 
             if ($size > $this->barBufferSize)
-               $size -= $this->flushBars($this->barBufferSize);
+               $size -= $this->flush($this->barBufferSize);
          }
          else {
             // letzte Bar aktualisieren ('time' und 'open' unverändert)
@@ -765,7 +765,7 @@ class HistoryFile extends Object {
             $currentBar              =& $this->barBuffer[$size++];
 
             if ($size > $this->barBufferSize)
-               $size -= $this->flushBars($this->barBufferSize);
+               $size -= $this->flush($this->barBufferSize);
          }
          else {
             // letzte Bar aktualisieren ('time' und 'open' unverändert)
@@ -804,7 +804,7 @@ class HistoryFile extends Object {
             $currentBar              =& $this->barBuffer[$size++];
 
             if ($size > $this->barBufferSize)
-               $size -= $this->flushBars($this->barBufferSize);
+               $size -= $this->flush($this->barBufferSize);
          }
          else {
             // letzte Bar aktualisieren ('time' und 'open' unverändert)
@@ -845,7 +845,7 @@ class HistoryFile extends Object {
             $currentBar              =& $this->barBuffer[$size++];
 
             if ($size > $this->barBufferSize)
-               $size -= $this->flushBars($this->barBufferSize);
+               $size -= $this->flush($this->barBufferSize);
          }
          else {
             // letzte Bar aktualisieren ('time' und 'open' unverändert)
@@ -865,7 +865,7 @@ class HistoryFile extends Object {
     *
     * @return int - Anzahl der geschriebenen und aus dem Buffer gelöschten Bars
     */
-   public function flushBars($count=PHP_INT_MAX) {
+   public function flush($count=PHP_INT_MAX) {
       if ($this->closed)   throw new IllegalStateException('Cannot process a closed '.__CLASS__);
       if (!is_int($count)) throw new IllegalTypeException('Illegal type of parameter $count: '.getType($count));
       if ($count < 0)      throw new plInvalidArgumentException('Invalid parameter $count: '.$count);

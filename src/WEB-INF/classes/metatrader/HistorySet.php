@@ -270,7 +270,7 @@ class HistorySet extends Object {
             $minTime = $time;
          $minTime = min($minTime, $time);
 
-         if ($timeframe == PERIOD_M1)                    // vorerst nur PERIOD_M1
+         if ($timeframe == PERIOD_M1)                    // TODO: vorerst nur PERIOD_M1
             break;
       }
       return $minTime;
@@ -284,13 +284,13 @@ class HistorySet extends Object {
     *
     * @return bool - Erfolgsstatus
     */
-   public function addBars(array $bars) {
+   public function appendBars(array $bars) {
       if ($this->closed) throw new IllegalStateException('Cannot process a closed '.__CLASS__);
       if (!$bars) return false;
 
       foreach ($this->historyFiles as $timeframe => $file) {
          !$file && $file=$this->getFile($timeframe);
-         $file->addBars($bars);
+         $file->appendBars($bars);
       }
       return true;
    }
@@ -302,18 +302,13 @@ class HistorySet extends Object {
     * werden ersetzt. Vorhandene Bars, die sich mit den übergebenen Bars nicht überschneiden, bleiben unverändert.
     *
     * @param  MYFX_BAR[] $bars - Bardaten der Periode M1
-    *
-    * @return bool - Erfolgsstatus
     */
    public function synchronize(array $bars) {
       if ($this->closed) throw new IllegalStateException('Cannot process a closed '.__CLASS__);
-      if (!$bars) return false;
+      if (!$bars) return;
 
       $historyM1 = $this->getFile(PERIOD_M1);
-      if (!$historyM1->synchronize($bars))
-         return false;
-
-      return true;
+      $historyM1->synchronize($bars);
    }
 
 
