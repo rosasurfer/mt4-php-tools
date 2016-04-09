@@ -84,7 +84,11 @@ foreach ($args as $i => $arg) {
 $args = $args ? array_unique($args) : array_keys($indexes);                         // ohne Angabe werden alle Indizes aktualisiert
 
 
-// (2) Indizes berechnen
+// (2) SIGINT-Handler installieren
+if (!WINDOWS) pcntl_signal(SIGINT, 'onSignal');
+
+
+// (3) Indizes berechnen
 foreach ($args as $index) {
    if (!updateIndex($index))
       exit(1);
@@ -160,7 +164,9 @@ function updateIndex($index) {
             if (!saveBars($index, $day, $fxiBars)) return false;
          }
       }
+      if (!WINDOWS) pcntl_signal_dispatch();                         // Auf Ctrl-C prüfen, um bei Abbruch die Destruktoren auszuführen.
    }
+
    echoPre('[Ok]      '.$index);
    return true;
 }
@@ -1939,6 +1945,18 @@ function getVar($id, $symbol=null, $time=null) {
    (sizeof($varCache) > ($maxSize=128)) && array_shift($varCache) /*&& echoPre('cache size limit of '.$maxSize.' hit')*/;
 
    return $result;
+}
+
+
+/**
+ * Signalhandler
+ *
+ * @param  int $signal - das aufgetretene Signal
+ */
+function onSignal($signal) {
+   switch ($signal) {
+      case SIGINT: exit(0);      // Um bei Ctrl-C Destruktoren von Objekt-Instanzen auszuführen, reicht es,
+   }                             // wenn der SIGINT-Handler installiert ist. Er kann leer sein.
 }
 
 

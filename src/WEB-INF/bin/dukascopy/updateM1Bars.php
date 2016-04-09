@@ -68,7 +68,11 @@ foreach ($args as $i => $arg) {
 $args = $args ? array_unique($args) : array_keys(MyFX::filterSymbols(array('provider'=>'dukascopy')));
 
 
-// (2) Daten aktualisieren
+// (2) SIGINT-Handler installieren
+if (!WINDOWS) pcntl_signal(SIGINT, 'onSignal');
+
+
+// (3) Daten aktualisieren
 foreach ($args as $symbol) {
    if (!updateSymbol($symbol))
       exit(1);
@@ -127,9 +131,10 @@ function updateSymbol($symbol) {
          $lastMonth = $month;
       }
       if (!checkHistory($symbol, $day)) return false;
+      if (!WINDOWS) pcntl_signal_dispatch();                         // Auf Ctrl-C prüfen, um bei Abbruch die Destruktoren auszuführen.
    }
-   echoPre('[Ok]      '.$symbol);
 
+   echoPre('[Ok]      '.$symbol);
    return true;
 }
 
@@ -758,6 +763,18 @@ function showBuffer() {
       }
    }
    echoPre(NL);
+}
+
+
+/**
+ * Signalhandler
+ *
+ * @param  int $signal - das aufgetretene Signal
+ */
+function onSignal($signal) {
+   switch ($signal) {
+      case SIGINT: exit(0);      // Um bei Ctrl-C Destruktoren von Objekt-Instanzen auszuführen, reicht es,
+   }                             // wenn der SIGINT-Handler installiert ist. Er kann leer sein.
 }
 
 
