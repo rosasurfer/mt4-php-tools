@@ -44,23 +44,14 @@ if (!WINDOWS) {
    function onSignal($signal) {
       switch($signal) {
          case SIGINT:
-            exit();
             echoPre('Caught SIGINT');
-
-            if (isSet($GLOBALS['HistorySet'])) {
-               //echoPre('closing history set...');
-               //$GLOBALS['HistorySet']->close();
-               unset($GLOBALS['HistorySet']);
-            }
-            else {
-               echoPre('no history set found');
-            }
             exit(0);
       }
    }
 
-   pcntl_signal(SIGINT, 'onSignal');
-   echoPre('SIGINT handler installed');
+   //pcntl_signal(SIGINT, 'onSignal');
+   $result = pcntl_signal(SIGINT, SIG_DFL);
+   echoPre('SIGINT handler installed = '.(int)$result);
 }
 
 
