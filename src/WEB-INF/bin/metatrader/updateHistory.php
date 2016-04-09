@@ -7,19 +7,6 @@ require(dirName(realPath(__FILE__)).'/../../config.php');
 date_default_timezone_set('GMT');
 
 
-if (!WINDOWS) {
-   declare(ticks=1);
-
-   function onSignal($signal) {
-      switch($signal) {
-         case SIGINT: print "Caught SIGINT\n"; exit(0);
-      }
-   }
-   $result = pcntl_signal(SIGINT, 'onSignal');
-   echoPre('signal handler installed = '.$result.' ('.typeof($result).')');
-}
-
-
 // -- Konfiguration --------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -49,7 +36,11 @@ foreach ($args as $i => $arg) {
 $args = $args ? array_unique($args) : array_keys(MyFX::$symbols);                   // ohne Symbol werden alle Instrumente verarbeitet
 
 
-// (2) History aktualisieren
+// (2) SIGINT-Handler installieren
+if (!WINDOWS) pcntl_signal(SIGINT, 'onSignal');
+
+
+// (3) History aktualisieren
 foreach ($args as $symbol) {
    !updateHistory($symbol) && exit(1);
    break;
@@ -110,11 +101,25 @@ function updateHistory($symbol) {
          if (!$history->$method($bars))
             break;
       }
+
+      if (!WINDOWS) pcntl_signal_dispatch();                                                 // nach jedem Tag auf Ctrl-C prüfen
    }
    $history->close();
 
    echoPre('[Ok]      '.$symbol);
    return true;
+}
+
+
+/**
+ * Signalhandler
+ *
+ * @param  int $signal - das aufgetretene Signal
+ */
+function onSignal($signal) {
+   switch ($signal) {
+      case SIGINT: exit(0);      // Um bei Ctrl-C Destruktoren von Objekt-Instanzen auszuführen, reicht es,
+   }                             // wenn der SIGINT-Handler installiert ist. Er kann leer sein.
 }
 
 

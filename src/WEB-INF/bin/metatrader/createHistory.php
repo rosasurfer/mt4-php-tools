@@ -97,8 +97,10 @@ function createHistory($symbol) {
          $bars = MyFX::readBarFile($file, $symbol);
          $history->addBars($bars);
       }
-      if (!WINDOWS) pcntl_signal_dispatch();
+
+      if (!WINDOWS) pcntl_signal_dispatch();                                        // nach jedem Tag auf Ctrl-C prüfen
    }
+   $history->close();
 
    echoPre('[Ok]      '.$symbol);
    return true;
