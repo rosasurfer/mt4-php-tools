@@ -10,13 +10,13 @@ date_default_timezone_set('GMT');
 if (!WINDOWS) {
    declare(ticks=1);
 
-   pcntl_signal(SIGINT, 'onSignal');
-
    function onSignal($signal) {
       switch($signal) {
          case SIGINT: print "Caught SIGINT\n"; exit(0);
       }
    }
+   $result = pcntl_signal(SIGINT, 'onSignal');
+   echoPre('signal handler installed = '.$result.' ('.typeof($result).')');
 }
 
 
