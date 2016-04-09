@@ -101,9 +101,8 @@ function updateHistory($symbol) {
          if (!$history->$method($bars))
             break;
       }
-
-      if (!WINDOWS) pcntl_signal_dispatch();                                                 // nach jedem Tag auf Ctrl-C prüfen
-   }
+      if (!WINDOWS) pcntl_signal_dispatch();                                                 // Auf Ctrl-C prüfen, um bei Abbruch den
+   }                                                                                         // Schreibbuffer der History leeren zu können.
    $history->close();
 
    echoPre('[Ok]      '.$symbol);
