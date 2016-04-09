@@ -39,7 +39,7 @@ $args = $args ? array_unique($args) : array_keys(MyFX::$symbols);
 
 // (2) SIGINT handler installieren
 if (!WINDOWS) {
-   declare(ticks=1);
+   //declare(ticks=1);
 
    function onSignal($signal) {
       switch($signal) {
@@ -110,6 +110,8 @@ function createHistory($symbol) {
          $bars = MyFX::readBarFile($file, $symbol);
          $history->addBars($bars);
       }
+      if (!WINDOWS)
+         pcntl_signal_dispatch();
    }
 
    echoPre('[Ok]      '.$symbol);
