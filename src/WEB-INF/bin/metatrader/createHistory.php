@@ -48,7 +48,8 @@ if (!WINDOWS) {
 
             if (isSet($GLOBALS['historySet'])) {
                echoPre('closing history set...');
-               $GLOBALS['historySet']->close();
+               $GLOBALS['HistorySet']->close();
+               unset($GLOBALS['HistorySet']);
             }
             else {
                echoPre('no history set found');
@@ -94,6 +95,7 @@ function createHistory($symbol) {
    $format    = 400;
    $directory = MyFX::getConfigPath('myfx.data_directory').'/history/mt4/MyFX-Dukascopy';
    $history   = HistorySet::create($symbol, $digits, $format, $directory);
+   $GLOBALS['HistorySet'] = $history;                                               // Reference für SIGINT-Handler
 
 
    // Gesamte Zeitspanne tageweise durchlaufen
