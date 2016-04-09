@@ -70,7 +70,7 @@ function updateHistory($symbol) {
 
    // HistorySet öffnen bzw. neues Set erstellen
    if ($history=HistorySet::get($symbol, $directory)) {
-      if ($verbose > 0) echoPre('[Info]    lastSyncTime: '.(($lastSyncTime=$history->getLastSyncTime()) ? gmDate('D, d-M-Y H:i:s', $lastSyncTime) :0));
+      if ($verbose > 0) echoPre('[Info]    lastSyncTime: '.(($lastSyncTime=$history->getLastSyncTime()) ? gmDate('D, d-M-Y H:i:s', $lastSyncTime) : 0));
    }
    !$history && $history=HistorySet::create($symbol, $digits, $format=400, $directory);
 
@@ -98,8 +98,7 @@ function updateHistory($symbol) {
          if ($verbose > 0) echoPre('[Info]    synchronizing '.$shortDate);
 
          $bars = MyFX::readBarFile($file, $symbol);
-         if (!$history->synchronize($bars))
-            break;
+         $history->synchronize($bars);
       }
       if (!WINDOWS) pcntl_signal_dispatch();                                                 // Auf Ctrl-C prüfen, um bei Abbruch den
    }                                                                                         // Schreibbuffer der History leeren zu können.

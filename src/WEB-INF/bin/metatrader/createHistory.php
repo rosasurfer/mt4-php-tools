@@ -53,7 +53,7 @@ exit(0);
 
 
 /**
- * Erzeugt eine neue MetaTrader-History eines Instruments. Das Feld HISTORY_HEADER.lastSyncTime wird nicht gesetzt.
+ * Erzeugt eine neue MetaTrader-History eines Instruments.
  *
  * @param  string $symbol - Symbol
  *
@@ -95,7 +95,7 @@ function createHistory($symbol) {
          }
          // Bars einlesen und der MT4-History hinzufügen
          $bars = MyFX::readBarFile($file, $symbol);
-         $history->addBars($bars);
+         $history->appendBars($bars);
       }
 
       if (!WINDOWS) pcntl_signal_dispatch();                                        // Auf Ctrl-C prüfen, um bei Abbruch den
