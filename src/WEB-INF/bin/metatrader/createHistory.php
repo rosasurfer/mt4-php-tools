@@ -46,8 +46,8 @@ if (!WINDOWS) {
          case SIGINT:
             echoPre('Caught SIGINT');
 
-            if (isSet($GLOBALS['historySet'])) {
-               echoPre('closing history set...');
+            if (isSet($GLOBALS['HistorySet'])) {
+               //echoPre('closing history set...');
                //$GLOBALS['HistorySet']->close();
                unset($GLOBALS['HistorySet']);
             }

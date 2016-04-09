@@ -194,6 +194,7 @@ class HistoryFile extends Object {
     * Sorgt bei Zerstörung des Objekts dafür, daß der Schreibbuffer einer offenen Historydatei geleert und die Datei geschlossen wird.
     */
    public function __destruct() {
+      echoPre(__METHOD__);
       // Ein Destructor darf während des Shutdowns keine Exception werfen.
       try {
          $this->close();
