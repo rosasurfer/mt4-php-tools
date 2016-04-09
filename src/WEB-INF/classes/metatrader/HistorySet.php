@@ -164,7 +164,7 @@ class HistorySet extends Object {
          return false;
 
       foreach ($this->historyFiles as $file) {
-         $file && $file->close();
+         $file && !$file->isClosed() && $file->close();
       }
       return $this->closed=true;
    }

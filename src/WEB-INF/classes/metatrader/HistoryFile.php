@@ -12,6 +12,7 @@ class HistoryFile extends Object {
 
    protected /*HistoryHeader*/ $hstHeader;
    protected /*int          */ $lastSyncTime = 0;                 // Zeitpunkt, bis zu dem die Datei synchronisiert wurde
+   protected /*int          */ $lastDataTime = 0;                 // Zeitpunkt der letzten eingetroffenen Daten (Ticks oder M1-Bars)
    protected /*int          */ $barSize      = 0;                 // Größe einer Bar entsprechend dem Datenformat
    protected /*string       */ $barPackFormat;                    // Formatstring für pack()
    protected /*string       */ $barUnpackFormat;                  // Formatstring für unpack()
@@ -167,7 +168,7 @@ class HistoryFile extends Object {
          $to_openTime    = $barTo['time'];
          $to_closeTime   = MyFX::periodCloseTime($to_openTime,  $period);
 
-         // Metadaten: nur gespeicherte Bars
+         // Metadaten: gespeicherte Bars
          $this->stored_bars           = $bars;
          $this->stored_from_offset    = $from_offset;
          $this->stored_from_openTime  = $from_openTime;
@@ -184,6 +185,8 @@ class HistoryFile extends Object {
          $this->full_to_offset        = $this->stored_to_offset;
          $this->full_to_openTime      = $this->stored_to_openTime;
          $this->full_to_closeTime     = $this->stored_to_closeTime;
+
+         $this->lastDataTime = $to_openTime;
       }
    }
 
@@ -196,7 +199,7 @@ class HistoryFile extends Object {
    public function __destruct() {
       // Ein Destructor darf während des Shutdowns keine Exception werfen.
       try {
-         $this->close();
+         !$this->isClosed() && $this->close();
       }
       catch (Exception $ex) {
          Logger::handleException($ex, $inShutdownOnly=true);
@@ -219,7 +222,7 @@ class HistoryFile extends Object {
          $this->flushBars();
       }
 
-      // LastSyncTime aktualisieren
+      // ggf. LastSyncTime aktualisieren
       if ($this->lastSyncTime) {
          if ($this->lastSyncTime != $this->hstHeader->getLastSyncTime()) {
             $this->hstHeader->setLastSyncTime($this->lastSyncTime);
@@ -455,16 +458,6 @@ class HistoryFile extends Object {
       $this->$method($bars);
 
       return true;
-      /*
-      $Pxx = MyFX::periodDescription($this->getPeriod());
-      echoPre($Pxx.'::full_bars           = '. $this->full_bars);
-      echoPre($Pxx.'::full_from_offset    = '. $this->full_from_offset);
-      echoPre($Pxx.'::full_from_openTime  = '.($this->full_from_openTime  ? gmDate('D, d-M-Y H:i:s', $this->full_from_openTime ) : 0));
-      echoPre($Pxx.'::full_from_closeTime = '.($this->full_from_closeTime ? gmDate('D, d-M-Y H:i:s', $this->full_from_closeTime) : 0));
-      echoPre($Pxx.'::full_to_offset      = '. $this->full_to_offset);
-      echoPre($Pxx.'::full_to_openTime    = '.($this->full_to_openTime    ? gmDate('D, d-M-Y H:i:s', $this->full_to_openTime   ) : 0));
-      echoPre($Pxx.'::full_to_closeTime   = '.($this->full_to_closeTime   ? gmDate('D, d-M-Y H:i:s', $this->full_to_closeTime  ) : 0));
-      */
    }
 
 
@@ -494,6 +487,8 @@ class HistoryFile extends Object {
          $hstOffsetTo = $this->findBarOffsetPrevious($bars[$size-1]['time']);
          $length      = $hstOffsetTo - $hstOffsetFrom + 1;
 
+         $this->showMetadata();
+
          echoPre('inserting '.$size.' bars from '.gmDate('d-M-Y H:i:s', $bars[0]['time']).' to '.gmDate('d-M-Y H:i:s', $bars[$size-1]['time']));
          echoPre('replacing '.($hstOffsetTo - $hstOffsetFrom + 1).' history bars from offset '.$hstOffsetFrom.' to '.$hstOffsetTo);
          $this->splice($hstOffsetFrom, $length, $bars);
@@ -510,14 +505,12 @@ class HistoryFile extends Object {
     * @param  MYFX_BAR[] $bars - Bardaten der Periode M1
     */
    public function addBars(array $bars) {
-      if ($this->closed) throw new IllegalStateException('Cannot process a closed '.__CLASS__);
+      if ($this->closed)                           throw new IllegalStateException('Cannot process a closed '.__CLASS__);
       if (!$bars) return;
+      if ($this->lastDataTime >= $bars[0]['time']) throw new IllegalStateException('Cannot add bar(s) of '.gmDate('D, d-M-Y H:i:s', $bars[0]['time']).' to history ending at '.gmDate('D, d-M-Y H:i:s', $this->lastDataTime));
 
       $method = 'addTo'.MyFX::periodDescription($this->getPeriod());
       $this->$method($bars);                                            // addToM1() etc.
-
-      $size = sizeOf($bars);
-      $this->lastSyncTime = $bars[$size-1]['time'] + 1*MINUTE;          // Zeitpunkt ist das Ende der letzten hinzugefügten Bar
    }
 
 
@@ -539,6 +532,8 @@ class HistoryFile extends Object {
       $this->full_to_offset    = $this->full_bars - 1;
       $this->full_to_openTime  = $this->barBuffer[$bufferSize-1]['time'];
       $this->full_to_closeTime = $this->barBuffer[$bufferSize-1]['time'] + 1*MINUTE;
+
+      $this->lastDataTime = $this->full_to_openTime;
 
       if ($bufferSize > $this->barBufferSize)
          $this->flushBars($this->barBufferSize);
@@ -840,6 +835,8 @@ class HistoryFile extends Object {
       $divider = pow(10, $this->getDigits());
       $i = 0;
 
+      //$this->showMetadata();
+
       // Bars schreiben
       foreach ($this->barBuffer as $i => $bar) {
          $T = $bar['time' ];
@@ -904,5 +901,42 @@ class HistoryFile extends Object {
       }
 
       return $written;
+   }
+
+
+   /**
+    * Nur zum Debuggen
+    */
+   public function showMetadata($showStored=true, $showFull=true, $showFile=true) {
+      $Pxx = MyFX::periodDescription($this->getPeriod());
+
+      if ($showStored) {
+         echoPre($Pxx.'::stored_bars           = '. $this->stored_bars);
+         echoPre($Pxx.'::stored_from_offset    = '. $this->stored_from_offset);
+         echoPre($Pxx.'::stored_from_openTime  = '.($this->stored_from_openTime  ? gmDate('D, d-M-Y H:i:s', $this->stored_from_openTime ) : 0));
+         echoPre($Pxx.'::stored_from_closeTime = '.($this->stored_from_closeTime ? gmDate('D, d-M-Y H:i:s', $this->stored_from_closeTime) : 0));
+         echoPre($Pxx.'::stored_to_offset      = '. $this->stored_to_offset);
+         echoPre($Pxx.'::stored_to_openTime    = '.($this->stored_to_openTime    ? gmDate('D, d-M-Y H:i:s', $this->stored_to_openTime   ) : 0));
+         echoPre($Pxx.'::stored_to_closeTime   = '.($this->stored_to_closeTime   ? gmDate('D, d-M-Y H:i:s', $this->stored_to_closeTime  ) : 0));
+      }
+      $showStored && $showFull && echoPre(NL);
+
+      if ($showFull) {
+         echoPre($Pxx.'::full_bars             = '. $this->full_bars);
+         echoPre($Pxx.'::full_from_offset      = '. $this->full_from_offset);
+         echoPre($Pxx.'::full_from_openTime    = '.($this->full_from_openTime    ? gmDate('D, d-M-Y H:i:s', $this->full_from_openTime   ) : 0));
+         echoPre($Pxx.'::full_from_closeTime   = '.($this->full_from_closeTime   ? gmDate('D, d-M-Y H:i:s', $this->full_from_closeTime  ) : 0));
+         echoPre($Pxx.'::full_to_offset        = '. $this->full_to_offset);
+         echoPre($Pxx.'::full_to_openTime      = '.($this->full_to_openTime      ? gmDate('D, d-M-Y H:i:s', $this->full_to_openTime     ) : 0));
+         echoPre($Pxx.'::full_to_closeTime     = '.($this->full_to_closeTime     ? gmDate('D, d-M-Y H:i:s', $this->full_to_closeTime    ) : 0));
+      }
+      ($showStored || $showFull) && echoPre(NL);
+
+      if ($showFile) {
+         echoPre($Pxx.'::lastSyncTime          = '.($this->lastSyncTime          ? gmDate('D, d-M-Y H:i:s', $this->lastSyncTime         ) : 0));
+         echoPre($Pxx.'::lastDataTime          = '.($this->lastDataTime          ? gmDate('D, d-M-Y H:i:s', $this->lastDataTime         ) : 0));
+         echoPre($Pxx.'::fp                    = '.($fp=fTell($this->hFile)).' (bar offset '.(($fp-HistoryHeader::SIZE)/$this->barSize).')');
+      }
+      echoPre(NL);
    }
 }

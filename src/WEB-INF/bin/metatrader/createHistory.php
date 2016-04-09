@@ -53,7 +53,7 @@ exit(0);
 
 
 /**
- * Erzeugt die MetaTrader-History eines Instruments.
+ * Erzeugt eine neue MetaTrader-History eines Instruments. Das Feld HISTORY_HEADER.lastSyncTime wird nicht gesetzt.
  *
  * @param  string $symbol - Symbol
  *

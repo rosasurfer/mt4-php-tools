@@ -69,8 +69,9 @@ function updateHistory($symbol) {
    echoPre('[Info]    '.$symbol);
 
    // HistorySet öffnen bzw. neues Set erstellen
-   if ($history=HistorySet::get($symbol, $directory))
-      if ($verbose > 0) echoPre('[Info]    lastSyncTime: '.($lastSyncTime=$history->getLastSyncTime()) ? gmDate('D, d-M-Y H:i:s', $lastSyncTime) :0);
+   if ($history=HistorySet::get($symbol, $directory)) {
+      if ($verbose > 0) echoPre('[Info]    lastSyncTime: '.(($lastSyncTime=$history->getLastSyncTime()) ? gmDate('D, d-M-Y H:i:s', $lastSyncTime) :0));
+   }
    !$history && $history=HistorySet::create($symbol, $digits, $format=400, $directory);
 
    // History beginnend mit dem letzten synchronisierten Tag aktualisieren
@@ -94,11 +95,10 @@ function updateHistory($symbol) {
             echoPre('[Error]   '.$symbol.' MyFX history for '.$shortDate.' not found');
             return false;
          }
-         if ($verbose > 0) echoPre('[Info]    '.($lastSyncTime ? 'synchronizing':'adding').' '.$shortDate);
+         if ($verbose > 0) echoPre('[Info]    synchronizing '.$shortDate);
 
-         $method = $lastSyncTime ? 'synchronize':'addBars';
-         $bars   = MyFX::readBarFile($file, $symbol);
-         if (!$history->$method($bars))
+         $bars = MyFX::readBarFile($file, $symbol);
+         if (!$history->synchronize($bars))
             break;
       }
       if (!WINDOWS) pcntl_signal_dispatch();                                                 // Auf Ctrl-C prüfen, um bei Abbruch den

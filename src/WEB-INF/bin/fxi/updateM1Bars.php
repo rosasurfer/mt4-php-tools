@@ -199,7 +199,7 @@ function calculateAUDFX6($day, array $data) {
       $usdchf = $USDCHF[$i]['open'];
       $usdjpy = $USDJPY[$i]['open'];
       $open   = pow(($usdcad/$eurusd) * ($usdchf/$gbpusd) * ($usdjpy/1000), 1/6) * $audusd;
-      $iOpen  = round($open);
+      $iOpen  = (int) round($open);
 
       $audusd = $AUDUSD[$i]['close'];
       $eurusd = $EURUSD[$i]['close'];
@@ -208,7 +208,7 @@ function calculateAUDFX6($day, array $data) {
       $usdchf = $USDCHF[$i]['close'];
       $usdjpy = $USDJPY[$i]['close'];
       $close  = pow(($usdcad/$eurusd) * ($usdchf/$gbpusd) * ($usdjpy/1000), 1/6) * $audusd;
-      $iClose = round($close);
+      $iClose = (int) round($close);
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
@@ -256,7 +256,7 @@ function calculateAUDFX7($day, array $data) {
       $usdchf = $USDCHF[$i]['open'];
       $usdjpy = $USDJPY[$i]['open'];
       $open   = pow(($usdcad/$eurusd) * ($usdchf/$gbpusd) * ($usdjpy/$nzdusd), 1/7) * $audusd;
-      $iOpen  = round($open);
+      $iOpen  = (int) round($open);
 
       $audusd = $AUDUSD[$i]['close'];
       $eurusd = $EURUSD[$i]['close'];
@@ -266,7 +266,7 @@ function calculateAUDFX7($day, array $data) {
       $usdchf = $USDCHF[$i]['close'];
       $usdjpy = $USDJPY[$i]['close'];
       $close  = pow(($usdcad/$eurusd) * ($usdchf/$gbpusd) * ($usdjpy/$nzdusd), 1/7) * $audusd;
-      $iClose = round($close);
+      $iClose = (int) round($close);
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
@@ -313,7 +313,7 @@ function calculateAUDLFX($day, array $data) {
       $usdchf = $USDCHF[$i]['open'];
       $usdjpy = $USDJPY[$i]['open'];
       $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) * $audusd;
-      $iOpen  = round($open);
+      $iOpen  = (int) round($open);
 
       $audusd = $AUDUSD[$i]['close'];
       $eurusd = $EURUSD[$i]['close'];
@@ -322,7 +322,7 @@ function calculateAUDLFX($day, array $data) {
       $usdchf = $USDCHF[$i]['close'];
       $usdjpy = $USDJPY[$i]['close'];
       $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) * $audusd;
-      $iClose = round($close);
+      $iClose = (int) round($close);
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
@@ -368,7 +368,7 @@ function calculateCADFX6($day, array $data) {
       $usdchf = $USDCHF[$i]['open'];
       $usdjpy = $USDJPY[$i]['open'];
       $open   = pow(($usdchf/$audusd) * ($usdjpy/$eurusd) * (100000/$gbpusd) * 100, 1/6) / $usdcad * 100000;
-      $iOpen  = round($open * 100000);
+      $iOpen  = (int) round($open * 100000);
 
       $audusd = $AUDUSD[$i]['close'];
       $eurusd = $EURUSD[$i]['close'];
@@ -377,7 +377,7 @@ function calculateCADFX6($day, array $data) {
       $usdchf = $USDCHF[$i]['close'];
       $usdjpy = $USDJPY[$i]['close'];
       $close  = pow(($usdchf/$audusd) * ($usdjpy/$eurusd) * (100000/$gbpusd) * 100, 1/6) / $usdcad * 100000;
-      $iClose = round($close * 100000);
+      $iClose = (int) round($close * 100000);
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
@@ -425,7 +425,7 @@ function calculateCADFX7($day, array $data) {
       $usdchf = $USDCHF[$i]['open'];
       $usdjpy = $USDJPY[$i]['open'];
       $open   = pow(($usdchf/$audusd) * ($usdjpy/$eurusd) * (100000/$gbpusd) * (100000/$nzdusd) * 100, 1/7) / $usdcad * 100000;
-      $iOpen  = round($open * 100000);
+      $iOpen  = (int) round($open * 100000);
 
       $audusd = $AUDUSD[$i]['close'];
       $eurusd = $EURUSD[$i]['close'];
@@ -435,7 +435,7 @@ function calculateCADFX7($day, array $data) {
       $usdchf = $USDCHF[$i]['close'];
       $usdjpy = $USDJPY[$i]['close'];
       $close  = pow(($usdchf/$audusd) * ($usdjpy/$eurusd) * (100000/$gbpusd) * (100000/$nzdusd) * 100, 1/7) / $usdcad * 100000;
-      $iClose = round($close * 100000);
+      $iClose = (int) round($close * 100000);
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
@@ -482,7 +482,7 @@ function calculateCADLFX($day, array $data) {
       $usdchf = $USDCHF[$i]['open'];
       $usdjpy = $USDJPY[$i]['open'];
       $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdcad * 100000;
-      $iOpen  = round($open * 100000);
+      $iOpen  = (int) round($open * 100000);
 
       $audusd = $AUDUSD[$i]['close'];
       $eurusd = $EURUSD[$i]['close'];
@@ -491,7 +491,7 @@ function calculateCADLFX($day, array $data) {
       $usdchf = $USDCHF[$i]['close'];
       $usdjpy = $USDJPY[$i]['close'];
       $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdcad * 100000;
-      $iClose = round($close * 100000);
+      $iClose = (int) round($close * 100000);
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
@@ -537,7 +537,7 @@ function calculateCHFFX6($day, array $data) {
       $usdchf = $USDCHF[$i]['open'];
       $usdjpy = $USDJPY[$i]['open'];
       $open   = pow(($usdcad/$audusd) * ($usdjpy/$eurusd) * (100000/$gbpusd) * 100, 1/6) / $usdchf * 100000;
-      $iOpen  = round($open * 100000);
+      $iOpen  = (int) round($open * 100000);
 
       $audusd = $AUDUSD[$i]['close'];
       $eurusd = $EURUSD[$i]['close'];
@@ -546,7 +546,7 @@ function calculateCHFFX6($day, array $data) {
       $usdchf = $USDCHF[$i]['close'];
       $usdjpy = $USDJPY[$i]['close'];
       $close  = pow(($usdcad/$audusd) * ($usdjpy/$eurusd) * (100000/$gbpusd) * 100, 1/6) / $usdchf * 100000;
-      $iClose = round($close * 100000);
+      $iClose = (int) round($close * 100000);
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
@@ -594,7 +594,7 @@ function calculateCHFFX7($day, array $data) {
       $usdchf = $USDCHF[$i]['open'];
       $usdjpy = $USDJPY[$i]['open'];
       $open   = pow(($usdcad/$audusd) * ($usdjpy/$eurusd) * (100000/$gbpusd) * (100000/$nzdusd) * 100, 1/7) / $usdchf * 100000;
-      $iOpen  = round($open * 100000);
+      $iOpen  = (int) round($open * 100000);
 
       $audusd = $AUDUSD[$i]['close'];
       $eurusd = $EURUSD[$i]['close'];
@@ -604,7 +604,7 @@ function calculateCHFFX7($day, array $data) {
       $usdchf = $USDCHF[$i]['close'];
       $usdjpy = $USDJPY[$i]['close'];
       $close  = pow(($usdcad/$audusd) * ($usdjpy/$eurusd) * (100000/$gbpusd) * (100000/$nzdusd) * 100, 1/7) / $usdchf * 100000;
-      $iClose = round($close * 100000);
+      $iClose = (int) round($close * 100000);
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
@@ -651,7 +651,7 @@ function calculateCHFLFX($day, array $data) {
       $usdchf = $USDCHF[$i]['open'];
       $usdjpy = $USDJPY[$i]['open'];
       $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdchf * 100000;
-      $iOpen  = round($open * 100000);
+      $iOpen  = (int) round($open * 100000);
 
       $audusd = $AUDUSD[$i]['close'];
       $eurusd = $EURUSD[$i]['close'];
@@ -660,7 +660,7 @@ function calculateCHFLFX($day, array $data) {
       $usdchf = $USDCHF[$i]['close'];
       $usdjpy = $USDJPY[$i]['close'];
       $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdchf * 100000;
-      $iClose = round($close * 100000);
+      $iClose = (int) round($close * 100000);
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
@@ -706,7 +706,7 @@ function calculateEURFX6($day, array $data) {
       $usdchf = $USDCHF[$i]['open'];
       $usdjpy = $USDJPY[$i]['open'];
       $open   = pow(($usdcad/$audusd) * ($usdchf/$gbpusd) * ($usdjpy/1000), 1/6) * $eurusd;
-      $iOpen  = round($open);
+      $iOpen  = (int) round($open);
 
       $audusd = $AUDUSD[$i]['close'];
       $eurusd = $EURUSD[$i]['close'];
@@ -715,7 +715,7 @@ function calculateEURFX6($day, array $data) {
       $usdchf = $USDCHF[$i]['close'];
       $usdjpy = $USDJPY[$i]['close'];
       $close  = pow(($usdcad/$audusd) * ($usdchf/$gbpusd) * ($usdjpy/1000), 1/6) * $eurusd;
-      $iClose = round($close);
+      $iClose = (int) round($close);
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
@@ -763,7 +763,7 @@ function calculateEURFX7($day, array $data) {
       $usdchf = $USDCHF[$i]['open'];
       $usdjpy = $USDJPY[$i]['open'];
       $open   = pow(($usdcad/$audusd) * ($usdchf/$gbpusd) * ($usdjpy/$nzdusd) * 100, 1/7) * $eurusd;
-      $iOpen  = round($open);
+      $iOpen  = (int) round($open);
 
       $audusd = $AUDUSD[$i]['close'];
       $eurusd = $EURUSD[$i]['close'];
@@ -773,7 +773,7 @@ function calculateEURFX7($day, array $data) {
       $usdchf = $USDCHF[$i]['close'];
       $usdjpy = $USDJPY[$i]['close'];
       $close  = pow(($usdcad/$audusd) * ($usdchf/$gbpusd) * ($usdjpy/$nzdusd) * 100, 1/7) * $eurusd;
-      $iClose = round($close);
+      $iClose = (int) round($close);
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
@@ -820,7 +820,7 @@ function calculateEURLFX($day, array $data) {
       $usdchf = $USDCHF[$i]['open'];
       $usdjpy = $USDJPY[$i]['open'];
       $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) * $eurusd;
-      $iOpen  = round($open);
+      $iOpen  = (int) round($open);
 
       $audusd = $AUDUSD[$i]['close'];
       $eurusd = $EURUSD[$i]['close'];
@@ -829,7 +829,7 @@ function calculateEURLFX($day, array $data) {
       $usdchf = $USDCHF[$i]['close'];
       $usdjpy = $USDJPY[$i]['close'];
       $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) * $eurusd;
-      $iClose = round($close);
+      $iClose = (int) round($close);
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
@@ -878,7 +878,7 @@ function calculateEURX($day, array $data) {
               * pow($eurusd/100000 * $usdjpy/1000  , 0.1891)
               * pow($eurusd/100000 * $usdsek/100000, 0.0785)
               * pow($eurusd/100000                 , 0.3155);
-      $iOpen  = round($open * 1000);
+      $iOpen  = (int) round($open * 1000);
 
       $eurusd = $EURUSD[$i]['close'];
       $gbpusd = $GBPUSD[$i]['close'];
@@ -891,7 +891,7 @@ function calculateEURX($day, array $data) {
               * pow($eurusd/100000 * $usdjpy/1000  , 0.1891)
               * pow($eurusd/100000 * $usdsek/100000, 0.0785)
               * pow($eurusd/100000                 , 0.3155);
-      $iClose = round($close * 1000);
+      $iClose = (int) round($close * 1000);
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
@@ -937,7 +937,7 @@ function calculateGBPFX6($day, array $data) {
       $usdchf = $USDCHF[$i]['open'];
       $usdjpy = $USDJPY[$i]['open'];
       $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/1000), 1/6) * $gbpusd;
-      $iOpen  = round($open);
+      $iOpen  = (int) round($open);
 
       $audusd = $AUDUSD[$i]['close'];
       $eurusd = $EURUSD[$i]['close'];
@@ -946,7 +946,7 @@ function calculateGBPFX6($day, array $data) {
       $usdchf = $USDCHF[$i]['close'];
       $usdjpy = $USDJPY[$i]['close'];
       $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/1000), 1/6) * $gbpusd;
-      $iClose = round($close);
+      $iClose = (int) round($close);
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
@@ -994,7 +994,7 @@ function calculateGBPFX7($day, array $data) {
       $usdchf = $USDCHF[$i]['open'];
       $usdjpy = $USDJPY[$i]['open'];
       $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$nzdusd) * 100, 1/7) * $gbpusd;
-      $iOpen  = round($open);
+      $iOpen  = (int) round($open);
 
       $audusd = $AUDUSD[$i]['close'];
       $eurusd = $EURUSD[$i]['close'];
@@ -1004,7 +1004,7 @@ function calculateGBPFX7($day, array $data) {
       $usdchf = $USDCHF[$i]['close'];
       $usdjpy = $USDJPY[$i]['close'];
       $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$nzdusd) * 100, 1/7) * $gbpusd;
-      $iClose = round($close);
+      $iClose = (int) round($close);
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
@@ -1051,7 +1051,7 @@ function calculateGBPLFX($day, array $data) {
       $usdchf = $USDCHF[$i]['open'];
       $usdjpy = $USDJPY[$i]['open'];
       $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) * $gbpusd;
-      $iOpen  = round($open);
+      $iOpen  = (int) round($open);
 
       $audusd = $AUDUSD[$i]['close'];
       $eurusd = $EURUSD[$i]['close'];
@@ -1060,7 +1060,7 @@ function calculateGBPLFX($day, array $data) {
       $usdchf = $USDCHF[$i]['close'];
       $usdjpy = $USDJPY[$i]['close'];
       $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) * $gbpusd;
-      $iClose = round($close);
+      $iClose = (int) round($close);
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
@@ -1106,7 +1106,7 @@ function calculateJPYFX6($day, array $data) {
       $usdchf = $USDCHF[$i]['open'];
       $usdjpy = $USDJPY[$i]['open'];
       $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * (100000/$gbpusd), 1/6) / $usdjpy * 100000;
-      $iOpen  = round($open * 100000);
+      $iOpen  = (int) round($open * 100000);
 
       $audusd = $AUDUSD[$i]['close'];
       $eurusd = $EURUSD[$i]['close'];
@@ -1115,7 +1115,7 @@ function calculateJPYFX6($day, array $data) {
       $usdchf = $USDCHF[$i]['close'];
       $usdjpy = $USDJPY[$i]['close'];
       $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * (100000/$gbpusd), 1/6) / $usdjpy * 100000;
-      $iClose = round($close * 100000);
+      $iClose = (int) round($close * 100000);
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
@@ -1163,7 +1163,7 @@ function calculateJPYFX7($day, array $data) {
       $usdchf = $USDCHF[$i]['open'];
       $usdjpy = $USDJPY[$i]['open'];
       $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * (100000/$gbpusd) * (100000/$nzdusd), 1/7) / $usdjpy * 100000;
-      $iOpen  = round($open * 100000);
+      $iOpen  = (int) round($open * 100000);
 
       $audusd = $AUDUSD[$i]['close'];
       $eurusd = $EURUSD[$i]['close'];
@@ -1173,7 +1173,7 @@ function calculateJPYFX7($day, array $data) {
       $usdchf = $USDCHF[$i]['close'];
       $usdjpy = $USDJPY[$i]['close'];
       $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * (100000/$gbpusd) * (100000/$nzdusd), 1/7) / $usdjpy * 100000;
-      $iClose = round($close * 100000);
+      $iClose = (int) round($close * 100000);
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
@@ -1220,7 +1220,7 @@ function calculateJPYLFX($day, array $data) {
       $usdchf = $USDCHF[$i]['open'];
       $usdjpy = $USDJPY[$i]['open'];
       $open   = 100 * pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdjpy * 1000;
-      $iOpen  = round($open * 100000);
+      $iOpen  = (int) round($open * 100000);
 
       $audusd = $AUDUSD[$i]['close'];
       $eurusd = $EURUSD[$i]['close'];
@@ -1229,7 +1229,7 @@ function calculateJPYLFX($day, array $data) {
       $usdchf = $USDCHF[$i]['close'];
       $usdjpy = $USDJPY[$i]['close'];
       $close  = 100 * pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdjpy * 1000;
-      $iClose = round($close * 100000);
+      $iClose = (int) round($close * 100000);
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
@@ -1278,7 +1278,7 @@ function calculateNOKFX7($day, array $data) {
       $usdjpy = $USDJPY[$i]['open'];
       $usdnok = $USDNOK[$i]['open'];
       $open   = 10 * pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdnok * 100000;
-      $iOpen  = round($open * 100000);
+      $iOpen  = (int) round($open * 100000);
 
       $audusd = $AUDUSD[$i]['close'];
       $eurusd = $EURUSD[$i]['close'];
@@ -1288,7 +1288,7 @@ function calculateNOKFX7($day, array $data) {
       $usdjpy = $USDJPY[$i]['close'];
       $usdnok = $USDNOK[$i]['close'];
       $close  = 10 * pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdnok * 100000;
-      $iClose = round($close * 100000);
+      $iClose = (int) round($close * 100000);
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
@@ -1353,7 +1353,7 @@ function calculateNZDLFX($day, array $data, $name='NZDLFX') {
       $usdjpy = $USDJPY[$i]['open'];
       $nzdusd = $NZDUSD[$i]['open'];
       $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) * $nzdusd;
-      $iOpen  = round($open);
+      $iOpen  = (int) round($open);
 
       $audusd = $AUDUSD[$i]['close'];
       $eurusd = $EURUSD[$i]['close'];
@@ -1363,7 +1363,7 @@ function calculateNZDLFX($day, array $data, $name='NZDLFX') {
       $usdjpy = $USDJPY[$i]['close'];
       $nzdusd = $NZDUSD[$i]['close'];
       $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) * $nzdusd;
-      $iClose = round($close);
+      $iClose = (int) round($close);
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
@@ -1412,7 +1412,7 @@ function calculateSEKFX7($day, array $data) {
       $usdjpy = $USDJPY[$i]['open'];
       $usdsek = $USDSEK[$i]['open'];
       $open   = 10 * pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdsek * 100000;
-      $iOpen  = round($open * 100000);
+      $iOpen  = (int) round($open * 100000);
 
       $audusd = $AUDUSD[$i]['close'];
       $eurusd = $EURUSD[$i]['close'];
@@ -1422,7 +1422,7 @@ function calculateSEKFX7($day, array $data) {
       $usdjpy = $USDJPY[$i]['close'];
       $usdsek = $USDSEK[$i]['close'];
       $close  = 10 * pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdsek * 100000;
-      $iClose = round($close * 100000);
+      $iClose = (int) round($close * 100000);
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
@@ -1471,7 +1471,7 @@ function calculateSGDFX7($day, array $data) {
       $usdjpy = $USDJPY[$i]['open'];
       $usdsgd = $USDSGD[$i]['open'];
       $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdsgd * 100000;
-      $iOpen  = round($open * 100000);
+      $iOpen  = (int) round($open * 100000);
 
       $audusd = $AUDUSD[$i]['close'];
       $eurusd = $EURUSD[$i]['close'];
@@ -1481,7 +1481,7 @@ function calculateSGDFX7($day, array $data) {
       $usdjpy = $USDJPY[$i]['close'];
       $usdsgd = $USDSGD[$i]['close'];
       $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdsgd * 100000;
-      $iClose = round($close * 100000);
+      $iClose = (int) round($close * 100000);
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
@@ -1527,7 +1527,7 @@ function calculateUSDFX6($day, array $data) {
       $usdchf = $USDCHF[$i]['open'];
       $usdjpy = $USDJPY[$i]['open'];
       $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/6);
-      $iOpen  = round($open * 100000);
+      $iOpen  = (int) round($open * 100000);
 
       $audusd = $AUDUSD[$i]['close'];
       $eurusd = $EURUSD[$i]['close'];
@@ -1536,7 +1536,7 @@ function calculateUSDFX6($day, array $data) {
       $usdchf = $USDCHF[$i]['close'];
       $usdjpy = $USDJPY[$i]['close'];
       $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/6);
-      $iClose = round($close * 100000);
+      $iClose = (int) round($close * 100000);
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
@@ -1584,7 +1584,7 @@ function calculateUSDFX7($day, array $data) {
       $usdchf = $USDCHF[$i]['open'];
       $usdjpy = $USDJPY[$i]['open'];
       $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * (100000/$nzdusd) * 100, 1/7);
-      $iOpen  = round($open * 100000);
+      $iOpen  = (int) round($open * 100000);
 
       $audusd = $AUDUSD[$i]['close'];
       $eurusd = $EURUSD[$i]['close'];
@@ -1594,7 +1594,7 @@ function calculateUSDFX7($day, array $data) {
       $usdchf = $USDCHF[$i]['close'];
       $usdjpy = $USDJPY[$i]['close'];
       $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * (100000/$nzdusd) * 100, 1/7);
-      $iClose = round($close * 100000);
+      $iClose = (int) round($close * 100000);
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
@@ -1640,7 +1640,7 @@ function calculateUSDLFX($day, array $data) {
       $usdchf = $USDCHF[$i]['open'];
       $usdjpy = $USDJPY[$i]['open'];
       $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7);
-      $iOpen  = round($open * 100000);
+      $iOpen  = (int) round($open * 100000);
 
       $audusd = $AUDUSD[$i]['close'];
       $eurusd = $EURUSD[$i]['close'];
@@ -1649,7 +1649,7 @@ function calculateUSDLFX($day, array $data) {
       $usdchf = $USDCHF[$i]['close'];
       $usdjpy = $USDJPY[$i]['close'];
       $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7);
-      $iClose = round($close * 100000);
+      $iClose = (int) round($close * 100000);
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
@@ -1697,7 +1697,7 @@ function calculateUSDX($day, array $data) {
       $open   = 50.14348112
               * pow($usdcad/100000, 0.091) * pow($usdchf/100000, 0.036) * pow($usdjpy/1000, 0.136) * pow($usdsek/100000, 0.042)
               / pow($eurusd/100000, 0.576) / pow($gbpusd/100000, 0.119);
-      $iOpen  = round($open * 1000);
+      $iOpen  = (int) round($open * 1000);
 
       $eurusd = $EURUSD[$i]['close'];
       $gbpusd = $GBPUSD[$i]['close'];
@@ -1708,7 +1708,7 @@ function calculateUSDX($day, array $data) {
       $close  = 50.14348112
               * pow($usdcad/100000, 0.091) * pow($usdchf/100000, 0.036) * pow($usdjpy/1000, 0.136) * pow($usdsek/100000, 0.042)
               / pow($eurusd/100000, 0.576) / pow($gbpusd/100000, 0.119);
-      $iClose = round($close * 1000);
+      $iClose = (int) round($close * 1000);
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;
@@ -1757,7 +1757,7 @@ function calculateZARFX7($day, array $data) {
       $usdjpy = $USDJPY[$i]['open'];
       $usdzar = $USDZAR[$i]['open'];
       $open   = 10 * pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdzar * 100000;
-      $iOpen  = round($open * 100000);
+      $iOpen  = (int) round($open * 100000);
 
       $audusd = $AUDUSD[$i]['close'];
       $eurusd = $EURUSD[$i]['close'];
@@ -1767,7 +1767,7 @@ function calculateZARFX7($day, array $data) {
       $usdjpy = $USDJPY[$i]['close'];
       $usdzar = $USDZAR[$i]['close'];
       $close  = 10 * pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdzar * 100000;
-      $iClose = round($close * 100000);
+      $iClose = (int) round($close * 100000);
 
       $index[$i]['time' ] = $bar['time'];
       $index[$i]['open' ] = $iOpen;

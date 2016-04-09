@@ -116,7 +116,7 @@ foreach ($expandedArgs as $fileName) {
 
       $barVersion = $header->getFormat();
       $barSize    = ($barVersion==400) ? MT4::HISTORY_BAR_400_SIZE : MT4::HISTORY_BAR_401_SIZE;
-      $iBars      = floor(($fileSize-HistoryHeader::SIZE)/$barSize);
+      $iBars      = (int) floor(($fileSize-HistoryHeader::SIZE)/$barSize);
 
       $barFrom = $barTo = array();
       if ($iBars) {
