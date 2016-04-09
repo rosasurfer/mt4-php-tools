@@ -49,8 +49,7 @@ if (!WINDOWS) {
       }
    }
 
-   //pcntl_signal(SIGINT, 'onSignal');
-   $result = pcntl_signal(SIGINT, SIG_DFL);
+   $result = pcntl_signal(SIGINT, 'onSignal');
    echoPre('SIGINT handler installed = '.(int)$result);
 }
 
