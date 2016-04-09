@@ -48,7 +48,7 @@ if (!WINDOWS) {
 
             if (isSet($GLOBALS['historySet'])) {
                echoPre('closing history set...');
-               $GLOBALS['HistorySet']->close();
+               //$GLOBALS['HistorySet']->close();
                unset($GLOBALS['HistorySet']);
             }
             else {
