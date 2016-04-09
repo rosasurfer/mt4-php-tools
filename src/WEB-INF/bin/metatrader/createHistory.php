@@ -9,11 +9,11 @@ date_default_timezone_set('GMT');
 
 
 if (!WINDOWS) {
-   declare(ticks=1);
-
-   function onSignal($signal) {
-      switch($signal) {
-         case SIGINT: print "Caught SIGINT\n"; exit(0);
+   declare(ticks=1) {
+      function onSignal($signal) {
+         switch($signal) {
+            case SIGINT: print "Caught SIGINT\n"; exit(0);
+         }
       }
    }
    $result = pcntl_signal(SIGINT, 'onSignal');
