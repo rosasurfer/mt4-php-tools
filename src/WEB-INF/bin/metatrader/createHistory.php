@@ -15,9 +15,9 @@ if (!WINDOWS) {
             case SIGINT: print "Caught SIGINT\n"; exit(0);
          }
       }
+      $result = pcntl_signal(SIGINT, 'onSignal');
+      echoPre('signal handler installed = '.$result.' ('.typeof($result).')');
    }
-   $result = pcntl_signal(SIGINT, 'onSignal');
-   echoPre('signal handler installed = '.$result.' ('.typeof($result).')');
 }
 
 
