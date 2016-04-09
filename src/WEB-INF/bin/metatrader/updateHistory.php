@@ -7,6 +7,19 @@ require(dirName(realPath(__FILE__)).'/../../config.php');
 date_default_timezone_set('GMT');
 
 
+if (!WINDOWS) {
+   declare(ticks=1);
+
+   pcntl_signal(SIGINT, 'onSignal');
+
+   function onSignal($signal) {
+      switch($signal) {
+         case SIGINT: print "Caught SIGINT\n"; exit(0);
+      }
+   }
+}
+
+
 // -- Konfiguration --------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -65,25 +78,15 @@ function updateHistory($symbol) {
    echoPre('[Info]    '.$symbol);
 
    // HistorySet öffnen bzw. neues Set erstellen
-   if ($history=HistorySet::get($symbol, $directory)) {
-      if ($lastSyncTime=$history->getLastSyncTime()) {
-         if ($verbose > 0) echoPre('[Info]    lastSyncTime: '.gmDate('D, d-M-Y H:i:s', $lastSyncTime));
-         // TODO:
-         //if (!MyFX::isForexTradingDay($lastSyncTime, 'FXT')) $syncedToTime = 'nextTradingDay($symbol, $lastSyncTime)';
-      }
-      else {
-         if ($verbose > 0) echoPre('[Info]    discarding existing history (lastSyncTime=0)');
-         $history->close();
-         $history = null;
-      }
-   }
-   !$history && $history=HistorySet::create($symbol, $digits, $format=400, $directory);      // neue Sets im Format 400 erstellen
+   if ($history=HistorySet::get($symbol, $directory))
+      if ($verbose > 0) echoPre('[Info]    lastSyncTime: '.($lastSyncTime=$history->getLastSyncTime()) ? gmDate('D, d-M-Y H:i:s', $lastSyncTime) :0);
+   !$history && $history=HistorySet::create($symbol, $digits, $format=400, $directory);
 
    // History beginnend mit dem letzten synchronisierten Tag aktualisieren
    $startTime = $lastSyncTime ? $lastSyncTime : fxtTime(MyFX::$symbols[$symbol]['historyStart']['M1']);
    $startDay  = $startTime - $startTime%DAY;                                                 // 00:00 der Startzeit
    $today     = ($time=fxtTime()) - $time%DAY;                                               // 00:00 des aktuellen Tages
-   $today     = $startDay + 5*DAYS;                   // zu Testzwecken
+   $today     = $startDay + 5*DAYS;                   // zu Testzwecken nur x Tage
    $lastMonth = -1;
 
    for ($day=$startDay; $day < $today; $day+=1*DAY) {
