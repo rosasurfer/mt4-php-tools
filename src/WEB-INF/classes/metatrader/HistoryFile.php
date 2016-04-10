@@ -12,12 +12,14 @@ class HistoryFile extends Object {
 
    protected /*HistoryHeader*/ $hstHeader;
    protected /*int          */ $period;                           // Timeframe der Datei
-   protected /*int          */ $lastM1DataTime = 0;               // OpenTime der letzten eingetroffenen M1-Daten
-   protected /*int          */ $barSize        = 0;               // Größe einer Bar entsprechend dem Datenformat
+   protected /*int          */ $pointsPerUnit;                    // Preisumrechnung, z.B.: Digits=2 => pointsPerUnit=100
+   protected /*double       */ $pointSize;                        // Preisumrechnung, z.B.: Digits=2 => pointSize=0.01
+
    protected /*string       */ $barPackFormat;                    // Formatstring für pack()
    protected /*string       */ $barUnpackFormat;                  // Formatstring für unpack()
-   protected /*MYFX_BAR[]   */ $barBuffer     = array();
-   protected /*int          */ $barBufferSize = 10000;            // Default-Größe des Buffers für ungespeicherte Bars
+   protected /*int          */ $barSize       = 0;                // Größe einer Bar entsprechend dem Datenformat
+   protected /*MYFX_BAR[]   */ $barBuffer     = array();          // Schreibbuffer
+   protected /*int          */ $barBufferSize = 10000;            // Default-Größe des Schreibbuffers
 
    // Metadaten: gespeichert
    protected /*int          */ $stored_bars           =  0;       // Anzahl der gespeicherten Bars der Datei
@@ -39,6 +41,11 @@ class HistoryFile extends Object {
    protected /*int          */ $full_to_closeTime     =  0;       // CloseTime der letzten Bar der Datei inkl. ungespeicherter Daten im Schreibpuffer
    protected /*int          */ $full_lastSyncTime     =  0;       // Zeitpunkt, bis zu dem die kompletten Daten der Datei synchronisiert wurden
 
+   /**
+    * OpenTime der letzten angefügten M1-Daten zur Validierung in $this->append*()
+    */
+   protected /*int*/ $lastM1DataTime = 0;
+
 
    // Getter
    public function getFileName()        { return $this->fileName;                   }
@@ -53,6 +60,9 @@ class HistoryFile extends Object {
    public function getDigits()          { return $this->hstHeader->getDigits();     }
    public function getSyncMarker()      { return $this->hstHeader->getSyncMarker(); }
    public function getLastSyncTime()    { return $this->full_lastSyncTime;          }
+
+   public function getPointSize()       { return $this->pointSize;                  }
+   public function getPointsPerUnit()   { return $this->pointsPerUnit;              }
 
 
    /**
@@ -152,6 +162,9 @@ class HistoryFile extends Object {
       $this->barPackFormat   = MT4::BAR_getPackFormat($this->getVersion());
       $this->barUnpackFormat = MT4::BAR_getUnpackFormat($this->getVersion());
 
+      $this->pointsPerUnit = pow(10, $this->getDigits());
+      $this->pointSize     = 1/$this->pointsPerUnit;
+
       $fileSize = fileSize($this->serverDirectory.'/'.$this->fileName);
       if ($fileSize > HistoryHeader::SIZE) {
          $bars    = ($fileSize-HistoryHeader::SIZE) / $this->barSize;
@@ -188,7 +201,7 @@ class HistoryFile extends Object {
          $this->full_to_closeTime     = $this->stored_to_closeTime;
          $this->full_lastSyncTime     = $this->stored_lastSyncTime;
 
-         $this->lastM1DataTime        = max($to_openTime, $this->stored_lastSyncTime-1*MINUTE);    // die letzte Bar kann noch offen sein
+         $this->lastM1DataTime = max($to_closeTime, $this->stored_lastSyncTime) - 1*MINUTE;    // die letzte Bar kann noch offen sein
       }
    }
 
@@ -711,7 +724,7 @@ class HistoryFile extends Object {
 
 
    /**
-    * Schreibt eine Anzahl Bars aus dem Barbuffer in die History-Datei.
+    * Schreibt eine Anzahl MyFXBars aus dem Barbuffer in die History-Datei.
     *
     * @param  int $count - Anzahl zu schreibender Bars (default: alle Bars)
     *
@@ -726,24 +739,22 @@ class HistoryFile extends Object {
       $todo       = min($bufferSize, $count);
       if (!$todo) return 0;
 
-      $divider = pow(10, $this->getDigits());
-      $i = 0;
-
 
       // (1) FilePointer setzen
       fSeek($this->hFile, HistoryHeader::SIZE + ($this->stored_to_offset+1)*$this->barSize);
 
 
       // (2) Bars schreiben
+      $i = 0;
       foreach ($this->barBuffer as $i => $bar) {
          $T = $bar['time' ];
-         $O = $bar['open' ]/$divider;
-         $H = $bar['high' ]/$divider;
-         $L = $bar['low'  ]/$divider;
-         $C = $bar['close']/$divider;
+         $O = $bar['open' ]/$this->pointsPerUnit;
+         $H = $bar['high' ]/$this->pointsPerUnit;
+         $L = $bar['low'  ]/$this->pointsPerUnit;
+         $C = $bar['close']/$this->pointsPerUnit;
          $V = $bar['ticks'];
 
-         MT4::appendHistoryBar400($this->hFile, $this->getDigits(), $T, $O, $H, $L, $C, $V);
+         MT4::writeHistoryBar400($this->hFile, $this->getDigits(), $T, $O, $H, $L, $C, $V);
          if ($i+1 == $todo)
             break;
       }

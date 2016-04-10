@@ -282,7 +282,7 @@ class MT4 extends StaticClass {
 
 
    /**
-    * Fügt eine einzelne Bar an die zum Handle gehörende Datei an. Die Bardaten werden vorm Schreiben validiert.
+    * Schreibt eine einzelne Bar in die zum Handle gehörende Datei. Die Bardaten werden vorm Schreiben validiert.
     *
     * @param  resource $hFile  - File-Handle eines History-Files, muß Schreibzugriff erlauben
     * @param  int      $digits - Digits des Symbols (für Normalisierung)
@@ -295,7 +295,7 @@ class MT4 extends StaticClass {
     *
     * @return int - Anzahl der geschriebenen Bytes
     */
-   public static function appendHistoryBar400($hFile, $digits, $time, $open, $high, $low, $close, $ticks) {
+   public static function writeHistoryBar400($hFile, $digits, $time, $open, $high, $low, $close, $ticks) {
       // Bardaten normalisieren...
       $open  = round($open , $digits);
       $high  = round($high , $digits);
