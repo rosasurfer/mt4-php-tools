@@ -37,8 +37,8 @@ foreach ($args as $i => $arg) {
 $args = $args ? array_unique($args) : array_keys(MyFX::$symbols);
 
 
-// (2) SIGINT-Handler installieren
-if (!WINDOWS) pcntl_signal(SIGINT, 'onSignal');
+// (2) SIGINT-Handler installieren                                                  // Um bei Ctrl-C Destruktoren auszuführen, reicht es,
+if (!WINDOWS) pcntl_signal(SIGINT, create_function('$signal', 'exit(0);'));         // wenn im Handler exit() aufgerufen wird.
 
 
 // (3) History erstellen
@@ -73,7 +73,6 @@ function createHistory($symbol) {
    $format    = 400;
    $directory = MyFX::getConfigPath('myfx.data_directory').'/history/mt4/MyFX-Dukascopy';
    $history   = HistorySet::create($symbol, $digits, $format, $directory);
-   $GLOBALS['HistorySet'] = $history;                                               // Reference für SIGINT-Handler
 
 
    // Gesamte Zeitspanne tageweise durchlaufen
@@ -160,18 +159,6 @@ function getVar($id, $symbol=null, $time=null) {
    (sizeof($varCache) > ($maxSize=128)) && array_shift($varCache) /*&& echoPre('cache size limit of '.$maxSize.' hit')*/;
 
    return $result;
-}
-
-
-/**
- * Signalhandler
- *
- * @param  int $signal - das aufgetretene Signal
- */
-function onSignal($signal) {
-   switch ($signal) {
-      case SIGINT: exit(0);      // Um bei Ctrl-C Destruktoren von Objekt-Instanzen auszuführen, reicht es,
-   }                             // wenn der SIGINT-Handler installiert ist. Er kann leer sein.
 }
 
 
