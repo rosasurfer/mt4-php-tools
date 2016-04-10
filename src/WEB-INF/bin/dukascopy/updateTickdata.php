@@ -61,7 +61,7 @@ foreach ($args as $i => $arg) {
 // Symbole parsen
 foreach ($args as $i => $arg) {
    $arg = strToUpper($arg);
-   if (!isSet(MyFX::$symbol[$arg]) || MyFX::$symbol[$arg]['provider']!='dukascopy')
+   if (!isSet(MyFX::$symbols[$arg]) || MyFX::$symbols[$arg]['provider']!='dukascopy')
       help('unknown or unsupported symbol "'.$args[$i].'"') & exit(1);
    $args[$i] = $arg;
 }                                                                                   // ohne Angabe werden alle Dukascopy-Instrumente aktualisiert
@@ -238,6 +238,57 @@ function updateTicks($symbol, $gmtHour, $fxtHour) {
 
 
 /**
+ * Lädt die Daten einer einzelnen Forex-Handelsstunde und gibt sie zurück.
+ *
+ * @param  string $symbol  - Symbol
+ * @param  int    $gmtHour - GMT-Timestamp der zu ladenden Stunde
+ * @param  int    $fxtHour - FXT-Timestamp der zu ladenden Stunde
+ *
+ * @return array[] - Array mit Tickdaten
+ */
+function loadTicks($symbol, $gmtHour, $fxtHour) {
+   if (!is_int($gmtHour)) throw new IllegalTypeException('Illegal type of parameter $gmtHour: '.getType($gmtHour));
+   if (!is_int($fxtHour)) throw new IllegalTypeException('Illegal type of parameter $fxtHour: '.getType($fxtHour));
+   $shortDate = gmDate('D, d-M-Y H:i', $fxtHour);
+
+   // Die Tickdaten der Handelsstunde werden in folgender Reihenfolge gesucht:
+   //  • in bereits dekomprimierten Dukascopy-Dateien
+   //  • in noch komprimierten Dukascopy-Dateien
+   //  • als Dukascopy-Download
+
+   global $saveCompressedDukascopyFiles;
+   $ticks = array();
+
+   // dekomprimierte Dukascopy-Datei suchen und bei Erfolg Ticks laden
+   if (!$ticks) {
+      if (is_file($file=getVar('dukaFile.raw', $symbol, $gmtHour))) {
+         $ticks = loadRawDukascopyTickFile($file, $symbol, $gmtHour, $fxtHour);
+         if (!$ticks) return false;
+      }
+   }
+
+   // ggf. komprimierte Dukascopy-Datei suchen und bei Erfolg Ticks laden
+   if (!$ticks) {
+      if (is_file($file=getVar('dukaFile.compressed', $symbol, $gmtHour))) {
+         $ticks = loadCompressedDukascopyTickFile($file, $symbol, $gmtHour, $fxtHour);
+         if (!$ticks) return false;
+      }
+   }
+
+   // ggf. Dukascopy-Datei herunterladen und Ticks laden
+   if (!$ticks) {
+      $data = downloadTickdata($symbol, $gmtHour, $fxtHour, false, $saveCompressedDukascopyFiles);
+      if (!$data) return false;
+
+      $ticks = loadCompressedDukascopyTickData($data, $symbol, $gmtHour, $fxtHour);
+      if (!$ticks) return false;
+   }
+
+   return $ticks;
+}
+
+
+/**
  * Schreibt die Tickdaten einer Handelsstunde in die lokale MyFX-Tickdatei.
  *
  * @param  string $symbol  - Symbol
@@ -294,56 +345,6 @@ function saveTicks($symbol, $gmtHour, $fxtHour, array $ticks) {
 
 
 /**
- * Lädt die Daten einer einzelnen Forex-Handelsstunde und gibt sie zurück.
- *
- * @param  string $symbol  - Symbol
- * @param  int    $gmtHour - GMT-Timestamp der zu ladenden Stunde
- * @param  int    $fxtHour - FXT-Timestamp der zu ladenden Stunde
- *
- * @return array[] - Array mit Tickdaten
- */
-function loadTicks($symbol, $gmtHour, $fxtHour) {
-   if (!is_int($gmtHour)) throw new IllegalTypeException('Illegal type of parameter $gmtHour: '.getType($gmtHour));
-   if (!is_int($fxtHour)) throw new IllegalTypeException('Illegal type of parameter $fxtHour: '.getType($fxtHour));
-   $shortDate = gmDate('D, d-M-Y H:i', $fxtHour);
-
-   // Die Tickdaten der Handelsstunde werden in folgender Reihenfolge gesucht:
-   //  • in bereits dekomprimierten Dukascopy-Dateien
-   //  • in noch komprimierten Dukascopy-Dateien
-   //  • als Dukascopy-Download
-
-   global $saveCompressedDukascopyFiles;
-   $ticks = array();
-
-   // dekomprimierte Dukascopy-Datei suchen und bei Erfolg Ticks laden
-   if (!$ticks) {
-      if (is_file($file=getVar('dukaFile.raw', $symbol, $gmtHour))) {
-         $ticks = loadRawDukascopyTickFile($file, $symbol, $gmtHour, $fxtHour);
-         if (!$ticks) return false;
-      }
-   }
-
-   // ggf. komprimierte Dukascopy-Datei suchen und bei Erfolg Ticks laden
-   if (!$ticks) {
-      if (is_file($file=getVar('dukaFile.compressed', $symbol, $gmtHour))) {
-         $ticks = loadCompressedDukascopyTickFile($file, $symbol, $gmtHour, $fxtHour);
-         if (!$ticks) return false;
-      }
-   }
-
-   // ggf. Dukascopy-Datei herunterladen und Ticks laden
-   if (!$ticks) {
-      $data = downloadTickdata($symbol, $gmtHour, $fxtHour, false, $saveCompressedDukascopyFiles);
-      if (!$data) return false;
-      $ticks = loadCompressedDukascopyTickData($data, $symbol, $gmtHour, $fxtHour);
-      if (!$ticks) return false;
-   }
-
-   return $ticks;
-}
-
-
-/**
  * Lädt eine Dukascopy-Tickdatei und gibt ihren Inhalt zurück.
  *
  * @param  string $symbol    - Symbol der herunterzuladenen Datei
@@ -369,27 +370,30 @@ function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=f
 
 
    // (1) Standard-Browser simulieren
-   $userAgent = Config ::get('myfx.useragent'); if (!$userAgent) throw new plInvalidArgumentException('Invalid user agent configuration: "'.$userAgent.'"');
-   $request = HttpRequest ::create()
-                          ->setUrl($url)
-                          ->setHeader('User-Agent'     , $userAgent                                                       )
-                          ->setHeader('Accept'         , 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
-                          ->setHeader('Accept-Language', 'en-us'                                                          )
-                          ->setHeader('Accept-Charset' , 'ISO-8859-1,utf-8;q=0.7,*;q=0.7'                                 )
-                          ->setHeader('Keep-Alive'     , '115'                                                            )
-                          ->setHeader('Connection'     , 'keep-alive'                                                     )
-                          ->setHeader('Cache-Control'  , 'max-age=0'                                                      )
-                          ->setHeader('Referer'        , 'http://www.dukascopy.com/free/candelabrum/'                     );
-   $options[CURLOPT_SSL_VERIFYPEER] = false;                         // falls HTTPS verwendet wird
+   $userAgent = Config::get('myfx.useragent'); if (!$userAgent) throw new plInvalidArgumentException('Invalid user agent configuration: "'.$userAgent.'"');
+   $request = HttpRequest::create()
+                         ->setUrl($url)
+                         ->setHeader('User-Agent'     , $userAgent                                                       )
+                         ->setHeader('Accept'         , 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
+                         ->setHeader('Accept-Language', 'en-us'                                                          )
+                         ->setHeader('Accept-Charset' , 'ISO-8859-1,utf-8;q=0.7,*;q=0.7'                                 )
+                         ->setHeader('Connection'     , 'keep-alive'                                                     )
+                         ->setHeader('Cache-Control'  , 'max-age=0'                                                      )
+                         ->setHeader('Referer'        , 'http://www.dukascopy.com/free/candelabrum/'                     );
+   $options[CURLOPT_SSL_VERIFYPEER] = false;                            // falls HTTPS verwendet wird
+   //$options[CURLOPT_VERBOSE     ] = true;
 
    // (2) HTTP-Request abschicken und auswerten
-   $response = CurlHttpClient ::create($options)->send($request);    // TODO: CURL-Fehler wie bei SimpleTrader behandeln
+   static $httpClient = null;
+   !$httpClient && $httpClient=CurlHttpClient::create($options);        // Instanz für KeepAlive-Connections wiederverwenden
+
+   $response = $httpClient->send($request);                             // TODO: CURL-Fehler wie bei SimpleTrader behandeln
    $status   = $response->getStatus();
    if ($status!=200 && $status!=404) throw new plRuntimeException('Unexpected HTTP status '.$status.' ('.HttpResponse::$sc[$status].') for url "'.$url.'"'.NL.printFormatted($response, true));
 
    // eine leere Antwort ist möglich und wird als Fehler behandelt
    $content = $response->getContent();
-   if ($status == 404) $content = '';                                // möglichen Content eines 404-Fehlers zurücksetzen
+   if ($status == 404) $content = '';                                   // möglichen Content eines 404-Fehlers zurücksetzen
 
 
    // (3) Download-Success: 200 und Datei ist nicht leer
@@ -406,13 +410,13 @@ function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=f
          fWrite($hFile, $content);
          fClose($hFile);
          if (is_file($file)) unlink($file);
-         rename($tmpFile, $file);                                    // So kann eine existierende Datei niemals korrupt sein.
+         rename($tmpFile, $file);                                       // So kann eine existierende Datei niemals korrupt sein.
       }
    }
 
    // (4) Download-Fehler: ist das Flag $saveError gesetzt, Fehler speichern
    else {
-      if ($saveError) {                                              // Fehlerdatei unter FXT-Namen speichern
+      if ($saveError) {                                                 // Fehlerdatei unter FXT-Namen speichern
          $file = getVar($status==404 ? 'dukaFile.404':'dukaFile.empty', $symbol, $fxtHour);
          mkDirWritable(dirName($file), 0700);
          fClose(fOpen($file, 'wb'));

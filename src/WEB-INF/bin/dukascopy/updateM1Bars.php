@@ -412,14 +412,17 @@ function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $save
                           ->setHeader('Accept'         , 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
                           ->setHeader('Accept-Language', 'en-us'                                                          )
                           ->setHeader('Accept-Charset' , 'ISO-8859-1,utf-8;q=0.7,*;q=0.7'                                 )
-                          ->setHeader('Keep-Alive'     , '115'                                                            )
                           ->setHeader('Connection'     , 'keep-alive'                                                     )
                           ->setHeader('Cache-Control'  , 'max-age=0'                                                      )
                           ->setHeader('Referer'        , 'http://www.dukascopy.com/free/candelabrum/'                     );
-   $options[CURLOPT_SSL_VERIFYPEER] = false;                         // falls HTTPS verwendet wird
+   $options[CURLOPT_SSL_VERIFYPEER] = false;                            // falls HTTPS verwendet wird
+   //$options[CURLOPT_VERBOSE     ] = true;
 
    // (2) HTTP-Request abschicken und auswerten
-   $response = CurlHttpClient ::create($options)->send($request);    // TODO: CURL-Fehler wie bei SimpleTrader behandeln
+   static $httpClient = null;
+   !$httpClient && $httpClient=CurlHttpClient::create($options);        // Instanz für KeepAlive-Connections wiederverwenden
+
+   $response = $httpClient->send($request);                             // TODO: CURL-Fehler wie bei SimpleTrader behandeln
    $status   = $response->getStatus();
    if ($status!=200 && $status!=404) throw new plRuntimeException('Unexpected HTTP status '.$status.' ('.HttpResponse::$sc[$status].') for url "'.$url.'"'.NL.printFormatted($response, true));
 
@@ -442,7 +445,7 @@ function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $save
          fWrite($hFile, $response->getContent());
          fClose($hFile);
          if (is_file($file)) unlink($file);
-         rename($tmpFile, $file);                                    // So kann eine existierende Datei niemals korrupt sein.
+         rename($tmpFile, $file);                                       // So kann eine existierende Datei niemals korrupt sein.
       }
    }
 

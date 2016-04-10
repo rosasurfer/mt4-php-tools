@@ -293,7 +293,8 @@ class UploadAccountHistoryActionForm extends ActionForm {
     * Destructor
     */
    public function __destruct() {
-      // Ein Destructor darf während des Shutdowns keine Exception werfen.
+      // Attempting to throw an exception from a destructor during script shutdown causes a fatal error.
+      // @see http://php.net/manual/en/language.oop5.decon.php
       try {
          // tmp. Dateien manuell löschen, da $FILES-Array u.U. emuliert sein kann
          if (is_file($this->file['tmp_name']))

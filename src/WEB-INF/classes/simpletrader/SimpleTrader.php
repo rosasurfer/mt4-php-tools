@@ -43,15 +43,14 @@ class SimpleTrader extends StaticClass {
                              ->setHeader('Accept'         , 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
                              ->setHeader('Accept-Language', 'en-us'                                                          )
                              ->setHeader('Accept-Charset' , 'ISO-8859-1,utf-8;q=0.7,*;q=0.7'                                 )
-                             ->setHeader('Keep-Alive'     , '115'                                                            )
                              ->setHeader('Connection'     , 'keep-alive'                                                     )
                              ->setHeader('Cache-Control'  , 'max-age=0'                                                      );
 
       // Cookies in der angegebenen Datei verwenden
       $cookieFile = dirName(realPath($_SERVER['PHP_SELF'])).DIRECTORY_SEPARATOR.'cookies.txt';
-      $options[CURLOPT_COOKIEFILE    ] = $cookieFile;          // read cookies from
-      $options[CURLOPT_COOKIEJAR     ] = $cookieFile;          // write cookies to
-      $options[CURLOPT_SSL_VERIFYPEER] = false;                // das SimpleTrader-SSL-Zertifikat ist evt. ungültig
+      $options[CURLOPT_COOKIEFILE    ] = $cookieFile;                   // read cookies from
+      $options[CURLOPT_COOKIEJAR     ] = $cookieFile;                   // write cookies to
+      $options[CURLOPT_SSL_VERIFYPEER] = false;                         // das SimpleTrader-SSL-Zertifikat ist evt. ungültig
 
 
       // TODO: Bei einem Netzwerkausfall am Server muß das Script weiterlaufen und seine Arbeit bei Rückkehr des Netzwerkes fortsetzen.
@@ -61,16 +60,19 @@ class SimpleTrader extends StaticClass {
       $key     = $fullHistory ? 'fullHistory':'currentHistory';
       $counter = 0;
       while (true) {
-         $i       = $counter % sizeof(self::$urls);            // bei Neuversuchen abwechselnd alle URL's durchprobieren
+         $i       = $counter % sizeof(self::$urls);                     // bei Neuversuchen abwechselnd alle URL's durchprobieren
          $url     = str_replace('{signal_ref_id}', $referenceId, self::$urls[$i][$key]);
          $referer = self::$urls[$i]['referer'];
          $request->setUrl($url)->setHeader('Referer', $referer);
 
+         static $httpClient = null;                                     // Instanz wiederverwenden, um Keep-Alive-Connections zu ermöglichen
+         !$httpClient && $httpClient=CurlHttpClient::create($options);
+
          try {
             $counter++;
-            $response = CurlHttpClient::create($options)->send($request);
+            $httpClient->send($request);
 
-            if (is_null($response->getContent()))              // Serverfehler, entspricht CURLE_GOT_NOTHING
+            if (is_null($response->getContent()))                       // Serverfehler, entspricht CURLE_GOT_NOTHING
                throw new IOException('Empty reply from server, url: '.$request->getUrl());
          }
          catch (IOException $ex) {
@@ -80,9 +82,9 @@ class SimpleTrader extends StaticClass {
                 strStartsWith($msg, 'CURL error CURLE_OPERATION_TIMEDOUT'  ) ||
                 strStartsWith($msg, 'CURL error CURLE_GOT_NOTHING'         ) ||
                 strStartsWith($msg, 'Empty reply from server'              )) {
-               if ($counter < 10) {                            // bis zu 10 Versuche, eine URL zu laden
+               if ($counter < 10) {                                     // bis zu 10 Versuche, eine URL zu laden
                   Logger ::warn($msg."\nretrying ... ($counter)", __CLASS__);
-                  sleep(10);                                   // vor jedem weiteren Versuch einige Sekunden warten
+                  sleep(10);                                            // vor jedem weiteren Versuch einige Sekunden warten
                   continue;
                }
             }
