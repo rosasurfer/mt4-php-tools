@@ -36,8 +36,8 @@ foreach ($args as $i => $arg) {
 $args = $args ? array_unique($args) : array_keys(MyFX::$symbols);                   // ohne Symbol werden alle Instrumente verarbeitet
 
 
-// (2) SIGINT-Handler installieren
-if (!WINDOWS) pcntl_signal(SIGINT, 'onSignal');
+// (2) SIGINT-Handler installieren                                                  // Um bei Ctrl-C Destruktoren auszuführen, reicht es,
+if (!WINDOWS) pcntl_signal(SIGINT, create_function('$signal', 'exit(0);'));         // wenn im Handler exit() aufgerufen wird.
 
 
 // (3) History aktualisieren
@@ -106,18 +106,6 @@ function updateHistory($symbol) {
 
    echoPre('[Ok]      '.$symbol);
    return true;
-}
-
-
-/**
- * Signalhandler
- *
- * @param  int $signal - das aufgetretene Signal
- */
-function onSignal($signal) {
-   switch ($signal) {
-      case SIGINT: exit(0);      // Um bei Ctrl-C Destruktoren von Objekt-Instanzen auszuführen, reicht es,
-   }                             // wenn der SIGINT-Handler installiert ist. Er kann leer sein.
 }
 
 
