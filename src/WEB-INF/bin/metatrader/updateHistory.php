@@ -78,7 +78,7 @@ function updateHistory($symbol) {
    $startTime = $lastSyncTime ? $lastSyncTime : fxtTime(MyFX::$symbols[$symbol]['historyStart']['M1']);
    $startDay  = $startTime - $startTime%DAY;                                                 // 00:00 der Startzeit
    $today     = ($time=fxtTime()) - $time%DAY;                                               // 00:00 des aktuellen Tages
-   $today     = $startDay + 5*DAYS;                   // zu Testzwecken nur x Tage
+   $today     = $startDay + 500*DAYS;                   // zu Testzwecken nur x Tage
    $lastMonth = -1;
 
    for ($day=$startDay; $day < $today; $day+=1*DAY) {
