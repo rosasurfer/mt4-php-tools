@@ -440,12 +440,66 @@ class HistoryFile extends Object {
     * Entfernt einen Teil der Historydatei und ersetzt ihn mit den übergebenen Bardaten. Die Größe der Datei wird
     * entsprechend angepaßt.
     *
-    * @param  int        $offset - Offset, ab dem Bars entfernt werden
-    * @param  int        $length - Anzahl der zu entfernenden Bars
-    * @param  MYFX_BAR[] $bars   - an Stelle der entfernten Bars einzufügende Bars (default: keine)
+    * @param  int        $offset - If offset is zero or positive then the start of the removed bars is at that bar offset from the beginning
+    *                              of the history. If offset is negative then removing starts that far from the end of the history.
+    *
+    * @param  int        $length - If length is omitted everything from offset to the end of the history is removed. If length is specified
+    *                              and is positive then that many bars will be removed. If length is specified and is negative then the end
+    *                              of the removed part will be that many bars from the end of the history.
+    *                              Tip: To remove everything from offset to the end of the history when replacement bars are also specified
+    *                              use sizeOf($input) for length.
+    *
+    * @param  MYFX_BAR[] $bars   - If replacement bars are specified then the removed bars are replaced with bars from this array. If offset
+    *                              and length are such that nothing is removed then the bars from the replacement array are inserted in the
+    *                              place specified by offset.
+    *
+    * Examples:   • splice(0, 1)   removes the first bar
+    *             • splice(-1)     removes the last bar (to be exact: everything from the last bar to the end)
+    *             • splice(0, -2)  removes everything (from the beginning) except the last two bars
     */
    public function splice($offset, $length=null, array $bars=null) {
-      throw new UnimplementedFeatureException(__METHOD__.'()');
+      if (!is_int($offset))                      throw new IllegalTypeException('Illegal type of parameter $offset: '.getType($offset));
+      if (!is_null($length) && !is_int($length)) throw new IllegalTypeException('Illegal type of parameter $$length: '.getType($$length));
+
+      if ($offset >= 0) {
+         if ($offset >= $this->full_bars) throw new plInvalidArgumentException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
+         $fromOffset = $offset;
+      }
+      else {
+         if ($offset < -$this->full_bars) throw new plInvalidArgumentException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
+         $fromOffset = $this->full_bars + $offset;
+      }
+
+      if      (is_null($length)) $toOffset = $this->full_to_offset;
+      else if ($length >= 0)     $toOffset = min($fromOffset + $length - 1, $this->full_to_offset);
+      else if ($length < $offset && $offset < 0) throw new plInvalidArgumentException('Parameters mis-match $offset='.$offset.' / $length='.$length.' ('.$this->full_bars.' bars in history)');
+      else                       $toOffset = $this->full_to_offset + $length;
+      $length = $toOffset - $fromOffset + 1;
+      if (!$length) $toOffset = $fromOffset;
+
+      if      (!$bars)  echoPre('removing '.$length.' bar(s) from offset '.$fromOffset.' to '.$toOffset);
+      else if ($length) echoPre('replacing '.$length.' bar(s) from offset '.$fromOffset.' to '.$toOffset.' with '.($size=sizeOf($bars)).' bars from '.gmDate('d-M-Y H:i:s', $bars[0]['time']).' to '.gmDate('d-M-Y H:i:s', $bars[$size-1]['time']));
+      else              echoPre('inserting '.($size=sizeOf($bars)).' bar(s) from '.gmDate('d-M-Y H:i:s', $bars[0]['time']).' to '.gmDate('d-M-Y H:i:s', $bars[$size-1]['time']).' at offset '.$fromOffset);
+
+
+      /*
+      $this->showMetaData(false, true, false);
+
+      $array = array(1,2,3,4,5);
+      echoPre($array);
+      array_splice($array, -2, -1);
+      echoPre($array);
+
+      M1::full_bars             = 101381
+      M1::full_from_offset      = 0
+      M1::full_from_openTime    = Mon, 04-Aug-2003 00:00:00
+      M1::full_from_closeTime   = Mon, 04-Aug-2003 00:01:00
+      M1::full_to_offset        = 101380
+      M1::full_to_openTime      = Mon, 10-Nov-2003 09:40:00
+      M1::full_to_closeTime     = Mon, 10-Nov-2003 09:41:00
+      M1::full_lastSyncTime     = Fri, 07-Nov-2003 10:40:00
+      */
+      exit();
    }
 
 
@@ -501,11 +555,6 @@ class HistoryFile extends Object {
          // History-Range mit Bar-Range ersetzen
          $hstOffsetTo = $this->findBarOffsetPrevious($bars[$size-1]['time']);
          $length      = $hstOffsetTo - $hstOffsetFrom + 1;
-
-         //$this->showMetaData();
-         echoPre('inserting '.$size.' bars from '.gmDate('d-M-Y H:i:s', $bars[0]['time']).' to '.gmDate('d-M-Y H:i:s', $bars[$size-1]['time']));
-         echoPre('replacing '.($hstOffsetTo - $hstOffsetFrom + 1).' history bars from offset '.$hstOffsetFrom.' to '.$hstOffsetTo);
-
          $this->splice($hstOffsetFrom, $length, $bars);
       }
    }
@@ -819,6 +868,7 @@ class HistoryFile extends Object {
    public function showMetaData($showStored=true, $showFull=true, $showFile=true) {
       $Pxx = MyFX::periodDescription($this->period);
 
+      ($showStored || $showFull || $showFile) && echoPre(NL);
       if ($showStored) {
          echoPre($Pxx.'::stored_bars           = '. $this->stored_bars);
          echoPre($Pxx.'::stored_from_offset    = '. $this->stored_from_offset);
@@ -829,9 +879,8 @@ class HistoryFile extends Object {
          echoPre($Pxx.'::stored_to_closeTime   = '.($this->stored_to_closeTime   ? gmDate('D, d-M-Y H:i:s', $this->stored_to_closeTime  ) : 0));
          echoPre($Pxx.'::stored_lastSyncTime   = '.($this->stored_lastSyncTime   ? gmDate('D, d-M-Y H:i:s', $this->stored_lastSyncTime  ) : 0));
       }
-      $showStored && $showFull && echoPre(NL);
-
       if ($showFull) {
+         $showStored && echoPre(NL);
          echoPre($Pxx.'::full_bars             = '. $this->full_bars);
          echoPre($Pxx.'::full_from_offset      = '. $this->full_from_offset);
          echoPre($Pxx.'::full_from_openTime    = '.($this->full_from_openTime    ? gmDate('D, d-M-Y H:i:s', $this->full_from_openTime   ) : 0));
@@ -841,12 +890,10 @@ class HistoryFile extends Object {
          echoPre($Pxx.'::full_to_closeTime     = '.($this->full_to_closeTime     ? gmDate('D, d-M-Y H:i:s', $this->full_to_closeTime    ) : 0));
          echoPre($Pxx.'::full_lastSyncTime     = '.($this->full_lastSyncTime     ? gmDate('D, d-M-Y H:i:s', $this->full_lastSyncTime    ) : 0));
       }
-      ($showStored || $showFull) && echoPre(NL);
-
       if ($showFile) {
+         ($showStored || $showFull) && echoPre(NL);
          echoPre($Pxx.'::lastM1DataTime        = '.($this->lastM1DataTime        ? gmDate('D, d-M-Y H:i:s', $this->lastM1DataTime       ) : 0));
          echoPre($Pxx.'::fp                    = '.($fp=fTell($this->hFile)).' (bar offset '.(($fp-HistoryHeader::SIZE)/$this->barSize).')');
       }
-      echoPre(NL);
    }
 }
