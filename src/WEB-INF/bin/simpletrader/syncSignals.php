@@ -40,7 +40,7 @@ $args = $args ? array_unique($args) : array('*');              // ohne Signal-Pa
 
 // (2) Erreichbarkeit der Datenbank prüfen                     // Als Extra-Schritt, damit ein Connection-Fehler bei Programmstart nur eine
 try {                                                          // kurze Fehlermeldung, während der Programmausführung jedoch einen kritischen
-   Signal ::dao()->getDB()->executeSql("select 1");            // Fehler (mit Stacktrace) auslöst.
+   Signal::dao()->getDB()->executeSql("select 1");             // Fehler (mit Stacktrace) auslöst.
 }
 catch (InfrastructureException $ex) {
    if (strStartsWithI($ex->getMessage(), 'can not connect')) {
@@ -84,15 +84,15 @@ function processSignal($alias, $fileSyncOnly) {
 
    // Ist ein Wildcard angegeben, wird die Funktion rekursiv für alle Signale aufgerufen.
    if ($alias == '*') {
-      $self = __FUNCTION__;
-      foreach (Signal ::dao()->listAll() as $signal)
-         $self($signal->getAlias(), $fileSyncOnly);
+      $me = __FUNCTION__;
+      foreach (Signal::dao()->listAll() as $signal)
+         $me($signal->getAlias(), $fileSyncOnly);
       return true;
    }
 
    static $openUpdates=false, $closedUpdates=false;                  // ob beim letzten Aufruf Änderungen eines Signals festgestellt wurden
 
-   $signal = Signal ::dao()->getByAlias($alias);
+   $signal = Signal::dao()->getByAlias($alias);
    if (!$signal) {
       echoPre('Invalid or unknown signal: '.$alias);
       return false;
@@ -109,11 +109,11 @@ function processSignal($alias, $fileSyncOnly) {
          $counter++;
 
          // HTML-Seite laden
-         $html = SimpleTrader ::loadSignalPage($signal, $fullHistory);
+         $html = SimpleTrader::loadSignalPage($signal, $fullHistory);
 
          // HTML-Seite parsen
          $openPositions = $closedPositions = array();
-         $errorMsg = SimpleTrader ::parseSignalData($signal, $html, $openPositions, $closedPositions);
+         $errorMsg = SimpleTrader::parseSignalData($signal, $html, $openPositions, $closedPositions);
 
          // bei PHP-Fehlermessages in HTML-Seite URL nochmal laden (bis zu 5 Versuche)
          if ($errorMsg) {
@@ -145,7 +145,7 @@ function processSignal($alias, $fileSyncOnly) {
 
 
    // Datenfiles für MetaTrader::MQL aktualisieren
-   MT4 ::updateDataFiles($signal, $openUpdates, $closedUpdates);
+   MT4::updateDataFiles($signal, $openUpdates, $closedUpdates);
 
    return true;
 }
