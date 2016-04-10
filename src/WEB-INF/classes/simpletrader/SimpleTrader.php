@@ -70,10 +70,9 @@ class SimpleTrader extends StaticClass {
 
          try {
             $counter++;
-            $httpClient->send($request);
-
-            if (is_null($response->getContent()))                       // Serverfehler, entspricht CURLE_GOT_NOTHING
-               throw new IOException('Empty reply from server, url: '.$request->getUrl());
+            $response = $httpClient->send($request);
+                                                                        // Serverfehler, entspricht CURLE_GOT_NOTHING
+            if (is_null($response->getContent())) throw new IOException('Empty reply from server, url: '.$request->getUrl());
          }
          catch (IOException $ex) {
             $msg = $ex->getMessage();
