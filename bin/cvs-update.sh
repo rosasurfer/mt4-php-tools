@@ -30,14 +30,18 @@ export -n CVSROOT
 
 
 # Update file modes (this takes some time, so we do it in the background).
+#
+# The execute bit of files is preserved if set in the repository:
+# @see  http://durak.org/sean/pubs/software/cvsbook/CVS-keeps-changing-file-permissions_003b-why-does-it-do-that_003f.html
+#
 #find $PROJECT/conf -follow -type f                                                               -print0 2>/dev/null | xargs -0r chmod 0644          && \
 #find $PROJECT      -follow -type d \( ! -group apache -o ! -user apache \) ! -name 'CVS'         -print0 2>/dev/null | xargs -0r chown apache:apache && \
 #find $PROJECT      -follow -type d                                                               -print0 2>/dev/null | xargs -0r chmod 0755          && \
- find $PROJECT      -follow -type f   -path '*/bin*' -prune -regex '.*\.\(pl\|php\|sh\)'          -print0 2>/dev/null | xargs -0r chmod 0754          && \
+#find $PROJECT      -follow -type f   -path '*/bin*' -prune -regex '.*\.\(pl\|php\|sh\)'          -print0 2>/dev/null | xargs -0r chmod 0754          && \
 #find $PROJECT      -follow -type f ! -path '*/bin*' -prune ! -path '*/tmp*' -prune ! -perm 0644  -print0 2>/dev/null | xargs -0r chmod 0644          && \
 #find $PROJECT      -follow \( -name '.ht*' -o -name '*_log' \)                                   -print0 2>/dev/null | xargs -0r chown apache:apache && \
- find $PROJECT      -follow -type f -name '*.sh'                                                  -print0 2>/dev/null | xargs -0r chmod u+x           && \
- find $PROJECT      -follow -name '.#*'                                                           -print0 2>/dev/null | xargs -0r rm                  &
+#find $PROJECT      -follow -type f -name '*.sh'                                                  -print0 2>/dev/null | xargs -0r chmod u+x           && \
+#find $PROJECT      -follow -name '.#*'                                                           -print0 2>/dev/null | xargs -0r rm                  &
 
 
 
