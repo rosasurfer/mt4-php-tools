@@ -168,6 +168,7 @@ class HistoryFile extends Object {
       $fileSize = fileSize($this->serverDirectory.'/'.$this->fileName);
       if ($fileSize > HistoryHeader::SIZE) {
          $bars    = ($fileSize-HistoryHeader::SIZE) / $this->barSize;
+         fFlush($this->hFile);
          $barFrom = $barTo = unpack($this->barUnpackFormat, fRead($this->hFile, $this->barSize));
          if ($bars > 1) {
             fSeek($this->hFile, HistoryHeader::SIZE + ($bars-1)*$this->barSize);
@@ -282,6 +283,7 @@ class HistoryFile extends Object {
       if ($offset > $this->stored_to_offset)                                     // bar[$offset] liegt in buffered Bars (MYFX_BAR)
          return $this->barBuffer[$offset-$this->stored_to_offset-1];
 
+      fFlush($this->hFile);
       fSeek($this->hFile, HistoryHeader::SIZE + $offset*$this->barSize);         // bar[$offset] liegt in stored Bars (HISTORY_BAR)
       return unpack($this->barUnpackFormat, fRead($this->hFile, $this->barSize));
    }
@@ -461,26 +463,37 @@ class HistoryFile extends Object {
       if (!is_int($offset))                      throw new IllegalTypeException('Illegal type of parameter $offset: '.getType($offset));
       if (!is_null($length) && !is_int($length)) throw new IllegalTypeException('Illegal type of parameter $$length: '.getType($$length));
 
+      // absoluten $fromOffset ermitteln
       if ($offset >= 0) {
-         if ($offset >= $this->full_bars) throw new plInvalidArgumentException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
+         if ($offset >= $this->full_bars)   throw new plInvalidArgumentException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
          $fromOffset = $offset;
       }
+      else if ($offset < -$this->full_bars) throw new plInvalidArgumentException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
+      else $fromOffset = $this->full_bars + $offset;
+
+      // absoluten $toOffset ermitteln
+      if (is_null($length)) {
+         $toOffset = $this->full_to_offset;
+      }
+      else if ($length >= 0) {
+         $toOffset = $fromOffset + $length - 1;
+         if ($toOffset > $this->full_to_offset)  throw new plInvalidArgumentException('Parameters mis-match $offset='.$offset.' / $length='.$length.' ('.$this->full_bars.' bars in history)');
+      }
+      else if ($length < $offset && $offset < 0) throw new plInvalidArgumentException('Parameters mis-match $offset='.$offset.' / $length='.$length.' ('.$this->full_bars.' bars in history)');
       else {
-         if ($offset < -$this->full_bars) throw new plInvalidArgumentException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
-         $fromOffset = $this->full_bars + $offset;
+         $toOffset = $this->full_to_offset + $length;
       }
 
-      if      (is_null($length)) $toOffset = $this->full_to_offset;
-      else if ($length >= 0)     $toOffset = min($fromOffset + $length - 1, $this->full_to_offset);
-      else if ($length < $offset && $offset < 0) throw new plInvalidArgumentException('Parameters mis-match $offset='.$offset.' / $length='.$length.' ('.$this->full_bars.' bars in history)');
-      else                       $toOffset = $this->full_to_offset + $length;
+      // absolute $length ermitteln
       $length = $toOffset - $fromOffset + 1;
       if (!$length) $toOffset = $fromOffset;
+      if (!$length && !$bars)                                        // nothing to do
+         return;
+
 
       if      (!$bars)  echoPre('removing '.$length.' bar(s) from offset '.$fromOffset.' to '.$toOffset);
       else if ($length) echoPre('replacing '.$length.' bar(s) from offset '.$fromOffset.' to '.$toOffset.' with '.($size=sizeOf($bars)).' bars from '.gmDate('d-M-Y H:i:s', $bars[0]['time']).' to '.gmDate('d-M-Y H:i:s', $bars[$size-1]['time']));
       else              echoPre('inserting '.($size=sizeOf($bars)).' bar(s) from '.gmDate('d-M-Y H:i:s', $bars[0]['time']).' to '.gmDate('d-M-Y H:i:s', $bars[$size-1]['time']).' at offset '.$fromOffset);
-
 
       /*
       $this->showMetaData(false, true, false);
