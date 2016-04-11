@@ -439,31 +439,92 @@ class HistoryFile extends Object {
 
 
    /**
-    * Entfernt einen Teil der Historydatei und ersetzt ihn mit den übergebenen Bardaten. Die Größe der Datei wird
-    * entsprechend angepaßt.
+    * Entfernt einen Teil der Historydatei und ersetzt ihn mit den übergebenen Bardaten. Die Größe der Datei wird entsprechend angepaßt.
     *
     * @param  int        $offset - If offset is zero or positive then the start of the removed bars is at that bar offset from the beginning
     *                              of the history. If offset is negative then removing starts that far from the end of the history.
     *
     * @param  int        $length - If length is omitted everything from offset to the end of the history is removed. If length is specified
-    *                              and is positive then that many bars will be removed. If length is specified and is negative then the end
-    *                              of the removed part will be that many bars from the end of the history.
-    *                              Tip: To remove everything from offset to the end of the history when replacement bars are also specified
-    *                              use sizeOf($input) for length.
+    *                              and is positive then that many bars will be removed. If length is specified and is negative then length
+    *                              bars at the end of the history  will be left.
     *
     * @param  MYFX_BAR[] $bars   - If replacement bars are specified then the removed bars are replaced with bars from this array. If offset
-    *                              and length are such that nothing is removed then the bars from the replacement array are inserted in the
-    *                              place specified by offset.
+    *                              and length are such that nothing is removed then the bars from the replacement array are inserted at the
+    *                              specified offset. If offset is one greater than the greatest existing offset the replacement array is
+    *                              appended.
     *
-    * Examples:   • splice(0, 1)   removes the first bar
-    *             • splice(-1)     removes the last bar (to be exact: everything from the last bar to the end)
-    *             • splice(0, -2)  removes everything (from the beginning) except the last two bars
+    * Examples: • HistoryFile->spliceBars(0, 1)   removes the first bar
+    *           • HistoryFile->spliceBars(-1)     removes the last bar (to be exact: everything from the last bar to the end)
+    *           • HistoryFile->spliceBars(0, -2)  removes everything from the beginning to the end except the last two bars
     */
-   public function splice($offset, $length=null, array $bars=null) {
-      if (!is_int($offset))                      throw new IllegalTypeException('Illegal type of parameter $offset: '.getType($offset));
-      if (!is_null($length) && !is_int($length)) throw new IllegalTypeException('Illegal type of parameter $$length: '.getType($$length));
+   public function spliceBars($offset, $length=0, array $bars=array()) {
+      if (!is_int($offset)) throw new IllegalTypeException('Illegal type of parameter $offset: '.getType($offset));
+      if (!is_int($length)) throw new IllegalTypeException('Illegal type of parameter $length: '.getType($length));
 
-      // absoluten $fromOffset ermitteln
+      // absoluten Startoffset ermitteln: für appendBars() gültiger Wert bis zu ein Element hinterm History-Ende
+      if ($offset >= 0) {
+         if ($offset > $this->full_bars)    throw new plInvalidArgumentException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
+         $fromOffset = $offset;
+      }
+      else if ($offset < -$this->full_bars) throw new plInvalidArgumentException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
+      else $fromOffset = $this->full_bars + $offset;
+
+      // absoluten Endoffset ermitteln
+      $argc = func_num_args();
+      if ($argc <= 1) {
+         $toOffset = $this->full_to_offset;
+      }
+      else if ($length >= 0) {
+         $toOffset = $fromOffset + $length - 1;
+         if ($toOffset > $this->full_to_offset)  throw new plInvalidArgumentException('Invalid parameter $length='.$length.' at $offset='.$offset.' ('.$this->full_bars.' bars in history)');
+      }
+      else if ($fromOffset == $this->full_bars)  throw new plInvalidArgumentException('Invalid parameter $length='.$length.' at $offset='.$offset.' ('.$this->full_bars.' bars in history)');
+      else if ($length < $offset && $offset < 0) throw new plInvalidArgumentException('Invalid parameter $length='.$length.' at $offset='.$offset.' ('.$this->full_bars.' bars in history)');
+      else {
+         $toOffset = $this->full_to_offset + $length;
+         if ($toOffset+1 < $fromOffset)          throw new plInvalidArgumentException('Invalid parameter $length='.$length.' at $offset='.$offset.' ('.$this->full_bars.' bars in history)');
+      }
+
+      // absolute Länge ermitteln
+      $length = $toOffset - $fromOffset + 1;
+      if (!$length) $toOffset = -1;
+      if (!$length && !$bars) {                                         // nothing to do
+         echoPre(__METHOD__.'()  $fromOffset='.$fromOffset.'  $toOffset='.$toOffset.'  $length='.$length.'  $bars=0  (nothing to do)');
+         return;
+      }
+
+      echoPre(__METHOD__.'()  $fromOffset='.$fromOffset.'  $toOffset='.$toOffset.'  $length='.$length);
+      $this->showMetaData(false, true, false);
+
+
+      // History bearbeiten
+      if      (!$bars)   $this->removeBars($fromOffset, $length);
+      else if (!$length) $this->insertBars($fromOffset, $bars);
+      else {
+         $hstFromBar = $this->getBar($fromOffset);
+         $hstToBar   = $this->getBar($toOffset);
+         echoPre(__METHOD__.'()  replacing '.$length.' bar(s) from offset '.$fromOffset.' ('.gmDate('d-M-Y H:i:s', $hstFromBar['time']).') to offset '.$toOffset.' ('.gmDate('d-M-Y H:i:s', $hstToBar['time']).') with '.($size=sizeOf($bars)).' bars from '.gmDate('d-M-Y H:i:s', $bars[0]['time']).' to '.gmDate('d-M-Y H:i:s', $bars[$size-1]['time']));
+         $this->removeBars($fromOffset, $length);
+         $this->insertBars($fromOffset, $bars);
+      }
+   }
+
+
+   /**
+    * Entfernt einen Teil der Historydatei. Die Größe der Datei wird entsprechend gekürzt.
+    *
+    * @param  int $offset - If offset is zero or positive then the start of the removed bars is at that bar offset from the beginning
+    *                       of the history. If offset is negative then removing starts that far from the end of the history.
+    *
+    * @param  int $length - If length is omitted everything from offset to the end of the history is removed. If length is specified
+    *                       and is positive then that many bars will be removed. If length is specified and is negative then length bars
+    *                       at the end of the history  will be left.
+    */
+   public function removeBars($offset, $length=0) {
+      if (!is_int($offset)) throw new IllegalTypeException('Illegal type of parameter $offset: '.getType($offset));
+      if (!is_int($length)) throw new IllegalTypeException('Illegal type of parameter $length: '.getType($length));
+
+      // absoluten Startoffset ermitteln
       if ($offset >= 0) {
          if ($offset >= $this->full_bars)   throw new plInvalidArgumentException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
          $fromOffset = $offset;
@@ -471,36 +532,65 @@ class HistoryFile extends Object {
       else if ($offset < -$this->full_bars) throw new plInvalidArgumentException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
       else $fromOffset = $this->full_bars + $offset;
 
-      // absoluten $toOffset ermitteln
-      if (is_null($length)) {
+      // Endoffset ermitteln
+      $argc = func_num_args();
+      if ($argc <= 1) {
          $toOffset = $this->full_to_offset;
       }
       else if ($length >= 0) {
          $toOffset = $fromOffset + $length - 1;
-         if ($toOffset > $this->full_to_offset)  throw new plInvalidArgumentException('Parameters mis-match $offset='.$offset.' / $length='.$length.' ('.$this->full_bars.' bars in history)');
+         if ($toOffset > $this->full_to_offset)  throw new plInvalidArgumentException('Invalid parameter $length='.$length.' at $offset='.$offset.' ('.$this->full_bars.' bars in history)');
       }
-      else if ($length < $offset && $offset < 0) throw new plInvalidArgumentException('Parameters mis-match $offset='.$offset.' / $length='.$length.' ('.$this->full_bars.' bars in history)');
+      else if ($length < $offset && $offset < 0) throw new plInvalidArgumentException('Invalid parameter $length='.$length.' at $offset='.$offset.' ('.$this->full_bars.' bars in history)');
       else {
          $toOffset = $this->full_to_offset + $length;
+         if ($toOffset+1 < $fromOffset)          throw new plInvalidArgumentException('Invalid parameter $length='.$length.' at $offset='.$offset.' ('.$this->full_bars.' bars in history)');
       }
 
-      // absolute $length ermitteln
+      // absolute Länge ermitteln
       $length = $toOffset - $fromOffset + 1;
-      if (!$length) $toOffset = $fromOffset;
-      if (!$length && !$bars)                                        // nothing to do
+      if (!$length) {                                         // nothing to do
+         echoPre(__METHOD__.'()  $fromOffset='.$fromOffset.'  $toOffset='.$toOffset.'  $length='.$length.'  (nothing to do)');
          return;
+      }
+
+      $hstFromBar = $this->getBar($fromOffset);
+      $hstToBar   = $this->getBar($toOffset);
+      echoPre(__METHOD__.'()  removing '.$length.' bar(s) from offset '.$fromOffset.' ('.gmDate('d-M-Y H:i:s', $hstFromBar['time']).') to offset '.$toOffset.' ('.gmDate('d-M-Y H:i:s', $hstToBar['time']).')');
+   }
 
 
-      if      (!$bars)  echoPre('removing '.$length.' bar(s) from offset '.$fromOffset.' to '.$toOffset);
-      else if ($length) echoPre('replacing '.$length.' bar(s) from offset '.$fromOffset.' to '.$toOffset.' with '.($size=sizeOf($bars)).' bars from '.gmDate('d-M-Y H:i:s', $bars[0]['time']).' to '.gmDate('d-M-Y H:i:s', $bars[$size-1]['time']));
-      else              echoPre('inserting '.($size=sizeOf($bars)).' bar(s) from '.gmDate('d-M-Y H:i:s', $bars[0]['time']).' to '.gmDate('d-M-Y H:i:s', $bars[$size-1]['time']).' at offset '.$fromOffset);
+   /**
+    * Fügt Bardaten am angebenen Offset einer Historydatei ein. Die Datei wird entsprechend vergrößert.
+    *
+    * @param  int         $offset - If offset is zero or positive then the insertion point is at that bar offset from the beginning
+    *                               of the history. If offset is negative then the insertion point is that far from the end of the history.
+    *
+    * @param  MYFX_BARS[] $bars   - einzufügende Bardaten
+    */
+   public function insertBars($offset, array $bars) {
+      if (!is_int($offset)) throw new IllegalTypeException('Illegal type of parameter $offset: '.getType($offset));
+
+      // absoluten Offset ermitteln
+      if ($offset >= 0) {
+         if ($offset > $this->full_bars)   throw new plInvalidArgumentException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
+         $fromOffset = $offset;
+      }
+      else if ($offset < -$this->full_bars) throw new plInvalidArgumentException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
+      else $fromOffset = $this->full_bars + $offset;
+
+      if (!$bars) {                                            // nothing to do
+         echoPre(__METHOD__.'()  $fromOffset='.$fromOffset.'  $bars=0  (nothing to do)');
+         return;
+      }
+
+      $hstFromBar = $this->getBar($fromOffset);
+      echoPre(__METHOD__.'()  inserting '.($size=sizeOf($bars)).' bar(s) from '.gmDate('d-M-Y H:i:s', $bars[0]['time']).' to '.gmDate('d-M-Y H:i:s', $bars[$size-1]['time']).' at offset '.$fromOffset.' ('.gmDate('d-M-Y H:i:s', $hstFromBar['time']).')');
 
       /*
-      $this->showMetaData(false, true, false);
-
-      $array = array(1,2,3,4,5);
+      $array = array(0,1,2,3,4,5);
       echoPre($array);
-      array_splice($array, -2, -1);
+      array_splice($array, 7, 2, array(6,7));
       echoPre($array);
 
       M1::full_bars             = 101381
@@ -511,8 +601,25 @@ class HistoryFile extends Object {
       M1::full_to_openTime      = Mon, 10-Nov-2003 09:40:00
       M1::full_to_closeTime     = Mon, 10-Nov-2003 09:41:00
       M1::full_lastSyncTime     = Fri, 07-Nov-2003 10:40:00
+
+      http://stackoverflow.com/questions/103593/using-php-how-to-insert-text-without-overwriting-to-the-beginning-of-a-text-fil
       */
-      exit();
+   }
+
+
+   /**
+    * Ersetzt einen Teil der Historydatei durch andere Bardaten. Die Größe der Datei wird entsprechend angepaßt.
+    *
+    * @param  int         $offset - If offset is zero or positive then the start of the removed bars is at that bar offset from the beginning
+    *                               of the history. If offset is negative then removing starts that far from the end of the history.
+    *
+    * @param  int         $length - If length is omitted everything from offset to the end of the history is removed. If length is specified
+    *                               and is positive then that many bars will be removed. If length is specified and is negative then the end
+    *                               of the removed part will be that many bars from the end of the history.
+    *
+    * @param  MYFX_BARS[] $bars   - die ersetzenden Bardaten
+    */
+   public function replaceBars($offset, $length=null, array $bars) {
    }
 
 
@@ -568,7 +675,7 @@ class HistoryFile extends Object {
          // History-Range mit Bar-Range ersetzen
          $hstOffsetTo = $this->findBarOffsetPrevious($bars[$size-1]['time']);
          $length      = $hstOffsetTo - $hstOffsetFrom + 1;
-         $this->splice($hstOffsetFrom, $length, $bars);
+         $this->spliceBars($hstOffsetFrom, $length, $bars);
       }
    }
 
