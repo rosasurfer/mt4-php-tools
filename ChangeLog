@@ -1,0 +1,3 @@
+2016-05-25  Peter Walther
+
+   - Die PHPLib wird per Symlink in "/src/WEB-INF/include" eingebunden. Der Link ist nicht im VCS.
