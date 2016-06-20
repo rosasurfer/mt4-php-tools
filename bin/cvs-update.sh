@@ -26,7 +26,7 @@ cvs -d $CVSROOT login
 cvs -d $CVSROOT -qr update -CPRd -r HEAD $PROJECT
 #-------------------------------------------------------------
 cvs -d $CVSROOT logout
-export -n CVSROOT
+unset CVSROOT
 
 
 # Update permissions (takes some time, so we do it in the background).
