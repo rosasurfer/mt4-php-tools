@@ -7,17 +7,17 @@
  * Die Daten der aktuellen Stunde sind frühestens ab der nächsten Stunde verfügbar.
  *
  *
- * Webseite:      http://www.dukascopy.com/swiss/english/marketwatch/historical/
- *                http://www.dukascopy.com/free/candelabrum/
+ * Webseite:      https://www.dukascopy.com/swiss/english/marketwatch/historical/
+ *                https://www.dukascopy.com/free/candelabrum/
  *
- * Instrumente:   http://www.dukascopy.com/free/candelabrum/data.json
+ * Instrumente:   https://www.dukascopy.com/free/candelabrum/data.json
  *
- * History-Start: http://www.dukascopy.com/datafeed/metadata/HistoryStart.bi5  (Format unbekannt)
+ * History-Start: http://datafeed.dukascopy.com/datafeed/metadata/HistoryStart.bi5  (Format unbekannt)
  *
  * URL-Format:    Eine Datei je Tagestunde GMT,
  *                z.B.: (Januar = 00)
- *                • http://www.dukascopy.com/datafeed/EURUSD/2013/00/06/00h_ticks.bi5
- *                • http://www.dukascopy.com/datafeed/EURUSD/2013/05/10/23h_ticks.bi5
+ *                • http://datafeed.dukascopy.com/datafeed/EURUSD/2013/00/06/00h_ticks.bi5
+ *                • http://datafeed.dukascopy.com/datafeed/EURUSD/2013/05/10/23h_ticks.bi5
  *
  * Dateiformat:   Binär, LZMA-gepackt, Zeiten in GMT (keine Sommerzeit).
  *
@@ -573,11 +573,11 @@ function getVar($id, $symbol=null, $time=null) {
       $dd     = gmDate('d', $time);
       $result = "$yyyy/$mmD/$dd";
    }
-   else if ($id == 'dukaUrl') {              // http://www.dukascopy.com/datafeed/$symbol/$dukaUrlDate/${hour}h_ticks.bi5  // URL
+   else if ($id == 'dukaUrl') {              // http://datafeed.dukascopy.com/datafeed/$symbol/$dukaUrlDate/${hour}h_ticks.bi5  // URL
       if (!$symbol) throw new plInvalidArgumentException('Invalid parameter $symbol: '.$symbol);
       $dukaUrlDate = $self('dukaUrlDate', null, $time);
       $hour        = gmDate('H', $time);
-      $result      = "http://www.dukascopy.com/datafeed/$symbol/$dukaUrlDate/${hour}h_ticks.bi5";
+      $result      = "http://datafeed.dukascopy.com/datafeed/$symbol/$dukaUrlDate/${hour}h_ticks.bi5";
    }
    else if ($id == 'dukaFile.404') {         // $myfxDir/${hour}h_ticks.404                                    // Download-Fehler 404
       $myfxDir = $self('myfxDir', $symbol, $time);

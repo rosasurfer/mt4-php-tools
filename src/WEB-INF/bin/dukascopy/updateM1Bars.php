@@ -6,17 +6,17 @@
  * Die Daten des aktuellen Tags sind frühestens am nächsten Tag verfügbar.
  *
  *
- * Webseite:      http://www.dukascopy.com/swiss/english/marketwatch/historical/
- *                http://www.dukascopy.com/free/candelabrum/
+ * Webseite:      https://www.dukascopy.com/swiss/english/marketwatch/historical/
+ *                https://www.dukascopy.com/free/candelabrum/
  *
- * Instrumente:   http://www.dukascopy.com/free/candelabrum/data.json
+ * Instrumente:   https://www.dukascopy.com/free/candelabrum/data.json
  *
- * History-Start: http://www.dukascopy.com/datafeed/metadata/HistoryStart.bi5  (Format unbekannt)
+ * History-Start: http://datafeed.dukascopy.com/datafeed/metadata/HistoryStart.bi5  (Format unbekannt)
  *
  * URL-Format:    Durchgehend eine Datei je Kalendertag ab History-Start,
  *                z.B.: (Januar = 00)
- *                • http://www.dukascopy.com/datafeed/GBPUSD/2013/00/10/BID_candles_min_1.bi5
- *                • http://www.dukascopy.com/datafeed/GBPUSD/2013/11/31/ASK_candles_min_1.bi5
+ *                • http://datafeed.dukascopy.com/datafeed/GBPUSD/2013/00/10/BID_candles_min_1.bi5
+ *                • http://datafeed.dukascopy.com/datafeed/GBPUSD/2013/11/31/ASK_candles_min_1.bi5
  *
  * Dateiformat:   • Binär, LZMA-gepackt, Zeiten in GMT (keine Sommerzeit).
  *                • In Handelspausen ist durchgehend der letzte Schlußkurs (OHLC) und V=0 (zero) angegeben.
@@ -720,11 +720,11 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
       $dd     = gmDate('d', $time);
       $result = "$yyyy/$mmD/$dd";
    }
-   else if ($id == 'dukaUrl') {  // http://www.dukascopy.com/datafeed/$symbol/$dateD/$dukaName.bi5       // Dukascopy-URL
+   else if ($id == 'dukaUrl') {  // http://datafeed.dukascopy.com/datafeed/$symbol/$dateD/$dukaName.bi5       // Dukascopy-URL
       if (!$symbol) throw new plInvalidArgumentException('Invalid parameter $symbol: '.$symbol);
       $dateD    = $self('dukaUrlDate', null, $time, null);
       $dukaName = $self('dukaName'   , null, null, $type);
-      $result   = "http://www.dukascopy.com/datafeed/$symbol/$dateD/$dukaName.bi5";
+      $result   = "http://datafeed.dukascopy.com/datafeed/$symbol/$dateD/$dukaName.bi5";
    }
    else if ($id == 'dukaFile.404') {         // $myfxDir/$dukaName.404                                   // Download-Fehlerdatei (404)
       $myfxDir  = $self('myfxDir' , $symbol, $time, null);
