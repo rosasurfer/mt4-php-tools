@@ -7,7 +7,7 @@ PROJECT=pewasoft.myfx
 
 
 # Update dependencies.
-REQUIRED_PROJECT=/var/www/php-lib
+REQUIRED_PROJECT=/var/www/ministruts
 [ -f $REQUIRED_PROJECT/bin/cvs-update.sh ] && $REQUIRED_PROJECT/bin/cvs-update.sh
 
 
