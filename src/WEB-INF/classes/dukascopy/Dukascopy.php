@@ -1,4 +1,9 @@
 <?php
+use rosasurfer\ministruts\exceptions\IllegalTypeException;
+use rosasurfer\ministruts\exceptions\InvalidArgumentException;
+use rosasurfer\ministruts\exceptions\RuntimeException;
+
+
 /**
  * Dukascopy related functionality
  *
@@ -38,7 +43,7 @@ class Dukascopy extends StaticClass {
       if (!is_string($data))      throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
       if (!is_null($saveAs)) {
          if (!is_string($saveAs)) throw new IllegalTypeException('Illegal type of parameter $saveAs: '.getType($saveAs));
-         if (!strLen($saveAs))    throw new plInvalidArgumentException('Invalid parameter $saveAs: ""');
+         if (!strLen($saveAs))    throw new InvalidArgumentException('Invalid parameter $saveAs: ""');
       }
 
       $rawData = LZMA ::decompressData($data);
@@ -86,7 +91,7 @@ class Dukascopy extends StaticClass {
    public static function readBarData($data, $symbol, $type, $time) {
       if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
 
-      $lenData = strLen($data); if (!$lenData || $lenData%DUKASCOPY_BAR_SIZE) throw new plRuntimeException('Odd length of passed '.$symbol.' '.$type.' data: '.$lenData.' (not an even DUKASCOPY_BAR_SIZE)');
+      $lenData = strLen($data); if (!$lenData || $lenData%DUKASCOPY_BAR_SIZE) throw new RuntimeException('Odd length of passed '.$symbol.' '.$type.' data: '.$lenData.' (not an even DUKASCOPY_BAR_SIZE)');
       $offset  = 0;
       $bars    = array();
       $i       = -1;
@@ -116,7 +121,7 @@ class Dukascopy extends StaticClass {
             $L = number_format($bars[$i]['low'  ]/$divider, $digits);
             $C = number_format($bars[$i]['close']/$divider, $digits);
 
-            //throw new plRuntimeException("Illegal $symbol $type data for bar[$i] of ".gmDate('D, d-M-Y H:i:s', $time).": O=$O H=$H L=$L C=$C");
+            //throw new RuntimeException("Illegal $symbol $type data for bar[$i] of ".gmDate('D, d-M-Y H:i:s', $time).": O=$O H=$H L=$L C=$C");
             Logger::warn("Illegal $symbol $type data for bar[$i] of ".gmDate('D, d-M-Y H:i:s', $time).": O=$O H=$H L=$L C=$C, adjusting high/low...", __CLASS__);
 
             $bars[$i]['high'] = max($bars[$i]['open'], $bars[$i]['high'], $bars[$i]['low'], $bars[$i]['close']);
@@ -155,7 +160,7 @@ class Dukascopy extends StaticClass {
    public static function readTickData($data) {
       if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
 
-      $lenData = strLen($data); if (!$lenData || $lenData%DUKASCOPY_TICK_SIZE) throw new plRuntimeException('Odd length of passed data: '.$lenData.' (not an even DUKASCOPY_TICK_SIZE)');
+      $lenData = strLen($data); if (!$lenData || $lenData%DUKASCOPY_TICK_SIZE) throw new RuntimeException('Odd length of passed data: '.$lenData.' (not an even DUKASCOPY_TICK_SIZE)');
       $offset  = 0;
       $ticks   = array();
       $i       = -1;

@@ -1,4 +1,8 @@
 <?php
+use rosasurfer\ministruts\exceptions\BusinessRuleException;
+use rosasurfer\ministruts\exceptions\InvalidArgumentException;
+
+
 /**
  * UploadAccountHistoryAction
  */
@@ -38,14 +42,14 @@ class UploadAccountHistoryAction extends Action {
                else           echo("201: History successfully updated.\n");         // 201
                return null;
             }
-            catch (plInvalidArgumentException $ex) {}
+            catch (InvalidArgumentException $ex) {}
             catch (BusinessRuleException    $ex) {}
             $key = $ex->getMessage();
             if (!isSet(self::$messages[$key]))
                throw $ex;
             $request->setActionError('', self::$messages[$key]);
          }
-         catch (Exception $ex) {
+         catch (\Exception $ex) {
             Logger ::log('System not available', $ex, L_ERROR, __CLASS__);
             $request->setActionError('', '500: Server error, try again later.');    // 500
          }

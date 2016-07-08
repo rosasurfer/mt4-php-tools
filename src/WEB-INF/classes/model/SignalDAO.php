@@ -1,4 +1,8 @@
 <?php
+use rosasurfer\ministruts\exceptions\IllegalTypeException;
+use rosasurfer\ministruts\exceptions\InvalidArgumentException;
+
+
 /**
  * DAO zum Zugriff auf Signal-Instanzen.
  */
@@ -28,7 +32,7 @@ class SignalDAO extends CommonDAO {
     */
    public function getById($id) {
       if (!is_int($id)) throw new IllegalTypeException('Illegal type of parameter $id: '.getType($id));
-      if ($id < 1)      throw new plInvalidArgumentException('Invalid argument $id: '.$id);
+      if ($id < 1)      throw new InvalidArgumentException('Invalid argument $id: '.$id);
 
       $sql = "select *
                  from t_signal
@@ -46,7 +50,7 @@ class SignalDAO extends CommonDAO {
     */
    public function getByAlias($alias) {
       if (!is_string($alias)) throw new IllegalTypeException('Illegal type of parameter $alias: '.getType($alias));
-      if ($alias === '')      throw new plInvalidArgumentException('Invalid argument $alias: '.$alias);
+      if ($alias === '')      throw new InvalidArgumentException('Invalid argument $alias: '.$alias);
 
       $alias = addSlashes($alias);
 
@@ -66,7 +70,7 @@ class SignalDAO extends CommonDAO {
     */
    public function getIdByAlias($alias) {
       if (!is_string($alias)) throw new IllegalTypeException('Illegal type of parameter $alias: '.getType($alias));
-      if ($alias === '')      throw new plInvalidArgumentException('Invalid argument $alias: '.$alias);
+      if ($alias === '')      throw new InvalidArgumentException('Invalid argument $alias: '.$alias);
 
       $alias = addSlashes($alias);
 
@@ -90,9 +94,9 @@ class SignalDAO extends CommonDAO {
     * @return string - Zeitpunkt
     */
    public function getLastKnownPositionChangeTime(Signal $signal, $symbol) {
-      if (!$signal->isPersistent()) throw new plInvalidArgumentException('Cannot process non-persistent '.get_class($signal));
+      if (!$signal->isPersistent()) throw new InvalidArgumentException('Cannot process non-persistent '.get_class($signal));
       if (!is_string($symbol))      throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
-      if (!strLen($symbol))         throw new plInvalidArgumentException('Invalid argument $symbol: '.$symbol);
+      if (!strLen($symbol))         throw new InvalidArgumentException('Invalid argument $symbol: '.$symbol);
 
       $signal_id = $signal->getId();
       $symbol    = addSlashes($symbol);

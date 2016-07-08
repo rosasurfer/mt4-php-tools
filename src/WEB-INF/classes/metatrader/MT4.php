@@ -1,4 +1,9 @@
 <?php
+use rosasurfer\ministruts\exceptions\IllegalTypeException;
+use rosasurfer\ministruts\exceptions\InvalidArgumentException;
+use rosasurfer\ministruts\exceptions\RuntimeException;
+
+
 /**
  * MetaTrader related functionality
  */
@@ -307,7 +312,7 @@ class MT4 extends StaticClass {
           $open  < $low  ||                  // aus (H >= O && O >= L) folgt (H >= L)
           $close > $high ||
           $close < $low  ||
-         !$ticks) throw new plRuntimeException('Illegal history bar of '.gmDate('D, d-M-Y', $time).": O=$open H=$high L=$low C=$close V=$ticks");
+         !$ticks) throw new RuntimeException('Illegal history bar of '.gmDate('D, d-M-Y', $time).": O=$open H=$high L=$low C=$close V=$ticks");
 
       // Bardaten in Binärstring umwandeln
       $data = pack('Vddddd', $time,    // V
@@ -394,7 +399,7 @@ class MT4 extends StaticClass {
             }
             fClose($hFile);
          }
-         catch (Exception $ex) {
+         catch (\Exception $ex) {
             if (is_resource($hFile)) fClose($hFile);                 // Unter Windows kann die Datei u.U. (versionsabhängig) nicht im Exception-Handler gelöscht werden
          }                                                           // (gesperrt, da das Handle im Exception-Kontext dupliziert wird). Das Handle muß daher innerhalb UND
          if ($ex) {                                                  // außerhalb des Handlers geschlossen werden, erst dann läßt sich die Datei unter Windows löschen.
@@ -453,7 +458,7 @@ class MT4 extends StaticClass {
                }
                fClose($hFile);
             }
-            catch (Exception $ex) {
+            catch (\Exception $ex) {
                if (is_resource($hFile)) fClose($hFile);              // Unter Windows kann die Datei u.U. (versionsabhängig) nicht im Exception-Handler gelöscht werden
             }                                                        // (gesperrt, da das Handle im Exception-Kontext dupliziert wird). Das Handle muß daher innerhalb UND
             if ($ex) {                                               // außerhalb des Handlers geschlossen werden, erst dann läßt sich die Datei unter Windows löschen.
@@ -554,6 +559,6 @@ class MT4 extends StaticClass {
          case 'W1' : return PERIOD_W1;
          case 'MN1': return PERIOD_MN1;
       }
-      throw new plInvalidArgumentException('Invalid argument $value: '.$value.' (not a timeframe)');
+      throw new InvalidArgumentException('Invalid argument $value: '.$value.' (not a timeframe)');
    }
 }

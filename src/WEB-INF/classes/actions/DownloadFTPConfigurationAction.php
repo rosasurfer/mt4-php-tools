@@ -38,7 +38,7 @@ class DownloadFTPConfigurationAction extends Action {
             }
             $request->setActionError('', '404: File not found');
          }
-         catch (Exception $ex) {
+         catch (\Exception $ex) {
             Logger ::log('System not available', $ex, L_ERROR, __CLASS__);
             $request->setActionError('', '500: Server error, try again later.');
          }

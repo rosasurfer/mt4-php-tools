@@ -1,5 +1,10 @@
 #!/usr/bin/php
 <?php
+use rosasurfer\ministruts\exceptions\IllegalTypeException;
+use rosasurfer\ministruts\exceptions\InvalidArgumentException;
+use rosasurfer\ministruts\exceptions\RuntimeException;
+
+
 /**
  * Aktualisiert die lokal vorhandenen Dukascopy-M1-Daten. Bid und Ask werden zu Median gemerged, nach FXT konvertiert und im
  * MyFX-Format gespeichert. Die Dukascopy-Daten sind durchgehend, Feiertage werden, Wochenenden werden nicht gespeichert.
@@ -15,11 +20,11 @@
  *
  * URL-Format:    Durchgehend eine Datei je Kalendertag ab History-Start,
  *                z.B.: (Januar = 00)
- *                • http://datafeed.dukascopy.com/datafeed/GBPUSD/2013/00/10/BID_candles_min_1.bi5
- *                • http://datafeed.dukascopy.com/datafeed/GBPUSD/2013/11/31/ASK_candles_min_1.bi5
+ *                •http://datafeed.dukascopy.com/datafeed/GBPUSD/2013/00/10/BID_candles_min_1.bi5
+ *                •http://datafeed.dukascopy.com/datafeed/GBPUSD/2013/11/31/ASK_candles_min_1.bi5
  *
- * Dateiformat:   • Binär, LZMA-gepackt, Zeiten in GMT (keine Sommerzeit).
- *                • In Handelspausen ist durchgehend der letzte Schlußkurs (OHLC) und V=0 (zero) angegeben.
+ * Dateiformat:   •Binär, LZMA-gepackt, Zeiten in GMT (keine Sommerzeit).
+ *                •In Handelspausen ist durchgehend der letzte Schlußkurs (OHLC) und V=0 (zero) angegeben.
  *
  *                @see class Dukascopy
  *
@@ -344,7 +349,7 @@ function mergeHistory($symbol, $day) {
    $types = array('bid', 'ask');
    foreach ($types as $type) {
       if (!isSet($barBuffer[$type][$shortDate]) || ($size=sizeOf($barBuffer[$type][$shortDate]))!=1*DAY/MINUTES)
-         throw new plRuntimeException('Unexpected number of MyFX '.$type.' bars for '.$shortDate.' in bar buffer: '.$size.' ('.($size > 1*DAY/MINUTES ? 'more':'less').' then a day)');
+         throw new RuntimeException('Unexpected number of MyFX '.$type.' bars for '.$shortDate.' in bar buffer: '.$size.' ('.($size > 1*DAY/MINUTES ? 'more':'less').' then a day)');
    }
 
 
@@ -405,7 +410,7 @@ function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $save
    if (!$quiet) echoPre('[Info]    '.$shortDate.'   url: '.$url);
 
    // (1) Standard-Browser simulieren
-   $userAgent = Config ::get('myfx.useragent'); if (!$userAgent) throw new plInvalidArgumentException('Invalid user agent configuration: "'.$userAgent.'"');
+   $userAgent = Config ::get('myfx.useragent'); if (!$userAgent) throw new InvalidArgumentException('Invalid user agent configuration: "'.$userAgent.'"');
    $request = HttpRequest ::create()
                           ->setUrl($url)
                           ->setHeader('User-Agent'     , $userAgent                                                       )
@@ -424,7 +429,7 @@ function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $save
 
    $response = $httpClient->send($request);                             // TODO: CURL-Fehler wie bei SimpleTrader behandeln
    $status   = $response->getStatus();
-   if ($status!=200 && $status!=404) throw new plRuntimeException('Unexpected HTTP status '.$status.' ('.HttpResponse::$sc[$status].') for url "'.$url.'"'.NL.printFormatted($response, true));
+   if ($status!=200 && $status!=404) throw new RuntimeException('Unexpected HTTP status '.$status.' ('.HttpResponse::$sc[$status].') for url "'.$url.'"'.NL.printPretty($response, true));
 
    // eine leere Antwort ist möglich und wird wie ein 404-Fehler behandelt
    $content = $response->getContent();
@@ -518,7 +523,7 @@ function processRawDukascopyBarData($data, $symbol, $day, $type) {
 
    // (1) Bars einlesen
    $bars = Dukascopy ::readBarData($data, $symbol, $type, $day);
-   $size = sizeOf($bars); if ($size != 1*DAY/MINUTES) throw new plRuntimeException('Unexpected number of Dukascopy bars in '.getVar('dukaName', null, null, $type).': '.$size.' ('.($size > 1*DAY/MINUTES ? 'more':'less').' then a day)');
+   $size = sizeOf($bars); if ($size != 1*DAY/MINUTES) throw new RuntimeException('Unexpected number of Dukascopy bars in '.getVar('dukaName', null, null, $type).': '.$size.' ('.($size > 1*DAY/MINUTES ? 'more':'less').' then a day)');
 
 
    // (2) Timestamps und FXT-Daten zu den Bars hinzufügen
@@ -558,7 +563,7 @@ function processRawDukascopyBarData($data, $symbol, $day, $type) {
       // Sicherstellen, daß die Daten zu mergender Bars nahtlos ineinander übergehen.
       $lastBarTime = $barBuffer[$type][$shortDate1][sizeOf($barBuffer[$type][$shortDate1])-1]['time_fxt'];
       $nextBarTime = $bars1[0]['time_fxt'];
-      if ($lastBarTime + 1*MINUTE != $nextBarTime) throw new plRuntimeException('Bar time mis-match, bars to merge: "'.getVar('dukaName', null, null, $type).'", $lastBarTime='.$lastBarTime.', $nextBarTime='.$nextBarTime);
+      if ($lastBarTime + 1*MINUTE != $nextBarTime) throw new RuntimeException('Bar time mis-match, bars to merge: "'.getVar('dukaName', null, null, $type).'", $lastBarTime='.$lastBarTime.', $nextBarTime='.$nextBarTime);
       $barBuffer[$type][$shortDate1] = array_merge($barBuffer[$type][$shortDate1], $bars1);
    }
    else {
@@ -569,7 +574,7 @@ function processRawDukascopyBarData($data, $symbol, $day, $type) {
       // Sicherstellen, daß die Daten zu mergender Bars nahtlos ineinander übergehen.
       $lastBarTime = $barBuffer[$type][$shortDate2][sizeOf($barBuffer[$type][$shortDate2])-1]['time_fxt'];
       $nextBarTime = $bars2[0]['time_fxt'];
-      if ($lastBarTime + 1*MINUTE != $nextBarTime) throw new plRuntimeException('Bar time mis-match, bars to merge: "'.getVar('dukaName', null, null, $type).'", $lastBarTime='.$lastBarTime.', $nextBarTime='.$nextBarTime);
+      if ($lastBarTime + 1*MINUTE != $nextBarTime) throw new RuntimeException('Bar time mis-match, bars to merge: "'.getVar('dukaName', null, null, $type).'", $lastBarTime='.$lastBarTime.', $nextBarTime='.$nextBarTime);
       $barBuffer[$type][$shortDate2] = array_merge($barBuffer[$type][$shortDate2], $bars2);
    }
    else {
@@ -598,12 +603,12 @@ function saveBars($symbol, $day) {
    $errorMsg = null;
    if (!$errorMsg && !isSet($barBuffer['avg'][$shortDate]))                                    $errorMsg = 'No "avg" bars of '.$shortDate.' in buffer';
    if (!$errorMsg && ($size=sizeOf($barBuffer['avg'][$shortDate]))!=1*DAY/MINUTES)             $errorMsg = 'Invalid number of "avg" bars for '.$shortDate.' in buffer: '.$size;
-   if (!$errorMsg && $barBuffer['avg'][$shortDate][0      ]['delta_fxt']!=0                  ) $errorMsg = 'No beginning "avg" bars for '.$shortDate.' in buffer, first bar:'.NL.printFormatted($barBuffer['avg'][$shortDate][0], true);
-   if (!$errorMsg && $barBuffer['avg'][$shortDate][$size-1]['delta_fxt']!=23*HOURS+59*MINUTES) $errorMsg = 'No ending "avg" bars for '.$shortDate.' in buffer, last bar:'.NL.printFormatted($barBuffer['avg'][$shortDate][$size-1], true);
+   if (!$errorMsg && $barBuffer['avg'][$shortDate][0      ]['delta_fxt']!=0                  ) $errorMsg = 'No beginning "avg" bars for '.$shortDate.' in buffer, first bar:'.NL.printPretty($barBuffer['avg'][$shortDate][0], true);
+   if (!$errorMsg && $barBuffer['avg'][$shortDate][$size-1]['delta_fxt']!=23*HOURS+59*MINUTES) $errorMsg = 'No ending "avg" bars for '.$shortDate.' in buffer, last bar:'.NL.printPretty($barBuffer['avg'][$shortDate][$size-1], true);
    if (!$errorMsg && ($size=sizeOf(array_keys($barBuffer['avg']))) > 1)                        $errorMsg = 'Invalid bar buffer state: found more then one "avg" data series ('.$size.')';
    if ($errorMsg) {
       showBuffer();
-      throw new plRuntimeException($errorMsg);
+      throw new RuntimeException($errorMsg);
    }
 
 
@@ -615,7 +620,7 @@ function saveBars($symbol, $day) {
           $bar['open' ] < $bar['low' ] ||          // aus (H >= O && O >= L) folgt (H >= L)
           $bar['close'] > $bar['high'] ||          // nicht mit min()/max(), da nicht performant
           $bar['close'] < $bar['low' ] ||
-         !$bar['ticks']) throw new plRuntimeException('Illegal data for MYFX_BAR of '.gmDate('D, d-M-Y H:i:s', $bar['time_fxt']).": O=$bar[open] H=$bar[high] L=$bar[low] C=$bar[close] V=$bar[ticks]");
+         !$bar['ticks']) throw new RuntimeException('Illegal data for MYFX_BAR of '.gmDate('D, d-M-Y H:i:s', $bar['time_fxt']).": O=$bar[open] H=$bar[high] L=$bar[low] C=$bar[close] V=$bar[ticks]");
 
       $data .= pack('VVVVVV', $bar['time_fxt'],
                               $bar['open'    ],
@@ -671,20 +676,20 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
    if (!is_null($symbol) && !is_string($symbol))        throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
    if (!is_null($time)) {
       if (!is_int($time))                               throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
-      if ($time % DAY)                                  throw new plInvalidArgumentException('Invalid parameter $time: '.$time.' (not 00:00)');
+      if ($time % DAY)                                  throw new InvalidArgumentException('Invalid parameter $time: '.$time.' (not 00:00)');
    }
    if (!is_null($type)) {
       if (!is_string($type))                            throw new IllegalTypeException('Illegal type of parameter $type: '.getType($type));
-      if ($type!='bid' && $type!='ask')                 throw new plInvalidArgumentException('Invalid parameter $type: "'.$type.'"');
+      if ($type!='bid' && $type!='ask')                 throw new InvalidArgumentException('Invalid parameter $type: "'.$type.'"');
    }
    $self  = __FUNCTION__;
 
    if ($id == 'myfxDirDate') {               // $yyyy/$mmL/$dd                                           // lokales Pfad-Datum
-      if (!$time)   throw new plInvalidArgumentException('Invalid parameter $time: '.$time);
+      if (!$time)   throw new InvalidArgumentException('Invalid parameter $time: '.$time);
       $result = gmDate('Y/m/d', $time);
    }
    else if ($id == 'myfxDir') {              // $dataDirectory/history/myfx/$type/$symbol/$dateL         // lokales Verzeichnis
-      if (!$symbol) throw new plInvalidArgumentException('Invalid parameter $symbol: '.$symbol);
+      if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
       static $dataDirectory; if (!$dataDirectory)
       $dataDirectory = MyFX::getConfigPath('myfx.data_directory');
       $type          = MyFX::$symbols[$symbol]['type'];
@@ -700,7 +705,7 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
       $result  = "$myfxDir/M1.rar";
    }
    else if ($id == 'dukaName') {             // BID_candles_min_1                                        // Dukascopy-Name
-      if (is_null($type)) throw new plInvalidArgumentException('Invalid parameter $type: (null)');
+      if (is_null($type)) throw new InvalidArgumentException('Invalid parameter $type: (null)');
       $result = ($type=='bid' ? 'BID':'ASK').'_candles_min_1';
    }
    else if ($id == 'dukaFile.raw') {         // $myfxDir/$dukaName.bin                                   // Dukascopy-Datei ungepackt
@@ -714,14 +719,14 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
       $result   = "$myfxDir/$dukaName.bi5";
    }
    else if ($id == 'dukaUrlDate') {          // $yyyy/$mmD/$dd                                           // Dukascopy-URL-Datum
-      if (!$time) throw new plInvalidArgumentException('Invalid parameter $time: '.$time);
+      if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
       $yyyy   = gmDate('Y', $time);
       $mmD    = strRight(((int)gmDate('m', $time))+99, 2);  // Januar = 00
       $dd     = gmDate('d', $time);
       $result = "$yyyy/$mmD/$dd";
    }
    else if ($id == 'dukaUrl') {  // http://datafeed.dukascopy.com/datafeed/$symbol/$dateD/$dukaName.bi5       // Dukascopy-URL
-      if (!$symbol) throw new plInvalidArgumentException('Invalid parameter $symbol: '.$symbol);
+      if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
       $dateD    = $self('dukaUrlDate', null, $time, null);
       $dukaName = $self('dukaName'   , null, null, $type);
       $result   = "http://datafeed.dukascopy.com/datafeed/$symbol/$dateD/$dukaName.bi5";
@@ -732,7 +737,7 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
       $result   = "$myfxDir/$dukaName.404";
    }
    else {
-     throw new plInvalidArgumentException('Unknown parameter $id: "'.$id.'"');
+     throw new InvalidArgumentException('Unknown parameter $id: "'.$id.'"');
    }
 
    $varCache[$key] = $result;

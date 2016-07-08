@@ -1,4 +1,9 @@
 <?php
+use rosasurfer\ministruts\exceptions\ConcurrentModificationException;
+use rosasurfer\ministruts\exceptions\IllegalTypeException;
+use rosasurfer\ministruts\exceptions\InvalidArgumentException;
+
+
 /**
  * OpenPosition
  */
@@ -44,7 +49,7 @@ class OpenPosition extends PersistableObject {
     * @return OpenPosition
     */
    public static function create(Signal $signal, array $data) {
-      if (!$signal->isPersistent()) throw new plInvalidArgumentException('Cannot process '.__CLASS__.' for non-persistent '.get_class($signal));
+      if (!$signal->isPersistent()) throw new InvalidArgumentException('Cannot process '.__CLASS__.' for non-persistent '.get_class($signal));
 
       $position = new self();
 
@@ -86,7 +91,7 @@ class OpenPosition extends PersistableObject {
    public function getOpenTime($format='Y-m-d H:i:s') {
       if ($format == 'Y-m-d H:i:s')
          return $this->openTime;
-      return formatDateStr($this->openTime, $format);
+      return Date::format($this->openTime, $format);
    }
 
 
@@ -101,7 +106,7 @@ class OpenPosition extends PersistableObject {
    public function getCommission($decimals=2, $separator='.') {
       if (func_num_args() == 0)
          return $this->commission;
-      return formatMoney($this->commission, $decimals, $separator);
+      return Number::format($this->commission, $decimals, $separator);
    }
 
 
@@ -116,7 +121,7 @@ class OpenPosition extends PersistableObject {
    public function getSwap($decimals=2, $separator='.') {
       if (func_num_args() == 0)
          return $this->swap;
-      return formatMoney($this->swap, $decimals, $separator);
+      return Number::format($this->swap, $decimals, $separator);
    }
 
 
@@ -129,7 +134,7 @@ class OpenPosition extends PersistableObject {
     */
    public function setStopLoss($value) {
       if (!is_null($value) && !is_int($value) && !is_float($value)) throw new IllegalTypeException('Illegal type of parameter $value: '.getType($value));
-      if ($value < 0)                                               throw new plInvalidArgumentException('Invalid StopLoss value '.$value);
+      if ($value < 0)                                               throw new InvalidArgumentException('Invalid StopLoss value '.$value);
 
       if (!$value)
          $value = null;
@@ -152,7 +157,7 @@ class OpenPosition extends PersistableObject {
     */
    public function setTakeProfit($value) {
       if (!is_null($value) && !is_int($value) && !is_float($value)) throw new IllegalTypeException('Illegal type of parameter $value: '.getType($value));
-      if ($value < 0)                                               throw new plInvalidArgumentException('Invalid TakeProfit value '.$value);
+      if ($value < 0)                                               throw new InvalidArgumentException('Invalid TakeProfit value '.$value);
 
       if (!$value)
          $value = null;
@@ -225,7 +230,7 @@ class OpenPosition extends PersistableObject {
 
          $db->commit();
       }
-      catch (Exception $ex) {
+      catch (\Exception $ex) {
          $this->id = null;
          $db->rollback();
          throw $ex;
@@ -296,7 +301,7 @@ class OpenPosition extends PersistableObject {
 
          $this->modifications = null;
       }
-      catch (Exception $ex) {
+      catch (\Exception $ex) {
          $db->rollback();
          throw $ex;
       }
@@ -310,7 +315,7 @@ class OpenPosition extends PersistableObject {
     * @return NULL
     */
    public function delete() {
-      if (!$this->isPersistent()) throw new plInvalidArgumentException('Cannot delete non-persistent '.__CLASS__);
+      if (!$this->isPersistent()) throw new InvalidArgumentException('Cannot delete non-persistent '.__CLASS__);
 
       $db = self ::dao()->getDB();
       $db->begin();
@@ -321,7 +326,7 @@ class OpenPosition extends PersistableObject {
          $db->executeSql($sql);
          $db->commit();
       }
-      catch (Exception $ex) {
+      catch (\Exception $ex) {
          $db->rollback();
          throw $ex;
       }

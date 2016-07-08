@@ -1,5 +1,10 @@
 #!/usr/bin/php
 <?php
+use rosasurfer\ministruts\exceptions\IllegalTypeException;
+use rosasurfer\ministruts\exceptions\InfrastructureException;
+use rosasurfer\ministruts\exceptions\RuntimeException;
+
+
 /**
  * Synchronisiert die Daten ein oder mehrerer Signale mit den lokal gespeicherten Daten (Datenbank und MT4-Datenfiles).
  * Bei Datenänderung kann eine Mail oder eine SMS verschickt werden.
@@ -118,7 +123,7 @@ function processSignal($alias, $fileSyncOnly) {
          // bei PHP-Fehlermessages in HTML-Seite URL nochmal laden (bis zu 5 Versuche)
          if ($errorMsg) {
             echoPre($errorMsg);
-            if ($counter >= 5) throw new plRuntimeException($signal->getName().': '.$errorMsg);
+            if ($counter >= 5) throw new RuntimeException($signal->getName().': '.$errorMsg);
             Logger::warn($signal->getName().': '.$errorMsg."\nretrying...", __CLASS__);
             continue;
          }
@@ -355,7 +360,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
          }
          else {
             $errorMsg = 'Found '.sizeOf($formerOpenPositions).' former open position'.(sizeOf($formerOpenPositions)==1 ? '':'s')
-                      ." now neither in \"openTrades\" nor in \"history\":\n".printFormatted($formerOpenPositions, true);
+                      ." now neither in \"openTrades\" nor in \"history\":\n".printPretty($formerOpenPositions, true);
          }
          throw new DataNotFoundException($errorMsg);
       }
@@ -364,7 +369,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
       // (8) alles speichern
       $db->commit();
    }
-   catch (Exception $ex) {
+   catch (\Exception $ex) {
       $db->rollback();
       throw $ex;
    }

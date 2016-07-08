@@ -1,4 +1,8 @@
 <?php
+use rosasurfer\ministruts\exceptions\IllegalTypeException;
+use rosasurfer\ministruts\exceptions\InvalidArgumentException;
+
+
 /**
  * DAO zum Zugriff auf ClosedPosition-Instanzen.
  */
@@ -40,7 +44,7 @@ class ClosedPositionDAO extends CommonDAO {
     * @return bool
     */
    public function isTicket($signal, $ticket) {
-      if (!$signal->isPersistent()) throw new plInvalidArgumentException('Cannot process non-persistent '.get_class($signal));
+      if (!$signal->isPersistent()) throw new InvalidArgumentException('Cannot process non-persistent '.get_class($signal));
       if (!is_int($ticket))         throw new IllegalTypeException('Illegal type of parameter $ticket: '.getType($ticket));
 
       $signal_id = $signal->getId();
@@ -63,7 +67,7 @@ class ClosedPositionDAO extends CommonDAO {
     * @return ClosedPosition[] - Array von ClosedPosition-Instanzen, aufsteigend sortiert nach {CloseTime,OpenTime,Ticket}
     */
    public function listBySignal(Signal $signal, $assocTicket=false) {
-      if (!$signal->isPersistent()) throw new plInvalidArgumentException('Cannot process non-persistent '.get_class($signal));
+      if (!$signal->isPersistent()) throw new InvalidArgumentException('Cannot process non-persistent '.get_class($signal));
 
       return $this->listBySignalAlias($signal->getAlias(), $assocTicket);
    }

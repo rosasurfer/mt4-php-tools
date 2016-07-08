@@ -1,4 +1,10 @@
 <?php
+use rosasurfer\ministruts\exceptions\IllegalTypeException;
+use rosasurfer\ministruts\exceptions\InvalidArgumentException;
+use rosasurfer\ministruts\exceptions\RuntimeException;
+use rosasurfer\ministruts\exceptions\UnimplementedFeatureException;
+
+
 /**
  * MyFX related functionality
  *
@@ -46,7 +52,7 @@ class MyFX extends StaticClass {
     *
     * @return string - absoluter Pfad mit Forward-Slashes (auch unter Windows)
     *
-    * @throws plRuntimeException - wenn unter dem angegebenen Schlüssel keine Pfadeinstellung existiert
+    * @throws RuntimeException - wenn unter dem angegebenen Schlüssel keine Pfadeinstellung existiert
     */
    public static function getConfigPath($key) {
       if (!is_string($key)) throw new IllegalTypeException('Illegal type of parameter $key: '.getType($key));
@@ -78,7 +84,7 @@ class MyFX extends StaticClass {
       $results = array();
       foreach (self::$symbols as $key => $symbol) {
          foreach ($filter as $field => $value) {
-            if (!array_key_exists($field, $symbol)) throw new plInvalidArgumentException('Invalid parameter $filter: '.print_r($filter, true));
+            if (!array_key_exists($field, $symbol)) throw new InvalidArgumentException('Invalid parameter $filter: '.print_r($filter, true));
             if ($symbol[$field] != $value)
                continue 2;
          }
@@ -127,7 +133,7 @@ class MyFX extends StaticClass {
 
             date_default_timezone_set($oldTimezone);
          }
-         catch(Exception $ex) { date_default_timezone_set($oldTimezone); throw $ex; }
+         catch (\Exception $ex) { date_default_timezone_set($oldTimezone); throw $ex; }
       }
 
 
@@ -142,7 +148,7 @@ class MyFX extends StaticClass {
          date_default_timezone_set($oldTimezone);
          return $fxtTime;
       }
-      catch(Exception $ex) { date_default_timezone_set($oldTimezone); throw $ex; }
+      catch (\Exception $ex) { date_default_timezone_set($oldTimezone); throw $ex; }
    }
 
 
@@ -163,13 +169,13 @@ class MyFX extends StaticClass {
          date_default_timezone_set('America/New_York');
 
          $timestamp = strToTime($time);
-         if ($timestamp === false) throw new plInvalidArgumentException('Invalid argument $time: "'.$time.'"');
+         if ($timestamp === false) throw new InvalidArgumentException('Invalid argument $time: "'.$time.'"');
          $timestamp -= 7*HOURS;
 
          date_default_timezone_set($oldTimezone);
          return $timestamp;
       }
-      catch(Exception $ex) { date_default_timezone_set($oldTimezone); throw $ex; }
+      catch (\Exception $ex) { date_default_timezone_set($oldTimezone); throw $ex; }
    }
 
 
@@ -221,7 +227,7 @@ class MyFX extends StaticClass {
 
       static $transitions = null;
       if (!$transitions) {
-         $timezone    = new DateTimeZone('America/New_York');
+         $timezone    = new \DateTimeZone('America/New_York');
          $transitions = $timezone->getTransitions();
       }
 
@@ -329,11 +335,11 @@ class MyFX extends StaticClass {
       $receiver = trim($receiver);
       if (strStartsWith($receiver, '+' )) $receiver = subStr($receiver, 1);
       if (strStartsWith($receiver, '00')) $receiver = subStr($receiver, 2);
-      if (!ctype_digit($receiver)) throw new plInvalidArgumentException('Invalid argument $receiver: "'.$receiver.'"');
+      if (!ctype_digit($receiver)) throw new InvalidArgumentException('Invalid argument $receiver: "'.$receiver.'"');
 
       if (!is_string($message))    throw new IllegalTypeException('Illegal type of parameter $message: '.getType($message));
       $message = trim($message);
-      if ($message == '')          throw new plInvalidArgumentException('Invalid argument $message: "'.$message.'"');
+      if ($message == '')          throw new InvalidArgumentException('Invalid argument $message: "'.$message.'"');
 
 
       $config   = Config ::get('sms.clickatell');
@@ -349,7 +355,7 @@ class MyFX extends StaticClass {
       $response = CurlHttpClient ::create($options)->send($request);
       $status   = $response->getStatus();
       $content  = $response->getContent();
-      if ($status != 200) throw new plRuntimeException('Unexpected HTTP status code from api.clickatell.com: '.$status.' ('.HttpResponse ::$sc[$status].')');
+      if ($status != 200) throw new RuntimeException('Unexpected HTTP status code from api.clickatell.com: '.$status.' ('.HttpResponse ::$sc[$status].')');
    }
 
 
@@ -375,7 +381,7 @@ class MyFX extends StaticClass {
       if (isSet($operationTypes[$type]))
          return $operationTypes[$type];
 
-      throw new plInvalidArgumentException('Invalid parameter $type: '.$type.' (not an operation type)');
+      throw new InvalidArgumentException('Invalid parameter $type: '.$type.' (not an operation type)');
    }
 
 
@@ -463,7 +469,7 @@ class MyFX extends StaticClass {
    public static function readBarData($data, $symbol) {
       if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
 
-      $lenData = strLen($data); if ($lenData % MyFX::BAR_SIZE) throw new plRuntimeException('Odd length of passed '.$symbol.' data: '.$lenData.' (not an even MyFX::BAR_SIZE)');
+      $lenData = strLen($data); if ($lenData % MyFX::BAR_SIZE) throw new RuntimeException('Odd length of passed '.$symbol.' data: '.$lenData.' (not an even MyFX::BAR_SIZE)');
       $offset  = 0;
       $bars    = array();
       $i       = -1;
@@ -478,7 +484,7 @@ class MyFX extends StaticClass {
              $bars[$i]['open' ] < $bars[$i]['low' ] ||      // nicht mit min()/max(), da nicht performant
              $bars[$i]['close'] > $bars[$i]['high'] ||
              $bars[$i]['close'] < $bars[$i]['low' ] ||
-            !$bars[$i]['ticks']) throw new plRuntimeException("Illegal $symbol data for bar[$i]: O={$bars[$i]['open']} H={$bars[$i]['high']} L={$bars[$i]['low']} C={$bars[$i]['close']} V={$bars[$i]['ticks']} T='".gmDate('D, d-M-Y H:i:s', $bars[$i]['time'])."'");
+            !$bars[$i]['ticks']) throw new RuntimeException("Illegal $symbol data for bar[$i]: O={$bars[$i]['open']} H={$bars[$i]['high']} L={$bars[$i]['low']} C={$bars[$i]['close']} V={$bars[$i]['ticks']} T='".gmDate('D, d-M-Y H:i:s', $bars[$i]['time'])."'");
       }
       return $bars;
    }
@@ -608,7 +614,7 @@ class MyFX extends StaticClass {
     */
    public static function findBarOffset(array $bars, $period, $time) {
       if (!is_int($period))              throw new IllegalTypeException('Illegal type of parameter $period: '.getType($period));
-      if (!MT4::isStdTimeframe($period)) throw new plInvalidArgumentException('Invalid parameter $period: '.$period.' (not a standard timeframe)');
+      if (!MT4::isStdTimeframe($period)) throw new InvalidArgumentException('Invalid parameter $period: '.$period.' (not a standard timeframe)');
       if (!is_int($time))                throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
 
       $size = sizeOf($bars);
@@ -650,7 +656,7 @@ class MyFX extends StaticClass {
     */
    public static function findBarOffsetPrevious(array $bars, $period, $time) {
       if (!is_int($period))              throw new IllegalTypeException('Illegal type of parameter $period: '.getType($period));
-      if (!MT4::isStdTimeframe($period)) throw new plInvalidArgumentException('Invalid parameter $period: '.$period.' (not a standard timeframe)');
+      if (!MT4::isStdTimeframe($period)) throw new InvalidArgumentException('Invalid parameter $period: '.$period.' (not a standard timeframe)');
       if (!is_int($time))                throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
 
       $size = sizeOf($bars);
@@ -680,7 +686,7 @@ class MyFX extends StaticClass {
     */
    public static function findBarOffsetNext(array $bars, $period, $time) {
       if (!is_int($period))              throw new IllegalTypeException('Illegal type of parameter $period: '.getType($period));
-      if (!MT4::isStdTimeframe($period)) throw new plInvalidArgumentException('Invalid parameter $period: '.$period.' (not a standard timeframe)');
+      if (!MT4::isStdTimeframe($period)) throw new InvalidArgumentException('Invalid parameter $period: '.$period.' (not a standard timeframe)');
       if (!is_int($time))                throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
 
       $size = sizeOf($bars);
@@ -794,7 +800,7 @@ class MyFX extends StaticClass {
    public static function periodCloseTime($time, $period) {
       if (!is_int($time))                throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
       if (!is_int($period))              throw new IllegalTypeException('Illegal type of parameter $period: '.getType($period));
-      if (!MT4::isStdTimeframe($period)) throw new plInvalidArgumentException('Invalid parameter $period: '.$period.' (not a standard timeframe)');
+      if (!MT4::isStdTimeframe($period)) throw new InvalidArgumentException('Invalid parameter $period: '.$period.' (not a standard timeframe)');
 
       if ($period <= PERIOD_D1) {
          $openTime  = $time - $time%$period*MINUTES;
@@ -840,11 +846,11 @@ class MyFX extends StaticClass {
       $me = __FUNCTION__;
 
       if ($id == 'myfxDirDate') {                  // $yyyy/$mm/$dd                                            // lokales Pfad-Datum
-         if (!$time)   throw new plInvalidArgumentException('Invalid parameter $time: '.$time);
+         if (!$time)   throw new InvalidArgumentException('Invalid parameter $time: '.$time);
          $result = gmDate('Y/m/d', $time);
       }
       else if ($id == 'myfxDir') {                 // $dataDirectory/history/myfx/$type/$symbol/$myfxDirDate   // lokales Verzeichnis
-         if (!$symbol) throw new plInvalidArgumentException('Invalid parameter $symbol: '.$symbol);
+         if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
          static $dataDirectory; if (!$dataDirectory)
          $dataDirectory = self::getConfigPath('myfx.data_directory');
          $type          = self::$symbols[$symbol]['type'];
@@ -859,7 +865,7 @@ class MyFX extends StaticClass {
          $myfxDir = self::$me('myfxDir' , $symbol, $time);
          $result  = "$myfxDir/M1.rar";
       }
-      else throw new plInvalidArgumentException('Unknown parameter $id: "'.$id.'"');
+      else throw new InvalidArgumentException('Unknown parameter $id: "'.$id.'"');
 
       $varCache[$key] = $result;
       (sizeof($varCache) > ($maxSize=256)) && array_shift($varCache)/* && echoPre('var cache size limit of '.$maxSize.' hit')*/;

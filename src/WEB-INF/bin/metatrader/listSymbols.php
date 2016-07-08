@@ -218,7 +218,7 @@ function collectData($file, array &$fields, array &$data, array $options) {
    foreach ($symbols as $i => $symbol) {
       foreach ($fields as $name => $v) {
          $value = isSet($symbol[$name]) ? $symbol[$name] : '?';                     // typenlose Felder (x) werden markiert
-         if (is_double($value) && ($e=(int) strRightFrom($s=(string)$value, 'E-'))) {
+         if (is_float($value) && ($e=(int) strRightFrom($s=(string)$value, 'E-'))) {
             $decimals = strLeftTo(strRightFrom($s, '.'), 'E');
             $decimals = ($decimals=='0' ? 0 : strLen($decimals)) + $e;
             if ($decimals <= 14)                                                    // ab 15 Dezimalstellen wissenschaftliche Anzeige

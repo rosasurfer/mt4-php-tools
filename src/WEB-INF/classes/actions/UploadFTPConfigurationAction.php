@@ -1,4 +1,7 @@
 <?php
+use rosasurfer\ministruts\exceptions\IOException;
+
+
 /**
  * UploadFTPConfigurationAction
  */
@@ -28,7 +31,7 @@ class UploadFTPConfigurationAction extends Action {
             echo("200\n");
             return null;
          }
-         catch (Exception $ex) {
+         catch (\Exception $ex) {
             Logger ::log('System not available', $ex, L_ERROR, __CLASS__);
             $request->setActionError('', '500: Server error, try again later.');
          }

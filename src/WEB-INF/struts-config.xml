@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-15"?>
 <!DOCTYPE struts-config SYSTEM "struts-config.dtd">
 
-<struts-config doc-base="include">
+<struts-config view-base="src/WEB-INF/include">
 
 
    <!-- ============================================= Global Forwards ============================================= -->

@@ -47,7 +47,7 @@ foreach ($args as $i => $arg) {
       $value = $arg = strRight($arg, -3);
       if (strIsQuoted($value))
          $value = strLeft(strRight($value, -1), 1);
-      if (strIsDigit($value) && $value{0}!='0') {
+      if (strIsDigits($value) && $value{0}!='0') {
          $value = (int) $value;
          if (!MT4::isStdTimeframe($value)) help('invalid period: '.$arg) & exit(1);
          $options['period'] = $value;

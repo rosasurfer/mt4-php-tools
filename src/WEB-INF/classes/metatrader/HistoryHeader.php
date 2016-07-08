@@ -1,4 +1,8 @@
 <?php
+use rosasurfer\ministruts\exceptions\IllegalTypeException;
+use rosasurfer\ministruts\exceptions\InvalidArgumentException;
+
+
 /**
  * HistoryHeader eines HistoryFiles ("*.hst")
  */
@@ -59,7 +63,7 @@ class HistoryHeader extends Object {
       $argc = func_num_args();
       if      ($argc == 7) $this->__construct_1($arg1, $arg2, $arg3, $arg4, $arg5, $arg6, $arg7);
       else if ($argc == 1) $this->__construct_2($arg1);
-      else throw new plInvalidArgumentException('Invalid number of arguments: '.$argc);
+      else throw new InvalidArgumentException('Invalid number of arguments: '.$argc);
    }
 
 
@@ -83,18 +87,18 @@ class HistoryHeader extends Object {
       if (!is_string($copyright))                   throw new IllegalTypeException('Illegal type of parameter $copyright: '.getType($copyright));
       $copyright = strLeft($copyright, 63);
       if (!is_string($symbol))                      throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
-      if (!strLen($symbol))                         throw new plInvalidArgumentException('Invalid parameter $symbol: ""');
-      if (strLen($symbol) > MT4::MAX_SYMBOL_LENGTH) throw new plInvalidArgumentException('Invalid parameter $symbol: "'.$symbol.'" (max '.MT4::MAX_SYMBOL_LENGTH.' characters)');
+      if (!strLen($symbol))                         throw new InvalidArgumentException('Invalid parameter $symbol: ""');
+      if (strLen($symbol) > MT4::MAX_SYMBOL_LENGTH) throw new InvalidArgumentException('Invalid parameter $symbol: "'.$symbol.'" (max '.MT4::MAX_SYMBOL_LENGTH.' characters)');
       if (!is_int($period))                         throw new IllegalTypeException('Illegal type of parameter $period: '.getType($period));
-      if ($period <= 0)                             throw new plInvalidArgumentException('Invalid parameter $period: '.$period);
+      if ($period <= 0)                             throw new InvalidArgumentException('Invalid parameter $period: '.$period);
       if (!is_int($digits))                         throw new IllegalTypeException('Illegal type of parameter $digits: '.getType($digits));
-      if ($digits < 0)                              throw new plInvalidArgumentException('Invalid parameter $digits: '.$digits);
+      if ($digits < 0)                              throw new InvalidArgumentException('Invalid parameter $digits: '.$digits);
       if (is_null($syncMarker)) $syncMarker = 0;
       if (!is_int($syncMarker))                     throw new IllegalTypeException('Illegal type of parameter $syncMarker: '.getType($syncMarker));
-      if ($syncMarker < 0)                          throw new plInvalidArgumentException('Invalid parameter $syncMarker: '.$syncMarker);
+      if ($syncMarker < 0)                          throw new InvalidArgumentException('Invalid parameter $syncMarker: '.$syncMarker);
       if (is_null($lastSyncTime)) $lastSyncTime = 0;
       if (!is_int($lastSyncTime))                   throw new IllegalTypeException('Illegal type of parameter $lastSyncTime: '.getType($lastSyncTime));
-      if ($lastSyncTime < 0)                        throw new plInvalidArgumentException('Invalid parameter $lastSyncTime: '.$lastSyncTime);
+      if ($lastSyncTime < 0)                        throw new InvalidArgumentException('Invalid parameter $lastSyncTime: '.$lastSyncTime);
 
       // Daten speichern
       $this->format       = $format;
@@ -116,7 +120,7 @@ class HistoryHeader extends Object {
     */
    private function __construct_2($data) {
       if (!is_string($data))                                throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
-      if (strLen($data) != self::SIZE)                      throw new plInvalidArgumentException('Invalid length of parameter $data: '.strLen($data).' (not '.__CLASS__.'::SIZE)');
+      if (strLen($data) != self::SIZE)                      throw new InvalidArgumentException('Invalid length of parameter $data: '.strLen($data).' (not '.__CLASS__.'::SIZE)');
 
       $header = unpack(self::unpackFormat(), $data);
       if ($header['format']!=400 && $header['format']!=401) throw new MetaTraderException('version.unsupported: Invalid or unsupported history format version: '.$header['format']);
@@ -139,7 +143,7 @@ class HistoryHeader extends Object {
     */
    public function setLastSyncTime($time) {
       if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
-      if ($time < 0)      throw new plInvalidArgumentException('Invalid parameter $time: '.$time);
+      if ($time < 0)      throw new InvalidArgumentException('Invalid parameter $time: '.$time);
 
       $this->lastSyncTime = $time;
    }

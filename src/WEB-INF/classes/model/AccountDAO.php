@@ -1,4 +1,7 @@
 <?php
+use rosasurfer\ministruts\exceptions\IllegalTypeException;
+
+
 /**
  * DAO zum Zugriff auf Account-Instanzen.
  */

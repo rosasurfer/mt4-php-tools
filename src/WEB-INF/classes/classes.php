@@ -1,42 +1,41 @@
 <?php
-// Klassendefinitionen
-// -------------------
-$dir = dirName(__FILE__).DIRECTORY_SEPARATOR;
+/**
+ * Class map for class loader (fastest way to load classes)
+ */
+return array(
+   'DownloadFTPConfigurationAction'     => APPLICATION_ROOT.'/src/WEB-INF/classes/actions/DownloadFTPConfigurationAction.php',
+   'DownloadFTPConfigurationActionForm' => APPLICATION_ROOT.'/src/WEB-INF/classes/actions/DownloadFTPConfigurationActionForm.php',
+   'UploadAccountHistoryAction'         => APPLICATION_ROOT.'/src/WEB-INF/classes/actions/UploadAccountHistoryAction.php',
+   'UploadAccountHistoryActionForm'     => APPLICATION_ROOT.'/src/WEB-INF/classes/actions/UploadAccountHistoryActionForm.php',
+   'UploadFTPConfigurationAction'       => APPLICATION_ROOT.'/src/WEB-INF/classes/actions/UploadFTPConfigurationAction.php',
+   'UploadFTPConfigurationActionForm'   => APPLICATION_ROOT.'/src/WEB-INF/classes/actions/UploadFTPConfigurationActionForm.php',
 
-$__classes['DownloadFTPConfigurationAction'    ] = $dir.'actions/DownloadFTPConfigurationAction';
-$__classes['DownloadFTPConfigurationActionForm'] = $dir.'actions/DownloadFTPConfigurationActionForm';
-$__classes['UploadAccountHistoryAction'        ] = $dir.'actions/UploadAccountHistoryAction';
-$__classes['UploadAccountHistoryActionForm'    ] = $dir.'actions/UploadAccountHistoryActionForm';
-$__classes['UploadFTPConfigurationAction'      ] = $dir.'actions/UploadFTPConfigurationAction';
-$__classes['UploadFTPConfigurationActionForm'  ] = $dir.'actions/UploadFTPConfigurationActionForm';
+   'Dukascopy'                          => APPLICATION_ROOT.'/src/WEB-INF/classes/dukascopy/Dukascopy.php',
+   'DukascopyException'                 => APPLICATION_ROOT.'/src/WEB-INF/classes/dukascopy/DukascopyException.php',
 
-$__classes['Dukascopy'                         ] = $dir.'dukascopy/Dukascopy';
-$__classes['DukascopyException'                ] = $dir.'dukascopy/DukascopyException';
+   'HistoryFile'                        => APPLICATION_ROOT.'/src/WEB-INF/classes/metatrader/HistoryFile.php',
+   'HistoryHeader'                      => APPLICATION_ROOT.'/src/WEB-INF/classes/metatrader/HistoryHeader.php',
+   'HistorySet'                         => APPLICATION_ROOT.'/src/WEB-INF/classes/metatrader/HistorySet.php',
+   'MetaTraderException'                => APPLICATION_ROOT.'/src/WEB-INF/classes/metatrader/MetaTraderException.php',
+   'MT4'                                => APPLICATION_ROOT.'/src/WEB-INF/classes/metatrader/MT4.php',
 
-$__classes['HistoryFile'                       ] = $dir.'metatrader/HistoryFile';
-$__classes['HistoryHeader'                     ] = $dir.'metatrader/HistoryHeader';
-$__classes['HistorySet'                        ] = $dir.'metatrader/HistorySet';
-$__classes['MetaTraderException'               ] = $dir.'metatrader/MetaTraderException';
-$__classes['MT4'                               ] = $dir.'metatrader/MT4';
+   'MyFX'                               => APPLICATION_ROOT.'/src/WEB-INF/classes/myfx/MyFX.php',
 
-$__classes['MyFX'                              ] = $dir.'myfx/MyFX';
+   'DataNotFoundException'              => APPLICATION_ROOT.'/src/WEB-INF/classes/simpletrader/DataNotFoundException.php',
+   'SimpleTrader'                       => APPLICATION_ROOT.'/src/WEB-INF/classes/simpletrader/SimpleTrader.php',
 
-$__classes['DataNotFoundException'             ] = $dir.'simpletrader/DataNotFoundException';
-$__classes['SimpleTrader'                      ] = $dir.'simpletrader/SimpleTrader';
+   'LZMA'                               => APPLICATION_ROOT.'/src/WEB-INF/classes/helper/LZMA.php',
+   'ImportHelper'                       => APPLICATION_ROOT.'/src/WEB-INF/classes/helper/ImportHelper.php',
+   'ReportHelper'                       => APPLICATION_ROOT.'/src/WEB-INF/classes/helper/ReportHelper.php',
+   'Validator'                          => APPLICATION_ROOT.'/src/WEB-INF/classes/helper/Validator.php',
+   'ViewHelper'                         => APPLICATION_ROOT.'/src/WEB-INF/classes/helper/ViewHelper.php',
 
-$__classes['LZMA'                              ] = $dir.'helper/LZMA';
-$__classes['ImportHelper'                      ] = $dir.'helper/ImportHelper';
-$__classes['ReportHelper'                      ] = $dir.'helper/ReportHelper';
-$__classes['Validator'                         ] = $dir.'helper/Validator';
-$__classes['ViewHelper'                        ] = $dir.'helper/ViewHelper';
-
-$__classes['Account'                           ] = $dir.'model/Account';
-$__classes['AccountDAO'                        ] = $dir.'model/AccountDAO';
-$__classes['ClosedPosition'                    ] = $dir.'model/ClosedPosition';
-$__classes['ClosedPositionDAO'                 ] = $dir.'model/ClosedPositionDAO';
-$__classes['OpenPosition'                      ] = $dir.'model/OpenPosition';
-$__classes['OpenPositionDAO'                   ] = $dir.'model/OpenPositionDAO';
-$__classes['Signal'                            ] = $dir.'model/Signal';
-$__classes['SignalDAO'                         ] = $dir.'model/SignalDAO';
-
-unset($dir);
+   'Account'                            => APPLICATION_ROOT.'/src/WEB-INF/classes/model/Account.php',
+   'AccountDAO'                         => APPLICATION_ROOT.'/src/WEB-INF/classes/model/AccountDAO.php',
+   'ClosedPosition'                     => APPLICATION_ROOT.'/src/WEB-INF/classes/model/ClosedPosition.php',
+   'ClosedPositionDAO'                  => APPLICATION_ROOT.'/src/WEB-INF/classes/model/ClosedPositionDAO.php',
+   'OpenPosition'                       => APPLICATION_ROOT.'/src/WEB-INF/classes/model/OpenPosition.php',
+   'OpenPositionDAO'                    => APPLICATION_ROOT.'/src/WEB-INF/classes/model/OpenPositionDAO.php',
+   'Signal'                             => APPLICATION_ROOT.'/src/WEB-INF/classes/model/Signal.php',
+   'SignalDAO'                          => APPLICATION_ROOT.'/src/WEB-INF/classes/model/SignalDAO.php',
+);

@@ -1,4 +1,8 @@
 <?php
+use rosasurfer\ministruts\exceptions\InvalidArgumentException;
+use rosasurfer\ministruts\exceptions\RuntimeException;
+
+
 /**
  * ClosedPosition
  */
@@ -45,7 +49,7 @@ class ClosedPosition extends PersistableObject {
     * @return ClosedPosition
     */
    public static function create() {
-      if (func_num_args() != 2) throw new plRuntimeException('Invalid number of function arguments: '.func_num_args());
+      if (func_num_args() != 2) throw new RuntimeException('Invalid number of function arguments: '.func_num_args());
       $arg1 = func_get_arg(0);
       $arg2 = func_get_arg(1);
 
@@ -97,7 +101,7 @@ class ClosedPosition extends PersistableObject {
     * @return ClosedPosition
     */
    private static function create_2(Signal $signal, array $data) {
-      if (!$signal->isPersistent()) throw new plInvalidArgumentException('Cannot process '.__CLASS__.' for non-persistent '.get_class($signal));
+      if (!$signal->isPersistent()) throw new InvalidArgumentException('Cannot process '.__CLASS__.' for non-persistent '.get_class($signal));
 
       $position = new self();
 
@@ -143,7 +147,7 @@ class ClosedPosition extends PersistableObject {
       if ($format == 'Y-m-d H:i:s')
          return $this->openTime;
 
-      return formatDateStr($this->openTime, $format);
+      return Date::format($this->openTime, $format);
    }
 
 
@@ -158,7 +162,7 @@ class ClosedPosition extends PersistableObject {
       if ($format == 'Y-m-d H:i:s')
          return $this->closeTime;
 
-      return formatDateStr($this->closeTime, $format);
+      return Date::format($this->closeTime, $format);
    }
 
 
@@ -174,7 +178,7 @@ class ClosedPosition extends PersistableObject {
       if (func_num_args() == 0)
          return $this->commission;
 
-      return formatMoney($this->commission, $decimals, $separator);
+      return Number::format($this->commission, $decimals, $separator);
    }
 
 
@@ -190,7 +194,7 @@ class ClosedPosition extends PersistableObject {
       if (func_num_args() == 0)
          return $this->swap;
 
-      return formatMoney($this->swap, $decimals, $separator);
+      return Number::format($this->swap, $decimals, $separator);
    }
 
 
@@ -206,7 +210,7 @@ class ClosedPosition extends PersistableObject {
       if (func_num_args() == 0)
          return $this->profit;
 
-      return formatMoney($this->profit, $decimals, $separator);
+      return Number::format($this->profit, $decimals, $separator);
    }
 
 
@@ -272,7 +276,7 @@ class ClosedPosition extends PersistableObject {
 
          $db->commit();
       }
-      catch (Exception $ex) {
+      catch (\Exception $ex) {
          $this->id = null;
          $db->rollback();
          throw $ex;

@@ -1,5 +1,10 @@
 #!/usr/bin/php
 <?php
+use rosasurfer\ministruts\exceptions\IllegalTypeException;
+use rosasurfer\ministruts\exceptions\InvalidArgumentException;
+use rosasurfer\ministruts\exceptions\RuntimeException;
+
+
 /**
  * Aktualisiert anhand existierender Dukascopy-Daten die M1-History der angegebenen FX-Indizes und speichert sie
  * im MyFX-Historyverzeichnis.
@@ -108,7 +113,7 @@ exit(0);
  */
 function updateIndex($index) {
    if (!is_string($index)) throw new IllegalTypeException('Illegal type of parameter $index: '.getType($index));
-   if (!strLen($index))    throw new plInvalidArgumentException('Invalid parameter $index: ""');
+   if (!strLen($index))    throw new InvalidArgumentException('Invalid parameter $index: ""');
 
    global $verbose, $indexes, $saveRawMyFXData;
 
@@ -1805,11 +1810,11 @@ function saveBars($symbol, $day, array $bars) {
    // (1) Daten nochmal prüfen
    $errorMsg = null;
    if (!$errorMsg && ($size=sizeOf($bars))!=1*DAY/MINUTES)             $errorMsg = 'Invalid number of bars for '.$shortDate.': '.$size;
-   if (!$errorMsg && $bars[0]['time']%DAYS!=0)                         $errorMsg = 'No beginning bars for '.$shortDate.' found, first bar:'.NL.printFormatted($bars[0], true);
-   if (!$errorMsg && $bars[$size-1]['time']%DAYS!=23*HOURS+59*MINUTES) $errorMsg = 'No ending bars for '.$shortDate.' found, last bar:'.NL.printFormatted($bars[$size-1], true);
+   if (!$errorMsg && $bars[0]['time']%DAYS!=0)                         $errorMsg = 'No beginning bars for '.$shortDate.' found, first bar:'.NL.printPretty($bars[0], true);
+   if (!$errorMsg && $bars[$size-1]['time']%DAYS!=23*HOURS+59*MINUTES) $errorMsg = 'No ending bars for '.$shortDate.' found, last bar:'.NL.printPretty($bars[$size-1], true);
    if ($errorMsg) {
       showBuffer($bars);
-      throw new plRuntimeException($errorMsg);
+      throw new RuntimeException($errorMsg);
    }
 
 
@@ -1821,7 +1826,7 @@ function saveBars($symbol, $day, array $bars) {
           $bar['open' ] < $bar['low' ] ||          // aus (H >= O && O >= L) folgt (H >= L)
           $bar['close'] > $bar['high'] ||          // nicht mit min()/max(), da nicht performant
           $bar['close'] < $bar['low' ] ||
-         !$bar['ticks']) throw new plRuntimeException('Illegal data for MYFX_BAR of '.gmDate('D, d-M-Y H:i:s', $bar['time']).": O=$bar[open] H=$bar[high] L=$bar[low] C=$bar[close] V=$bar[ticks]");
+         !$bar['ticks']) throw new RuntimeException('Illegal data for MYFX_BAR of '.gmDate('D, d-M-Y H:i:s', $bar['time']).": O=$bar[open] H=$bar[high] L=$bar[low] C=$bar[close] V=$bar[ticks]");
 
       $data .= pack('VVVVVV', $bar['time' ],
                               $bar['open' ],
@@ -1902,11 +1907,11 @@ function getVar($id, $symbol=null, $time=null) {
    $self = __FUNCTION__;
 
    if ($id == 'myfxDirDate') {                  // $yyyy/$mm/$dd                                                  // lokales Pfad-Datum
-      if (!$time)   throw new plInvalidArgumentException('Invalid parameter $time: '.$time);
+      if (!$time)   throw new InvalidArgumentException('Invalid parameter $time: '.$time);
       $result = gmDate('Y/m/d', $time);
    }
    else if ($id == 'fxiSourceDir') {            // $dataDirectory/history/myfx/$type/$symbol/$myfxDirDate         // lokales Quell-Verzeichnis
-      if (!$symbol) throw new plInvalidArgumentException('Invalid parameter $symbol: '.$symbol);
+      if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
       if (!$dataDirectory)
       $dataDirectory = MyFX::getConfigPath('myfx.data_directory');
       $type          = MyFX::$symbols[$symbol]['type'];
@@ -1914,7 +1919,7 @@ function getVar($id, $symbol=null, $time=null) {
       $result        = "$dataDirectory/history/myfx/$type/$symbol/$myfxDirDate";
    }
    else if ($id == 'fxiTargetDir') {            // $dataDirectory/history/myfx/$type/$symbol/$myfxDirDate         // lokales Ziel-Verzeichnis
-      if (!$symbol) throw new plInvalidArgumentException('Invalid parameter $symbol: '.$symbol);
+      if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
       if (!$dataDirectory)
       $dataDirectory = MyFX::getConfigPath('myfx.data_directory');
       $type          = MyFX::$symbols[$symbol]['type'];
@@ -1938,7 +1943,7 @@ function getVar($id, $symbol=null, $time=null) {
       $result       = "$fxiTargetDir/M1.rar";
    }
    else {
-     throw new plInvalidArgumentException('Unknown parameter $id: "'.$id.'"');
+     throw new InvalidArgumentException('Unknown parameter $id: "'.$id.'"');
    }
 
    $varCache[$key] = $result;

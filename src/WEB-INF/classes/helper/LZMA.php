@@ -1,4 +1,11 @@
 <?php
+use rosasurfer\ministruts\exceptions\FileNotFoundException;
+use rosasurfer\ministruts\exceptions\IllegalTypeException;
+use rosasurfer\ministruts\exceptions\InfrastructureException;
+use rosasurfer\ministruts\exceptions\InvalidArgumentException;
+use rosasurfer\ministruts\exceptions\RuntimeException;
+
+
 /**
  * LZMA related functionality
  */
@@ -14,7 +21,7 @@ class LZMA extends StaticClass {
     */
    public static function decompressData($data) {
       if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
-      if (!strLen($data))    throw new plInvalidArgumentException('Invalid parameter $data: "" (not compressed)');
+      if (!strLen($data))    throw new InvalidArgumentException('Invalid parameter $data: "" (not compressed)');
 
       // Unter Windows blockiert das Schreiben nach STDIN bei Datenmengen ab 8193 Bytes, stream_set_blocking() scheint dort
       // jedoch nicht zu funktionieren (Windows 7). Daher wird der String in eine temporäre Datei geschrieben und diese
@@ -42,17 +49,14 @@ class LZMA extends StaticClass {
    public static function decompressFile($file) {
       if (!is_string($file)) throw new IllegalTypeException('Illegal type of parameter $file: '.getType($file));
       if (!is_file($file))   throw new FileNotFoundException('File not found "'.$file.'"');
-      if (!fileSize($file))  throw new plInvalidArgumentException('Invalid file "'.$file.'" (not compressed)');
+      if (!fileSize($file))  throw new InvalidArgumentException('Invalid file "'.$file.'" (not compressed)');
 
       $cmd     = self::getDecompressFileCmd();
       $file    = str_replace('/', DIRECTORY_SEPARATOR, str_replace('\\', '/', $file));
       $cmdLine = sprintf($cmd, $file);
-      $stdout  = '';
+      $stdout  = System::shell_exec($cmdLine);
 
-      if (WINDOWS) $stdout = shell_exec_fix($cmdLine);      // Workaround für Windows-Bug in shell_exec(), siehe dort
-      else         $stdout = shell_exec    ($cmdLine);
-
-      if (!strLen($stdout)) throw new plRuntimeException("Decoding of file \"$file\" failed (decoded size=0)");
+      if (!strLen($stdout)) throw new RuntimeException("Decoding of file \"$file\" failed (decoded size=0)");
 
       return $stdout;
    }
@@ -70,14 +74,14 @@ class LZMA extends StaticClass {
          $output = array();
 
          if (WINDOWS) {
-            !$cmd && exec(APPLICATION_ROOT.'/../bin/lzmadec -V 2> nul', $output);   // lzmadec im Projekt suchen
-            !$cmd && $output && ($cmd=APPLICATION_ROOT.'/../bin/lzmadec "%s"');
+            !$cmd && exec(APPLICATION_ROOT.'/bin/lzmadec -V 2> nul', $output);      // lzmadec im Projekt suchen
+            !$cmd && $output && ($cmd=APPLICATION_ROOT.'/bin/lzmadec "%s"');
 
             !$cmd && exec('lzmadec -V 2> nul', $output);                            // lzmadec im Suchpfad suchen
             !$cmd && $output && ($cmd='lzmadec "%s"');
 
-            !$cmd && exec(APPLICATION_ROOT.'/../bin/xz -V 2> nul', $output);        // xz im Projekt suchen
-            !$cmd && $output && ($cmd=APPLICATION_ROOT.'/../bin/xz -dc "%s"');
+            !$cmd && exec(APPLICATION_ROOT.'/bin/xz -V 2> nul', $output);           // xz im Projekt suchen
+            !$cmd && $output && ($cmd=APPLICATION_ROOT.'/bin/xz -dc "%s"');
 
             !$cmd && exec('xz -V 2> nul', $output);                                 // xz im Suchpfad suchen
             !$cmd && $output && ($cmd='xz -dc "%s"');

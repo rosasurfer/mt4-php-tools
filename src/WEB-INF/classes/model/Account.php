@@ -1,4 +1,8 @@
 <?php
+use rosasurfer\ministruts\exceptions\ConcurrentModificationException;
+use rosasurfer\ministruts\exceptions\IllegalTypeException;
+
+
 /**
  * Account
  */
@@ -49,7 +53,7 @@ class Account extends PersistableObject {
       if (func_num_args() == 0)
          return $this->balance;
 
-      return formatMoney($this->balance, $decimals, $separator);
+      return Number::format($this->balance, $decimals, $separator);
    }
 
 
@@ -65,7 +69,7 @@ class Account extends PersistableObject {
       if (is_null($this->lastReportedBalance) || func_num_args()==0)
          return $this->lastReportedBalance;
 
-      return formatMoney($this->lastReportedBalance, $decimals, $separator);
+      return Number::format($this->lastReportedBalance, $decimals, $separator);
    }
 
 
@@ -100,7 +104,7 @@ class Account extends PersistableObject {
       if (!$this->lastUpdate || $format=='Y-m-d H:i:s')
          return $this->lastUpdate;
 
-      return formatDateStr($this->lastUpdate, $format);
+      return Date::format($this->lastUpdate, $format);
    }
 
 
@@ -193,7 +197,7 @@ class Account extends PersistableObject {
 
          $this->modifications = null;
       }
-      catch (Exception $ex) {
+      catch (\Exception $ex) {
          $db->rollback();
          throw $ex;
       }

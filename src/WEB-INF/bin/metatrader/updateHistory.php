@@ -1,5 +1,9 @@
 #!/usr/bin/php
 <?php
+use rosasurfer\ministruts\exceptions\IllegalTypeException;
+use rosasurfer\ministruts\exceptions\InvalidArgumentException;
+
+
 /**
  * Aktualisiert MT4-History ein oder mehrerer Instrumente.
  */
@@ -60,7 +64,7 @@ exit(0);
  */
 function updateHistory($symbol) {
    if (!is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
-   if (!strLen($symbol))    throw new plInvalidArgumentException('Invalid parameter $symbol: ""');
+   if (!strLen($symbol))    throw new InvalidArgumentException('Invalid parameter $symbol: ""');
 
    global $verbose;
    $digits       = MyFX::$symbols[$symbol]['digits'];

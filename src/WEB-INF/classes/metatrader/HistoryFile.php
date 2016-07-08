@@ -1,4 +1,11 @@
 <?php
+use rosasurfer\ministruts\exceptions\FileNotFoundException;
+use rosasurfer\ministruts\exceptions\IllegalStateException;
+use rosasurfer\ministruts\exceptions\IllegalTypeException;
+use rosasurfer\ministruts\exceptions\InvalidArgumentException;
+use rosasurfer\ministruts\exceptions\RuntimeException;
+
+
 /**
  * Object-Wrapper für eine MT4-History-Datei ("*.hst")
  */
@@ -77,7 +84,7 @@ class HistoryFile extends Object {
       $argc = func_num_args();
       if      ($argc == 5) $this->__construct_1($arg1, $arg2, $arg3, $arg4, $arg5);
       else if ($argc == 1) $this->__construct_2($arg1);
-      else throw new plInvalidArgumentException('Invalid number of arguments: '.$argc);
+      else throw new InvalidArgumentException('Invalid number of arguments: '.$argc);
    }
 
 
@@ -96,12 +103,12 @@ class HistoryFile extends Object {
     */
    private function __construct_1($symbol, $timeframe, $digits, $format, $serverDirectory) {
       if (!is_string($symbol))                      throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
-      if (!strLen($symbol))                         throw new plInvalidArgumentException('Invalid parameter $symbol: ""');
-      if (strLen($symbol) > MT4::MAX_SYMBOL_LENGTH) throw new plInvalidArgumentException('Invalid parameter $symbol: "'.$symbol.'" (max '.MT4::MAX_SYMBOL_LENGTH.' characters)');
+      if (!strLen($symbol))                         throw new InvalidArgumentException('Invalid parameter $symbol: ""');
+      if (strLen($symbol) > MT4::MAX_SYMBOL_LENGTH) throw new InvalidArgumentException('Invalid parameter $symbol: "'.$symbol.'" (max '.MT4::MAX_SYMBOL_LENGTH.' characters)');
       if (!is_int($timeframe))                      throw new IllegalTypeException('Illegal type of parameter $timeframe: '.getType($timeframe));
-      if (!MT4::isStdTimeframe($timeframe))         throw new plInvalidArgumentException('Invalid parameter $timeframe: '.$timeframe.' (not a MetaTrader standard timeframe)');
+      if (!MT4::isStdTimeframe($timeframe))         throw new InvalidArgumentException('Invalid parameter $timeframe: '.$timeframe.' (not a MetaTrader standard timeframe)');
       if (!is_string($serverDirectory))             throw new IllegalTypeException('Illegal type of parameter $serverDirectory: '.getType($serverDirectory));
-      if (!is_dir($serverDirectory))                throw new plInvalidArgumentException('Directory "'.$serverDirectory.'" not found');
+      if (!is_dir($serverDirectory))                throw new InvalidArgumentException('Directory "'.$serverDirectory.'" not found');
 
       $this->hstHeader       = new HistoryHeader($format, null, $symbol, $timeframe, $digits, null, null);
       $this->serverDirectory = realPath($serverDirectory);
@@ -218,8 +225,8 @@ class HistoryFile extends Object {
       try {
          !$this->isClosed() && $this->close();
       }
-      catch (Exception $ex) {
-         Logger::handleException($ex, $inShutdownOnly=true);
+      catch (\Exception $ex) {
+         System::handleDestructorException($ex);
          throw $ex;
       }
    }
@@ -256,7 +263,7 @@ class HistoryFile extends Object {
    public function setBarBufferSize($size) {
       if ($this->closed)  throw new IllegalStateException('Cannot process a closed '.__CLASS__);
       if (!is_int($size)) throw new IllegalTypeException('Illegal type of parameter $size: '.getType($size));
-      if ($size < 0)      throw new plInvalidArgumentException('Invalid parameter $size: '.$size);
+      if ($size < 0)      throw new InvalidArgumentException('Invalid parameter $size: '.$size);
 
       $this->barBufferSize = $size;
    }
@@ -275,7 +282,7 @@ class HistoryFile extends Object {
     */
    public function getBar($offset) {
       if (!is_int($offset)) throw new IllegalTypeException('Illegal type of parameter $offset: '.getType($offset));
-      if ($offset < 0)      throw new plInvalidArgumentException('Invalid parameter $offset: '.$offset);
+      if ($offset < 0)      throw new InvalidArgumentException('Invalid parameter $offset: '.$offset);
 
       if ($offset >= $this->full_bars)                                           // bar[$offset] existiert nicht
          return null;
@@ -463,10 +470,10 @@ class HistoryFile extends Object {
 
       // absoluten Startoffset ermitteln: für appendBars() gültiger Wert bis zu ein Element hinterm History-Ende
       if ($offset >= 0) {
-         if ($offset > $this->full_bars)    throw new plInvalidArgumentException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
+         if ($offset > $this->full_bars)    throw new InvalidArgumentException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
          $fromOffset = $offset;
       }
-      else if ($offset < -$this->full_bars) throw new plInvalidArgumentException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
+      else if ($offset < -$this->full_bars) throw new InvalidArgumentException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
       else $fromOffset = $this->full_bars + $offset;
 
       // absoluten Endoffset ermitteln
@@ -476,13 +483,13 @@ class HistoryFile extends Object {
       }
       else if ($length >= 0) {
          $toOffset = $fromOffset + $length - 1;
-         if ($toOffset > $this->full_to_offset)  throw new plInvalidArgumentException('Invalid parameter $length='.$length.' at $offset='.$offset.' ('.$this->full_bars.' bars in history)');
+         if ($toOffset > $this->full_to_offset)  throw new InvalidArgumentException('Invalid parameter $length='.$length.' at $offset='.$offset.' ('.$this->full_bars.' bars in history)');
       }
-      else if ($fromOffset == $this->full_bars)  throw new plInvalidArgumentException('Invalid parameter $length='.$length.' at $offset='.$offset.' ('.$this->full_bars.' bars in history)');
-      else if ($length < $offset && $offset < 0) throw new plInvalidArgumentException('Invalid parameter $length='.$length.' at $offset='.$offset.' ('.$this->full_bars.' bars in history)');
+      else if ($fromOffset == $this->full_bars)  throw new InvalidArgumentException('Invalid parameter $length='.$length.' at $offset='.$offset.' ('.$this->full_bars.' bars in history)');
+      else if ($length < $offset && $offset < 0) throw new InvalidArgumentException('Invalid parameter $length='.$length.' at $offset='.$offset.' ('.$this->full_bars.' bars in history)');
       else {
          $toOffset = $this->full_to_offset + $length;
-         if ($toOffset+1 < $fromOffset)          throw new plInvalidArgumentException('Invalid parameter $length='.$length.' at $offset='.$offset.' ('.$this->full_bars.' bars in history)');
+         if ($toOffset+1 < $fromOffset)          throw new InvalidArgumentException('Invalid parameter $length='.$length.' at $offset='.$offset.' ('.$this->full_bars.' bars in history)');
       }
 
       // absolute Länge ermitteln
@@ -526,10 +533,10 @@ class HistoryFile extends Object {
 
       // absoluten Startoffset ermitteln
       if ($offset >= 0) {
-         if ($offset >= $this->full_bars)   throw new plInvalidArgumentException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
+         if ($offset >= $this->full_bars)   throw new InvalidArgumentException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
          $fromOffset = $offset;
       }
-      else if ($offset < -$this->full_bars) throw new plInvalidArgumentException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
+      else if ($offset < -$this->full_bars) throw new InvalidArgumentException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
       else $fromOffset = $this->full_bars + $offset;
 
       // Endoffset ermitteln
@@ -539,12 +546,12 @@ class HistoryFile extends Object {
       }
       else if ($length >= 0) {
          $toOffset = $fromOffset + $length - 1;
-         if ($toOffset > $this->full_to_offset)  throw new plInvalidArgumentException('Invalid parameter $length='.$length.' at $offset='.$offset.' ('.$this->full_bars.' bars in history)');
+         if ($toOffset > $this->full_to_offset)  throw new InvalidArgumentException('Invalid parameter $length='.$length.' at $offset='.$offset.' ('.$this->full_bars.' bars in history)');
       }
-      else if ($length < $offset && $offset < 0) throw new plInvalidArgumentException('Invalid parameter $length='.$length.' at $offset='.$offset.' ('.$this->full_bars.' bars in history)');
+      else if ($length < $offset && $offset < 0) throw new InvalidArgumentException('Invalid parameter $length='.$length.' at $offset='.$offset.' ('.$this->full_bars.' bars in history)');
       else {
          $toOffset = $this->full_to_offset + $length;
-         if ($toOffset+1 < $fromOffset)          throw new plInvalidArgumentException('Invalid parameter $length='.$length.' at $offset='.$offset.' ('.$this->full_bars.' bars in history)');
+         if ($toOffset+1 < $fromOffset)          throw new InvalidArgumentException('Invalid parameter $length='.$length.' at $offset='.$offset.' ('.$this->full_bars.' bars in history)');
       }
 
       // absolute Länge ermitteln
@@ -573,10 +580,10 @@ class HistoryFile extends Object {
 
       // absoluten Offset ermitteln
       if ($offset >= 0) {
-         if ($offset > $this->full_bars)   throw new plInvalidArgumentException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
+         if ($offset > $this->full_bars)   throw new InvalidArgumentException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
          $fromOffset = $offset;
       }
-      else if ($offset < -$this->full_bars) throw new plInvalidArgumentException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
+      else if ($offset < -$this->full_bars) throw new InvalidArgumentException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
       else $fromOffset = $this->full_bars + $offset;
 
       if (!$bars) {                                            // nothing to do
@@ -642,7 +649,7 @@ class HistoryFile extends Object {
          case PERIOD_W1:  $this->synchronizeW1 ($bars); break;
          case PERIOD_MN1: $this->synchronizeMN1($bars); break;
          default:
-            throw new plRuntimeException('Unsupported timeframe $this->period='.$this->period);
+            throw new RuntimeException('Unsupported timeframe $this->period='.$this->period);
       }
    }
 
@@ -697,7 +704,7 @@ class HistoryFile extends Object {
          case PERIOD_W1:  $this->appendToW1       ($bars); break;
          case PERIOD_MN1: $this->appendToMN1      ($bars); break;
          default:
-            throw new plRuntimeException('Unsupported timeframe $this->period='.$this->period);
+            throw new RuntimeException('Unsupported timeframe $this->period='.$this->period);
       }
    }
 
@@ -903,7 +910,7 @@ class HistoryFile extends Object {
    public function flush($count=PHP_INT_MAX) {
       if ($this->closed)   throw new IllegalStateException('Cannot process a closed '.__CLASS__);
       if (!is_int($count)) throw new IllegalTypeException('Illegal type of parameter $count: '.getType($count));
-      if ($count < 0)      throw new plInvalidArgumentException('Invalid parameter $count: '.$count);
+      if ($count < 0)      throw new InvalidArgumentException('Invalid parameter $count: '.$count);
 
       $bufferSize = sizeOf($this->barBuffer);
       $todo       = min($bufferSize, $count);

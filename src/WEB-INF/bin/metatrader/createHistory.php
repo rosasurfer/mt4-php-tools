@@ -1,5 +1,9 @@
 #!/usr/bin/php
 <?php
+use rosasurfer\ministruts\exceptions\IllegalTypeException;
+use rosasurfer\ministruts\exceptions\InvalidArgumentException;
+
+
 /**
  * Konvertiert die M1-History ein oder mehrerer Instrumente ins MetaTrader-Format und legt sie im Verzeichnis
  * "{myfx.data_directory}/history/mt4/MyFX-Dukascopy" ab.
@@ -61,7 +65,7 @@ exit(0);
  */
 function createHistory($symbol) {
    if (!is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
-   if (!strLen($symbol))    throw new plInvalidArgumentException('Invalid parameter $symbol: ""');
+   if (!strLen($symbol))    throw new InvalidArgumentException('Invalid parameter $symbol: ""');
 
    $startDay  = fxtTime(MyFX::$symbols[$symbol]['historyStart']['M1']);             // FXT
    $startDay -= $startDay%DAY;                                                      // 00:00 FXT Starttag
@@ -132,11 +136,11 @@ function getVar($id, $symbol=null, $time=null) {
    $self = __FUNCTION__;
 
    if ($id == 'myfxDirDate') {               // $yyyy/$mm/$dd                                                  // lokales Pfad-Datum
-      if (!$time)   throw new plInvalidArgumentException('Invalid parameter $time: '.$time);
+      if (!$time)   throw new InvalidArgumentException('Invalid parameter $time: '.$time);
       $result = gmDate('Y/m/d', $time);
    }
    else if ($id == 'myfxDir') {              // $dataDirectory/history/myfx/$type/$symbol/$myfxDirDate         // lokales Verzeichnis
-      if (!$symbol) throw new plInvalidArgumentException('Invalid parameter $symbol: '.$symbol);
+      if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
       static $dataDirectory; if (!$dataDirectory)
       $dataDirectory = MyFX::getConfigPath('myfx.data_directory');
       $type          = MyFX::$symbols[$symbol]['type'];
@@ -152,7 +156,7 @@ function getVar($id, $symbol=null, $time=null) {
       $result  = "$myfxDir/M1.rar";
    }
    else {
-     throw new plInvalidArgumentException('Unknown parameter $id: "'.$id.'"');
+     throw new InvalidArgumentException('Unknown parameter $id: "'.$id.'"');
    }
 
    $varCache[$key] = $result;

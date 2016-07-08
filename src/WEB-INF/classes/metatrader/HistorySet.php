@@ -1,4 +1,10 @@
 <?php
+use rosasurfer\ministruts\exceptions\IllegalStateException;
+use rosasurfer\ministruts\exceptions\IllegalTypeException;
+use rosasurfer\ministruts\exceptions\InvalidArgumentException;
+use rosasurfer\ministruts\exceptions\RuntimeException;
+
+
 /**
  * Ein HistorySet zur Verwaltung der MetaTrader-History eines Instruments. Die Formate der einzelnen Dateien
  * eines HistorySets können gemischt sein.
@@ -43,7 +49,7 @@ class HistorySet extends Object {
       $argc = func_num_args();
       if      ($argc == 4) $this->__construct_1($arg1, $arg2, $arg3, $arg4);
       else if ($argc == 1) $this->__construct_2($arg1);
-      else throw new plInvalidArgumentException('Invalid number of arguments: '.$argc);
+      else throw new InvalidArgumentException('Invalid number of arguments: '.$argc);
    }
 
 
@@ -63,12 +69,12 @@ class HistorySet extends Object {
     */
    private function __construct_1($symbol, $digits, $format, $serverDirectory) {
       if (!is_string($symbol))                      throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
-      if (!strLen($symbol))                         throw new plInvalidArgumentException('Invalid parameter $symbol: ""');
-      if (strLen($symbol) > MT4::MAX_SYMBOL_LENGTH) throw new plInvalidArgumentException('Invalid parameter $symbol: "'.$symbol.'" (max '.MT4::MAX_SYMBOL_LENGTH.' characters)');
+      if (!strLen($symbol))                         throw new InvalidArgumentException('Invalid parameter $symbol: ""');
+      if (strLen($symbol) > MT4::MAX_SYMBOL_LENGTH) throw new InvalidArgumentException('Invalid parameter $symbol: "'.$symbol.'" (max '.MT4::MAX_SYMBOL_LENGTH.' characters)');
       if (!is_int($digits))                         throw new IllegalTypeException('Illegal type of parameter $digits: '.getType($digits));
-      if ($digits < 0)                              throw new plInvalidArgumentException('Invalid parameter $digits: '.$digits);
+      if ($digits < 0)                              throw new InvalidArgumentException('Invalid parameter $digits: '.$digits);
       if (!is_string($serverDirectory))             throw new IllegalTypeException('Illegal type of parameter $serverDirectory: '.getType($serverDirectory));
-      if (!is_dir($serverDirectory))                throw new plInvalidArgumentException('Directory "'.$serverDirectory.'" not found');
+      if (!is_dir($serverDirectory))                throw new InvalidArgumentException('Directory "'.$serverDirectory.'" not found');
 
       $this->symbol          = $symbol;
       $this->digits          = $digits;
@@ -110,7 +116,7 @@ class HistorySet extends Object {
       $symbolUpper = strToUpper($this->symbol);
       foreach (self::$instances as $instance) {
          if (!$instance->isClosed() && $symbolUpper==strToUpper($instance->getSymbol()) && $this->serverDirectory==$instance->getServerDirectory())
-            throw plRuntimeException('Multiple open HistorySets for "'.$this->serverName.'::'.$this->symbol.'"');
+            throw RuntimeException('Multiple open HistorySets for "'.$this->serverName.'::'.$this->symbol.'"');
       }
 
       // alle übrigen existierenden HistoryFiles öffnen und validieren (nicht existierende Dateien werden erst bei Bedarf erstellt)
@@ -128,7 +134,7 @@ class HistorySet extends Object {
                   }
                   throw $ex;
                }
-               if ($file->getDigits() != $this->getDigits()) throw new plRuntimeException('Digits mis-match in "'.$fileName.'": file.digits='.$file->getDigits().' instead of set.digits='.$this->getDigits());
+               if ($file->getDigits() != $this->getDigits()) throw new RuntimeException('Digits mis-match in "'.$fileName.'": file.digits='.$file->getDigits().' instead of set.digits='.$this->getDigits());
             }
          }
       } unset($file);
@@ -148,8 +154,8 @@ class HistorySet extends Object {
       try {
          $this->close();
       }
-      catch (Exception $ex) {
-         Logger::handleException($ex, $inShutdownOnly=true);
+      catch (\Exception $ex) {
+         System::handleDestructorException($ex);
          throw $ex;
       }
    }
@@ -194,9 +200,9 @@ class HistorySet extends Object {
     */
    public static function get($symbol, $serverDirectory) {
       if (!is_string($symbol))          throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
-      if (!strLen($symbol))             throw new plInvalidArgumentException('Invalid parameter $symbol: ""');
+      if (!strLen($symbol))             throw new InvalidArgumentException('Invalid parameter $symbol: ""');
       if (!is_string($serverDirectory)) throw new IllegalTypeException('Illegal type of parameter $serverDirectory: '.getType($serverDirectory));
-      if (!is_dir($serverDirectory))    throw new plInvalidArgumentException('Directory "'.$serverDirectory.'" not found');
+      if (!is_dir($serverDirectory))    throw new InvalidArgumentException('Directory "'.$serverDirectory.'" not found');
 
       // existierende Instanzen durchsuchen und bei Erfolg die entsprechende Instanz zurückgeben
       $symbolUpper     = strToUpper($symbol);
@@ -246,7 +252,7 @@ class HistorySet extends Object {
                if (!strStartsWith($ex->getMessage(), 'filesize.insufficient')) throw $ex;
                Logger::warn($ex->getMessage(), __CLASS__);              // eine zu kurze Datei wird mit einer neuen Datei überschrieben
             }
-            if ($file->getDigits() != $this->getDigits()) throw new plRuntimeException('Digits mis-match in "'.$fileName.'": file.digits='.$file->getDigits().' instead of set.digits='.$this->getDigits());
+            if ($file->getDigits() != $this->getDigits()) throw new RuntimeException('Digits mis-match in "'.$fileName.'": file.digits='.$file->getDigits().' instead of set.digits='.$this->getDigits());
          }
 
          if (!$file) $file = new HistoryFile($this->symbol, $timeframe, $this->digits, $format=400, $this->serverDirectory);

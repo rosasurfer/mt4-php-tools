@@ -1,5 +1,10 @@
 #!/usr/bin/php
 <?php
+use rosasurfer\ministruts\exceptions\IllegalTypeException;
+use rosasurfer\ministruts\exceptions\InvalidArgumentException;
+use rosasurfer\ministruts\exceptions\RuntimeException;
+
+
 /**
  * Aktualisiert die lokal vorhandenen Dukascopy-Tickdaten. Die Daten werden nach FXT konvertiert und im MyFX-Format
  * gespeichert. Am Wochenende, an Feiertagen und wenn keine Tickdaten verfügbar sind, sind die Dukascopy-Dateien leer.
@@ -306,12 +311,12 @@ function saveTicks($symbol, $gmtHour, $fxtHour, array $ticks) {
 
 
    // (1) Tickdaten nochmal prüfen
-   if (!$ticks) throw new plRuntimeException('No ticks for '.$shortDate);
+   if (!$ticks) throw new RuntimeException('No ticks for '.$shortDate);
    $size = sizeof($ticks);
    $fromHour = ($time=$ticks[      0]['time_fxt']) - $time%HOUR;
    $toHour   = ($time=$ticks[$size-1]['time_fxt']) - $time%HOUR;
-   if ($fromHour != $fxtHour) throw new plRuntimeException('Ticks for '.$shortDate.' do not match the specified hour: $tick[0]=\''.gmDate('d-M-Y H:i:s \F\X\T', $ticks[0]['time_fxt']).'\'');
-   if ($fromHour != $toHour)  throw new plRuntimeException('Ticks for '.$shortDate.' span multiple hours from=\''.gmDate('d-M-Y H:i:s \F\X\T', $ticks[0]['time_fxt']).'\' to=\''.gmDate('d-M-Y H:i:s \F\X\T', $ticks[$size-1]['time_fxt']).'\'');
+   if ($fromHour != $fxtHour) throw new RuntimeException('Ticks for '.$shortDate.' do not match the specified hour: $tick[0]=\''.gmDate('d-M-Y H:i:s \F\X\T', $ticks[0]['time_fxt']).'\'');
+   if ($fromHour != $toHour)  throw new RuntimeException('Ticks for '.$shortDate.' span multiple hours from=\''.gmDate('d-M-Y H:i:s \F\X\T', $ticks[0]['time_fxt']).'\' to=\''.gmDate('d-M-Y H:i:s \F\X\T', $ticks[$size-1]['time_fxt']).'\'');
 
 
    // (2) Ticks binär packen
@@ -370,7 +375,7 @@ function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=f
 
 
    // (1) Standard-Browser simulieren
-   $userAgent = Config::get('myfx.useragent'); if (!$userAgent) throw new plInvalidArgumentException('Invalid user agent configuration: "'.$userAgent.'"');
+   $userAgent = Config::get('myfx.useragent'); if (!$userAgent) throw new InvalidArgumentException('Invalid user agent configuration: "'.$userAgent.'"');
    $request = HttpRequest::create()
                          ->setUrl($url)
                          ->setHeader('User-Agent'     , $userAgent                                                       )
@@ -389,7 +394,7 @@ function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=f
 
    $response = $httpClient->send($request);                             // TODO: CURL-Fehler wie bei SimpleTrader behandeln
    $status   = $response->getStatus();
-   if ($status!=200 && $status!=404) throw new plRuntimeException('Unexpected HTTP status '.$status.' ('.HttpResponse::$sc[$status].') for url "'.$url.'"'.NL.printFormatted($response, true));
+   if ($status!=200 && $status!=404) throw new RuntimeException('Unexpected HTTP status '.$status.' ('.HttpResponse::$sc[$status].') for url "'.$url.'"'.NL.printPretty($response, true));
 
    // eine leere Antwort ist möglich und wird als Fehler behandelt
    $content = $response->getContent();
@@ -535,11 +540,11 @@ function getVar($id, $symbol=null, $time=null) {
    $self = __FUNCTION__;
 
    if ($id == 'myfxDirDate') {               // $yyyy/$mmL/$dd                                                 // lokales Pfad-Datum
-      if (!$time)   throw new plInvalidArgumentException('Invalid parameter $time: '.$time);
+      if (!$time)   throw new InvalidArgumentException('Invalid parameter $time: '.$time);
       $result = gmDate('Y/m/d', $time);
    }
    else if ($id == 'myfxDir') {              // $dataDirectory/history/myfx/$type/$symbol/$myfxDirDate         // lokales Verzeichnis
-      if (!$symbol) throw new plInvalidArgumentException('Invalid parameter $symbol: '.$symbol);
+      if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
       if (!$dataDirectory)
       $dataDirectory = MyFX::getConfigPath('myfx.data_directory');
       $type          = MyFX::$symbols[$symbol]['type'];
@@ -567,14 +572,14 @@ function getVar($id, $symbol=null, $time=null) {
       $result  = "$myfxDir/${hour}h_ticks.bi5";
    }
    else if ($id == 'dukaUrlDate') {          // $yyyy/$mmD/$dd                                                 // Dukascopy-URL-Datum
-      if (!$time) throw new plInvalidArgumentException('Invalid parameter $time: '.$time);
+      if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
       $yyyy   = gmDate('Y', $time);
       $mmD    = strRight(((int)gmDate('m', $time))+99, 2);  // Januar = 00
       $dd     = gmDate('d', $time);
       $result = "$yyyy/$mmD/$dd";
    }
    else if ($id == 'dukaUrl') {              // http://datafeed.dukascopy.com/datafeed/$symbol/$dukaUrlDate/${hour}h_ticks.bi5  // URL
-      if (!$symbol) throw new plInvalidArgumentException('Invalid parameter $symbol: '.$symbol);
+      if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
       $dukaUrlDate = $self('dukaUrlDate', null, $time);
       $hour        = gmDate('H', $time);
       $result      = "http://datafeed.dukascopy.com/datafeed/$symbol/$dukaUrlDate/${hour}h_ticks.bi5";
@@ -590,7 +595,7 @@ function getVar($id, $symbol=null, $time=null) {
       $result  = "$myfxDir/${hour}h_ticks.na";
    }
    else {
-     throw new plInvalidArgumentException('Unknown parameter $id: "'.$id.'"');
+     throw new InvalidArgumentException('Unknown parameter $id: "'.$id.'"');
    }
 
    $varCache[$key] = $result;

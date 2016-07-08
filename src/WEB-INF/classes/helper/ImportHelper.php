@@ -1,4 +1,9 @@
 <?php
+use rosasurfer\ministruts\exceptions\BusinessRuleException;
+use rosasurfer\ministruts\exceptions\InfrastructureException;
+use rosasurfer\ministruts\exceptions\InvalidArgumentException;
+
+
 /**
  * ImportHelper
  */
@@ -16,7 +21,7 @@ class ImportHelper extends StaticClass {
       // Account suchen
       $company = Account ::normalizeCompanyName($form->getAccountCompany());
       $account = Account ::dao()->getByCompanyAndNumber($company, $form->getAccountNumber());
-      if (!$account) throw new plInvalidArgumentException('unknown_account');
+      if (!$account) throw new InvalidArgumentException('unknown_account');
 
       // Transaktionen und Credits trennen
       $transactions = $credits = null;
@@ -54,19 +59,19 @@ class ImportHelper extends StaticClass {
             else {
                $row[AH_TYPE] = OP_TRANSFER;
             }
-            if ($row[AH_OPENTIME] != $row[AH_CLOSETIME]) throw new plInvalidArgumentException('ticket #'.$row[AH_TICKET].' - illegal balance times: open = "'.gmDate('Y.m.d H:i:s', $row[AH_OPENTIME]).'", close = "'.gmDate('Y.m.d H:i:s', $row[AH_CLOSETIME]).'"');
+            if ($row[AH_OPENTIME] != $row[AH_CLOSETIME]) throw new InvalidArgumentException('ticket #'.$row[AH_TICKET].' - illegal balance times: open = "'.gmDate('Y.m.d H:i:s', $row[AH_OPENTIME]).'", close = "'.gmDate('Y.m.d H:i:s', $row[AH_CLOSETIME]).'"');
             continue;
          }
 
          // Hedges korrigieren
          if ($row[AH_UNITS] == 0) {
             // TODO: Prüfen, wie sich OrderComment() bei partiellem Close und/oder custom comments verhält.
-            if (!strStartsWithI($row[AH_COMMENT], 'close hedge by #')) throw new plInvalidArgumentException('ticket #'.$row[AH_TICKET].' - unknown comment for assumed hedged position: "'.$row[AH_COMMENT].'"');
+            if (!strStartsWithI($row[AH_COMMENT], 'close hedge by #')) throw new InvalidArgumentException('ticket #'.$row[AH_TICKET].' - unknown comment for assumed hedged position: "'.$row[AH_COMMENT].'"');
 
             // Gegenstück suchen und alle Orderdaten in der 1. Order speichern
             $ticket = (int) subStr($row[AH_COMMENT], 16);            // (int) schneidet ggf. auf die Ticket# folgende nicht-numerische Zeichen ab
-            if ($ticket == 0)                                        throw new plInvalidArgumentException('ticket #'.$row[AH_TICKET].' - unknown comment for assumed hedged position: "'.$row[AH_COMMENT].'"');
-            if (($n=array_search($ticket, $tickets, true)) == false) throw new plInvalidArgumentException('cannot find counterpart for hedged position #'.$row[AH_TICKET].': "'.$row[AH_COMMENT].'"');
+            if ($ticket == 0)                                        throw new InvalidArgumentException('ticket #'.$row[AH_TICKET].' - unknown comment for assumed hedged position: "'.$row[AH_COMMENT].'"');
+            if (($n=array_search($ticket, $tickets, true)) == false) throw new InvalidArgumentException('cannot find counterpart for hedged position #'.$row[AH_TICKET].': "'.$row[AH_COMMENT].'"');
 
             $first  = min($i, $n);
             $second = max($i, $n);
@@ -85,13 +90,13 @@ class ImportHelper extends StaticClass {
             if ($i == $second)
                continue;
          }
-         if ($row[AH_OPENTIME] >= $row[AH_CLOSETIME]) throw new plInvalidArgumentException('ticket #'.$row[AH_TICKET].' - illegal order times: open = "'.gmDate('Y.m.d H:i:s', $row[AH_OPENTIME]).'", close = "'.gmDate('Y.m.d H:i:s', $row[AH_CLOSETIME]).'"');
+         if ($row[AH_OPENTIME] >= $row[AH_CLOSETIME]) throw new InvalidArgumentException('ticket #'.$row[AH_TICKET].' - illegal order times: open = "'.gmDate('Y.m.d H:i:s', $row[AH_OPENTIME]).'", close = "'.gmDate('Y.m.d H:i:s', $row[AH_CLOSETIME]).'"');
       } unset($row);
 
       // (1.3) Transaktionen für SQL-Import formatieren und in die hochgeladene Datei zurückschreiben
       $accountId       = $account->getId();
-      $serverTimezone  = new DateTimeZone($account->getTimezone());
-      $newYorkTimezone = new DateTimeZone('America/New_York');
+      $serverTimezone  = new \DateTimeZone($account->getTimezone());
+      $newYorkTimezone = new \DateTimeZone('America/New_York');
 
       $fileName = $form->getFileTmpName();
       $hFile = fOpen($fileName, 'wb');
@@ -103,7 +108,7 @@ class ImportHelper extends StaticClass {
 
          // MT4-Serverzeiten in Forex-Standardzeit (America/New_York+0700) umrechnen
          foreach (array(AH_OPENTIME, AH_CLOSETIME) as $time) {
-            $date = new DateTime(gmDate('Y-m-d H:i:s', $row[$time]), $serverTimezone);
+            $date = new \DateTime(gmDate('Y-m-d H:i:s', $row[$time]), $serverTimezone);
             $date->setTimezone($newYorkTimezone);
             $date->modify('+7 hours');
             $row[$time] = $date->format('Y-m-d H:i:s');
@@ -184,9 +189,9 @@ class ImportHelper extends StaticClass {
          $db->rollback();
          throw $ex;
       }
-      catch (Exception $ex) {
+      catch (\Exception $ex) {
          $db->rollback();
-         throw new InfrastructureException($ex);
+         throw new InfrastructureException(null, null, $ex);
       }
 
 
