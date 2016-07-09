@@ -21,10 +21,17 @@ cd $PROJECTS_ROOT
 export CVSROOT=:pserver:$USERNAME:$PASS@localhost:2401/var/cvs/pewa
 
 cvs -d $CVSROOT login
-#-------------------------------------------------------------
+
+#-------------------------------------------------------------------------------
 #cvs -d $CVSROOT -qr checkout -PR -d $PROJECT -r HEAD $PROJECT
-cvs -d $CVSROOT -qr update -CPRd -r HEAD $PROJECT
-#-------------------------------------------------------------
+#cvs -d $CVSROOT -qr update -CPRd             -r HEAD $PROJECT
+#-------------------------------------------------------------------------------
+
+#-------------------------------------------------------------------------------
+#cvs -d $CVSROOT -qr checkout -PR -d $PROJECT -r B_legacy-no-namespaces $PROJECT
+cvs  -d $CVSROOT -qr update -CPRd             -r B_legacy-no-namespaces $PROJECT
+#-------------------------------------------------------------------------------
+
 cvs -d $CVSROOT logout
 unset CVSROOT
 
