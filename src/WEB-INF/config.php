@@ -7,7 +7,7 @@ ini_set('session.save_path', APPLICATION_ROOT.'/../etc/tmp');
 ini_set('apd.dumpdir',       APPLICATION_ROOT.'/../etc/tmp');
 ini_set('error_log',         APPLICATION_ROOT.'/../etc/log/php_error.log');
 
-require(APPLICATION_ROOT.'/WEB-INF/include/phplib/src/load.php');          // PHPLib laden
+require(APPLICATION_ROOT.'/WEB-INF/include/phplib/src/phpLib.php');        // PHPLib laden
 include(APPLICATION_ROOT.'/WEB-INF/include/defines.php');                  // zusätzliche Definitionen laden
 include(APPLICATION_ROOT.'/WEB-INF/classes/classes.php');                  // zusätzliche Klassen laden
 
