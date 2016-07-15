@@ -1,5 +1,5 @@
 <?php
-use rosasurfer\ministruts\exceptions\RuntimeException;
+use rosasurfer\ministruts\exception\RuntimeException;
 
 
 /**

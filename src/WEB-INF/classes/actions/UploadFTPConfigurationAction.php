@@ -1,5 +1,5 @@
 <?php
-use rosasurfer\ministruts\exceptions\IOException;
+use rosasurfer\ministruts\exception\IOException;
 
 
 /**

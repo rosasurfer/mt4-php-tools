@@ -1,8 +1,8 @@
 <?php
-use rosasurfer\ministruts\exceptions\IllegalTypeException;
-use rosasurfer\ministruts\exceptions\InvalidArgumentException;
-use rosasurfer\ministruts\exceptions\RuntimeException;
-use rosasurfer\ministruts\exceptions\UnimplementedFeatureException;
+use rosasurfer\ministruts\exception\IllegalTypeException;
+use rosasurfer\ministruts\exception\InvalidArgumentException;
+use rosasurfer\ministruts\exception\RuntimeException;
+use rosasurfer\ministruts\exception\UnimplementedFeatureException;
 
 
 /**

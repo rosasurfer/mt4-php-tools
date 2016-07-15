@@ -1,5 +1,5 @@
 <?php
-use rosasurfer\ministruts\exceptions\IllegalTypeException;
+use rosasurfer\ministruts\exception\IllegalTypeException;
 
 
 /**
