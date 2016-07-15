@@ -1,4 +1,6 @@
 <?php
+use rosasurfer\ministruts\core\StaticClass;
+
 use rosasurfer\ministruts\exception\IllegalTypeException;
 use rosasurfer\ministruts\exception\InvalidArgumentException;
 use rosasurfer\ministruts\exception\RuntimeException;

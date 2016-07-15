@@ -1,4 +1,6 @@
 <?php
+use rosasurfer\ministruts\core\StaticClass;
+
 use rosasurfer\ministruts\exception\BusinessRuleException;
 use rosasurfer\ministruts\exception\InfrastructureException;
 use rosasurfer\ministruts\exception\InvalidArgumentException;
