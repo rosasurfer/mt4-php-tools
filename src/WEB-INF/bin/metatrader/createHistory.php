@@ -47,8 +47,7 @@ if (!WINDOWS) pcntl_signal(SIGINT, create_function('$signal', 'exit(0);'));     
 
 // (3) History erstellen
 foreach ($args as $symbol) {
-   if (!createHistory($symbol))
-      exit(1);
+   !createHistory($symbol) && exit(1);
 }
 exit(0);
 

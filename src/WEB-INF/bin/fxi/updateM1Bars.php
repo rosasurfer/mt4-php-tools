@@ -74,7 +74,7 @@ $args = array_slice($_SERVER['argv'], 1);
 
 // Optionen parsen
 foreach ($args as $i => $arg) {
-   if ($arg == '-h'  )   help() & exit(1);                                          // Hilfe
+   if ($arg == '-h'  )   exit(1|help());                                            // Hilfe
    if ($arg == '-v'  ) { $verbose = max($verbose, 1); unset($args[$i]); continue; } // verbose output
    if ($arg == '-vv' ) { $verbose = max($verbose, 2); unset($args[$i]); continue; } // more verbose output
    if ($arg == '-vvv') { $verbose = max($verbose, 3); unset($args[$i]); continue; } // very verbose output
@@ -83,7 +83,7 @@ foreach ($args as $i => $arg) {
 // Symbole parsen
 foreach ($args as $i => $arg) {
    $arg = strToUpper($arg);
-   if (!array_key_exists($arg, $indexes)) help('error: unknown or unsupported index "'.$args[$i].'"') & exit(1);
+   if (!array_key_exists($arg, $indexes)) exit(1|help('error: unknown or unsupported index "'.$args[$i].'"'));
    $args[$i] = $arg;
 }
 $args = $args ? array_unique($args) : array_keys($indexes);                         // ohne Angabe werden alle Indizes aktualisiert
@@ -95,8 +95,7 @@ if (!WINDOWS) pcntl_signal(SIGINT, create_function('$signal', 'exit(0);'));     
 
 // (3) Indizes berechnen
 foreach ($args as $index) {
-   if (!updateIndex($index))
-      exit(1);
+   !updateIndex($index) && exit(1);
 }
 exit(0);
 

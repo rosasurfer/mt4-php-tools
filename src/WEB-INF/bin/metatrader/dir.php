@@ -53,7 +53,7 @@ foreach ($args as $arg) {
    foreach ($entries as $entry) if (is_file($entry))
       $expandedArgs[] = $entry;
 }
-!$expandedArgs && echoPre('no history files found') & exit(1);
+!$expandedArgs && exit(1|echoPre('no history files found'));
 sort($expandedArgs);                                              // alles sortieren (Dateien im aktuellen Verzeichnis ans Ende)
 
 

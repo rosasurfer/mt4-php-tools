@@ -24,19 +24,19 @@ $args = array_slice($_SERVER['argv'], 1);
 
 // Hilfe ?
 foreach ($args as $arg) {
-   if ($arg == '-h') help() & exit(1);
+   if ($arg == '-h') exit(1|help());
 }
 
 // Optionen und Argumente parsen
 foreach ($args as $i => $arg) {
    // -f=FILE
    if (strStartsWith($arg, '-f=')) {
-      if ($files) help('invalid/multiple file arguments: -f='.$arg) & exit(1);
+      if ($files) exit(1|help('invalid/multiple file arguments: -f='.$arg));
       $value = $arg = strRight($arg, -3);
       strIsQuoted($value) && ($value=strLeft(strRight($value, -1), 1));
 
       if (file_exists($value)) {             // existierende Datei oder Verzeichnis
-         is_dir($value) && !is_file(($value.=(strEndsWith($value, '/') ? '':'/').'symbols.raw')) && help('file not found: '.$value) & exit(1);
+         is_dir($value) && !is_file(($value.=(strEndsWith($value, '/') ? '':'/').'symbols.raw')) && exit(1|help('file not found: '.$value));
          $files[] = $value;
       }
       else {                                 // Argument existiert nicht, Wildcards expandieren und Ergebnisse prüfen (z.B. unter Windows)
@@ -48,7 +48,7 @@ foreach ($args as $i => $arg) {
                continue;
             $files[] = $entry;               // nur Dateien übernehmen
          }
-         !$files && help('file(s) not found: '.$arg.($matchesDir ? ' (enter a trailing slash "/" to search directories)':'')) & exit(1);
+         !$files && exit(1|help('file(s) not found: '.$arg.($matchesDir ? ' (enter a trailing slash "/" to search directories)':'')));
          uSort($files, 'compareFileNames');  // Datei-/Verzeichnisnamen lassen sich mit den existierenden Funktionen nicht natürlich sortieren
       }
       continue;
@@ -75,7 +75,7 @@ foreach ($args as $i => $arg) {
    // include specific field
    if (strStartsWith($arg, '+')) {
       $key = subStr($arg, 1);
-      if (!strLen($key)) help('invalid field specifier: '.$arg) & exit(1);
+      if (!strLen($key)) exit(1|help('invalid field specifier: '.$arg));
       unset($fieldArgs['-'.$key]);                                            // drops element if it exists
       if (!in_array('++', $fieldArgs) && !in_array('+'.$key, $fieldArgs))
          $fieldArgs[] = '+'.$key;
@@ -85,7 +85,7 @@ foreach ($args as $i => $arg) {
    // exclude specific field
    if (strStartsWith($arg, '-')) {
       $key = subStr($arg, 1);
-      if (!strLen($key)) help('invalid field specifier: '.$arg) & exit(1);
+      if (!strLen($key)) exit(1|help('invalid field specifier: '.$arg));
       unset($fieldArgs['+'.$key]);                                            // drops element if it exists
       if (in_array('++', $fieldArgs) && !in_array('-'.$key, $fieldArgs))
          $fieldArgs[] = '-'.$key;
@@ -93,7 +93,7 @@ foreach ($args as $i => $arg) {
    }
 
    // unrecognized arguments
-   help('invalid argument: '.$arg) & exit(1);
+   exit(1|help('invalid argument: '.$arg));
 }
 
 
@@ -112,7 +112,7 @@ if (isSet($options['listFields'])) {
 // (3) Default-Parameter setzen
 if (!$files) {
    $file = 'symbols.raw';
-   if (!is_file($file)) help('file not found: '.$file) & exit(1);
+   if (!is_file($file)) exit(1|help('file not found: '.$file));
    $files[] = $file;
 }
 

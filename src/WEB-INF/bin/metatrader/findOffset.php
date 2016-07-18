@@ -24,27 +24,27 @@ $args = array_slice($_SERVER['argv'], 1);
 // (1.1) Optionen parsen
 foreach ($args as $i => $arg) {
    $arg = strToLower($arg);
-   if ($arg == '-h')   help() & exit(1);                                   // Hilfe
+   if ($arg == '-h')   exit(1|help());                                     // Hilfe
    if ($arg == '-c') { $byteOffset=true; unset($args[$i]); continue; }     // -c: byte offset
    if ($arg == '-q') { $quietMode =true; unset($args[$i]); continue; }     // -q: quiet mode
 }
 
 // (1.2) Das verbleibende erste Argument muß ein Zeitpunkt sein.
-(sizeOf($args) < 2) && help() & exit(1);
+(sizeOf($args) < 2) && exit(1|help());
 $sTime = $arg = array_shift($args);
 
 if (strIsQuoted($sTime)) $sTime = trim(strLeft(strRight($sTime, -1), -1));
-!is_datetime($sTime, array('Y-m-d', 'Y-m-d H:i', 'Y-m-d H:i:s')) && echoPre('invalid argument datetime = '.$arg) & exit(1);
+!is_datetime($sTime, array('Y-m-d', 'Y-m-d H:i', 'Y-m-d H:i:s')) && exit(1|echoPre('invalid argument datetime = '.$arg));
 $datetime = strToTime($sTime.' GMT');
 
 // (1.2) Das verbleibende zweite Argument muß ein History-File sein.
 $fileName = array_shift($args);
-!is_file($fileName) && echoPre('file not found "'.$fileName.'"') & exit(1);
+!is_file($fileName) && exit(1|echoPre('file not found "'.$fileName.'"'));
 
 
 // (2) Datei öffnen und Header auslesen
 $fileSize = fileSize($fileName);
-($fileSize < HistoryHeader::SIZE) && echoPre('invalid or unknown history file format: file size of "'.$fileName.'" < MinFileSize ('.HistoryHeader::SIZE.')') & exit(1);
+($fileSize < HistoryHeader::SIZE) && exit(1|echoPre('invalid or unknown history file format: file size of "'.$fileName.'" < MinFileSize ('.HistoryHeader::SIZE.')'));
 $hFile  = fOpen($fileName, 'rb');
 $header = null;
 try {
@@ -52,7 +52,7 @@ try {
 }
 catch (MetaTraderException $ex) {
    if (strStartsWith($ex->getMessage(), 'version.unsupported'))
-      echoPre('unsupported history format in "'.$fileName.'": '.$ex->getMessage()) & exit(1);
+      exit(1|echoPre('unsupported history format in "'.$fileName.'": '.$ex->getMessage()));
    throw $ex;
 }
 

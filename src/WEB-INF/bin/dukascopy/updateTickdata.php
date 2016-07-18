@@ -57,7 +57,7 @@ $args = array_slice($_SERVER['argv'], 1);
 
 // Optionen parsen
 foreach ($args as $i => $arg) {
-   if ($arg == '-h'  )   help() & exit(1);                                          // Hilfe
+   if ($arg == '-h'  )   exit(1|help());                                            // Hilfe
    if ($arg == '-v'  ) { $verbose = max($verbose, 1); unset($args[$i]); continue; } // verbose output
    if ($arg == '-vv' ) { $verbose = max($verbose, 2); unset($args[$i]); continue; } // more verbose output
    if ($arg == '-vvv') { $verbose = max($verbose, 3); unset($args[$i]); continue; } // very verbose output
@@ -67,7 +67,7 @@ foreach ($args as $i => $arg) {
 foreach ($args as $i => $arg) {
    $arg = strToUpper($arg);
    if (!isSet(MyFX::$symbols[$arg]) || MyFX::$symbols[$arg]['provider']!='dukascopy')
-      help('unknown or unsupported symbol "'.$args[$i].'"') & exit(1);
+      exit(1|help('unknown or unsupported symbol "'.$args[$i].'"'));
    $args[$i] = $arg;
 }                                                                                   // ohne Angabe werden alle Dukascopy-Instrumente aktualisiert
 $args = $args ? array_unique($args) : array_keys(MyFX::filterSymbols(array('provider'=>'dukascopy')));
@@ -79,8 +79,7 @@ if (!WINDOWS) pcntl_signal(SIGINT, create_function('$signal', 'exit(0);'));     
 
 // (3) Daten aktualisieren
 foreach ($args as $symbol) {
-   if (!updateSymbol($symbol))
-      exit(1);
+   !updateSymbol($symbol) && exit(1);
 }
 exit(0);
 
