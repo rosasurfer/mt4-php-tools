@@ -59,7 +59,7 @@ class MyFX extends StaticClass {
    public static function getConfigPath($key) {
       if (!is_string($key)) throw new IllegalTypeException('Illegal type of parameter $key: '.getType($key));
 
-      $directory = str_replace('\\', '/', Config ::get($key));    // Backslashes in Konfiguration ersetzen
+      $directory = str_replace('\\', '/', Config::getDefault()->get($key));    // Backslashes in Konfiguration ersetzen
 
       if (WINDOWS) {
          if (!preg_match('/^[a-z]:/i', $directory))               // Pfad ist relativ, wenn er nicht mit einem Lw.-Bezeichner beginnt
@@ -293,7 +293,7 @@ class MyFX extends StaticClass {
       static $addresses = null;
 
       if (is_null($addresses)) {
-         $values = Config ::get('mail.signalreceivers');
+         $values = Config::getDefault()->get('mail.signalreceivers');
          foreach (explode(',', $values) as $address) {
             if ($address=trim($address))
                $addresses[] = $address;
@@ -314,7 +314,7 @@ class MyFX extends StaticClass {
       static $numbers = null;
 
       if (is_null($numbers)) {
-         $values = Config ::get('sms.signalreceivers', null);
+         $values = Config::getDefault()->get('sms.signalreceivers', null);
          foreach (explode(',', $values) as $number) {
             if ($number=trim($number))
                $numbers[] = $number;
@@ -344,7 +344,7 @@ class MyFX extends StaticClass {
       if ($message == '')          throw new InvalidArgumentException('Invalid argument $message: "'.$message.'"');
 
 
-      $config   = Config ::get('sms.clickatell');
+      $config   = Config::getDefault()->get('sms.clickatell');
       $username = $config['username'];
       $password = $config['password'];
       $api_id   = $config['api_id'  ];

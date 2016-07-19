@@ -409,7 +409,7 @@ function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $save
    if (!$quiet) echoPre('[Info]    '.$shortDate.'   url: '.$url);
 
    // (1) Standard-Browser simulieren
-   $userAgent = Config ::get('myfx.useragent'); if (!$userAgent) throw new InvalidArgumentException('Invalid user agent configuration: "'.$userAgent.'"');
+   $userAgent = Config::getDefault()->get('myfx.useragent'); if (!$userAgent) throw new InvalidArgumentException('Invalid user agent configuration: "'.$userAgent.'"');
    $request = HttpRequest ::create()
                           ->setUrl($url)
                           ->setHeader('User-Agent'     , $userAgent                                                       )

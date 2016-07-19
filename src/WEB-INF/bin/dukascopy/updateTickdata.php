@@ -374,7 +374,7 @@ function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=f
 
 
    // (1) Standard-Browser simulieren
-   $userAgent = Config::get('myfx.useragent'); if (!$userAgent) throw new InvalidArgumentException('Invalid user agent configuration: "'.$userAgent.'"');
+   $userAgent = Config::getDefault()->get('myfx.useragent'); if (!$userAgent) throw new InvalidArgumentException('Invalid user agent configuration: "'.$userAgent.'"');
    $request = HttpRequest::create()
                          ->setUrl($url)
                          ->setHeader('User-Agent'     , $userAgent                                                       )
