@@ -64,7 +64,7 @@ foreach ($args as $i => $arg) {
       if (strIsQuoted($value))
          $value = strLeft(strRight($value, -1), 1);
       $timestamp = is_datetime($value, array('Y-m-d', 'Y.m.d', 'd.m.Y', 'd/m/Y'));
-      if (!is_int($timestamp) || $timestamp < 0) exit(1help('invalid start date: '.$arg));
+      if (!is_int($timestamp) || $timestamp < 0) exit(1|help('invalid start date: '.$arg));
       $options['startDate'] = $timestamp;
       if (isSet($options['endDate']) && $options['startDate'] > $options['endDate']) {
          exit(1|help('start date/end date mis-match: '.gmDate('Y.m.d', $options['startDate']).' > '.gmDate('Y.m.d', $options['endDate'])));
