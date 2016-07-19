@@ -50,7 +50,7 @@ class UploadAccountHistoryAction extends Action {
             $request->setActionError('', self::$messages[$key]);
          }
          catch (\Exception $ex) {
-            Logger ::log('System not available', $ex, L_ERROR, __CLASS__);
+            Logger::log('System not available', $ex, L_ERROR, __CLASS__);
             $request->setActionError('', '500: Server error, try again later.');    // 500
          }
       }
