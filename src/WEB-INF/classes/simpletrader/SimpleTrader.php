@@ -444,7 +444,7 @@ class SimpleTrader extends StaticClass {
             mail($receiver, $subject=$mailMsg, $msg=$mailMsg);
          }
       }
-      catch (\Exception $ex) { Logger ::log($ex, L_ERROR, __CLASS__); }
+      catch (\Exception $ex) { Logger::log(null, $ex, L_ERROR, __CLASS__); }
 
 
       // SMS-Benachrichtigung, wenn das Ereignis zur Laufzeit des Scriptes eintrat
@@ -460,7 +460,7 @@ class SimpleTrader extends StaticClass {
                MyFX ::sendSms($receiver, $smsMsg);
             }
          }
-         catch (\Exception $ex) { Logger ::log($ex, L_ERROR, __CLASS__); }
+         catch (\Exception $ex) { Logger::log(null, $ex, L_ERROR, __CLASS__); }
       }
    }
 
@@ -499,7 +499,7 @@ class SimpleTrader extends StaticClass {
             mail($receiver, $subject=$mailMsg, $mailMsg);
          }
       }
-      catch (\Exception $ex) { Logger ::log($ex, L_ERROR, __CLASS__); }
+      catch (\Exception $ex) { Logger::log(null, $ex, L_ERROR, __CLASS__); }
 
 
       // Benachrichtigung per SMS
@@ -512,7 +512,7 @@ class SimpleTrader extends StaticClass {
                MyFX ::sendSms($receiver, $smsMsg);
             }
          }
-         catch (\Exception $ex) { Logger ::log($ex, L_ERROR, __CLASS__); }
+         catch (\Exception $ex) { Logger::log(null, $ex, L_ERROR, __CLASS__); }
       }
    }
 
@@ -537,7 +537,7 @@ class SimpleTrader extends StaticClass {
             mail($receiver, $subject=$mailMsg, $msg=$mailMsg);
          }
       }
-      catch (\Exception $ex) { Logger ::log($ex, L_ERROR, __CLASS__); }
+      catch (\Exception $ex) { Logger::log(null, $ex, L_ERROR, __CLASS__); }
 
 
       // SMS-Benachrichtigung, wenn das Ereignis zur Laufzeit des Scriptes eintrat
@@ -553,7 +553,7 @@ class SimpleTrader extends StaticClass {
                MyFX ::sendSms($receiver, $smsMsg);
             }
          }
-         catch (\Exception $ex) { Logger ::log($ex, L_ERROR, __CLASS__); }
+         catch (\Exception $ex) { Logger::log(null, $ex, L_ERROR, __CLASS__); }
       }
    }
 
@@ -592,7 +592,7 @@ class SimpleTrader extends StaticClass {
             mail($receiver, $subject, $msg);
          }
       }
-      catch (\Exception $ex) { Logger ::log($ex, L_ERROR, __CLASS__); }
+      catch (\Exception $ex) { Logger::log(null, $ex, L_ERROR, __CLASS__); }
 
 
       // Benachrichtigung per SMS, wenn das Event zur Laufzeit des Scriptes eintrat
@@ -605,7 +605,7 @@ class SimpleTrader extends StaticClass {
                MyFX ::sendSms($receiver, $msg);
             }
          }
-         catch (\Exception $ex) { Logger ::log($ex, L_ERROR, __CLASS__); }
+         catch (\Exception $ex) { Logger::log(null, $ex, L_ERROR, __CLASS__); }
       }
    }
 }
