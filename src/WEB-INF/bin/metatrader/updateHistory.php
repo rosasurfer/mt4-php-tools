@@ -5,7 +5,7 @@ use rosasurfer\ministruts\exception\InvalidArgumentException;
 
 
 /**
- * Aktualisiert MT4-History ein oder mehrerer Instrumente.
+ * Aktualisiert die MT4-History ein oder mehrerer Instrumente.
  */
 require(dirName(realPath(__FILE__)).'/../../config.php');
 date_default_timezone_set('GMT');
