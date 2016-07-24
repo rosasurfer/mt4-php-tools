@@ -1,2 +1,2 @@
-cookies.txt
-Todo
+# ignore cookies saved by zippy.php
+/cookies.txt
