@@ -76,29 +76,29 @@ class LZMA extends StaticClass {
          $output = array();
 
          if (WINDOWS) {
-            !$cmd && exec(APPLICATION_ROOT.'/bin/xz/lzmadec -V 2> nul', $output);   // lzmadec im Projekt suchen
-            !$cmd && $output && ($cmd=APPLICATION_ROOT.'/bin/xz/lzmadec "%s"');
+            !$cmd && exec(APPLICATION_ROOT.'/etc/bin/xz/lzmadec -V 2> nul', $output);  // lzmadec im Projekt suchen
+            !$cmd && $output && ($cmd=APPLICATION_ROOT.'/etc/bin/xz/lzmadec "%s"');
 
-            !$cmd && exec('lzmadec -V 2> nul', $output);                            // lzmadec im Suchpfad suchen
+            !$cmd && exec('lzmadec -V 2> nul', $output);                               // lzmadec im Suchpfad suchen
             !$cmd && $output && ($cmd='lzmadec "%s"');
 
-            !$cmd && exec(APPLICATION_ROOT.'/bin/xz/xz -V 2> nul', $output);        // xz im Projekt suchen
-            !$cmd && $output && ($cmd=APPLICATION_ROOT.'/bin/xz/xz -dc "%s"');
+            !$cmd && exec(APPLICATION_ROOT.'/etc/bin/xz/xz -V 2> nul', $output);       // xz im Projekt suchen
+            !$cmd && $output && ($cmd=APPLICATION_ROOT.'/etc/bin/xz/xz -dc "%s"');
 
-            !$cmd && exec('xz -V 2> nul', $output);                                 // xz im Suchpfad suchen
+            !$cmd && exec('xz -V 2> nul', $output);                                    // xz im Suchpfad suchen
             !$cmd && $output && ($cmd='xz -dc "%s"');
          }
          else /*NON-WINDOWS*/ {
-            !$cmd && exec('lzmadec -V 2> /dev/null', $output);                      // lzmadec im Suchpfad suchen
+            !$cmd && exec('lzmadec -V 2> /dev/null', $output);                         // lzmadec im Suchpfad suchen
             !$cmd && $output && ($cmd='lzmadec "%s"');
 
-            !$cmd && exec('xzdec -V 2> /dev/null', $output);                        // xzdec im Suchpfad suchen
+            !$cmd && exec('xzdec -V 2> /dev/null', $output);                           // xzdec im Suchpfad suchen
             !$cmd && $output && ($cmd='xzdec "%s"');
 
-            !$cmd && exec('lzma -V 2> /dev/null', $output);                         // lzma im Suchpfad suchen
+            !$cmd && exec('lzma -V 2> /dev/null', $output);                            // lzma im Suchpfad suchen
             !$cmd && $output && ($cmd='lzma -dc "%s"');
 
-            !$cmd && exec('xz -V 2> /dev/null', $output);                           // xz im Suchpfad suchen
+            !$cmd && exec('xz -V 2> /dev/null', $output);                              // xz im Suchpfad suchen
             !$cmd && $output && ($cmd='xz -dc "%s"');
          }
          if (!$cmd) throw new InfrastructureException('No LZMA decoder found.');
