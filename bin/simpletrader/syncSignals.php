@@ -12,7 +12,7 @@ use rosasurfer\ministruts\exception\RuntimeException;
  *
  *
  */
-require(__DIR__.'/../../../../app/init.php');
+require(__DIR__.'/../../app/init.php');
 
 
 $sleepSeconds      = 30;         // Länge der Pause zwischen zwei Updates

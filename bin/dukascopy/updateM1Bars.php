@@ -1,4 +1,4 @@
-﻿#!/usr/bin/php
+#!/usr/bin/php
 <?php
 use rosasurfer\ministruts\exception\IllegalTypeException;
 use rosasurfer\ministruts\exception\InvalidArgumentException;
@@ -35,7 +35,7 @@ use rosasurfer\ministruts\exception\RuntimeException;
  * GMT:     |   Sunday      Monday   |  Tuesday   | Wednesday  |  Thursday  |   Friday     Saturday  |   Sunday      Monday   |
  *          +------------------------+------------+------------+------------+------------------------+------------------------+
  */
-require(__DIR__.'/../../../../app/init.php');
+require(__DIR__.'/../../app/init.php');
 date_default_timezone_set('GMT');
 
 

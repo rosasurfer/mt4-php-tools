@@ -8,7 +8,7 @@ use rosasurfer\ministruts\exception\InvalidArgumentException;
  * Konvertiert die M1-History ein oder mehrerer Instrumente ins MetaTrader-Format und legt sie im Verzeichnis
  * "{myfx.data_directory}/history/mt4/MyFX-Dukascopy" ab.
  */
-require(__DIR__.'/../../../../app/init.php');
+require(__DIR__.'/../../app/init.php');
 date_default_timezone_set('GMT');
 
 
