@@ -1,9 +1,21 @@
 <?php
-define('APPLICATION_ROOT', dirName(dirName(__DIR__)));
-define('APPLICATION_ID'  , 'myfx');
+if (PHP_VERSION < '5.6') {
+   echo('application error'.PHP_EOL);
+   error_log('Error: A PHP version >= 5.6 is required (found version '.PHP_VERSION.').');
+   exit(1);
+}
 
-ini_set('session.save_path', APPLICATION_ROOT.'/etc/tmp');
-ini_set('error_log',         APPLICATION_ROOT.'/etc/log/php_error.log');
+
+// check application constants
+!defined('APPLICATION_ROOT') && define('APPLICATION_ROOT', dirname(__DIR__));
+!defined('APPLICATION_ID'  ) && define('APPLICATION_ID'  , 'myfx');
+
+
+// global settings
+error_reporting(E_ALL & ~E_DEPRECATED);
+ini_set('error_log', APPLICATION_ROOT.'/etc/log/php_error.log');
+!isSet($_SERVER['REQUEST_METHOD']) && set_time_limit(0);          // no time limit for cli
+
 
 // load Ministruts and project definitions
 require(APPLICATION_ROOT.'/etc/vendor/rosasurfer/ministruts/src/load-global.php');
@@ -14,11 +26,6 @@ include(APPLICATION_ROOT.'/app/defines.php');
 use phalcon\Loader as ClassLoader;
 (new ClassLoader())->registerClasses(include(__DIR__.'/classmap.php'))
                    ->register();
-
-
-// kein Time-Limit, falls wir in einer Shell laufen
-if (!isSet($_SERVER['REQUEST_METHOD']))
-   set_time_limit(0);
 
 
 /**

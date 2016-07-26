@@ -1,10 +1,5 @@
 <?php
 /**
- * Globale Konstanten.
- */
-
-
-/**
  * Timezones und Timezone-IDs
  *
  * @see  Definition in MT4Expander.dll::defines.h

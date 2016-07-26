@@ -4,7 +4,7 @@ if (PHP_VERSION < '5.6') {
    error_log('Error: A PHP version >= 5.6 is required (found version '.PHP_VERSION.').');
    exit(1);
 }
-!defined('APPLICATION_ROOT') && define('APPLICATION_ROOT', dirname(__DIR__));
+!defined('APPLICATION_ROOT') && define('APPLICATION_ROOT', dirName(__DIR__));
 !defined('APPLICATION_ID'  ) && define('APPLICATION_ID'  , 'myfx');
 
 
