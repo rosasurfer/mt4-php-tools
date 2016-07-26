@@ -22,7 +22,4 @@
 
 
 # ignore the following directories and files
-/data/
-/data
 config.properties
-
