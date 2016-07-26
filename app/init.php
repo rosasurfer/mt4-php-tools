@@ -1,18 +1,20 @@
 <?php
 define('APPLICATION_ROOT', dirName(dirName(__DIR__)));
-define('APPLICATION_ID'  , 'myfx.pewasoft');
+define('APPLICATION_ID'  , 'myfx');
 
-ini_set('include_path',      APPLICATION_ROOT.'/src/WEB-INF');
 ini_set('session.save_path', APPLICATION_ROOT.'/etc/tmp');
 ini_set('error_log',         APPLICATION_ROOT.'/etc/log/php_error.log');
 
-require(APPLICATION_ROOT.'/src/WEB-INF/include/ministruts/src/load-global.php');  // Ministruts laden
-include(APPLICATION_ROOT.'/src/WEB-INF/include/defines.php');                     // zusätzliche Definitionen laden
+// load Ministruts and project definitions
+require(APPLICATION_ROOT.'/etc/vendor/rosasurfer/ministruts/src/load-global.php');
+include(APPLICATION_ROOT.'/app/defines.php');
 
-// register class loader
+
+// TODO: replace with case-insensitive loader
 use phalcon\Loader as ClassLoader;
-(new ClassLoader())->registerClasses(include(__DIR__.'/classes/classes.php'))
+(new ClassLoader())->registerClasses(include(__DIR__.'/classmap.php'))
                    ->register();
+
 
 // kein Time-Limit, falls wir in einer Shell laufen
 if (!isSet($_SERVER['REQUEST_METHOD']))
