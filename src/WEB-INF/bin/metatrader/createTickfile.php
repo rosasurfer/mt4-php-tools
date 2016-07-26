@@ -3,7 +3,7 @@
 /**
  * Erzeugt eine FXT-Tickdatei für den Strategy Tester.
  */
-require(dirName(realPath(__FILE__)).'/../../config.php');
+require(__DIR__.'/../../../../app/init.php');
 date_default_timezone_set('GMT');
 
 

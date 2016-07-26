@@ -5,7 +5,7 @@
  *
  * @see Struct-Formate in MT4Expander.dll::Expander.h
  */
-require(dirName(realPath(__FILE__)).'/../../config.php');
+require(__DIR__.'/../../../../app/init.php');
 
 
 // -- Konfiguration --------------------------------------------------------------------------------------------------------------------------------

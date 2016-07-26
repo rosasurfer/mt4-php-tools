@@ -35,7 +35,7 @@ use rosasurfer\ministruts\exception\RuntimeException;
  * GMT:     |   Sunday      Monday   |  Tuesday   | Wednesday  |  Thursday  |   Friday     Saturday  |   Sunday      Monday   |
  *          +------------------------+------------+------------+------------+------------------------+------------------------+
  */
-require(dirName(__FILE__).'/../../config.php');
+require(__DIR__.'/../../../../app/init.php');
 date_default_timezone_set('GMT');
 
 

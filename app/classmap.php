@@ -3,39 +3,42 @@
  * Class map for class loader (fastest way to load classes)
  */
 return array(
-   'DownloadFTPConfigurationAction'     => APPLICATION_ROOT.'/src/WEB-INF/classes/actions/DownloadFTPConfigurationAction.php',
-   'DownloadFTPConfigurationActionForm' => APPLICATION_ROOT.'/src/WEB-INF/classes/actions/DownloadFTPConfigurationActionForm.php',
-   'UploadAccountHistoryAction'         => APPLICATION_ROOT.'/src/WEB-INF/classes/actions/UploadAccountHistoryAction.php',
-   'UploadAccountHistoryActionForm'     => APPLICATION_ROOT.'/src/WEB-INF/classes/actions/UploadAccountHistoryActionForm.php',
-   'UploadFTPConfigurationAction'       => APPLICATION_ROOT.'/src/WEB-INF/classes/actions/UploadFTPConfigurationAction.php',
-   'UploadFTPConfigurationActionForm'   => APPLICATION_ROOT.'/src/WEB-INF/classes/actions/UploadFTPConfigurationActionForm.php',
+   'Validator'                          => APPLICATION_ROOT.'/app/controller/Validator.php',
 
-   'Dukascopy'                          => APPLICATION_ROOT.'/src/WEB-INF/classes/dukascopy/Dukascopy.php',
-   'DukascopyException'                 => APPLICATION_ROOT.'/src/WEB-INF/classes/dukascopy/DukascopyException.php',
+   'DownloadFTPConfigurationAction'     => APPLICATION_ROOT.'/app/controller/actions/DownloadFTPConfigurationAction.php',
+   'UploadAccountHistoryAction'         => APPLICATION_ROOT.'/app/controller/actions/UploadAccountHistoryAction.php',
+   'UploadFTPConfigurationAction'       => APPLICATION_ROOT.'/app/controller/actions/UploadFTPConfigurationAction.php',
 
-   'HistoryFile'                        => APPLICATION_ROOT.'/src/WEB-INF/classes/metatrader/HistoryFile.php',
-   'HistoryHeader'                      => APPLICATION_ROOT.'/src/WEB-INF/classes/metatrader/HistoryHeader.php',
-   'HistorySet'                         => APPLICATION_ROOT.'/src/WEB-INF/classes/metatrader/HistorySet.php',
-   'MetaTraderException'                => APPLICATION_ROOT.'/src/WEB-INF/classes/metatrader/MetaTraderException.php',
-   'MT4'                                => APPLICATION_ROOT.'/src/WEB-INF/classes/metatrader/MT4.php',
+   'DownloadFTPConfigurationActionForm' => APPLICATION_ROOT.'/app/controller/forms/DownloadFTPConfigurationActionForm.php',
+   'UploadAccountHistoryActionForm'     => APPLICATION_ROOT.'/app/controller/forms/UploadAccountHistoryActionForm.php',
+   'UploadFTPConfigurationActionForm'   => APPLICATION_ROOT.'/app/controller/forms/UploadFTPConfigurationActionForm.php',
 
-   'MyFX'                               => APPLICATION_ROOT.'/src/WEB-INF/classes/myfx/MyFX.php',
+   'ImportHelper'                       => APPLICATION_ROOT.'/app/lib/ImportHelper.php',
+   'LZMA'                               => APPLICATION_ROOT.'/app/lib/LZMA.php',
+   'ReportHelper'                       => APPLICATION_ROOT.'/app/lib/ReportHelper.php',
 
-   'DataNotFoundException'              => APPLICATION_ROOT.'/src/WEB-INF/classes/simpletrader/DataNotFoundException.php',
-   'SimpleTrader'                       => APPLICATION_ROOT.'/src/WEB-INF/classes/simpletrader/SimpleTrader.php',
+   'Dukascopy'                          => APPLICATION_ROOT.'/app/lib/dukascopy/Dukascopy.php',
+   'DukascopyException'                 => APPLICATION_ROOT.'/app/lib/dukascopy/DukascopyException.php',
 
-   'LZMA'                               => APPLICATION_ROOT.'/src/WEB-INF/classes/helper/LZMA.php',
-   'ImportHelper'                       => APPLICATION_ROOT.'/src/WEB-INF/classes/helper/ImportHelper.php',
-   'ReportHelper'                       => APPLICATION_ROOT.'/src/WEB-INF/classes/helper/ReportHelper.php',
-   'Validator'                          => APPLICATION_ROOT.'/src/WEB-INF/classes/helper/Validator.php',
-   'ViewHelper'                         => APPLICATION_ROOT.'/src/WEB-INF/classes/helper/ViewHelper.php',
+   'HistoryFile'                        => APPLICATION_ROOT.'/app/lib/metatrader/HistoryFile.php',
+   'HistoryHeader'                      => APPLICATION_ROOT.'/app/lib/metatrader/HistoryHeader.php',
+   'HistorySet'                         => APPLICATION_ROOT.'/app/lib/metatrader/HistorySet.php',
+   'MetaTraderException'                => APPLICATION_ROOT.'/app/lib/metatrader/MetaTraderException.php',
+   'MT4'                                => APPLICATION_ROOT.'/app/lib/metatrader/MT4.php',
 
-   'Account'                            => APPLICATION_ROOT.'/src/WEB-INF/classes/model/Account.php',
-   'AccountDAO'                         => APPLICATION_ROOT.'/src/WEB-INF/classes/model/AccountDAO.php',
-   'ClosedPosition'                     => APPLICATION_ROOT.'/src/WEB-INF/classes/model/ClosedPosition.php',
-   'ClosedPositionDAO'                  => APPLICATION_ROOT.'/src/WEB-INF/classes/model/ClosedPositionDAO.php',
-   'OpenPosition'                       => APPLICATION_ROOT.'/src/WEB-INF/classes/model/OpenPosition.php',
-   'OpenPositionDAO'                    => APPLICATION_ROOT.'/src/WEB-INF/classes/model/OpenPositionDAO.php',
-   'Signal'                             => APPLICATION_ROOT.'/src/WEB-INF/classes/model/Signal.php',
-   'SignalDAO'                          => APPLICATION_ROOT.'/src/WEB-INF/classes/model/SignalDAO.php',
+   'MyFX'                               => APPLICATION_ROOT.'/app/lib/myfx/MyFX.php',
+
+   'DataNotFoundException'              => APPLICATION_ROOT.'/app/lib/simpletrader/DataNotFoundException.php',
+   'SimpleTrader'                       => APPLICATION_ROOT.'/app/lib/simpletrader/SimpleTrader.php',
+
+   'Account'                            => APPLICATION_ROOT.'/app/model/Account.php',
+   'AccountDAO'                         => APPLICATION_ROOT.'/app/model/AccountDAO.php',
+   'ClosedPosition'                     => APPLICATION_ROOT.'/app/model/ClosedPosition.php',
+   'ClosedPositionDAO'                  => APPLICATION_ROOT.'/app/model/ClosedPositionDAO.php',
+   'OpenPosition'                       => APPLICATION_ROOT.'/app/model/OpenPosition.php',
+   'OpenPositionDAO'                    => APPLICATION_ROOT.'/app/model/OpenPositionDAO.php',
+   'Signal'                             => APPLICATION_ROOT.'/app/model/Signal.php',
+   'SignalDAO'                          => APPLICATION_ROOT.'/app/model/SignalDAO.php',
+
+   'ViewHelper'                         => APPLICATION_ROOT.'/app/view/ViewHelper.php',
 );

@@ -20,7 +20,7 @@ use rosasurfer\ministruts\exception\RuntimeException;
  *
  * @see  MetaTrader::indicators\LFX-Monitor.mq4
  */
-require(dirName(realPath(__FILE__)).'/../../config.php');
+require(__DIR__.'/../../../../app/init.php');
 date_default_timezone_set('GMT');
 
 

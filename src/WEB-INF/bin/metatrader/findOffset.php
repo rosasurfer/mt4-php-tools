@@ -4,7 +4,7 @@
  * Gibt den Offset der ersten Bar einer MetaTrader-Historydatei zurück, die am oder nach dem angegebenen Zeitpunkt beginnt
  * oder -1, wenn keine solche Bar existiert.
  */
-require(dirName(realPath(__FILE__)).'/../../config.php');
+require(__DIR__.'/../../../../app/init.php');
 date_default_timezone_set('GMT');
 
 
