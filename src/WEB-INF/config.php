@@ -4,7 +4,6 @@ define('APPLICATION_ID'  , 'myfx.pewasoft');
 
 ini_set('include_path',      APPLICATION_ROOT.'/src/WEB-INF');
 ini_set('session.save_path', APPLICATION_ROOT.'/etc/tmp');
-ini_set('apd.dumpdir',       APPLICATION_ROOT.'/etc/tmp');
 ini_set('error_log',         APPLICATION_ROOT.'/etc/log/php_error.log');
 
 require(APPLICATION_ROOT.'/src/WEB-INF/include/ministruts/src/load-global.php');  // Ministruts laden
