@@ -76,14 +76,14 @@ class LZMA extends StaticClass {
          $output = array();
 
          if (WINDOWS) {
-            !$cmd && exec(APPLICATION_ROOT.'/bin/lzmadec -V 2> nul', $output);      // lzmadec im Projekt suchen
-            !$cmd && $output && ($cmd=APPLICATION_ROOT.'/bin/lzmadec "%s"');
+            !$cmd && exec(APPLICATION_ROOT.'/bin/xz/lzmadec -V 2> nul', $output);   // lzmadec im Projekt suchen
+            !$cmd && $output && ($cmd=APPLICATION_ROOT.'/bin/xz/lzmadec "%s"');
 
             !$cmd && exec('lzmadec -V 2> nul', $output);                            // lzmadec im Suchpfad suchen
             !$cmd && $output && ($cmd='lzmadec "%s"');
 
-            !$cmd && exec(APPLICATION_ROOT.'/bin/xz -V 2> nul', $output);           // xz im Projekt suchen
-            !$cmd && $output && ($cmd=APPLICATION_ROOT.'/bin/xz -dc "%s"');
+            !$cmd && exec(APPLICATION_ROOT.'/bin/xz/xz -V 2> nul', $output);        // xz im Projekt suchen
+            !$cmd && $output && ($cmd=APPLICATION_ROOT.'/bin/xz/xz -dc "%s"');
 
             !$cmd && exec('xz -V 2> nul', $output);                                 // xz im Suchpfad suchen
             !$cmd && $output && ($cmd='xz -dc "%s"');
