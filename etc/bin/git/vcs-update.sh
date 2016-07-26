@@ -5,9 +5,9 @@
 # (1) change working directory
 SCRIPT_NAME=$(readlink -e "$0")
 DIR=$(dirname "$SCRIPT_NAME")
-DIR=$(dirname "$SCRIPT_NAME")
-DIR=$(dirname "$SCRIPT_NAME")
-PROJECT_DIR=$(dirname "$SCRIPT_DIR")
+DIR=$(dirname "$DIR")
+DIR=$(dirname "$DIR")
+PROJECT_DIR=$(dirname "$DIR")
 cd "$PROJECT_DIR"
 
 
