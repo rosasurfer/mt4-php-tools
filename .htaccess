@@ -1,0 +1,5 @@
+<IfModule mod_rewrite.c>
+   RewriteEngine On
+   RewriteRule   ^$        www/    [L]
+   RewriteRule   ((?s).*)  www/$1  [L]
+</IfModule>
