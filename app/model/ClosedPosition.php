@@ -221,19 +221,9 @@ class ClosedPosition extends PersistableObject {
     */
    public function getSignal() {
       if ($this->signal === null)
-         $this->signal = Signal ::dao()->getById($this->signal_id);
+         $this->signal = Signal::dao()->getById($this->signal_id);
 
       return $this->signal;
-   }
-
-
-   /**
-    * Gibt den DAO für diese Klasse zurück.
-    *
-    * @return CommonDAO
-    */
-   public static function dao() {
-      return self ::getDAO(__CLASS__);
    }
 
 
@@ -263,7 +253,7 @@ class ClosedPosition extends PersistableObject {
       $comment     = ($this->comment === null) ? 'null' : addSlashes($this->comment);
       $signal_id   =  $this->signal_id;
 
-      $db = self ::dao()->getDB();
+      $db = self::dao()->getDB();
       $db->begin();
       try {
          // ClosedPosition einfügen

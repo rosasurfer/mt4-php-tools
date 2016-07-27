@@ -182,7 +182,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
    $lastKnownChangeTimes     = array();
    $modifications            = array();
 
-   $db = OpenPosition ::dao()->getDB();
+   $db = OpenPosition::dao()->getDB();
    $db->begin();
    try {
       // (1) bei partieller History prüfen, ob die älteste geschlossene Position lokal vorhanden ist
@@ -190,7 +190,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
          foreach ($currentHistory as $data) {
             if (!$data) continue;                                    // Datensätze übersprungener Zeilen können leer sein.
             $ticket = $data['ticket'];
-            if (!ClosedPosition ::dao()->isTicket($signal, $ticket))
+            if (!ClosedPosition::dao()->isTicket($signal, $ticket))
                throw new DataNotFoundException('Closed position #'.$ticket.' not found locally');
             break;
          }
@@ -198,7 +198,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
 
 
       // (2) lokalen Stand der offenen Positionen holen
-      $knownOpenPositions = OpenPosition ::dao()->listBySignal($signal, $assocTicket=true);
+      $knownOpenPositions = OpenPosition::dao()->listBySignal($signal, $assocTicket=true);
 
 
       // (3) offene Positionen abgleichen
@@ -209,7 +209,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
          if (!isSet($knownOpenPositions[$sTicket])) {
             // (3.1) neue offene Position
             if (!isSet($positionChangeStartTimes[$data['symbol']]))
-               $lastKnownChangeTimes[$data['symbol']] = Signal ::dao()->getLastKnownPositionChangeTime($signal, $data['symbol']);
+               $lastKnownChangeTimes[$data['symbol']] = Signal::dao()->getLastKnownPositionChangeTime($signal, $data['symbol']);
 
             $position = OpenPosition ::create($signal, $data)->save();
             $symbol   = $position->getSymbol();
@@ -247,12 +247,12 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
          if ($formerOpenPositions) {
             $sTicket = (string) $ticket;
             if (isSet($formerOpenPositions[$sTicket])) {
-               $openPosition = OpenPosition ::dao()->getByTicket($signal, $ticket);
+               $openPosition = OpenPosition::dao()->getByTicket($signal, $ticket);
                unset($formerOpenPositions[$sTicket]);
             }
          }
 
-         if (!$openPosition && ClosedPosition ::dao()->isTicket($signal, $ticket)) {
+         if (!$openPosition && ClosedPosition::dao()->isTicket($signal, $ticket)) {
             $matchingPositions++;
             if ($matchingPositions >= 3 && !$formerOpenPositions)    // Nach Übereinstimmung von 3 Datensätzen wird abgebrochen.
                break;
@@ -260,7 +260,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
          }
 
          if (!isSet($positionChangeStartTimes[$data['symbol']]))
-            $lastKnownChangeTimes[$data['symbol']] = Signal ::dao()->getLastKnownPositionChangeTime($signal, $data['symbol']);
+            $lastKnownChangeTimes[$data['symbol']] = Signal::dao()->getLastKnownPositionChangeTime($signal, $data['symbol']);
 
          // Position in t_closedposition einfügen
          if ($openPosition) {

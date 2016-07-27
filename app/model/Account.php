@@ -32,16 +32,6 @@ class Account extends PersistableObject {
 
 
    /**
-    * Gibt den DAO dieser Klasse zurück.
-    *
-    * @return CommonDAO
-    */
-   public static function dao() {
-      return self ::getDAO(__CLASS__);
-   }
-
-
-   /**
     * Gibt den aktuellen Kontostand des Accounts zurück.
     *
     * @param  int    $decimals  - Anzahl der Nachkommastellen
@@ -172,7 +162,7 @@ class Account extends PersistableObject {
       $lastreportedbalance = ($this->lastReportedBalance === null) ? 'null' : $this->lastReportedBalance;
       $mtiaccount_id       = ($this->mtiAccountId        === null) ? 'null' : addSlashes($this->mtiAccountId);
 
-      $db = self ::dao()->getDB();
+      $db = self::dao()->getDB();
       $db->begin();
 
       try {
@@ -188,7 +178,7 @@ class Account extends PersistableObject {
 
          if ($result['rows'] != 1) {
             $this->version  = $oldVersion;
-            $found = self ::dao()->refresh($this);
+            $found = self::dao()->refresh($this);
             throw new ConcurrentModificationException('Error updating '.__CLASS__." ($id), expected version: \"$oldVersion\", found version: \"".$found->getVersion().'"');
          }
 

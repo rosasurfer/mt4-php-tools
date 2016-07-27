@@ -16,14 +16,4 @@ class Signal extends PersistableObject {
    public function getAlias()       { return $this->alias;       }
    public function getReferenceID() { return $this->referenceID; }
    public function getCurrency()    { return $this->currency;    }
-
-
-   /**
-    * Gibt den DAO für diese Klasse zurück.
-    *
-    * @return CommonDAO
-    */
-   public static function dao() {
-      return self ::getDAO(__CLASS__);
-   }
 }
