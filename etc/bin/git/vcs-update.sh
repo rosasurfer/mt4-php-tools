@@ -19,7 +19,7 @@ BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
 git fetch origin                                                                  || exit
 git status                                                                        || exit
-git diff --stat --ignore-space-at-eol HEAD origin/$BRANCH                         || exit
+git --no-pager diff --stat --ignore-space-at-eol HEAD origin/$BRANCH              || exit
 git reset --hard origin/$BRANCH                                                   || exit
 git status                                                                        || exit
 
