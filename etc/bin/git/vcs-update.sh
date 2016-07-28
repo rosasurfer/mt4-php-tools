@@ -15,10 +15,12 @@ cd "$PROJECT_DIR"
 [ ! -d ".git" ] && echo error: .git directory not found in project "$PROJECT_DIR" && exit
 echo Updating $(basename "$PROJECT_DIR")...
 
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
 git fetch origin                                                                  || exit
 git status                                                                        || exit
-git diff --stat --ignore-space-at-eol HEAD origin                                 || exit
-git reset --hard origin/master                                                    || exit
+git diff --stat --ignore-space-at-eol HEAD origin/$BRANCH                         || exit
+git reset --hard origin/$BRANCH                                                   || exit
 git status                                                                        || exit
 
 
