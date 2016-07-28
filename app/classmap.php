@@ -3,8 +3,6 @@
  * Class map for class loader (fastest way to load classes)
  */
 return array(
-   'Validator'                          => APPLICATION_ROOT.'/app/controller/Validator.php',
-
    'DownloadFTPConfigurationAction'     => APPLICATION_ROOT.'/app/controller/actions/DownloadFTPConfigurationAction.php',
    'UploadAccountHistoryAction'         => APPLICATION_ROOT.'/app/controller/actions/UploadAccountHistoryAction.php',
    'UploadFTPConfigurationAction'       => APPLICATION_ROOT.'/app/controller/actions/UploadFTPConfigurationAction.php',
@@ -16,6 +14,7 @@ return array(
    'ImportHelper'                       => APPLICATION_ROOT.'/app/lib/ImportHelper.php',
    'LZMA'                               => APPLICATION_ROOT.'/app/lib/LZMA.php',
    'ReportHelper'                       => APPLICATION_ROOT.'/app/lib/ReportHelper.php',
+   'Validator'                          => APPLICATION_ROOT.'/app/lib/Validator.php',
 
    'Dukascopy'                          => APPLICATION_ROOT.'/app/lib/dukascopy/Dukascopy.php',
    'DukascopyException'                 => APPLICATION_ROOT.'/app/lib/dukascopy/DukascopyException.php',
