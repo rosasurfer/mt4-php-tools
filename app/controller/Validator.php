@@ -2,7 +2,7 @@
 /**
  * Validator
  */
-class Validator extends CommonValidator {
+class Validator extends rosasurfer\ministruts\util\Validator {
 
 
    /**
