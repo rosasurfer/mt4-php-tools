@@ -7,7 +7,7 @@ DIR=$(dirname "$SCRIPT")
 
 while [ 1 ]; do
    [ -d "$DIR/.git" ] && break
-   [ $DIR == "/"    ] && echo "error: .git directory not found" && exit 1
+   [ "$DIR" = "/"   ] && echo "error: .git directory not found" && exit 1
    DIR=$(dirname "$DIR")
 done
 
