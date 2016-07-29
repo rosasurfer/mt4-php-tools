@@ -1,19 +1,22 @@
 #!/bin/sh
 #
 
-
 # (1) change working directory
-SCRIPT_NAME=$(readlink -e "$0")
-DIR=$(dirname "$SCRIPT_NAME")
-DIR=$(dirname "$DIR")
-DIR=$(dirname "$DIR")
-PROJECT_DIR=$(dirname "$DIR")
-cd "$PROJECT_DIR"
+SCRIPT=$(readlink -e "$0")
+echo "SCRIPT = $SCRIPT"
+DIR=$(dirname "$SCRIPT")
+echo "1. DIR = $DIR"
+
+while [ 1 ]; do
+   [ -d "$DIR/.git" ] && break
+   [ $DIR == "/"    ] && echo "error: .git directory not found" && exit 1
+   DIR=$(dirname "$DIR")
+   echo "n. DIR = $DIR"
+done
 
 
 # (2) update project
-[ ! -d ".git" ] && echo error: .git directory not found in project "$PROJECT_DIR" && exit
-echo Updating $(basename "$PROJECT_DIR")...
+echo Updating "$DIR"...
 
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
