@@ -3,15 +3,12 @@
 
 # (1) change working directory
 SCRIPT=$(readlink -e "$0")
-echo "SCRIPT = $SCRIPT"
 DIR=$(dirname "$SCRIPT")
-echo "1. DIR = $DIR"
 
 while [ 1 ]; do
    [ -d "$DIR/.git" ] && break
    [ $DIR == "/"    ] && echo "error: .git directory not found" && exit 1
    DIR=$(dirname "$DIR")
-   echo "n. DIR = $DIR"
 done
 
 
