@@ -11,6 +11,8 @@ while [ 1 ]; do
    DIR=$(dirname "$DIR")
 done
 
+cd "$DIR"
+
 
 # (2) update project
 echo Updating "$DIR"...
