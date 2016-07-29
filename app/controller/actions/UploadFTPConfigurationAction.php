@@ -1,6 +1,8 @@
 <?php
 use rosasurfer\ministruts\exception\IOException;
 
+use rosasurfer\ministruts\struts\Request;
+
 
 /**
  * UploadFTPConfigurationAction

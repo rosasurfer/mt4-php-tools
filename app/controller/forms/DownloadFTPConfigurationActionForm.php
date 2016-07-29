@@ -1,4 +1,7 @@
 <?php
+use rosasurfer\ministruts\struts\Request;
+
+
 /**
  * DownloadFTPConfigurationActionForm
  */

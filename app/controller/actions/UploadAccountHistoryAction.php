@@ -2,6 +2,8 @@
 use rosasurfer\ministruts\exception\BusinessRuleException;
 use rosasurfer\ministruts\exception\InvalidArgumentException;
 
+use rosasurfer\ministruts\struts\Request;
+
 
 /**
  * UploadAccountHistoryAction
