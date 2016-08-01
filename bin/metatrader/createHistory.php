@@ -1,7 +1,7 @@
 #!/usr/bin/php
 <?php
-use rosasurfer\ministruts\exception\IllegalTypeException;
-use rosasurfer\ministruts\exception\InvalidArgumentException;
+use rosasurfer\exception\IllegalTypeException;
+use rosasurfer\exception\InvalidArgumentException;
 
 
 /**

@@ -1,5 +1,5 @@
 <?php
-use rosasurfer\ministruts\struts\Request;
+use rosasurfer\ministruts\Request;
 
 
 /**

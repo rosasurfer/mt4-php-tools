@@ -1,8 +1,8 @@
 #!/usr/bin/php
 <?php
-use rosasurfer\ministruts\exception\IllegalTypeException;
-use rosasurfer\ministruts\exception\InfrastructureException;
-use rosasurfer\ministruts\exception\RuntimeException;
+use rosasurfer\exception\IllegalTypeException;
+use rosasurfer\exception\InfrastructureException;
+use rosasurfer\exception\RuntimeException;
 
 
 /**

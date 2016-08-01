@@ -1,7 +1,6 @@
 <?php
-use rosasurfer\ministruts\exception\IOException;
-
-use rosasurfer\ministruts\struts\Request;
+use rosasurfer\exception\IOException;
+use rosasurfer\ministruts\Request;
 
 
 /**

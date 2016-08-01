@@ -1,6 +1,6 @@
 <?php
-use rosasurfer\ministruts\exception\InvalidArgumentException;
-use rosasurfer\ministruts\exception\RuntimeException;
+use rosasurfer\exception\InvalidArgumentException;
+use rosasurfer\exception\RuntimeException;
 
 
 /**

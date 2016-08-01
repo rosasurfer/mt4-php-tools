@@ -1,5 +1,5 @@
 <?php
-use rosasurfer\ministruts\core\StaticClass;
+use rosasurfer\core\StaticClass;
 
 
 /**

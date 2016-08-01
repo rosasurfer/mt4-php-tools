@@ -1,6 +1,6 @@
 <?php
-use rosasurfer\ministruts\exception\ConcurrentModificationException;
-use rosasurfer\ministruts\exception\IllegalTypeException;
+use rosasurfer\exception\ConcurrentModificationException;
+use rosasurfer\exception\IllegalTypeException;
 
 
 /**

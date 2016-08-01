@@ -1,11 +1,11 @@
 <?php
-use rosasurfer\ministruts\core\StaticClass;
+use rosasurfer\core\StaticClass;
 
-use rosasurfer\ministruts\exception\FileNotFoundException;
-use rosasurfer\ministruts\exception\IllegalTypeException;
-use rosasurfer\ministruts\exception\InfrastructureException;
-use rosasurfer\ministruts\exception\InvalidArgumentException;
-use rosasurfer\ministruts\exception\RuntimeException;
+use rosasurfer\exception\FileNotFoundException;
+use rosasurfer\exception\IllegalTypeException;
+use rosasurfer\exception\InfrastructureException;
+use rosasurfer\exception\InvalidArgumentException;
+use rosasurfer\exception\RuntimeException;
 
 
 /**

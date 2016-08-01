@@ -1,8 +1,8 @@
 <?php
-use rosasurfer\ministruts\exception\BusinessRuleException;
-use rosasurfer\ministruts\exception\InvalidArgumentException;
+use rosasurfer\exception\BusinessRuleException;
+use rosasurfer\exception\InvalidArgumentException;
 
-use rosasurfer\ministruts\struts\Request;
+use rosasurfer\ministruts\Request;
 
 
 /**
