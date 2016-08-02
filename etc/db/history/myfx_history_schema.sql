@@ -2,7 +2,7 @@
 Created     26.07.2015
 Modified    26.07.2015
 Project     MyFX Quote History
-Model       
+Model
 Company
 Author      Peter Walther
 Version     0.1

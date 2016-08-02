@@ -2,10 +2,10 @@
 Created     23.05.2009
 Modified    05.09.2015
 Project     MyFX
-Model       
-Company     
+Model
+Company
 Author      Peter Walther
-Version     
+Version
 Database    MySQL 5
 */
 
