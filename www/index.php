@@ -5,7 +5,7 @@ if (PHP_VERSION < '5.6') {
    exit(1);
 }
 !defined('APPLICATION_ROOT') && define('APPLICATION_ROOT', dirName(__DIR__));
-!defined('APPLICATION_ID'  ) && define('APPLICATION_ID'  , 'myfx');
+!defined('APPLICATION_ID'  ) && define('APPLICATION_ID',  'myfx');
 
 
 // web application specific settings
