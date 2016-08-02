@@ -8,13 +8,13 @@ if (PHP_VERSION < '5.6') {
 
 // check application constants
 !defined('APPLICATION_ROOT') && define('APPLICATION_ROOT', dirname(__DIR__));
-!defined('APPLICATION_ID'  ) && define('APPLICATION_ID'  , 'myfx');
+!defined('APPLICATION_ID'  ) && define('APPLICATION_ID',  'myfx');
 
 
 // global settings
 error_reporting(E_ALL & ~E_DEPRECATED);
 ini_set('error_log', APPLICATION_ROOT.'/etc/log/php_error.log');
-!isSet($_SERVER['REQUEST_METHOD']) && set_time_limit(0);          // no time limit for cli
+!isSet($_SERVER['REQUEST_METHOD']) && set_time_limit(0);          // no time limit for CLI
 
 
 // load Ministruts and project definitions
