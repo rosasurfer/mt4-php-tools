@@ -1,23 +1,23 @@
 #!/usr/bin/php
 <?php
+/**
+ * Aktualisiert die Metatrader-History der angegebenen Instrumente im globalen MT4-Serververzeichnis "MyFX-Dukascopy".
+ */
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 
 
-/**
- * Aktualisiert die MT4-History ein oder mehrerer Instrumente.
- */
 require(__DIR__.'/../../app/init.php');
 date_default_timezone_set('GMT');
 
 
-// -- Konfiguration --------------------------------------------------------------------------------------------------------------------------------
+// -- Konfiguration ----------------------------------------------------------------------------------------------------
 
 
 $verbose = 0;                                                                       // output verbosity
 
 
-// -- Start ----------------------------------------------------------------------------------------------------------------------------------------
+// -- Start ------------------------------------------------------------------------------------------------------------
 
 
 // (1) Befehlszeilenargumente einlesen und validieren
@@ -37,22 +37,22 @@ foreach ($args as $i => $arg) {
    if (!isSet(MyFX::$symbols[$arg])) exit(1|help('error: unknown or unsupported symbol "'.$args[$i].'"'));
    $args[$i] = $arg;
 }
-$args = $args ? array_unique($args) : array_keys(MyFX::$symbols);                   // ohne Symbol werden alle Instrumente verarbeitet
+$args = $args ? array_unique($args) : array_keys(MyFX::$symbols);             // ohne Angabe werden alle Instrumente verarbeitet
 
 
-// (2) SIGINT-Handler installieren                                                  // Um bei Ctrl-C Destruktoren auszuführen, reicht es,
-if (!WINDOWS) pcntl_signal(SIGINT, create_function('$signal', 'exit(0);'));         // wenn im Handler exit() aufgerufen wird.
+// (2) SIGINT-Handler installieren (sauberer Abbruch bei Ctrl-C)              // Um bei Ctrl-C Destruktoren auszuführen,
+if (!WINDOWS) pcntl_signal(SIGINT, create_function('$signal', 'exit(0);'));   // reicht es, wenn der Handler exit() aufruft.
 
 
 // (3) History aktualisieren
 foreach ($args as $symbol) {
    !updateHistory($symbol) && exit(1);
-   break;
+   break;                                 // temp.
 }
 exit(0);
 
 
-// --- Funktionen ----------------------------------------------------------------------------------------------------------------------------------
+// --- Funktionen ------------------------------------------------------------------------------------------------------
 
 
 /**

@@ -180,7 +180,16 @@ class HistorySet extends Object {
 
 
    /**
-    * Öffentlicher Zugriff auf Constructor 1
+    * Erzeugt eine neue Instanz und legt alle Historydateien neu an. Vorhandene Daten werden gelöscht. Mehrfachaufrufe
+    * dieser Funktion für dasselbe Symbol desselben Servers geben jeweils eine neue Instanz zurück, weitere existierende
+    * Instanzen werden als ungültig markiert.
+    *
+    * @param  string $symbol          - Symbol der HistorySet-Daten
+    * @param  int    $digits          - Digits der Datenreihe
+    * @param  int    $format          - Speicherformat der Datenreihen:
+    *                                   • 400: MetaTrader <= Build 509
+    *                                   • 401: MetaTrader  > Build 509
+    * @param  string $serverDirectory - Serververzeichnis der Historydateien des Sets
     */
    public static function create($symbol, $digits, $format, $serverDirectory) {
       return new self($symbol, $digits, $format, $serverDirectory);

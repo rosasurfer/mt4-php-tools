@@ -2,7 +2,8 @@
 <?php
 /**
  * Liest die MyFX-M1-History der angegebenen Instrumente ein und erzeugt daraus jeweils eine neue Metatrader-History.
- * Speichert diese Metatrader-History im globalen MT4-Serververzeichnis "MyFX-Dukascopy".
+ * Speichert diese Metatrader-History im globalen MT4-Serververzeichnis "MyFX-Dukascopy". Vorhandene Historydateien
+ * werden überschrieben. Um vorhandene Historydateien zu aktualisieren, ist "updateHistory.php" zu benutzen.
  */
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
