@@ -686,7 +686,7 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
    else if ($id == 'myfxDir') {              // $dataDirectory/history/myfx/$type/$symbol/$dateL         // lokales Verzeichnis
       if (!$symbol) throw new plInvalidArgumentException('Invalid parameter $symbol: '.$symbol);
       static $dataDirectory; if (!$dataDirectory)
-      $dataDirectory = MyFX::getConfigPath('myfx.data_directory');
+      $dataDirectory = MyFX::getConfigPath('myfx.data-path');
       $type          = MyFX::$symbols[$symbol]['type'];
       $dateL         = $self('myfxDirDate', null, $time, null);
       $result        = "$dataDirectory/history/myfx/$type/$symbol/$dateL";

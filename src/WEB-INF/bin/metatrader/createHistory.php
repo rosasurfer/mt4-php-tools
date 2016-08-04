@@ -2,7 +2,7 @@
 <?php
 /**
  * Konvertiert die M1-History ein oder mehrerer Instrumente ins MetaTrader-Format und legt sie im Verzeichnis
- * "{myfx.data_directory}/history/mt4/MyFX-Dukascopy" ab.
+ * "{myfx.data-path}/history/mt4/MyFX-Dukascopy" ab.
  */
 require(dirName(realPath(__FILE__)).'/../../config.php');
 date_default_timezone_set('GMT');
@@ -71,7 +71,7 @@ function createHistory($symbol) {
    // MT4-HistorySet erzeugen
    $digits    = MyFX::$symbols[$symbol]['digits'];
    $format    = 400;
-   $directory = MyFX::getConfigPath('myfx.data_directory').'/history/mt4/MyFX-Dukascopy';
+   $directory = MyFX::getConfigPath('myfx.data-path').'/history/mt4/MyFX-Dukascopy';
    $history   = HistorySet::create($symbol, $digits, $format, $directory);
 
 
@@ -138,7 +138,7 @@ function getVar($id, $symbol=null, $time=null) {
    else if ($id == 'myfxDir') {              // $dataDirectory/history/myfx/$type/$symbol/$myfxDirDate         // lokales Verzeichnis
       if (!$symbol) throw new plInvalidArgumentException('Invalid parameter $symbol: '.$symbol);
       static $dataDirectory; if (!$dataDirectory)
-      $dataDirectory = MyFX::getConfigPath('myfx.data_directory');
+      $dataDirectory = MyFX::getConfigPath('myfx.data-path');
       $type          = MyFX::$symbols[$symbol]['type'];
       $myfxDirDate   = $self('myfxDirDate', null, $time);
       $result        = "$dataDirectory/history/myfx/$type/$symbol/$myfxDirDate";

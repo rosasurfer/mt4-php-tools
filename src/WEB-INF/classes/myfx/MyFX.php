@@ -846,7 +846,7 @@ class MyFX extends StaticClass {
       else if ($id == 'myfxDir') {                 // $dataDirectory/history/myfx/$type/$symbol/$myfxDirDate   // lokales Verzeichnis
          if (!$symbol) throw new plInvalidArgumentException('Invalid parameter $symbol: '.$symbol);
          static $dataDirectory; if (!$dataDirectory)
-         $dataDirectory = self::getConfigPath('myfx.data_directory');
+         $dataDirectory = self::getConfigPath('myfx.data-path');
          $type          = self::$symbols[$symbol]['type'];
          $myfxDirDate   = self::$me('myfxDirDate', null, $time);
          $result        = "$dataDirectory/history/myfx/$type/$symbol/$myfxDirDate";
