@@ -1,0 +1,3 @@
+# ignore the following directories and files
+/phplib/
+/phplib
