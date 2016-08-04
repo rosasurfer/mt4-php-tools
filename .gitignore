@@ -16,10 +16,11 @@
 /nbproject/
 /nbactions.xml
 
+# ignore the following project directories and files
+/data/
+/data
+config.properties
+
 # do not ignore the following files
 !.gitattributes
 !.htaccess
-
-
-# ignore the following directories and files
-config.properties

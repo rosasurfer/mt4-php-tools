@@ -1,24 +1,23 @@
 #!/usr/bin/php
 <?php
+/**
+ * Liest die MyFX-M1-History der angegebenen Instrumente ein und erzeugt daraus jeweils eine neue Metatrader-History.
+ * Speichert diese Metatrader-History im globalen MT4-Serververzeichnis "MyFX-Dukascopy".
+ */
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 
-
-/**
- * Konvertiert die M1-History ein oder mehrerer Instrumente ins MetaTrader-Format und legt sie im Verzeichnis
- * "{myfx.data_directory}/history/mt4/MyFX-Dukascopy" ab.
- */
 require(__DIR__.'/../../app/init.php');
 date_default_timezone_set('GMT');
 
 
-// -- Konfiguration --------------------------------------------------------------------------------------------------------------------------------
+// -- Konfiguration ----------------------------------------------------------------------------------------------------
 
 
 $verbose = 0;                                                                       // output verbosity
 
 
-// -- Start ----------------------------------------------------------------------------------------------------------------------------------------
+// -- Start ------------------------------------------------------------------------------------------------------------
 
 
 // (1) Befehlszeilenargumente einlesen und validieren
@@ -52,7 +51,7 @@ foreach ($args as $symbol) {
 exit(0);
 
 
-// --- Funktionen ----------------------------------------------------------------------------------------------------------------------------------
+// --- Funktionen ------------------------------------------------------------------------------------------------------
 
 
 /**
@@ -74,7 +73,7 @@ function createHistory($symbol) {
    // MT4-HistorySet erzeugen
    $digits    = MyFX::$symbols[$symbol]['digits'];
    $format    = 400;
-   $directory = MyFX::getConfigPath('myfx.data_directory').'/history/mt4/MyFX-Dukascopy';
+   $directory = MyFX::getConfigPath('myfx.data-path').'/history/mt4/MyFX-Dukascopy';
    $history   = HistorySet::create($symbol, $digits, $format, $directory);
 
 
@@ -141,7 +140,7 @@ function getVar($id, $symbol=null, $time=null) {
    else if ($id == 'myfxDir') {              // $dataDirectory/history/myfx/$type/$symbol/$myfxDirDate         // lokales Verzeichnis
       if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
       static $dataDirectory; if (!$dataDirectory)
-      $dataDirectory = MyFX::getConfigPath('myfx.data_directory');
+      $dataDirectory = MyFX::getConfigPath('myfx.data-path');
       $type          = MyFX::$symbols[$symbol]['type'];
       $myfxDirDate   = $self('myfxDirDate', null, $time);
       $result        = "$dataDirectory/history/myfx/$type/$symbol/$myfxDirDate";

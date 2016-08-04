@@ -353,7 +353,7 @@ class MT4 extends StaticClass {
 
       // (1) Datenverzeichnis bestimmen
       static $dataDirectory = null;
-      if (is_null($dataDirectory)) $dataDirectory = MyFX ::getConfigPath('myfx.data_directory');
+      if (is_null($dataDirectory)) $dataDirectory = MyFX ::getConfigPath('myfx.data-path');
 
 
       // (2) Prüfen, ob OpenTrades- und History-Datei existieren
