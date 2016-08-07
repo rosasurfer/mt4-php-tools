@@ -1,6 +1,6 @@
 /*
 Created     17.09.2014
-Modified    05.09.2015
+Modified    07.08.2016
 Project     myfx
 Model       main model
 Company     pewasoft
@@ -38,10 +38,10 @@ create table t_openposition (
    version timestamp not null default current_timestamp on update current_timestamp,
    created datetime not null,
    ticket int not null,
-   type enum('buy','sell') not null comment 'buy | sell',
+   type enum('buy','sell') not null,
    lots decimal(10,2) unsigned not null,
    symbol char(11) not null,
-   opentime datetime not null comment 'FXT',
+   opentime datetime not null,
    openprice decimal(10,5) unsigned not null,
    stoploss decimal(10,5) unsigned,
    takeprofit decimal(10,5) unsigned,
@@ -63,12 +63,12 @@ create table t_closedposition (
    version timestamp not null default current_timestamp on update current_timestamp,
    created datetime not null,
    ticket int not null,
-   type enum('buy','sell') not null comment 'buy | sell',
+   type enum('buy','sell') not null,
    lots decimal(10,2) unsigned not null,
    symbol char(11) not null,
-   opentime datetime not null comment 'FXT',
+   opentime datetime not null,
    openprice decimal(10,5) unsigned not null,
-   closetime datetime not null comment 'FXT',
+   closetime datetime not null,
    closeprice decimal(10,5) unsigned not null,
    stoploss decimal(10,5) unsigned,
    takeprofit decimal(10,5) unsigned,
@@ -96,7 +96,7 @@ delimiter ;
 
 
 -- Daten einlesen
-source myfx_seed.sql;
+source signals_seed.sql;
 
 commit;
 
