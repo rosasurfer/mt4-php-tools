@@ -82,24 +82,20 @@ function processSignal($alias, $fileSyncOnly) {
    if (!is_string($alias))      throw new IllegalTypeException('Illegal type of parameter $alias: '.getType($alias));
    if (!is_bool($fileSyncOnly)) throw new IllegalTypeException('Illegal type of parameter $fileSyncOnly: '.getType($fileSyncOnly));
 
-
-   // Ist ein Wildcard angegeben, wird die Funktion rekursiv für alle Signale aufgerufen.
+   // if the wildcard "*" is specified recursively process all active accounts
    if ($alias == '*') {
       $me = __FUNCTION__;
-      foreach (Signal::dao()->listAll() as $signal)
+      foreach (Signal::dao()->listActiveSimpleTrader() as $signal)
          $me($signal->getAlias(), $fileSyncOnly);
       return true;
    }
 
-   static $openUpdates=false, $closedUpdates=false;                  // ob beim letzten Aufruf Änderungen eines Signals festgestellt wurden
+   $signal = Signal::dao()->getByProviderAndAlias($provider='simpletrader', $alias);
+   if (!$signal) return _false(echoPre('Invalid or unknown signal: "'.$provider.':'.$alias.'"'));
 
-   $signal = Signal::dao()->getByAlias($alias);
-   if (!$signal) {
-      echoPre('Invalid or unknown signal: '.$alias);
-      return false;
-   }
-   global $signalNamePadding;
-   echo(($openUpdates ? "\n":'').str_pad($signal->getName().' ', $signalNamePadding, '.', STR_PAD_RIGHT).' ');
+   global $signalNamePadding;                               // output formatting: whether or not the last function call
+   static $openUpdates=false, $closedUpdates=false;         //                    detected open trade/history changes
+   echo(($openUpdates ? NL:'').str_pad($signal->getName().' ', $signalNamePadding, '.', STR_PAD_RIGHT).' ');
 
 
    if (!$fileSyncOnly) {

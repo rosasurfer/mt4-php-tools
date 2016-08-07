@@ -43,46 +43,27 @@ class SignalDAO extends CommonDAO {
 
 
    /**
-    * Gibt das Signal mit dem angegebenen Alias zurück.
+    * Return the Signal of the specified provider and alias.
     *
-    * @param  string $alias - Signalalias
+    * @param  string $provider - provider
+    * @param  string $alias    - signal alias
     *
-    * @return Signal instance
+    * @return Signal
     */
-   public function getByAlias($alias) {
-      if (!is_string($alias)) throw new IllegalTypeException('Illegal type of parameter $alias: '.getType($alias));
-      if ($alias === '')      throw new InvalidArgumentException('Invalid argument $alias: '.$alias);
+   public function getByProviderAndAlias($provider, $alias) {
+      if (!is_string($provider)) throw new IllegalTypeException('Illegal type of parameter $provider: '.getType($provider));
+      if (!strLen($provider))    throw new InvalidArgumentException('Invalid argument $provider: '.$provider);
+      if (!is_string($alias))    throw new IllegalTypeException('Illegal type of parameter $alias: '.getType($alias));
+      if (!strLen($alias))       throw new InvalidArgumentException('Invalid argument $alias: '.$alias);
 
-      $alias = addSlashes($alias);
+      $provider = addSlashes($provider);
+      $alias    = addSlashes($alias);
 
       $sql = "select *
                  from t_signal
-                 where alias = '$alias'";
+                 where provider = '$provider'
+                   and alias = '$alias'";
       return $this->getByQuery($sql);
-   }
-
-
-   /**
-    * Gibt die ID des Signals mit dem angegebenen Alias zurück.
-    *
-    * @param  string $alias - Signalalias
-    *
-    * @return int - Signal-ID (primary key) oder NULL, wenn es kein solches Signal gibt
-    */
-   public function getIdByAlias($alias) {
-      if (!is_string($alias)) throw new IllegalTypeException('Illegal type of parameter $alias: '.getType($alias));
-      if ($alias === '')      throw new InvalidArgumentException('Invalid argument $alias: '.$alias);
-
-      $alias = addSlashes($alias);
-
-      $sql = "select id
-                 from t_signal
-                 where alias = '$alias'";
-      $result = $this->executeSql($sql);
-
-      if ($result['rows'])
-         return (int) mysql_result($result['set'], 0);
-      return null;
    }
 
 
@@ -122,20 +103,35 @@ class SignalDAO extends CommonDAO {
 
 
    /**
-    * Gibt alle Signale zurück.
+    * Return all active MyfxBook Signals.
     *
-    * @return Signal[] - Array von Signal-Instanzen
+    * @return Signal[]
     */
-   public function listAll() {
-      $sql = "select s.*
-                 from t_signal s
-                 where s.alias != 'alexprofit'     -- eingestellt (Margin Call)
-                   and s.alias != 'asta'           -- eingestellt (Looser)
-                   and s.alias != 'dayfox'         -- eingestellt (Looser, Alpari)
-                   and s.alias != 'novolr'         -- PHP-Fehler
-                   and s.alias != 'overtrader'     -- eingestellt (Looser)
-                   and s.alias != 'yenfortress'    -- Looser
-                 order by s.alias";
+   public function listActiveMyfxBook() {
+      $sql = "select *
+                 from t_signal
+                 where provider = 'myfxbook'
+                 order by alias";
+      return $this->getListByQuery($sql);
+   }
+
+
+   /**
+    * Return all active SimpleTrader Signals.
+    *
+    * @return Signal[]
+    */
+   public function listActiveSimpleTrader() {
+      $sql = "select *
+                 from t_signal
+                 where provider = 'simpletrader'
+                   and alias != 'alexprofit'       -- deactivated: margin call
+                   and alias != 'asta'             -- deactivated: loser
+                   and alias != 'dayfox'           -- deactivated: loser, Alpari
+                   and alias != 'novolr'           -- PHP error
+                   and alias != 'overtrader'       -- deactivated: loser
+                   and alias != 'yenfortress'      -- loser
+                 order by alias";
       return $this->getListByQuery($sql);
    }
 }
