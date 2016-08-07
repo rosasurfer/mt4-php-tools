@@ -1,0 +1,2 @@
+# ignore cookies saved by syncAccounts.php
+/cookies.txt

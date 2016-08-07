@@ -27,6 +27,8 @@ return array(
 
    'MyFX'                               => APPLICATION_ROOT.'/app/lib/myfx/MyFX.php',
 
+   'MyfxBook'                           => APPLICATION_ROOT.'/app/lib/myfxbook/MyfxBook.php',
+
    'DataNotFoundException'              => APPLICATION_ROOT.'/app/lib/simpletrader/DataNotFoundException.php',
    'SimpleTrader'                       => APPLICATION_ROOT.'/app/lib/simpletrader/SimpleTrader.php',
 
