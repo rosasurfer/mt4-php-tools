@@ -33,13 +33,25 @@ use rosasurfer\exception\RuntimeException;
 require(__DIR__.'/../../app/init.php');
 
 
-$signalNamePadding = 21;                              // configuration output formatting
+$signalNamePadding = 21;                              // configuration of output formatting
 
 
 // --- program start ---------------------------------------------------------------------------------------------------
 
 
-// (1) check database availability                    // produces just a short error notice instead of a hard exception
+// (1) read command line arguments
+$args = array_slice($_SERVER['argv'], 1);
+
+// parse and normalize arguments
+foreach ($args as $i => $arg) {
+   $arg = strToLower($arg);
+   in_array($arg, ['-h','--help']) && exit(1|help());
+   $args[$i] = $arg;
+}
+$args = $args ? array_unique($args) : ['*'];          // without arguments all signals "*" are processed
+
+
+// (2) check database connectivity                    // produces just a short error notice instead of a hard exception
 try {                                                 // as it would happen at runtime
    Signal::dao()->getDB()->executeSql("select 1");
 }
@@ -49,11 +61,13 @@ catch (InfrastructureException $ex) {
 }
 
 
-// (2) update MyfxBook accounts
-!processAccounts('*') && exit(1);
+// (3) update all specified accounts
+foreach ($args as $arg) {
+   !processAccounts($arg) && exit(1);
+}
 
 
-// (3) regular program end
+// (4) regular program end
 exit(0);
 
 
@@ -87,7 +101,7 @@ function processAccounts($alias) {
    echo(($openUpdates ? NL:'').str_pad($signal->getName().' ', $signalNamePadding, '.', STR_PAD_RIGHT).' ');
 
    // load CSV statement
-   $csv = MyfxBook::loadCvsFile($signal);
+   $csv = MyfxBook::loadStatement($signal);
 
    // parse statement
    $errorMsg = MyfxBook::parseCsvStatement($signal, $csv, $openPositions=[], $closedPositions=[]);
@@ -342,7 +356,7 @@ function help($message=null) {
 
 echo <<<END
 
- Syntax:  $self [-l] [-f] [signal_name ...]
+ Syntax:  $self [-f] [signal_name ...]
 
  Options:  -f  Rewrites the MetaTrader account history files (does not go online).
            -h  This help screen.

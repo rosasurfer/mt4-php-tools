@@ -1,7 +1,6 @@
 <?php
 use rosasurfer\core\StaticClass;
 
-use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\IOException;
 use rosasurfer\exception\RuntimeException;
 
@@ -12,19 +11,35 @@ use rosasurfer\exception\RuntimeException;
 class MyfxBook extends StaticClass {
 
 
-   /**
-    *
-    */
-   public static function loadCvsFile() {
-      // Standard-Browser simulieren
-      $userAgent = Config::getDefault()->get('myfx.useragent');
-      if (!strLen($userAgent)) throw new InvalidArgumentException('Invalid user agent configuration: "'.$userAgent.'"');
+   /** @var string[] - MyfxBook urls */
+   private static $urls = [
+      'signal'    => 'http://www.myfxbook.com/members/user/signal/{provider_id}',
+      'statement' => 'http://www.myfxbook.com/statements/{provider_id}/statement.csv',
+   ];
 
-      $url     = '***REMOVED***';
-      $referer = '***REMOVED***';
+
+   /**
+    * Load the account statement for the given Signal.
+    *
+    * @param  Signal $signal
+    *
+    * @return string - statement content
+    */
+   public static function loadStatement(Signal $signal) {
+      $localFile = dirName(realPath($_SERVER['PHP_SELF'])).DIRECTORY_SEPARATOR.$signal->getAlias().'.csv';
+      if (is_file($localFile)) return file_get_contents($localFile);
+
+      echoPre('downloading statement...');
+
+      // prepare signal urls
+      $providerId = $signal->getProviderID();
+      $url        = str_replace('{provider_id}', $providerId, self::$urls['statement']);
+      $referer    = str_replace('{provider_id}', $providerId, self::$urls['signal'   ]);
+
+      // simulate standard web browser
       $request = HttpRequest::create()
                             ->setUrl($url)
-                            ->setHeader('User-Agent'     ,  $userAgent                                                      )
+                            ->setHeader('User-Agent'     ,  Config::getDefault()->get('myfx.useragent')                     )
                             ->setHeader('Accept'         , 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
                             ->setHeader('Accept-Language', 'en-us'                                                          )
                             ->setHeader('Accept-Charset' , 'ISO-8859-1,utf-8;q=0.7,*;q=0.7'                                 )
@@ -32,13 +47,13 @@ class MyfxBook extends StaticClass {
                             ->setHeader('Cache-Control'  , 'max-age=0'                                                      )
                             ->setHeader('Referer'        ,  $referer                                                        );
 
-      // Cookies in der angegebenen Datei verwenden
+      // use cookies from the specified file
       $cookieFile = dirName(realPath($_SERVER['PHP_SELF'])).DIRECTORY_SEPARATOR.'cookies.txt';
       $options[CURLOPT_COOKIEFILE] = $cookieFile;                    // read cookies from
       $options[CURLOPT_COOKIEJAR ] = $cookieFile;                    // write cookies to
     //$options[CURLOPT_VERBOSE   ] = true;                           // enable debugging
 
-      // HTTP-Request ausführen
+      // execute HTTP request
       $client   = CurlHttpClient::create($options);
       $response = $client->send($request);
       $content  = $response->getContent();

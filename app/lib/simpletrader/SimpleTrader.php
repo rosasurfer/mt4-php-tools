@@ -15,16 +15,13 @@ class SimpleTrader extends StaticClass {
 
    // URLs und Referers zum Download der letzten 500 Trades und der kompletten History
    private static $urls = array(
-      array(
-         'currentHistory' => 'http://cp.forexsignals.com/signal/{provider_signal_id}/signal.html',
-         'fullHistory'    => 'http://cp.forexsignals.com/signals.php?do=view&id={provider_signal_id}&showAllClosedTrades=1',
-         'referer'        => 'http://cp.forexsignals.com/forex-signals.html',
-      ),
-      array(
-         'currentHistory' => 'https://www.simpletrader.net/signal/{provider_signal_id}/signal.html',
-         'fullHistory'    => 'https://www.simpletrader.net/signals.php?do=view&id={provider_signal_id}&showAllClosedTrades=1',
-         'referer'        => 'https://www.simpletrader.net/forex-signals.html'
-      ),
+      ['currentHistory' => 'http://cp.forexsignals.com/signal/{provider_signal_id}/signal.html',
+       'fullHistory'    => 'http://cp.forexsignals.com/signals.php?do=view&id={provider_signal_id}&showAllClosedTrades=1',
+       'referer'        => 'http://cp.forexsignals.com/forex-signals.html'],
+
+      ['currentHistory' => 'https://www.simpletrader.net/signal/{provider_signal_id}/signal.html',
+       'fullHistory'    => 'https://www.simpletrader.net/signals.php?do=view&id={provider_signal_id}&showAllClosedTrades=1',
+       'referer'        => 'https://www.simpletrader.net/forex-signals.html'],
    );
 
 
@@ -47,7 +44,7 @@ class SimpleTrader extends StaticClass {
       $userAgent = Config::getDefault()->get('myfx.useragent');
       if (!strLen($userAgent)) throw new InvalidArgumentException('Invalid user agent configuration: "'.$userAgent.'"');
       $request = HttpRequest ::create()
-                             ->setHeader('User-Agent'     , $userAgent                                                       )
+                             ->setHeader('User-Agent'     ,  $userAgent                                                      )
                              ->setHeader('Accept'         , 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
                              ->setHeader('Accept-Language', 'en-us'                                                          )
                              ->setHeader('Accept-Charset' , 'ISO-8859-1,utf-8;q=0.7,*;q=0.7'                                 )
