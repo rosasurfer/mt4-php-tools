@@ -1,9 +1,9 @@
 /*
 Created     17.09.2014
 Modified    07.08.2016
-Project     myfx
-Model       main model
-Company     pewasoft
+Project     MyFX
+Model       Main model
+Company     
 Author      Peter Walther
 Version     0.1
 Database    MySQL 5
@@ -23,13 +23,15 @@ create table t_signal (
    id int unsigned not null auto_increment,
    version timestamp not null default current_timestamp on update current_timestamp,
    created datetime not null,
+   provider enum('myfxbook','simpletrader') not null,
+   provider_id varchar(100) not null,
    name varchar(100) not null,
-   alias varchar(20) not null,
-   referenceid varchar(20) not null,
+   alias varchar(100) not null,
    currency enum('AUD','CAD','CHF','EUR','GBP','JPY','NZD','USD') not null,
-   unique index u_name (name),
-   unique index u_alias (alias),
-   primary key (id)
+   primary key (id),
+   unique key u_provider_provider_id (provider,provider_id),
+   unique key u_provider_name (provider,name),
+   unique key u_provider_alias (provider,alias)
 ) engine = InnoDB;
 
 

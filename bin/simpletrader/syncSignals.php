@@ -30,9 +30,9 @@ $args = array_slice($_SERVER['argv'], 1);
 $looping = $fileSyncOnly = false;
 foreach ($args as $i => $arg) {
    $arg = strToLower($arg);
-   if (in_array($arg, array('-h','--help'))) exit(1|help());                              // Hilfe
-   if (in_array($arg, array('-l'))) { $looping     =true; unset($args[$i]); continue; }   // -l=Looping
-   if (in_array($arg, array('-f'))) { $fileSyncOnly=true; unset($args[$i]); continue; }   // -f=FileSyncOnly
+   if (in_array($arg, ['-h','--help'])) { exit(1|help());                                 }     // Hilfe
+   if (in_array($arg, ['-l']))          { $looping     =true; unset($args[$i]); continue; }     // -l=Looping
+   if (in_array($arg, ['-f']))          { $fileSyncOnly=true; unset($args[$i]); continue; }     // -f=FileSyncOnly
 }
 
 
@@ -40,7 +40,7 @@ foreach ($args as $i => $arg) {
 foreach ($args as $i => $arg) {
    $args[$i] = strToLower($arg);
 }
-$args = $args ? array_unique($args) : array('*');              // ohne Signal-Parameter werden alle Signale synchronisiert
+$args = $args ? array_unique($args) : ['*'];                   // ohne Signal-Parameter werden alle Signale synchronisiert
 
 
 // (2) Erreichbarkeit der Datenbank prüfen                     // Als Extra-Schritt, damit ein Connection-Fehler bei Programmstart nur eine
@@ -48,10 +48,7 @@ try {                                                          // kurze Fehlerme
    Signal::dao()->getDB()->executeSql("select 1");             // Fehler (mit Stacktrace) auslöst.
 }
 catch (InfrastructureException $ex) {
-   if (strStartsWithI($ex->getMessage(), 'can not connect')) {
-      echoPre($ex->getMessage());
-      exit(1);
-   }
+   strStartsWithI($ex->getMessage(), 'can not connect') && exit(1|echoPre($ex->getMessage()));
    throw $ex;
 }
 
@@ -59,8 +56,7 @@ catch (InfrastructureException $ex) {
 // (3) Signale aktualisieren
 while (true) {
    foreach ($args as $i => $arg) {
-      if (!processSignal($arg, $fileSyncOnly))
-         exit(1);
+      !processSignal($arg, $fileSyncOnly) && exit(1);
    }
    if (!$looping) break;
    sleep($sleepSeconds);                                       // vorm nächsten Durchlauf jeweils einige Sek. schlafen

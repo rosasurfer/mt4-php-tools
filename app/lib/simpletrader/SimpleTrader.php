@@ -16,13 +16,13 @@ class SimpleTrader extends StaticClass {
    // URLs und Referers zum Download der letzten 500 Trades und der kompletten History
    private static $urls = array(
       array(
-         'currentHistory' => 'http://cp.forexsignals.com/signal/{signal_ref_id}/signal.html',
-         'fullHistory'    => 'http://cp.forexsignals.com/signals.php?do=view&id={signal_ref_id}&showAllClosedTrades=1',
+         'currentHistory' => 'http://cp.forexsignals.com/signal/{provider_signal_id}/signal.html',
+         'fullHistory'    => 'http://cp.forexsignals.com/signals.php?do=view&id={provider_signal_id}&showAllClosedTrades=1',
          'referer'        => 'http://cp.forexsignals.com/forex-signals.html',
       ),
       array(
-         'currentHistory' => 'https://www.simpletrader.net/signal/{signal_ref_id}/signal.html',
-         'fullHistory'    => 'https://www.simpletrader.net/signals.php?do=view&id={signal_ref_id}&showAllClosedTrades=1',
+         'currentHistory' => 'https://www.simpletrader.net/signal/{provider_signal_id}/signal.html',
+         'fullHistory'    => 'https://www.simpletrader.net/signals.php?do=view&id={provider_signal_id}&showAllClosedTrades=1',
          'referer'        => 'https://www.simpletrader.net/forex-signals.html'
       ),
    );
@@ -40,12 +40,12 @@ class SimpleTrader extends StaticClass {
    public static function loadSignalPage(Signal $signal, $fullHistory) {
       if (!is_bool($fullHistory)) throw new IllegalTypeException('Illegal type of parameter $fullHistory: '.getType($fullHistory));
 
-      $referenceId = $signal->getReferenceID();
+      $providerSignalId = $signal->getProviderID();
 
 
       // (1) Standard-Browser simulieren
       $userAgent = Config::getDefault()->get('myfx.useragent');
-         if (!strLen($userAgent)) throw new InvalidArgumentException('Invalid user agent configuration: "'.$userAgent.'"');
+      if (!strLen($userAgent)) throw new InvalidArgumentException('Invalid user agent configuration: "'.$userAgent.'"');
       $request = HttpRequest ::create()
                              ->setHeader('User-Agent'     , $userAgent                                                       )
                              ->setHeader('Accept'         , 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
@@ -69,7 +69,7 @@ class SimpleTrader extends StaticClass {
       $counter = 0;
       while (true) {
          $i       = $counter % sizeof(self::$urls);                     // bei Neuversuchen abwechselnd alle URL's durchprobieren
-         $url     = str_replace('{signal_ref_id}', $referenceId, self::$urls[$i][$key]);
+         $url     = str_replace('{provider_signal_id}', $providerSignalId, self::$urls[$i][$key]);
          $referer = self::$urls[$i]['referer'];
          $request->setUrl($url)->setHeader('Referer', $referer);
 

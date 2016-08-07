@@ -12,15 +12,16 @@ class SignalDAO extends CommonDAO {
    // Datenbankmapping
    public $mapping = array('link'   => 'myfx',
                            'table'  => 't_signal',
-                           'fields' => array('id'         => array('id'         , self ::T_INT   , self ::T_NOT_NULL),     // int
-                                             'version'    => array('version'    , self ::T_STRING, self ::T_NOT_NULL),     // datetime
-                                             'created'    => array('created'    , self ::T_STRING, self ::T_NOT_NULL),     // datetime
+                           'fields' => array('id'         => ['id'         , self::T_INT   , self::T_NOT_NULL],     // int
+                                             'version'    => ['version'    , self::T_STRING, self::T_NOT_NULL],     // datetime
+                                             'created'    => ['created'    , self::T_STRING, self::T_NOT_NULL],     // datetime
 
-                                             'name'       => array('name'       , self ::T_STRING, self ::T_NOT_NULL),     // string
-                                             'alias'      => array('alias'      , self ::T_STRING, self ::T_NOT_NULL),     // string
-                                             'referenceID'=> array('referenceid', self ::T_STRING, self ::T_NOT_NULL),     // string
-                                             'currency'   => array('currency'   , self ::T_STRING, self ::T_NOT_NULL),     // string
-                                            ));
+                                             'provider'   => ['provider'   , self::T_STRING, self::T_NOT_NULL],     // enum
+                                             'providerID' => ['provider_id', self::T_STRING, self::T_NOT_NULL],     // string
+                                             'name'       => ['name'       , self::T_STRING, self::T_NOT_NULL],     // string
+                                             'alias'      => ['alias'      , self::T_STRING, self::T_NOT_NULL],     // string
+                                             'currency'   => ['currency'   , self::T_STRING, self::T_NOT_NULL],     // enum
+   ));
 
 
    /**
