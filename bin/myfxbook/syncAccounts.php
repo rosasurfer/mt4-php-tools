@@ -11,172 +11,94 @@ use rosasurfer\exception\RuntimeException;
  *
  *
  *
- * GET ***REMOVED*** HTTP/1.1
- * Host: www.myfxbook.com
- * User-Agent: ***REMOVED***
- * Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*\/*;q=0.8
- * Accept-Language: en-us
- * Accept-Encoding: gzip, deflate
- * Connection: keep-alive
- * Referer: ***REMOVED***
- * Cookie: ***REMOVED***
  *
- * HTTP/1.1 200 OK
- * Date: Sun, 07 Aug 2016 10:41:12 GMT
- * Server: Apache-Coyote/1.1
- * Content-Disposition: inline;filename=statement.csv
- * Content-Type: application/csv;charset=UTF-8
- * Content-Length: 841251
- * Cache-Control: max-age=0
- * Expires: Sun, 07 Aug 2016 10:41:13 GMT
- * Keep-Alive: timeout=10, max=100
- * Connection: Keep-Alive
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 require(__DIR__.'/../../app/init.php');
 
 
-$sleepSeconds      = 30;         // Länge der Pause zwischen zwei Updates
-$signalNamePadding = 21;         // Padding der Anzeige des Signalnamens:  @see function processSignal()
+$signalNamePadding = 21;                              // configuration output formatting
 
 
-// --- Start --------------------------------------------------------------------------------------------------------------------------------------------------
-
-$csv = MyfxBook::loadCvsFile();
-echoPre('strlen($csv) = '.strlen($csv));
-exit(0);
+// --- program start ---------------------------------------------------------------------------------------------------
 
 
-
-
-// (1) Befehlszeilenargumente einlesen und validieren
-$args = array_slice($_SERVER['argv'], 1);
-
-
-// (1.1) Optionen parsen
-$looping = $fileSyncOnly = false;
-foreach ($args as $i => $arg) {
-   $arg = strToLower($arg);
-   if (in_array($arg, array('-h','--help'))) exit(1|help());                              // Hilfe
-   if (in_array($arg, array('-l'))) { $looping     =true; unset($args[$i]); continue; }   // -l=Looping
-   if (in_array($arg, array('-f'))) { $fileSyncOnly=true; unset($args[$i]); continue; }   // -f=FileSyncOnly
-}
-
-
-// (1.2) Groß-/Kleinschreibung normalisieren
-foreach ($args as $i => $arg) {
-   $args[$i] = strToLower($arg);
-}
-$args = $args ? array_unique($args) : array('*');              // ohne Signal-Parameter werden alle Signale synchronisiert
-
-
-// (2) Erreichbarkeit der Datenbank prüfen                     // Als Extra-Schritt, damit ein Connection-Fehler bei Programmstart nur eine
-try {                                                          // kurze Fehlermeldung, während der Programmausführung jedoch einen kritischen
-   Signal::dao()->getDB()->executeSql("select 1");             // Fehler (mit Stacktrace) auslöst.
+// (1) check database availability                    // produces just a short error notice instead of a hard exception
+try {                                                 // as it would happen at runtime
+   Signal::dao()->getDB()->executeSql("select 1");
 }
 catch (InfrastructureException $ex) {
-   if (strStartsWithI($ex->getMessage(), 'can not connect')) {
-      echoPre($ex->getMessage());
-      exit(1);
-   }
+   strStartsWithI($ex->getMessage(), 'can not connect') && exit(1|echoPre($ex->getMessage()));
    throw $ex;
 }
 
 
-// (3) Signale aktualisieren
-while (true) {
-   foreach ($args as $i => $arg) {
-      if (!processSignal($arg, $fileSyncOnly))
-         exit(1);
-   }
-   if (!$looping) break;
-   sleep($sleepSeconds);                                       // vorm nächsten Durchlauf jeweils einige Sek. schlafen
-}
+// (2) update MyfxBook accounts
+!processAccounts('*') && exit(1);
 
 
-// (4) Ende
+// (3) regular program end
 exit(0);
 
 
-// --- Funktionen ---------------------------------------------------------------------------------------------------------------------------------------------
+// --- function definitions --------------------------------------------------------------------------------------------
 
 
 /**
- * Aktualisiert die Daten eines Signals.
+ * Update the specified MyfxBook accounts.
  *
- * @param  string $alias        - Signalalias
- * @param  bool   $fileSyncOnly - ob alle Daten oder nur die MT4-Dateien aktualisiert werden sollen
+ * @param  string $alias - account alias or "*" (updates all active MyfxBook accounts)
  *
- * @return bool - Erfolgsstatus
+ * @return bool - success status
  */
-function processSignal($alias, $fileSyncOnly) {
-   if (!is_string($alias))      throw new IllegalTypeException('Illegal type of parameter $alias: '.getType($alias));
-   if (!is_bool($fileSyncOnly)) throw new IllegalTypeException('Illegal type of parameter $fileSyncOnly: '.getType($fileSyncOnly));
+function processAccounts($alias) {
+   if (!is_string($alias)) throw new IllegalTypeException('Illegal type of parameter $alias: '.getType($alias));
 
-
-   // Ist ein Wildcard angegeben, wird die Funktion rekursiv für alle Signale aufgerufen.
+   // if the wildcard "*" is specified recursively process all active accounts
    if ($alias == '*') {
       $me = __FUNCTION__;
-      foreach (Signal::dao()->listAll() as $signal)
-         $me($signal->getAlias(), $fileSyncOnly);
+      foreach (Signal::dao()->listActiveMyfxBook() as $signal) {
+         $me($signal->getAlias());
+      }
       return true;
    }
 
-   static $openUpdates=false, $closedUpdates=false;                  // ob beim letzten Aufruf Änderungen eines Signals festgestellt wurden
+   $signal = Signal::dao()->getByProviderAndAlias($provider='myfxbook', $alias);
+   if (!$signal) return _false(echoPre('Invalid or unknown signal: "'.$provider.':'.$alias.'"'));
 
-   $signal = Signal::dao()->getByAlias($alias);
-   if (!$signal) {
-      echoPre('Invalid or unknown signal: '.$alias);
+   global $signalNamePadding;                               // output formatting: whether or not the last function call
+   static $openUpdates=false, $closedUpdates=false;         //                    detected open trade/history changes
+   echo(($openUpdates ? NL:'').str_pad($signal->getName().' ', $signalNamePadding, '.', STR_PAD_RIGHT).' ');
+
+   // load CSV statement
+   $csv = MyfxBook::loadCvsFile($signal);
+
+   // parse statement
+   $errorMsg = MyfxBook::parseCsvStatement($signal, $csv, $openPositions=[], $closedPositions=[]);
+   if ($errorMsg) throw new RuntimeException($signal->getName().': '.$errorMsg);
+
+   // update database
+   if (!updateDatabase($signal, $openPositions, $openUpdates, $closedPositions, $closedUpdates))
       return false;
-   }
-   global $signalNamePadding;
-   echo(($openUpdates ? "\n":'').str_pad($signal->getName().' ', $signalNamePadding, '.', STR_PAD_RIGHT).' ');
 
-
-   if (!$fileSyncOnly) {
-      $counter     = 0;
-      $fullHistory = false;
-
-      while (true) {
-         $counter++;
-
-         // HTML-Seite laden
-         $html = SimpleTrader::loadSignalPage($signal, $fullHistory);
-
-         // HTML-Seite parsen
-         $openPositions = $closedPositions = array();
-         $errorMsg = SimpleTrader::parseSignalData($signal, $html, $openPositions, $closedPositions);
-
-         // bei PHP-Fehlermessages in HTML-Seite URL nochmal laden (bis zu 5 Versuche)
-         if ($errorMsg) {
-            echoPre($errorMsg);
-            if ($counter >= 5) throw new RuntimeException($signal->getName().': '.$errorMsg);
-            Logger::warn($signal->getName().': '.$errorMsg."\nretrying...", __CLASS__);
-            continue;
-         }
-
-         // Datenbank aktualisieren
-         try {
-            if (!updateDatabase($signal, $openPositions, $openUpdates, $closedPositions, $closedUpdates, $fullHistory))
-               return false;
-            break;
-         }
-         catch (DataNotFoundException $ex) {
-            if ($fullHistory) throw $ex;              // Fehler weiterreichen, wenn er mit kompletter History auftrat
-
-            // Zähler zurücksetzen und komplette History laden
-            $counter     = 0;
-            $fullHistory = true;
-            echoPre($ex->getMessage().', loading full history...');
-         }
-      }
-   }
-   else {
-     $openUpdates = $closedUpdates = false;
-   }
-
-
-   // Datenfiles für MetaTrader::MQL aktualisieren
-   MT4::updateDataFiles($signal, $openUpdates, $closedUpdates);
+   // update MQL account history files
+   MT4::updateAccountHistory($signal, $openUpdates, $closedUpdates);
 
    return true;
 }
@@ -422,8 +344,7 @@ echo <<<END
 
  Syntax:  $self [-l] [-f] [signal_name ...]
 
- Options:  -l  Runs infinitely and synchronizes every 30 seconds.
-           -f  Synchronizes MetaTrader data files but not the database (does not go online).
+ Options:  -f  Rewrites the MetaTrader account history files (does not go online).
            -h  This help screen.
 
 

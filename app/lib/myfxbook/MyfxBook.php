@@ -24,19 +24,19 @@ class MyfxBook extends StaticClass {
       $referer = '***REMOVED***';
       $request = HttpRequest::create()
                             ->setUrl($url)
-                            ->setHeader('User-Agent'     , $userAgent                                                       )
+                            ->setHeader('User-Agent'     ,  $userAgent                                                      )
                             ->setHeader('Accept'         , 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
                             ->setHeader('Accept-Language', 'en-us'                                                          )
                             ->setHeader('Accept-Charset' , 'ISO-8859-1,utf-8;q=0.7,*;q=0.7'                                 )
                             ->setHeader('Connection'     , 'keep-alive'                                                     )
                             ->setHeader('Cache-Control'  , 'max-age=0'                                                      )
-                            ->setHeader('Referer'        , $referer                                                         );
+                            ->setHeader('Referer'        ,  $referer                                                        );
 
       // Cookies in der angegebenen Datei verwenden
       $cookieFile = dirName(realPath($_SERVER['PHP_SELF'])).DIRECTORY_SEPARATOR.'cookies.txt';
       $options[CURLOPT_COOKIEFILE] = $cookieFile;                    // read cookies from
       $options[CURLOPT_COOKIEJAR ] = $cookieFile;                    // write cookies to
-      $options[CURLOPT_VERBOSE   ] = true;                           // enable debugging
+    //$options[CURLOPT_VERBOSE   ] = true;                           // enable debugging
 
       // HTTP-Request ausführen
       $client   = CurlHttpClient::create($options);
