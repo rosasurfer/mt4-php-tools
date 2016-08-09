@@ -132,7 +132,7 @@ class MyfxBook extends StaticClass {
 }
 
 
-// data array indices of CSV statement lines
+// data indices of account history in CSV statements
 const I_CSV_OPEN_DATE          =  0;         // Open Date                     '08/08/2016 17:33'      '08/08/2016 01:13'
 const I_CSV_CLOSE_DATE         =  1;         // Close Date                    '08/08/2016 22:23'      ''
 const I_CSV_SYMBOL             =  2;         // Symbol                        'GBPUSD'                ''
