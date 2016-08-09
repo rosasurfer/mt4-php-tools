@@ -100,7 +100,7 @@ class MyfxBook extends StaticClass {
          $values = explode(',', $line);
          if (sizeOf($values) != 27) throw new RuntimeException('Unexpected number of values in line '.$i.' of CSV statement: '.sizeOf($values));
 
-         // Action (operation type)
+         // Operation Type
          $values[I_CSV_ACTION] = $type = strToLower($values[I_CSV_ACTION]);
          if ($type == 'deposit')    continue;                        // temporarily skip deposits
          if ($type == 'withdrawal') continue;                        // temporarily skip withdrawals
@@ -113,50 +113,54 @@ class MyfxBook extends StaticClass {
          $date = \DateTime::createFromFormat($csvDateFormat.' O', trim($values[I_CSV_CLOSE_DATE]).' +0300'); if (!$date) throw new RuntimeException('Unexpected date/time format in data line '.$i.' of CSV statement: "'.$values[I_CSV_CLOSE_DATE].'" ('.array_shift(\DateTime::getLastErrors()['errors']).')');
          $values[I_CSV_CLOSE_DATE] = $closeTime= $date->getTimestamp();
 
-         /*
-         $values[I_CSV_SYMBOL     ] = 'GBPUSD';                      // Symbol
-         $values[I_CSV_LOTS       ] = '0.20';                        // Lots
-         $values[I_CSV_STOP_LOSS  ] = '0.00000';                     // SL
-         $values[I_CSV_TAKE_PROFIT] = '0.00000';                     // TP
-         $values[I_CSV_OPEN_PRICE ] = '1.30377';                     // Open Price
-         $values[I_CSV_CLOSE_PRICE] = '1.30451';                     // Close Price
-         $values[I_CSV_COMMISSION ] = '-1.5100';                     // Commission
-         $values[I_CSV_SWAP       ] = '0.0000';                      // Swap
-         $values[I_CSV_NET_PROFIT ] = '13.29';                       // Profit (Net)
-         */
+         // Symbol
+         $values[I_CSV_SYMBOL] = $symbol = trim($values[I_CSV_SYMBOL]);
 
-         echoPre('OpenTime = '.date(DATE_RFC1123, $openTime));
+         // Lots
+         $sValue = trim($values[I_CSV_LOTS]);
+         if (!is_numeric($sValue) || ($dValue=(double)$sValue) <= 0) throw new RuntimeException('Unexpected lot size in data line '.$i.' of CSV statement: "'.$values[I_CSV_LOTS].'"');
+         $values[I_CSV_LOTS] = $lots = $dValue;
+
+         // StopLoss
+         $sValue = trim($values[I_CSV_STOP_LOSS]);
+         if (strLen($sValue) && !is_numeric($sValue)) throw new RuntimeException('Unexpected stop loss in data line '.$i.' of CSV statement: "'.$values[I_CSV_STOP_LOSS].'"');
+         if (($dValue=(double)$sValue) < 0)           throw new RuntimeException('Unexpected stop loss in data line '.$i.' of CSV statement: "'.$values[I_CSV_STOP_LOSS].'"');
+         $values[I_CSV_STOP_LOSS] = $stopLoss = $dValue ? $dValue : null;
+
+         // TakeProfit
+         $sValue = trim($values[I_CSV_TAKE_PROFIT]);
+         if (strLen($sValue) && !is_numeric($sValue)) throw new RuntimeException('Unexpected take profit in data line '.$i.' of CSV statement: "'.$values[I_CSV_TAKE_PROFIT].'"');
+         if (($dValue=(double)$sValue) < 0)           throw new RuntimeException('Unexpected take profit in data line '.$i.' of CSV statement: "'.$values[I_CSV_TAKE_PROFIT].'"');
+         $values[I_CSV_TAKE_PROFIT] = $takeProfit = $dValue ? $dValue : null;
+
+         // Open Price
+         $sValue = trim($values[I_CSV_OPEN_PRICE]);
+         if (!is_numeric($sValue) || ($dValue=(double)$sValue) <= 0) throw new RuntimeException('Unexpected open price in data line '.$i.' of CSV statement: "'.$values[I_CSV_OPEN_PRICE].'"');
+         $values[I_CSV_OPEN_PRICE] = $openPrice = $dValue;
+
+         // Close Price
+         $sValue = trim($values[I_CSV_CLOSE_PRICE]);
+         if (!is_numeric($sValue) || ($dValue=(double)$sValue) <= 0) throw new RuntimeException('Unexpected close price in data line '.$i.' of CSV statement: "'.$values[I_CSV_CLOSE_PRICE].'"');
+         $values[I_CSV_CLOSE_PRICE] = $closePrice = $dValue;
+
+         // Commission
+         $sValue = trim($values[I_CSV_COMMISSION]);
+         if (!is_numeric($sValue)) throw new RuntimeException('Unexpected commission value in data line '.$i.' of CSV statement: "'.$values[I_CSV_COMMISSION].'"');
+         $values[I_CSV_COMMISSION] = $commission = (double)$sValue;
+
+         // Swap
+         $sValue = trim($values[I_CSV_SWAP]);
+         if (!is_numeric($sValue)) throw new RuntimeException('Unexpected swap value in data line '.$i.' of CSV statement: "'.$values[I_CSV_SWAP].'"');
+         $values[I_CSV_SWAP] = $swap = (double)$sValue;
+
+         // NetProfit
+         $sValue = trim($values[I_CSV_NET_PROFIT]);
+         if (!is_numeric($sValue)) throw new RuntimeException('Unexpected profit value in data line '.$i.' of CSV statement: "'.$values[I_CSV_NET_PROFIT].'"');
+         $values[I_CSV_NET_PROFIT] = $profit = (double)$sValue;
       }
-      echoPre($i.' non-empty lines');
    }
 }
 
 
-// data indices of account history in CSV statements
-const I_CSV_OPEN_DATE          =  0;         // Open Date                     '08/08/2016 17:33'      '08/08/2016 01:13'
-const I_CSV_CLOSE_DATE         =  1;         // Close Date                    '08/08/2016 22:23'      ''
-const I_CSV_SYMBOL             =  2;         // Symbol                        'GBPUSD'                ''
-const I_CSV_ACTION             =  3;         // Action                        'Buy|Sell'              'Deposit|Withdrawal'
-const I_CSV_LOTS               =  4;         // Lots                          '0.20'                  '0.01'
-const I_CSV_STOP_LOSS          =  5;         // SL                            '0.00000'               '0.00000'
-const I_CSV_TAKE_PROFIT        =  6;         // TP                            '0.00000'               '0.00000'
-const I_CSV_OPEN_PRICE         =  7;         // Open Price                    '1.30377'               '0.00000'
-const I_CSV_CLOSE_PRICE        =  8;         // Close Price                   '1.30451'               '0.00000'
-const I_CSV_COMMISSION         =  9;         // Commission                    '-1.5100'               '0.0000'
-const I_CSV_SWAP               = 10;         // Swap                          '0.0000'                '0.0000'
-const I_CSV_PIPS               = 11;         // Pips                          '7.4'                   '0.0'
-const I_CSV_NET_PROFIT         = 12;         // Profit                        '13.29'                 '2000.00'
-const I_CSV_GAIN               = 13;         // Gain                          '0.07'                  '0'
-const I_CSV_DURATION_TIME      = 14;         // Duration (DD:HH:MM:SS)        '00:04:50:05'           '00:00:00:00'
-const I_CSV_PROFITABLE_PCT     = 15;         // Profitable(%)                 '69.7'                  ''
-const I_CSV_PROFITABLE_TIME    = 16;         // Profitable(time duration)     '3h 22m'                ''
-const I_CSV_DRAWDOWN           = 17;         // Drawdown                      '18.0'                  ''
-const I_CSV_RISK_REWARD        = 18;         // Risk:Reward                   '1.17'                  ''
-const I_CSV_MAX_PIPS           = 19;         // Max(pips)                     '8.3'                   ''
-const I_CSV_MAX_USD            = 20;         // Max(USD)                      '16.6'                  ''
-const I_CSV_MIN_PIPS           = 21;         // Min(pips)                     '-9.7'                  ''
-const I_CSV_MIN_USD            = 22;         // Min(USD)                      '-19.4'                 ''
-const I_CSV_ENTRY_ACCURACY_PCT = 23;         // Entry Accuracy(%)             '46.1'                  ''
-const I_CSV_EXIT_ACCURACY_PCT  = 24;         // Exit Accuracy(%)              '95.0'                  ''
-const I_CSV_PROFIT_MISSED_PIPS = 25;         // ProfitMissed(pips)            '-0.90'                 ''
-const I_CSV_PROFIT_MISSED_USD  = 26;         // ProfitMissed(USD)             '-1.80'                 ''
+// import namespace constants
+!defined('I_CSV_OPEN_DATE') && include(__DIR__.'/constants.php');
