@@ -342,11 +342,11 @@ class MT4 extends StaticClass {
    /**
     * Aktualisiert die Daten-Files des angegebenen Signals (Datenbasis für MT4-Terminals).
     *
-    * @param  Signal $signal        - Signalalias
+    * @param  Signal $signal
     * @param  bool   $openUpdates   - ob beim letzten Abgleich der Datenbank Änderungen an den offenen Positionen festgestellt wurden
     * @param  bool   $closedUpdates - ob beim letzten Abgleich der Datenbank Änderungen an der Trade-History festgestellt wurden
     */
-   public static function updateDataFiles(Signal $signal, $openUpdates, $closedUpdates) {
+   public static function updateAccountHistory(Signal $signal, $openUpdates, $closedUpdates) {
       if (!is_bool($openUpdates))   throw new IllegalTypeException('Illegal type of parameter $openUpdates: '.getType($openUpdates));
       if (!is_bool($closedUpdates)) throw new IllegalTypeException('Illegal type of parameter $closedUpdates: '.getType($closedUpdates));
 
@@ -360,8 +360,8 @@ class MT4 extends StaticClass {
       $alias          = $signal->getAlias();
       $openFileName   = $dataDirectory.'/simpletrader/'.$alias.'_open.ini';
       $closedFileName = $dataDirectory.'/simpletrader/'.$alias.'_closed.ini';
-      $isOpenFile     = is_file($openFileName);    //$isOpenFile   = false;
-      $isClosedFile   = is_file($closedFileName);  //$isClosedFile = false;
+      $isOpenFile     = is_file($openFileName);
+      $isClosedFile   = is_file($closedFileName);
 
 
       // (3) Open-Datei neu schreiben, wenn die offenen Positionen modifiziert wurden oder die Datei nicht existiert

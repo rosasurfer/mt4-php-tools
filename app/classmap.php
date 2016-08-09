@@ -27,7 +27,7 @@ return array(
 
    'MyFX'                                          => APPLICATION_ROOT.'/app/lib/myfx/MyFX.php',
 
-   'MyfxBook'                                      => APPLICATION_ROOT.'/app/lib/myfxbook/MyfxBook.php',
+   'rosasurfer\myfx\lib\myfxbook\MyfxBook'         => APPLICATION_ROOT.'/app/lib/myfxbook/MyfxBook.php',
 
    'DataNotFoundException'                         => APPLICATION_ROOT.'/app/lib/simpletrader/DataNotFoundException.php',
    'rosasurfer\myfx\lib\simpletrader\SimpleTrader' => APPLICATION_ROOT.'/app/lib/simpletrader/SimpleTrader.php',

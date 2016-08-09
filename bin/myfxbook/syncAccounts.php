@@ -4,6 +4,8 @@ use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InfrastructureException;
 use rosasurfer\exception\RuntimeException;
 
+use rosasurfer\myfx\lib\myfxbook\MyfxBook;
+
 
 /**
  *
@@ -101,11 +103,14 @@ function processAccounts($alias) {
    echo(($openUpdates ? NL:'').str_pad($signal->getName().' ', $signalNamePadding, '.', STR_PAD_RIGHT).' ');
 
    // load CSV statement
-   $csv = MyfxBook::loadStatement($signal);
+   $csv = MyfxBook::loadCsvStatement($signal);
 
    // parse statement
-   $errorMsg = MyfxBook::parseCsvStatement($signal, $csv, $openPositions=[], $closedPositions=[]);
+   $openPositions = $closedPositions = [];
+   $errorMsg = MyfxBook::parseCsvStatement($signal, $csv, $openPositions, $closedPositions);
    if ($errorMsg) throw new RuntimeException($signal->getName().': '.$errorMsg);
+
+   return false;
 
    // update database
    if (!updateDatabase($signal, $openPositions, $openUpdates, $closedPositions, $closedUpdates))
