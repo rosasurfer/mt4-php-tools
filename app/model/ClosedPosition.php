@@ -21,7 +21,8 @@ class ClosedPosition extends PersistableObject {
    protected /*double*/ $takeProfit;
    protected /*double*/ $commission;
    protected /*double*/ $swap;
-   protected /*double*/ $profit;
+   protected /*double*/ $grossProfit;
+   protected /*double*/ $netProfit;
    protected /*int   */ $magicNumber;
    protected /*string*/ $comment;
    protected /*int   */ $signal_id;
@@ -70,21 +71,22 @@ class ClosedPosition extends PersistableObject {
    private static function create_1(OpenPosition $openPosition, array $data) {
       $position = new self();
 
-      $position->ticket      =                $data['ticket'     ];
-      $position->type        =                $data['type'       ];
-      $position->lots        =                $data['lots'       ];
-      $position->symbol      =                $data['symbol'     ];
-      $position->openTime    = MyFX ::fxtDate($data['opentime'   ]);
-      $position->openPrice   =                $data['openprice'  ];
-      $position->closeTime   = MyFX ::fxtDate($data['closetime'  ]);
-      $position->closePrice  =                $data['closeprice' ];
-      $position->stopLoss    =          isSet($data['stoploss'   ]) ? $data['stoploss'   ] : $openPosition->getStopLoss();
-      $position->takeProfit  =          isSet($data['takeprofit' ]) ? $data['takeprofit' ] : $openPosition->getTakeProfit();
-      $position->commission  =                $data['commission' ];
-      $position->swap        =                $data['swap'       ];
-      $position->profit      =                $data['profit'     ];
-      $position->magicNumber =          isSet($data['magicnumber']) ? $data['magicnumber'] : null;
-      $position->comment     =          isSet($data['comment'    ]) ? $data['comment'    ] : null;
+      $position->ticket      =               $data['ticket'     ];
+      $position->type        =               $data['type'       ];
+      $position->lots        =               $data['lots'       ];
+      $position->symbol      =               $data['symbol'     ];
+      $position->openTime    = MyFX::fxtDate($data['opentime'   ]);
+      $position->openPrice   =               $data['openprice'  ];
+      $position->closeTime   = MyFX::fxtDate($data['closetime'  ]);
+      $position->closePrice  =               $data['closeprice' ];
+      $position->stopLoss    =         isSet($data['stoploss'   ]) ? $data['stoploss'   ] : $openPosition->getStopLoss();
+      $position->takeProfit  =         isSet($data['takeprofit' ]) ? $data['takeprofit' ] : $openPosition->getTakeProfit();
+      $position->commission  =         isSet($data['commission' ]) ? $data['commission' ] : $openPosition->getCommission();
+      $position->swap        =         isSet($data['swap'       ]) ? $data['swap'       ] : $openPosition->getSwap();
+      $position->grossProfit =         isSet($data['grossprofit']) ? $data['grossprofit'] : null;
+      $position->netProfit   =               $data['netprofit'  ];
+      $position->magicNumber =         isSet($data['magicnumber']) ? $data['magicnumber'] : $openPosition->getMagicNumber();
+      $position->comment     =         isSet($data['comment'    ]) ? $data['comment'    ] : $openPosition->getComment();
 
       $position->signal_id = $openPosition->getSignal_id();
 
@@ -105,21 +107,22 @@ class ClosedPosition extends PersistableObject {
 
       $position = new self();
 
-      $position->ticket      =                $data['ticket'     ];
-      $position->type        =                $data['type'       ];
-      $position->lots        =                $data['lots'       ];
-      $position->symbol      =                $data['symbol'     ];
-      $position->openTime    = MyFX ::fxtDate($data['opentime'   ]);
-      $position->openPrice   =                $data['openprice'  ];
-      $position->closeTime   = MyFX ::fxtDate($data['closetime'  ]);
-      $position->closePrice  =                $data['closeprice' ];
-      $position->stopLoss    =          isSet($data['stoploss'   ]) ? $data['stoploss'   ] : null;
-      $position->takeProfit  =          isSet($data['takeprofit' ]) ? $data['takeprofit' ] : null;
-      $position->commission  =                $data['commission' ];
-      $position->swap        =                $data['swap'       ];
-      $position->profit      =                $data['profit'     ];
-      $position->magicNumber =          isSet($data['magicnumber']) ? $data['magicnumber'] : null;
-      $position->comment     =          isSet($data['comment'    ]) ? $data['comment'    ] : null;
+      $position->ticket      =               $data['ticket'     ];
+      $position->type        =               $data['type'       ];
+      $position->lots        =               $data['lots'       ];
+      $position->symbol      =               $data['symbol'     ];
+      $position->openTime    = MyFX::fxtDate($data['opentime'   ]);
+      $position->openPrice   =               $data['openprice'  ];
+      $position->closeTime   = MyFX::fxtDate($data['closetime'  ]);
+      $position->closePrice  =               $data['closeprice' ];
+      $position->stopLoss    =         isSet($data['stoploss'   ]) ? $data['stoploss'   ] : null;
+      $position->takeProfit  =         isSet($data['takeprofit' ]) ? $data['takeprofit' ] : null;
+      $position->commission  =         isSet($data['commission' ]) ? $data['commission' ] : null;
+      $position->swap        =         isSet($data['swap'       ]) ? $data['swap'       ] : null;
+      $position->grossProfit =         isSet($data['grossprofit']) ? $data['grossprofit'] : null;
+      $position->netProfit   =               $data['netprofit'  ];
+      $position->magicNumber =         isSet($data['magicnumber']) ? $data['magicnumber'] : null;
+      $position->comment     =         isSet($data['comment'    ]) ? $data['comment'    ] : null;
       $position->signal_id   = $signal->getId();
 
       return $position;
@@ -146,7 +149,6 @@ class ClosedPosition extends PersistableObject {
    public function getOpenTime($format='Y-m-d H:i:s')  {
       if ($format == 'Y-m-d H:i:s')
          return $this->openTime;
-
       return Date::format($this->openTime, $format);
    }
 
@@ -161,7 +163,6 @@ class ClosedPosition extends PersistableObject {
    public function getCloseTime($format='Y-m-d H:i:s')  {
       if ($format == 'Y-m-d H:i:s')
          return $this->closeTime;
-
       return Date::format($this->closeTime, $format);
    }
 
@@ -172,12 +173,11 @@ class ClosedPosition extends PersistableObject {
     * @param  int    $decimals  - Anzahl der Nachkommastellen
     * @param  string $separator - Dezimaltrennzeichen
     *
-    * @return double|string - Betrag
+    * @return double|string - Betrag oder NULL, wenn der Betrag nicht verfügbar ist
     */
    public function getCommission($decimals=2, $separator='.') {
-      if (func_num_args() == 0)
+      if (is_null($this->commission) || !func_num_args())
          return $this->commission;
-
       return Number::format($this->commission, $decimals, $separator);
    }
 
@@ -188,29 +188,42 @@ class ClosedPosition extends PersistableObject {
     * @param  int    $decimals  - Anzahl der Nachkommastellen
     * @param  string $separator - Dezimaltrennzeichen
     *
-    * @return double|string - Betrag
+    * @return double|string - Betrag oder NULL, wenn der Betrag nicht verfügbar ist
     */
    public function getSwap($decimals=2, $separator='.') {
-      if (func_num_args() == 0)
+      if (is_null($this->swap) || !func_num_args())
          return $this->swap;
-
       return Number::format($this->swap, $decimals, $separator);
    }
 
 
    /**
-    * Gibt den Profit-Betrag dieser Position zurück.
+    * Gibt den Gross-Profit-Betrag dieser Position zurück.
+    *
+    * @param  int    $decimals  - Anzahl der Nachkommastellen
+    * @param  string $separator - Dezimaltrennzeichen
+    *
+    * @return double|string - Betrag oder NULL, wenn der Betrag nicht verfügbar ist
+    */
+   public function getGrossProfit($decimals=2, $separator='.') {
+      if (is_null($this->grossProfit) || !func_num_args())
+         return $this->grossProfit;
+      return Number::format($this->grossProfit, $decimals, $separator);
+   }
+
+
+   /**
+    * Gibt den Net-Profit-Betrag dieser Position zurück.
     *
     * @param  int    $decimals  - Anzahl der Nachkommastellen
     * @param  string $separator - Dezimaltrennzeichen
     *
     * @return double|string - Betrag
     */
-   public function getProfit($decimals=2, $separator='.') {
-      if (func_num_args() == 0)
-         return $this->profit;
-
-      return Number::format($this->profit, $decimals, $separator);
+   public function getNetProfit($decimals=2, $separator='.') {
+      if (!func_num_args())
+         return $this->netProfit;
+      return Number::format($this->netProfit, $decimals, $separator);
    }
 
 
@@ -222,7 +235,6 @@ class ClosedPosition extends PersistableObject {
    public function getSignal() {
       if ($this->signal === null)
          $this->signal = Signal::dao()->getById($this->signal_id);
-
       return $this->signal;
    }
 
@@ -244,22 +256,22 @@ class ClosedPosition extends PersistableObject {
       $openprice   =  $this->openPrice;
       $closetime   =  $this->closeTime;
       $closeprice  =  $this->closePrice;
-      $stoploss    = !$this->stopLoss          ? 'null' : $this->stopLoss;
-      $takeprofit  = !$this->takeProfit        ? 'null' : $this->takeProfit;
-      $commission  =  $this->commission;
-      $swap        =  $this->swap;
-      $profit      =  $this->profit;
-      $magicnumber = !$this->magicNumber       ? 'null' : $this->magicNumber;
-      $comment     = ($this->comment === null) ? 'null' : addSlashes($this->comment);
+      $stoploss    = !$this->stopLoss             ? 'null' : $this->stopLoss;
+      $takeprofit  = !$this->takeProfit           ? 'null' : $this->takeProfit;
+      $commission  =  is_null($this->commission ) ? 'null' : $this->commission;
+      $swap        =  is_null($this->swap       ) ? 'null' : $this->swap;
+      $profit      =  is_null($this->grossProfit) ? 'null' : $this->grossProfit;
+      $netprofit   =  $this->netProfit;
+      $magicnumber = !$this->magicNumber          ? 'null' : $this->magicNumber;
+      $comment     =  is_null($this->comment)     ? 'null' : "'".addSlashes($this->comment)."'";
       $signal_id   =  $this->signal_id;
 
       $db = self::dao()->getDB();
       $db->begin();
       try {
          // ClosedPosition einfügen
-         $sql = "insert into t_closedposition (version, created, ticket, type, lots, symbol, opentime, openprice, closetime, closeprice, stoploss, takeprofit, commission, swap, profit, magicnumber, comment, signal_id) values
-                    ('$version', '$created', $ticket, '$type', $lots, '$symbol', '$opentime', $openprice, '$closetime', $closeprice, $stoploss, $takeprofit, $commission, $swap, $profit, $magicnumber, '$comment', $signal_id)";
-         $sql = str_replace("'null'", 'null', $sql);
+         $sql = "insert into t_closedposition (version, created, ticket, type, lots, symbol, opentime, openprice, closetime, closeprice, stoploss, takeprofit, commission, swap, profit, netprofit, magicnumber, comment, signal_id) values
+                    ('$version', '$created', $ticket, '$type', $lots, '$symbol', '$opentime', $openprice, '$closetime', $closeprice, $stoploss, $takeprofit, $commission, $swap, $profit, $netprofit, $magicnumber, $comment, $signal_id)";
          $db->executeSql($sql);
          $result = $db->executeSql("select last_insert_id()");
          $this->id = (int) mysql_result($result['set'], 0);

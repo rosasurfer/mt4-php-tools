@@ -175,7 +175,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
    $lastKnownChangeTimes     = array();
    $modifications            = array();
 
-   $db = OpenPosition::dao()->getDB();
+   $db = Signal::dao()->getDB();
    $db->begin();
    try {
       // (1) bei partieller History prüfen, ob die älteste geschlossene Position lokal vorhanden ist
@@ -204,7 +204,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
             if (!isSet($positionChangeStartTimes[$data['symbol']]))
                $lastKnownChangeTimes[$data['symbol']] = Signal::dao()->getLastKnownPositionChangeTime($signal, $data['symbol']);
 
-            $position = OpenPosition ::create($signal, $data)->save();
+            $position = OpenPosition::create($signal, $data)->save();
             $symbol   = $position->getSymbol();
             $openTime = $position->getOpenTime();
             $positionChangeStartTimes[$symbol] = isSet($positionChangeStartTimes[$symbol]) ? min($openTime, $positionChangeStartTimes[$symbol]) : $openTime;
@@ -257,7 +257,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
 
          // Position in t_closedposition einfügen
          if ($openPosition) {
-            $closedPosition = ClosedPosition ::create($openPosition, $data)->save();
+            $closedPosition = ClosedPosition::create($openPosition, $data)->save();
             $symbol         = $closedPosition->getSymbol();
             $closeTime      = $closedPosition->getCloseTime();
             $positionChangeStartTimes[$symbol] = isSet($positionChangeStartTimes[$symbol]) ? min($closeTime, $positionChangeStartTimes[$symbol]) : $closeTime;
@@ -265,7 +265,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
             $openGotClosed = true;
          }
          else {
-            $closedPosition = ClosedPosition ::create($signal, $data)->save();
+            $closedPosition = ClosedPosition::create($signal, $data)->save();
             $symbol         = $closedPosition->getSymbol();
             $closeTime      = $closedPosition->getCloseTime();
             $positionChangeStartTimes[$symbol] = isSet($positionChangeStartTimes[$symbol]) ? min($closeTime, $positionChangeStartTimes[$symbol]) : $closeTime;
@@ -289,9 +289,9 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
          foreach ($positionChangeStartTimes as $symbol => $startTime) {
             $n++;
             if ($startTime < $lastKnownChangeTimes[$symbol])
-               $startTime = MyFX ::fxtDate(MyFX ::fxtStrToTime($lastKnownChangeTimes[$symbol]) + 1);
+               $startTime = MyFX::fxtDate(MyFX::fxtStrToTime($lastKnownChangeTimes[$symbol]) + 1);
 
-            $report = ReportHelper ::getNetPositionHistory($signal, $symbol, $startTime);
+            $report = ReportHelper::getNetPositionHistory($signal, $symbol, $startTime);
             $oldNetPosition     = 'Flat';
             $oldNetPositionDone = false;
             $iFirstNewRow       = 0;
@@ -313,12 +313,12 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
                      $oldNetPositionDone = true;
                   }
                   $format = "%s:  %-6s %-4s %5.2F lots %s @ %-8s now: %s";
-                  $date   = date('Y-m-d H:i:s', MyFX ::fxtStrToTime($row['time'  ]));
-                  $deal   =                                         $row['trade' ];
-                  $type   =                                 ucFirst($row['type'  ]);
-                  $lots   =                                         $row['lots'  ];
-                  $symbol =                                         $row['symbol'];    // Consolen-Output für "[open|close] position...",
-                  $price  =                                         $row['price' ];    // "modify ..." in SimpleTrader::onPositionModify()
+                  $date   = date('Y-m-d H:i:s', MyFX::fxtStrToTime($row['time'  ]));
+                  $deal   =                                        $row['trade' ];
+                  $type   =                                ucFirst($row['type'  ]);
+                  $lots   =                                        $row['lots'  ];
+                  $symbol =                                        $row['symbol'];     // Consolen-Output für "[open|close] position...",
+                  $price  =                                        $row['price' ];     // "modify ..." in SimpleTrader::onPositionModify()
                   echoPre(sprintf($format, $date, $deal, $type, $lots, $symbol, $price, $netPosition));
                }
                else $oldNetPosition = $netPosition;
@@ -336,7 +336,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
 
       // (6.3) restliche Limitänderungen für Symbole ohne Postionsänderung
       if ($modifications) {
-         !$positionChangeStartTimes && echoPre("\n");
+         !$positionChangeStartTimes && echoPre(NL);
          foreach ($modifications as $modsPerSymbol) {
             foreach ($modsPerSymbol as $modification) {
                SimpleTrader::onPositionModify($modification['position'], $modification['prevTP'], $modification['prevSL']);

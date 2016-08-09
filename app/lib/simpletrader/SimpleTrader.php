@@ -146,18 +146,18 @@ class SimpleTrader extends StaticClass {
          $table[0] = 'table '.($i+1);
          $table[1] = strToLower($table[1]);
 
-         // offene Positionen extrahieren und parsen (Timezone: GMT)
-         if ($table[1] == 'opentrades') {                                        // Array([ 0:          ] => {matched html}
-            /*                                                                   //       [ 1:TakeProfit] => 1.319590
-            <tr class="red topDir" title="Take Profit: 1.730990 Stop Loss: -">   //       [ 2:StopLoss  ] => -
-               <td class="center">2014/09/08 13:25:42</td>                       //       [ 3:OpenTime  ] => 2014/09/04 08:15:12
-               <td class="center">1.294130</td>                                  //       [ 4:OpenPrice ] => 1.314590
-               <td class="center">1.24</td>                                      //       [ 5:Lots      ] => 0.16
-               <td class="center">Sell</td>                                      //       [ 6:Type      ] => Buy
-               <td class="center">EURUSD</td>                                    //       [ 7:Symbol    ] => EURUSD
-               <td class="center">-32.57</td>                                    //       [ 8:Profit    ] => -281.42
-               <td class="center">-1.8</td>                                      //       [ 9:Pips      ] => -226.9
-               <td class="center">1999552</td>                                   //       [10:Comment   ] => 2000641)
+         // offene Positionen extrahieren und parsen: Timezone = GMT
+         if ($table[1] == 'opentrades') {                                        // [ 0:          ] => {matched html}
+            /*                                                                   // [ 1:TakeProfit] => 1.319590
+            <tr class="red topDir" title="Take Profit: 1.730990 Stop Loss: -">   // [ 2:StopLoss  ] => -                   // falls angegeben
+               <td class="center">2014/09/08 13:25:42</td>                       // [ 3:OpenTime  ] => 2014/09/04 08:15:12
+               <td class="center">1.294130</td>                                  // [ 4:OpenPrice ] => 1.314590
+               <td class="center">1.24</td>                                      // [ 5:Lots      ] => 0.16
+               <td class="center">Sell</td>                                      // [ 6:Type      ] => Buy
+               <td class="center">EURUSD</td>                                    // [ 7:Symbol    ] => EURUSD
+               <td class="center">-32.57</td>                                    // [ 8:Profit    ] => -281.42             // NetProfit
+               <td class="center">-1.8</td>                                      // [ 9:Pips      ] => -226.9
+               <td class="center">1999552</td>                                   // [10:Comment   ] => 2000641             // Ticket
             </tr>
             */
             $openTradeRows     = preg_match_all('/<tr\b/is', $table[2], $openTrades);
@@ -229,9 +229,10 @@ class SimpleTrader extends StaticClass {
                // 8:Profit
                $sValue = trim($row[I_OPEN_PROFIT]);
                if (!is_numeric($sValue)) throw new RuntimeException('Invalid Profit found in open position row '.($i+1).': "'.$row[I_OPEN_PROFIT].'", HTML:'.NL.NL.$row[0]);
-               $row['profit'    ] = (double)$sValue;
-               $row['commission'] = 0;
-               $row['swap'      ] = 0;
+               $row['commission' ] = null;
+               $row['swap'       ] = null;
+               $row['grossprofit'] = null;
+               $row['netprofit'  ] = (double)$sValue;
 
                // 9:Pips
 
@@ -247,21 +248,21 @@ class SimpleTrader extends StaticClass {
             uSort($openTrades, __CLASS__.'::compareTradesByOpenTimeTicket');
          }
 
-         // History extrahieren und parsen; TP und SL werden, falls angegeben, erkannt (Timezone: GMT)
-         if ($table[1] == 'history') {                                           // Array([ 0:          ] => {matched html}
-            /*                                                                   //       [ 1:TakeProfit] =>
-            <tr class="green even">                                              //       [ 2:StopLoss  ] =>
-               <td class="center">2015/01/14 14:07:06</td>                       //       [ 3:OpenTime  ] => 2014/09/09 13:05:58
-               <td class="center">2015/01/14 14:12:00</td>                       //       [ 4:CloseTime ] => 2014/09/09 13:08:15
-               <td class="center">1.183290</td>                                  //       [ 5:OpenPrice ] => 1.742870
-               <td class="center">1.182420</td>                                  //       [ 6:ClosePrice] => 1.743470
-               <td class="center">1.60</td>                                      //       [ 7:Lots      ] => 0.12
-               <td class="center">Sell</td>                                      //       [ 8:Type      ] => Sell
-               <td class="center">EURUSD</td>                                    //       [ 9:Symbol    ] => GBPAUD
-               <td class="center">126.40</td>                                    //       [10:Profit    ] => -7.84
-               <td class="center">8.7</td>                                       //       [11:Pips      ] => -6
-               <td class="center">0.07%</td>                                     //       [12:Gain      ] => -0.07%
-               <td class="center">2289768</td>                                   //       [13:Comment   ] => 2002156)
+         // History extrahieren und parsen: Timezone = GMT
+         if ($table[1] == 'history') {                                        // [ 0:          ] => {matched html}
+            /*                                                                // [ 1:TakeProfit] =>                        // falls angegeben
+            <tr class="green even">                                           // [ 2:StopLoss  ] =>                        // falls angegeben
+               <td class="center">2015/01/14 14:07:06</td>                    // [ 3:OpenTime  ] => 2014/09/09 13:05:58
+               <td class="center">2015/01/14 14:12:00</td>                    // [ 4:CloseTime ] => 2014/09/09 13:08:15
+               <td class="center">1.183290</td>                               // [ 5:OpenPrice ] => 1.742870
+               <td class="center">1.182420</td>                               // [ 6:ClosePrice] => 1.743470
+               <td class="center">1.60</td>                                   // [ 7:Lots      ] => 0.12
+               <td class="center">Sell</td>                                   // [ 8:Type      ] => Sell
+               <td class="center">EURUSD</td>                                 // [ 9:Symbol    ] => GBPAUD
+               <td class="center">126.40</td>                                 // [10:Profit    ] => -7.84                  // NetProfit
+               <td class="center">8.7</td>                                    // [11:Pips      ] => -6
+               <td class="center">0.07%</td>                                  // [12:Gain      ] => -0.07%
+               <td class="center">2289768</td>                                // [13:Comment   ] => 2002156                // Ticket
             </tr>
             */
             $historyRows           = preg_match_all('/<tr\b/is', $table[2], $history);
@@ -293,7 +294,7 @@ class SimpleTrader extends StaticClass {
 
                // 3:OpenTime
                $sOpenTime = trim($row[I_HISTORY_OPENTIME]);
-               if (strEndsWith($sOpenTime, '*'))                     // seit 06.02.2015 von Fall zu Fall, Bedeutung noch unklar
+               if (strEndsWith($sOpenTime, '*'))                              // seit 06.02.2015 von Fall zu Fall, Bedeutung noch unklar
                   $sOpenTime = subStr($sOpenTime, 0, -1);
                if (!($iTime=strToTime($sOpenTime.' GMT'))) throw new RuntimeException('Invalid OpenTime found in history row '.($i+1).': "'.$row[I_HISTORY_OPENTIME].'", HTML:'.NL.NL.$row[0]);
                $row['opentime'] = $iTime;
@@ -349,9 +350,10 @@ class SimpleTrader extends StaticClass {
                // 10:Profit
                $sValue = trim($row[I_HISTORY_PROFIT]);
                if (!is_numeric($sValue)) throw new RuntimeException('Invalid Profit found in history row '.($i+1).': "'.$row[I_HISTORY_PROFIT].'", HTML:'.NL.NL.$row[0]);
-               $row['profit'    ] = (double)$sValue;
-               $row['commission'] = 0;
-               $row['swap'      ] = 0;
+               $row['commission' ] = null;
+               $row['swap'       ] = null;
+               $row['grossprofit'] = null;
+               $row['netprofit'  ] = (double)$sValue;
 
                // 11:Pips
 
@@ -525,7 +527,7 @@ class SimpleTrader extends StaticClass {
       $signal = $position->getSignal();
 
       // Ausgabe in Console
-      $consoleMsg = $signal->getName().' closed '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().'  Open: '.$position->getOpenPrice().'  Close: '.$position->getClosePrice().'  Profit: '.$position->getProfit(2).'  ('.$position->getCloseTime('H:i:s').')';
+      $consoleMsg = $signal->getName().' closed '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().'  Open: '.$position->getOpenPrice().'  Close: '.$position->getClosePrice().'  Profit: '.$position->getNetProfit(2).'  ('.$position->getCloseTime('H:i:s').')';
       echoPre($consoleMsg);
 
 

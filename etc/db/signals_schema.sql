@@ -1,6 +1,6 @@
 /*
 Created     17.09.2014
-Modified    07.08.2016
+Modified    10.08.2016
 Project     MyFX
 Model       Main model
 Company     
@@ -47,8 +47,8 @@ create table t_openposition (
    openprice decimal(10,5) unsigned not null,
    stoploss decimal(10,5) unsigned,
    takeprofit decimal(10,5) unsigned,
-   commission decimal(10,2) not null default 0.00,
-   swap decimal(10,2) not null default 0.00,
+   commission decimal(10,2),
+   swap decimal(10,2),
    magicnumber int unsigned,
    comment varchar(255) default '',
    signal_id int unsigned not null,
@@ -74,9 +74,10 @@ create table t_closedposition (
    closeprice decimal(10,5) unsigned not null,
    stoploss decimal(10,5) unsigned,
    takeprofit decimal(10,5) unsigned,
-   commission decimal(10,2) not null default 0.00,
-   swap decimal(10,2) not null default 0.00,
-   profit decimal(10,2) not null default 0.00,
+   commission decimal(10,2),
+   swap decimal(10,2),
+   profit decimal(10,2),
+   netprofit decimal(10,2) not null,
    magicnumber int unsigned,
    comment varchar(255) default '',
    signal_id int unsigned not null,

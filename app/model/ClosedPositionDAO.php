@@ -26,9 +26,10 @@ class ClosedPositionDAO extends CommonDAO {
                                              'closePrice'  => array('closeprice' , self ::T_FLOAT , self ::T_NOT_NULL),      // decimal
                                              'stopLoss'    => array('stoploss'   , self ::T_FLOAT , self ::T_NULL    ),      // decimal
                                              'takeProfit'  => array('takeprofit' , self ::T_FLOAT , self ::T_NULL    ),      // decimal
-                                             'commission'  => array('commission' , self ::T_FLOAT , self ::T_NOT_NULL),      // decimal
-                                             'swap'        => array('swap'       , self ::T_FLOAT , self ::T_NOT_NULL),      // decimal
-                                             'profit'      => array('profit'     , self ::T_FLOAT , self ::T_NOT_NULL),      // decimal
+                                             'commission'  => array('commission' , self ::T_FLOAT , self ::T_NULL    ),      // decimal
+                                             'swap'        => array('swap'       , self ::T_FLOAT , self ::T_NULL    ),      // decimal
+                                             'grossProfit' => array('profit'     , self ::T_FLOAT , self ::T_NULL    ),      // decimal
+                                             'netProfit'   => array('netprofit'  , self ::T_FLOAT , self ::T_NOT_NULL),      // decimal
                                              'magicNumber' => array('magicnumber', self ::T_INT   , self ::T_NULL    ),      // int
                                              'comment'     => array('comment'    , self ::T_STRING, self ::T_NULL    ),      // string
                                              'signal_id'   => array('signal_id'  , self ::T_INT   , self ::T_NOT_NULL),      // int

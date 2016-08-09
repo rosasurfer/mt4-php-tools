@@ -453,10 +453,10 @@ class MT4 extends StaticClass {
                   $stopLoss    = $position->getStopLoss();
                   $commission  = $position->getCommission();
                   $swap        = $position->getSwap();
-                  $profit      = $position->getProfit();
+                  $netProfit   = $position->getNetProfit();
                   $magicNumber = $position->getMagicNumber();
                   $comment     = $position->getComment();
-                  fWrite($hFile, sprintf($format, $key, $type, $lots, $openTime, $openPrice, $closeTime, $closePrice, $takeProfit, $stopLoss, $commission, $swap, $profit, $magicNumber, $comment));
+                  fWrite($hFile, sprintf($format, $key, $type, $lots, $openTime, $openPrice, $closeTime, $closePrice, $takeProfit, $stopLoss, $commission, $swap, $netProfit, $magicNumber, $comment));
                }
                fClose($hFile);
             }
