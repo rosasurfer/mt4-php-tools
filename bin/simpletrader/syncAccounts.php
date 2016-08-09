@@ -4,6 +4,8 @@ use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InfrastructureException;
 use rosasurfer\exception\RuntimeException;
 
+use rosasurfer\myfx\lib\simpletrader\SimpleTrader;
+
 
 /**
  * Synchronisiert die Daten ein oder mehrerer Signale mit den lokal gespeicherten Daten (Datenbank und MT4-Datenfiles).
@@ -140,9 +142,8 @@ function processSignal($alias, $fileSyncOnly) {
      $openUpdates = $closedUpdates = false;
    }
 
-
-   // Datenfiles für MetaTrader::MQL aktualisieren
-   MT4::updateDataFiles($signal, $openUpdates, $closedUpdates);
+   // update MQL account history files
+   MT4::updateAccountHistory($signal, $openUpdates, $closedUpdates);
 
    return true;
 }
@@ -322,13 +323,13 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
                }
                else $oldNetPosition = $netPosition;
             }
-            SimpleTrader ::onPositionChange($signal, $symbol, $report, $iFirstNewRow, $oldNetPosition, $netPosition);
+            SimpleTrader::onPositionChange($signal, $symbol, $report, $iFirstNewRow, $oldNetPosition, $netPosition);
          }
 
          // (6.2) Limitänderungen des jeweiligen Symbols nach Positionsänderung anfügen
          if (isSet($modifications[$symbol])) {
             foreach ($modifications[$symbol] as $modification)
-               SimpleTrader ::onPositionModify($modification['position'], $modification['prevTP'], $modification['prevSL']);
+               SimpleTrader::onPositionModify($modification['position'], $modification['prevTP'], $modification['prevSL']);
             unset($modifications[$symbol]);
          }
       }
@@ -338,7 +339,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
          !$positionChangeStartTimes && echoPre("\n");
          foreach ($modifications as $modsPerSymbol) {
             foreach ($modsPerSymbol as $modification) {
-               SimpleTrader ::onPositionModify($modification['position'], $modification['prevTP'], $modification['prevSL']);
+               SimpleTrader::onPositionModify($modification['position'], $modification['prevTP'], $modification['prevSL']);
             }
          }
       }

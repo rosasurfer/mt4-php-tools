@@ -69,34 +69,6 @@ define('AH_MAGICNUMBER', 11);
 define('AH_COMMENT'    , 12);
 
 
-// SimpleTrader: Indizes der von preg_match_all() zurückgegebenen OpenPosition-Datenarrays
-define('I_STOP_TAKEPROFIT',  1);
-define('I_STOP_STOPLOSS'  ,  2);
-define('I_STOP_OPENTIME'  ,  3);
-define('I_STOP_OPENPRICE' ,  4);
-define('I_STOP_LOTSIZE'   ,  5);
-define('I_STOP_TYPE'      ,  6);
-define('I_STOP_SYMBOL'    ,  7);
-define('I_STOP_PROFIT'    ,  8);
-define('I_STOP_PIPS'      ,  9);
-define('I_STOP_COMMENT'   , 10);
-
-
-// SimpleTrader: Indizes der von preg_match_all() zurückgegebenen ClosedPosition-Datenarrays
-define('I_STH_TAKEPROFIT' ,  1);
-define('I_STH_STOPLOSS'   ,  2);
-define('I_STH_OPENTIME'   ,  3);
-define('I_STH_CLOSETIME'  ,  4);
-define('I_STH_OPENPRICE'  ,  5);
-define('I_STH_CLOSEPRICE' ,  6);
-define('I_STH_LOTSIZE'    ,  7);
-define('I_STH_TYPE'       ,  8);
-define('I_STH_SYMBOL'     ,  9);
-define('I_STH_PROFIT'     , 10);
-define('I_STH_PIPS'       , 11);
-define('I_STH_COMMENT'    , 13);
-
-
 // Struct-Sizes
-define('DUKASCOPY_BAR_SIZE'  ,   24);
-define('DUKASCOPY_TICK_SIZE' ,   20);
+define('DUKASCOPY_BAR_SIZE' , 24);
+define('DUKASCOPY_TICK_SIZE', 20);
