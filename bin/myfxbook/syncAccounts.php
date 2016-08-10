@@ -110,6 +110,7 @@ function processAccounts($alias) {
    $errorMsg = MyfxBook::parseCsvStatement($signal, $csv, $openPositions, $closedPositions);
    if ($errorMsg) throw new RuntimeException($signal->getName().': '.$errorMsg);
 
+   echoPre(sizeOf($closedPositions).' closed positions');
    return false;
 
    // update database

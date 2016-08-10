@@ -612,5 +612,5 @@ class SimpleTrader extends StaticClass {
 }
 
 
-// import namespace constants
-!defined('I_OPEN_TAKEPROFIT') && include(__DIR__.'/definitions.php');
+// import additional namespace definitions
+!defined(__NAMESPACE__.'\I_OPEN_TAKEPROFIT') && include(__DIR__.'/definitions.php');

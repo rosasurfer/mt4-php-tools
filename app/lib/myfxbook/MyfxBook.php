@@ -80,9 +80,9 @@ class MyfxBook extends StaticClass {
     * @param  Signal  $signal
     * @param  string  $csv       - CSV content of account statement
     * @param  array  &$positions - target array to store open positions
-    * @param  array  &$history   - target array to store account history
+    * @param  array  &$history   - target array to store the account history
     *
-    * @return string - Fehlermeldung oder NULL, falls kein Fehler auftrat
+    * @return string - NULL or error message if an error occurred
     */
    public static function parseCsvStatement(\Signal $signal, $csv, array &$positions, array &$history) {
       if (!is_string($csv)) throw new IllegalTypeException('Illegal type of parameter $csv: '.getType($csv));
@@ -163,10 +163,11 @@ class MyfxBook extends StaticClass {
          if (!is_numeric($sValue)) throw new RuntimeException('Unexpected swap value in data line '.($i+2).' of CSV statement: "'.$values[I_CSV_SWAP].'"');
          $history[$i]['swap'] = $swap = (double)$sValue;
 
-         // NetProfit
-         $sValue = trim($values[I_CSV_NET_PROFIT]);
-         if (!is_numeric($sValue)) throw new RuntimeException('Unexpected profit value in data line '.($i+2).' of CSV statement: "'.$values[I_CSV_NET_PROFIT].'"');
-         $history[$i]['profit'] = $profit = (double)$sValue;
+         // Profit
+         $sValue = trim($values[I_CSV_PROFIT]);
+         if (!is_numeric($sValue)) throw new RuntimeException('Unexpected profit value in data line '.($i+2).' of CSV statement: "'.$values[I_CSV_PROFIT].'"');
+         $history[$i]['netprofit'  ] = $netProfit = (double)$sValue;
+         $history[$i]['grossprofit'] = $netProfit + $commission + $swap;
 
          // MagicNumber
          $history[$i]['magicnumber'] = $magicNumber = null;
@@ -178,5 +179,5 @@ class MyfxBook extends StaticClass {
 }
 
 
-// import namespace constants
-!defined('I_CSV_OPEN_DATE') && include(__DIR__.'/definitions.php');
+// import additional namespace definitions
+!defined(__NAMESPACE__.'\I_CSV_OPEN_DATE') && include(__DIR__.'/definitions.php');
