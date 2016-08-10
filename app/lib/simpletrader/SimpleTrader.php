@@ -267,12 +267,9 @@ class SimpleTrader extends StaticClass {
             */
             $historyRows           = preg_match_all('/<tr\b/is', $table[2], $history);
             $matchedHistoryEntries = preg_match_all('/<tr\b[^>]*?(?:"\s*Take\s*Profit:\s*([0-9.-]+)\s*Stop\s*Loss:\s*([0-9.-]+)\s*")?\s*>(?U)\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>/is', $table[2], $history, PREG_SET_ORDER);
-            if (!$historyRows) {
-               if (preg_match('/"sEmptyTable": "There is currently no history/', $html)) {
-                  // keine History Trades vorhanden
-               }
-               else throw new RuntimeException($signal->getName().': no history rows found, HTML:'.NL.NL.$table[2]);
-            }
+
+            if (!$historyRows && !preg_match('/"sEmptyTable": "There is currently no history/', $html))
+               throw new RuntimeException($signal->getName().': no history rows found, HTML:'.NL.NL.$table[2]);
 
             foreach ($history as $i => &$row) {
                if (is_int(strPos($row[0], 'Take Profit')) && (empty($row[1]) || empty($row[2]))) throw new RuntimeException('Error parsing TakeProfit or StopLoss in history row '.($i+1).', HTML:'.NL.NL.$row[0]);
@@ -367,7 +364,7 @@ class SimpleTrader extends StaticClass {
                unset($row[0], $row[1], $row[2], $row[3], $row[4], $row[5], $row[6], $row[7], $row[8], $row[9], $row[10], $row[11], $row[12], $row[13]);
             } unset($row);
 
-            // History sortieren: : ORDER BY CloseTime asc, OpenTime asc, Ticket asc
+            // History sortieren: ORDER BY CloseTime asc, OpenTime asc, Ticket asc
             uSort($history, __CLASS__.'::compareTradesByCloseTimeOpenTimeTicket');
          }
       } unset($table);

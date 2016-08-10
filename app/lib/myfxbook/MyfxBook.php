@@ -77,10 +77,10 @@ class MyfxBook extends StaticClass {
    /**
     * Parse a MyfxBook CSV account statement.
     *
-    * @param  Signal  $signal
-    * @param  string  $csv       - CSV content of account statement
-    * @param  array  &$positions - target array to store open positions
-    * @param  array  &$history   - target array to store the account history
+    * @param  Signal $signal
+    * @param  string $csv       - content of account statement
+    * @param  array  $positions - target array to store open positions in
+    * @param  array  $history   - target array to store the account history in
     *
     * @return string - NULL or error message if an error occurred
     */
@@ -98,7 +98,7 @@ class MyfxBook extends StaticClass {
 
       $csvDateFormat = '!m/d/Y H:i';
 
-      // process each line, validate and normalize values
+      // validate values of each line
       for ($i=0; ($line=strTok($separator))!==false; $i++) {         // strTok() skips empty lines
          $values = explode(',', $line);
          if (sizeOf($values) != 27) throw new RuntimeException('Unexpected number of values in line '.($i+2).' of CSV statement: '.sizeOf($values));
@@ -175,6 +175,49 @@ class MyfxBook extends StaticClass {
          // Comment
          $history[$i]['comment'] = $comment = null;
       }
+
+      // sort history: ORDER BY CloseTime asc, OpenTime asc
+      uSort($history, __CLASS__.'::compareTradesByCloseTimeOpenTime');
+   }
+
+
+   /**
+    * Comparator function comparing trades by open time.
+    *
+    * @param  array $tradeA
+    * @param  array $tradeB
+    *
+    * @return int - value greater than zero if $tradeA was opened after $tradeB;
+    *               value lower than zero if $tradeA was opened before $tradeB;
+    *               0 (zero) if both trades were opened at the same time
+    */
+   private static function compareTradesByOpenTime(array $tradeA, array $tradeB) {
+      if (!$tradeA) return $tradeB ? -1 : 0;
+      if (!$tradeB) return $tradeA ?  1 : 0;
+
+      if ($tradeA['opentime'] > $tradeB['opentime']) return  1;
+      if ($tradeA['opentime'] < $tradeB['opentime']) return -1;
+      return 0;
+   }
+
+
+   /**
+    * Comparator function comparing trades first by close time. If close times are equal trades are compared by open time.
+    *
+    * @param  array $tradeA
+    * @param  array $tradeB
+    *
+    * @return int - value greater than zero if $tradeA was closed after $tradeB;
+    *               value lower than zero if $tradeA was closed before $tradeB;
+    *               0 (zero) if both trades werde opened and closed at the same times
+    */
+   private static function compareTradesByCloseTimeOpenTime(array $tradeA, array $tradeB) {
+      if (!$tradeA) return $tradeB ? -1 : 0;
+      if (!$tradeB) return $tradeA ?  1 : 0;
+
+      if ($tradeA['closetime'] > $tradeB['closetime']) return  1;
+      if ($tradeA['closetime'] < $tradeB['closetime']) return -1;
+      return self::compareTradesByOpenTime($tradeA, $tradeB);
    }
 }
 

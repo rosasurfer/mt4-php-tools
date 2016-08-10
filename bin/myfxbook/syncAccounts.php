@@ -99,8 +99,8 @@ function processAccounts($alias) {
    if (!$signal) return _false(echoPre('Invalid or unknown signal: "'.$provider.':'.$alias.'"'));
 
    global $signalNamePadding;                               // output formatting: whether or not the last function call
-   static $openUpdates=false, $closedUpdates=false;         //                    detected open trade/history changes
-   echo(($openUpdates ? NL:'').str_pad($signal->getName().' ', $signalNamePadding, '.', STR_PAD_RIGHT).' ');
+   static $positionsChanged=false, $historyChanged=false;   //                    detected open position/history changes
+   echo(($positionsChanged ? NL:'').str_pad($signal->getName().' ', $signalNamePadding, '.', STR_PAD_RIGHT).' ');
 
    // load CSV statement
    $csv = MyfxBook::loadCsvStatement($signal);
@@ -110,15 +110,15 @@ function processAccounts($alias) {
    $errorMsg = MyfxBook::parseCsvStatement($signal, $csv, $openPositions, $closedPositions);
    if ($errorMsg) throw new RuntimeException($signal->getName().': '.$errorMsg);
 
-   echoPre(sizeOf($closedPositions).' closed positions');
+   echoPre(NL.sizeOf($openPositions).' open positions, '.sizeOf($closedPositions).' closed positions');
    return false;
 
    // update database
-   if (!updateDatabase($signal, $openPositions, $openUpdates, $closedPositions, $closedUpdates))
+   if (!updateDatabase($signal, $openPositions, $positionsChanged, $closedPositions, $historyChanged))
       return false;
 
    // update MQL account history files
-   MT4::updateAccountHistory($signal, $openUpdates, $closedUpdates);
+   MT4::updateAccountHistory($signal, $positionsChanged, $historyChanged);
 
    return true;
 }
