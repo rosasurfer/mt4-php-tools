@@ -276,7 +276,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
 
       // (5) ohne Änderungen
       if (!$positionChangeStartTimes && !$modifications) {
-         echoPre('no changes'.($unchangedOpenPositions ? ' ('.$unchangedOpenPositions.' open position'.($unchangedOpenPositions==1 ? '':'s').')':''));
+         echoPre('no changes'.($unchangedOpenPositions ? ' ('.$unchangedOpenPositions.' open position'.pluralize($unchangedOpenPositions).')':''));
       }
 
 
@@ -352,7 +352,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
             $errorMsg = 'Close data not found for former open position #'.array_shift($formerOpenPositions)->getTicket();
          }
          else {
-            $errorMsg = 'Found '.sizeOf($formerOpenPositions).' former open position'.(sizeOf($formerOpenPositions)==1 ? '':'s')
+            $errorMsg = 'Found '.sizeOf($formerOpenPositions).' former open position'.pluralize(sizeOf($formerOpenPositions))
                       ." now neither in \"openTrades\" nor in \"history\":\n".printPretty($formerOpenPositions, true);
          }
          throw new DataNotFoundException($errorMsg);

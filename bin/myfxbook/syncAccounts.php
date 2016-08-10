@@ -5,6 +5,7 @@ use rosasurfer\exception\InfrastructureException;
 use rosasurfer\exception\RuntimeException;
 
 use rosasurfer\myfx\lib\myfxbook\MyfxBook;
+use function rosasurfer\pluralize;
 
 
 /**
@@ -111,10 +112,10 @@ function processAccounts($alias) {
    if ($errorMsg) throw new RuntimeException($signal->getName().': '.$errorMsg);
 
    echoPre(NL.sizeOf($openPositions).' open positions, '.sizeOf($closedPositions).' closed positions');
-   return false;
+   //return false;
 
    // update database
-   if (!updateDatabase($signal, $openPositions, $positionsChanged, $closedPositions, $historyChanged))
+   if (!updateDatabase($signal, $openPositions, $positionsChanged, $closedPositions, $historyChanged, $isFullHistory=true))
       return false;
 
    // update MQL account history files
@@ -130,31 +131,31 @@ function processAccounts($alias) {
  *
  * @param  Signal $signal               - Signal
  * @param  array  $currentOpenPositions - Array mit aktuell offenen Positionen
- * @param  bool  &$openUpdates          - Variable, die nach Rückkehr anzeigt, ob Änderungen an den offenen Positionen detektiert wurden oder nicht
+ * @param  bool   $openUpdates          - Variable, die nach Rückkehr anzeigt, ob Änderungen an den offenen Positionen detektiert wurden oder nicht
  * @param  array  $currentHistory       - Array mit aktuellen Historydaten
- * @param  bool  &$closedUpdates        - Variable, die nach Rückkehr anzeigt, ob Änderungen an der Trade-History detektiert wurden oder nicht
- * @param  bool   $fullHistory          - ob die komplette History geladen wurde (für korrektes Padding der Anzeige)
+ * @param  bool   $closedUpdates        - Variable, die nach Rückkehr anzeigt, ob Änderungen an der Trade-History detektiert wurden oder nicht
+ * @param  bool   $isFullHistory        - ob die komplette History geladen wurde (für korrektes Padding der Anzeige)
  *
  * @return bool - Erfolgsstatus
  *
  * @throws DataNotFoundException - wenn die älteste geschlossene Position lokal nicht vorhanden ist (auch beim ersten Synchronisieren)
- *                               - wenn eine beim letzten Synchronisieren offene Position weder als offen noch als geschlossen angezeigt wird
+ *                               - wenn eine beim letzten Synchronisieren offene Position weder als offen noch als geschlossen gemeldet wird
  */
-function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpdates, array &$currentHistory, &$closedUpdates, $fullHistory) {   // die zusätzlichen Zeiger minimieren den Speicherverbrauch
+function updateDatabase(Signal $signal, array $currentOpenPositions, &$openUpdates, array $currentHistory, &$closedUpdates, $isFullHistory) {
    if (!is_bool($openUpdates))   throw new IllegalTypeException('Illegal type of parameter $openUpdates: '.getType($openUpdates));
    if (!is_bool($closedUpdates)) throw new IllegalTypeException('Illegal type of parameter $closedUpdates: '.getType($closedUpdates));
-   if (!is_bool($fullHistory))   throw new IllegalTypeException('Illegal type of parameter $fullHistory: '.getType($fullHistory));
+   if (!is_bool($isFullHistory)) throw new IllegalTypeException('Illegal type of parameter $isFullHistory: '.getType($isFullHistory));
 
    $unchangedOpenPositions   = 0;
    $positionChangeStartTimes = array();                              // Beginn der Änderungen der Net-Position
    $lastKnownChangeTimes     = array();
    $modifications            = array();
 
-   $db = OpenPosition::dao()->getDB();
+   $db = Signal::dao()->getDB();
    $db->begin();
    try {
       // (1) bei partieller History prüfen, ob die älteste geschlossene Position lokal vorhanden ist
-      if (!$fullHistory) {
+      if (!$isFullHistory) {
          foreach ($currentHistory as $data) {
             if (!$data) continue;                                    // Datensätze übersprungener Zeilen können leer sein.
             $ticket = $data['ticket'];
@@ -251,7 +252,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
 
       // (5) ohne Änderungen
       if (!$positionChangeStartTimes && !$modifications) {
-         echoPre('no changes'.($unchangedOpenPositions ? ' ('.$unchangedOpenPositions.' open position'.($unchangedOpenPositions==1 ? '':'s').')':''));
+         echoPre('no changes'.($unchangedOpenPositions ? ' ('.$unchangedOpenPositions.' open position'.pluralize($unchangedOpenPositions).')':''));
       }
 
 
@@ -284,7 +285,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
                   if (!$oldNetPositionDone) {
                      $iFirstNewRow       = $i;                                         // keine Anzeige von $oldNetPosition bei nur einem
                      if (sizeOf($report) == $iFirstNewRow+1) echoPre("\n");            // neuen Trade
-                     else                                    echoPre(($n==1 && !$fullHistory ? '' : str_pad("\n", $signalNamePadding+2, ' ', STR_PAD_RIGHT)).str_repeat(' ', $signalNamePadding+20).'was: '.$oldNetPosition);
+                     else                                    echoPre(($n==1 && !$isFullHistory ? '' : str_pad("\n", $signalNamePadding+2, ' ', STR_PAD_RIGHT)).str_repeat(' ', $signalNamePadding+20).'was: '.$oldNetPosition);
                      $oldNetPositionDone = true;
                   }
                   $format = "%s:  %-6s %-4s %5.2F lots %s @ %-8s now: %s";
@@ -323,11 +324,11 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
       // (7) nicht zuzuordnende Positionen: ggf. muß die komplette History geladen werden
       if ($formerOpenPositions) {
          $errorMsg = null;
-         if (!$fullHistory) {
+         if (!$isFullHistory) {
             $errorMsg = 'Close data not found for former open position #'.array_shift($formerOpenPositions)->getTicket();
          }
          else {
-            $errorMsg = 'Found '.sizeOf($formerOpenPositions).' former open position'.(sizeOf($formerOpenPositions)==1 ? '':'s')
+            $errorMsg = 'Found '.sizeOf($formerOpenPositions).' former open position'.pluralize(sizeOf($formerOpenPositions))
                       ." now neither in \"openTrades\" nor in \"history\":\n".printPretty($formerOpenPositions, true);
          }
          throw new DataNotFoundException($errorMsg);
@@ -350,9 +351,9 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
 
 
 /**
- * Hilfefunktion: Zeigt die Syntax des Aufrufs an.
+ * Syntax and help screen.
  *
- * @param  string $message - zusätzlich zur Syntax anzuzeigende Message (default: keine)
+ * @param  string $message - additional message to display (default: none)
  */
 function help($message=null) {
    if (!is_null($message))

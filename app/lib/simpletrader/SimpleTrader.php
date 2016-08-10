@@ -369,8 +369,8 @@ class SimpleTrader extends StaticClass {
          }
       } unset($table);
 
-      if ($openTradeRows != $matchedOpenTrades    ) throw new RuntimeException('Could not match '.($openTradeRows-$matchedOpenTrades  ).' row'.($openTradeRows-$matchedOpenTrades  ==1 ? '':'s'));
-      if ($historyRows   != $matchedHistoryEntries) throw new RuntimeException('Could not match '.($historyRows-$matchedHistoryEntries).' row'.($historyRows-$matchedHistoryEntries==1 ? '':'s'));
+      if ($openTradeRows != $matchedOpenTrades    ) throw new RuntimeException('Could not match '.($openTradeRows-$matchedOpenTrades  ).' row'.pluralize($openTradeRows-$matchedOpenTrades));
+      if ($historyRows   != $matchedHistoryEntries) throw new RuntimeException('Could not match '.($historyRows-$matchedHistoryEntries).' row'.pluralize($historyRows-$matchedHistoryEntries));
 
       return null;
    }

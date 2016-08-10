@@ -259,7 +259,7 @@ function printData(array $files, array $fields, array $data, array $options) {
    foreach ($files as $i => $file) {
       // (2) Table-Header ausgeben
       $symbolsSize    = $data[$file]['meta:symbolsSize'];
-      $sizeMsg        = $symbolsSize.' symbol'.($symbolsSize==1 ? '':'s');
+      $sizeMsg        = $symbolsSize.' symbol'.pluralize($symbolsSize);
       $tableSeparator = str_repeat('-', max(strLen($file), strLen($tableHeader), strLen($tableSeparator)));
       $fileSeparator  = str_repeat('=', strLen($tableSeparator));
 

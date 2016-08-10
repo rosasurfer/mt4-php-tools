@@ -766,7 +766,7 @@ function showBuffer() {
          $size = sizeOf($bars);
          $firstBar = $size ? gmDate('H:i', $bars[0      ]['time_fxt']):null;
          $lastBar  = $size ? gmDate('H:i', $bars[$size-1]['time_fxt']):null;
-         echoPre('barBuffer['.$type.']['.(is_int($day) ? gmDate('D, d-M-Y', $day):$day).'] => '.str_pad($size, 4, ' ', STR_PAD_LEFT).' bar'.($size==1?'':'s').($firstBar?'  '.$firstBar:'').($size>1?'-'.$lastBar:''));
+         echoPre('barBuffer['.$type.']['.(is_int($day) ? gmDate('D, d-M-Y', $day):$day).'] => '.str_pad($size, 4, ' ', STR_PAD_LEFT).' bar'.pluralize($size).($firstBar?'  '.$firstBar:'').($size>1?'-'.$lastBar:''));
       }
    }
    echoPre(NL);

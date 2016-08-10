@@ -350,7 +350,7 @@ class HistorySet extends Object {
                   echoPre($bars);
                }
             }
-            echoPre(get_class($file).'['. str_pad(MyFX::timeframeDescription($file->getTimeframe()), 3, ' ', STR_PAD_RIGHT).'] => '.str_pad($size, 5, ' ', STR_PAD_LEFT).' bar'.($size==1?' ':'s').$firstBar.($size>1? $lastBar:''));
+            echoPre(get_class($file).'['. str_pad(MyFX::timeframeDescription($file->getTimeframe()), 3, ' ', STR_PAD_RIGHT).'] => '.str_pad($size, 5, ' ', STR_PAD_LEFT).' bar'.pluralize($size, ' ').$firstBar.($size>1? $lastBar:''));
          }
          else {
             echoPre('HistoryFile['. str_pad(MyFX::timeframeDescription($timeframe), 3, ' ', STR_PAD_RIGHT).'] => mull');
