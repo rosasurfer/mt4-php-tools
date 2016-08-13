@@ -1,2 +1,6 @@
+# ignore locally saved account statements
+/*.csv
+
+
 # ignore cookies saved by syncAccounts.php
 /cookies.txt
