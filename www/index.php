@@ -1,4 +1,7 @@
 <?php
+use rosasurfer\ministruts\StrutsController;
+
+
 if (PHP_VERSION < '5.6') {
    echo('application error'.PHP_EOL);
    error_log('Error: A PHP version >= 5.6 is required (found version '.PHP_VERSION.').');
