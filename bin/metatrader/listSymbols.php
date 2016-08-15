@@ -358,8 +358,8 @@ $message
   Syntax:  $self [-f=FILE] [OPTIONS]
 
             -f=FILE  File(s) to analyze (default: "symbols.raw").
-                     If FILE contains wildcards symbols of the matching files will be analyzed.
-                     If FILE is a directory "symbols.raw" in that directory will be analyzed.
+                     If FILE contains wildcards symbols of all matching files will be analyzed.
+                     If FILE is a directory the file "symbols.raw" in that directory will be analyzed.
 
   Options:  -c     Count symbols of the specified file(s).
             -l     List available SYMBOL fields.
