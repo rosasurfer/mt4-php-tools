@@ -482,12 +482,12 @@ class SimpleTrader extends StaticClass {
       $signal = $position->getSignal();
 
       // Ausgabe in Console
-      $format = "%-4s %5.2F lots %s @ %-8s";
+      $format = "%-4s %4.2F %s @ %-8s";
       $type   = $position->getType();
       $lots   = $position->getLots();
       $symbol = $position->getSymbol();
       $price  = $position->getOpenPrice();
-      $msg    = sprintf($format, $type, $lots, $symbol, $price);
+      $msg    = sprintf($format, ucFirst($type), $lots, $symbol, $price);
       echoPre(date('Y-m-d H:i:s', time()).':  modify '.$msg.$modification);
 
       // Benachrichtigung per E-Mail

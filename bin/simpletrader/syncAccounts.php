@@ -297,22 +297,22 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
             $iFirstNewRow       = 0;
 
             foreach ($report as $i => $row) {
-               if      ($row['total' ] > 0) $netPosition  = 'Long   '.number_format( $row['total'], 2);
-               else if ($row['total' ] < 0) $netPosition  = 'Short  '.number_format(-$row['total'], 2);
-               else if ($row['hedged'])     $netPosition  = 'Hedged '.str_repeat(' ', strLen(number_format(abs($report[$i-1]['total']), 2)));
+               if      ($row['total' ] > 0) $netPosition  = 'Long  '.number_format( $row['total'], 2);
+               else if ($row['total' ] < 0) $netPosition  = 'Short '.number_format(-$row['total'], 2);
+               else if ($row['hedged'])     $netPosition  = 'Hedge '.str_repeat(' ', strLen(number_format(abs($report[$i-1]['total']), 2)));
 
-               if      ($row['hedged'])     $netPosition .= ' +-'.number_format($row['hedged'], 2).' lots';
-               else if ($row['total' ])     $netPosition .= ' lots';
+               if      ($row['hedged'])     $netPosition .= ' +-'.number_format($row['hedged'], 2).' lot';
+               else if ($row['total' ])     $netPosition .= ' lot';
                else                         $netPosition  = 'Flat';
 
                if ($row['time'] >= $startTime) {
                   if (!$oldNetPositionDone) {
                      $iFirstNewRow       = $i;                                         // keine Anzeige von $oldNetPosition bei nur einem
                      if (sizeOf($report) == $iFirstNewRow+1) echoPre("\n");            // neuen Trade
-                     else                                    echoPre(($n==1 && !$fullHistory ? '' : str_pad("\n", $signalNamePadding+2, ' ', STR_PAD_RIGHT)).str_repeat(' ', $signalNamePadding+20).'was: '.$oldNetPosition);
+                     else                                    echoPre(($n==1 && !$fullHistory ? '' : str_pad("\n", $signalNamePadding+2, ' ', STR_PAD_RIGHT)).str_repeat(' ', $signalNamePadding+14).'was: '.$oldNetPosition);
                      $oldNetPositionDone = true;
                   }
-                  $format = "%s:  %-6s %-4s %5.2F lots %s @ %-8s now: %s";
+                  $format = "%s:  %-6s %-4s %4.2F %s @ %-8s now: %s";
                   $date   = date('Y-m-d H:i:s', MyFX::fxtStrToTime($row['time'  ]));
                   $deal   =          ($row['trade']=='open') ? '': $row['trade' ];     // "open" wird nicht extra angezeigt
                   $type   =                                ucFirst($row['type'  ]);
