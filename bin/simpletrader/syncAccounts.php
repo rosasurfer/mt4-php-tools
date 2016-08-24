@@ -314,7 +314,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
                   }
                   $format = "%s:  %-6s %-4s %5.2F lots %s @ %-8s now: %s";
                   $date   = date('Y-m-d H:i:s', MyFX::fxtStrToTime($row['time'  ]));
-                  $deal   =                                        $row['trade' ];
+                  $deal   =          ($row['trade']=='open') ? '': $row['trade' ];     // "open" wird nicht extra angezeigt
                   $type   =                                ucFirst($row['type'  ]);
                   $lots   =                                        $row['lots'  ];
                   $symbol =                                        $row['symbol'];     // Consolen-Output für "[open|close] position...",

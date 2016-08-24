@@ -580,7 +580,7 @@ class SimpleTrader extends StaticClass {
       else              $msg .= $report[$i]['trade'].' '.ucFirst($report[$i]['type']).' '.number_format($report[$i]['lots'], 2).' lots '.$symbol.' @ '.$report[$i]['price'];
          $subject = $msg;
       $msg .= "\nwas: ".str_replace('  ', ' ', $oldNetPosition);
-      $msg .= "\nis:  ".str_replace('  ', ' ', $newNetPosition);
+      $msg .= "\nnow: ".str_replace('  ', ' ', $newNetPosition);
       $msg .= "\n".date('(H:i:s)', $lastTradeTime);               // MyFX ::fxtDate($lastTradeTime, '(H:i:s)')
 
 
