@@ -19,6 +19,7 @@
 # ignore the following project directories and files
 /data/
 /data
+/log
 /Todo*
 /TODO*
 config.properties
