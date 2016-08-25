@@ -19,11 +19,11 @@ echo Updating "$DIR"...
 
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
-git fetch origin                                                                  || exit
-git --no-pager status                                                             || exit
-git --no-pager diff --stat --ignore-space-at-eol HEAD origin/$BRANCH              || exit
-git reset --hard origin/$BRANCH                                                   || exit
-git --no-pager status                                                             || exit
+git fetch origin                                                     || exit
+git --no-pager -c advice.statusHints=false status                    || exit
+git --no-pager diff --stat --ignore-space-at-eol HEAD origin/$BRANCH || exit
+git reset --hard origin/$BRANCH                                      || exit
+git --no-pager -c advice.statusHints=false status                    || exit
 
 
 # (3) check/update additional requirements: dependencies, submodules, file permissions
