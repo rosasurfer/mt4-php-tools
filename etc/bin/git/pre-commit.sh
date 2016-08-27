@@ -25,4 +25,6 @@ for file in $(git diff --staged --name-only); do
    [ -f "$file" ] && file "$file" | grep 'UTF-8 Unicode (with BOM)' && exit 1
 done
 
+
+# explicitly specify exit code
 exit 0
