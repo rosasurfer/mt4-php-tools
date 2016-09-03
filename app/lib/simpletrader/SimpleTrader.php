@@ -11,8 +11,25 @@ use rosasurfer\exception\RuntimeException;
 
 /**
  * www.simpletrader.net related functionality
+ *
+ *
+ *
  */
 class SimpleTrader extends StaticClass {
+
+
+   /**
+    * Die TTL der DNS-Einträge ist äußerst kurz:  60 Sekunden (03.09.2016)
+    *
+    *  $ dig cp.forexsignals.com a
+    *  cp.forexsignals.com.    59      IN      CNAME   simpletrader.net.
+    *  simpletrader.net.       59      IN      A       89.238.139.23
+    *
+    *
+    *  $ dig www.simpletrader.net a
+    *  www.simpletrader.net.   59      IN      CNAME   simpletrader.net.
+    *  simpletrader.net.       59      IN      A       89.238.139.23
+    */
 
 
    // URLs und Referers zum Download der letzten 500 Trades und der kompletten History
