@@ -1,0 +1,3 @@
+# ignore the following project directories (when switching branches)
+/myfxbook/
+/simpletrader/
