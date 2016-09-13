@@ -1,21 +1,11 @@
 <?php
 use rosasurfer\ministruts\StrutsController;
 
-
-if (PHP_VERSION < '5.6') {
-   echo('application error'.PHP_EOL);
-   error_log('Error: A PHP version >= 5.6 is required (found version '.PHP_VERSION.').');
-   exit(1);
-}
+// configure and init web app
 !defined('APPLICATION_ROOT') && define('APPLICATION_ROOT', dirName(__DIR__));
 !defined('APPLICATION_ID'  ) && define('APPLICATION_ID',  'myfx');
 
-
-// web application specific settings
 ini_set('session.save_path', APPLICATION_ROOT.'/etc/tmp');
-
-
-// init web app
 require(APPLICATION_ROOT.'/app/init.php');
 
 

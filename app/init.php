@@ -1,11 +1,4 @@
 <?php
-if (PHP_VERSION < '5.6') {
-   echo('application error'.PHP_EOL);
-   error_log('Error: A PHP version >= 5.6 is required (found version '.PHP_VERSION.').');
-   exit(1);
-}
-
-
 // check/update app configuration
 !defined('APPLICATION_ROOT') && define('APPLICATION_ROOT', dirname(__DIR__));
 !defined('APPLICATION_ID'  ) && define('APPLICATION_ID',  'myfx');
@@ -15,7 +8,7 @@ ini_set('error_log', APPLICATION_ROOT.'/etc/log/php_error.log');
 !isSet($_SERVER['REQUEST_METHOD']) && set_time_limit(0);          // no time limit for CLI
 
 
-// load MVC framework
+// load Ministruts
 require(APPLICATION_ROOT.'/etc/vendor/rosasurfer/ministruts/src/load-global.php');
 
 
