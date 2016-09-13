@@ -26,38 +26,3 @@ use phalcon\Loader as ClassLoader;
 
 // load project definitions
 include(APPLICATION_ROOT.'/app/definitions.php');
-
-
-
-/**
- * Alias für MyFX::fxtTime()
- *
- * @param  int    $time       - Timestamp (default: aktuelle Zeit)
- * @param  string $timezoneId - Timezone-Identifier des Timestamps (default: GMT=Unix-Timestamp).
- *
- * @return int - FXT-Timestamp
- *
- * @see    MyFX::fxtTime()
- */
-function fxtTime($time=null, $timezoneId=null) {
-   if (func_num_args() <= 1)
-      return MyFX::fxtTime($time);
-   return MyFX::fxtTime($time, $timezoneId);
-}
-
-
-/**
- * Alias für MyFX::fxtDate()
- *
- * Formatiert einen Zeitpunkt als FXT-Zeit.
- *
- * @param  int    $timestamp - Zeitpunkt (default: aktuelle Zeit)
- * @param  string $format    - Formatstring (default: 'Y-m-d H:i:s')
- *
- * @return string - FXT-String
- *
- * Analogous to the date() function except that the time returned is Forex Time (FXT).
- */
-function fxtDate($time=null, $format='Y-m-d H:i:s') {
-   return MyFX::fxtDate($time, $format);
-}
