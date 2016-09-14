@@ -2,7 +2,7 @@
 
 DATE=$(date '+%Y.%m.%d_%H.%M')
 
-if ! command -v 'mysqldump' >/dev/null 2>&1; then
+if ! command -v 'mysqldump' >/dev/null; then
    echo mysqldump not found
    exit
 fi
