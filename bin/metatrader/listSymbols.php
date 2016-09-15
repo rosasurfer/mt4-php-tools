@@ -5,6 +5,16 @@
  *
  * @see Struct-Formate in MT4Expander.dll::Expander.h
  */
+use function rosasurfer\echoPre;
+use function rosasurfer\pluralize;
+use function rosasurfer\strEndsWith;
+use function rosasurfer\strIsQuoted;
+use function rosasurfer\strLeft;
+use function rosasurfer\strLeftTo;
+use function rosasurfer\strRight;
+use function rosasurfer\strRightFrom;
+use function rosasurfer\strStartsWith;
+
 require(__DIR__.'/../../app/init.php');
 
 

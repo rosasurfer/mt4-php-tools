@@ -6,6 +6,9 @@ use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 use rosasurfer\exception\UnimplementedFeatureException;
 
+use function rosasurfer\echoPre;
+use function rosasurfer\strStartsWith;
+
 
 /**
  * MyFX related functionality

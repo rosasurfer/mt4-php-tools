@@ -1,10 +1,5 @@
 #!/usr/bin/php
 <?php
-use rosasurfer\exception\IllegalTypeException;
-use rosasurfer\exception\InvalidArgumentException;
-use rosasurfer\exception\RuntimeException;
-
-
 /**
  * Aktualisiert die lokal vorhandenen Dukascopy-M1-Daten. Bid und Ask werden zu Median gemerged, nach FXT konvertiert und im
  * MyFX-Format gespeichert. Die Dukascopy-Daten sind durchgehend, Feiertage werden, Wochenenden werden nicht gespeichert.
@@ -35,6 +30,16 @@ use rosasurfer\exception\RuntimeException;
  * GMT:     |   Sunday      Monday   |  Tuesday   | Wednesday  |  Thursday  |   Friday     Saturday  |   Sunday      Monday   |
  *          +------------------------+------------+------------+------------+------------------------+------------------------+
  */
+use rosasurfer\exception\IllegalTypeException;
+use rosasurfer\exception\InvalidArgumentException;
+use rosasurfer\exception\RuntimeException;
+
+use function rosasurfer\echoPre;
+use function rosasurfer\mkDirWritable;
+use function rosasurfer\pluralize;
+use function rosasurfer\printPretty;
+use function rosasurfer\strRight;
+
 require(__DIR__.'/../../app/init.php');
 date_default_timezone_set('GMT');
 

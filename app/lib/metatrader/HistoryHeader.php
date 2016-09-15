@@ -4,6 +4,10 @@ use rosasurfer\core\Object;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 
+use function rosasurfer\strLeft;
+use function rosasurfer\strLeftTo;
+use function rosasurfer\strRight;
+
 
 /**
  * HistoryHeader eines HistoryFiles ("*.hst")

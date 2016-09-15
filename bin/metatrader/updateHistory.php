@@ -6,6 +6,7 @@
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 
+use function rosasurfer\echoPre;
 
 require(__DIR__.'/../../app/init.php');
 date_default_timezone_set('GMT');

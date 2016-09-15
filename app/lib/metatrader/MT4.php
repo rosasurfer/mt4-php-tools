@@ -5,6 +5,13 @@ use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 
+use function rosasurfer\isLittleEndian;
+use function rosasurfer\mkDirWritable;
+use function rosasurfer\strLeftTo;
+use function rosasurfer\strRight;
+use function rosasurfer\strRightFrom;
+use function rosasurfer\strStartsWith;
+
 
 /**
  * MetaTrader related functionality

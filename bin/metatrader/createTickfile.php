@@ -3,6 +3,14 @@
 /**
  * Erzeugt eine FXT-Tickdatei für den Strategy Tester.
  */
+use function rosasurfer\echoPre;
+use function rosasurfer\is_datetime;
+use function rosasurfer\strIsQuoted;
+use function rosasurfer\strLeft;
+use function rosasurfer\strRight;
+use function rosasurfer\strStartsWith;
+use function rosasurfer\strStartsWithI;
+
 require(__DIR__.'/../../app/init.php');
 date_default_timezone_set('GMT');
 

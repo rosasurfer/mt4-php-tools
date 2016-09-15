@@ -4,6 +4,13 @@
  * Gibt den Offset der ersten Bar einer MetaTrader-Historydatei zurück, die am oder nach dem angegebenen Zeitpunkt beginnt
  * oder -1, wenn keine solche Bar existiert.
  */
+use function rosasurfer\echoPre;
+use function rosasurfer\is_datetime;
+use function rosasurfer\strIsQuoted;
+use function rosasurfer\strLeft;
+use function rosasurfer\strRight;
+use function rosasurfer\strStartsWith;
+
 require(__DIR__.'/../../app/init.php');
 date_default_timezone_set('GMT');
 

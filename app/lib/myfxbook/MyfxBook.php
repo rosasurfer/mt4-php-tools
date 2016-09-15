@@ -6,6 +6,8 @@ use rosasurfer\core\StaticClass;
 use rosasurfer\exception\IOException;
 use rosasurfer\exception\RuntimeException;
 
+use function rosasurfer\echoPre;
+
 
 /**
  * MyfxBook related functionality.
