@@ -4,27 +4,27 @@
  *
  * @see  Definition in MT4Expander.dll::defines.h
  */
-define('TIMEZONE_ALPARI'             , 'Alpari'          );    // bis 03/2012 "Europe/Berlin", ab 04/2012 "Europe/Kiev"
-define('TIMEZONE_AMERICA_NEW_YORK'   , 'America/New_York');
-define('TIMEZONE_EUROPE_BERLIN'      , 'Europe/Berlin'   );
-define('TIMEZONE_EUROPE_KIEV'        , 'Europe/Kiev'     );
-define('TIMEZONE_EUROPE_LONDON'      , 'Europe/London'   );
-define('TIMEZONE_EUROPE_MINSK'       , 'Europe/Minsk'    );
-define('TIMEZONE_FXT'                , 'FXT'             );    // "Europe/Kiev"   mit DST-Wechseln von "America/New_York"
-define('TIMEZONE_FXT_MINUS_0200'     , 'FXT-0200'        );    // "Europe/London" mit DST-Wechseln von "America/New_York"
-define('TIMEZONE_GLOBALPRIME'        , 'GlobalPrime'     );    // bis 24.10.2015 "FXT", dann durch Fehler "Europe/Kiev" (einmalig?)
-define('TIMEZONE_GMT'                , 'GMT'             );
+const TIMEZONE_ALPARI              = 'Alpari';              // bis 03/2012 "Europe/Berlin", ab 04/2012 "Europe/Kiev"
+const TIMEZONE_AMERICA_NEW_YORK    = 'America/New_York';
+const TIMEZONE_EUROPE_BERLIN       = 'Europe/Berlin';
+const TIMEZONE_EUROPE_KIEV         = 'Europe/Kiev';
+const TIMEZONE_EUROPE_LONDON       = 'Europe/London';
+const TIMEZONE_EUROPE_MINSK        = 'Europe/Minsk';
+const TIMEZONE_FXT                 = 'FXT';                 // "Europe/Kiev"   mit DST-Wechseln von "America/New_York"
+const TIMEZONE_FXT_MINUS_0200      = 'FXT-0200';            // "Europe/London" mit DST-Wechseln von "America/New_York"
+const TIMEZONE_GLOBALPRIME         = 'GlobalPrime';         // bis 24.10.2015 "FXT", dann durch Fehler "Europe/Kiev" (einmalig?)
+const TIMEZONE_GMT                 = 'GMT';
 
-define('TIMEZONE_ID_ALPARI'          ,                 1 );
-define('TIMEZONE_ID_AMERICA_NEW_YORK',                 2 );
-define('TIMEZONE_ID_EUROPE_BERLIN'   ,                 3 );
-define('TIMEZONE_ID_EUROPE_KIEV'     ,                 4 );
-define('TIMEZONE_ID_EUROPE_LONDON'   ,                 5 );
-define('TIMEZONE_ID_EUROPE_MINSK'    ,                 6 );
-define('TIMEZONE_ID_FXT'             ,                 7 );
-define('TIMEZONE_ID_FXT_MINUS_0200'  ,                 8 );
-define('TIMEZONE_ID_GLOBALPRIME'     ,                 9 );
-define('TIMEZONE_ID_GMT'             ,                10 );
+const TIMEZONE_ID_ALPARI           =  1;
+const TIMEZONE_ID_AMERICA_NEW_YORK =  2;
+const TIMEZONE_ID_EUROPE_BERLIN    =  3;
+const TIMEZONE_ID_EUROPE_KIEV      =  4;
+const TIMEZONE_ID_EUROPE_LONDON    =  5;
+const TIMEZONE_ID_EUROPE_MINSK     =  6;
+const TIMEZONE_ID_FXT              =  7;
+const TIMEZONE_ID_FXT_MINUS_0200   =  8;
+const TIMEZONE_ID_GLOBALPRIME      =  9;
+const TIMEZONE_ID_GMT              = 10;
 
 
 // Timeframe-Identifier
