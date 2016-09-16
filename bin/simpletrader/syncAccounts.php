@@ -13,12 +13,6 @@ use rosasurfer\exception\RuntimeException;
 
 use rosasurfer\myfx\lib\simpletrader\SimpleTrader;
 
-use function rosasurfer\_false;
-use function rosasurfer\echoPre;
-use function rosasurfer\pluralize;
-use function rosasurfer\printPretty;
-use function rosasurfer\strStartsWithI;
-
 require(__DIR__.'/../../app/init.php');
 
 

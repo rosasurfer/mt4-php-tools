@@ -3,15 +3,6 @@
 /**
  * Verzeichnislisting für MetaTrader-Historydateien
  */
-use function rosasurfer\echoPre;
-use function rosasurfer\strCompareI;
-use function rosasurfer\strEndsWith;
-use function rosasurfer\strIsQuoted;
-use function rosasurfer\strLeft;
-use function rosasurfer\strLeftTo;
-use function rosasurfer\strRight;
-use function rosasurfer\strStartsWith;
-
 require(__DIR__.'/../../app/init.php');
 
 

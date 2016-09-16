@@ -34,12 +34,6 @@ use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 
-use function rosasurfer\echoPre;
-use function rosasurfer\mkDirWritable;
-use function rosasurfer\pluralize;
-use function rosasurfer\printPretty;
-use function rosasurfer\strRight;
-
 require(__DIR__.'/../../app/init.php');
 date_default_timezone_set('GMT');
 

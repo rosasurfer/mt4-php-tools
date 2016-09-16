@@ -8,18 +8,9 @@ use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\IOException;
 use rosasurfer\exception\RuntimeException;
 
-use function rosasurfer\echoPre;
-use function rosasurfer\ifNull;
-use function rosasurfer\pluralize;
-use function rosasurfer\strEndsWith;
-use function rosasurfer\strStartsWith;
-
 
 /**
  * www.simpletrader.net related functionality
- *
- *
- *
  */
 class SimpleTrader extends StaticClass {
 

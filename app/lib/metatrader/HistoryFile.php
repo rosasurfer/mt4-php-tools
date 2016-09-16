@@ -7,10 +7,6 @@ use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 
-use function rosasurfer\echoPre;
-use function rosasurfer\mkDirWritable;
-use function rosasurfer\strCompareI;
-
 
 /**
  * Object-Wrapper für eine MT4-History-Datei ("*.hst")

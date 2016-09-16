@@ -5,9 +5,6 @@ use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 
-use function rosasurfer\isLittleEndian;
-use function rosasurfer\mkDirWritable;
-
 
 /**
  * Dukascopy related functionality
