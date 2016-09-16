@@ -9,7 +9,7 @@ ini_set('error_log', APPLICATION_ROOT.'/etc/log/php_error.log');
 
 
 // load Ministruts
-require(APPLICATION_ROOT.'/etc/vendor/rosasurfer/ministruts/src/load.php');
+require(APPLICATION_ROOT.'/etc/vendor/rosasurfer/ministruts/src/load-globals.php');
 
 
 // register class loader                                          TODO: replace with case-insensitive loader
