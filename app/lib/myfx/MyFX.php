@@ -12,38 +12,39 @@ use rosasurfer\exception\UnimplementedFeatureException;
  *
  *                                      size        offset      description
  * struct little-endian MYFX_BAR {      ----        ------      ------------------------------------------------
- *    uint time;                          4            0        FXT-Timestamp (Sekunden seit dem 01.01.1970 FXT)
- *    uint open;                          4            4        in Points
- *    uint high;                          4            8        in Points
- *    uint low;                           4           12        in Points
- *    uint close;                         4           16        in Points
+ *    uint time;                          4            0        FXT timestamp (seconds since 01.01.1970 FXT)
+ *    uint open;                          4            4        in points
+ *    uint high;                          4            8        in points
+ *    uint low;                           4           12        in points
+ *    uint close;                         4           16        in points
  *    uint ticks;                         4           20
  * };                                  = 24 byte
  *
  *
  *                                      size        offset      description
  * struct little-endian MYFX_TICK {     ----        ------      ------------------------------------------------
- *    uint timeDelta;                     4            0        Millisekunden seit Beginn der Stunde
- *    uint bid;                           4            4        in Points
- *    uint ask;                           4            8        in Points
+ *    uint timeDelta;                     4            0        milliseconds since beginning of the hour
+ *    uint bid;                           4            4        in points
+ *    uint ask;                           4            8        in points
  * };                                  = 12 byte
  */
 class MyFX extends StaticClass {
 
+
    /**
-    * Struct-Size des MyFX-Bardatenformats (MyFX-Historydateien "M{PERIOD}.myfx")
+    * struct size in bytes of a MyFX bar (format of MyFX history files "M{PERIOD}.myfx")
     */
    const BAR_SIZE = 24;
 
    /**
-    * Struct-Size des MyFX-Tickdatenformats (MyFX-Tickdateien "{HOUR}h_ticks.myfx")
+    * struct size in bytes of a MyFX tick (format of MyFX tick files "{HOUR}h_ticks.myfx")
     */
    const TICK_SIZE = 12;
 
    /**
-    * Symbol-Stammdaten
+    * symbols meta data
     */
-   public static $symbols = array();                              // @see static initializer at the end of file
+   public static $symbols = [];                                   // @see static initializer at the end of file
 
 
    /**
@@ -878,7 +879,7 @@ class MyFX extends StaticClass {
 
 
 /**
- * Workaround für in PHP nicht existierende Static Initializer
+ * Workaround for non-existing static initializers in PHP.
  */
 MyFX::$symbols = array('AUDUSD' => array('type'=>'forex', 'name'=>'AUDUSD', 'description'=>'Australian Dollar vs US Dollar'  , 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>array('ticks'=>strToTime('2003-08-03 21:00:00 GMT'), 'M1'=>strToTime('2003-08-03 00:00:00 GMT')), 'provider'=>'dukascopy'),
                        'EURUSD' => array('type'=>'forex', 'name'=>'EURUSD', 'description'=>'Euro vs US Dollar'               , 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>array('ticks'=>strToTime('2003-05-04 21:00:00 GMT'), 'M1'=>strToTime('2003-05-04 00:00:00 GMT')), 'provider'=>'dukascopy'),
