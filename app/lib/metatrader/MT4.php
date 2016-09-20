@@ -98,13 +98,13 @@ class MT4 extends StaticClass {
       /V     arrayKey                  // uint
       /V     id                        // uint
       /x32   unknown1:char32
-      /x208  unknownM1:char208
-      /x208  unknownM5:char208
-      /x208  unknownM15:char208
-      /x208  unknownM30:char208
-      /x208  unknownH1:char208
-      /x208  unknownH4:char208
-      /x208  unknownD1:char208
+      /x208  mon:char208
+      /x208  tue:char208
+      /x208  wed:char208
+      /x208  thu:char208
+      /x208  fri:char208
+      /x208  sat:char208
+      /x208  sun:char208
       /x16   unknown2:char16
       /V     unknown3:int
       /V     unknown4:int
