@@ -69,13 +69,13 @@ class SimpleTrader extends StaticClass {
       // (1) Standard-Browser simulieren
       $userAgent = Config::getDefault()->get('myfx.useragent');
       if (!strLen($userAgent)) throw new InvalidArgumentException('Invalid user agent configuration: "'.$userAgent.'"');
-      $request = \HttpRequest::create()
-                             ->setHeader('User-Agent'     ,  $userAgent                                                      )
-                             ->setHeader('Accept'         , 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
-                             ->setHeader('Accept-Language', 'en-us'                                                          )
-                             ->setHeader('Accept-Charset' , 'ISO-8859-1,utf-8;q=0.7,*;q=0.7'                                 )
-                             ->setHeader('Connection'     , 'keep-alive'                                                     )
-                             ->setHeader('Cache-Control'  , 'max-age=0'                                                      );
+      $request = HttpRequest::create()
+                            ->setHeader('User-Agent'     ,  $userAgent                                                      )
+                            ->setHeader('Accept'         , 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
+                            ->setHeader('Accept-Language', 'en-us'                                                          )
+                            ->setHeader('Accept-Charset' , 'ISO-8859-1,utf-8;q=0.7,*;q=0.7'                                 )
+                            ->setHeader('Connection'     , 'keep-alive'                                                     )
+                            ->setHeader('Cache-Control'  , 'max-age=0'                                                      );
 
       // Cookies in der angegebenen Datei verwenden
       $cookieFile = dirName(realPath($_SERVER['PHP_SELF'])).DIRECTORY_SEPARATOR.'cookies.txt';
@@ -97,7 +97,7 @@ class SimpleTrader extends StaticClass {
          $request->setUrl($url)->setHeader('Referer', $referer);
 
          static $httpClient = null;                                     // Instanz wiederverwenden, um Keep-Alive-Connections zu ermöglichen
-         !$httpClient && $httpClient=\CurlHttpClient::create($options);
+         !$httpClient && $httpClient=CurlHttpClient::create($options);
 
          try {
             $counter++;
@@ -120,7 +120,7 @@ class SimpleTrader extends StaticClass {
             }
             throw $ex;
          }
-         if (($status=$response->getStatus()) != 200) throw new RuntimeException('Unexpected HTTP status code '.$status.' ('.\HttpResponse ::$sc[$status].') for url: '.$request->getUrl());
+         if (($status=$response->getStatus()) != 200) throw new RuntimeException('Unexpected HTTP status code '.$status.' ('.HttpResponse::$sc[$status].') for url: '.$request->getUrl());
 
          return $response->getContent();
       }

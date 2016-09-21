@@ -47,15 +47,15 @@ class MyfxBook extends StaticClass {
       $referer    = str_replace('{provider_id}', $providerId, self::$urls['signal'   ]);
 
       // simulate standard web browser
-      $request = \HttpRequest::create()
-                             ->setUrl($url)
-                             ->setHeader('User-Agent'     ,  Config::getDefault()->get('myfx.useragent')                     )
-                             ->setHeader('Accept'         , 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
-                             ->setHeader('Accept-Language', 'en-us'                                                          )
-                             ->setHeader('Accept-Charset' , 'ISO-8859-1,utf-8;q=0.7,*;q=0.7'                                 )
-                             ->setHeader('Connection'     , 'keep-alive'                                                     )
-                             ->setHeader('Cache-Control'  , 'max-age=0'                                                      )
-                             ->setHeader('Referer'        ,  $referer                                                        );
+      $request = HttpRequest::create()
+                            ->setUrl($url)
+                            ->setHeader('User-Agent'     ,  Config::getDefault()->get('myfx.useragent')                     )
+                            ->setHeader('Accept'         , 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
+                            ->setHeader('Accept-Language', 'en-us'                                                          )
+                            ->setHeader('Accept-Charset' , 'ISO-8859-1,utf-8;q=0.7,*;q=0.7'                                 )
+                            ->setHeader('Connection'     , 'keep-alive'                                                     )
+                            ->setHeader('Cache-Control'  , 'max-age=0'                                                      )
+                            ->setHeader('Referer'        ,  $referer                                                        );
 
       // use cookies from the specified file
       $cookieFile = dirName(realPath($_SERVER['PHP_SELF'])).DIRECTORY_SEPARATOR.'cookies.txt';
@@ -64,12 +64,12 @@ class MyfxBook extends StaticClass {
     //$options[CURLOPT_VERBOSE   ] = true;                           // enable debugging
 
       // execute HTTP request
-      $client   = \CurlHttpClient::create($options);
+      $client   = CurlHttpClient::create($options);
       $response = $client->send($request);
       $content  = $response->getContent();
 
       if (is_null($content))             throw new IOException('Empty reply from server, url: '.$request->getUrl());
-      if ($response->getStatus() != 200) throw new RuntimeException('Unexpected HTTP status code '.($status=$response->getStatus()).' ('.\HttpResponse::$sc[$status].') for url: '.$request->getUrl());
+      if ($response->getStatus() != 200) throw new RuntimeException('Unexpected HTTP status code '.($status=$response->getStatus()).' ('.HttpResponse::$sc[$status].') for url: '.$request->getUrl());
 
       // save as file
       $hFile = fOpen($localFile, 'wb');
