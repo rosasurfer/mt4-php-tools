@@ -2,6 +2,15 @@
 <?php
 use rosasurfer\config\Config;
 
+use rosasurfer\exception\IllegalTypeException;
+use rosasurfer\exception\InvalidArgumentException;
+use rosasurfer\exception\RuntimeException;
+
+use rosasurfer\net\http\CurlHttpClient;
+use rosasurfer\net\http\HttpClient;
+use rosasurfer\net\http\HttpRequest;
+use rosasurfer\net\http\HttpResponse;
+
 
 /**
  * Aktualisiert die lokal vorhandenen Dukascopy-Tickdaten. Die Daten werden nach FXT konvertiert und im MyFX-Format
@@ -33,10 +42,6 @@ use rosasurfer\config\Config;
  * GMT:     |   Sunday      Monday   |  Tuesday   | Wednesday  |  Thursday  |   Friday     Saturday  |   Sunday      Monday   |
  *          +------------------------+------------+------------+------------+------------------------+------------------------+
  */
-use rosasurfer\exception\IllegalTypeException;
-use rosasurfer\exception\InvalidArgumentException;
-use rosasurfer\exception\RuntimeException;
-
 require(__DIR__.'/../../app/init.php');
 date_default_timezone_set('GMT');
 

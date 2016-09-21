@@ -10,6 +10,11 @@ use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\IOException;
 use rosasurfer\exception\RuntimeException;
 
+use rosasurfer\net\http\CurlHttpClient;
+use rosasurfer\net\http\HttpClient;
+use rosasurfer\net\http\HttpRequest;
+use rosasurfer\net\http\HttpResponse;
+
 
 /**
  * www.simpletrader.net related functionality

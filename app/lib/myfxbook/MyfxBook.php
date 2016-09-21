@@ -8,6 +8,10 @@ use rosasurfer\core\StaticClass;
 use rosasurfer\exception\IOException;
 use rosasurfer\exception\RuntimeException;
 
+use rosasurfer\net\http\CurlHttpClient;
+use rosasurfer\net\http\HttpRequest;
+use rosasurfer\net\http\HttpResponse;
+
 
 /**
  * MyfxBook related functionality.
