@@ -1,4 +1,6 @@
 <?php
+use rosasurfer\dao\PersistableObject;
+
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 

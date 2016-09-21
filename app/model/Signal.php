@@ -1,4 +1,7 @@
 <?php
+use rosasurfer\dao\PersistableObject;
+
+
 /**
  * Signal
  */

@@ -1,4 +1,6 @@
 <?php
+use rosasurfer\dao\CommonDAO;
+
 use rosasurfer\exception\IllegalTypeException;
 
 
