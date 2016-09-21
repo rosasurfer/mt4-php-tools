@@ -6,6 +6,9 @@ use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 
+use rosasurfer\util\Logger;
+use rosasurfer\util\System;
+
 
 /**
  * Ein HistorySet zur Verwaltung der MetaTrader-History eines Instruments. Die Formate der einzelnen Dateien

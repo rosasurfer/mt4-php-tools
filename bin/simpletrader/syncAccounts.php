@@ -6,6 +6,9 @@ use rosasurfer\exception\RuntimeException;
 
 use rosasurfer\myfx\lib\simpletrader\SimpleTrader;
 
+use rosasurfer\util\Date;
+use rosasurfer\util\Logger;
+
 
 /**
  * Synchronisiert die Daten ein oder mehrerer Signale mit den lokal gespeicherten Daten (Datenbank und MT4-Datenfiles).

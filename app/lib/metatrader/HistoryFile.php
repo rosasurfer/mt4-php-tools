@@ -7,6 +7,8 @@ use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 
+use rosasurfer\util\System;
+
 
 /**
  * Object-Wrapper für eine MT4-History-Datei ("*.hst")

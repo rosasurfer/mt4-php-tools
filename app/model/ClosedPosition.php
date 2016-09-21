@@ -4,6 +4,8 @@ use rosasurfer\dao\PersistableObject;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 
+use rosasurfer\util\Date;
+
 
 /**
  * ClosedPosition

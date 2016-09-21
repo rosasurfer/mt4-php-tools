@@ -5,6 +5,8 @@ use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 
+use rosasurfer\util\Logger;
+
 
 /**
  * Dukascopy related functionality
