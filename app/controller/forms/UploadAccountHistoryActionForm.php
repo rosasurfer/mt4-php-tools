@@ -1,4 +1,5 @@
 <?php
+use rosasurfer\ministruts\ActionForm;
 use rosasurfer\ministruts\Request;
 
 use rosasurfer\util\Logger;

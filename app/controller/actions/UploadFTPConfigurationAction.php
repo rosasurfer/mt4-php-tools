@@ -1,7 +1,10 @@
 <?php
 use rosasurfer\exception\IOException;
 
+use rosasurfer\ministruts\Action;
+use rosasurfer\ministruts\ActionForward;
 use rosasurfer\ministruts\Request;
+use rosasurfer\ministruts\Response;
 
 use rosasurfer\util\Logger;
 use rosasurfer\util\System;
