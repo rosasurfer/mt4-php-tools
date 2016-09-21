@@ -1,5 +1,8 @@
 #!/usr/bin/php
 <?php
+use rosasurfer\config\Config;
+
+
 /**
  * Aktualisiert die lokal vorhandenen Dukascopy-M1-Daten. Bid und Ask werden zu Median gemerged, nach FXT konvertiert und im
  * MyFX-Format gespeichert. Die Dukascopy-Daten sind durchgehend, Feiertage werden, Wochenenden werden nicht gespeichert.

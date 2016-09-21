@@ -1,5 +1,12 @@
 #!/usr/bin/php
 <?php
+use rosasurfer\exception\IllegalTypeException;
+use rosasurfer\exception\InfrastructureException;
+use rosasurfer\exception\RuntimeException;
+
+use rosasurfer\myfx\lib\simpletrader\SimpleTrader;
+
+
 /**
  * Synchronisiert die Daten ein oder mehrerer Signale mit den lokal gespeicherten Daten (Datenbank und MT4-Datenfiles).
  * Bei Datenänderung kann eine Mail oder eine SMS verschickt werden.
@@ -7,12 +14,6 @@
  *
  *
  */
-use rosasurfer\exception\IllegalTypeException;
-use rosasurfer\exception\InfrastructureException;
-use rosasurfer\exception\RuntimeException;
-
-use rosasurfer\myfx\lib\simpletrader\SimpleTrader;
-
 require(__DIR__.'/../../app/init.php');
 
 

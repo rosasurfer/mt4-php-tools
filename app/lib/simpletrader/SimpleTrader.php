@@ -1,6 +1,8 @@
 <?php
 namespace rosasurfer\myfx\lib\simpletrader;
 
+use rosasurfer\config\Config;
+
 use rosasurfer\core\StaticClass;
 
 use rosasurfer\exception\IllegalTypeException;
@@ -57,7 +59,7 @@ class SimpleTrader extends StaticClass {
 
 
       // (1) Standard-Browser simulieren
-      $userAgent = \Config::getDefault()->get('myfx.useragent');
+      $userAgent = Config::getDefault()->get('myfx.useragent');
       if (!strLen($userAgent)) throw new InvalidArgumentException('Invalid user agent configuration: "'.$userAgent.'"');
       $request = \HttpRequest::create()
                              ->setHeader('User-Agent'     ,  $userAgent                                                      )

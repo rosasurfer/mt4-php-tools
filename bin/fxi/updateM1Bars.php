@@ -1,5 +1,10 @@
 #!/usr/bin/php
 <?php
+use rosasurfer\exception\IllegalTypeException;
+use rosasurfer\exception\InvalidArgumentException;
+use rosasurfer\exception\RuntimeException;
+
+
 /**
  * Aktualisiert anhand existierender Dukascopy-Daten die M1-History der angegebenen FX-Indizes und speichert sie
  * im MyFX-Historyverzeichnis.
@@ -15,10 +20,6 @@
  *
  * @see  MetaTrader::indicators\LFX-Monitor.mq4
  */
-use rosasurfer\exception\IllegalTypeException;
-use rosasurfer\exception\InvalidArgumentException;
-use rosasurfer\exception\RuntimeException;
-
 require(__DIR__.'/../../app/init.php');
 date_default_timezone_set('GMT');
 

@@ -1,5 +1,8 @@
 #!/usr/bin/php
 <?php
+use rosasurfer\config\Config;
+
+
 /**
  * Aktualisiert die lokal vorhandenen Dukascopy-Tickdaten. Die Daten werden nach FXT konvertiert und im MyFX-Format
  * gespeichert. Am Wochenende, an Feiertagen und wenn keine Tickdaten verfügbar sind, sind die Dukascopy-Dateien leer.

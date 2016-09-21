@@ -1,6 +1,8 @@
 <?php
 namespace rosasurfer\myfx\lib\myfxbook;
 
+use rosasurfer\config\Config;
+
 use rosasurfer\core\StaticClass;
 
 use rosasurfer\exception\IOException;
@@ -43,7 +45,7 @@ class MyfxBook extends StaticClass {
       // simulate standard web browser
       $request = \HttpRequest::create()
                              ->setUrl($url)
-                             ->setHeader('User-Agent'     , \Config::getDefault()->get('myfx.useragent')                     )
+                             ->setHeader('User-Agent'     ,  Config::getDefault()->get('myfx.useragent')                     )
                              ->setHeader('Accept'         , 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
                              ->setHeader('Accept-Language', 'en-us'                                                          )
                              ->setHeader('Accept-Charset' , 'ISO-8859-1,utf-8;q=0.7,*;q=0.7'                                 )

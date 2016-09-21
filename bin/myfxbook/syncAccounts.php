@@ -1,5 +1,12 @@
 #!/usr/bin/php
 <?php
+use rosasurfer\exception\IllegalTypeException;
+use rosasurfer\exception\InfrastructureException;
+use rosasurfer\exception\RuntimeException;
+
+use rosasurfer\myfx\lib\myfxbook\MyfxBook;
+
+
 /**
  *
  *
@@ -25,12 +32,6 @@
  *
  *
  */
-use rosasurfer\exception\IllegalTypeException;
-use rosasurfer\exception\InfrastructureException;
-use rosasurfer\exception\RuntimeException;
-
-use rosasurfer\myfx\lib\myfxbook\MyfxBook;
-
 require(__DIR__.'/../../app/init.php');
 
 

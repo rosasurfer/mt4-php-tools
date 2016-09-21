@@ -1,11 +1,12 @@
 #!/usr/bin/php
 <?php
-/**
- * Aktualisiert die Metatrader-History der angegebenen Instrumente im globalen MT4-Serververzeichnis "MyFX-Dukascopy".
- */
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 
+
+/**
+ * Aktualisiert die Metatrader-History der angegebenen Instrumente im globalen MT4-Serververzeichnis "MyFX-Dukascopy".
+ */
 require(__DIR__.'/../../app/init.php');
 date_default_timezone_set('GMT');
 
