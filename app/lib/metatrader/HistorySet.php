@@ -1,13 +1,14 @@
 <?php
 use rosasurfer\core\Object;
 
+use rosasurfer\debug\ErrorHandler;
+
 use rosasurfer\exception\IllegalStateException;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 
-use rosasurfer\util\Logger;
-use rosasurfer\util\System;
+use rosasurfer\log\Logger;
 
 
 /**
@@ -134,7 +135,7 @@ class HistorySet extends Object {
                }
                catch (MetaTraderException $ex) {
                   if (strStartsWith($ex->getMessage(), 'filesize.insufficient')) {
-                     Logger::warn($ex->getMessage(), __CLASS__);           // eine zu kurze Datei wird später überschrieben
+                     Logger::log($ex->getMessage(), L_WARN);            // eine zu kurze Datei wird später überschrieben
                      continue;
                   }
                   throw $ex;
@@ -160,7 +161,7 @@ class HistorySet extends Object {
          $this->close();
       }
       catch (\Exception $ex) {
-         System::handleDestructorException($ex);
+         ErrorHandler::handleDestructorException($ex);
          throw $ex;
       }
    }
@@ -235,7 +236,7 @@ class HistorySet extends Object {
                $file = new HistoryFile($fileName);
             }
             catch (MetaTraderException $ex) {
-               Logger::warn($ex->getMessage(), __CLASS__);
+               Logger::log($ex->getMessage(), L_WARN);
                continue;
             }
             $set = new self($file);
@@ -264,7 +265,7 @@ class HistorySet extends Object {
             }
             catch (MetaTraderException $ex) {
                if (!strStartsWith($ex->getMessage(), 'filesize.insufficient')) throw $ex;
-               Logger::warn($ex->getMessage(), __CLASS__);              // eine zu kurze Datei wird mit einer neuen Datei überschrieben
+               Logger::log($ex->getMessage(), L_WARN);                     // eine zu kurze Datei wird mit einer neuen Datei überschrieben
             }
             if ($file->getDigits() != $this->getDigits()) throw new RuntimeException('Digits mis-match in "'.$fileName.'": file.digits='.$file->getDigits().' instead of set.digits='.$this->getDigits());
          }

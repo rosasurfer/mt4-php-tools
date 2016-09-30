@@ -10,13 +10,14 @@ use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\IOException;
 use rosasurfer\exception\RuntimeException;
 
+use rosasurfer\log\Logger;
+
 use rosasurfer\net\http\CurlHttpClient;
 use rosasurfer\net\http\HttpClient;
 use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
 
 use rosasurfer\util\Date;
-use rosasurfer\util\Logger;
 
 
 /**
@@ -113,7 +114,7 @@ class SimpleTrader extends StaticClass {
                 strStartsWith($msg, 'CURL error CURLE_GOT_NOTHING'         ) ||
                 strStartsWith($msg, 'Empty reply from server'              )) {
                if ($counter < 10) {                                     // bis zu 10 Versuche, eine URL zu laden
-                  Logger::warn($msg."\nretrying ... ($counter)", __CLASS__);
+                  Logger::log($msg."\nretrying ... ($counter)", L_WARN);
                   sleep(10);                                            // vor jedem weiteren Versuch einige Sekunden warten
                   continue;
                }
@@ -466,7 +467,7 @@ class SimpleTrader extends StaticClass {
             mail($receiver, $subject=$mailMsg, $msg=$mailMsg);
          }
       }
-      catch (\Exception $ex) { Logger::log(null, $ex, L_ERROR, __CLASS__); }
+      catch (\Exception $ex) { Logger::log($ex, L_ERROR); }
 
 
       // SMS-Benachrichtigung, wenn das Ereignis zur Laufzeit des Scriptes eintrat
@@ -482,7 +483,7 @@ class SimpleTrader extends StaticClass {
                \MyFX::sendSms($receiver, $smsMsg);
             }
          }
-         catch (\Exception $ex) { Logger::log(null, $ex, L_ERROR, __CLASS__); }
+         catch (\Exception $ex) { Logger::log($ex, L_ERROR); }
       }
    }
 
@@ -521,7 +522,7 @@ class SimpleTrader extends StaticClass {
             mail($receiver, $subject=$mailMsg, $mailMsg);
          }
       }
-      catch (\Exception $ex) { Logger::log(null, $ex, L_ERROR, __CLASS__); }
+      catch (\Exception $ex) { Logger::log($ex, L_ERROR); }
 
 
       // Benachrichtigung per SMS
@@ -534,7 +535,7 @@ class SimpleTrader extends StaticClass {
                \MyFX::sendSms($receiver, $smsMsg);
             }
          }
-         catch (\Exception $ex) { Logger::log(null, $ex, L_ERROR, __CLASS__); }
+         catch (\Exception $ex) { Logger::log($ex, L_ERROR); }
       }
    }
 
@@ -559,7 +560,7 @@ class SimpleTrader extends StaticClass {
             mail($receiver, $subject=$mailMsg, $msg=$mailMsg);
          }
       }
-      catch (\Exception $ex) { Logger::log(null, $ex, L_ERROR, __CLASS__); }
+      catch (\Exception $ex) { Logger::log($ex, L_ERROR); }
 
 
       // SMS-Benachrichtigung, wenn das Ereignis zur Laufzeit des Scriptes eintrat
@@ -575,7 +576,7 @@ class SimpleTrader extends StaticClass {
                \MyFX::sendSms($receiver, $smsMsg);
             }
          }
-         catch (\Exception $ex) { Logger::log(null, $ex, L_ERROR, __CLASS__); }
+         catch (\Exception $ex) { Logger::log($ex, L_ERROR); }
       }
    }
 
@@ -615,7 +616,7 @@ class SimpleTrader extends StaticClass {
             mail($receiver, $subject, $msg);
          }
       }
-      catch (\Exception $ex) { Logger::log(null, $ex, L_ERROR, __CLASS__); }
+      catch (\Exception $ex) { Logger::log($ex, L_ERROR); }
 
 
       // Benachrichtigung per SMS, wenn das Event zur Laufzeit des Scriptes eintrat
@@ -628,7 +629,7 @@ class SimpleTrader extends StaticClass {
                \MyFX::sendSms($receiver, $msg);
             }
          }
-         catch (\Exception $ex) { Logger::log(null, $ex, L_ERROR, __CLASS__); }
+         catch (\Exception $ex) { Logger::log($ex, L_ERROR); }
       }
    }
 }

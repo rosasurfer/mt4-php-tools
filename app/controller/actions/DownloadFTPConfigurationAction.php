@@ -1,10 +1,11 @@
 <?php
+use rosasurfer\log\Logger;
+
 use rosasurfer\ministruts\Action;
 use rosasurfer\ministruts\ActionForward;
 use rosasurfer\ministruts\Request;
 use rosasurfer\ministruts\Response;
 
-use rosasurfer\util\Logger;
 use rosasurfer\util\System;
 
 
@@ -48,7 +49,7 @@ class DownloadFTPConfigurationAction extends Action {
             $request->setActionError('', '404: File not found');
          }
          catch (\Exception $ex) {
-            Logger::log('System not available', $ex, L_ERROR, __CLASS__);
+            Logger::log('System not available', L_ERROR, ['exception'=>$ex]);
             $request->setActionError('', '500: Server error, try again later.');
          }
       }

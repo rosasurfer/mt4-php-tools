@@ -1,13 +1,13 @@
 <?php
 use rosasurfer\core\Object;
 
+use rosasurfer\debug\ErrorHandler;
+
 use rosasurfer\exception\FileNotFoundException;
 use rosasurfer\exception\IllegalStateException;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
-
-use rosasurfer\util\System;
 
 
 /**
@@ -230,7 +230,7 @@ class HistoryFile extends Object {
          !$this->isClosed() && $this->close();
       }
       catch (\Exception $ex) {
-         System::handleDestructorException($ex);
+         ErrorHandler::handleDestructorException($ex);
          throw $ex;
       }
    }

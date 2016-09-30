@@ -1,8 +1,8 @@
 <?php
+use rosasurfer\debug\ErrorHandler;
+
 use rosasurfer\ministruts\ActionForm;
 use rosasurfer\ministruts\Request;
-
-use rosasurfer\util\System;
 
 
 /**
@@ -91,7 +91,7 @@ class UploadFTPConfigurationActionForm extends ActionForm {
             unlink($this->file['tmp_name']);
       }
       catch (\Exception $ex) {
-         System::handleDestructorException($ex);
+         ErrorHandler::handleDestructorException($ex);
          throw $ex;
       }
    }

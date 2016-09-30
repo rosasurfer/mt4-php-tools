@@ -1,9 +1,10 @@
 <?php
+use rosasurfer\debug\ErrorHandler;
+
+use rosasurfer\log\Logger;
+
 use rosasurfer\ministruts\ActionForm;
 use rosasurfer\ministruts\Request;
-
-use rosasurfer\util\Logger;
-use rosasurfer\util\System;
 
 
 /**
@@ -99,7 +100,7 @@ class UploadAccountHistoryActionForm extends ActionForm {
          $request->setActionError('', $errors[$file['error']]);
       }
       elseif ($request->getContentType()=='multipart/form-data' && !is_uploaded_file($file['tmp_name'])) {
-         Logger::warn('Possible file upload attack:  is_uploaded_file("'.$file['tmp_name'].'") => false', __CLASS__);
+         Logger::log('Possible file upload attack:  is_uploaded_file("'.$file['tmp_name'].'") => false', L_WARN);
          $request->setActionError('', '101: Error while uploading the file');
       }
       elseif ($file['size'] == 0) {
@@ -308,7 +309,7 @@ class UploadAccountHistoryActionForm extends ActionForm {
             unlink($this->file['tmp_name']);
       }
       catch (\Exception $ex) {
-         System::handleDestructorException($ex);
+         ErrorHandler::handleDestructorException($ex);
          throw $ex;
       }
    }

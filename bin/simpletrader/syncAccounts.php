@@ -4,10 +4,11 @@ use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InfrastructureException;
 use rosasurfer\exception\RuntimeException;
 
-use rosasurfer\myfx\lib\simpletrader\SimpleTrader;
+use rosasurfer\log\Logger;
 
 use rosasurfer\util\Date;
-use rosasurfer\util\Logger;
+
+use rosasurfer\myfx\lib\simpletrader\SimpleTrader;
 
 
 /**
@@ -121,7 +122,7 @@ function processSignal($alias, $fileSyncOnly) {
          if ($errorMsg) {
             echoPre($errorMsg);
             if ($counter >= 5) throw new RuntimeException($signal->getName().': '.$errorMsg);
-            Logger::warn($signal->getName().': '.$errorMsg."\nretrying...", __CLASS__);
+            Logger::log($signal->getName().': '.$errorMsg."\nretrying...", L_WARN);
             continue;
          }
 
