@@ -73,7 +73,7 @@ class ClosedPosition extends PersistableObject {
     * @return ClosedPosition
     */
    private static function create_1(OpenPosition $openPosition, array $data) {
-      $position = new self();
+      $position = new static();
 
       $position->ticket      =               $data['ticket'     ];
       $position->type        =               $data['type'       ];
@@ -109,7 +109,7 @@ class ClosedPosition extends PersistableObject {
    private static function create_2(Signal $signal, array $data) {
       if (!$signal->isPersistent()) throw new InvalidArgumentException('Cannot process '.__CLASS__.' for non-persistent '.get_class($signal));
 
-      $position = new self();
+      $position = new static();
 
       $position->ticket      =               $data['ticket'     ];
       $position->type        =               $data['type'       ];

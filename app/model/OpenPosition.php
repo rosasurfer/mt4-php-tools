@@ -55,7 +55,7 @@ class OpenPosition extends PersistableObject {
    public static function create(Signal $signal, array $data) {
       if (!$signal->isPersistent()) throw new InvalidArgumentException('Cannot process '.__CLASS__.' for non-persistent '.get_class($signal));
 
-      $position = new self();
+      $position = new static();
 
       $position->ticket      =               $data['ticket'     ];
       $position->type        =               $data['type'       ];

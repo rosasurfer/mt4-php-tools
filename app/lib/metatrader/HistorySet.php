@@ -196,7 +196,7 @@ class HistorySet extends Object {
     * @param  string $serverDirectory - Serververzeichnis der Historydateien des Sets
     */
    public static function create($symbol, $digits, $format, $serverDirectory) {
-      return new self($symbol, $digits, $format, $serverDirectory);
+      return new static($symbol, $digits, $format, $serverDirectory);
    }
 
 
@@ -239,7 +239,7 @@ class HistorySet extends Object {
                Logger::log($ex->getMessage(), L_WARN);
                continue;
             }
-            $set = new self($file);
+            $set = new static($file);
             break;
          }
       }
