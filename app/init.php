@@ -1,5 +1,7 @@
 <?php
-// check/update app configuration
+use rosasurfer\MiniStruts;
+
+// check app configuration
 !defined('APPLICATION_ROOT') && define('APPLICATION_ROOT', dirname(__DIR__));
 !defined('APPLICATION_ID'  ) && define('APPLICATION_ID',  'myfx');
 
@@ -8,8 +10,15 @@ ini_set('error_log', APPLICATION_ROOT.'/etc/log/php_error.log');
 !isSet($_SERVER['REQUEST_METHOD']) && set_time_limit(0);          // no time limit for CLI
 
 
-// load Ministruts
-require(APPLICATION_ROOT.'/etc/vendor/rosasurfer/ministruts/src/load-globals.php');
+// configure and load Ministruts
+require(APPLICATION_ROOT.'/etc/vendor/rosasurfer/ministruts/src/load.php');
+$options = [
+   'global-helpers'    => true,
+   'handle-errors'     => MiniStruts::THROW_EXCEPTIONS,
+   'handle-exceptions' => true,
+];
+MiniStruts::init($options);
+
 
 
 // register class loader                                          TODO: replace with case-insensitive loader

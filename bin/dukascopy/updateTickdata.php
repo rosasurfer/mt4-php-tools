@@ -379,9 +379,12 @@ function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=f
    $url       = getVar('dukaUrl', $symbol, $gmtHour);
    if (!$quiet && $verbose > 1) echoPre('[Info]    '.$shortDate.'   url: '.$url);
 
+   if (!$config=Config::getDefault())
+      throw new RuntimeException('Service locator returned invalid default config: '.getType($config));
+
 
    // (1) Standard-Browser simulieren
-   $userAgent = Config::getDefault()->get('myfx.useragent'); if (!$userAgent) throw new InvalidArgumentException('Invalid user agent configuration: "'.$userAgent.'"');
+   $userAgent = $config->get('myfx.useragent'); if (!$userAgent) throw new InvalidArgumentException('Invalid user agent configuration: "'.$userAgent.'"');
    $request = HttpRequest::create()
                          ->setUrl($url)
                          ->setHeader('User-Agent'     , $userAgent                                                       )
@@ -393,6 +396,7 @@ function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=f
                          ->setHeader('Referer'        , 'http://www.dukascopy.com/free/candelabrum/'                     );
    $options[CURLOPT_SSL_VERIFYPEER] = false;                            // falls HTTPS verwendet wird
    //$options[CURLOPT_VERBOSE     ] = true;
+
 
    // (2) HTTP-Request abschicken und auswerten
    static $httpClient = null;
@@ -424,6 +428,7 @@ function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=f
          rename($tmpFile, $file);                                       // So kann eine existierende Datei niemals korrupt sein.
       }
    }
+
 
    // (4) Download-Fehler: ist das Flag $saveError gesetzt, Fehler speichern
    else {

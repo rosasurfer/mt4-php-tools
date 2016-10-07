@@ -415,8 +415,12 @@ function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $save
    $url       = getVar('dukaUrl', $symbol, $day, $type);
    if (!$quiet) echoPre('[Info]    '.$shortDate.'   url: '.$url);
 
+   if (!$config=Config::getDefault())
+      throw new RuntimeException('Service locator returned invalid default config: '.getType($config));
+
+
    // (1) Standard-Browser simulieren
-   $userAgent = Config::getDefault()->get('myfx.useragent'); if (!$userAgent) throw new InvalidArgumentException('Invalid user agent configuration: "'.$userAgent.'"');
+   $userAgent = $config->get('myfx.useragent'); if (!$userAgent) throw new InvalidArgumentException('Invalid user agent configuration: "'.$userAgent.'"');
    $request = HttpRequest ::create()
                           ->setUrl($url)
                           ->setHeader('User-Agent'     , $userAgent                                                       )
@@ -428,6 +432,7 @@ function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $save
                           ->setHeader('Referer'        , 'http://www.dukascopy.com/free/candelabrum/'                     );
    $options[CURLOPT_SSL_VERIFYPEER] = false;                            // falls HTTPS verwendet wird
    //$options[CURLOPT_VERBOSE     ] = true;
+
 
    // (2) HTTP-Request abschicken und auswerten
    static $httpClient = null;
@@ -459,6 +464,7 @@ function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $save
          rename($tmpFile, $file);                                       // So kann eine existierende Datei niemals korrupt sein.
       }
    }
+
 
    // (4) Download-Fehler: ist das Flag $saveError gesetzt, Fehler speichern
    if ($status == 404) {

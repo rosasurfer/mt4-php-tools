@@ -64,9 +64,10 @@ class MyFX extends StaticClass {
     * @throws RuntimeException - wenn unter dem angegebenen Schlüssel keine Pfadeinstellung existiert
     */
    public static function getConfigPath($key) {
-      if (!is_string($key)) throw new IllegalTypeException('Illegal type of parameter $key: '.getType($key));
+      if (!is_string($key))              throw new IllegalTypeException('Illegal type of parameter $key: '.getType($key));
+      if (!$config=Config::getDefault()) throw new RuntimeException('Service locator returned invalid default config: '.getType($config));
 
-      $directory = str_replace('\\', '/', Config::getDefault()->get($key));    // Backslashes in Konfiguration ersetzen
+      $directory = str_replace('\\', '/', $config->get($key));    // Backslashes in Konfiguration ersetzen
 
       if (WINDOWS) {
          if (!preg_match('/^[a-z]:/i', $directory))               // Pfad ist relativ, wenn er nicht mit einem Lw.-Bezeichner beginnt
@@ -300,7 +301,10 @@ class MyFX extends StaticClass {
       static $addresses = null;
 
       if (is_null($addresses)) {
-         $values = Config::getDefault()->get('mail.signalreceivers');
+         if (!$config=Config::getDefault())
+            throw new RuntimeException('Service locator returned invalid default config: '.getType($config));
+
+         $values = $config->get('mail.signalreceivers');
          foreach (explode(',', $values) as $address) {
             if ($address=trim($address))
                $addresses[] = $address;
@@ -321,7 +325,10 @@ class MyFX extends StaticClass {
       static $numbers = null;
 
       if (is_null($numbers)) {
-         $values = Config::getDefault()->get('sms.signalreceivers', null);
+         if (!$config=Config::getDefault())
+            throw new RuntimeException('Service locator returned invalid default config: '.getType($config));
+
+         $values = $config->get('sms.signalreceivers', null);
          foreach (explode(',', $values) as $number) {
             if ($number=trim($number))
                $numbers[] = $number;
@@ -350,8 +357,10 @@ class MyFX extends StaticClass {
       $message = trim($message);
       if ($message == '')          throw new InvalidArgumentException('Invalid argument $message: "'.$message.'"');
 
+      if (!$config=Config::getDefault())
+         throw new RuntimeException('Service locator returned invalid default config: '.getType($config));
 
-      $config   = Config::getDefault()->get('sms.clickatell');
+      $config   = $config->get('sms.clickatell');
       $username = $config['username'];
       $password = $config['password'];
       $api_id   = $config['api_id'  ];

@@ -68,8 +68,9 @@ class SimpleTrader extends StaticClass {
 
 
       // (1) Standard-Browser simulieren
-      $userAgent = Config::getDefault()->get('myfx.useragent');
-      if (!strLen($userAgent)) throw new InvalidArgumentException('Invalid user agent configuration: "'.$userAgent.'"');
+      if (!$config=Config::getDefault()) throw new RuntimeException('Service locator returned invalid default config: '.getType($config));
+      $userAgent = $config->get('myfx.useragent');
+      if (!strLen($userAgent))           throw new InvalidArgumentException('Invalid user agent configuration: "'.$userAgent.'"');
       $request = HttpRequest::create()
                             ->setHeader('User-Agent'     ,  $userAgent                                                      )
                             ->setHeader('Accept'         , 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
