@@ -7,7 +7,7 @@ use rosasurfer\exception\InfrastructureException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 
-use rosasurfer\util\System;
+use rosasurfer\util\PHP;
 
 
 /**
@@ -58,7 +58,7 @@ class LZMA extends StaticClass {
       $cmd     = self::getDecompressFileCmd();
       $file    = str_replace('/', DIRECTORY_SEPARATOR, str_replace('\\', '/', $file));
       $cmdLine = sprintf($cmd, $file);
-      $stdout  = System::shell_exec($cmdLine);
+      $stdout  = PHP::shellExec($cmdLine);
 
       if (!strLen($stdout)) throw new RuntimeException("Decoding of file \"$file\" failed (decoded size=0)");
 
