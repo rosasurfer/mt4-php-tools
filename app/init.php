@@ -1,5 +1,7 @@
 <?php
+use phalcon\Loader as ClassLoader;
 use rosasurfer\MiniStruts;
+
 
 // check app configuration
 !defined('APPLICATION_ROOT') && define('APPLICATION_ROOT', dirname(__DIR__));
@@ -20,9 +22,7 @@ $options = [
 MiniStruts::init($options);
 
 
-
 // register class loader                                          TODO: replace with case-insensitive loader
-use phalcon\Loader as ClassLoader;
 (new ClassLoader())->registerClasses(include(__DIR__.'/classmap.php'))
                    ->register();
 
