@@ -17,6 +17,7 @@ use rosasurfer\exception\IllegalTypeException;
 use function rosasurfer\echoPre;
 use function rosasurfer\strStartsWith;
 
+use const rosasurfer\CLI;
 use const rosasurfer\WINDOWS;
 
 
@@ -49,8 +50,9 @@ if ($receivers && $forcedReceivers=$config->get('mail.forced-receiver', false)) 
 
 // (2) define the location of the error log
 $errorLog = ini_get('error_log');
-if (empty($errorLog) || $errorLog=='syslog') {           // errors are sent to the SAPI logger or system logger
-   echoPre('errors are logged elsewhere: '.($errorLog=='syslog' ? $errorLog:'sapi'));
+if (empty($errorLog) || $errorLog=='syslog') {           // errors are logged elsewhere
+   if (empty($errorLog)) echoPre('errors are logged elsewhere ('.(CLI     ?    'stderr':'sapi'  ).')');
+   else                  echoPre('errors are logged elsewhere ('.(WINDOWS ? 'event log':'syslog').')');
    exit(0);
 }
 
