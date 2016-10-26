@@ -50,7 +50,7 @@ if ($receivers && $forcedReceivers=$config->get('mail.forced-receiver', false)) 
 // (2) define the location of the error log
 $errorLog = ini_get('error_log');
 if (empty($errorLog) || $errorLog=='syslog') {           // errors are sent to the SAPI logger or system logger
-   echoPre('errors are logged elsewhere: '.$errorLog=='syslog' ? $errorLog:'sapi');
+   echoPre('errors are logged elsewhere: '.($errorLog=='syslog' ? $errorLog:'sapi'));
    exit(0);
 }
 
