@@ -1,4 +1,4 @@
-#!/usr/bin/php
+#!php
 <?php
 /**
  * Scans the application's PHP error log file for entries and notifies by email of any findings. Mails will be sent to
@@ -18,11 +18,36 @@ use function rosasurfer\echoPre;
 use function rosasurfer\strStartsWith;
 
 use const rosasurfer\CLI;
+use const rosasurfer\NL;
 use const rosasurfer\WINDOWS;
 
 
 require(__DIR__.'/../../app/init.php');
 set_time_limit(0);                                       // no time limit for CLI
+
+
+// --- configuration ---------------------------------------------------------------------------------------------------
+
+
+$quiet = false;                                          // whether or not "quiet" mode is enabled (for cron)
+
+
+// --- parse/validate command line arguments ---------------------------------------------------------------------------
+
+
+$args = array_slice($_SERVER['argv'], 1);
+
+foreach ($args as $i => $arg) {
+   if ($arg == '-h') { help(); exit(0);                           }     // help
+   if ($arg == '-q') { $quiet = true; unset($args[$i]); continue; }     // quiet mode
+
+   error('invalid argument: '.$arg);
+   !$quiet && help();
+   exit(1);
+}
+
+
+// --- start -----------------------------------------------------------------------------------------------------------
 
 
 // (1) define error log sender and receivers
@@ -51,21 +76,21 @@ if ($receivers && $forcedReceivers=$config->get('mail.forced-receiver', false)) 
 // (2) define the location of the error log
 $errorLog = ini_get('error_log');
 if (empty($errorLog) || $errorLog=='syslog') {           // errors are logged elsewhere
-   if (empty($errorLog)) echoPre('errors are logged elsewhere ('.(CLI     ?    'stderr':'sapi'  ).')');
-   else                  echoPre('errors are logged elsewhere ('.(WINDOWS ? 'event log':'syslog').')');
+   if (empty($errorLog)) $quiet || echoPre('errors are logged elsewhere ('.(CLI     ?    'stderr':'sapi'  ).')');
+   else                  $quiet || echoPre('errors are logged elsewhere ('.(WINDOWS ? 'event log':'syslog').')');
    exit(0);
 }
 
 
 // (3) check log file for existence and process it
-if (!is_file    ($errorLog)) { echoPre('error log does not exist: '.$errorLog); exit(0); }
-if (!is_writable($errorLog)) { echoPre('cannot access log file: '  .$errorLog); exit(1); }
+if (!is_file    ($errorLog)) { $quiet || echoPre('error log does not exist: '.$errorLog); exit(0); }
+if (!is_writable($errorLog)) {             error('cannot access log file: '  .$errorLog); exit(1); }
 $errorLog = realPath($errorLog);
 
 // rename the file (we don't want to lock it, doing so could block the main app)
 $tempName = tempNam(dirName($errorLog), baseName($errorLog));
 if (!rename($errorLog, $tempName)) {
-   echoPre('cannot rename log file: '  .$errorLog);
+   error('cannot rename log file: '  .$errorLog);
    exit(1);
 }
 
@@ -107,9 +132,7 @@ function processEntry($entry) {
    $entry = trim($entry);
    if (!strLen($entry))    return;
 
-   global $sender, $receivers;
-
-   //echoPre('sending log entry...');
+   global $quiet, $sender, $receivers;
 
    // normalize line-breaks
    $entry = str_replace(["\r\n", "\r"], "\n", $entry);            // use Unix line-breaks by default but...
@@ -120,10 +143,45 @@ function processEntry($entry) {
    $subject = strTok($entry, "\r\n");                             // that's CR or LF, not CRLF
    $message = $entry;
 
+   $quiet || echoPre('sending log entry: '.subStr($subject, 0, 50).'...');
+
    // send log entry to receivers
    foreach ($receivers as $receiver) {
       // Linux:   "From:" header is not reqired but may be set
       // Windows: mail() fails if "sendmail_from" is not set and "From:" header is missing
       mail($receiver, $subject, $message, $headers='From: '.$sender);
    }
+}
+
+
+/**
+ * Print a message to STDERR.
+ *
+ * @param  string $message
+ */
+function error($message) {
+   fWrite(STDERR, $message.NL);
+}
+
+
+/**
+ * Help. Display script syntax.
+ *
+ * @param  string $message - additional message to display (default: none)
+ */
+function help($message = null) {
+   if (!is_null($message))
+      echo($message.NL);
+
+   $self = baseName($_SERVER['PHP_SELF']);
+
+   echo <<<HELP_SYNTAX
+
+ Syntax:  $self [options]
+
+ Options:  -q   Quiet mode. Suppress status messages but not errors (for execution by CRON).
+           -h   This help screen.
+
+
+HELP_SYNTAX;
 }
