@@ -1,4 +1,4 @@
-#!php
+#!/usr/bin/php
 <?php
 /**
  * Scans the application's PHP error log file for entries and notifies by email of any findings. Mails will be sent to
@@ -88,7 +88,7 @@ if (!is_writable($errorLog)) {             error('cannot access log file: '  .$e
 $errorLog = realPath($errorLog);
 
 // rename the file (we don't want to lock it, doing so could block the main app)
-$tempName = tempNam(dirName($errorLog), baseName($errorLog));
+$tempName = tempNam(dirName($errorLog), baseName($errorLog).'.');
 if (!rename($errorLog, $tempName)) {
    error('cannot rename log file: '  .$errorLog);
    exit(1);
