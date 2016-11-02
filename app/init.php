@@ -1,6 +1,7 @@
 <?php
 use phalcon\Loader as ClassLoader;
 use rosasurfer\MiniStruts;
+use rosasurfer\config\StdConfig;
 
 
 // check app configuration
@@ -15,9 +16,10 @@ ini_set('error_log', APPLICATION_ROOT.'/etc/log/php_error.log');
 // configure and load Ministruts
 require(APPLICATION_ROOT.'/etc/vendor/rosasurfer/ministruts/src/load.php');
 $options = [
-   'global-helpers'    => true,
+   'config'            => new StdConfig(APPLICATION_ROOT.'/app/config'),
    'handle-errors'     => MiniStruts::THROW_EXCEPTIONS,
    'handle-exceptions' => true,
+   'global-helpers'    => true,
 ];
 MiniStruts::init($options);
 
