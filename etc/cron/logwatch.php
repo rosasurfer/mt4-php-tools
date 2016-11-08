@@ -13,6 +13,7 @@
  */
 use rosasurfer\config\Config;
 use rosasurfer\exception\IllegalTypeException;
+use rosasurfer\util\PHP;
 
 use function rosasurfer\echoPre;
 use function rosasurfer\strStartsWith;
@@ -95,7 +96,7 @@ if (!rename($errorLog, $tempName)) {
 }
 
 // read the log file line by line
-ini_set('auto_detect_line_endings', 1);
+PHP::ini_set($o='auto_detect_line_endings', 1) || (error('cannot set php.ini option "'.$o.'"') | exit(1));
 $hFile = fOpen($tempName, 'rb');
 $line  = $entry = '';
 $i = 0;
