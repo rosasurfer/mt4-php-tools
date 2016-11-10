@@ -149,7 +149,7 @@ class SimpleTrader extends StaticClass {
 
       // ggf. RegExp-Stringlimit erhöhen
       if (strLen($html) > (int)ini_get('pcre.backtrack_limit'))
-         ini_set('pcre.backtrack_limit', strLen($html));
+         if (!PHP::ini_set($o='pcre.backtrack_limit', strLen($html))) throw new RuntimeException('Cannot set php.ini option "'.$o.'" (former value="'.ini_get($o).'")');
 
       $matchedTables = $openTradeRows = $historyRows = $matchedOpenTrades = $matchedHistoryEntries = 0;
       $tables = array();

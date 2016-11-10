@@ -96,7 +96,7 @@ if (!rename($errorLog, $tempName)) {
 }
 
 // read the log file line by line
-PHP::ini_set($o='auto_detect_line_endings', 1) || (error('cannot set php.ini option "'.$o.'"') | exit(1));
+if (!PHP::ini_set($o='auto_detect_line_endings', 1)) throw new RuntimeException('Cannot set php.ini option "'.$o.'" (former value="'.ini_get($o).'")');
 $hFile = fOpen($tempName, 'rb');
 $line  = $entry = '';
 $i = 0;
