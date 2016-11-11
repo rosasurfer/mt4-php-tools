@@ -1,7 +1,7 @@
 <?php
 use phalcon\Loader as ClassLoader;
+
 use rosasurfer\MiniStruts;
-use rosasurfer\exception\RuntimeException;
 use rosasurfer\util\PHP;
 
 
@@ -17,8 +17,8 @@ require(APPLICATION_ROOT.'/etc/vendor/rosasurfer/ministruts/src/load.php');
 
 
 // error logging
-if (!PHP::ini_set($o='error_log', APPLICATION_ROOT.'/etc/log/php_error.log')) throw new RuntimeException('Cannot set php.ini option "'.$o.'" (former value="'.ini_get($o).'")');
 error_reporting(E_ALL & ~E_DEPRECATED);
+PHP::ini_set('error_log', APPLICATION_ROOT.'/etc/log/php_error.log');
 
 
 // initialize MiniStruts
