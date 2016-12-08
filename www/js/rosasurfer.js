@@ -81,11 +81,11 @@ var rs = rs || {};
 /**
  * Get an array with all query parameters.
  *
- * @param  url   - static URL to get query parameters from (if not given, the current page's url is used)
+ * @param  string url - static URL to get query parameters from (if not given, the current page's url is used)
  *
  * @return array - [key1=>value1, key2=>value2, ..., keyN=>valueN]
  */
-function getQueryParameters(/*string*/url) {
+function getQueryParameters(url) {
    var pos, search;
    if (typeof(url) == 'undefined') search = location.search;
    else                            search = ((pos=url.indexOf('?'))==-1) ? '' : url.substr(pos);
@@ -103,14 +103,13 @@ function getQueryParameters(/*string*/url) {
 /**
  * Get a single query parameter value.
  *
- * @param  name   - parameter name
- * @param  url    - static URL to get a query parameter from (if not given, the current page's url is used)
+ * @param  string name - parameter name
+ * @param  string url  - static URL to get a query parameter from (if not given, the current page's url is used)
  *
  * @return string - value or null if the parameter doesn't exist in the query string
  */
-function getQueryParameter(/*string*/name, /*string*/url) {
+function getQueryParameter(name, url) {
    if (typeof(name) == 'undefined') return alert('getQueryParameter()\n\nUndefined parameter: name');
-
    return getQueryParameters(url)[name];
 }
 
@@ -118,22 +117,23 @@ function getQueryParameter(/*string*/name, /*string*/url) {
 /**
  * Whether or not a parameter exists in the query string.
  *
- * @param  name - parameter name
- * @param  url  - static URL to check for the query parameter (if not given, the current page's url is used)
+ * @param  string name - parameter name
+ * @param  string url  - static URL to check for the query parameter (if not given, the current page's url is used)
  *
  * @return bool
  */
-function isQueryParameter(/*string*/name, /*string*/url) {
+function isQueryParameter(name, url) {
    if (typeof(name) == 'undefined') return alert('isQueryParameter()\n\nUndefined parameter: name');
-
    return typeof(getQueryParameters(url)[name]) != 'undefined';
 }
 
 
 /**
  * Show all accessible properties of the given argument.
+ *
+ * @param  mixed arg
  */
-function showProperties(/*mixed*/arg) {
+function showProperties(arg) {
    if (typeof(arg) == 'undefined') return alert('showProperties()\n\nUndefined parameter: arg');
 
    var properties=[], property='';
@@ -230,8 +230,10 @@ log = Logger.log;
 
 /**
  * Log a message to the status bar.
+ *
+ * @param  mixed msg
  */
-function logStatus(/*mixed*/msg) {
+function logStatus(msg) {
    if (typeof(msg)=='object' && msg=='[object Event]')
       logEvent(msg);
    else
@@ -240,9 +242,11 @@ function logStatus(/*mixed*/msg) {
 
 
 /**
- * Log Event infos to the status bar.
+ * Log event infos to the status bar.
+ *
+ * @param  Event ev
  */
-function logEvent(/*Event*/ev) {
+function logEvent(ev) {
    logStatus(ev.type +' event,  window: ['+ (ev.pageX - pageXOffset) +','+ (ev.pageY - pageYOffset) +']  page: ['+ ev.pageX +','+ ev.pageY +']');
 }
 
@@ -253,16 +257,16 @@ function logEvent(/*Event*/ev) {
  * @param string   url      - url to load
  * @param function callback - callback function
  */
-function loadUrl(/*string*/ url, /*function*/ callback) {                                       // request.readyState = returns the status of the XMLHttpRequest
-   var request = new XMLHttpRequest();                                                          //  0: request not initialized
-   request.url = url;                                                                           //  1: server connection established
-   request.onreadystatechange = function() {                                                    //  2: request received
-      if (request.readyState == 4) {                                                            //  3: processing request
-         callback(request);                                                                     //  4: request finished and response is ready
-      }                                                                                         //
-   };                                                                                           // request.status = returns the HTTP status-code
-   request.open('GET', url , true);                                                             //  200: "OK"
-   request.send(null);                                                                          //  404: "Not Found" etc.
+function loadUrl(url, callback) {                                    // request.readyState = returns the status of the XMLHttpRequest
+   var request = new XMLHttpRequest();                               //  0: request not initialized
+   request.url = url;                                                //  1: server connection established
+   request.onreadystatechange = function() {                         //  2: request received
+      if (request.readyState == 4) {                                 //  3: processing request
+         callback(request);                                          //  4: request finished and response is ready
+      }                                                              //
+   };                                                                // request.status = returns the HTTP status-code
+   request.open('GET', url , true);                                  //  200: "OK"
+   request.send(null);                                               //  404: "Not Found" etc.
 }
 
 
@@ -274,16 +278,16 @@ function loadUrl(/*string*/ url, /*function*/ callback) {                       
  * @param object   headers  - additional request header
  * @param function callback - callback function
  */
-function postUrl(/*string*/ url, /*string*/ data, /*object*/ headers, /*function*/ callback) {  // request.readyState = returns the status of the XMLHttpRequest
-   var request = new XMLHttpRequest();                                                          //  0: request not initialized
-   request.url = url;                                                                           //  1: server connection established
-   request.onreadystatechange = function() {                                                    //  2: request received
-      if (request.readyState == 4) {                                                            //  3: processing request
-         callback(request);                                                                     //  4: request finished and response is ready
-      }                                                                                         //
-   };                                                                                           // request.status = returns the HTTP status-code
-   request.open('POST', url , true);                                                            //  200: "OK"
-   for (var name in headers) {                                                                  //  404: "Not Found" etc.
+function postUrl(url, data, headers, callback) {                     // request.readyState = returns the status of the XMLHttpRequest
+   var request = new XMLHttpRequest();                               //  0: request not initialized
+   request.url = url;                                                //  1: server connection established
+   request.onreadystatechange = function() {                         //  2: request received
+      if (request.readyState == 4) {                                 //  3: processing request
+         callback(request);                                          //  4: request finished and response is ready
+      }                                                              //
+   };                                                                // request.status = returns the HTTP status-code
+   request.open('POST', url , true);                                 //  200: "OK"
+   for (var name in headers) {                                       //  404: "Not Found" etc.
       request.setRequestHeader(name, headers[name]);
    }
    request.send(data);
