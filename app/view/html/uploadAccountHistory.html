@@ -1,10 +1,13 @@
+<?
+$baseUri = strLeft($request->getApplicationBaseUri(), -1);
+?>
 <!DOCTYPE html>
 <html>
 <head>
    <meta charset="utf-8">
 
    <title>uploadAccountHistory.html</title>
-   <script type="text/javascript" src="<?=$request->getApplicationPath()?>/js/lang.js?v=1.18"></script>
+   <script type="text/javascript" src="<?=$baseUri.vUrl('/js/rosasurfer.js')?>"></script>
 </head>
 
 <body>
