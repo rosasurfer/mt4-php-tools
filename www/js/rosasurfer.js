@@ -1,29 +1,29 @@
 /**
- * Extend objects.
+ * Polyfill and/or extend objects.
  */
-// Internet Explorer 8 support
-if (!Array.prototype.forEach  ) Array.prototype.forEach   = function(/*function*/ func, scope) { for (var i=0, len=this.length; i < len; ++i) func.call(scope, this[i], i, this); }
+if (!Array.isArray            ) Array.isArray             = function isArray   (/*mixed*/    arg)         { return Object.prototype.toString.call(arg) === '[object Array]'; };
+if (!Array.prototype.forEach  ) Array.prototype.forEach   = function forEach   (/*function*/ func, scope) { for (var i=0, len=this.length; i < len; ++i) func.call(scope, this[i], i, this); }
 
-if (!Date.prototype.addDays   ) Date.prototype.addDays    = function(/*int*/ days)    { this.setTime(this.getTime() + (days*24*60*60*1000)); return this; }
-if (!Date.prototype.addHours  ) Date.prototype.addHours   = function(/*int*/ hours)   { this.setTime(this.getTime() + (  hours*60*60*1000)); return this; }
-if (!Date.prototype.addMinutes) Date.prototype.addMinutes = function(/*int*/ minutes) { this.setTime(this.getTime() + (   minutes*60*1000)); return this; }
-if (!Date.prototype.addSeconds) Date.prototype.addSeconds = function(/*int*/ seconds) { this.setTime(this.getTime() + (      seconds*1000)); return this; }
+if (!Date.prototype.addDays   ) Date.prototype.addDays    = function addDays   (/*int*/ days)    { this.setTime(this.getTime() + (days*24*60*60*1000)); return this; }
+if (!Date.prototype.addHours  ) Date.prototype.addHours   = function addHours  (/*int*/ hours)   { this.setTime(this.getTime() + (  hours*60*60*1000)); return this; }
+if (!Date.prototype.addMinutes) Date.prototype.addMinutes = function addMinutes(/*int*/ minutes) { this.setTime(this.getTime() + (   minutes*60*1000)); return this; }
+if (!Date.prototype.addSeconds) Date.prototype.addSeconds = function addSeconds(/*int*/ seconds) { this.setTime(this.getTime() + (      seconds*1000)); return this; }
 
-if (!String.prototype.capitalize     ) String.prototype.capitalize      = function()                  { return this.charAt(0).toUpperCase() + this.slice(1); }
-if (!String.prototype.capitalizeWords) String.prototype.capitalizeWords = function()                  { return this.replace(/\w\S*/g, function(word) { return word.capitalize(); }); }
-if (!String.prototype.decodeEntities ) String.prototype.decodeEntities  = function()                  { if (!String.prototype.decodeEntities.textarea) /*static*/ String.prototype.decodeEntities.textarea = document.createElement('textarea'); String.prototype.decodeEntities.textarea.innerHTML = this; return String.prototype.decodeEntities.textarea.value; }
-if (!String.prototype.trim           ) String.prototype.trim            = function()                  { return this.replace(/(^\s+)|(\s+$)/g, ''); }
-if (!String.prototype.startsWith     ) String.prototype.startsWith      = function(/*string*/ prefix) { return (this.indexOf(prefix) === 0); }
-if (!String.prototype.contains       ) String.prototype.contains        = function(/*string*/ string) { return (this.indexOf(string) != -1); }
-if (!String.prototype.endsWith       ) String.prototype.endsWith        = function(/*string*/ suffix) { var pos = this.lastIndexOf(suffix); return (pos!=-1 && this.length==pos+suffix.length); }
+if (!String.prototype.capitalize     ) String.prototype.capitalize      = function capitalize     ()                  { return this.charAt(0).toUpperCase() + this.slice(1); }
+if (!String.prototype.capitalizeWords) String.prototype.capitalizeWords = function capitalizeWords()                  { return this.replace(/\w\S*/g, function(word) { return word.capitalize(); }); }
+if (!String.prototype.decodeEntities ) String.prototype.decodeEntities  = function decodeEntities ()                  { if (!String.prototype.decodeEntities.textarea) /*static*/ String.prototype.decodeEntities.textarea = document.createElement('textarea'); String.prototype.decodeEntities.textarea.innerHTML = this; return String.prototype.decodeEntities.textarea.value; }
+if (!String.prototype.trim           ) String.prototype.trim            = function trim           ()                  { return this.replace(/(^\s+)|(\s+$)/g, ''); }
+if (!String.prototype.startsWith     ) String.prototype.startsWith      = function startsWith     (/*string*/ prefix) { return (this.indexOf(prefix) === 0); }
+if (!String.prototype.contains       ) String.prototype.contains        = function contains       (/*string*/ string) { return (this.indexOf(string) != -1); }
+if (!String.prototype.endsWith       ) String.prototype.endsWith        = function endsWith       (/*string*/ suffix) { var pos = this.lastIndexOf(suffix); return (pos!=-1 && this.length==pos+suffix.length); }
 
 // fix broken Internet Explorer substr()
 if ('ab'.substr(-1) != 'b') {
-   String.prototype.substr = function(start, length) {
+   String.prototype.substr = function substr(start, length) {
       var from = start;
          if (from < 0) from += this.length;
          if (from < 0) from = 0;
-      var to = typeof(length)=='undefined' ? this.length : from+length;
+      var to = length===undefined ? this.length : from+length;
          if (from > to) to = from;
       return this.substring(from, to);
    }
@@ -34,17 +34,17 @@ if ('ab'.substr(-1) != 'b') {
    /**
     * Decimal adjustment of a number.
     *
-    * @param  string  type  - The type of adjustment.
-    * @param  number  value - The number.
-    * @param  int     exp   - The exponent (the 10 logarithm of the adjustment base).
+    * @param  string type  - type of adjustment
+    * @param  number value - number
+    * @param  int    exp   - exponent (the 10 logarithm of the adjustment base)
     *
-    * @return number - The adjusted value.
+    * @return number - adjusted value
     *
     * @see    https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/round#Example:_Decimal_rounding
     */
    function decimalAdjust(type, value, exp) {
       // if the exp is undefined or zero...
-      if (typeof(exp)=='undefined' || +exp===0) {
+      if (exp===undefined || +exp===0) {
          return Math[type](value);
       }
       value = +value;
@@ -62,233 +62,215 @@ if ('ab'.substr(-1) != 'b') {
    }
 
    // decimal round, floor and ceil
-   if (!Math.round10) Math.round10 = function(value, exp) { return decimalAdjust('round', value, exp); };
-   if (!Math.floor10) Math.floor10 = function(value, exp) { return decimalAdjust('floor', value, exp); };
-   if (!Math.ceil10)  Math.ceil10  = function(value, exp) { return decimalAdjust('ceil',  value, exp); };
+   if (!Math.round10) Math.round10 = function round10(value, exp) { return decimalAdjust('round', value, exp); };
+   if (!Math.floor10) Math.floor10 = function floor10(value, exp) { return decimalAdjust('floor', value, exp); };
+   if (!Math.ceil10)  Math.ceil10  = function ceil10 (value, exp) { return decimalAdjust('ceil',  value, exp); };
 
-   Number.prototype.toFixed10 = function(precision) {
+   Number.prototype.toFixed10 = function toFixed10(precision) {
       return Math.round10(this, -precision).toFixed(precision);
    }
 })();
 
 
 /**
- * Define our namespace.
+ * Namespace
  */
-var rs = rs || {};
+var rosasurfer = {
 
 
-/**
- * Get an array with all query parameters.
- *
- * @param  string url - static URL to get query parameters from (if not given, the current page's url is used)
- *
- * @return array - [key1=>value1, key2=>value2, ..., keyN=>valueN]
- */
-function getQueryParameters(url) {
-   var pos, search;
-   if (typeof(url) == 'undefined') search = location.search;
-   else                            search = ((pos=url.indexOf('?'))==-1) ? '' : url.substr(pos);
+   /**
+    * Get an array with all query parameters.
+    *
+    * @param  string url - static URL to get query parameters from (if not given, the current page's url is used)
+    *
+    * @return array - [key1=>value1, key2=>value2, ..., keyN=>valueN]
+    */
+   getQueryParameters: function getQueryParameters(url/*=location.search*/) {
+      var pos, search;
+      if (url === undefined) search = location.search;
+      else                   search = ((pos=url.indexOf('?'))==-1) ? '' : url.substr(pos);
 
-   var result={}, values, pairs=search.slice(1).split('&');
-   pairs.forEach(function(/*string*/pair) {
-      values = pair.split('=');                                      // unlike PHP the JavaScript function split(str, limit) discards additional occurrences
-      if (values.length > 1)
-         result[values.shift()] = values.join('=');
-   });
-   return result;
-}
-
-
-/**
- * Get a single query parameter value.
- *
- * @param  string name - parameter name
- * @param  string url  - static URL to get a query parameter from (if not given, the current page's url is used)
- *
- * @return string - value or null if the parameter doesn't exist in the query string
- */
-function getQueryParameter(name, url) {
-   if (typeof(name) == 'undefined') return alert('getQueryParameter()\n\nUndefined parameter: name');
-   return getQueryParameters(url)[name];
-}
-
-
-/**
- * Whether or not a parameter exists in the query string.
- *
- * @param  string name - parameter name
- * @param  string url  - static URL to check for the query parameter (if not given, the current page's url is used)
- *
- * @return bool
- */
-function isQueryParameter(name, url) {
-   if (typeof(name) == 'undefined') return alert('isQueryParameter()\n\nUndefined parameter: name');
-   return typeof(getQueryParameters(url)[name]) != 'undefined';
-}
-
-
-/**
- * Show all accessible properties of the given argument.
- *
- * @param  mixed arg
- */
-function showProperties(arg) {
-   if (typeof(arg) == 'undefined') return alert('showProperties()\n\nUndefined parameter: arg');
-
-   var properties=[], property='';
-   var name = (arg.constructor===Array) ? 'array' : arg.toString();
-
-   for (var i in arg) {
-      try {
-         property = name +'.'+ i +' = '+ arg[i];
-      }
-      catch (ex) {
-         break;
-         property = name +'.'+ i +' = Exception while reading property (name: '+ ex.name +', message: '+ ex.message +')';
-      }
-      properties[properties.length] = property.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-   }
-
-   if (properties.length) {
-      log(properties.sort().join('<br>\n'));
-   }
-   else {
-      var type = (arg.constructor===Array) ? 'array' : typeof(arg);
-      alert('showProperties()\n\n'+ type.toLowerCase() +' '+ arg +' has no known properties.');
-   }
-}
-
-
-/**
- * Log a message to the bottom of the current page or to a log window.
- */
-var Logger = {
-   div:      null,
-   popup:    null,
-   popupDiv: null,
-
-   log:     function(/*string*/msg, /*mixed*/target) { Logger.writeln(msg          , target); },
-   writeln: function(/*string*/msg, /*mixed*/target) { Logger.write  (msg +'<br>\n', target); },
-
-   write: function(/*string*/msg, /*mixed*/target) {
-      if (!target) {
-         if (!Logger.div) {
-            Logger.div = document.createElement('div');
-            Logger.div.setAttribute('id', 'logger');
-            Logger.div.style.zIndex          = ''+ (0xFFFFFFFFFFFF+1);
-            Logger.div.style.position        = 'absolute';
-            Logger.div.style.left            = '10px';
-            Logger.div.style.top             = '10px';
-            Logger.div.style.padding         = '10px';
-            Logger.div.style.textAlign       = 'left';
-            Logger.div.style.fontSize        = '13px';
-            Logger.div.style.fontFamily      = 'arial,helvetica,sans-serif';
-            Logger.div.style.color           = 'black';
-            Logger.div.style.backgroundColor = 'lightgray';
-
-            var bodies = document.getElementsByTagName('body');
-            if (!bodies || !bodies.length)
-               return alert('Logger.write()\n\nError: you can only log from inside the <body> tag !');
-            bodies[0].appendChild(Logger.div);
-         }
-         target = Logger.div;
-      }
-
-      if (target === true) {
-         if (navigator.userAgent.endsWith('/4.0'))
-            return Logger.write(msg);                                // workaround for flawed GreaseMonkey in Firefox 4.0
-
-         if (!Logger.popupDiv) {
-            Logger.popup = open('', 'logWindow', 'resizable,scrollbars,width=600,height=400');
-            if (!Logger.popup)
-               return alert('Logger.write()\n\nCannot open popup for '+ location +'\nPlease disable your popup blocker.');
-
-            Logger.popupDiv = Logger.popup.document.createElement('div');
-            Logger.popupDiv.style.fontSize   = '13px';
-            Logger.popupDiv.style.fontFamily = 'arial,helvetica,sans-serif';
-            Logger.popup.document.getElementsByTagName('body')[0].appendChild(Logger.popupDiv);
-         }
-         else if (Logger.popup.closed) {
-            Logger.popup = Logger.popupDiv = null;
-            return Logger.write(msg, target);
-         }
-         target = Logger.popupDiv;
-      }
-      target.innerHTML += msg;
+      var result={}, values, pairs=search.slice(1).split('&');
+      pairs.forEach(function(/*string*/pair) {
+         values = pair.split('=');                          // Unlike PHP the JavaScript function split(str, limit) discards
+         if (values.length > 1)                             // additional occurrences.
+            result[values.shift()] = values.join('=');
+      });
+      return result;
    },
 
-   clear: function() {
-      if (Logger.div)
-         Logger.div.innerHTML = '';
-      if (Logger.popup && !Logger.popup.closed && Logger.popupDiv)
-         Logger.popupDiv.innerHTML = '';
+
+   /**
+    * Get a single query parameter value.
+    *
+    * @param  string name - parameter name
+    * @param  string url  - static URL to get a query parameter from (if not given, the current page's url is used)
+    *
+    * @return string - value or null if the parameter doesn't exist in the query string
+    */
+   getQueryParameter: function getQueryParameter(name, url) {
+      if (name === undefined) return alert('rosasurfer.getQueryParameter()\n\nUndefined parameter "name"');
+      return this.getQueryParameters(url)[name];
+   },
+
+
+   /**
+    * Whether or not a parameter exists in the query string.
+    *
+    * @param  string name - parameter name
+    * @param  string url  - static URL to check for the query parameter (if not given, the current page's url is used)
+    *
+    * @return bool
+    */
+   isQueryParameter: function isQueryParameter(name, url) {
+      if (name === undefined) return alert('rosasurfer.isQueryParameter()\n\nUndefined parameter "name"');
+      return this.getQueryParameters(url)[name] !== undefined;
+   },
+
+
+   /**
+    * Load a url via GET and pass the response to the specified callback function.
+    *
+    * @param string   url      - url to load
+    * @param function callback - callback function
+    */
+   getUrl: function getUrl(url, callback) {                    // request.readyState = returns the status of the XMLHttpRequest
+      var request = new XMLHttpRequest();                      //  0: request not initialized
+      request.url = url;                                       //  1: server connection established
+      request.onreadystatechange = function() {                //  2: request received
+         if (request.readyState == 4) {                        //  3: processing request
+            callback(request);                                 //  4: request finished and response is ready
+         }                                                     //
+      };                                                       // request.status = returns the HTTP status-code
+      request.open('GET', url , true);                         //  200: "OK"
+      request.send(null);                                      //  404: "Not Found" etc.
+   },
+
+
+   /**
+    * Load a url via POST and pass the response to the specified callback function.
+    *
+    * @param string   url      - url to load
+    * @param string   data     - content to send in the request's body (i.e. POST parameter)
+    * @param object   headers  - additional request header
+    * @param function callback - callback function
+    */
+   postUrl: function postUrl(url, data, headers, callback) {   // request.readyState = returns the status of the XMLHttpRequest
+      var request = new XMLHttpRequest();                      //  0: request not initialized
+      request.url = url;                                       //  1: server connection established
+      request.onreadystatechange = function() {                //  2: request received
+         if (request.readyState == 4) {                        //  3: processing request
+            callback(request);                                 //  4: request finished and response is ready
+         }                                                     //
+      };                                                       // request.status = returns the HTTP status-code
+      request.open('POST', url , true);                        //  200: "OK"
+      for (var name in headers) {                              //  404: "Not Found" etc.
+         request.setRequestHeader(name, headers[name]);
+      }
+      request.send(data);
+   },
+
+
+   /**
+    * Show all accessible properties of the passed argument.
+    *
+    * @param  mixed arg
+    */
+   showProperties: function showProperties(arg) {
+      if (arg === undefined) return alert('rosasurfer.showProperties()\n\nUndefined parameter "arg"');
+      if (arg === null)      return alert('rosasurfer.showProperties()\n\nIllegal parameter "arg": null');
+
+      var name, property='', properties=[];
+      if (Array.isArray(arg))           name = 'array';
+      else if (typeof(arg) == 'string') name = 'string';
+      else                              name = arg.toString();
+
+      for (var i in arg) {
+         try {
+            property = name +'.'+ i +' = '+ arg[i];
+         }
+         catch (ex) {
+            property = name +'.'+ i +' = exception while reading property ('+ ex.name +': '+ ex.message +')';
+         }
+         properties[properties.length] = property.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      }
+
+      if (properties.length) {
+         this.log(properties.sort().join('<br>\n'));
+      }
+      else {
+         var type = Array.isArray(arg) ? 'array' : typeof(arg);
+         alert('rosasurfer.showProperties()\n\n'+ type.toLowerCase() +' '+ arg +' has no known properties.');
+      }
+   },
+
+
+   /**
+    * Log a message to the top or bottom of the current page. It is sufficient to provide the 'target' argument only once
+    * for every log target change.
+    *
+    * @param  mixed  msg
+    * @param  string target - whether to log to the top or the bottom of the current page (default: top)
+    */
+   log: function log(msg, target) {
+      if (this.log.top===undefined) this.log.top = true;
+      if      (target == 'top'   )  this.log.top = true;
+      else if (target == 'bottom')  this.log.top = false;
+
+      var div = this.log.top ? 'log.top' : 'log.bottom';
+      if (!this[div]) {
+         this[div] = document.createElement('div');
+         this[div].setAttribute('id', 'rosasurfer.'+ div);
+         this[div].style.zIndex          = ''+ (0xFFFFFFFFFFFF+1);
+         this[div].style.padding         = '10px';
+         this[div].style.textAlign       = 'left';
+         this[div].style.fontSize        = '12px';
+         this[div].style.fontFamily      = 'arial,helvetica,sans-serif';
+         this[div].style.color           = 'black';
+         this[div].style.backgroundColor = 'lightgray';
+         if (this.log.top) {
+            this[div].style.position     = 'absolute';
+            this[div].style.left         = '10px';
+            this[div].style.top          = '10px';
+         }
+         var bodies = document.getElementsByTagName('body');
+         if (!bodies || !bodies.length)
+            return alert('rosasurfer.log()\n\nError: You cannot log from outside the <body> tag!');
+         bodies[0].appendChild(this[div]);
+      }
+      this[div].innerHTML += msg +'<br>\n';
+   },
+
+
+   /**
+    * Clear the last log output in the current page.
+    */
+   clearLog: function clearLog() {
+      var div = (this.log.top!==false) ? 'log.top' : 'log.bottom';
+      if (this[div])
+         this[div].innerHTML = '';
+   },
+
+
+   /**
+    * Log a message to the status bar.
+    *
+    * @param  mixed msg
+    */
+   logStatus: function logStatus(msg) {
+      if (typeof(msg)=='object' && msg=='[object Event]')
+         this.logEvent(msg);
+      else
+         self.status = msg;
+   },
+
+
+   /**
+    * Log event infos to the status bar.
+    *
+    * @param  Event ev
+    */
+   logEvent: function logEvent(ev) {
+      this.logStatus(ev.type +' event,  window: ['+ (ev.pageX - pageXOffset) +','+ (ev.pageY - pageYOffset) +']  page: ['+ ev.pageX +','+ ev.pageY +']');
    }
-}
-log = Logger.log;
-
-
-/**
- * Log a message to the status bar.
- *
- * @param  mixed msg
- */
-function logStatus(msg) {
-   if (typeof(msg)=='object' && msg=='[object Event]')
-      logEvent(msg);
-   else
-      self.status = msg;
-}
-
-
-/**
- * Log event infos to the status bar.
- *
- * @param  Event ev
- */
-function logEvent(ev) {
-   logStatus(ev.type +' event,  window: ['+ (ev.pageX - pageXOffset) +','+ (ev.pageY - pageYOffset) +']  page: ['+ ev.pageX +','+ ev.pageY +']');
-}
-
-
-/**
- * Load a url via GET and pass the response to the specified callback function.
- *
- * @param string   url      - url to load
- * @param function callback - callback function
- */
-function loadUrl(url, callback) {                                    // request.readyState = returns the status of the XMLHttpRequest
-   var request = new XMLHttpRequest();                               //  0: request not initialized
-   request.url = url;                                                //  1: server connection established
-   request.onreadystatechange = function() {                         //  2: request received
-      if (request.readyState == 4) {                                 //  3: processing request
-         callback(request);                                          //  4: request finished and response is ready
-      }                                                              //
-   };                                                                // request.status = returns the HTTP status-code
-   request.open('GET', url , true);                                  //  200: "OK"
-   request.send(null);                                               //  404: "Not Found" etc.
-}
-
-
-/**
- * Load a url via POST and pass the response to the specified callback function.
- *
- * @param string   url      - url to load
- * @param string   data     - content to send in the request's body (i.e. POST parameter)
- * @param object   headers  - additional request header
- * @param function callback - callback function
- */
-function postUrl(url, data, headers, callback) {                     // request.readyState = returns the status of the XMLHttpRequest
-   var request = new XMLHttpRequest();                               //  0: request not initialized
-   request.url = url;                                                //  1: server connection established
-   request.onreadystatechange = function() {                         //  2: request received
-      if (request.readyState == 4) {                                 //  3: processing request
-         callback(request);                                          //  4: request finished and response is ready
-      }                                                              //
-   };                                                                // request.status = returns the HTTP status-code
-   request.open('POST', url , true);                                 //  200: "OK"
-   for (var name in headers) {                                       //  404: "Not Found" etc.
-      request.setRequestHeader(name, headers[name]);
-   }
-   request.send(data);
-}
+};
