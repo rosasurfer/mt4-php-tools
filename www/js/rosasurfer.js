@@ -87,8 +87,8 @@ var rosasurfer = {
     */
    getQueryParameters: function getQueryParameters(url/*=location.search*/) {
       var pos, search;
-      if (url === undefined) search = location.search;
-      else                   search = ((pos=url.indexOf('?'))==-1) ? '' : url.substr(pos);
+      if (url===undefined) search = location.search;
+      else                 search = ((pos=url.indexOf('?'))==-1) ? '' : url.substr(pos);
 
       var result={}, values, pairs=search.slice(1).split('&');
       pairs.forEach(function(/*string*/pair) {
@@ -109,7 +109,7 @@ var rosasurfer = {
     * @return string - value or null if the parameter doesn't exist in the query string
     */
    getQueryParameter: function getQueryParameter(name, url) {
-      if (name === undefined) return alert('rosasurfer.getQueryParameter()\n\nUndefined parameter "name"');
+      if (name===undefined) return alert('rosasurfer.getQueryParameter()\n\nUndefined parameter "name"');
       return this.getQueryParameters(url)[name];
    },
 
@@ -123,7 +123,7 @@ var rosasurfer = {
     * @return bool
     */
    isQueryParameter: function isQueryParameter(name, url) {
-      if (name === undefined) return alert('rosasurfer.isQueryParameter()\n\nUndefined parameter "name"');
+      if (name===undefined) return alert('rosasurfer.isQueryParameter()\n\nUndefined parameter "name"');
       return this.getQueryParameters(url)[name] !== undefined;
    },
 
@@ -172,6 +172,24 @@ var rosasurfer = {
 
 
    /**
+    * Return a nicer representation of the specified argument's type.
+    *
+    * @param  mixed arg
+    *
+    * @return string
+    */
+   getType: function getType(arg) {
+      var type = typeof(arg);
+      if (type == 'object') {
+         if      (arg === null)         type = 'null';
+         else if (arg.constructor.name) type = arg.constructor.name;
+         else                           type = arg.constructor.toString().slice(8, -1);
+      }
+      return type;
+   },
+
+
+   /**
     * Show all accessible properties of the passed argument.
     *
     * @param  mixed arg
@@ -180,17 +198,14 @@ var rosasurfer = {
       if (arg === undefined) return alert('rosasurfer.showProperties()\n\nUndefined parameter "arg"');
       if (arg === null)      return alert('rosasurfer.showProperties()\n\nIllegal parameter "arg": null');
 
-      var name, property='', properties=[];
-      if (Array.isArray(arg))           name = 'array';
-      else if (typeof(arg) == 'string') name = 'string';
-      else                              name = arg.toString();
+      var property='', properties=[], type=this.getType(arg);
 
       for (var i in arg) {
          try {
-            property = name +'.'+ i +' = '+ arg[i];
+            property = type +'.'+ i +' = '+ arg[i];
          }
          catch (ex) {
-            property = name +'.'+ i +' = exception while reading property ('+ ex.name +': '+ ex.message +')';
+            property = type +'.'+ i +' = exception while reading property ('+ ex.name +': '+ ex.message +')';
          }
          properties[properties.length] = property.replace(/</g, '&lt;').replace(/>/g, '&gt;');
       }
@@ -199,8 +214,7 @@ var rosasurfer = {
          this.log(properties.sort().join('<br>\n'));
       }
       else {
-         var type = Array.isArray(arg) ? 'array' : typeof(arg);
-         alert('rosasurfer.showProperties()\n\n'+ type.toLowerCase() +' '+ arg +' has no known properties.');
+         alert('rosasurfer.showProperties()\n\n'+ type +' has no known properties.');
       }
    },
 
@@ -213,32 +227,29 @@ var rosasurfer = {
     * @param  string target - whether to log to the top or the bottom of the current page (default: top)
     */
    log: function log(msg, target) {
-      if (this.log.top===undefined) this.log.top = true;
-      if      (target == 'top'   )  this.log.top = true;
-      else if (target == 'bottom')  this.log.top = false;
-
-      var div = this.log.top ? 'log.top' : 'log.bottom';
-      if (!this[div]) {
-         this[div] = document.createElement('div');
-         this[div].setAttribute('id', 'rosasurfer.'+ div);
-         this[div].style.zIndex          = ''+ (0xFFFFFFFFFFFF+1);
-         this[div].style.padding         = '10px';
-         this[div].style.textAlign       = 'left';
-         this[div].style.fontSize        = '12px';
-         this[div].style.fontFamily      = 'arial,helvetica,sans-serif';
-         this[div].style.color           = 'black';
-         this[div].style.backgroundColor = 'lightgray';
-         if (this.log.top) {
-            this[div].style.position     = 'absolute';
-            this[div].style.left         = '10px';
-            this[div].style.top          = '10px';
-         }
+      var div = this.log.div;
+      if (!div) {
+         div = this.log.div = document.createElement('div');
+         div.setAttribute('id', 'rosasurfer.log.output');
+         div.style.zIndex          = ''+ (0x7FFFFFFF-1);    // 2147483647-1: one layer available above it
+         div.style.padding         = '6px';
+         div.style.textAlign       = 'left';
+         div.style.fontSize        = '12px';
+         div.style.fontFamily      = 'arial,helvetica,sans-serif';
+         div.style.color           = 'black';
+         div.style.backgroundColor = 'lightgray';
+         div.style.position        = 'absolute';            // default
+         div.style.top             = '6px';
+         div.style.left            = '6px';
          var bodies = document.getElementsByTagName('body');
-         if (!bodies || !bodies.length)
-            return alert('rosasurfer.log()\n\nError: You cannot log from outside the <body> tag!');
-         bodies[0].appendChild(this[div]);
+         if (!bodies || !bodies.length) return alert('rosasurfer.log()\n\nError: You cannot log from outside the <body> tag!');
+         bodies[0].appendChild(div);
       }
-      this[div].innerHTML += msg +'<br>\n';
+      if      (target=='top'   ) div.style.position = 'absolute';
+      else if (target=='bottom') div.style.position = 'relative';
+
+      msg = msg.replace(/ /g, '&nbsp;');
+      div.innerHTML += msg +'<br>\n';
    },
 
 
