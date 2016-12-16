@@ -1,5 +1,5 @@
 /**
- * Polyfill and/or extend objects.
+ * Polyfill and extend objects.
  */
 if (!Array.isArray            ) Array.isArray             = function isArray   (/*mixed*/    arg)         { return Object.prototype.toString.call(arg) === '[object Array]'; };
 if (!Array.prototype.forEach  ) Array.prototype.forEach   = function forEach   (/*function*/ func, scope) { for (var i=0, len=this.length; i < len; ++i) func.call(scope, this[i], i, this); }
@@ -16,6 +16,16 @@ if (!String.prototype.trim           ) String.prototype.trim            = functi
 if (!String.prototype.startsWith     ) String.prototype.startsWith      = function startsWith     (/*string*/ prefix) { return (this.indexOf(prefix) === 0); }
 if (!String.prototype.contains       ) String.prototype.contains        = function contains       (/*string*/ string) { return (this.indexOf(string) != -1); }
 if (!String.prototype.endsWith       ) String.prototype.endsWith        = function endsWith       (/*string*/ suffix) { var pos = this.lastIndexOf(suffix); return (pos!=-1 && this.length==pos+suffix.length); }
+if (!String.prototype.repeat         ) String.prototype.repeat          = function repeat         (/*int*/    count)  {
+   if (count < 0)                    throw new RangeError('repeat count must be non-negative');
+   if (count == Infinity)            throw new RangeError('repeat count must be less than infinity');
+   count = Math.floor(count);
+   if (this.length * count >= 1<<28) throw new RangeError('repeat count must not overflow maximum string size');
+   var result = '';
+   while (count--)
+      result += this;
+   return result;
+}
 
 // fix broken Internet Explorer substr()
 if ('ab'.substr(-1) != 'b') {
@@ -248,18 +258,19 @@ var rosasurfer = {
       if      (target=='top'   ) div.style.position = 'absolute';
       else if (target=='bottom') div.style.position = 'relative';
 
-      msg = msg.replace(/ /g, '&nbsp;');
+      msg = msg.toString().replace(/ {2,}/g, function(match) {
+         return '&nbsp;'.repeat(match.length);
+      });
       div.innerHTML += msg +'<br>\n';
    },
 
 
    /**
-    * Clear the last log output in the current page.
+    * Clear the log output in the current page.
     */
    clearLog: function clearLog() {
-      var div = (this.log.top!==false) ? 'log.top' : 'log.bottom';
-      if (this[div])
-         this[div].innerHTML = '';
+      if (this.log.div)
+         this.log.div.innerHTML = '';
    },
 
 
@@ -269,10 +280,8 @@ var rosasurfer = {
     * @param  mixed msg
     */
    logStatus: function logStatus(msg) {
-      if (typeof(msg)=='object' && msg=='[object Event]')
-         this.logEvent(msg);
-      else
-         self.status = msg;
+      if (this.getType(msg) == 'Event') this.logEvent(msg);
+      else                              self.status = msg;
    },
 
 
