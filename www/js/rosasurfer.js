@@ -1,3 +1,5 @@
+'use strict';
+
 /**
  * Polyfill and extend objects.
  */
@@ -237,6 +239,9 @@ var rosasurfer = {
     * @param  string target - whether to log to the top or the bottom of the current page (default: top)
     */
    log: function log(msg, target) {
+      if (this.log.console)
+         return console.log(msg);
+
       var div = this.log.div;
       if (!div) {
          div = this.log.div = document.createElement('div');
