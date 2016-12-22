@@ -232,13 +232,13 @@ var rosasurfer = {
 
 
    /**
-    * Log a message to the top or bottom of the current page. It is sufficient to provide the 'target' argument only once
+    * Log a message. It is sufficient to provide the 'target' argument only once
     * for every log target change.
     *
     * @param  mixed  msg
-    * @param  string target - whether to log to the top or the bottom of the current page (default: top)
+    * @param  string target - whether to log to the top (default) or the bottom of the page
     */
-   log: function log(msg, target) {
+   log: function log(msg, target/*='top'*/) {
       if (this.log.console)
          return console.log(msg);
 
