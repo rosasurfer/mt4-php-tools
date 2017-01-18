@@ -13,13 +13,14 @@ Database    SQLite3
 
 
 drop table if exists t_test; create table t_test (
-   id              integer   not null,
-   created         datetime  not null default (datetime('now', 'localtime')),
+   id              integer primary key,
+   created         text      not null default (datetime('now', 'localtime')),
+   version         integer   not null default current_timestamp,
    strategy        text(260) not null,
    reportingid     integer   not null,
    reportingsymbol text(11)  not null,
-   symbol          text(11)  not null,
-   primary key (id)
+   symbol          text(11)  not null
+
 );
 
 create unique index u_reportingsymbol      on t_test(reportingsymbol);
@@ -28,3 +29,6 @@ create unique index u_strategy_reportingid on t_test(strategy,reportingid);
 insert into t_test (strategy, reportingid, reportingsymbol, symbol) values
    ('MA example', 1, 'MAex.001', 'EURUSD');
 
+
+/*
+*/
