@@ -7,12 +7,10 @@ Author      Peter Walther
 Version     0.1
 Database    SQLite3
 */
-
-
 .open --new "mt4sqlite.db"
 
 
--- empty the database
+-- drop database
 pragma writable_schema = 1;
 delete from sqlite_master;
 pragma writable_schema = 0;
@@ -20,57 +18,79 @@ vacuum;
 pragma foreign_keys = on;
 
 
--- TickModel enumeration
-create table TickModels (
-   Type text[enum] primary key not null
-);
-insert into TickModels (Type) values
+-- enum: OrderType
+create table enum_OrderType (Type text[enum] primary key);
+insert into  enum_OrderType (Type) values
+   ('Buy'      ),
+   ('Sell'     ),
+   ('BuyLimit' ),
+   ('SellLimit'),
+   ('BuyStop'  ),
+   ('SellStop' );
+
+
+-- enum: TickModel
+create table enum_TickModel (Type text[enum] primary key);
+insert into  enum_TickModel (Type) values
    ('EveryTick'    ),
    ('ControlPoints'),
    ('BarOpen'      );
 
 
--- TradeDirection enumeration
-create table TradeDirections (
-   Type text[enum] primary key not null
-);
-insert into TradeDirections (Type) values
+-- enum: TradeDirection
+create table enum_TradeDirections (Type text[enum] primary key);
+insert into  enum_TradeDirections (Type) values
    ('Long' ),
    ('Short'),
    ('Both' );
 
 
 -- Test
-create table Test (
-   Id              integer       not null,
+create table t_Test (
+   Id              integer primary key,
    Created         text          not null default (datetime('now', 'localtime')),
    Strategy        text(260)     not null,
    ReportingId     integer       not null,
    ReportingSymbol text(11)      not null,
-   Symbol          text(11)      not null,
-   Timeframe       integer       not null,
-   StartTime       text          not null,                                 -- FXT
-   EndTime         text          not null,                                 -- FXT
-   TickModel       text[enum]    not null references TickModels(Type),
-   Spread          float(2,1)    not null,                                 -- in pips
-   Bars            integer       not null,                                 -- number of tested bars
-   Ticks           integer       not null,                                 -- number of tested ticks
-   TradeDirections text[enum]    not null references TradeDirections(Type),
+   Symbol          text(11)      not null,                                       -- tested symbol
+   Timeframe       integer       not null,                                       -- tested timeframe
+   StartTime       text          not null,                                       -- FXT
+   EndTime         text          not null,                                       -- FXT
+   TickModel       text[enum]    not null references enum_TickModel(Type),
+   Spread          float(2,1)    not null,                                       -- in pips
+   Bars            integer       not null,                                       -- number of tested bars
+   Ticks           integer       not null,                                       -- number of tested ticks
+   TradeDirections text[enum]    not null references enum_TradeDirections(Type),
    VisualMode      integer[bool] not null,
-   Duration        integer       not null,                                 -- test duration in milliseconds
-   primary key (Id)
+   Duration        integer       not null                                        -- test duration in milliseconds
 );
-create unique index u_reportingsymbol      on Test(ReportingSymbol);
-create unique index u_strategy_reportingid on Test(Strategy, ReportingId);
+create unique index u_reportingsymbol      on t_Test(ReportingSymbol);
+create unique index u_strategy_reportingid on t_Test(Strategy, ReportingId);
+
+
+-- Order
+create table t_Order (
+   Id          integer primary key,
+   Ticket      integer     not null,
+   Type        text[enum]  not null references enum_OrderType(Type),
+   Lots        float(10,2) not null,
+   Symbol      text(11)    not null,
+   OpenPrice   float(10,5) not null,
+   OpenTime    text        not null,                                             -- FXT
+   StopLoss    float(10,5),
+   TakeProfit  float(10,5),
+   ClosePrice  float(10,5),
+   CloseTime   text,                                                             -- FXT
+   Commission  float(10,2),
+   Swap        float(10,2),
+   Profit      float(10,2),                                                      -- gross profit
+   MagicNumber integer,
+   Comment     text(27),
+   Test_id     integer not null references t_Test(Id)
+);
+create unique index u_test_ticket on t_Order(Test_id, Ticket);
 
 
 -- insert some data
-insert into Test (strategy, reportingid, reportingsymbol, symbol, timeframe, starttime, endtime, tickmodel, spread, bars, ticks, tradedirections, visualmode, duration) values
+insert into t_Test (strategy, reportingid, reportingsymbol, symbol, timeframe, starttime, endtime, tickmodel, spread, bars, ticks, tradedirections, visualmode, duration) values
    ('MA example', 1, 'MAex.001', 'EURUSD',  5, datetime('now', 'localtime'), datetime('now', 'localtime'), 'BarOpen', 0.2, 1000, 1001, 'Both', 0, 1234);
-
-/*
-   OrderHistory* orders;   // array of orders
-*/
-
-
-
