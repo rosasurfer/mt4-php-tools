@@ -1,13 +1,10 @@
 /*
-Created     16.01.2017
-Modified    17.01.2017
 Project     MyFX
-Model       MetaTrader SQLite DB
+Model       MetaTrader DB
 Author      Peter Walther
-Version     0.1
 Database    SQLite3
 */
-.open --new "mt4sqlite.db"
+.open --new "MT4SQLite.db"
 
 
 -- drop database
@@ -87,6 +84,8 @@ create table t_Order (
 create unique index u_test_ticket on t_Order(Test_id, Ticket);
 
 
+/*
 -- insert some data
 insert into t_Test (strategy, reportingid, reportingsymbol, symbol, timeframe, starttime, endtime, tickmodel, spread, bars, ticks, tradedirections, visualmode, duration) values
    ('MA example', 1, 'MAex.001', 'EURUSD',  5, datetime('now', 'localtime'), datetime('now', 'localtime'), 'BarOpen', 0.2, 1000, 1001, 'Both', 0, 1234);
+*/
