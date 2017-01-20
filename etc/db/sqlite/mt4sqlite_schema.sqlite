@@ -21,12 +21,8 @@ pragma foreign_keys = on;
 -- enum: OrderType
 create table enum_OrderType (Type text[enum] primary key);
 insert into  enum_OrderType (Type) values
-   ('Buy'      ),
-   ('Sell'     ),
-   ('BuyLimit' ),
-   ('SellLimit'),
-   ('BuyStop'  ),
-   ('SellStop' );
+   ('Buy' ),
+   ('Sell');
 
 
 -- enum: TickModel
@@ -79,11 +75,11 @@ create table t_Order (
    OpenTime    text        not null,                                             -- FXT
    StopLoss    float(10,5),
    TakeProfit  float(10,5),
-   ClosePrice  float(10,5),
-   CloseTime   text,                                                             -- FXT
-   Commission  float(10,2),
-   Swap        float(10,2),
-   Profit      float(10,2),                                                      -- gross profit
+   ClosePrice  float(10,5) not null,
+   CloseTime   text        not null,                                             -- FXT
+   Commission  float(10,2) not null,
+   Swap        float(10,2) not null,
+   Profit      float(10,2) not null,                                             -- gross profit
    MagicNumber integer,
    Comment     text(27),
    Test_id     integer not null references t_Test(Id)
