@@ -1,0 +1,37 @@
+{
+    "name":        "rosasurfer/mt4-cli",
+    "description": "MyFX web interface",
+    "type":        "project",
+    "homepage":    "http://mt4.rosasurfer.com/",
+    "license":     "WTFPL",
+    "authors": [{ 
+        "name":  "Peter Walther", 
+        "email": "mt4-cli@rosasurfer.com" 
+    }],
+    "config": {
+        "preferred-install": {
+            "rosasurfer/*": "source",
+            "*":            "dist"
+        },        
+        "vendor-dir":         "etc/vendor",
+        "optimize-autoloader": true
+    },
+    "repositories": [
+        {
+            "type": "path",
+            "url":  "etc/vendor/local-packages/*"
+        },
+        {
+            "type": "vcs", 
+            "url":  "https://github.com/rosasurfer/ministruts" 
+        }
+    ],       
+    "require": {
+        "php":                   ">=5.6",
+        "rosasurfer/ministruts": "dev-master"
+    },
+    "minimum-stability": "stable",
+    "autoload": {
+        "classmap": ["app/"]
+    }   
+}

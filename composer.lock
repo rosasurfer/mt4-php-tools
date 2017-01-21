@@ -1,0 +1,55 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "739e10d22da1052f8ae65262fccb90e0",
+    "packages": [
+        {
+            "name": "rosasurfer/ministruts",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "etc/vendor/local-packages/rosasurfer-ministruts",
+                "reference": "01fd5d0b6748d86f686df61764e3042c3e4b6f6c",
+                "shasum": null
+            },
+            "require": {
+                "php": ">=5.6"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ],
+                "files": [
+                    "src/load.php"
+                ]
+            },
+            "license": [
+                "WTFPL"
+            ],
+            "authors": [
+                {
+                    "name": "Peter Walther",
+                    "email": "ministruts@rosasurfer.com"
+                }
+            ],
+            "description": "Struts 1.2 like MVC web framework for PHP",
+            "homepage": "http://ministruts.rosasurfer.com/"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": {
+        "rosasurfer/ministruts": 20
+    },
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": {
+        "php": ">=5.6"
+    },
+    "platform-dev": []
+}
