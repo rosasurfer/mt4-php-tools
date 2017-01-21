@@ -1,5 +1,5 @@
 <?php
-if (PHP_VERSION_ID < 50600) exit('[FATAL]  This application requires PHP >= 5.6');
+if (PHP_VERSION_ID < 50600) exit('[FATAL] This application requires PHP >= 5.6');
 
 use rosasurfer\MiniStruts;
 use rosasurfer\util\PHP;
