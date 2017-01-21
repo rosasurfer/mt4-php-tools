@@ -6,8 +6,8 @@
 
    <!-- ============================================= Global Forwards ============================================= -->
    <global-forwards>
-      <forward name="home"          include=".default"   />
-      <forward name="redirect.home" redirect="/index.php"/>
+      <forward name="home"          include=".default"/>
+      <forward name="redirect.home" redirect="/"/>
    </global-forwards>
 
 
@@ -28,8 +28,8 @@
 
    <!-- ================================================== Tiles ================================================== -->
    <tiles>
-      <tile name=".default" 					path="html/default.html"             />
-		<tile name=".uploadAccountHistory"  path="html/uploadAccountHistory.html"/>
+      <tile name=".default" 					path="tiles/default.phtml"             />
+		<tile name=".uploadAccountHistory"  path="tiles/uploadAccountHistory.phtml"/>
    </tiles>
 
 </struts-config>
