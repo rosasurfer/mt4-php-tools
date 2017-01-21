@@ -75,7 +75,7 @@ function createHistory($symbol) {
    // MT4-HistorySet erzeugen
    $digits    = MyFX::$symbols[$symbol]['digits'];
    $format    = 400;
-   $directory = MyFX::getConfigPath('myfx.data-path').'/history/mt4/MyFX-Dukascopy';
+   $directory = MyFX::getConfigPath('myfx.data-directory').'/history/mt4/MyFX-Dukascopy';
    $history   = HistorySet::create($symbol, $digits, $format, $directory);
 
 
@@ -142,7 +142,7 @@ function getVar($id, $symbol=null, $time=null) {
    else if ($id == 'myfxDir') {              // $dataDirectory/history/myfx/$type/$symbol/$myfxDirDate         // lokales Verzeichnis
       if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
       static $dataDirectory; if (!$dataDirectory)
-      $dataDirectory = MyFX::getConfigPath('myfx.data-path');
+      $dataDirectory = MyFX::getConfigPath('myfx.data-directory');
       $type          = MyFX::$symbols[$symbol]['type'];
       $myfxDirDate   = $self('myfxDirDate', null, $time);
       $result        = "$dataDirectory/history/myfx/$type/$symbol/$myfxDirDate";

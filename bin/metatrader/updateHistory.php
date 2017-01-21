@@ -68,7 +68,7 @@ function updateHistory($symbol) {
 
    global $verbose;
    $digits       = MyFX::$symbols[$symbol]['digits'];
-   $directory    = MyFX::getConfigPath('myfx.data-path').'/history/mt4/MyFX-Dukascopy';
+   $directory    = MyFX::getConfigPath('myfx.data-directory').'/history/mt4/MyFX-Dukascopy';
    $lastSyncTime = null;
    echoPre('[Info]    '.$symbol);
 
