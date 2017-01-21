@@ -11,8 +11,8 @@ $baseUri = strLeft($request->getApplicationBaseUri(), -1);
 </head>
 
 <body>
-&nbsp;&nbsp;&nbsp;<a href="./index.php" style="color:blue">Home</a>
-&nbsp;&nbsp;&nbsp;<a href="./uploadAccountHistory.php" style="color:blue">UploadAccountHistory</a>
+&nbsp;&nbsp;&nbsp;<a href="<?=$baseUri?>/" style="color:blue">Home</a>
+&nbsp;&nbsp;&nbsp;<a href="<?=$baseUri?>/uploadAccountHistory.php" style="color:blue">UploadAccountHistory</a>
 <br>
 <br>
 
@@ -21,7 +21,7 @@ $baseUri = strLeft($request->getApplicationBaseUri(), -1);
    <div style="font-size:12px; font-weight:bold">UploadAccountHistory</div>
    <br>
 
-   <form action=".<?=$request->getRelativeURI()?>" method="post" enctype="multipart/form-data">
+   <form action="<?=$request->getPath()?>" method="post" enctype="multipart/form-data">
       <input type="hidden" name="MAX_FILE_SIZE" value="<?=ini_get('upload_max_filesize')?>">
 
    <table cellspacing=0 cellpadding=0 border=0>
