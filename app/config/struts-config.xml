@@ -13,7 +13,7 @@
 
    <!-- ============================================= Action Mappings ============================================= -->
    <action-mappings>
-      <mapping path="/index.php"  forward="home"/>
+      <mapping path="/"  forward="home"/>
 
       <mapping path="/uploadAccountHistory.php"  form="UploadAccountHistoryActionForm"  action="UploadAccountHistoryAction"  methods="get,post">
          <forward name="default"  include=".uploadAccountHistory"/>
