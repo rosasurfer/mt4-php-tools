@@ -15,6 +15,7 @@ return array(
    'LZMA'                                          => APPLICATION_ROOT.'/app/lib/LZMA.php',
    'ReportHelper'                                  => APPLICATION_ROOT.'/app/lib/ReportHelper.php',
    'Validator'                                     => APPLICATION_ROOT.'/app/lib/Validator.php',
+   'ViewHelper'                                    => APPLICATION_ROOT.'/app/lib/ViewHelper.php',
 
    'Dukascopy'                                     => APPLICATION_ROOT.'/app/lib/dukascopy/Dukascopy.php',
    'DukascopyException'                            => APPLICATION_ROOT.'/app/lib/dukascopy/DukascopyException.php',
@@ -40,6 +41,4 @@ return array(
    'OpenPositionDAO'                               => APPLICATION_ROOT.'/app/model/OpenPositionDAO.php',
    'Signal'                                        => APPLICATION_ROOT.'/app/model/Signal.php',
    'SignalDAO'                                     => APPLICATION_ROOT.'/app/model/SignalDAO.php',
-
-   'ViewHelper'                                    => APPLICATION_ROOT.'/app/view/ViewHelper.php',
 );
