@@ -141,7 +141,7 @@ function help($message=null) {
       $message = 'Generates a MetaTrader Strategy Tester tick file for the specified symbol and timeframe.';
    $self = baseName($_SERVER['PHP_SELF']);
 
-echo <<<END
+echo <<<HELP_MESSAGE
 $message
 
   Syntax:  $self -s=SYMBOL -p=PERIOD [-from=DATE] [-to=DATE] [-model=TYPE] [-spread=PIPS] [...]
@@ -158,5 +158,5 @@ $message
             -h              This help screen.
 
 
-END;
+HELP_MESSAGE;
 }

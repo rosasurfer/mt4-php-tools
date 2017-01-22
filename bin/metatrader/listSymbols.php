@@ -352,7 +352,7 @@ function help($message=null) {
       $message = 'List symbol information of MetaTrader "symbols.raw" files.';
    $self = baseName($_SERVER['PHP_SELF']);
 
-echo <<<END
+echo <<<HELP_MESSAGE
 $message
 
   Syntax:  $self [-f=FILE] [OPTIONS]
@@ -369,5 +369,5 @@ $message
             -h     This help screen.
 
 
-END;
+HELP_MESSAGE;
 }

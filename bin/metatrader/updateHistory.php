@@ -123,7 +123,7 @@ function help($message=null) {
       $message = 'Updates the MetaTrader history of the specified symbols.';
    $self = baseName($_SERVER['PHP_SELF']);
 
-echo <<<END
+echo <<<HELP_MESSAGE
 $message
 
   Syntax:  $self [symbol ...] [OPTIONS]
@@ -131,5 +131,5 @@ $message
   Options:  -h   This help screen.
 
 
-END;
+HELP_MESSAGE;
 }

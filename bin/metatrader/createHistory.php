@@ -177,10 +177,10 @@ function help($message=null) {
 
    $self = baseName($_SERVER['PHP_SELF']);
 
-echo <<<END
+echo <<<HELP_MESSAGE
 
   Syntax:  $self [symbol ...]
 
 
-END;
+HELP_MESSAGE;
 }

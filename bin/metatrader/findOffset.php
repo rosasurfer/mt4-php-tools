@@ -131,15 +131,15 @@ function help($message=null) {
 
    $self = baseName($_SERVER['PHP_SELF']);
 
-echo <<<END
+echo <<<HELP_MESSAGE
 Returns the offset of the first bar in a MetaTrader history file at or after a specified time or -1 if no such bar is found.
 
   Syntax:  $self  [OPTION]... TIME FILE
 
-  Options:  -c  Returns the character offset of the found bar instead of the bar offset.
+  Options:  -c  Returns the byte offset of the found bar instead of the bar offset.
             -q  Quiet mode. Returns only the numeric result value.
             -h  This help screen.
 
 
-END;
+HELP_MESSAGE;
 }
