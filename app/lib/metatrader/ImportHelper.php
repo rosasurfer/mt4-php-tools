@@ -113,7 +113,7 @@ class ImportHelper extends StaticClass {
          $row[AH_TYPE] = strToLower(ViewHelper ::$operationTypes[$row[AH_TYPE]]);
 
          // MT4-Serverzeiten in Forex-Standardzeit (America/New_York+0700) umrechnen
-         foreach (array(AH_OPENTIME, AH_CLOSETIME) as $time) {
+         foreach ([AH_OPENTIME, AH_CLOSETIME] as $time) {
             $date = new \DateTime(gmDate('Y-m-d H:i:s', $row[$time]), $serverTimezone);
             $date->setTimezone($newYorkTimezone);
             $date->modify('+7 hours');

@@ -30,17 +30,19 @@ class HistorySet extends Object {
    public function getServerDirectory() { return       $this->serverDirectory; }
    public function isClosed()           { return (bool)$this->closed;          }
 
-   protected /*HistoryFile[]*/ $historyFiles = array(PERIOD_M1  => null,
-                                                     PERIOD_M5  => null,
-                                                     PERIOD_M15 => null,
-                                                     PERIOD_M30 => null,
-                                                     PERIOD_H1  => null,
-                                                     PERIOD_H4  => null,
-                                                     PERIOD_D1  => null,
-                                                     PERIOD_W1  => null,
-                                                     PERIOD_MN1 => null);
+   protected /*HistoryFile[]*/ $historyFiles = [
+      PERIOD_M1  => null,
+      PERIOD_M5  => null,
+      PERIOD_M15 => null,
+      PERIOD_M30 => null,
+      PERIOD_H1  => null,
+      PERIOD_H4  => null,
+      PERIOD_D1  => null,
+      PERIOD_W1  => null,
+      PERIOD_MN1 => null
+   ];
 
-   private static /*HistorySet[]*/ $instances = array(); // alle Instanzen dieser Klasse
+   private static /*HistorySet[]*/ $instances = [];   // alle Instanzen dieser Klasse
 
 
    /**

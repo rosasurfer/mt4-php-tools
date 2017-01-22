@@ -97,7 +97,7 @@ class Dukascopy extends StaticClass {
 
       $lenData = strLen($data); if (!$lenData || $lenData%DUKASCOPY_BAR_SIZE) throw new RuntimeException('Odd length of passed '.$symbol.' '.$type.' data: '.$lenData.' (not an even DUKASCOPY_BAR_SIZE)');
       $offset  = 0;
-      $bars    = array();
+      $bars    = [];
       $i       = -1;
 
       static $isLittleEndian = null; is_null($isLittleEndian) && $isLittleEndian=isLittleEndian();
@@ -166,7 +166,7 @@ class Dukascopy extends StaticClass {
 
       $lenData = strLen($data); if (!$lenData || $lenData%DUKASCOPY_TICK_SIZE) throw new RuntimeException('Odd length of passed data: '.$lenData.' (not an even DUKASCOPY_TICK_SIZE)');
       $offset  = 0;
-      $ticks   = array();
+      $ticks   = [];
       $i       = -1;
 
       static $isLittleEndian = null; is_null($isLittleEndian) && $isLittleEndian=isLittleEndian();

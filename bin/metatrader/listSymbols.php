@@ -11,9 +11,9 @@ require(__DIR__.'/../../app/init.php');
 // -- Konfiguration --------------------------------------------------------------------------------------------------------------------------------
 
 
-$files     = array();
-$options   = array();
-$fieldArgs = array();
+$files     = [];
+$options   = [];
+$fieldArgs = [];
 
 
 // -- Start ----------------------------------------------------------------------------------------------------------------------------------------
@@ -40,7 +40,7 @@ foreach ($args as $i => $arg) {
          $files[] = $value;
       }
       else {                                 // Argument existiert nicht, Wildcards expandieren und Ergebnisse prüfen (z.B. unter Windows)
-         strEndsWith($value, array('/', '\\')) && ($value.='symbols.raw');
+         strEndsWith($value, ['/', '\\']) && ($value.='symbols.raw');
          $entries    = glob($value, GLOB_NOESCAPE|GLOB_BRACE|GLOB_ERR);
          $matchesDir = false;
          foreach ($entries as $entry) {
@@ -68,7 +68,7 @@ foreach ($args as $i => $arg) {
 
    // include all fields
    if ($arg == '++') {
-      $fieldArgs = array('++');
+      $fieldArgs = ['++'];
       continue;
    }
 
@@ -99,7 +99,7 @@ foreach ($args as $i => $arg) {
 
 // (2) ggf. verfügbare Felder anzeigen und danach abbrechen
 $allFields = MT4::SYMBOL_getFields();                 // TODO: Feld 'leverage' dynamisch hinzufügen
-                                                      // array_splice($fields, array_search('marginDivider', $fields)+1, 0, array('leverage'));
+                                                      // array_splice($fields, array_search('marginDivider', $fields)+1, 0, ['leverage']);
 if (isSet($options['listFields'])) {
    echoPre($s='Available symbol fields:');
    echoPre(str_repeat('-', strLen($s)));
@@ -160,7 +160,7 @@ foreach ($usedFields as $name => $value) {
 
 
 // (5) Symbolinformationen erfassen und ausgeben (getrennt, damit Spalten übergreifend formatiert werden können)
-$data = array();
+$data = [];
 foreach ($files as $file)
    collectData($file, $usedFields, $data, $options) || exit(1);
 printData(    $files, $usedFields, $data, $options) || exit(1);
@@ -206,7 +206,7 @@ function collectData($file, array &$fields, array &$data, array $options) {
 
    // (4) Daten auslesen
    $hFile   = fOpen($file, 'rb');
-   $symbols = array();
+   $symbols = [];
    for ($i=0; $i < $symbolsSize; $i++) {
       $symbols[] = unpack(MT4::SYMBOL_getUnpackFormat(), fRead($hFile, MT4::SYMBOL_SIZE));
    }
@@ -214,7 +214,7 @@ function collectData($file, array &$fields, array &$data, array $options) {
 
 
    // (5) Daten auslesen und maximale Feldlängen speichern
-   $values = $lengths = array();
+   $values = $lengths = [];
    foreach ($symbols as $i => $symbol) {
       foreach ($fields as $name => $v) {
          $value = isSet($symbol[$name]) ? $symbol[$name] : '?';                     // typenlose Felder (x) werden markiert

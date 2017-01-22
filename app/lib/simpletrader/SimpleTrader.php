@@ -41,7 +41,7 @@ class SimpleTrader extends StaticClass {
 
 
    // URLs und Referers zum Download der letzten 500 Trades und der kompletten History
-   private static $urls = array(
+   private static $urls = [
       ['currentHistory' => 'http://cp.forexsignals.com/signal/{provider_signal_id}/signal.html',
        'fullHistory'    => 'http://cp.forexsignals.com/signals.php?do=view&id={provider_signal_id}&showAllClosedTrades=1',
        'referer'        => 'http://cp.forexsignals.com/forex-signals.html'],
@@ -49,7 +49,7 @@ class SimpleTrader extends StaticClass {
       ['currentHistory' => 'https://www.simpletrader.net/signal/{provider_signal_id}/signal.html',
        'fullHistory'    => 'https://www.simpletrader.net/signals.php?do=view&id={provider_signal_id}&showAllClosedTrades=1',
        'referer'        => 'https://www.simpletrader.net/forex-signals.html'],
-   );
+   ];
 
 
    /**
@@ -152,7 +152,7 @@ class SimpleTrader extends StaticClass {
          PHP::ini_set('pcre.backtrack_limit', strLen($html));
 
       $matchedTables = $openTradeRows = $historyRows = $matchedOpenTrades = $matchedHistoryEntries = 0;
-      $tables = array();
+      $tables = [];
 
       // Tabellen <table id="openTrades"> und <table id="history"> extrahieren
       $matchedTables = preg_match_all('/<table\b.*\bid="(opentrades|history)".*>.*<tbody\b.*>(.*)<\/tbody>.*<\/table>/isU', $html, $tables, PREG_SET_ORDER);
@@ -328,7 +328,7 @@ class SimpleTrader extends StaticClass {
                // Tickets mit fehlerhaften Open-/CloseTimes überspringen
                if ($row['opentime'] > $iTime) {
                   $sTicket = trim($row[I_HISTORY_COMMENT]);
-                  $row     = array();
+                  $row     = [];
                   if ($signalAlias=='smarttrader' && $sTicket=='1175928') {}  // permanente Fehler nicht jedesmal anzeigen
                   else echoPre('Skipping invalid ticket #'.$sTicket.': OpenTime='.$sOpenTime.'  CloseTime='.$sCloseTime);
                   continue;

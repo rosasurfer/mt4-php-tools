@@ -77,7 +77,7 @@ foreach ($args as $i => $arg) {
       exit(1|help('unknown or unsupported symbol "'.$args[$i].'"'));
    $args[$i] = $arg;
 }                                                                                   // ohne Angabe werden alle Dukascopy-Instrumente aktualisiert
-$args = $args ? array_unique($args) : array_keys(MyFX::filterSymbols(array('provider'=>'dukascopy')));
+$args = $args ? array_unique($args) : array_keys(MyFX::filterSymbols(['provider'=>'dukascopy']));
 
 
 // (2) SIGINT-Handler installieren                                                  // Um bei Ctrl-C Destruktoren auszuführen, reicht es,
@@ -113,15 +113,15 @@ function updateSymbol($symbol) {
 
    global $verbose, $barBuffer;
    $barBuffer        = null;                                         // Barbuffer zurücksetzen
-   $barBuffer['bid'] = array();
-   $barBuffer['ask'] = array();
-   $barBuffer['avg'] = array();
+   $barBuffer['bid'] = [];
+   $barBuffer['ask'] = [];
+   $barBuffer['avg'] = [];
 
    echoPre('[Info]    '.$symbol);
 
 
    // (1) Prüfen, ob sich der Startzeitpunkt der History des Symbols geändert hat
-   if (array_search($symbol, array('USDNOK', 'USDSEK', 'USDSGD', 'USDZAR', 'XAUUSD')) === false) {
+   if (array_search($symbol, ['USDNOK', 'USDSEK', 'USDSGD', 'USDZAR', 'XAUUSD']) === false) {
       $content = downloadData($symbol, $startTime-1*DAY, 'bid', true, false, false);   // Statusmeldungen unterdrücken, nichts speichern
       if (strLen($content)) {
          echoPre('[Notice]  '.$symbol.' M1 history was extended. Please update the history start time.');
@@ -234,7 +234,7 @@ function updateHistory($symbol, $day) {
    global $barBuffer;
 
    // Bid- und Ask-Daten im Barbuffer suchen und ggf. laden
-   $types = array('bid', 'ask');
+   $types = ['bid', 'ask'];
    foreach ($types as $type) {
       if (!isSet($barBuffer[$type][$shortDate]) || sizeOf($barBuffer[$type][$shortDate])!=1*DAY/MINUTES)
          if (!loadHistory($symbol, $day, $type)) return false;
@@ -352,7 +352,7 @@ function mergeHistory($symbol, $day) {
 
 
    // (1) beide Datenreihen nochmal prüfen
-   $types = array('bid', 'ask');
+   $types = ['bid', 'ask'];
    foreach ($types as $type) {
       if (!isSet($barBuffer[$type][$shortDate]) || ($size=sizeOf($barBuffer[$type][$shortDate]))!=1*DAY/MINUTES)
          throw new RuntimeException('Unexpected number of MyFX '.$type.' bars for '.$shortDate.' in bar buffer: '.$size.' ('.($size > 1*DAY/MINUTES ? 'more':'less').' then a day)');
@@ -363,7 +363,7 @@ function mergeHistory($symbol, $day) {
    foreach ($barBuffer['bid'][$shortDate] as $i => $bid) {
       $ask = $barBuffer['ask'][$shortDate][$i];
 
-      $avg = array();
+      $avg = [];
       $avg['time_fxt' ] =              $bid['time_fxt' ];
       $avg['delta_fxt'] =              $bid['delta_fxt'];
       $avg['open'     ] = (int) round(($bid['open'     ] + $ask['open' ])/2);
@@ -680,7 +680,7 @@ function saveBars($symbol, $day) {
  */
 function getVar($id, $symbol=null, $time=null, $type=null) {
    //global $varCache;
-   static $varCache = array();
+   static $varCache = [];
    if (array_key_exists(($key=$id.'|'.$symbol.'|'.$time.'|'.$type), $varCache))
       return $varCache[$key];
 

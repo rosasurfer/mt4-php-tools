@@ -75,7 +75,7 @@ class LZMA extends StaticClass {
       static $cmd = null;
 
       if (!$cmd) {
-         $output = array();
+         $output = [];
 
          if (WINDOWS) {
             !$cmd && exec(APPLICATION_ROOT.'/etc/bin/xz/lzmadec -V 2> nul', $output);  // lzmadec im Projekt suchen

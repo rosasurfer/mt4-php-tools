@@ -21,8 +21,10 @@ use rosasurfer\myfx\metatrader\ImportHelper;
 class UploadAccountHistoryAction extends Action {
 
 
-   private static $messages = array('unknown_account'  => '110: Account unknown or not found.',
-                                    'balance_mismatch' => '110: Balance mismatch, more history data needed.');
+   private static $messages = [
+      'unknown_account'  => '110: Account unknown or not found.',
+      'balance_mismatch' => '110: Balance mismatch, more history data needed.'
+   ];
 
 
    /**

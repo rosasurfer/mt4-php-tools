@@ -34,7 +34,7 @@ foreach ($args as $i => $arg) {
 $sTime = $arg = array_shift($args);
 
 if (strIsQuoted($sTime)) $sTime = trim(strLeft(strRight($sTime, -1), -1));
-!is_datetime($sTime, array('Y-m-d', 'Y-m-d H:i', 'Y-m-d H:i:s')) && exit(1|echoPre('invalid argument datetime = '.$arg));
+!is_datetime($sTime, ['Y-m-d', 'Y-m-d H:i', 'Y-m-d H:i:s']) && exit(1|echoPre('invalid argument datetime = '.$arg));
 $datetime = strToTime($sTime.' GMT');
 
 // (1.2) Das verbleibende zweite Argument muß ein History-File sein.
@@ -67,7 +67,7 @@ if (!is_int($bars)) {
    echoPre('unexpected EOF of "'.$fileName.'"');;
    $allBars = $bars = (int) $bars;
 }
-$barFrom = $barTo = array();
+$barFrom = $barTo = [];
 if (!$bars) {
    $i = -1;                      // Datei enthält keine Bars
 }

@@ -14,11 +14,13 @@ class UploadFTPConfigurationActionForm extends ActionForm {
    private /*string*/  $company;
    private /*int*/     $account;
    private /*string*/  $symbol;
-   private /*mixed[]*/ $file = array('name'     => null,
-                                     'type'     => null,
-                                     'tmp_name' => null,
-                                     'error'    => null,
-                                     'size'     => null);
+   private /*mixed[]*/ $file = [
+      'name'     => null,
+      'type'     => null,
+      'tmp_name' => null,
+      'error'    => null,
+      'size'     => null,
+   ];
 
    // Getter
    public function  getCompany()     { return $this->company;          }

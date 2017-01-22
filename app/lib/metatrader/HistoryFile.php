@@ -29,7 +29,7 @@ class HistoryFile extends Object {
    protected /*string       */ $barPackFormat;                    // Formatstring für pack()
    protected /*string       */ $barUnpackFormat;                  // Formatstring für unpack()
    protected /*int          */ $barSize       = 0;                // Größe einer Bar entsprechend dem Datenformat
-   protected /*MYFX_BAR[]   */ $barBuffer     = array();          // Schreibbuffer
+   protected /*MYFX_BAR[]   */ $barBuffer     = [];               // Schreibbuffer
    protected /*int          */ $barBufferSize = 10000;            // Default-Größe des Schreibbuffers
 
    // Metadaten: gespeichert
@@ -315,8 +315,8 @@ class HistoryFile extends Object {
       $size    = $this->full_bars; if (!$size)                 return -1;
       $iFrom   = 0;
       $iTo     = $size-1; if ($this->full_to_openTime < $time) return -1;
-      $barFrom = array('time'=> $this->full_from_openTime);
-      $barTo   = array('time'=> $this->full_to_openTime);
+      $barFrom = ['time' => $this->full_from_openTime];
+      $barTo   = ['time' => $this->full_to_openTime  ];
       $i       = -1;
 
       while (true) {                                                       // Zeitfenster von Beginn- und Endbar rekursiv bis zum
@@ -468,7 +468,7 @@ class HistoryFile extends Object {
     *           • HistoryFile->spliceBars(-1)     removes the last bar (to be exact: everything from the last bar to the end)
     *           • HistoryFile->spliceBars(0, -2)  removes everything from the beginning to the end except the last two bars
     */
-   public function spliceBars($offset, $length=0, array $bars=array()) {
+   public function spliceBars($offset, $length=0, array $bars=[]) {
       if (!is_int($offset)) throw new IllegalTypeException('Illegal type of parameter $offset: '.getType($offset));
       if (!is_int($length)) throw new IllegalTypeException('Illegal type of parameter $length: '.getType($length));
 
@@ -599,9 +599,9 @@ class HistoryFile extends Object {
       echoPre(__METHOD__.'()  inserting '.($size=sizeOf($bars)).' bar(s) from '.gmDate('d-M-Y H:i:s', $bars[0]['time']).' to '.gmDate('d-M-Y H:i:s', $bars[$size-1]['time']).' at offset '.$fromOffset.' ('.gmDate('d-M-Y H:i:s', $hstFromBar['time']).')');
 
       /*
-      $array = array(0,1,2,3,4,5);
+      $array = [0, 1, 2, 3, 4, 5];
       echoPre($array);
-      array_splice($array, 7, 2, array(6,7));
+      array_splice($array, 7, 2, [6, 7]);
       echoPre($array);
 
       M1::full_bars             = 101381
@@ -965,7 +965,7 @@ class HistoryFile extends Object {
 
 
       // (5) Barbuffer um die geschriebenen Bars kürzen
-      if ($todo == $bufferSize) $this->barBuffer = array();
+      if ($todo == $bufferSize) $this->barBuffer = [];
       else                      $this->barBuffer = array_slice($this->barBuffer, $todo);
 
       return $todo;

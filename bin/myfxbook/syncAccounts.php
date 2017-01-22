@@ -146,9 +146,9 @@ function updateDatabase(Signal $signal, array $currentOpenPositions, &$openUpdat
    if (!is_bool($isFullHistory)) throw new IllegalTypeException('Illegal type of parameter $isFullHistory: '.getType($isFullHistory));
 
    $unchangedOpenPositions   = 0;
-   $positionChangeStartTimes = array();                              // Beginn der Änderungen der Net-Position
-   $lastKnownChangeTimes     = array();
-   $modifications            = array();
+   $positionChangeStartTimes = [];                                   // Beginn der Änderungen der Net-Position
+   $lastKnownChangeTimes     = [];
+   $modifications            = [];
 
    $db = Signal::dao()->getDB();
    $db->begin();
@@ -190,9 +190,11 @@ function updateDatabase(Signal $signal, array $currentOpenPositions, &$openUpdat
             if ($data['takeprofit'] != ($prevTP=$knownOpenPositions[$sTicket]->getTakeProfit())) $position = $knownOpenPositions[$sTicket]->setTakeProfit($data['takeprofit']);
             if ($data['stoploss'  ] != ($prevSL=$knownOpenPositions[$sTicket]->getStopLoss())  ) $position = $knownOpenPositions[$sTicket]->setStopLoss  ($data['stoploss'  ]);
             if ($position) {
-               $modifications[$position->save()->getSymbol()][] = array('position' => $position,
-                                                                        'prevTP'   => $prevTP,
-                                                                        'prevSL'   => $prevSL);
+               $modifications[$position->save()->getSymbol()][] = [
+                  'position' => $position,
+                  'prevTP'   => $prevTP,
+                  'prevSL'   => $prevSL
+               ];
             }
             else $unchangedOpenPositions++;
             unset($knownOpenPositions[$sTicket]);                    // bekannte offene Position aus Liste löschen

@@ -77,7 +77,7 @@ foreach ($args as $i => $arg) {
       exit(1|help('unknown or unsupported symbol "'.$args[$i].'"'));
    $args[$i] = $arg;
 }                                                                                   // ohne Angabe werden alle Dukascopy-Instrumente aktualisiert
-$args = $args ? array_unique($args) : array_keys(MyFX::filterSymbols(array('provider'=>'dukascopy')));
+$args = $args ? array_unique($args) : array_keys(MyFX::filterSymbols(['provider'=>'dukascopy']));
 
 
 // (2) SIGINT-Handler installieren                                                  // Um bei Ctrl-C Destruktoren auszuführen, reicht es,
@@ -268,7 +268,7 @@ function loadTicks($symbol, $gmtHour, $fxtHour) {
    //  • als Dukascopy-Download
 
    global $saveCompressedDukascopyFiles;
-   $ticks = array();
+   $ticks = [];
 
    // dekomprimierte Dukascopy-Datei suchen und bei Erfolg Ticks laden
    if (!$ticks) {
@@ -539,7 +539,7 @@ function loadRawDukascopyTickData($data, $symbol, $gmtHour, $fxtHour) {
  */
 function getVar($id, $symbol=null, $time=null) {
    //global $varCache;
-   static $varCache = array();
+   static $varCache = [];
    if (array_key_exists(($key=$id.'|'.$symbol.'|'.$time), $varCache))
       return $varCache[$key];
 

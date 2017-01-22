@@ -12,18 +12,20 @@ class SignalDAO extends CommonDAO {
 
 
    // Datenbankmapping
-   public $mapping = array('link'   => 'myfx',
-                           'table'  => 't_signal',
-                           'fields' => array('id'         => ['id'         , self::T_INT   , self::T_NOT_NULL],     // int
-                                             'version'    => ['version'    , self::T_STRING, self::T_NOT_NULL],     // datetime
-                                             'created'    => ['created'    , self::T_STRING, self::T_NOT_NULL],     // datetime
+   public $mapping = [
+      'link'   => 'myfx',
+      'table'  => 't_signal',
+      'fields' => [
+         'id'         => ['id'         , self::T_INT   , self::T_NOT_NULL],     // int
+         'version'    => ['version'    , self::T_STRING, self::T_NOT_NULL],     // datetime
+         'created'    => ['created'    , self::T_STRING, self::T_NOT_NULL],     // datetime
 
-                                             'provider'   => ['provider'   , self::T_STRING, self::T_NOT_NULL],     // enum
-                                             'providerID' => ['provider_id', self::T_STRING, self::T_NOT_NULL],     // string
-                                             'name'       => ['name'       , self::T_STRING, self::T_NOT_NULL],     // string
-                                             'alias'      => ['alias'      , self::T_STRING, self::T_NOT_NULL],     // string
-                                             'currency'   => ['currency'   , self::T_STRING, self::T_NOT_NULL],     // enum
-   ));
+         'provider'   => ['provider'   , self::T_STRING, self::T_NOT_NULL],     // enum
+         'providerID' => ['provider_id', self::T_STRING, self::T_NOT_NULL],     // string
+         'name'       => ['name'       , self::T_STRING, self::T_NOT_NULL],     // string
+         'alias'      => ['alias'      , self::T_STRING, self::T_NOT_NULL],     // string
+         'currency'   => ['currency'   , self::T_STRING, self::T_NOT_NULL],     // enum
+   ]];
 
 
    /**

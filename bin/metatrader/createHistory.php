@@ -125,7 +125,7 @@ function createHistory($symbol) {
  */
 function getVar($id, $symbol=null, $time=null) {
    //global $varCache;
-   static $varCache = array();
+   static $varCache = [];
    if (array_key_exists(($key=$id.'|'.$symbol.'|'.$time), $varCache))
       return $varCache[$key];
 

@@ -50,7 +50,7 @@ class MT4 extends StaticClass {
    /**
     * MetaTrader Standard-Timeframes
     */
-   public static $timeframes = array(PERIOD_M1, PERIOD_M5, PERIOD_M15, PERIOD_M30, PERIOD_H1, PERIOD_H4, PERIOD_D1, PERIOD_W1, PERIOD_MN1);
+   public static $timeframes = [PERIOD_M1, PERIOD_M5, PERIOD_M15, PERIOD_M30, PERIOD_H1, PERIOD_H4, PERIOD_D1, PERIOD_W1, PERIOD_MN1];
 
 
    /**
@@ -58,26 +58,30 @@ class MT4 extends StaticClass {
     *
     * @see  Definition in MT4Expander.dll::Expander.h
     */
-   private static $tpl_HistoryBar400 = array('time'  => 0,
-                                             'open'  => 0,
-                                             'high'  => 0,
-                                             'low'   => 0,
-                                             'close' => 0,
-                                             'ticks' => 0);
+   private static $tpl_HistoryBar400 = [
+      'time'  => 0,
+      'open'  => 0,
+      'high'  => 0,
+      'low'   => 0,
+      'close' => 0,
+      'ticks' => 0
+   ];
 
    /**
     * History-Bar v401
     *
     * @see  Definition in MT4Expander.dll::Expander.h
     */
-   private static $tpl_HistoryBar401 = array('time'   => 0,
-                                             'open'   => 0,
-                                             'high'   => 0,
-                                             'low'    => 0,
-                                             'close'  => 0,
-                                             'ticks'  => 0,
-                                             'spread' => 0,
-                                             'volume' => 0);
+   private static $tpl_HistoryBar401 = [
+      'time'   => 0,
+      'open'   => 0,
+      'high'   => 0,
+      'low'    => 0,
+      'close'  => 0,
+      'ticks'  => 0,
+      'spread' => 0,
+      'volume' => 0
+   ];
 
    /**
     * Formatbeschreibung eines struct SYMBOL.

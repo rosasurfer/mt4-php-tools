@@ -1,7 +1,10 @@
 #!/usr/bin/php
 <?php
+use rosasurfer\myfx\metatrader\model\Test;
+
+
 /**
- * Save a test with its trade history in the database.
+ * Save a test and its trade history in the database.
  */
 require(__DIR__.'/../../app/init.php');
 date_default_timezone_set('GMT');
@@ -32,14 +35,16 @@ sizeOf($args)!=1 && exit(1|help());
 $fileName = array_shift($args);
 !is_file($fileName) && exit(1|echoPre('file not found: "'.$fileName.'"'));
 
-// (1.2) it must be a test configuration or a test result file
+// (1.2) fileName must be a test configuration or a test result file
 $ext = (new SplFileInfo($fileName))->getExtension();
 if ($ext == 'ini') {
+   $testConfigFile  = $fileName;
    $testResultsFile = strLeft($fileName, -strLen($ext)).'log';
    !is_file($testResultsFile) && exit(1|echoPre('test results file not found: "'.$testResultsFile.'"'));
 }
 elseif ($ext == 'log') {
-   $testConfigFile = strLeft($fileName, -strLen($ext)).'ini';
+   $testConfigFile  = strLeft($fileName, -strLen($ext)).'ini';
+   $testResultsFile = $fileName;
    !is_file($testConfigFile) && exit(1|echoPre('test config file not found: "'.$testConfigFile.'"'));
 }
 else exit(1|echoPre('unsupported file: "'.$fileName.'" (see -h for help)'));
@@ -66,7 +71,7 @@ exit(0);
 function processTestFiles() {
    global $testConfigFile, $testResultsFile, $verbose;
 
-   $test = new Test($testConfigFile, $testResultsFile);
+   $test = Test::create($testConfigFile, $testResultsFile);
    $test->save();
 
    return true;

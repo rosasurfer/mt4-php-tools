@@ -12,7 +12,7 @@ require(__DIR__.'/../../app/init.php');
 // (1) Befehlszeilenparameter auswerten
 $args = array_slice($_SERVER['argv'], 1);
 !$args && ($args[]='.');                                          // Historydateien des aktuellen Verzeichnis
-$expandedArgs = array();
+$expandedArgs = [];
 
 foreach ($args as $arg) {
    $value = $arg;
@@ -29,7 +29,7 @@ foreach ($args as $arg) {
    }
    else {
       // Argument existiert nicht, Wildcards expandieren und Ergebnisse prüfen (z.B. unter Windows)
-      strEndsWith($value, array('/', '\\')) && ($value.='*');
+      strEndsWith($value, ['/', '\\']) && ($value.='*');
       $dirName  = dirName($value);
       $baseName = baseName($value); strEndsWith($baseName, '*') && ($baseName.='.hst');
 
@@ -58,9 +58,9 @@ sort($expandedArgs);                                              // alles sorti
 
 
 // (2) gefundene Dateien verzeichnisweise verarbeiten
-$files   = array();
-$formats = $symbols = $symbolsU = $periods = $digits = $syncMarkers = $lastSyncTimes = array();
-$bars    = $barsFrom = $barsTo = $errors = array();
+$files   = [];
+$formats = $symbols = $symbolsU = $periods = $digits = $syncMarkers = $lastSyncTimes = [];
+$bars    = $barsFrom = $barsTo = $errors = [];
 $dirName = $lastDir = null;
 
 foreach ($expandedArgs as $fileName) {
@@ -68,9 +68,9 @@ foreach ($expandedArgs as $fileName) {
    $baseName = baseName($fileName);
    if ($dirName!=$lastDir && $files) {                            // bei jedem neuen Verzeichnis vorherige angesammelte Daten anzeigen
       showDirResults($dirName, $files, $formats, $symbols, $symbolsU, $periods, $digits, $syncMarkers, $lastSyncTimes, $bars, $barsFrom, $barsTo, $errors);
-      $files   = array();
-      $formats = $symbols = $symbolsU = $periods = $digits = $syncMarkers = $lastSyncTimes = array();
-      $bars    = $barsFrom = $barsTo = $errors = array();
+      $files   = [];
+      $formats = $symbols = $symbolsU = $periods = $digits = $syncMarkers = $lastSyncTimes = [];
+      $bars    = $barsFrom = $barsTo = $errors = [];
    }
    $lastDir = $dirName;
 
@@ -118,7 +118,7 @@ foreach ($expandedArgs as $fileName) {
       $barSize    = ($barVersion==400) ? MT4::HISTORY_BAR_400_SIZE : MT4::HISTORY_BAR_401_SIZE;
       $iBars      = (int) floor(($fileSize-HistoryHeader::SIZE)/$barSize);
 
-      $barFrom = $barTo = array();
+      $barFrom = $barTo = [];
       if ($iBars) {
          $barFrom  = unpack(MT4::BAR_getUnpackFormat($barVersion), fRead($hFile, $barSize));
          if ($iBars > 1) {

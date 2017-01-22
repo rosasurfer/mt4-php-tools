@@ -115,7 +115,7 @@ function processSignal($alias, $fileSyncOnly) {
          $html = SimpleTrader::loadSignalPage($signal, $fullHistory);
 
          // HTML-Seite parsen
-         $openPositions = $closedPositions = array();
+         $openPositions = $closedPositions = [];
          $errorMsg = SimpleTrader::parseSignalData($signal, $html, $openPositions, $closedPositions);
 
          // bei PHP-Fehlermessages in HTML-Seite URL nochmal laden (bis zu 5 Versuche)
@@ -175,9 +175,9 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
    if (!is_bool($fullHistory))   throw new IllegalTypeException('Illegal type of parameter $fullHistory: '.getType($fullHistory));
 
    $unchangedOpenPositions   = 0;
-   $positionChangeStartTimes = array();                              // Beginn der Änderungen der Net-Position
-   $lastKnownChangeTimes     = array();
-   $modifications            = array();
+   $positionChangeStartTimes = [];                                   // Beginn der Änderungen der Net-Position
+   $lastKnownChangeTimes     = [];
+   $modifications            = [];
 
    $db = Signal::dao()->getDB();
    $db->begin();
@@ -219,9 +219,11 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
             if ($data['takeprofit'] != ($prevTP=$knownOpenPositions[$sTicket]->getTakeProfit())) $position = $knownOpenPositions[$sTicket]->setTakeProfit($data['takeprofit']);
             if ($data['stoploss'  ] != ($prevSL=$knownOpenPositions[$sTicket]->getStopLoss())  ) $position = $knownOpenPositions[$sTicket]->setStopLoss  ($data['stoploss'  ]);
             if ($position) {
-               $modifications[$position->save()->getSymbol()][] = array('position' => $position,
-                                                                        'prevTP'   => $prevTP,
-                                                                        'prevSL'   => $prevSL);
+               $modifications[$position->save()->getSymbol()][] = [
+                  'position' => $position,
+                  'prevTP'   => $prevTP,
+                  'prevSL'   => $prevSL
+               ];
             }
             else $unchangedOpenPositions++;
             unset($knownOpenPositions[$sTicket]);                    // bekannte offene Position aus Liste löschen

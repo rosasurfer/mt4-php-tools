@@ -16,11 +16,13 @@ use rosasurfer\ministruts\Request;
 class UploadAccountHistoryActionForm extends ActionForm {
 
 
-   private /*mixed[]*/ $file = array('name'     => null,    // Daten der hochgeladenen Datei
-                                     'type'     => null,
-                                     'tmp_name' => null,
-                                     'error'    => null,
-                                     'size'     => null);
+   private /*mixed[]*/ $file = [                            // Daten der hochgeladenen Datei
+      'name'     => null,
+      'type'     => null,
+      'tmp_name' => null,
+      'error'    => null,
+      'size'     => null,
+   ];
 
    private /*string*/  $accountCompany;
    private /*string*/  $accountNumber;
@@ -88,15 +90,16 @@ class UploadAccountHistoryActionForm extends ActionForm {
          $request->setActionError('', '100: Data file missing');
       }
       elseif ($file['error'] > 0) {
-         $errors = array(UPLOAD_ERR_OK         => '101: Success (UPLOAD_ERR_OK)'                                          ,
-                         UPLOAD_ERR_INI_SIZE   => '101: Upload error, file too big (UPLOAD_ERR_INI_SIZE)'                 ,
-                         UPLOAD_ERR_FORM_SIZE  => '101: Upload error, file too big (UPLOAD_ERR_FORM_SIZE)'                ,
-                         UPLOAD_ERR_PARTIAL    => '101: Partial file upload error, try again (UPLOAD_ERR_PARTIAL)'        ,
-                         UPLOAD_ERR_NO_FILE    => '101: Error while uploading the file (UPLOAD_ERR_NO_FILE)'              ,
-                         UPLOAD_ERR_NO_TMP_DIR => '101: Read/write error while uploading the file (UPLOAD_ERR_NO_TMP_DIR)',
-                         UPLOAD_ERR_CANT_WRITE => '101: Read/write error while uploading the file (UPLOAD_ERR_CANT_WRITE)',
-                         UPLOAD_ERR_EXTENSION  => '101: Error while uploading the file (UPLOAD_ERR_EXTENSION)'            ,
-         );
+         $errors = [
+            UPLOAD_ERR_OK         => '101: Success (UPLOAD_ERR_OK)'                                          ,
+            UPLOAD_ERR_INI_SIZE   => '101: Upload error, file too big (UPLOAD_ERR_INI_SIZE)'                 ,
+            UPLOAD_ERR_FORM_SIZE  => '101: Upload error, file too big (UPLOAD_ERR_FORM_SIZE)'                ,
+            UPLOAD_ERR_PARTIAL    => '101: Partial file upload error, try again (UPLOAD_ERR_PARTIAL)'        ,
+            UPLOAD_ERR_NO_FILE    => '101: Error while uploading the file (UPLOAD_ERR_NO_FILE)'              ,
+            UPLOAD_ERR_NO_TMP_DIR => '101: Read/write error while uploading the file (UPLOAD_ERR_NO_TMP_DIR)',
+            UPLOAD_ERR_CANT_WRITE => '101: Read/write error while uploading the file (UPLOAD_ERR_CANT_WRITE)',
+            UPLOAD_ERR_EXTENSION  => '101: Error while uploading the file (UPLOAD_ERR_EXTENSION)'            ,
+         ];
          $request->setActionError('', $errors[$file['error']]);
       }
       elseif ($request->getContentType()=='multipart/form-data' && !is_uploaded_file($file['tmp_name'])) {
@@ -116,9 +119,9 @@ class UploadAccountHistoryActionForm extends ActionForm {
          $request->setActionError('', '100: Data file empty');
          return false;
       }
-      $sections = array('account'=> false, 'data'=> false);
+      $sections = ['account'=>false, 'data'=>false];
       $section  = null;
-      $data     = array();
+      $data     = [];
 
       foreach ($lines as $i => &$line) {
          $line = trim($line, " \r\n");
@@ -275,20 +278,21 @@ class UploadAccountHistoryActionForm extends ActionForm {
             }
 
             // Datenfelder zwischenspeichern
-            $data[] = array(AH_TICKET      => $ticket,            //  0
-                            AH_OPENTIME    => $openTimestamp,     //  1
-                            AH_TYPE        => $type,              //  2
-                            AH_UNITS       => $units,             //  3
-                            AH_SYMBOL      => $symbol,            //  4
-                            AH_OPENPRICE   => $openPrice,         //  5
-                            AH_CLOSETIME   => $closeTimestamp,    //  6
-                            AH_CLOSEPRICE  => $closePrice,        //  7
-                            AH_COMMISSION  => $commission,        //  8
-                            AH_SWAP        => $swap,              //  9
-                            AH_PROFIT      => $profit,            // 10
-                            AH_MAGICNUMBER => $magicNumber,       // 11
-                            AH_COMMENT     => $comment,           // 12
-                           );
+            $data[] = [
+               AH_TICKET      => $ticket,            //  0
+               AH_OPENTIME    => $openTimestamp,     //  1
+               AH_TYPE        => $type,              //  2
+               AH_UNITS       => $units,             //  3
+               AH_SYMBOL      => $symbol,            //  4
+               AH_OPENPRICE   => $openPrice,         //  5
+               AH_CLOSETIME   => $closeTimestamp,    //  6
+               AH_CLOSEPRICE  => $closePrice,        //  7
+               AH_COMMISSION  => $commission,        //  8
+               AH_SWAP        => $swap,              //  9
+               AH_PROFIT      => $profit,            // 10
+               AH_MAGICNUMBER => $magicNumber,       // 11
+               AH_COMMENT     => $comment,           // 12
+            ];
          }
       } unset($line);
       $this->data =& $data;

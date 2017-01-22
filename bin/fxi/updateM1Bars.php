@@ -32,38 +32,38 @@ $saveRawMyFXData = true;                                    // ob unkomprimierte
 
 
 // Indizes und die zu ihrer Berechnung benötigten Instrumente
-$indexes['AUDLFX'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY');
-$indexes['CADLFX'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY');
-$indexes['CHFLFX'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY');
-$indexes['EURLFX'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY');
-$indexes['GBPLFX'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY');
-$indexes['JPYLFX'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY');
-$indexes['NZDLFX'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD');
-$indexes['USDLFX'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY');
+$indexes['AUDLFX'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
+$indexes['CADLFX'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
+$indexes['CHFLFX'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
+$indexes['EURLFX'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
+$indexes['GBPLFX'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
+$indexes['JPYLFX'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
+$indexes['NZDLFX'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD'];
+$indexes['USDLFX'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
 
-$indexes['AUDFX6'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY');
-$indexes['CADFX6'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY');
-$indexes['CHFFX6'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY');
-$indexes['EURFX6'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY');
-$indexes['GBPFX6'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY');
-$indexes['JPYFX6'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY');
-$indexes['USDFX6'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY');
+$indexes['AUDFX6'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
+$indexes['CADFX6'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
+$indexes['CHFFX6'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
+$indexes['EURFX6'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
+$indexes['GBPFX6'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
+$indexes['JPYFX6'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
+$indexes['USDFX6'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
 
-$indexes['AUDFX7'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD');
-$indexes['CADFX7'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD');
-$indexes['CHFFX7'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD');
-$indexes['EURFX7'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD');
-$indexes['GBPFX7'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD');
-$indexes['JPYFX7'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD');
-$indexes['USDFX7'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD');
-$indexes['NOKFX7'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'USDNOK');
-$indexes['NZDFX7'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD');
-$indexes['SEKFX7'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'USDSEK');
-$indexes['SGDFX7'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'USDSGD');
-$indexes['ZARFX7'] = array('AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'USDZAR');
+$indexes['AUDFX7'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD'];
+$indexes['CADFX7'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD'];
+$indexes['CHFFX7'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD'];
+$indexes['EURFX7'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD'];
+$indexes['GBPFX7'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD'];
+$indexes['JPYFX7'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD'];
+$indexes['USDFX7'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD'];
+$indexes['NOKFX7'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'USDNOK'];
+$indexes['NZDFX7'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD'];
+$indexes['SEKFX7'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'USDSEK'];
+$indexes['SGDFX7'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'USDSGD'];
+$indexes['ZARFX7'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'USDZAR'];
 
-$indexes['EURX'  ] = array('EURUSD', 'GBPUSD', 'USDCHF', 'USDJPY', 'USDSEK');
-$indexes['USDX'  ] = array('EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'USDSEK');
+$indexes['EURX'  ] = ['EURUSD', 'GBPUSD', 'USDCHF', 'USDJPY', 'USDSEK'];
+$indexes['USDX'  ] = ['EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'USDSEK'];
 
 
 // -- Start ----------------------------------------------------------------------------------------------------------------------------------------
@@ -118,9 +118,9 @@ function updateIndex($index) {
 
    // (1) Starttag der benötigten Daten ermitteln
    $startTime = 0;
-   $pairs = array_flip($indexes[$index]);                                                 // array('AUDUSD', ...) => array('AUDUSD'=>null, ...)
+   $pairs = array_flip($indexes[$index]);                                                 // ['AUDUSD', ...] => ['AUDUSD'=>null, ...]
    foreach($pairs as $pair => &$data) {
-      $data      = array();                                                               // $data initialisieren: array('AUDUSD'=>[], ...)
+      $data      = [];                                                                    // $data initialisieren: ['AUDUSD'=>[], ...]
       $startTime = max($startTime, MyFX::$symbols[$pair]['historyStart']['M1']);          // GMT-Timestamp
    } unset($data);
    $startTime = fxtTime($startTime);                                                      // FXT-Timestamp
@@ -157,7 +157,7 @@ function updateIndex($index) {
                   return false;
                }
                // M1-Bars zwischenspeichern
-               $pairs[$pair]['bars'] = MyFX::readBarFile($file, $pair);                   // array('AUDUSD'=>array('bars'=>[]), ...)
+               $pairs[$pair]['bars'] = MyFX::readBarFile($file, $pair);                   // ['AUDUSD'=>array('bars'=>[]), ...]
             }
 
             // Indexdaten für diesen Tag berechnen
@@ -199,7 +199,7 @@ function calculateAUDFX6($day, array $data) {
    $USDCAD = $data['USDCAD']['bars'];
    $USDCHF = $data['USDCHF']['bars'];
    $USDJPY = $data['USDJPY']['bars'];
-   $index  = array();
+   $index  = [];
 
    foreach ($AUDUSD as $i => $bar) {
       $audusd = $AUDUSD[$i]['open'];
@@ -255,7 +255,7 @@ function calculateAUDFX7($day, array $data) {
    $USDCAD = $data['USDCAD']['bars'];
    $USDCHF = $data['USDCHF']['bars'];
    $USDJPY = $data['USDJPY']['bars'];
-   $index  = array();
+   $index  = [];
 
    foreach ($AUDUSD as $i => $bar) {
       $audusd = $AUDUSD[$i]['open'];
@@ -313,7 +313,7 @@ function calculateAUDLFX($day, array $data) {
    $USDCAD = $data['USDCAD']['bars'];
    $USDCHF = $data['USDCHF']['bars'];
    $USDJPY = $data['USDJPY']['bars'];
-   $index  = array();
+   $index  = [];
 
    foreach ($AUDUSD as $i => $bar) {
       $audusd = $AUDUSD[$i]['open'];
@@ -368,7 +368,7 @@ function calculateCADFX6($day, array $data) {
    $USDCAD = $data['USDCAD']['bars'];
    $USDCHF = $data['USDCHF']['bars'];
    $USDJPY = $data['USDJPY']['bars'];
-   $index  = array();
+   $index  = [];
 
    foreach ($AUDUSD as $i => $bar) {
       $audusd = $AUDUSD[$i]['open'];
@@ -424,7 +424,7 @@ function calculateCADFX7($day, array $data) {
    $USDCAD = $data['USDCAD']['bars'];
    $USDCHF = $data['USDCHF']['bars'];
    $USDJPY = $data['USDJPY']['bars'];
-   $index  = array();
+   $index  = [];
 
    foreach ($AUDUSD as $i => $bar) {
       $audusd = $AUDUSD[$i]['open'];
@@ -482,7 +482,7 @@ function calculateCADLFX($day, array $data) {
    $USDCAD = $data['USDCAD']['bars'];
    $USDCHF = $data['USDCHF']['bars'];
    $USDJPY = $data['USDJPY']['bars'];
-   $index  = array();
+   $index  = [];
 
    foreach ($AUDUSD as $i => $bar) {
       $audusd = $AUDUSD[$i]['open'];
@@ -537,7 +537,7 @@ function calculateCHFFX6($day, array $data) {
    $USDCAD = $data['USDCAD']['bars'];
    $USDCHF = $data['USDCHF']['bars'];
    $USDJPY = $data['USDJPY']['bars'];
-   $index  = array();
+   $index  = [];
 
    foreach ($AUDUSD as $i => $bar) {
       $audusd = $AUDUSD[$i]['open'];
@@ -593,7 +593,7 @@ function calculateCHFFX7($day, array $data) {
    $USDCAD = $data['USDCAD']['bars'];
    $USDCHF = $data['USDCHF']['bars'];
    $USDJPY = $data['USDJPY']['bars'];
-   $index  = array();
+   $index  = [];
 
    foreach ($AUDUSD as $i => $bar) {
       $audusd = $AUDUSD[$i]['open'];
@@ -651,7 +651,7 @@ function calculateCHFLFX($day, array $data) {
    $USDCAD = $data['USDCAD']['bars'];
    $USDCHF = $data['USDCHF']['bars'];
    $USDJPY = $data['USDJPY']['bars'];
-   $index  = array();
+   $index  = [];
 
    foreach ($AUDUSD as $i => $bar) {
       $audusd = $AUDUSD[$i]['open'];
@@ -706,7 +706,7 @@ function calculateEURFX6($day, array $data) {
    $USDCAD = $data['USDCAD']['bars'];
    $USDCHF = $data['USDCHF']['bars'];
    $USDJPY = $data['USDJPY']['bars'];
-   $index  = array();
+   $index  = [];
 
    foreach ($AUDUSD as $i => $bar) {
       $audusd = $AUDUSD[$i]['open'];
@@ -762,7 +762,7 @@ function calculateEURFX7($day, array $data) {
    $USDCAD = $data['USDCAD']['bars'];
    $USDCHF = $data['USDCHF']['bars'];
    $USDJPY = $data['USDJPY']['bars'];
-   $index  = array();
+   $index  = [];
 
    foreach ($AUDUSD as $i => $bar) {
       $audusd = $AUDUSD[$i]['open'];
@@ -820,7 +820,7 @@ function calculateEURLFX($day, array $data) {
    $USDCAD = $data['USDCAD']['bars'];
    $USDCHF = $data['USDCHF']['bars'];
    $USDJPY = $data['USDJPY']['bars'];
-   $index  = array();
+   $index  = [];
 
    foreach ($AUDUSD as $i => $bar) {
       $audusd = $AUDUSD[$i]['open'];
@@ -874,7 +874,7 @@ function calculateEURX($day, array $data) {
    $USDCHF = $data['USDCHF']['bars'];
    $USDJPY = $data['USDJPY']['bars'];
    $USDSEK = $data['USDSEK']['bars'];
-   $index  = array();
+   $index  = [];
 
    foreach ($EURUSD as $i => $bar) {
       $eurusd = $EURUSD[$i]['open'];
@@ -937,7 +937,7 @@ function calculateGBPFX6($day, array $data) {
    $USDCAD = $data['USDCAD']['bars'];
    $USDCHF = $data['USDCHF']['bars'];
    $USDJPY = $data['USDJPY']['bars'];
-   $index  = array();
+   $index  = [];
 
    foreach ($AUDUSD as $i => $bar) {
       $audusd = $AUDUSD[$i]['open'];
@@ -993,7 +993,7 @@ function calculateGBPFX7($day, array $data) {
    $USDCAD = $data['USDCAD']['bars'];
    $USDCHF = $data['USDCHF']['bars'];
    $USDJPY = $data['USDJPY']['bars'];
-   $index  = array();
+   $index  = [];
 
    foreach ($AUDUSD as $i => $bar) {
       $audusd = $AUDUSD[$i]['open'];
@@ -1051,7 +1051,7 @@ function calculateGBPLFX($day, array $data) {
    $USDCAD = $data['USDCAD']['bars'];
    $USDCHF = $data['USDCHF']['bars'];
    $USDJPY = $data['USDJPY']['bars'];
-   $index  = array();
+   $index  = [];
 
    foreach ($AUDUSD as $i => $bar) {
       $audusd = $AUDUSD[$i]['open'];
@@ -1106,7 +1106,7 @@ function calculateJPYFX6($day, array $data) {
    $USDCAD = $data['USDCAD']['bars'];
    $USDCHF = $data['USDCHF']['bars'];
    $USDJPY = $data['USDJPY']['bars'];
-   $index  = array();
+   $index  = [];
 
    foreach ($AUDUSD as $i => $bar) {
       $audusd = $AUDUSD[$i]['open'];
@@ -1162,7 +1162,7 @@ function calculateJPYFX7($day, array $data) {
    $USDCAD = $data['USDCAD']['bars'];
    $USDCHF = $data['USDCHF']['bars'];
    $USDJPY = $data['USDJPY']['bars'];
-   $index  = array();
+   $index  = [];
 
    foreach ($AUDUSD as $i => $bar) {
       $audusd = $AUDUSD[$i]['open'];
@@ -1220,7 +1220,7 @@ function calculateJPYLFX($day, array $data) {
    $USDCAD = $data['USDCAD']['bars'];
    $USDCHF = $data['USDCHF']['bars'];
    $USDJPY = $data['USDJPY']['bars'];
-   $index  = array();
+   $index  = [];
 
    foreach ($AUDUSD as $i => $bar) {
       $audusd = $AUDUSD[$i]['open'];
@@ -1277,7 +1277,7 @@ function calculateNOKFX7($day, array $data) {
    $USDCHF = $data['USDCHF']['bars'];
    $USDJPY = $data['USDJPY']['bars'];
    $USDNOK = $data['USDNOK']['bars'];
-   $index  = array();
+   $index  = [];
 
    foreach ($AUDUSD as $i => $bar) {
       $audusd = $AUDUSD[$i]['open'];
@@ -1352,7 +1352,7 @@ function calculateNZDLFX($day, array $data, $name='NZDLFX') {
    $USDCHF = $data['USDCHF']['bars'];
    $USDJPY = $data['USDJPY']['bars'];
    $NZDUSD = $data['NZDUSD']['bars'];
-   $index  = array();
+   $index  = [];
 
    foreach ($AUDUSD as $i => $bar) {
       $audusd = $AUDUSD[$i]['open'];
@@ -1411,7 +1411,7 @@ function calculateSEKFX7($day, array $data) {
    $USDCHF = $data['USDCHF']['bars'];
    $USDJPY = $data['USDJPY']['bars'];
    $USDSEK = $data['USDSEK']['bars'];
-   $index  = array();
+   $index  = [];
 
    foreach ($AUDUSD as $i => $bar) {
       $audusd = $AUDUSD[$i]['open'];
@@ -1470,7 +1470,7 @@ function calculateSGDFX7($day, array $data) {
    $USDCHF = $data['USDCHF']['bars'];
    $USDJPY = $data['USDJPY']['bars'];
    $USDSGD = $data['USDSGD']['bars'];
-   $index  = array();
+   $index  = [];
 
    foreach ($AUDUSD as $i => $bar) {
       $audusd = $AUDUSD[$i]['open'];
@@ -1527,7 +1527,7 @@ function calculateUSDFX6($day, array $data) {
    $USDCAD = $data['USDCAD']['bars'];
    $USDCHF = $data['USDCHF']['bars'];
    $USDJPY = $data['USDJPY']['bars'];
-   $index  = array();
+   $index  = [];
 
    foreach ($AUDUSD as $i => $bar) {
       $audusd = $AUDUSD[$i]['open'];
@@ -1583,7 +1583,7 @@ function calculateUSDFX7($day, array $data) {
    $USDCAD = $data['USDCAD']['bars'];
    $USDCHF = $data['USDCHF']['bars'];
    $USDJPY = $data['USDJPY']['bars'];
-   $index  = array();
+   $index  = [];
 
    foreach ($AUDUSD as $i => $bar) {
       $audusd = $AUDUSD[$i]['open'];
@@ -1640,7 +1640,7 @@ function calculateUSDLFX($day, array $data) {
    $USDCAD = $data['USDCAD']['bars'];
    $USDCHF = $data['USDCHF']['bars'];
    $USDJPY = $data['USDJPY']['bars'];
-   $index  = array();
+   $index  = [];
 
    foreach ($AUDUSD as $i => $bar) {
       $audusd = $AUDUSD[$i]['open'];
@@ -1695,7 +1695,7 @@ function calculateUSDX($day, array $data) {
    $USDCHF = $data['USDCHF']['bars'];
    $USDJPY = $data['USDJPY']['bars'];
    $USDSEK = $data['USDSEK']['bars'];
-   $index  = array();
+   $index  = [];
 
    foreach ($EURUSD as $i => $bar) {
       $eurusd = $EURUSD[$i]['open'];
@@ -1756,7 +1756,7 @@ function calculateZARFX7($day, array $data) {
    $USDCHF = $data['USDCHF']['bars'];
    $USDJPY = $data['USDJPY']['bars'];
    $USDZAR = $data['USDZAR']['bars'];
-   $index  = array();
+   $index  = [];
 
    foreach ($AUDUSD as $i => $bar) {
       $audusd = $AUDUSD[$i]['open'];
@@ -1894,7 +1894,7 @@ function showBuffer($bars) {
  */
 function getVar($id, $symbol=null, $time=null) {
    //global $varCache;
-   static $varCache = array();
+   static $varCache = [];
    if (array_key_exists(($key=$id.'|'.$symbol.'|'.$time), $varCache))
       return $varCache[$key];
 
