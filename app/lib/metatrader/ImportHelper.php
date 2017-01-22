@@ -7,6 +7,8 @@ use rosasurfer\exception\BusinessRuleException;
 use rosasurfer\exception\InfrastructureException;
 use rosasurfer\exception\InvalidArgumentException;
 
+use rosasurfer\myfx\metatrader\model\Account;
+
 
 /**
  * ImportHelper
@@ -23,8 +25,8 @@ class ImportHelper extends StaticClass {
     */
    public static function updateAccountHistory(\UploadAccountHistoryActionForm $form) {
       // Account suchen
-      $company = \Account::normalizeCompanyName($form->getAccountCompany());
-      $account = \Account::dao()->getByCompanyAndNumber($company, $form->getAccountNumber());
+      $company = Account::normalizeCompanyName($form->getAccountCompany());
+      $account = Account::dao()->getByCompanyAndNumber($company, $form->getAccountNumber());
       if (!$account) throw new InvalidArgumentException('unknown_account');
 
       // Transaktionen und Credits trennen
@@ -122,7 +124,7 @@ class ImportHelper extends StaticClass {
       fClose($hFile);
 
       // (1.4) Transaktionen importieren
-      $db = \Account::dao()->getDB();
+      $db = Account::dao()->getDB();
 
       // Rohdaten in temporäre Tabelle laden
       $sql = "create temporary table t_tmp (
@@ -180,7 +182,7 @@ class ImportHelper extends StaticClass {
          // (1.5) neue AccountBalance gegenprüfen und speichern
          $reportedBalance = $form->getAccountBalance();
          if ($result['rows'] > 0)
-            $account = \Account::dao()->refresh($account);
+            $account = Account::dao()->refresh($account);
          if ($account->getBalance() != $reportedBalance) throw new BusinessRuleException('balance_mismatch');
 
          $account->setLastReportedBalance($reportedBalance)
