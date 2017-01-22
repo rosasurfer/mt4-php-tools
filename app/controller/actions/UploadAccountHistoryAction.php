@@ -12,6 +12,8 @@ use rosasurfer\ministruts\Response;
 use rosasurfer\util\Date;
 use rosasurfer\util\System;
 
+use rosasurfer\myfx\metatrader\ImportHelper;
+
 
 /**
  * UploadAccountHistoryAction
@@ -47,7 +49,7 @@ class UploadAccountHistoryAction extends Action {
       if ($form->validate()) {
          try {
             try {
-               $updates = ImportHelper ::updateAccountHistory($form);
+               $updates = ImportHelper::updateAccountHistory($form);
                if (!$updates) echo("200: History is up to date.\n");                // 200
                else           echo("201: History successfully updated.\n");         // 201
                return null;

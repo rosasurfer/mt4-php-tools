@@ -1,4 +1,6 @@
 <?php
+namespace rosasurfer\myfx\metatrader;
+
 use rosasurfer\core\StaticClass;
 
 use rosasurfer\exception\BusinessRuleException;
@@ -13,16 +15,16 @@ class ImportHelper extends StaticClass {
 
 
    /**
-    * Importiert die mit der ActionForm übergebenen Historydaten eines Accounts.
+    * Importiert die mit der ActionForm übergebenen Historydaten eines MetaTrader-Accounts.
     *
-    * @param  UploadAccountHistoryActionForm $form - ActionForm
+    * @param  \UploadAccountHistoryActionForm $form - ActionForm
     *
     * @return int - Anzahl der importierten Datensätze
     */
-   public static function updateAccountHistory(UploadAccountHistoryActionForm $form) {
+   public static function updateAccountHistory(\UploadAccountHistoryActionForm $form) {
       // Account suchen
-      $company = Account::normalizeCompanyName($form->getAccountCompany());
-      $account = Account::dao()->getByCompanyAndNumber($company, $form->getAccountNumber());
+      $company = \Account::normalizeCompanyName($form->getAccountCompany());
+      $account = \Account::dao()->getByCompanyAndNumber($company, $form->getAccountNumber());
       if (!$account) throw new InvalidArgumentException('unknown_account');
 
       // Transaktionen und Credits trennen
@@ -120,7 +122,7 @@ class ImportHelper extends StaticClass {
       fClose($hFile);
 
       // (1.4) Transaktionen importieren
-      $db = Account::dao()->getDB();
+      $db = \Account::dao()->getDB();
 
       // Rohdaten in temporäre Tabelle laden
       $sql = "create temporary table t_tmp (
@@ -178,7 +180,7 @@ class ImportHelper extends StaticClass {
          // (1.5) neue AccountBalance gegenprüfen und speichern
          $reportedBalance = $form->getAccountBalance();
          if ($result['rows'] > 0)
-            $account = Account::dao()->refresh($account);
+            $account = \Account::dao()->refresh($account);
          if ($account->getBalance() != $reportedBalance) throw new BusinessRuleException('balance_mismatch');
 
          $account->setLastReportedBalance($reportedBalance)
