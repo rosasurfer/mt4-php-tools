@@ -10,7 +10,9 @@ date_default_timezone_set('GMT');
 // --- Configuration ----------------------------------------------------------------------------------------------------------
 
 
-$verbose = 0;                                                                       // output verbosity
+$verbose = 0;                                                        // output verbosity
+$testConfigFile  = null;                                             // test configuration
+$testResultsFile = null;                                             // test results
 
 
 // --- Start ------------------------------------------------------------------------------------------------------------------
@@ -25,23 +27,50 @@ foreach ($args as $i => $arg) {
    if ($arg == '-v') { $verbose = max($verbose, 1); unset($args[$i]); continue; }   // verbose output
 }
 
-// we expect exactly one argument, a filename
+// (1.1) the remaining argument must be a file
 sizeOf($args)!=1 && exit(1|help());
 $fileName = array_shift($args);
-!is_file($fileName) && exit(1|echoPre('file not found "'.$fileName.'"'));
+!is_file($fileName) && exit(1|echoPre('file not found: "'.$fileName.'"'));
+
+// (1.2) it must be a test configuration or a test result file
+$ext = (new SplFileInfo($fileName))->getExtension();
+if ($ext == 'ini') {
+   $testResultsFile = strLeft($fileName, -strLen($ext)).'log';
+   !is_file($testResultsFile) && exit(1|echoPre('test results file not found: "'.$testResultsFile.'"'));
+}
+elseif ($ext == 'log') {
+   $testConfigFile = strLeft($fileName, -strLen($ext)).'ini';
+   !is_file($testConfigFile) && exit(1|echoPre('test config file not found: "'.$testConfigFile.'"'));
+}
+else exit(1|echoPre('unsupported file: "'.$fileName.'" (see -h for help)'));
 
 
 // (2) install SIGINT handler (catches Ctrl-C)                                      // To execute destructors it is enough to
-if (!WINDOWS) pcntl_signal(SIGINT, create_function('$signal', 'exit(0);'));         // call exit() in the handler.
+if (!WINDOWS) pcntl_signal(SIGINT, create_function('$signal', 'exit();'));          // call exit() in the handler.
 
 
-// (3) do something useful
-
+// (3) process the files
+processTestFiles() || exit(1);
 
 exit(0);
 
 
 // --- Functions --------------------------------------------------------------------------------------------------------------
+
+
+/**
+ * Process the test files.
+ *
+ * @return bool - success status
+ */
+function processTestFiles() {
+   global $testConfigFile, $testResultsFile, $verbose;
+
+   $test = new Test($testConfigFile, $testResultsFile);
+   $test->save();
+
+   return true;
+}
 
 
 /**
@@ -61,6 +90,8 @@ $message
 
   Options:  -v  Verbose output.
             -h  This help screen.
+
+  FILE - test config (.ini) or test result (.log) file
 
 
 HELP_MESSAGE;
