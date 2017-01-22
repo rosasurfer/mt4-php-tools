@@ -33,6 +33,10 @@
     "minimum-stability": "stable",
     "autoload": {
         "classmap": ["app/"],
-        "files":    ["app/definitions.php"]
+        "files":    [
+            "app/definitions.php",
+            "app/lib/myfxbook/definitions.php",
+            "app/lib/simpletrader/definitions.php"
+        ]
     }
 }

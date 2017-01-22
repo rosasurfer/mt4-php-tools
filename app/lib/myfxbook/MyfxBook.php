@@ -227,7 +227,3 @@ class MyfxBook extends StaticClass {
       return self::compareTradesByOpenTime($tradeA, $tradeB);
    }
 }
-
-
-// import additional namespace definitions
-!defined(__NAMESPACE__.'\I_CSV_OPEN_DATE') && include(__DIR__.'/definitions.php');
