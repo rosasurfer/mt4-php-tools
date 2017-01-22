@@ -41,7 +41,7 @@ $args = $args ? array_unique($args) : array_keys(MyFX::$symbols);             //
 
 
 // (2) SIGINT-Handler installieren (sauberer Abbruch bei Ctrl-C)              // Um bei Ctrl-C Destruktoren auszuführen,
-if (!WINDOWS) pcntl_signal(SIGINT, create_function('$signal', 'exit(0);'));   // reicht es, wenn der Handler exit() aufruft.
+if (!WINDOWS) pcntl_signal(SIGINT, create_function('$signal', 'exit();'));    // reicht es, wenn der Handler exit() aufruft.
 
 
 // (3) History aktualisieren
