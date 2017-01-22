@@ -1,6 +1,7 @@
 <?php
-use rosasurfer\dao\CommonDAO;
+namespace rosasurfer\myfx\metatrader\model;
 
+use rosasurfer\dao\CommonDAO;
 use rosasurfer\exception\IllegalTypeException;
 
 
