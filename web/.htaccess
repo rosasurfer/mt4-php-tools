@@ -1,5 +1,5 @@
 AddDefaultCharset UTF-8
-DirectoryIndex index.html index.php
+DirectoryIndex index.php index.html
 
 #
 # Do NOT conditionally enable the rewrite rules (via <IfModule mod_rewrite.c> ... </IfModule>).
