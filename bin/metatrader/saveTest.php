@@ -49,6 +49,10 @@ elseif ($ext == 'log') {
 }
 else exit(1|echoPre('unsupported file: "'.$fileName.'" (see -h for help)'));
 
+// (1.3) check read access
+!is_readable($testConfigFile ) && exit(1|echoPre('file not readable: "'.$testConfigFile .'"'));
+!is_readable($testResultsFile) && exit(1|echoPre('file not readable: "'.$testResultsFile.'"'));
+
 
 // (2) install SIGINT handler (catches Ctrl-C)                                      // To execute destructors it is enough to
 if (!WINDOWS) pcntl_signal(SIGINT, create_function('$signal', 'exit();'));          // call exit() in the handler.
@@ -72,7 +76,9 @@ function processTestFiles() {
    global $testConfigFile, $testResultsFile, $verbose;
 
    $test = Test::create($testConfigFile, $testResultsFile);
-   $test->save();
+   //$test->save();
+
+   //echoPre($test);
 
    return true;
 }

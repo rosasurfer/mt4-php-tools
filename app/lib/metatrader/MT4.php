@@ -2,7 +2,6 @@
 use rosasurfer\core\StaticClass;
 
 use rosasurfer\exception\IllegalTypeException;
-use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 
 
@@ -542,14 +541,15 @@ class MT4 extends StaticClass {
 
 
    /**
-    * Konvertiert den angegebenen Timeframe-Bezeichner in die entsprechende Timeframe-ID.
+    * Convert a timeframe value to a timeframe id.
     *
-    * @param  string $value - Bezeichner
+    * @param  string|int $value - timeframe value
     *
-    * @return int - Timeframe-ID
+    * @return int|bool - timeframe id or FALSE if the string value doesn't represent a timeframe
     */
-   public static function timeframeToId($value) {
-      if (!is_string($value)) throw new IllegalTypeException('Illegal type of parameter $value: '.$value.' ('.getType($value).')');
+   public static function strToTimeframe($value) {
+      if (is_int($value)) $value = (string)$value;
+      elseif (!is_string($value)) throw new IllegalTypeException('Illegal type of parameter $value: '.getType($value));
 
       if (strStartsWith($value, 'PERIOD_'))
          $value = strRight($value, -7);
@@ -564,7 +564,35 @@ class MT4 extends StaticClass {
          case 'D1' : return PERIOD_D1;
          case 'W1' : return PERIOD_W1;
          case 'MN1': return PERIOD_MN1;
+         case 'Q1' : return PERIOD_Q1;
       }
-      throw new InvalidArgumentException('Invalid argument $value: '.$value.' (not a timeframe)');
+
+      if (ctype_digit($value)) {
+         switch ((int)$value) {
+            case PERIOD_M1 : return PERIOD_M1;
+            case PERIOD_M5 : return PERIOD_M5;
+            case PERIOD_M15: return PERIOD_M15;
+            case PERIOD_M30: return PERIOD_M30;
+            case PERIOD_H1 : return PERIOD_H1;
+            case PERIOD_H4 : return PERIOD_H4;
+            case PERIOD_D1 : return PERIOD_D1;
+            case PERIOD_W1 : return PERIOD_W1;
+            case PERIOD_MN1: return PERIOD_MN1;
+            case PERIOD_Q1 : return PERIOD_Q1;
+         }
+      }
+      return false;
+   }
+
+
+   /**
+    * Alias for MT4::strToTimeframe()
+    *
+    * @param  string|int $value - period value
+    *
+    * @return int|bool - period id or FALSE if the string value doesn't represent a period
+    */
+   public static function strToPeriod($value) {
+      return self::strToTimeframe($value);
    }
 }

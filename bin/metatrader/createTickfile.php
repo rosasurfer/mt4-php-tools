@@ -53,7 +53,7 @@ foreach ($args as $i => $arg) {
          $options['period'] = $value;
       }
       else if (!MT4::isTimeframeDescription($value)) exit(1|help('invalid period: '.$arg));
-      else $options['period'] = MT4::timeframeToId($value);
+      else $options['period'] = MT4::strToTimeframe($value);
       continue;
    }
 
