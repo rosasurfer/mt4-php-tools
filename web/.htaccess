@@ -1,3 +1,6 @@
+AddDefaultCharset UTF-8
+DirectoryIndex index.html index.php
+
 #
 # Do NOT conditionally enable the rewrite rules (via <IfModule mod_rewrite.c> ... </IfModule>).
 # Instead intentionally trigger a server error if mod_rewrite is disabled to protect the
@@ -7,6 +10,3 @@ RewriteEngine On
 RewriteCond   %{REQUEST_FILENAME}  !-d
 RewriteCond   %{REQUEST_FILENAME}  !-f
 RewriteRule   ^                    index.php  [QSA,L]
-
-AddDefaultCharset UTF-8
-DirectoryIndex index.php index.html

@@ -1,3 +1,5 @@
+SetEnv  APPLICATION_BASE_URI  '/myfx/myfx-web/'
+
 #
 # Do NOT conditionally enable the rewrite rules (via <IfModule mod_rewrite.c> ... </IfModule>).
 # Instead intentionally trigger a server error if mod_rewrite is disabled to protect the
@@ -5,5 +7,3 @@
 #
 RewriteEngine On
 RewriteRule   (.*)  web/$1  [L]
-
-SetEnv  APPLICATION_BASE_URI  '/myfx/myfx-web/'
