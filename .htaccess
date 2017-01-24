@@ -6,4 +6,4 @@
 RewriteEngine On
 RewriteRule   (.*)  web/$1  [L]
 
-SetEnv  APPLICATION_BASE_URI  '/myfx/myfx-web/'
+SetEnv APPLICATION_BASE_URI '/myfx/myfx-web/'
