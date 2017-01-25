@@ -9,10 +9,6 @@
         "email": "mt4-cli@rosasurfer.com" 
     }],
     "config": {
-        "preferred-install": {
-            "rosasurfer/*": "source",
-            "*":            "dist"
-        },        
         "vendor-dir":         "etc/vendor",
         "optimize-autoloader": true
     },
