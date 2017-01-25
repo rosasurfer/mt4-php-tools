@@ -28,29 +28,35 @@ const TIMEZONE_ID_GMT              = 10;
 
 
 // Timeframe-Identifier
-define('PERIOD_M1' ,      1);    // 1 minute
-define('PERIOD_M5' ,      5);    // 5 minutes
-define('PERIOD_M15',     15);    // 15 minutes
-define('PERIOD_M30',     30);    // 30 minutes
-define('PERIOD_H1' ,     60);    // 1 hour
-define('PERIOD_H4' ,    240);    // 4 hours
-define('PERIOD_D1' ,   1440);    // daily
-define('PERIOD_W1' ,  10080);    // weekly
-define('PERIOD_MN1',  43200);    // monthly
-define('PERIOD_Q1' , 129600);    // a quarter (3 months)
+const PERIOD_M1  =      1;                   // 1 minute
+const PERIOD_M5  =      5;                   // 5 minutes
+const PERIOD_M15 =     15;                   // 15 minutes
+const PERIOD_M30 =     30;                   // 30 minutes
+const PERIOD_H1  =     60;                   // 1 hour
+const PERIOD_H4  =    240;                   // 4 hours
+const PERIOD_D1  =   1440;                   // daily
+const PERIOD_W1  =  10080;                   // weekly
+const PERIOD_MN1 =  43200;                   // monthly
+const PERIOD_Q1  = 129600;                   // a quarter (3 months)
 
 
 // Operation-Types
-define('OP_BUY'      ,   0);     //    MT4: long position
-define('OP_SELL'     ,   1);     //         short position
-define('OP_BUYLIMIT' ,   2);     //         buy limit order
-define('OP_SELLLIMIT',   3);     //         sell limit order
-define('OP_BUYSTOP'  ,   4);     //         stop buy order
-define('OP_SELLSTOP' ,   5);     //         stop sell order
-define('OP_BALANCE'  ,   6);     //         account credit or withdrawal transaction
-define('OP_CREDIT'   ,   7);     //         credit facility, no transaction
-define('OP_TRANSFER' ,   8);     // custom: Balance-Änderung durch Kunden (Deposit/Withdrawal)
-define('OP_VENDOR'   ,   9);     //         Balance-Änderung durch Criminal (Dividende, Swap, Ausgleich etc.)
+const OP_BUY       = 0;                       //    MT4: long position
+const OP_SELL      = 1;                       //         short position
+const OP_BUYLIMIT  = 2;                       //         buy limit order
+const OP_SELLLIMIT = 3;                       //         sell limit order
+const OP_BUYSTOP   = 4;                       //         stop buy order
+const OP_SELLSTOP  = 5;                       //         stop sell order
+const OP_BALANCE   = 6;                       //         account credit or withdrawal transaction
+const OP_CREDIT    = 7;                       //         credit facility, no transaction
+const OP_TRANSFER  = 8;                       // custom: Balance-Änderung durch Kunden (Deposit/Withdrawal)
+const OP_VENDOR    = 9;                       //         Balance-Änderung durch Criminal (Dividende, Swap, Ausgleich etc.)
+
+
+// Tester tick models
+const TICKMODEL_EVERYTICK     = 0;
+const TICKMODEL_CONTROLPOINTS = 1;
+const TICKMODEL_BAROPEN       = 2;
 
 
 // Spalten der internen History-Daten in UploadAccountHistoryForm
