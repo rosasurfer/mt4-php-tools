@@ -79,9 +79,9 @@ function updateHistory($symbol) {
    !$history && $history=HistorySet::create($symbol, $digits, $format=400, $directory);
 
    // History beginnend mit dem letzten synchronisierten Tag aktualisieren
-   $startTime = $lastSyncTime ? $lastSyncTime : fxtTime(MyFX::$symbols[$symbol]['historyStart']['M1']);
+   $startTime = $lastSyncTime ? $lastSyncTime : \MyFX::fxtTime(MyFX::$symbols[$symbol]['historyStart']['M1']);
    $startDay  = $startTime - $startTime%DAY;                                                 // 00:00 der Startzeit
-   $today     = ($time=fxtTime()) - $time%DAY;                                               // 00:00 des aktuellen Tages
+   $today     = ($time=\MyFX::fxtTime()) - $time%DAY;                                        // 00:00 des aktuellen Tages
    $today     = $startDay + 5*DAYS;                   // zu Testzwecken nur x Tage
    $lastMonth = -1;
 

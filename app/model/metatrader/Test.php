@@ -89,8 +89,6 @@ class Test extends PersistableObject {
          if (!$test->reportingId) {
             // first line: test properties
             $properties = self::parseProperties($line);
-            echoPre($properties);
-            $test->setReportingId($properties['reportingId']);
 
             // assign Test properties
             /*
@@ -109,6 +107,9 @@ class Test extends PersistableObject {
             results: BOOL          visualMode;                             //      4     whether or not the test was run in visual mode
             results: uint          duration;                               //      4     test duration in milliseconds
             */
+
+            echoPre($properties);
+            $test->setReportingId($properties['reportingId']);
             continue;
          }
 
@@ -118,6 +119,7 @@ class Test extends PersistableObject {
          $test->history[] = Order::create($test, $properties);
       }
       echoPre('sizeOf($test->history) = '.sizeof($test->history));
+      echoPre($properties);
       fClose($hFile);
 
 

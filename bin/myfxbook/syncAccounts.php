@@ -266,7 +266,7 @@ function updateDatabase(Signal $signal, array $currentOpenPositions, &$openUpdat
          foreach ($positionChangeStartTimes as $symbol => $startTime) {
             $n++;
             if ($startTime < $lastKnownChangeTimes[$symbol])
-               $startTime = MyFX ::fxtDate(MyFX ::fxtStrToTime($lastKnownChangeTimes[$symbol]) + 1);
+               $startTime = \MyFX::fxtDate(MyFX ::fxtStrToTime($lastKnownChangeTimes[$symbol]) + 1);
 
             $report = ReportHelper ::getNetPositionHistory($signal, $symbol, $startTime);
             $oldNetPosition     = 'Flat';

@@ -17,6 +17,7 @@ class Order extends PersistableObject {
     */
    public static function create(Test $test, array $properties) {
       $order = new static();
+      // assign Order properties
       return $order;
    }
 

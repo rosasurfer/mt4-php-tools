@@ -2,7 +2,7 @@
 /**
  * Timezones und Timezone-IDs
  *
- * @see  Definition in MT4Expander.dll::defines.h
+ * @see  Definition in MT4Expander::defines.h
  */
 const TIMEZONE_ALPARI              = 'Alpari';              // bis 03/2012 "Europe/Berlin", ab 04/2012 "Europe/Kiev"
 const TIMEZONE_AMERICA_NEW_YORK    = 'America/New_York';
@@ -78,37 +78,3 @@ define('AH_COMMENT'    , 12);
 // Struct-Sizes
 define('DUKASCOPY_BAR_SIZE' , 24);
 define('DUKASCOPY_TICK_SIZE', 20);
-
-
-/**
- * Alias für MyFX::fxtTime()
- *
- * @param  int    $time       - Timestamp (default: aktuelle Zeit)
- * @param  string $timezoneId - Timezone-Identifier des Timestamps (default: GMT=Unix-Timestamp).
- *
- * @return int - FXT-Timestamp
- *
- * @see    MyFX::fxtTime()
- */
-function fxtTime($time=null, $timezoneId=null) {
-   if (func_num_args() <= 1)
-      return MyFX::fxtTime($time);
-   return MyFX::fxtTime($time, $timezoneId);
-}
-
-
-/**
- * Alias für MyFX::fxtDate()
- *
- * Formatiert einen Zeitpunkt als FXT-Zeit.
- *
- * @param  int    $timestamp - Zeitpunkt (default: aktuelle Zeit)
- * @param  string $format    - Formatstring (default: 'Y-m-d H:i:s')
- *
- * @return string - FXT-String
- *
- * Analogous to the date() function except that the time returned is Forex Time (FXT).
- */
-function fxtDate($time=null, $format='Y-m-d H:i:s') {
-   return MyFX::fxtDate($time, $format);
-}

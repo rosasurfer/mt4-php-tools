@@ -5,7 +5,6 @@ use rosasurfer\exception\InfrastructureException;
 use rosasurfer\exception\RuntimeException;
 
 use rosasurfer\log\Logger;
-
 use rosasurfer\util\Date;
 
 use rosasurfer\myfx\lib\simpletrader\SimpleTrader;
@@ -295,7 +294,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
          foreach ($positionChangeStartTimes as $symbol => $startTime) {
             $n++;
             if ($startTime < $lastKnownChangeTimes[$symbol])
-               $startTime = MyFX::fxtDate(MyFX::fxtStrToTime($lastKnownChangeTimes[$symbol]) + 1);
+               $startTime = \MyFX::fxtDate(MyFX::fxtStrToTime($lastKnownChangeTimes[$symbol]) + 1);
 
             $report = ReportHelper::getNetPositionHistory($signal, $symbol, $startTime);
             $oldNetPosition     = 'Flat';

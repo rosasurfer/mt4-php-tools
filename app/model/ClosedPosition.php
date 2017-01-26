@@ -75,22 +75,22 @@ class ClosedPosition extends PersistableObject {
    private static function create_1(OpenPosition $openPosition, array $data) {
       $position = new static();
 
-      $position->ticket      =               $data['ticket'     ];
-      $position->type        =               $data['type'       ];
-      $position->lots        =               $data['lots'       ];
-      $position->symbol      =               $data['symbol'     ];
-      $position->openTime    = MyFX::fxtDate($data['opentime'   ]);
-      $position->openPrice   =               $data['openprice'  ];
-      $position->closeTime   = MyFX::fxtDate($data['closetime'  ]);
-      $position->closePrice  =               $data['closeprice' ];
-      $position->stopLoss    =         isSet($data['stoploss'   ]) ? $data['stoploss'   ] : $openPosition->getStopLoss();
-      $position->takeProfit  =         isSet($data['takeprofit' ]) ? $data['takeprofit' ] : $openPosition->getTakeProfit();
-      $position->commission  =         isSet($data['commission' ]) ? $data['commission' ] : $openPosition->getCommission();
-      $position->swap        =         isSet($data['swap'       ]) ? $data['swap'       ] : $openPosition->getSwap();
-      $position->grossProfit =         isSet($data['grossprofit']) ? $data['grossprofit'] : null;
-      $position->netProfit   =               $data['netprofit'  ];
-      $position->magicNumber =         isSet($data['magicnumber']) ? $data['magicnumber'] : $openPosition->getMagicNumber();
-      $position->comment     =         isSet($data['comment'    ]) ? $data['comment'    ] : $openPosition->getComment();
+      $position->ticket      =                $data['ticket'     ];
+      $position->type        =                $data['type'       ];
+      $position->lots        =                $data['lots'       ];
+      $position->symbol      =                $data['symbol'     ];
+      $position->openTime    = \MyFX::fxtDate($data['opentime'   ]);
+      $position->openPrice   =                $data['openprice'  ];
+      $position->closeTime   = \MyFX::fxtDate($data['closetime'  ]);
+      $position->closePrice  =                $data['closeprice' ];
+      $position->stopLoss    =          isSet($data['stoploss'   ]) ? $data['stoploss'   ] : $openPosition->getStopLoss();
+      $position->takeProfit  =          isSet($data['takeprofit' ]) ? $data['takeprofit' ] : $openPosition->getTakeProfit();
+      $position->commission  =          isSet($data['commission' ]) ? $data['commission' ] : $openPosition->getCommission();
+      $position->swap        =          isSet($data['swap'       ]) ? $data['swap'       ] : $openPosition->getSwap();
+      $position->grossProfit =          isSet($data['grossprofit']) ? $data['grossprofit'] : null;
+      $position->netProfit   =                $data['netprofit'  ];
+      $position->magicNumber =          isSet($data['magicnumber']) ? $data['magicnumber'] : $openPosition->getMagicNumber();
+      $position->comment     =          isSet($data['comment'    ]) ? $data['comment'    ] : $openPosition->getComment();
 
       $position->signal_id = $openPosition->getSignal_id();
 
@@ -111,22 +111,22 @@ class ClosedPosition extends PersistableObject {
 
       $position = new static();
 
-      $position->ticket      =               $data['ticket'     ];
-      $position->type        =               $data['type'       ];
-      $position->lots        =               $data['lots'       ];
-      $position->symbol      =               $data['symbol'     ];
-      $position->openTime    = MyFX::fxtDate($data['opentime'   ]);
-      $position->openPrice   =               $data['openprice'  ];
-      $position->closeTime   = MyFX::fxtDate($data['closetime'  ]);
-      $position->closePrice  =               $data['closeprice' ];
-      $position->stopLoss    =         isSet($data['stoploss'   ]) ? $data['stoploss'   ] : null;
-      $position->takeProfit  =         isSet($data['takeprofit' ]) ? $data['takeprofit' ] : null;
-      $position->commission  =         isSet($data['commission' ]) ? $data['commission' ] : null;
-      $position->swap        =         isSet($data['swap'       ]) ? $data['swap'       ] : null;
-      $position->grossProfit =         isSet($data['grossprofit']) ? $data['grossprofit'] : null;
-      $position->netProfit   =               $data['netprofit'  ];
-      $position->magicNumber =         isSet($data['magicnumber']) ? $data['magicnumber'] : null;
-      $position->comment     =         isSet($data['comment'    ]) ? $data['comment'    ] : null;
+      $position->ticket      =                $data['ticket'     ];
+      $position->type        =                $data['type'       ];
+      $position->lots        =                $data['lots'       ];
+      $position->symbol      =                $data['symbol'     ];
+      $position->openTime    = \MyFX::fxtDate($data['opentime'   ]);
+      $position->openPrice   =                $data['openprice'  ];
+      $position->closeTime   = \MyFX::fxtDate($data['closetime'  ]);
+      $position->closePrice  =                $data['closeprice' ];
+      $position->stopLoss    =          isSet($data['stoploss'   ]) ? $data['stoploss'   ] : null;
+      $position->takeProfit  =          isSet($data['takeprofit' ]) ? $data['takeprofit' ] : null;
+      $position->commission  =          isSet($data['commission' ]) ? $data['commission' ] : null;
+      $position->swap        =          isSet($data['swap'       ]) ? $data['swap'       ] : null;
+      $position->grossProfit =          isSet($data['grossprofit']) ? $data['grossprofit'] : null;
+      $position->netProfit   =                $data['netprofit'  ];
+      $position->magicNumber =          isSet($data['magicnumber']) ? $data['magicnumber'] : null;
+      $position->comment     =          isSet($data['comment'    ]) ? $data['comment'    ] : null;
       $position->signal_id   = $signal->getId();
 
       return $position;

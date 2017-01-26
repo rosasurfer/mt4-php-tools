@@ -1,6 +1,5 @@
 <?php
 use rosasurfer\config\Config;
-
 use rosasurfer\core\StaticClass;
 
 use rosasurfer\exception\IllegalTypeException;
@@ -108,42 +107,42 @@ class MyFX extends StaticClass {
     * Gibt den FXT-Timestamp der angegebenen Zeit zurück. Ohne Argument wird der FXT-Timestamp der aktuellen Zeit
     * zurückgegeben. Der zurückgegebene Wert sind die Sekunden seit dem 01.01.1970 FXT.
     *
-    * @param  int    $time       - Timestamp (default: aktuelle Zeit)
-    * @param  string $timezoneId - Timezone-Identifier des Timestamps (default: GMT=Unix-Timestamp).
-    *                              Zusätzlich zu den standardmäßigen IDs wird 'FXT' für FXT-basierte Timestamps unterstützt
-    *                              (wenn auch explizit selten sinnvoll, da: MyFX::fxtTime($timestamp, 'FXT') == $timestamp).
+    * @param  int    $timestamp - Timestamp (default: aktuelle Zeit)
+    * @param  string $timezone  - Timezone-Identifier des Timestamps (default: GMT=Unix-Timestamp).
+    *                             Zusätzlich zu den standardmäßigen IDs wird 'FXT' für FXT-basierte Timestamps unterstützt
+    *                             (wenn auch explizit selten sinnvoll, da: MyFX::fxtTime($timestamp, 'FXT') == $timestamp).
     *
     * @return int - FXT-Timestamp
     */
-   public static function fxtTime($time=null, $timezoneId=null) {
-      if (is_null($time)) $time = time();
-      else if (!is_int($time))                          throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
-      if (func_num_args()>1 && !is_string($timezoneId)) throw new IllegalTypeException('Illegal type of parameter $timezoneId: '.getType($timezoneId));
+   public static function fxtTime($timestamp=null, $timezone=null) {
+      if (is_null($timestamp)) $timestamp = time();
+      else if (!is_int($timestamp))                   throw new IllegalTypeException('Illegal type of parameter $timestamp: '.getType($timestamp));
+      if (func_num_args()>1 && !is_string($timezone)) throw new IllegalTypeException('Illegal type of parameter $timezone: '.getType($timezone));
 
       $gmtTime = null;
 
-      if (is_null($timezoneId) || strToUpper($timezoneId)=='GMT' || strToUpper($timezoneId)=='UTC') {
-         $gmtTime = $time;
+      if (is_null($timezone) || strToUpper($timezone)=='GMT' || strToUpper($timezone)=='UTC') {
+         $gmtTime = $timestamp;
       }
-      else if (strToUpper($timezoneId) == 'FXT') {
-         return $time;                                               // Eingabe und Ergebnis sind identisch: Rückkehr
+      else if (strToUpper($timezone) == 'FXT') {
+         return $timestamp;                                          // Eingabe und Ergebnis sind identisch: Rückkehr
       }
       else {
          // $time in GMT-Timestamp konvertieren
          $oldTimezone = date_default_timezone_get();
          try {
-            date_default_timezone_set($timezoneId);
+            date_default_timezone_set($timezone);
 
-            $offsetA = iDate('Z', $time);
-            $gmtTime = $time + $offsetA;                             // $gmtTime ist die GMT-basierte Zeit für $time
+            $offsetA = iDate('Z', $timestamp);
+            $gmtTime = $timestamp + $offsetA;                        // $gmtTime ist die GMT-basierte Zeit für $timestamp
             $offsetB = iDate('Z', $gmtTime);
             if ($offsetA != $offsetB) {
                // TODO: wenn DST-Wechsel in genau diesem Zeitfenster
             }
-
+         }
+         finally {
             date_default_timezone_set($oldTimezone);
          }
-         catch (\Exception $ex) { date_default_timezone_set($oldTimezone); throw $ex; }
       }
 
 
@@ -155,10 +154,11 @@ class MyFX extends StaticClass {
          $estOffset = iDate('Z', $gmtTime);
          $fxtTime   = $gmtTime + $estOffset + 7*HOURS;
 
-         date_default_timezone_set($oldTimezone);
          return $fxtTime;
       }
-      catch (\Exception $ex) { date_default_timezone_set($oldTimezone); throw $ex; }
+      finally {
+         date_default_timezone_set($oldTimezone);
+      }
    }
 
 
@@ -182,10 +182,11 @@ class MyFX extends StaticClass {
          if ($timestamp === false) throw new InvalidArgumentException('Invalid argument $time: "'.$time.'"');
          $timestamp -= 7*HOURS;
 
-         date_default_timezone_set($oldTimezone);
          return $timestamp;
       }
-      catch (\Exception $ex) { date_default_timezone_set($oldTimezone); throw $ex; }
+      finally {
+         date_default_timezone_set($oldTimezone);
+      }
    }
 
 
@@ -197,7 +198,7 @@ class MyFX extends StaticClass {
     *
     * @return string - FXT-String
     *
-    * Analogous to the date() function except that the time returned is Forex Time (FXT).
+    * Note: Analogous to the date() function except that the time returned is Forex Time (FXT).
     */
    public static function fxtDate($time=null, $format='Y-m-d H:i:s') {
       if (is_null($time)) $time = time();
@@ -488,7 +489,7 @@ class MyFX extends StaticClass {
    public static function readBarData($data, $symbol) {
       if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
 
-      $lenData = strLen($data); if ($lenData % MyFX::BAR_SIZE) throw new RuntimeException('Odd length of passed '.$symbol.' data: '.$lenData.' (not an even MyFX::BAR_SIZE)');
+      $lenData = strLen($data); if ($lenData % self::BAR_SIZE) throw new RuntimeException('Odd length of passed '.$symbol.' data: '.$lenData.' (not an even MyFX::BAR_SIZE)');
       $offset  = 0;
       $bars    = [];
       $i       = -1;
@@ -496,7 +497,7 @@ class MyFX extends StaticClass {
       while ($offset < $lenData) {
          $i++;
          $bars[] = unpack("@$offset/Vtime/Vopen/Vhigh/Vlow/Vclose/Vticks", $data);
-         $offset += MyFX::BAR_SIZE;
+         $offset += self::BAR_SIZE;
 
          // Bars validieren
          if ($bars[$i]['open' ] > $bars[$i]['high'] ||      // aus (H >= O && O >= L) folgt (H >= L)
@@ -640,7 +641,7 @@ class MyFX extends StaticClass {
       if (!$size)
          return -1;
 
-      $offset = MyFX::findTimeOffset($bars, $time);
+      $offset = self::findTimeOffset($bars, $time);
 
       if ($offset < 0) {                                                         // Zeitpunkt liegt nach der jüngsten bar[openTime]
          $closeTime = self::periodCloseTime($bars[$size-1]['time'], $period);
@@ -682,7 +683,7 @@ class MyFX extends StaticClass {
       if (!$size)
          return -1;
 
-      $offset = MyFX::findTimeOffset($bars, $time);
+      $offset = self::findTimeOffset($bars, $time);
 
       if ($offset < 0)                                                           // Zeitpunkt liegt nach der jüngsten bar[openTime]
          return $size-1;
