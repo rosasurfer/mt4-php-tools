@@ -3,6 +3,7 @@ use rosasurfer\core\StaticClass;
 
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\RuntimeException;
+use function rosasurfer\strIsNumeric;
 
 
 /**
@@ -541,34 +542,36 @@ class MT4 extends StaticClass {
 
 
    /**
-    * Convert a timeframe value to a timeframe id.
+    * Convert a timeframe representation to a timeframe id.
     *
-    * @param  string|int $value - timeframe value
+    * @param  mixed $value - timeframe representation
     *
-    * @return int|bool - timeframe id or FALSE if the string value doesn't represent a timeframe
+    * @return int - period id or 0 if the value doesn't represent a period
     */
    public static function strToTimeframe($value) {
-      if (is_int($value)) $value = (string)$value;
-      elseif (!is_string($value)) throw new IllegalTypeException('Illegal type of parameter $value: '.getType($value));
-
-      if (strStartsWith($value, 'PERIOD_'))
-         $value = strRight($value, -7);
-
-      switch ($value) {
-         case 'M1' : return PERIOD_M1;
-         case 'M5' : return PERIOD_M5;
-         case 'M15': return PERIOD_M15;
-         case 'M30': return PERIOD_M30;
-         case 'H1' : return PERIOD_H1;
-         case 'H4' : return PERIOD_H4;
-         case 'D1' : return PERIOD_D1;
-         case 'W1' : return PERIOD_W1;
-         case 'MN1': return PERIOD_MN1;
-         case 'Q1' : return PERIOD_Q1;
+      if (is_string($value)) {
+         if (!strIsNumeric($value)) {
+            $value = strToUpper($value);
+            if (strStartsWith($value, 'PERIOD_'))
+               $value = strRight($value, -7);
+            switch ($value) {
+               case 'M1' : return PERIOD_M1;
+               case 'M5' : return PERIOD_M5;
+               case 'M15': return PERIOD_M15;
+               case 'M30': return PERIOD_M30;
+               case 'H1' : return PERIOD_H1;
+               case 'H4' : return PERIOD_H4;
+               case 'D1' : return PERIOD_D1;
+               case 'W1' : return PERIOD_W1;
+               case 'MN1': return PERIOD_MN1;
+               case 'Q1' : return PERIOD_Q1;
+            }
+         }
+         $value = (float)$value;
       }
 
-      if (ctype_digit($value)) {
-         switch ((int)$value) {
+      if (is_int($value) || is_float($value)) {
+         switch ((float)$value) {
             case PERIOD_M1 : return PERIOD_M1;
             case PERIOD_M5 : return PERIOD_M5;
             case PERIOD_M15: return PERIOD_M15;
@@ -581,18 +584,96 @@ class MT4 extends StaticClass {
             case PERIOD_Q1 : return PERIOD_Q1;
          }
       }
-      return false;
+      else throw new IllegalTypeException('Illegal type of parameter $value: '.getType($value));
+
+      return 0;
    }
 
 
    /**
     * Alias for MT4::strToTimeframe()
     *
-    * @param  string|int $value - period value
+    * @param  mixed $value - period representation
     *
-    * @return int|bool - period id or FALSE if the string value doesn't represent a period
+    * @return int - period id or NULL if the value doesn't represent a period
     */
    public static function strToPeriod($value) {
       return self::strToTimeframe($value);
+   }
+
+
+   /**
+    * Convert a tick model representation to a tick model id.
+    *
+    * @param  mixed $value - tick model representation
+    *
+    * @return int - tick model id or -1 if the value doesn't represent a tick model
+    */
+   public static function strToTickModel($value) {
+      if (is_string($value)) {
+         if (!strIsNumeric($value)) {
+            $value = strToUppper($value);
+            if (strStartsWith($value, 'TICKMODEL_'))
+               $value = strRight($value, -10);
+            switch ($value) {
+               case 'EVERYTICK'    : return TICKMODEL_EVERYTICK;
+               case 'CONTROLPOINTS': return TICKMODEL_CONTROLPOINTS;
+               case 'BAROPEN'      : return TICKMODEL_BAROPEN;
+            }
+         }
+         $value = (float)$value;
+      }
+
+      if (is_int($value) || is_float($value)) {
+         switch ((float)$value) {
+            case TICKMODEL_EVERYTICK    : return TICKMODEL_EVERYTICK;
+            case TICKMODEL_CONTROLPOINTS: return TICKMODEL_CONTROLPOINTS;
+            case TICKMODEL_BAROPEN      : return TICKMODEL_BAROPEN;
+         }
+      }
+      else throw new IllegalTypeException('Illegal type of parameter $value: '.getType($value));
+
+      return -1;
+   }
+
+
+   /**
+    * Convert an order type representation to an order type.
+    *
+    * @param  mixed $value - order type representation
+    *
+    * @return int - order type or -1 if the value doesn't represent an order type
+    */
+   public static function strToOrderType($value) {
+      if (is_string($value)) {
+         if (!strIsNumeric($value)) {
+            $value = strToUpper($value);
+            if (strStartsWith($value, 'OP_'))
+               $value = strRight($value, -3);
+            switch ($value) {
+               case 'BUY'      : return OP_BUY;
+               case 'SELL'     : return OP_SELL;
+               case 'BUYLIMIT' : return OP_BUYLIMIT;
+               case 'SELLLIMIT': return OP_SELLLIMIT;
+               case 'BUYSTOP'  : return OP_BUYSTOP;
+               case 'SELLSTOP' : return OP_SELLSTOP;
+            }
+         }
+         $value = (float)$value;
+      }
+
+      if (is_int($value) || is_float($value)) {
+         switch ((float)$value) {
+            case OP_BUY      : return OP_BUY;
+            case OP_SELL     : return OP_SELL;
+            case OP_BUYLIMIT : return OP_BUYLIMIT;
+            case OP_SELLLIMIT: return OP_SELLLIMIT;
+            case OP_BUYSTOP  : return OP_BUYSTOP;
+            case OP_SELLSTOP : return OP_SELLSTOP;
+         }
+      }
+      else throw new IllegalTypeException('Illegal type of parameter $value: '.getType($value));
+
+      return -1;
    }
 }
