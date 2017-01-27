@@ -104,65 +104,6 @@ class MyFX extends StaticClass {
 
 
    /**
-    * Gibt den FXT-Timestamp der angegebenen Zeit zurück. Ohne Argument wird der FXT-Timestamp der aktuellen Zeit
-    * zurückgegeben. Der zurückgegebene Wert sind die Sekunden seit dem 01.01.1970 FXT.
-    *
-    * @param  int    $timestamp - Timestamp (default: aktuelle Zeit)
-    * @param  string $timezone  - Timezone-Identifier des Timestamps (default: GMT=Unix-Timestamp).
-    *                             Zusätzlich zu den standardmäßigen IDs wird 'FXT' für FXT-basierte Timestamps unterstützt
-    *                             (wenn auch explizit selten sinnvoll, da: MyFX::fxtTime($timestamp, 'FXT') == $timestamp).
-    *
-    * @return int - FXT-Timestamp
-    */
-   public static function fxtTime($timestamp=null, $timezone=null) {
-      if (is_null($timestamp)) $timestamp = time();
-      else if (!is_int($timestamp))                   throw new IllegalTypeException('Illegal type of parameter $timestamp: '.getType($timestamp));
-      if (func_num_args()>1 && !is_string($timezone)) throw new IllegalTypeException('Illegal type of parameter $timezone: '.getType($timezone));
-
-      $gmtTime = null;
-
-      if (is_null($timezone) || strToUpper($timezone)=='GMT' || strToUpper($timezone)=='UTC') {
-         $gmtTime = $timestamp;
-      }
-      else if (strToUpper($timezone) == 'FXT') {
-         return $timestamp;                                          // Eingabe und Ergebnis sind identisch: Rückkehr
-      }
-      else {
-         // $time in GMT-Timestamp konvertieren
-         $oldTimezone = date_default_timezone_get();
-         try {
-            date_default_timezone_set($timezone);
-
-            $offsetA = iDate('Z', $timestamp);
-            $gmtTime = $timestamp + $offsetA;                        // $gmtTime ist die GMT-basierte Zeit für $timestamp
-            $offsetB = iDate('Z', $gmtTime);
-            if ($offsetA != $offsetB) {
-               // TODO: wenn DST-Wechsel in genau diesem Zeitfenster
-            }
-         }
-         finally {
-            date_default_timezone_set($oldTimezone);
-         }
-      }
-
-
-      // GMT-Timestamp in FXT-Timestamp konvertieren
-      $oldTimezone = date_default_timezone_get();
-      try {
-         date_default_timezone_set('America/New_York');
-
-         $estOffset = iDate('Z', $gmtTime);
-         $fxtTime   = $gmtTime + $estOffset + 7*HOURS;
-
-         return $fxtTime;
-      }
-      finally {
-         date_default_timezone_set($oldTimezone);
-      }
-   }
-
-
-   /**
     * Parst die String-Repräsentation einer FXT-Zeit in einen GMT-Timestamp.
     *
     * @param  string $time - FXT-Zeit in einem der Funktion strToTime() verständlichen Format
@@ -210,7 +151,7 @@ class MyFX extends StaticClass {
       // von Zeiten, die in New York in eine Zeitumstellung fallen, möglich ist. Dies ist nur mit einer Zone ohne DST
       // möglich. Der GMT-Timestamp muß in einen FXT-Timestamp konvertiert und dieser als GMT-Timestamp formatiert werden.
 
-      return gmDate($format, self::fxtTime($time, 'GMT'));
+      return gmDate($format, fxtTimestamp($time, 'GMT'));
    }
 
 
@@ -439,8 +380,8 @@ class MyFX extends StaticClass {
       if ($argsSize > 1 && !is_string($timezoneId)) throw new IllegalTypeException('Illegal type of parameter $timezoneId: '.getType($timezoneId));
 
       // $time in FXT-Timestamp konvertieren
-      if ($argsSize == 1) $fxtTime = self::fxtTime($time);                 // NULL als Timezone-ID ist nicht zulässig
-      else                $fxtTime = self::fxtTime($time, $timezoneId);
+      if ($argsSize == 1) $fxtTime = fxtTimestamp($time);               // NULL als Timezone-ID ist nicht zulässig
+      else                $fxtTime = fxtTimestamp($time, $timezoneId);
 
       // fxtTime als GMT-Timestamp prüfen
       $dow = (int) gmDate('w', $fxtTime);
@@ -462,8 +403,8 @@ class MyFX extends StaticClass {
       if ($argsSize > 1 && !is_string($timezoneId)) throw new IllegalTypeException('Illegal type of parameter $timezoneId: '.getType($timezoneId));
 
       // $time in FXT-Timestamp konvertieren
-      if ($argsSize == 1) $fxtTime = self::fxtTime($time);                 // NULL als Timezone-ID ist nicht zulässig
-      else                $fxtTime = self::fxtTime($time, $timezoneId);
+      if ($argsSize == 1) $fxtTime = fxtTimestamp($time);               // NULL als Timezone-ID ist nicht zulässig
+      else                $fxtTime = fxtTimestamp($time, $timezoneId);
 
       // fxtTime als GMT-Timestamp prüfen
       $dom = (int) gmDate('j', $time);

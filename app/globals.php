@@ -1,4 +1,7 @@
 <?php
+use rosasurfer\exception\IllegalTypeException;
+
+
 /**
  * Timezones und Timezone-IDs
  *
@@ -78,3 +81,61 @@ define('AH_COMMENT'    , 12);
 // Struct-Sizes
 define('DUKASCOPY_BAR_SIZE' , 24);
 define('DUKASCOPY_TICK_SIZE', 20);
+
+
+/**
+ * Return the FXT based timestamp (seconds since 1970-01-01 00:00 FXT) of the specified time.
+ *
+ * @param  int    $timestamp - time (default: current time)
+ * @param  string $timezone  - timezone (default: GMT)
+ *
+ * @return int - FXT based timestamp
+ */
+function fxtTimestamp($timestamp=null, $timezone=null) {
+   if (is_null($timestamp)) $timestamp = time();
+   else if (!is_int($timestamp))                   throw new IllegalTypeException('Illegal type of parameter $timestamp: '.getType($timestamp));
+   if (func_num_args()>1 && !is_string($timezone)) throw new IllegalTypeException('Illegal type of parameter $timezone: '.getType($timezone));
+
+   // TODO: reparieren
+
+   $gmtTime = null;
+
+   if (is_null($timezone) || strToUpper($timezone)=='GMT' || strToUpper($timezone)=='UTC') {
+      $gmtTime = $timestamp;
+   }
+   else if (strToUpper($timezone) == 'FXT') {
+      return $timestamp;                                          // Eingabe und Ergebnis sind identisch: Rückkehr
+   }
+   else {
+      // $time in GMT-Timestamp konvertieren
+      $oldTimezone = date_default_timezone_get();
+      try {
+         date_default_timezone_set($timezone);
+
+         $offsetA = iDate('Z', $timestamp);
+         $gmtTime = $timestamp + $offsetA;                        // $gmtTime ist die GMT-basierte Zeit für $timestamp
+         $offsetB = iDate('Z', $gmtTime);
+         if ($offsetA != $offsetB) {
+            // TODO: wenn DST-Wechsel in genau diesem Zeitfenster
+         }
+      }
+      finally {
+         date_default_timezone_set($oldTimezone);
+      }
+   }
+
+
+   // GMT-Timestamp in FXT-Timestamp konvertieren
+   $oldTimezone = date_default_timezone_get();
+   try {
+      date_default_timezone_set('America/New_York');
+
+      $estOffset = iDate('Z', $gmtTime);
+      $fxtTime   = $gmtTime + $estOffset + 7*HOURS;
+
+      return $fxtTime;
+   }
+   finally {
+      date_default_timezone_set($oldTimezone);
+   }
+}
