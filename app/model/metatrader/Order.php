@@ -9,6 +9,51 @@ use rosasurfer\dao\PersistableObject;
  */
 class Order extends PersistableObject {
 
+   /** @var int - ticket*/
+   protected $ticket;
+
+   /** @var int - order type */
+   protected $type;
+
+   /** @var float - lot size */
+   protected $lots;
+
+   /** @var string - symbol */
+   protected $symbol;
+
+   /** @var float - open price */
+   protected $openPrice;
+
+   /** @var string - open time (server timezone) */
+   protected $openTime;
+
+   /** @var float - stoploss price */
+   protected $stopLoss;
+
+   /** @var float - takeprofit price */
+   protected $takeProfit;
+
+   /** @var float - close price */
+   protected $closePrice;
+
+   /** @var string - close time (server timezone) */
+   protected $closeTime;
+
+   /** @var float - commission */
+   protected $commission;
+
+   /** @var float - swap */
+   protected $swap;
+
+   /** @var float - gross profit */
+   protected $profit;
+
+   /** @var int - magic number */
+   protected $magicNumber;
+
+   /** @var string - order comment */
+   protected $comment;
+
 
    /**
     * Create a new Order.
@@ -17,7 +62,26 @@ class Order extends PersistableObject {
     */
    public static function create(Test $test, array $properties) {
       $order = new static();
+
       // assign Order properties
+      /*
+      uint     id;                                       // unique order id (positive, primary key)
+      int      ticket;
+      int      type;
+      double   lots;
+      char     symbol[MAX_SYMBOL_LENGTH+1];
+      double   openPrice;
+      datetime openTime;
+      double   stopLoss;
+      double   takeProfit;
+      double   closePrice;
+      datetime closeTime;
+      double   commission;
+      double   swap;
+      double   profit;
+      int      magicNumber;
+      char     comment[MAX_ORDER_COMMENT_LENGTH+1];
+      */
       return $order;
    }
 

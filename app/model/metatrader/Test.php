@@ -14,9 +14,6 @@ use function rosasurfer\strIsDigits;
  */
 class Test extends PersistableObject {
 
-   /** @var string - time of the test */
-   protected $time;
-
    /** @var string - strategy name */
    protected $strategy;
 
@@ -32,10 +29,10 @@ class Test extends PersistableObject {
    /** @var int - tested timeframe */
    protected $timeframe;
 
-   /** @var string - time of the first tick of testing */
+   /** @var string - time of the first tick of testing (server timezone) */
    protected $startTime;
 
-   /** @var string - time of the last tick of testing */
+   /** @var string - time of the last tick of testing (server timezone) */
    protected $endTime;
 
    /** @var int - used tick model: EveryTick|ControlPoints|BarOpen */
