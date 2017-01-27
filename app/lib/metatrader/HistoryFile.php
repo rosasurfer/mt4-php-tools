@@ -24,7 +24,7 @@ class HistoryFile extends Object {
    protected /*HistoryHeader*/ $hstHeader;
    protected /*int          */ $period;                           // Timeframe der Datei
    protected /*int          */ $pointsPerUnit;                    // Preisumrechnung, z.B.: Digits=2 => pointsPerUnit=100
-   protected /*double       */ $pointSize;                        // Preisumrechnung, z.B.: Digits=2 => pointSize=0.01
+   protected /*float        */ $pointSize;                        // Preisumrechnung, z.B.: Digits=2 => pointSize=0.01
 
    protected /*string       */ $barPackFormat;                    // Formatstring für pack()
    protected /*string       */ $barUnpackFormat;                  // Formatstring für unpack()

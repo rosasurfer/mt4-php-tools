@@ -15,18 +15,18 @@ class ClosedPosition extends PersistableObject {
 
    protected /*int   */ $ticket;
    protected /*string*/ $type;
-   protected /*double*/ $lots;
+   protected /*float */ $lots;
    protected /*string*/ $symbol;
    protected /*string*/ $openTime;
-   protected /*double*/ $openPrice;
+   protected /*float */ $openPrice;
    protected /*string*/ $closeTime;
-   protected /*double*/ $closePrice;
-   protected /*double*/ $stopLoss;
-   protected /*double*/ $takeProfit;
-   protected /*double*/ $commission;
-   protected /*double*/ $swap;
-   protected /*double*/ $grossProfit;
-   protected /*double*/ $netProfit;
+   protected /*float */ $closePrice;
+   protected /*float */ $stopLoss;
+   protected /*float */ $takeProfit;
+   protected /*float */ $commission;
+   protected /*float */ $swap;
+   protected /*float */ $grossProfit;
+   protected /*float */ $netProfit;
    protected /*int   */ $magicNumber;
    protected /*string*/ $comment;
    protected /*int   */ $signal_id;
@@ -177,7 +177,7 @@ class ClosedPosition extends PersistableObject {
     * @param  int    $decimals  - Anzahl der Nachkommastellen
     * @param  string $separator - Dezimaltrennzeichen
     *
-    * @return double|string - Betrag oder NULL, wenn der Betrag nicht verfügbar ist
+    * @return float|string - Betrag oder NULL, wenn der Betrag nicht verfügbar ist
     */
    public function getCommission($decimals=2, $separator='.') {
       if (is_null($this->commission) || !func_num_args())
@@ -192,7 +192,7 @@ class ClosedPosition extends PersistableObject {
     * @param  int    $decimals  - Anzahl der Nachkommastellen
     * @param  string $separator - Dezimaltrennzeichen
     *
-    * @return double|string - Betrag oder NULL, wenn der Betrag nicht verfügbar ist
+    * @return float|string - Betrag oder NULL, wenn der Betrag nicht verfügbar ist
     */
    public function getSwap($decimals=2, $separator='.') {
       if (is_null($this->swap) || !func_num_args())
@@ -207,7 +207,7 @@ class ClosedPosition extends PersistableObject {
     * @param  int    $decimals  - Anzahl der Nachkommastellen
     * @param  string $separator - Dezimaltrennzeichen
     *
-    * @return double|string - Betrag oder NULL, wenn der Betrag nicht verfügbar ist
+    * @return float|string - Betrag oder NULL, wenn der Betrag nicht verfügbar ist
     */
    public function getGrossProfit($decimals=2, $separator='.') {
       if (is_null($this->grossProfit) || !func_num_args())
@@ -222,7 +222,7 @@ class ClosedPosition extends PersistableObject {
     * @param  int    $decimals  - Anzahl der Nachkommastellen
     * @param  string $separator - Dezimaltrennzeichen
     *
-    * @return double|string - Betrag
+    * @return float|string - Betrag
     */
    public function getNetProfit($decimals=2, $separator='.') {
       if (!func_num_args())

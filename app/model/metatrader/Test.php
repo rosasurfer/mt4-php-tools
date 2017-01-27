@@ -38,7 +38,7 @@ class Test extends PersistableObject {
    /** @var int - used tick model: EveryTick|ControlPoints|BarOpen */
    protected $tickModel;
 
-   /** @var double - spread in pips */
+   /** @var float - spread in pips */
    protected $spread;
 
    /** @var int - number of tested bars */
@@ -219,7 +219,7 @@ class Test extends PersistableObject {
       $pattern = '/, *spread *= *([^ ]+) *,/i';
       if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal test properties ("spread" invalid or not found): "'.$valuesOrig.'"');
       if (!strIsNumeric($spread = $matches[1][0]))                         throw new IllegalArgumentException('Illegal test "spread" property: '.$matches[1][0]);
-      $properties['spread'] = (double)$spread;
+      $properties['spread'] = (float)$spread;
       if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal test properties (multiple "spread" occurrences): "'.$valuesOrig.'"');
 
       // bars

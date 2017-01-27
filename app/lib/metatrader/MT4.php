@@ -298,10 +298,10 @@ class MT4 extends StaticClass {
     * @param  resource $hFile  - File-Handle eines History-Files, muß Schreibzugriff erlauben
     * @param  int      $digits - Digits des Symbols (für Normalisierung)
     * @param  int      $time   - Timestamp der Bar
-    * @param  double   $open
-    * @param  double   $high
-    * @param  double   $low
-    * @param  double   $close
+    * @param  float    $open
+    * @param  float    $high
+    * @param  float    $low
+    * @param  float    $close
     * @param  int      $ticks
     *
     * @return int - Anzahl der geschriebenen Bytes

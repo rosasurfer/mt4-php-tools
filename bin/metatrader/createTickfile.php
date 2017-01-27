@@ -108,7 +108,7 @@ foreach ($args as $i => $arg) {
       if (strIsQuoted($value))
          $value = strLeft(strRight($value, -1), 1);
       if (!is_numeric($value) || strStartsWithI($value, '0x')) exit(1|help('invalid spread: '.$arg));
-      $value = (double) $value;
+      $value = (float) $value;
       if ($value < 0) exit(1|help('invalid spread: '.$arg));
       $spread = round($value, 1);
       if ($spread != $value) exit(1|help('invalid spread: '.$arg));

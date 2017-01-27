@@ -135,45 +135,45 @@ class MyfxBook extends StaticClass {
 
          // Lots
          $sValue = trim($values[I_CSV_LOTS]);
-         if (!is_numeric($sValue) || ($dValue=(double)$sValue) <= 0) throw new RuntimeException('Unexpected lot size in data line '.($i+2).' of CSV statement: "'.$values[I_CSV_LOTS].'"');
+         if (!is_numeric($sValue) || ($dValue=(float)$sValue) <= 0) throw new RuntimeException('Unexpected lot size in data line '.($i+2).' of CSV statement: "'.$values[I_CSV_LOTS].'"');
          $history[$i]['lots'] = $lots = $dValue;
 
          // StopLoss
          $sValue = trim($values[I_CSV_STOP_LOSS]);
          if (strLen($sValue) && !is_numeric($sValue)) throw new RuntimeException('Unexpected stop loss in data line '.($i+2).' of CSV statement: "'.$values[I_CSV_STOP_LOSS].'"');
-         if (($dValue=(double)$sValue) < 0)           throw new RuntimeException('Unexpected stop loss in data line '.($i+2).' of CSV statement: "'.$values[I_CSV_STOP_LOSS].'"');
+         if (($dValue=(float)$sValue) < 0)            throw new RuntimeException('Unexpected stop loss in data line '.($i+2).' of CSV statement: "'.$values[I_CSV_STOP_LOSS].'"');
          $history[$i]['stoploss'] = $stopLoss = $dValue ? $dValue : null;
 
          // TakeProfit
          $sValue = trim($values[I_CSV_TAKE_PROFIT]);
          if (strLen($sValue) && !is_numeric($sValue)) throw new RuntimeException('Unexpected take profit in data line '.($i+2).' of CSV statement: "'.$values[I_CSV_TAKE_PROFIT].'"');
-         if (($dValue=(double)$sValue) < 0)           throw new RuntimeException('Unexpected take profit in data line '.($i+2).' of CSV statement: "'.$values[I_CSV_TAKE_PROFIT].'"');
+         if (($dValue=(float)$sValue) < 0)            throw new RuntimeException('Unexpected take profit in data line '.($i+2).' of CSV statement: "'.$values[I_CSV_TAKE_PROFIT].'"');
          $history[$i]['takeprofit'] = $takeProfit = $dValue ? $dValue : null;
 
          // OpenPrice
          $sValue = trim($values[I_CSV_OPEN_PRICE]);
-         if (!is_numeric($sValue) || ($dValue=(double)$sValue) <= 0) throw new RuntimeException('Unexpected open price in data line '.($i+2).' of CSV statement: "'.$values[I_CSV_OPEN_PRICE].'"');
+         if (!is_numeric($sValue) || ($dValue=(float)$sValue) <= 0) throw new RuntimeException('Unexpected open price in data line '.($i+2).' of CSV statement: "'.$values[I_CSV_OPEN_PRICE].'"');
          $history[$i]['openprice'] = $openPrice = $dValue;
 
          // ClosePrice
          $sValue = trim($values[I_CSV_CLOSE_PRICE]);
-         if (!is_numeric($sValue) || ($dValue=(double)$sValue) <= 0) throw new RuntimeException('Unexpected close price in data line '.($i+2).' of CSV statement: "'.$values[I_CSV_CLOSE_PRICE].'"');
+         if (!is_numeric($sValue) || ($dValue=(float)$sValue) <= 0) throw new RuntimeException('Unexpected close price in data line '.($i+2).' of CSV statement: "'.$values[I_CSV_CLOSE_PRICE].'"');
          $history[$i]['closeprice'] = $closePrice = $dValue;
 
          // Commission
          $sValue = trim($values[I_CSV_COMMISSION]);
          if (!is_numeric($sValue)) throw new RuntimeException('Unexpected commission value in data line '.($i+2).' of CSV statement: "'.$values[I_CSV_COMMISSION].'"');
-         $history[$i]['commission'] = $commission = (double)$sValue;
+         $history[$i]['commission'] = $commission = (float)$sValue;
 
          // Swap
          $sValue = trim($values[I_CSV_SWAP]);
          if (!is_numeric($sValue)) throw new RuntimeException('Unexpected swap value in data line '.($i+2).' of CSV statement: "'.$values[I_CSV_SWAP].'"');
-         $history[$i]['swap'] = $swap = (double)$sValue;
+         $history[$i]['swap'] = $swap = (float)$sValue;
 
          // Profit
          $sValue = trim($values[I_CSV_PROFIT]);
          if (!is_numeric($sValue)) throw new RuntimeException('Unexpected profit value in data line '.($i+2).' of CSV statement: "'.$values[I_CSV_PROFIT].'"');
-         $history[$i]['netprofit'  ] = $netProfit = (double)$sValue;
+         $history[$i]['netprofit'  ] = $netProfit = (float)$sValue;
          $history[$i]['grossprofit'] = $netProfit + $commission + $swap;
 
          // MagicNumber
