@@ -13,7 +13,7 @@ class Validator extends rosasurfer\util\Validator {
     * @return bool
     */
    public static function isOperationType($type) {
-      return (is_int($type) && isSet(ViewHelper ::$operationTypes[$type]));
+      return (is_int($type) && isSet(ViewHelper::$operationTypes[$type]));
    }
 
 
@@ -25,7 +25,7 @@ class Validator extends rosasurfer\util\Validator {
     * @return bool
     */
    public static function isMT4OperationType($type) {
-      return (self:: isOperationType($type) && $type <= OP_CREDIT);
+      return (self::isOperationType($type) && $type <= OP_CREDIT);
    }
 
 
@@ -37,7 +37,7 @@ class Validator extends rosasurfer\util\Validator {
     * @return bool
     */
    public static function isCustomOperationType($type) {
-      return (self:: isOperationType($type) && $type > OP_CREDIT);
+      return (self::isOperationType($type) && $type > OP_CREDIT);
    }
 
 
@@ -49,6 +49,6 @@ class Validator extends rosasurfer\util\Validator {
     * @return bool
     */
    public static function isInstrument($string) {
-      return (is_string($string) && isSet(ViewHelper ::$instruments[$string]));
+      return (is_string($string) && isSet(ViewHelper::$instruments[$string]));
    }
 }

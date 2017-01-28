@@ -5,8 +5,8 @@ use rosasurfer\exception\InvalidArgumentException;
 
 
 /**
- * Liest die MyFX-M1-History der angegebenen Instrumente ein und erzeugt daraus jeweils eine neue Metatrader-History.
- * Speichert diese Metatrader-History im globalen MT4-Serververzeichnis "MyFX-Dukascopy". Vorhandene Historydateien
+ * Liest die MyFX-M1-History der angegebenen Instrumente ein und erzeugt daraus jeweils eine neue MetaTrader-History.
+ * Speichert diese MetaTrader-History im globalen MT4-Serververzeichnis "MyFX-Dukascopy". Vorhandene Historydateien
  * werden überschrieben. Um vorhandene Historydateien zu aktualisieren, ist "updateHistory.php" zu benutzen.
  */
 require(__DIR__.'/../../app/init.php');
@@ -67,9 +67,9 @@ function createHistory($symbol) {
    if (!is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
    if (!strLen($symbol))    throw new InvalidArgumentException('Invalid parameter $symbol: ""');
 
-   $startDay  = fxtTimestamp(MyFX::$symbols[$symbol]['historyStart']['M1']);        // FXT
+   $startDay  = fxtTime(MyFX::$symbols[$symbol]['historyStart']['M1']);             // FXT
    $startDay -= $startDay%DAY;                                                      // 00:00 FXT Starttag
-   $today     = ($today=fxtTimestamp()) - $today%DAY;                               // 00:00 FXT aktueller Tag
+   $today     = ($today=fxtTime()) - $today%DAY;                                    // 00:00 FXT aktueller Tag
 
 
    // MT4-HistorySet erzeugen
@@ -89,7 +89,7 @@ function createHistory($symbol) {
       }
 
       // außer an Wochenenden: MyFX-History verarbeiten
-      if (!MyFX::isForexWeekend($day, 'FXT')) {
+      if (!isForexWeekend($day, 'FXT')) {
          if      (is_file($file=getVar('myfxFile.compressed', $symbol, $day))) {}   // wenn komprimierte MyFX-Datei existiert
          else if (is_file($file=getVar('myfxFile.raw'       , $symbol, $day))) {}   // wenn unkomprimierte MyFX-Datei existiert
          else {

@@ -123,15 +123,15 @@ function updateIndex($index) {
       $data      = [];                                                                    // $data initialisieren: ['AUDUSD'=>[], ...]
       $startTime = max($startTime, MyFX::$symbols[$pair]['historyStart']['M1']);          // GMT-Timestamp
    } unset($data);
-   $startTime = fxtTimestamp($startTime);
+   $startTime = fxtTime($startTime);
    $startDay  = $startTime - $startTime%DAY;                                              // 00:00 Starttag FXT
-   $today     = ($today=fxtTimestamp()) - $today%DAY;                                     // 00:00 aktueller Tag FXT
+   $today     = ($today=fxtTime()) - $today%DAY;                                          // 00:00 aktueller Tag FXT
 
 
    // (2) Gesamte Zeitspanne tageweise durchlaufen
    for ($day=$startDay, $lastMonth=-1; $day < $today; $day+=1*DAY) {
 
-      if (!MyFX::isForexWeekend($day, 'FXT')) {                                           // außer an Wochenenden
+      if (!isForexWeekend($day, 'FXT')) {                                                 // außer an Wochenenden
          $shortDate = gmDate('D, d-M-Y', $day);
 
          // Prüfen, ob die History bereits existiert

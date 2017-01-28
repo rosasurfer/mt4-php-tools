@@ -5,7 +5,7 @@ use rosasurfer\exception\InvalidArgumentException;
 
 
 /**
- * Aktualisiert die Metatrader-History der angegebenen Instrumente im globalen MT4-Serververzeichnis "MyFX-Dukascopy".
+ * Aktualisiert die MetaTrader-History der angegebenen Instrumente im globalen MT4-Serververzeichnis "MyFX-Dukascopy".
  */
 require(__DIR__.'/../../app/init.php');
 date_default_timezone_set('GMT');
@@ -79,9 +79,9 @@ function updateHistory($symbol) {
    !$history && $history=HistorySet::create($symbol, $digits, $format=400, $directory);
 
    // History beginnend mit dem letzten synchronisierten Tag aktualisieren
-   $startTime = $lastSyncTime ? $lastSyncTime : fxtTimestamp(MyFX::$symbols[$symbol]['historyStart']['M1']);
+   $startTime = $lastSyncTime ? $lastSyncTime : fxtTime(MyFX::$symbols[$symbol]['historyStart']['M1']);
    $startDay  = $startTime - $startTime%DAY;                                                 // 00:00 der Startzeit
-   $today     = ($time=fxtTimestamp()) - $time%DAY;                                          // 00:00 des aktuellen Tages
+   $today     = ($time=fxtTime()) - $time%DAY;                                               // 00:00 des aktuellen Tages
    $today     = $startDay + 5*DAYS;                                                          // zu Testzwecken nur x Tage
    $lastMonth = -1;
 
@@ -92,7 +92,7 @@ function updateHistory($symbol) {
          echoPre('[Info]    '.gmDate('M-Y', $day));
          $lastMonth = $month;
       }
-      if (!MyFX::isForexWeekend($day, 'FXT')) {                                              // nur an Handelstagen
+      if (!isForexWeekend($day, 'FXT')) {                                                    // nur an Handelstagen
          if      (is_file($file=MyFX::getVar('myfxFile.M1.compressed', $symbol, $day))) {}   // wenn komprimierte MyFX-Datei existiert
          else if (is_file($file=MyFX::getVar('myfxFile.M1.raw'       , $symbol, $day))) {}   // wenn unkomprimierte MyFX-Datei existiert
          else {

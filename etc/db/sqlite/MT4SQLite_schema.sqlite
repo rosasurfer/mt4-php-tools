@@ -31,8 +31,8 @@ insert into  enum_TickModel (Type) values
 
 
 -- enum: TradeDirection
-create table enum_TradeDirections (Type text[enum] primary key);
-insert into  enum_TradeDirections (Type) values
+create table enum_TradeDirection (Type text[enum] primary key);
+insert into  enum_TradeDirection (Type) values
    ('Long' ),
    ('Short'),
    ('Both' );
@@ -53,7 +53,7 @@ create table t_Test (
    Spread          float(2,1)    not null,                                       -- in pips
    Bars            integer       not null,                                       -- number of tested bars
    Ticks           integer       not null,                                       -- number of tested ticks
-   TradeDirections text[enum]    not null references enum_TradeDirections(Type),
+   TradeDirections text[enum]    not null references enum_TradeDirection(Type),
    VisualMode      integer[bool] not null,
    Duration        integer       not null                                        -- test duration in milliseconds
 );

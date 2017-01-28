@@ -56,7 +56,7 @@ const OP_TRANSFER  = 8;                       // custom: Balance-Änderung durch
 const OP_VENDOR    = 9;                       //         Balance-Änderung durch Criminal (Dividende, Swap, Ausgleich etc.)
 
 
-// Tester tick models
+// Strategy Tester tick models
 const TICKMODEL_EVERYTICK     = 0;
 const TICKMODEL_CONTROLPOINTS = 1;
 const TICKMODEL_BAROPEN       = 2;
@@ -87,45 +87,45 @@ define('DUKASCOPY_TICK_SIZE', 20);
  * Return the FXT based timestamp (seconds since 1970-01-01 00:00 FXT) of the specified time.
  *
  * @param  int    $timestamp - time (default: current time)
- * @param  string $timezone  - timezone (default: GMT)
+ * @param  string $timezone  - timestamp base, including FXT (default: GMT)
  *
  * @return int - FXT based timestamp
  */
-function fxtTimestamp($timestamp=null, $timezone=null) {
-   if (is_null($timestamp)) $timestamp = time();
-   else if (!is_int($timestamp))                   throw new IllegalTypeException('Illegal type of parameter $timestamp: '.getType($timestamp));
-   if (func_num_args()>1 && !is_string($timezone)) throw new IllegalTypeException('Illegal type of parameter $timezone: '.getType($timezone));
-
-   // TODO: reparieren
-
-   $gmtTime = null;
-
-   if (is_null($timezone) || strToUpper($timezone)=='GMT' || strToUpper($timezone)=='UTC') {
-      $gmtTime = $timestamp;
+function fxtTime($timestamp=null, $timezone='GMT') {
+   if (!is_string($timezone))    throw new IllegalTypeException('Illegal type of parameter $timezone: '.getType($timezone));
+   if (is_null($timestamp)) {
+      $timestamp = time();
+      $timezone  = 'GMT';
    }
-   else if (strToUpper($timezone) == 'FXT') {
-      return $timestamp;                                          // Eingabe und Ergebnis sind identisch: Rückkehr
+   else if (!is_int($timestamp)) throw new IllegalTypeException('Illegal type of parameter $timestamp: '.getType($timestamp));
+   $timezone = strToUpper($timezone);
+
+   if ($timezone == 'FXT')
+      return $timestamp;                           // with FXT input and result are equal
+
+   $gmtTimestamp = null;
+
+   if ($timezone=='GMT' || $timezone=='UTC') {
+      $gmtTimestamp = $timestamp;
    }
    else {
-      // $time in GMT-Timestamp konvertieren
+      // convert $timestamp to GMT timestamp
       $oldTimezone = date_default_timezone_get();
       try {
          date_default_timezone_set($timezone);
 
          $offsetA = iDate('Z', $timestamp);
-         $gmtTime = $timestamp + $offsetA;                        // $gmtTime ist die GMT-basierte Zeit für $timestamp
-         $offsetB = iDate('Z', $gmtTime);
-         if ($offsetA != $offsetB) {
-            // TODO: wenn DST-Wechsel in genau diesem Zeitfenster
-         }
+         $gmtTime = $timestamp + $offsetA;
+
+         $offsetB = iDate('Z', $gmtTime);          // double check if DST change is exactly between $timestamp and $gmtTime
+         if ($offsetA != $offsetB) { /* TODO */ }
       }
       finally {
          date_default_timezone_set($oldTimezone);
       }
    }
 
-
-   // GMT-Timestamp in FXT-Timestamp konvertieren
+   // convert $gmtTime to FXT timestamp
    $oldTimezone = date_default_timezone_get();
    try {
       date_default_timezone_set('America/New_York');
@@ -138,4 +138,70 @@ function fxtTimestamp($timestamp=null, $timezone=null) {
    finally {
       date_default_timezone_set($oldTimezone);
    }
+}
+
+
+/**
+ * Whether or not a time is on a FXT based Forex trading day.
+ *
+ * @param  int    $timestamp
+ * @param  string $timezone  - timestamp base, including FXT
+ *                             (default: GMT)
+ * @return bool
+ */
+function isForexTradingDay($timestamp, $timezone='GMT') {
+   if (!is_int($timestamp))   throw new IllegalTypeException('Illegal type of parameter $timestamp: '.getType($timestamp));
+   if (!is_string($timezone)) throw new IllegalTypeException('Illegal type of parameter $timezone: '.getType($timezone));
+
+   return (!isForexWeekend($timestamp, $timezone) && !isForexHoliday($timestamp, $timezone));
+}
+
+
+/**
+ * Whether or not a time is on a FXT based Forex weekend (Saturday or Sunday).
+ *
+ * @param  int    $timestamp
+ * @param  string $timezone  - timestamp base, including FXT
+ *                             (default: GMT)
+ * @return bool
+ */
+function isForexWeekend($timestamp, $timezone='GMT') {
+   if (!is_int($timestamp))   throw new IllegalTypeException('Illegal type of parameter $timestamp: '.getType($timestamp));
+   if (!is_string($timezone)) throw new IllegalTypeException('Illegal type of parameter $timezone: '.getType($timezone));
+
+   // convert $timestamp to FXT timestamp
+   if (strToUpper($timezone) != 'FXT')
+      $timestamp = fxtTime($timestamp, $timezone);
+
+   // check $timestamp as GMT timestamp
+   $dow = (int) gmDate('w', $timestamp);
+   return ($dow==SATURDAY || $dow==SUNDAY);
+}
+
+
+/**
+ * Whether or not a time is on a FXT based Forex holiday.
+ *
+ * @param  int    $timestamp
+ * @param  string $timezone  - timestamp base, including FXT
+ *                             (default: GMT)
+ * @return bool
+ */
+function isForexHoliday($timestamp, $timezone='GMT') {
+   if (!is_int($timestamp))   throw new IllegalTypeException('Illegal type of parameter $timestamp: '.getType($timestamp));
+   if (!is_string($timezone)) throw new IllegalTypeException('Illegal type of parameter $timezone: '.getType($timezone));
+
+   // convert $timestamp to FXT timestamp
+   if (strToUpper($timezone) != 'FXT')
+      $timestamp = fxtTime($timestamp, $timezone);
+
+   // check $timestamp as GMT timestamp
+   $m   = (int) gmDate('n', $timestamp);     // month
+   $dom = (int) gmDate('j', $timestamp);     // day of month
+
+   if ($dom==1 && $m==1)                     // 1. January
+      return true;
+   if ($dom==25 && $m==12)                   // 25. December
+      return true;
+   return false;
 }

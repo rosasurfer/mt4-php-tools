@@ -46,6 +46,11 @@ class MT4 extends StaticClass {
     */
    const MAX_SYMBOL_LENGTH = 11;
 
+   /**
+    * Höchstlänge eines MetaTrader-Orderkommentars
+    */
+   const MAX_ORDER_COMMENT_LENGTH = 27;
+
 
    /**
     * MetaTrader Standard-Timeframes
@@ -489,24 +494,43 @@ class MT4 extends StaticClass {
 
 
    /**
-    * Ob der angegebene Wert einen MetaTrader-Standard-Timeframe darstellt.
+    * Ob der angegebene Wert ein MetaTrader-Standard-Timeframe ist.
     *
-    * @param  int $value - Timeframe-ID
+    * @param  mixed $value
     *
     * @return bool
     */
    public static function isStdTimeframe($value) {
       if (is_int($value)) {
          switch ($value) {
-            case PERIOD_M1 : return true;
-            case PERIOD_M5 : return true;
-            case PERIOD_M15: return true;
-            case PERIOD_M30: return true;
-            case PERIOD_H1 : return true;
-            case PERIOD_H4 : return true;
-            case PERIOD_D1 : return true;
-            case PERIOD_W1 : return true;
+            case PERIOD_M1 :
+            case PERIOD_M5 :
+            case PERIOD_M15:
+            case PERIOD_M30:
+            case PERIOD_H1 :
+            case PERIOD_H4 :
+            case PERIOD_D1 :
+            case PERIOD_W1 :
             case PERIOD_MN1: return true;
+         }
+      }
+      return false;
+   }
+
+
+   /**
+    * Whether or not the specified value is a Strategy Tester tick model id.
+    *
+    * @param  mixed $value
+    *
+    * @return bool
+    */
+   public static function isTickModel($value) {
+      if (is_int($value)) {
+         switch ($value) {
+            case TICKMODEL_EVERYTICK    :
+            case TICKMODEL_CONTROLPOINTS:
+            case TICKMODEL_BAROPEN      : return true;
          }
       }
       return false;
@@ -675,5 +699,65 @@ class MT4 extends StaticClass {
       else throw new IllegalTypeException('Illegal type of parameter $value: '.getType($value));
 
       return -1;
+   }
+
+
+   /**
+    * Whether or not a value is a valid order type.
+    *
+    * @param  int $value
+    *
+    * @return bool
+    */
+   public static function isOrderType($value) {
+      if (is_int($value)) {
+         switch ($value) {
+            case OP_BUY      :
+            case OP_SELL     :
+            case OP_BUYLIMIT :
+            case OP_SELLLIMIT:
+            case OP_BUYSTOP  :
+            case OP_SELLSTOP : return true;
+         }
+      }
+      return false;
+   }
+
+
+   /**
+    * Whether or not a value is a long order type.
+    *
+    * @param  int $value
+    *
+    * @return bool
+    */
+   public static function isLongOrderType($value) {
+      if (is_int($value)) {
+         switch ($value) {
+            case OP_BUY     :
+            case OP_BUYLIMIT:
+            case OP_BUYSTOP : return true;
+         }
+      }
+      return false;
+   }
+
+
+   /**
+    * Whether or not a value is a short order type.
+    *
+    * @param  int $value
+    *
+    * @return bool
+    */
+   public static function isShortOrderType($value) {
+      if (is_int($value)) {
+         switch ($value) {
+            case OP_SELL     :
+            case OP_SELLLIMIT:
+            case OP_SELLSTOP : return true;
+         }
+      }
+      return false;
    }
 }

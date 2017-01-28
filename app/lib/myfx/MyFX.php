@@ -151,7 +151,7 @@ class MyFX extends StaticClass {
       // von Zeiten, die in New York in eine Zeitumstellung fallen, möglich ist. Dies ist nur mit einer Zone ohne DST
       // möglich. Der GMT-Timestamp muß in einen FXT-Timestamp konvertiert und dieser als GMT-Timestamp formatiert werden.
 
-      return gmDate($format, fxtTimestamp($time, 'GMT'));
+      return gmDate($format, fxtTime($time, 'GMT'));
    }
 
 
@@ -343,78 +343,6 @@ class MyFX extends StaticClass {
          return $operationTypes[$type];
 
       throw new InvalidArgumentException('Invalid parameter $type: '.$type.' (not an operation type)');
-   }
-
-
-   /**
-    * Ob ein Zeitpunkt in der Zeitzone FXT auf einen Forex-Handelstag fällt.
-    *
-    * @param  int    $time       - Timestamp
-    * @param  string $timezoneId - Timezone-Identifier des Timestamps (default: GMT=Unix-Timestamp). Zusätzlich zu den
-    *                              standardmäßigen IDs wird 'FXT' für FXT-basierte Timestamps unterstützt.
-    * @return bool
-    */
-   public static function isForexTradingDay($time, $timezoneId=null) {
-      if (!is_int($time))                           throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
-      $argsSize = func_num_args();
-      if ($argsSize > 1 && !is_string($timezoneId)) throw new IllegalTypeException('Illegal type of parameter $timezoneId: '.getType($timezoneId));
-
-      if ($argsSize == 1)
-         return (!self::isForexWeekend($time) && !self::isForexHoliday($time));  // NULL als Timezone-ID ist nicht zulässig
-
-      return (!self::isForexWeekend($time, $timezoneId) && !self::isForexHoliday($time, $timezoneId));
-   }
-
-
-   /**
-    * Ob der Wochentag eines Zeitpunkts in der Zeitzone FXT ein Sonnabend oder Sonntag ist.
-    *
-    * @param  int    $time       - Timestamp
-    * @param  string $timezoneId - Timezone-Identifier des Timestamps (default: GMT=Unix-Timestamp). Zusätzlich zu den
-    *                              standardmäßigen IDs wird 'FXT' für FXT-basierte Timestamps unterstützt.
-    * @return bool
-    */
-   public static function isForexWeekend($time, $timezoneId=null) {
-      if (!is_int($time))                           throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
-      $argsSize = func_num_args();
-      if ($argsSize > 1 && !is_string($timezoneId)) throw new IllegalTypeException('Illegal type of parameter $timezoneId: '.getType($timezoneId));
-
-      // $time in FXT-Timestamp konvertieren
-      if ($argsSize == 1) $fxtTime = fxtTimestamp($time);               // NULL als Timezone-ID ist nicht zulässig
-      else                $fxtTime = fxtTimestamp($time, $timezoneId);
-
-      // fxtTime als GMT-Timestamp prüfen
-      $dow = (int) gmDate('w', $fxtTime);
-      return ($dow==SATURDAY || $dow==SUNDAY);
-   }
-
-
-   /**
-    * Ob ein Zeitpunkt in der Zeitzone FXT auf einen Forex-Feiertag fällt.
-    *
-    * @param  int    $time       - Timestamp
-    * @param  string $timezoneId - Timezone-Identifier des Timestamps (default: GMT=Unix-Timestamp). Zusätzlich zu den
-    *                              standardmäßigen IDs wird 'FXT' für FXT-basierte Timestamps unterstützt.
-    * @return bool
-    */
-   public static function isForexHoliday($time, $timezoneId=null) {
-      if (!is_int($time))                           throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
-      $argsSize = func_num_args();
-      if ($argsSize > 1 && !is_string($timezoneId)) throw new IllegalTypeException('Illegal type of parameter $timezoneId: '.getType($timezoneId));
-
-      // $time in FXT-Timestamp konvertieren
-      if ($argsSize == 1) $fxtTime = fxtTimestamp($time);               // NULL als Timezone-ID ist nicht zulässig
-      else                $fxtTime = fxtTimestamp($time, $timezoneId);
-
-      // fxtTime als GMT-Timestamp prüfen
-      $dom = (int) gmDate('j', $time);
-      $m   = (int) gmDate('n', $time);
-
-      if ($dom==1 && $m==1)            // 1. Januar
-         return true;
-      if ($dom==25 && $m==12)          // 25. Dezember
-         return true;
-      return false;
    }
 
 
