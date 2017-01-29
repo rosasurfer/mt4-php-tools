@@ -62,6 +62,12 @@ const TICKMODEL_CONTROLPOINTS = 1;
 const TICKMODEL_BAROPEN       = 2;
 
 
+// Strategy Tester trade directions
+const TRADEDIRECTION_LONG  = 0;
+const TRADEDIRECTION_SHORT = 1;
+const TRADEDIRECTION_BOTH  = 2;
+
+
 // Spalten der internen History-Daten in UploadAccountHistoryForm
 define('AH_TICKET'     ,  0);
 define('AH_OPENTIME'   ,  1);

@@ -75,7 +75,6 @@ class Test extends PersistableObject {
 
       $test = new static();
 
-
       // (1) parse the test results file
       PHP::ini_set('auto_detect_line_endings', 1);
       $hFile = fOpen($resultsFile, 'rb');
@@ -180,23 +179,28 @@ class Test extends PersistableObject {
             $test->history[] = $order;
       }
       fClose($hFile);
-      echoPre('sizeOf($test->history) = '.sizeof($test->history));
 
 
       // (2) parse the test config file
       $content = file_get_contents($configFile);
+      $content = str_replace(["\r\n", "\r"], "\n", $content);        // increase RegExp limit if needed
+         static $pcreLimit = null; !$pcreLimit && $pcreLimit = PHP::ini_get_int('pcre.backtrack_limit');
+         if (strLen($content) > $pcreLimit) PHP::ini_set('pcre.backtrack_limit', $pcreLimit=strLen($content));
 
-      // increase RegExp limit if needed
-      static $pcreLimit = null; !$pcreLimit && $pcreLimit = PHP::ini_get_int('pcre.backtrack_limit');
-      if (strLen($content) > $pcreLimit) $pcreLimit = PHP::ini_set('pcre.backtrack_limit', strLen($content));
-
-      echoPre('sizeOf($configFile) = '.strLen($content));
-
+      // tradeDirections
+      $pattern = '|^\s*<common\s*>\s*\n(?:.*\n)*(\s*positions\s*=\s*(.+)\s*\n)(?:.*\n)*\s*</common>|imU';
+      if (!preg_match($pattern, $content, $matches))                 throw new InvalidArgumentException('Unsupported file format in test config file "'.$configFile.'" ("/common positions" not found)');
+      if (($direction = \MT4::strToTradeDirection($matches[2])) < 0) throw new IllegalArgumentException('Illegal test property "tradeDirections": "'.$matches[2].'"');
+      $test->tradeDirections = $direction;
 
       /*
-      config:  uint tradeDirections;                        //      4     enabled trade directions: Long|Short|Both
       config:  input params
       */
+
+      $history = $test->history; $test->history = sizeOf($history).' trades';
+      echoPre($test);
+      $test->history = $history;
+
       return $test;
    }
 
@@ -213,10 +217,9 @@ class Test extends PersistableObject {
       $valuesOrig = $values;
       $values     = trim($values);
       $properties = [];
-
-      // increase RegExp limit if needed
+                                                                     // increase RegExp limit if needed
       static $pcreLimit = null; !$pcreLimit && $pcreLimit = PHP::ini_get_int('pcre.backtrack_limit');
-      if (strLen($values) > $pcreLimit) $pcreLimit = PHP::ini_set('pcre.backtrack_limit', strLen($values));
+      if (strLen($values) > $pcreLimit) PHP::ini_set('pcre.backtrack_limit', $pcreLimit=strLen($values));
 
       // test={id=0, time="Tue, 10-Jan-2017 23:36:38", strategy="MyFX Example MA", reportingId=2, reportingSymbol="MyFXExa.002", symbol="EURUSD", timeframe=PERIOD_M1, startTime="Tue, 01-Dec-2015 00:03:00", endTime="Thu, 31-Dec-2015 23:58:59", tickModel=0, spread=0.1, bars=31535, ticks=31536, accountDeposit=100000.00, accountCurrency="USD", tradeDirections=0, visualMode=FALSE, duration=1.544 s, orders=1451}
       if (!strStartsWith($values, 'test=')) throw new InvalidArgumentException('Unsupported test properties format: "'.$valuesOrig.'"');
@@ -346,10 +349,9 @@ class Test extends PersistableObject {
       $valuesOrig = $values;
       $values     = trim($values);
       $properties = [];
-
-      // increase RegExp limit if needed
+                                                                     // increase RegExp limit if needed
       static $pcreLimit = null; !$pcreLimit && $pcreLimit = PHP::ini_get_int('pcre.backtrack_limit');
-      if (strLen($values) > $pcreLimit) $pcreLimit = PHP::ini_set('pcre.backtrack_limit', strLen($values));
+      if (strLen($values) > $pcreLimit) PHP::ini_set('pcre.backtrack_limit', $pcreLimit=strLen($values));
 
       // order.0={id=0, ticket=1, type=OP_SELL, lots=0.10, symbol="EURUSD", openPrice=1.05669, openTime="Tue, 01-Dec-2015 00:22:00", stopLoss=0, takeProfit=0, closePrice=1.05685, closeTime="Tue, 01-Dec-2015 00:29:00", commission=-0.43, swap=0.00, profit=-1.60, magicNumber=0, comment=""}
       if (!strStartsWith($values, 'order.')) throw new InvalidArgumentException('Unsupported order properties format: "'.$valuesOrig.'"');
