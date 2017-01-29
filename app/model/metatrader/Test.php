@@ -120,10 +120,10 @@ class Test extends PersistableObject {
             // first line: test properties
             $properties = self::parseTestProperties($line);
 
-            $time = $properties['time'];
+            $time = $properties['time'];                   // GMT timestamp
             if (!is_int($time))                            throw new IllegalTypeException('Illegal type of property "time": '.getType($time));
             if ($time <= 0)                                throw new InvalidArgumentException('Invalid property "time": '.$time.' (not positive)');
-            $test->created = $time;
+            $test->created = gmDate('Y-m-d H:i:s', $time);
 
             $strategy = $properties['strategy'];
             if (!is_string($strategy))                     throw new IllegalTypeException('Illegal type of property "strategy": '.getType($strategy));
@@ -156,16 +156,16 @@ class Test extends PersistableObject {
             if (!\MT4::isStdTimeframe($timeframe))         throw new InvalidArgumentException('Invalid property "timeframe": '.$timeframe.' (not a timeframe)');
             $test->timeframe = $timeframe;
 
-            $startTime = $properties['startTime'];
+            $startTime = $properties['startTime'];         // FXT timestamp
             if (!is_int($startTime))                       throw new IllegalTypeException('Illegal type of property "startTime": '.getType($startTime));
             if ($startTime <= 0)                           throw new InvalidArgumentException('Invalid property "startTime": '.$startTime.' (not positive)');
-            $test->startTime = $startTime;
+            $test->startTime = gmDate('Y-m-d H:i:s', $startTime);
 
-            $endTime = $properties['endTime'];
+            $endTime = $properties['endTime'];             // FXT timestamp
             if (!is_int($endTime))                         throw new IllegalTypeException('Illegal type of property "endTime": '.getType($endTime));
             if ($endTime <= 0)                             throw new InvalidArgumentException('Invalid property "endTime": '.$endTime.' (not positive)');
             if ($startTime > $endTime)                     throw new InvalidArgumentException('Invalid properties "startTime|endTime": '.$startTime.'|'.$endTime.' (mis-match)');
-            $test->endTime = $endTime;
+            $test->endTime = gmDate('Y-m-d H:i:s', $endTime);
 
             $tickModel = $properties['tickModel'];
             if (!is_int($tickModel))                       throw new IllegalTypeException('Illegal type of property "tickModel": '.getType($tickModel));
@@ -201,6 +201,8 @@ class Test extends PersistableObject {
             if ($duration <= 0)                            throw new InvalidArgumentException('Invalid property "duration": '.$duration.' (not positive)');
             $test->duration = $duration;
 
+            if ($ticks == $bars+1)
+               $test->tickModel = TICKMODEL_BAROPEN;
             continue;
          }
 
@@ -256,121 +258,123 @@ class Test extends PersistableObject {
       $valuesOrig = $values;
       $values     = trim($values);
       $properties = [];
-                                                                     // increase RegExp limit if needed
-      static $pcreLimit = null; !$pcreLimit && $pcreLimit = PHP::ini_get_int('pcre.backtrack_limit');
-      if (strLen($values) > $pcreLimit) PHP::ini_set('pcre.backtrack_limit', $pcreLimit=strLen($values));
 
-      // test={id=0, time="Tue, 10-Jan-2017 23:36:38", strategy="MyFX Example MA", reportingId=2, reportingSymbol="MyFXExa.002", symbol="EURUSD", timeframe=PERIOD_M1, startTime="Tue, 01-Dec-2015 00:03:00", endTime="Thu, 31-Dec-2015 23:58:59", tickModel=0, spread=0.1, bars=31535, ticks=31536, accountDeposit=100000.00, accountCurrency="USD", tradeDirections=0, visualMode=FALSE, duration=1.544 s, orders=1451}
-      if (!strStartsWith($values, 'test=')) throw new InvalidArgumentException('Unsupported test properties format: "'.$valuesOrig.'"');
-      $values = trim(strRight($values, -5));
-
-      // {id=0, time="Tue, 10-Jan-2017 23:36:38", strategy="MyFX Example MA", reportingId=2, reportingSymbol="MyFXExa.002", symbol="EURUSD", timeframe=PERIOD_M1, startTime="Tue, 01-Dec-2015 00:03:00", endTime="Thu, 31-Dec-2015 23:58:59", tickModel=0, spread=0.1, bars=31535, ticks=31536, accountDeposit=100000.00, accountCurrency="USD", tradeDirections=0, visualMode=FALSE, duration=1.544 s, orders=1451}
-      if (!strStartsWith($values, '{') || !strEndsWith($values, '}')) throw new InvalidArgumentException('Unsupported test properties format: "'.$valuesOrig.'"');
-      $values = ', '.trim(subStr($values, 1, strLen($values)-2)).', ';
-      // ', id=0, time="Tue, 10-Jan-2017 23:36:38", strategy="MyFX Example MA", reportingId=2, reportingSymbol="MyFXExa.002", symbol="EURUSD", timeframe=PERIOD_M1, startTime="Tue, 01-Dec-2015 00:03:00", endTime="Thu, 31-Dec-2015 23:58:59", tickModel=0, spread=0.1, bars=31535, ticks=31536, accountDeposit=100000.00, accountCurrency="USD", tradeDirections=0, visualMode=FALSE, duration=1.544 s, orders=1451, '
-
-      // id
-      $pattern = '/, *id *= *([0-9]+) *,/i';
-      if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal test properties ("id" invalid or not found): "'.$valuesOrig.'"');
-      $properties['id'] = (int)$matches[1][0];
-      if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal test properties (multiple "id" occurrences): "'.$valuesOrig.'"');
-
-      // time (local time)
-      $pattern = '/, *time *= *"([^"]+)" *,/i';
-      if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal test properties ("time" invalid or not found): "'.$valuesOrig.'"');
       $oldTimezone = date_default_timezone_get();
-      try {
+      try {                                                          // increase RegExp limit if needed
+         static $pcreLimit = null; !$pcreLimit && $pcreLimit = PHP::ini_get_int('pcre.backtrack_limit');
+         if (strLen($values) > $pcreLimit) PHP::ini_set('pcre.backtrack_limit', $pcreLimit=strLen($values));
+
+         // test={id=0, time="Tue, 10-Jan-2017 23:36:38", strategy="MyFX Example MA", reportingId=2, reportingSymbol="MyFXExa.002", symbol="EURUSD", timeframe=PERIOD_M1, startTime="Tue, 01-Dec-2015 00:03:00", endTime="Thu, 31-Dec-2015 23:58:59", tickModel=0, spread=0.1, bars=31535, ticks=31536, accountDeposit=100000.00, accountCurrency="USD", tradeDirections=0, visualMode=FALSE, duration=1.544 s, orders=1451}
+         if (!strStartsWith($values, 'test=')) throw new InvalidArgumentException('Unsupported test properties format: "'.$valuesOrig.'"');
+         $values = trim(strRight($values, -5));
+
+         // {id=0, time="Tue, 10-Jan-2017 23:36:38", strategy="MyFX Example MA", reportingId=2, reportingSymbol="MyFXExa.002", symbol="EURUSD", timeframe=PERIOD_M1, startTime="Tue, 01-Dec-2015 00:03:00", endTime="Thu, 31-Dec-2015 23:58:59", tickModel=0, spread=0.1, bars=31535, ticks=31536, accountDeposit=100000.00, accountCurrency="USD", tradeDirections=0, visualMode=FALSE, duration=1.544 s, orders=1451}
+         if (!strStartsWith($values, '{') || !strEndsWith($values, '}')) throw new InvalidArgumentException('Unsupported test properties format: "'.$valuesOrig.'"');
+         $values = ', '.trim(subStr($values, 1, strLen($values)-2)).', ';
+         // ', id=0, time="Tue, 10-Jan-2017 23:36:38", strategy="MyFX Example MA", reportingId=2, reportingSymbol="MyFXExa.002", symbol="EURUSD", timeframe=PERIOD_M1, startTime="Tue, 01-Dec-2015 00:03:00", endTime="Thu, 31-Dec-2015 23:58:59", tickModel=0, spread=0.1, bars=31535, ticks=31536, accountDeposit=100000.00, accountCurrency="USD", tradeDirections=0, visualMode=FALSE, duration=1.544 s, orders=1451, '
+
+         // id
+         $pattern = '/, *id *= *([0-9]+) *,/i';
+         if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal test properties ("id" invalid or not found): "'.$valuesOrig.'"');
+         $properties['id'] = (int)$matches[1][0];
+         if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal test properties (multiple "id" occurrences): "'.$valuesOrig.'"');
+
+         // time (local time)
+         $pattern = '/, *time *= *"([^"]+)" *,/i';
+         if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal test properties ("time" invalid or not found): "'.$valuesOrig.'"');
          date_default_timezone_set(ini_get('date.timezone'));
-         if (!$time = strToTime($matches[1][0]))                           throw new IllegalArgumentException('Illegal test property "time": "'.$matches[1][0].'"');
+         if (!$time = strToTime($matches[1][0]))                              throw new IllegalArgumentException('Illegal test property "time": "'.$matches[1][0].'"');
          $properties['time'] = $time;
+         if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal test properties (multiple "time" occurrences): "'.$valuesOrig.'"');
+
+         // strategy
+         $pattern = '/, *strategy *= *"([^"]+)" *,/i';
+         if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal test properties ("strategy" invalid or not found): "'.$valuesOrig.'"');
+         $properties['strategy'] = $matches[1][0];
+         if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal test properties (multiple "strategy" occurrences): "'.$valuesOrig.'"');
+
+         // reportingId
+         $pattern = '/, *reportingId *= *([0-9]+) *,/i';
+         if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal test properties ("reportingId" invalid or not found): "'.$valuesOrig.'"');
+         $properties['reportingId'] = (int)$matches[1][0];
+         if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal test properties (multiple "reportingId" occurrences): "'.$valuesOrig.'"');
+
+         // reportingSymbol
+         $pattern = '/, *reportingSymbol *= *"([^"]+)" *,/i';
+         if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal test properties ("reportingSymbol" invalid or not found): "'.$valuesOrig.'"');
+         $properties['reportingSymbol'] = $matches[1][0];
+         if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal test properties (multiple "reportingSymbol" occurrences): "'.$valuesOrig.'"');
+
+         // symbol
+         $pattern = '/, *symbol *= *"([^"]+)" *,/i';
+         if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal test properties ("symbol" invalid or not found): "'.$valuesOrig.'"');
+         $properties['symbol'] = $matches[1][0];
+         if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal test properties (multiple "symbol" occurrences): "'.$valuesOrig.'"');
+
+         // timeframe
+         $pattern = '/, *timeframe *= *(PERIOD_[^ ]+) *,/i';
+         if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal test properties ("timeframe" invalid or not found): "'.$valuesOrig.'"');
+         if (!$id = \MT4::strToTimeframe($matches[1][0]))                     throw new IllegalArgumentException('Illegal test property "timeframe": "'.$matches[1][0].'"');
+         $properties['timeframe'] = $id;
+         if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal test properties (multiple "timeframe" occurrences): "'.$valuesOrig.'"');
+
+         // startTime (FXT)
+         $pattern = '/, *startTime *= *"([^"]+)" *,/i';
+         if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal test properties ("startTime" invalid or not found): "'.$valuesOrig.'"');
+         date_default_timezone_set('GMT');
+         if (!$time = strToTime($matches[1][0]))                              throw new IllegalArgumentException('Illegal test property "startTime": "'.$matches[1][0].'"');
+         $properties['startTime'] = $time;
+         if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal test properties (multiple "startTime" occurrences): "'.$valuesOrig.'"');
+
+         // endTime (FXT)
+         $pattern = '/, *endTime *= *"([^"]+)" *,/i';
+         if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal test properties ("endTime" invalid or not found): "'.$valuesOrig.'"');
+         date_default_timezone_set('GMT');
+         if (!$time = strToTime($matches[1][0]))                              throw new IllegalArgumentException('Illegal test property "endTime": "'.$matches[1][0].'"');
+         $properties['endTime'] = $time;
+         if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal test properties (multiple "endTime" occurrences): "'.$valuesOrig.'"');
+
+         // tickModel
+         $pattern = '/, *tickModel *= *([0-9]+) *,/i';
+         if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal test properties ("tickModel" invalid or not found): "'.$valuesOrig.'"');
+         if (($id = \MT4::strToTickModel($matches[1][0])) < 0)                throw new IllegalArgumentException('Illegal test property "tickModel": "'.$matches[1][0].'"');
+         $properties['tickModel'] = $id;
+         if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal test properties (multiple "tickModel" occurrences): "'.$valuesOrig.'"');
+
+         // spread
+         $pattern = '/, *spread *= *([^ ]+) *,/i';
+         if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal test properties ("spread" invalid or not found): "'.$valuesOrig.'"');
+         if (!strIsNumeric($spread = $matches[1][0]))                         throw new IllegalArgumentException('Illegal test property "spread": "'.$matches[1][0].'"');
+         $properties['spread'] = (float)$spread;
+         if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal test properties (multiple "spread" occurrences): "'.$valuesOrig.'"');
+
+         // bars
+         $pattern = '/, *bars *= *([0-9]+) *,/i';
+         if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal test properties ("bars" invalid or not found): "'.$valuesOrig.'"');
+         $properties['bars'] = (int)$matches[1][0];
+         if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal test properties (multiple "bars" occurrences): "'.$valuesOrig.'"');
+
+         // ticks
+         $pattern = '/, *ticks *= *([0-9]+) *,/i';
+         if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal test properties ("ticks" invalid or not found): "'.$valuesOrig.'"');
+         $properties['ticks'] = (int)$matches[1][0];
+         if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal test properties (multiple "ticks" occurrences): "'.$valuesOrig.'"');
+
+         // visualMode
+         $pattern = '/, *visualMode *= *([^ ]+) *,/i';
+         if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal test properties ("visualMode" invalid or not found): "'.$valuesOrig.'"');
+         if (is_null($mode = strToBool($matches[1][0])))                      throw new IllegalArgumentException('Illegal test property "visualMode": "'.$matches[1][0].'"');
+         $properties['visualMode'] = (int)$mode;
+         if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal test properties (multiple "visualMode" occurrences): "'.$valuesOrig.'"');
+
+         // duration
+         $pattern = '/, *duration *= *([^ ]+) *s? *,/i';
+         if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal test properties ("duration" invalid or not found): "'.$valuesOrig.'"');
+         if (!strIsNumeric($duration = $matches[1][0]))                       throw new IllegalArgumentException('Illegal test property "duration": "'.$matches[1][0].'"');
+         $properties['duration'] = (int)round($duration * 1000);
+         if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal test properties (multiple "duration" occurrences): "'.$valuesOrig.'"');
       }
       finally { date_default_timezone_set($oldTimezone); }
-      if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal test properties (multiple "time" occurrences): "'.$valuesOrig.'"');
-
-      // strategy
-      $pattern = '/, *strategy *= *"([^"]+)" *,/i';
-      if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal test properties ("strategy" invalid or not found): "'.$valuesOrig.'"');
-      $properties['strategy'] = $matches[1][0];
-      if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal test properties (multiple "strategy" occurrences): "'.$valuesOrig.'"');
-
-      // reportingId
-      $pattern = '/, *reportingId *= *([0-9]+) *,/i';
-      if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal test properties ("reportingId" invalid or not found): "'.$valuesOrig.'"');
-      $properties['reportingId'] = (int)$matches[1][0];
-      if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal test properties (multiple "reportingId" occurrences): "'.$valuesOrig.'"');
-
-      // reportingSymbol
-      $pattern = '/, *reportingSymbol *= *"([^"]+)" *,/i';
-      if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal test properties ("reportingSymbol" invalid or not found): "'.$valuesOrig.'"');
-      $properties['reportingSymbol'] = $matches[1][0];
-      if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal test properties (multiple "reportingSymbol" occurrences): "'.$valuesOrig.'"');
-
-      // symbol
-      $pattern = '/, *symbol *= *"([^"]+)" *,/i';
-      if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal test properties ("symbol" invalid or not found): "'.$valuesOrig.'"');
-      $properties['symbol'] = $matches[1][0];
-      if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal test properties (multiple "symbol" occurrences): "'.$valuesOrig.'"');
-
-      // timeframe
-      $pattern = '/, *timeframe *= *(PERIOD_[^ ]+) *,/i';
-      if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal test properties ("timeframe" invalid or not found): "'.$valuesOrig.'"');
-      if (!$id = \MT4::strToTimeframe($matches[1][0]))                     throw new IllegalArgumentException('Illegal test property "timeframe": "'.$matches[1][0].'"');
-      $properties['timeframe'] = $id;
-      if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal test properties (multiple "timeframe" occurrences): "'.$valuesOrig.'"');
-
-      // startTime (FXT)
-      $pattern = '/, *startTime *= *"([^"]+)" *,/i';
-      if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal test properties ("startTime" invalid or not found): "'.$valuesOrig.'"');
-      if (!$time = strToTime($matches[1][0]))                              throw new IllegalArgumentException('Illegal test property "startTime": "'.$matches[1][0].'"');
-      $properties['startTime'] = $time;
-      if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal test properties (multiple "startTime" occurrences): "'.$valuesOrig.'"');
-
-      // endTime (FXT)
-      $pattern = '/, *endTime *= *"([^"]+)" *,/i';
-      if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal test properties ("endTime" invalid or not found): "'.$valuesOrig.'"');
-      if (!$time = strToTime($matches[1][0]))                              throw new IllegalArgumentException('Illegal test property "endTime": "'.$matches[1][0].'"');
-      $properties['endTime'] = $time;
-      if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal test properties (multiple "endTime" occurrences): "'.$valuesOrig.'"');
-
-      // tickModel
-      $pattern = '/, *tickModel *= *([0-9]+) *,/i';
-      if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal test properties ("tickModel" invalid or not found): "'.$valuesOrig.'"');
-      if (($id = \MT4::strToTickModel($matches[1][0])) < 0)                throw new IllegalArgumentException('Illegal test property "tickModel": "'.$matches[1][0].'"');
-      $properties['tickModel'] = $id;
-      if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal test properties (multiple "tickModel" occurrences): "'.$valuesOrig.'"');
-
-      // spread
-      $pattern = '/, *spread *= *([^ ]+) *,/i';
-      if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal test properties ("spread" invalid or not found): "'.$valuesOrig.'"');
-      if (!strIsNumeric($spread = $matches[1][0]))                         throw new IllegalArgumentException('Illegal test property "spread": "'.$matches[1][0].'"');
-      $properties['spread'] = (float)$spread;
-      if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal test properties (multiple "spread" occurrences): "'.$valuesOrig.'"');
-
-      // bars
-      $pattern = '/, *bars *= *([0-9]+) *,/i';
-      if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal test properties ("bars" invalid or not found): "'.$valuesOrig.'"');
-      $properties['bars'] = (int)$matches[1][0];
-      if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal test properties (multiple "bars" occurrences): "'.$valuesOrig.'"');
-
-      // ticks
-      $pattern = '/, *ticks *= *([0-9]+) *,/i';
-      if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal test properties ("ticks" invalid or not found): "'.$valuesOrig.'"');
-      $properties['ticks'] = (int)$matches[1][0];
-      if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal test properties (multiple "ticks" occurrences): "'.$valuesOrig.'"');
-
-      // visualMode
-      $pattern = '/, *visualMode *= *([^ ]+) *,/i';
-      if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal test properties ("visualMode" invalid or not found): "'.$valuesOrig.'"');
-      if (is_null($mode = strToBool($matches[1][0])))                      throw new IllegalArgumentException('Illegal test property "visualMode": "'.$matches[1][0].'"');
-      $properties['visualMode'] = (int)$mode;
-      if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal test properties (multiple "visualMode" occurrences): "'.$valuesOrig.'"');
-
-      // duration
-      $pattern = '/, *duration *= *([^ ]+) *s? *,/i';
-      if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal test properties ("duration" invalid or not found): "'.$valuesOrig.'"');
-      if (!strIsNumeric($duration = $matches[1][0]))                       throw new IllegalArgumentException('Illegal test property "duration": "'.$matches[1][0].'"');
-      $properties['duration'] = (int)round($duration * 1000);
-      if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal test properties (multiple "duration" occurrences): "'.$valuesOrig.'"');
 
       return $properties;
    }
@@ -530,20 +534,33 @@ class Test extends PersistableObject {
       $created = $this->created;
       $version = $this->version;
 
-      // create SQL
-      $sql = "insert into t_test (version,    created, strategy, reportingid, reportingsymbol, symbol, timeframe, starttime, endtime, tickmodel, spread, bars, ticks, tradedirections, visualmode, duration) values
-                               ('$version', '$created')";   // $ticket, '$type', $lots, '$symbol', '$opentime', $openprice, '$closetime', $closeprice, $stoploss, $takeprofit, $commission, $swap, $profit, $netprofit, $magicnumber, $comment, $signal_id)";
+      $strategy        = addSlashes($this->strategy);
+      $reportingid     =            $this->reportingId;
+      $reportingsymbol = addSlashes($this->reportingSymbol);
+      $symbol          = addSlashes($this->symbol);
+      $timeframe       =            $this->timeframe;
+      $starttime       =            $this->startTime;
+      $endtime         =            $this->endTime;
+      $tickmodel       =            $this->tickModel;
+      $spread          =            $this->spread;
+      $bars            =            $this->bars;
+      $ticks           =            $this->ticks;
+      $tradedirections =            $this->tradeDirections;
+      $visualmode      =      (int) $this->visualMode;
+      $duration        =            $this->duration;
 
-      /*
-      insert into t_test (version, created, strategy, reportingid, reportingsymbol, symbol, timeframe, starttime, endtime, tickmodel, spread, bars, ticks, tradedirections, visualmode, duration) values
-         ('MA example', 1, 'MAex.001', 'EURUSD',  5, datetime('now', 'localtime'), datetime('now', 'localtime'), 'BarOpen', 0.2, 1000, 1001, 'Both', 0, 1234);
-      */
+      // create SQL
+      $sql = "insert into t_test (version, created, strategy, reportingid, reportingsymbol, symbol, timeframe, starttime, endtime, tickmodel, spread, bars, ticks, tradedirections, visualmode, duration) values
+                 ('$version', '$created', '$strategy', $reportingid, '$reportingsymbol', '$symbol', $timeframe, '$starttime', '$endtime', $tickmodel, $spread, $bars, $ticks, $tradedirections, $visualmode, $duration)";
       echoPre($sql);
 
-      /*
       // execute SQL
-      $db->executeSql($sql);
+      //$db = self::dao()->getDB();
+      //$db->executeSql($sql);
 
+
+
+      /*
       // query and assign instance id
       $result = $db->executeSql("select last_insert_id()");
       $this->id = (int) mysql_result($result['set'], 0);

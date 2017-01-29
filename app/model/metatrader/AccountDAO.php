@@ -13,9 +13,9 @@ class AccountDAO extends CommonDAO {
 
    // Datenbankmapping
    public $mapping = [
-      'link'   => 'myfx',
-      'table'  => 't_account',
-      'fields' => [
+      'connection' => 'myfx',
+      'table'      => 't_account',
+      'fields'     => [
          'id'                  => ['id'                 , self::T_INT   , self::T_NOT_NULL],     // int
          'version'             => ['version'            , self::T_STRING, self::T_NOT_NULL],     // timestamp
          'created'             => ['created'            , self::T_STRING, self::T_NOT_NULL],     // datetime
