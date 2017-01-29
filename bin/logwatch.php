@@ -1,15 +1,12 @@
 #!/usr/bin/php
 <?php
 /**
- * Scans the application's PHP error log file for entries and notifies by email of any findings. Mails will be sent to
- * the configured log message receivers of the application. If there are no configured receivers mail will be sent to
- * the system user running this script. After notification the found entries are removed from the log file.
- *
- * If this script is run by CRON there is no way that errors might be missed.  If the script itself causes errors the
- * error messages are printed to STDERR and catched by CRON which again will notify the system user running this script.
+ * Scans the application's PHP error log file for entries and notifies by email. Mail will be sent to the configured log
+ * message receivers. If no receivers are configured mail will be sent to the system user running the script. Log entries
+ * notifications have been sent for are removed from the log file.
  *
  * TODO: Error messages must not be printed to STDOUT but to STDERR.
- * TODO: Parameter for suppresing/not suppressing regular output to enable status messages when not run by CRON.
+ * TODO: Parameter for (not) suppressing regular output to enable status messages when not executed by CRON.
  */
 use rosasurfer\config\Config;
 use rosasurfer\exception\IllegalTypeException;
