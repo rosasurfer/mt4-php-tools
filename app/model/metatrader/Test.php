@@ -18,6 +18,9 @@ class Test extends PersistableObject {
    /** @var string - strategy name */
    protected $strategy;
 
+   /** @var string[] - strategy input parameters */
+   protected $strategyParameters;
+
    /** @var int - reporting id (for composition of reportingSymbol) */
    protected $reportingId;
 
@@ -30,10 +33,10 @@ class Test extends PersistableObject {
    /** @var int - tested timeframe */
    protected $timeframe;
 
-   /** @var string - time of the first tick of testing (server timezone) */
+   /** @var int - time of the first tick of testing (server timezone) */
    protected $startTime;
 
-   /** @var string - time of the last tick of testing (server timezone) */
+   /** @var int - time of the last tick of testing (server timezone) */
    protected $endTime;
 
    /** @var int - used tick model: EveryTick|ControlPoints|BarOpen */
@@ -58,7 +61,36 @@ class Test extends PersistableObject {
    protected $duration;
 
    /** @var Order[] - trade history of the test */
-   protected $history;
+   protected $trades;
+
+
+   // standard getters
+   public function getStrategy          () { return $this->strategy;                    }
+   public function getStrategyParameters() { return $this->strategyParameters;          }
+   public function getReportingId       () { return $this->reportingId;                 }
+   public function getReportingSymbol   () { return $this->reportingSymbol;             }
+   public function getSymbol            () { return $this->symbol;                      }
+   public function getTimeframe         () { return $this->timeframe;                   }
+   public function getStartTime         () { return $this->startTime;                   }
+   public function getEndTime           () { return $this->endTime;                     }
+   public function getTickModel         () { return $this->tickModel;                   }
+   public function getSpread            () { return $this->spread;                      }
+   public function getBars              () { return $this->bars;                        }
+   public function getTicks             () { return $this->ticks;                       }
+   public function getTradeDirections   () { return $this->tradeDirections;             }
+   public function isVisualMode         () { return $this->visualMode;                  }
+   public function getDuration          () { return $this->duration;                    }
+   public function getTrades            () { return $this->trades ? $this->trades : []; }
+
+
+   /**
+    * Return the number of trades of the Test.
+    *
+    * @return int
+    */
+   public function countTrades() {
+      return sizeOf($this->trades);
+   }
 
 
    /**
@@ -176,7 +208,7 @@ class Test extends PersistableObject {
          if (!strStartsWith($line, 'order.')) throw new InvalidArgumentException('Unsupported file format in line '.$i.' of "'.$resultsFile.'"');
          $order = Order::create($test, self::parseOrderProperties($line));
          if ($order->isClosedPosition())
-            $test->history[] = $order;
+            $test->trades[] = $order;
       }
       fClose($hFile);
 
@@ -193,13 +225,20 @@ class Test extends PersistableObject {
       if (($direction = \MT4::strToTradeDirection($matches[2])) < 0) throw new IllegalArgumentException('Illegal test property "tradeDirections": "'.$matches[2].'"');
       $test->tradeDirections = $direction;
 
-      /*
-      config:  input params
-      */
-
-      $history = $test->history; $test->history = sizeOf($history).' trades';
-      echoPre($test);
-      $test->history = $history;
+      // input parameters
+      $pattern = '|^\s*<inputs\s*>\s*\n(.*)^\s*</inputs>\s*$|ismU';
+      if (!preg_match($pattern, $content, $matches)) throw new InvalidArgumentException('Unsupported file format in test config file "'.$configFile.'" ("/inputs" not found)');
+      $params = explode("\n", trim($matches[1]));
+      foreach ($params as $i => $line) {
+         if (strLen($line = trim($line))) {
+            $values = explode('=', $line, 2);
+            if (sizeOf($values) < 2) throw new IllegalArgumentException('Illegal input parameter "'.$params[$i].'" in test config file "'.$configFile.'"');
+            if (!strContains($values[0], ','))
+               continue;
+         }
+         unset($params[$i]);
+      }
+      $test->strategyParameters = array_values($params);
 
       return $test;
    }
@@ -488,12 +527,27 @@ class Test extends PersistableObject {
     * @return self
     */
    protected function insert() {
+      $created = $this->created;
+      $version = $this->version;
 
       // create SQL
+      $sql = "insert into t_test (version,    created, strategy, reportingid, reportingsymbol, symbol, timeframe, starttime, endtime, tickmodel, spread, bars, ticks, tradedirections, visualmode, duration) values
+                               ('$version', '$created')";   // $ticket, '$type', $lots, '$symbol', '$opentime', $openprice, '$closetime', $closeprice, $stoploss, $takeprofit, $commission, $swap, $profit, $netprofit, $magicnumber, $comment, $signal_id)";
 
+      /*
+      insert into t_test (version, created, strategy, reportingid, reportingsymbol, symbol, timeframe, starttime, endtime, tickmodel, spread, bars, ticks, tradedirections, visualmode, duration) values
+         ('MA example', 1, 'MAex.001', 'EURUSD',  5, datetime('now', 'localtime'), datetime('now', 'localtime'), 'BarOpen', 0.2, 1000, 1001, 'Both', 0, 1234);
+      */
+      echoPre($sql);
+
+      /*
       // execute SQL
+      $db->executeSql($sql);
 
-      // query instance id
+      // query and assign instance id
+      $result = $db->executeSql("select last_insert_id()");
+      $this->id = (int) mysql_result($result['set'], 0);
+      */
 
       /*
       $created     =  $this->created;
@@ -517,6 +571,10 @@ class Test extends PersistableObject {
          $result = $db->executeSql("select last_insert_id()");
          $this->id = (int) mysql_result($result['set'], 0);
 
+         // insert trades
+         foreach ($this->getTrades() as $trade) {
+            $trade->save();
+         }
          $db->commit();
       }
       catch (\Exception $ex) {

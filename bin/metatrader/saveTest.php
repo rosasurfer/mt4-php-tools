@@ -76,10 +76,9 @@ function processTestFiles() {
    global $testConfigFile, $testResultsFile, $verbose;
 
    $test = Test::create($testConfigFile, $testResultsFile);
-   //$test->save();
+   $test->save();
 
-   //echoPre($test);
-
+   echoPre('Test of "'.$test->getStrategy().'" with '.$test->countTrades().' trades saved.');
    return true;
 }
 
