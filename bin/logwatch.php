@@ -23,7 +23,7 @@ use const rosasurfer\NL;
 use const rosasurfer\WINDOWS;
 
 
-require(__DIR__.'/../../app/init.php');
+require(__DIR__.'/../app/init.php');
 set_time_limit(0);                                       // no time limit for CLI
 
 
