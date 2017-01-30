@@ -1,5 +1,5 @@
 <?php
-use rosasurfer\dao\CommonDAO;
+use rosasurfer\dao\CommonDao;
 
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
@@ -8,7 +8,7 @@ use rosasurfer\exception\InvalidArgumentException;
 /**
  * DAO zum Zugriff auf ClosedPosition-Instanzen.
  */
-class ClosedPositionDAO extends CommonDAO {
+class ClosedPositionDao extends CommonDao {
 
 
    // Datenbankmapping

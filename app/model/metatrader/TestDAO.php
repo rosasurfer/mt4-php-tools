@@ -1,13 +1,13 @@
 <?php
 namespace rosasurfer\myfx\metatrader\model;
 
-use rosasurfer\dao\CommonDAO;
+use rosasurfer\dao\CommonDao;
 
 
 /**
  * DAO for accessing Test instances.
  */
-class TestDAO extends CommonDAO {
+class TestDao extends CommonDao {
 
 
    /**
