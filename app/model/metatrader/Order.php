@@ -232,7 +232,7 @@ class Order extends PersistableObject {
       $magicnumber = !$this->magicNumber          ? 'null' : $this->magicNumber;
       $comment     =  is_null($this->comment)     ? 'null' : "'".addSlashes($this->comment)."'";
 
-      $db = self::dao()->getDB();
+      $db = self::dao()->getDb();
       $db->begin();
       try {
          // insert instance

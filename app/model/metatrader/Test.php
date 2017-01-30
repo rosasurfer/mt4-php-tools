@@ -531,8 +531,8 @@ class Test extends PersistableObject {
     * @return self
     */
    protected function insert() {
-      $created = $this->created;
-      $version = $this->version;
+      $created         =            $this->created;
+      $version         =            $this->version;
 
       $strategy        = addSlashes($this->strategy);
       $reportingid     =            $this->reportingId;
@@ -555,7 +555,7 @@ class Test extends PersistableObject {
       echoPre($sql);
 
       // execute SQL
-      //$db = self::dao()->getDB();
+      $db = self::dao()->getDb();
       //$db->executeSql($sql);
 
 
@@ -578,7 +578,7 @@ class Test extends PersistableObject {
       $magicnumber = !$this->magicNumber          ? 'null' : $this->magicNumber;
       $comment     =  is_null($this->comment)     ? 'null' : "'".addSlashes($this->comment)."'";
 
-      $db = self::dao()->getDB();
+      $db = self::dao()->getDb();
       $db->begin();
       try {
          // insert instance

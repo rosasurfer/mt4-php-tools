@@ -41,7 +41,7 @@ class ReportHelper extends Object {
       if (!is_string($starttime))                  throw new IllegalTypeException('Illegal type of parameter $starttime: '.getType($starttime));
       if (!is_datetime($starttime, 'Y-m-d H:i:s')) throw new InvalidArgumentException('Invalid argument $starttime: '.$starttime);
 
-      $db = Signal::dao()->getDB();
+      $db = Signal::dao()->getDb();
 
       $signal_id = $signal->getId();
       $symbol    = addSlashes($symbol);

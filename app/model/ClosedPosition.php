@@ -270,7 +270,7 @@ class ClosedPosition extends PersistableObject {
       $comment     =  is_null($this->comment)     ? 'null' : "'".addSlashes($this->comment)."'";
       $signal_id   =  $this->signal_id;
 
-      $db = self::dao()->getDB();
+      $db = self::dao()->getDb();
       $db->begin();
       try {
          // ClosedPosition einfügen

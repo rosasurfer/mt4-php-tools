@@ -1,11 +1,10 @@
 #!/usr/bin/php
 <?php
-use rosasurfer\myfx\metatrader\model\Test;
-
-
 /**
  * Save a test and its trade history in the database.
  */
+use rosasurfer\myfx\metatrader\model\Test;
+
 require(__DIR__.'/../../app/init.php');
 date_default_timezone_set('GMT');
 
@@ -13,9 +12,9 @@ date_default_timezone_set('GMT');
 // --- Configuration --------------------------------------------------------------------------------------------------------
 
 
-$verbose = 0;                                                        // output verbosity
-$testConfigFile  = null;                                             // test configuration
-$testResultsFile = null;                                             // test results
+$verbose         = 0;                                                // output verbosity
+$testConfigFile  = null;                                             // test configuration file
+$testResultsFile = null;                                             // test results file
 
 
 // --- Start ----------------------------------------------------------------------------------------------------------------

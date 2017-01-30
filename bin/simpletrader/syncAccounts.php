@@ -50,7 +50,7 @@ $args = $args ? array_unique($args) : ['*'];                   // ohne Signal-Pa
 
 // (2) Erreichbarkeit der Datenbank prüfen                     // Als Extra-Schritt, damit ein Connection-Fehler bei Programmstart nur eine
 try {                                                          // kurze Fehlermeldung, während der Programmausführung jedoch einen kritischen
-   Signal::dao()->getDB()->executeSql("select 1");             // Fehler (mit Stacktrace) auslöst.
+   Signal::dao()->getDb()->executeSql("select 1");             // Fehler (mit Stacktrace) auslöst.
 }
 catch (InfrastructureException $ex) {
    strStartsWithI($ex->getMessage(), 'can not connect') && exit(1|echoPre($ex->getMessage()));
@@ -178,7 +178,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
    $lastKnownChangeTimes     = [];
    $modifications            = [];
 
-   $db = Signal::dao()->getDB();
+   $db = Signal::dao()->getDb();
    $db->begin();
    try {
       // (1) bei partieller History prüfen, ob die älteste geschlossene Position lokal vorhanden ist

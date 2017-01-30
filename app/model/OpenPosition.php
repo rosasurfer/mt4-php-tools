@@ -210,7 +210,7 @@ class OpenPosition extends PersistableObject {
       $comment     =  is_null($this->comment   ) ? 'null' : "'".addSlashes($this->comment)."'";
       $signal_id   =          $this->signal_id;
 
-      $db = self::dao()->getDB();
+      $db = self::dao()->getDb();
       $db->begin();
       try {
          // OpenPosition einfügen
@@ -255,7 +255,7 @@ class OpenPosition extends PersistableObject {
       $comment     = is_null($this->comment    ) ? 'null' : "'".addSlashes($this->comment)."'";
       $signal_id   = $this->signal_id;
 
-      $db = self::dao()->getDB();
+      $db = self::dao()->getDb();
       $db->begin();
       try {
          // OpenPosition updaten
@@ -308,7 +308,7 @@ class OpenPosition extends PersistableObject {
    public function delete() {
       if (!$this->isPersistent()) throw new InvalidArgumentException('Cannot delete non-persistent '.__CLASS__);
 
-      $db = self::dao()->getDB();
+      $db = self::dao()->getDb();
       $db->begin();
       try {
          $id  = $this->id;
