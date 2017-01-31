@@ -51,7 +51,7 @@ class ClosedPosition extends PersistableObject {
    /**
     * Überladene Methode.  Erzeugt eine neue geschlossene Position.
     *
-    * @return ClosedPosition
+    * @return self
     */
    public static function create() {
       if (func_num_args() != 2) throw new RuntimeException('Invalid number of function arguments: '.func_num_args());
@@ -70,7 +70,7 @@ class ClosedPosition extends PersistableObject {
     * @param  OpenPosition $openPosition - vormals offene Position
     * @param  array        $data         - Positionsdaten
     *
-    * @return ClosedPosition
+    * @return self
     */
    private static function create_1(OpenPosition $openPosition, array $data) {
       $position = new static();
@@ -104,7 +104,7 @@ class ClosedPosition extends PersistableObject {
     * @param  Signal $signal - Signal der Position
     * @param  array  $data   - Positionsdaten
     *
-    * @return ClosedPosition
+    * @return self
     */
    private static function create_2(Signal $signal, array $data) {
       if (!$signal->isPersistent()) throw new InvalidArgumentException('Cannot process '.__CLASS__.' for non-persistent '.get_class($signal));
@@ -234,7 +234,7 @@ class ClosedPosition extends PersistableObject {
    /**
     * Gibt das Signal, zu dem diese Position gehört, zurück.
     *
-    * @return Signal instance
+    * @return Signal
     */
    public function getSignal() {
       if ($this->signal === null)
@@ -246,7 +246,7 @@ class ClosedPosition extends PersistableObject {
    /**
     * Fügt diese Instanz in die Datenbank ein.
     *
-    * @return ClosedPosition
+    * @return self
     */
    protected function insert() {
       $created = $this->created;

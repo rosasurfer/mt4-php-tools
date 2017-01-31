@@ -33,7 +33,7 @@ class SignalDao extends CommonDao {
     *
     * @param  int $id - Signal-ID (PK)
     *
-    * @return Signal instance
+    * @return Signal
     */
    public function getById($id) {
       if (!is_int($id)) throw new IllegalTypeException('Illegal type of parameter $id: '.getType($id));

@@ -39,7 +39,7 @@ class AccountDao extends CommonDao {
     * @param  string $company - company name
     * @param  string $number  - account number
     *
-    * @return Account instance
+    * @return Account
     */
    public function getByCompanyAndNumber($company, $number) {
       if (!is_string($company)) throw new IllegalTypeException('Illegal type of parameter $company: '.getType($company));

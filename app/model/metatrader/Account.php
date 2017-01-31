@@ -75,7 +75,7 @@ class Account extends PersistableObject {
     *
     * @param  float $balance - Kontostand
     *
-    * @return Account
+    * @return self
     */
    public function setLastReportedBalance($balance) {
       if (!is_float($balance)) throw new IllegalTypeException('Illegal type of parameter $balance: '.getType($balance));

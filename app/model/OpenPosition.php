@@ -50,7 +50,7 @@ class OpenPosition extends PersistableObject {
     * @param  Signal $signal - Signal, zu dem die Position gehört
     * @param  array  $data   - Positionsdaten
     *
-    * @return OpenPosition
+    * @return self
     */
    public static function create(Signal $signal, array $data) {
       if (!$signal->isPersistent()) throw new InvalidArgumentException('Cannot process '.__CLASS__.' for non-persistent '.get_class($signal));
@@ -178,7 +178,7 @@ class OpenPosition extends PersistableObject {
    /**
     * Gibt das Signal, zu dem diese Position gehört, zurück.
     *
-    * @return Signal instance
+    * @return Signal
     */
    public function getSignal() {
       if ($this->signal === null)
@@ -190,7 +190,7 @@ class OpenPosition extends PersistableObject {
    /**
     * Fügt diese Instanz in die Datenbank ein.
     *
-    * @return OpenPosition
+    * @return self
     */
    protected function insert() {
       $created = $this->created;
@@ -234,7 +234,7 @@ class OpenPosition extends PersistableObject {
    /**
     * Aktualisiert diese Instanz in der Datenbank.
     *
-    * @return OpenPosition
+    * @return self
     */
    protected function update() {
       $id          = $this->id;

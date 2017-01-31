@@ -212,8 +212,8 @@ class HistorySet extends Object {
     * @param  string $symbol          - Symbol der Historydateien
     * @param  string $serverDirectory - Serververzeichnis, in dem die Historydateien gespeichert sind
     *
-    * @return HistorySet - Instanz oder NULL, wenn keine entsprechenden Historydateien gefunden wurden oder die
-    *                      gefundenen Dateien korrupt sind.
+    * @return self - Instanz oder NULL, wenn keine entsprechenden Historydateien gefunden wurden oder die
+    *                gefundenen Dateien korrupt sind.
     */
    public static function get($symbol, $serverDirectory) {
       if (!is_string($symbol))          throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));

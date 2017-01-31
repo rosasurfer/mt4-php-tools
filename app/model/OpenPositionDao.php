@@ -87,7 +87,7 @@ class OpenPositionDao extends CommonDao {
     * @param  Signal $signal - Signal
     * @param  int    $ticket - Ticket
     *
-    * @return OpenPosition instance
+    * @return OpenPosition
     */
    public function getByTicket(Signal $signal, $ticket) {
       if (!$signal->isPersistent()) throw new InvalidArgumentException('Cannot process non-persistent '.get_class($signal));
