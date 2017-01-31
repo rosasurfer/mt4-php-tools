@@ -169,7 +169,7 @@ class Account extends PersistableObject {
       $lastreportedbalance = ($this->lastReportedBalance === null) ? 'null' : $this->lastReportedBalance;
       $mtiaccount_id       = ($this->mtiAccountId        === null) ? 'null' : addSlashes($this->mtiAccountId);
 
-      $db = self::dao()->getDb();
+      $db = self::getDb();
       $db->begin();
 
       try {

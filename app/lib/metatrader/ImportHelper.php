@@ -124,7 +124,7 @@ class ImportHelper extends StaticClass {
       fClose($hFile);
 
       // (1.4) Transaktionen importieren
-      $db = Account::dao()->getDb();
+      $db = Account::getDb();
 
       // Rohdaten in temporäre Tabelle laden
       $sql = "create temporary table t_tmp (
