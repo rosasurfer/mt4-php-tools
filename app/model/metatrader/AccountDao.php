@@ -52,6 +52,6 @@ class AccountDao extends CommonDao {
                  from t_account
                  where company = '$company'
                    and number = '$number'";
-      return $this->getByQuery($sql);
+      return $this->fetchOne($sql);
    }
 }

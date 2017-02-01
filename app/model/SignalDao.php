@@ -42,7 +42,7 @@ class SignalDao extends CommonDao {
       $sql = "select *
                  from t_signal
                  where id = $id";
-      return $this->getByQuery($sql);
+      return $this->fetchOne($sql);
    }
 
 
@@ -67,7 +67,7 @@ class SignalDao extends CommonDao {
                  from t_signal
                  where provider = '$provider'
                    and alias = '$alias'";
-      return $this->getByQuery($sql);
+      return $this->fetchOne($sql);
    }
 
 
@@ -116,7 +116,7 @@ class SignalDao extends CommonDao {
                  from t_signal
                  where provider = 'myfxbook'
                  order by alias";
-      return $this->listByQuery($sql);
+      return $this->fetchAll($sql);
    }
 
 
@@ -136,6 +136,6 @@ class SignalDao extends CommonDao {
                    and alias != 'overtrader'       -- deactivated: loser
                    and alias != 'yenfortress'      -- loser
                  order by alias";
-      return $this->listByQuery($sql);
+      return $this->fetchAll($sql);
    }
 }
