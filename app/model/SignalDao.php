@@ -1,5 +1,5 @@
 <?php
-use rosasurfer\dao\CommonDao;
+use rosasurfer\dao\BaseDao;
 
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
@@ -8,7 +8,7 @@ use rosasurfer\exception\InvalidArgumentException;
 /**
  * DAO zum Zugriff auf Signal-Instanzen.
  */
-class SignalDao extends CommonDao {
+class SignalDao extends BaseDao {
 
 
    // Datenbankmapping

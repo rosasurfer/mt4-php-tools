@@ -1,14 +1,14 @@
 <?php
 namespace rosasurfer\myfx\metatrader\model;
 
-use rosasurfer\dao\CommonDao;
+use rosasurfer\dao\BaseDao;
 use rosasurfer\exception\IllegalTypeException;
 
 
 /**
  * DAO zum Zugriff auf Account-Instanzen.
  */
-class AccountDao extends CommonDao {
+class AccountDao extends BaseDao {
 
 
    // Datenbankmapping
