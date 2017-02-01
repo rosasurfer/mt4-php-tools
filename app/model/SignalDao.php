@@ -12,7 +12,7 @@ class SignalDao extends CommonDao {
 
 
    // Datenbankmapping
-   public $mapping = [
+   protected $mapping = [
       'connection' => 'myfx',
       'table'      => 't_signal',
       'fields'     => [

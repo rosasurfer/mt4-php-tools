@@ -13,7 +13,7 @@ class TestDao extends CommonDao {
    /**
     * @var mixed[] - database mapping
     */
-   public $mapping = [
+   protected $mapping = [
       'connection' => 'sqlite',
       'table'      => 't_test',
       'fields'     => [

@@ -12,7 +12,7 @@ class OpenPositionDao extends CommonDao {
 
 
    // Datenbankmapping
-   public $mapping = [
+   protected $mapping = [
       'connection' => 'myfx',
       'table'      => 't_openposition',
       'fields'     => [
