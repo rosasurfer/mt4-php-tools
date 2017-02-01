@@ -116,7 +116,7 @@ class SignalDao extends CommonDao {
                  from t_signal
                  where provider = 'myfxbook'
                  order by alias";
-      return $this->getListByQuery($sql);
+      return $this->listByQuery($sql);
    }
 
 
@@ -136,6 +136,6 @@ class SignalDao extends CommonDao {
                    and alias != 'overtrader'       -- deactivated: loser
                    and alias != 'yenfortress'      -- loser
                  order by alias";
-      return $this->getListByQuery($sql);
+      return $this->listByQuery($sql);
    }
 }
