@@ -1,21 +1,21 @@
 <?php
 namespace rosasurfer\myfx\metatrader\model;
 
-use rosasurfer\db\orm\BaseDao;
+use rosasurfer\db\orm\Dao;
 
 
 /**
  * DAO for accessing Test instances.
  */
-class TestDao extends BaseDao {
+class TestDao extends Dao {
 
 
    /**
     * @var mixed[] - database mapping
     */
    protected $mapping = [
-    //'connection' => 'sqlite',
-      'connection' => 'postgres',
+      'connection' => 'sqlite',
+    //'connection' => 'postgres',
       'table'      => 't_test',
       'fields'     => [
          'id'              => ['id'             , self::T_INT   , self::T_NOT_NULL],      // int

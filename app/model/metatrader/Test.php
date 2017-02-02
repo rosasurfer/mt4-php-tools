@@ -561,7 +561,7 @@ class Test extends PersistableObject {
                  password string
              )";
       */
-      $sql = "select 1";
+      $sql = "select * from users";
 
       // execute SQL
       $db = self::getDb();
