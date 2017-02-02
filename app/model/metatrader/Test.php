@@ -1,12 +1,13 @@
 <?php
 namespace rosasurfer\myfx\metatrader\model;
 
-use rosasurfer\dao\PersistableObject;
+use rosasurfer\db\orm\PersistableObject;
+
 use rosasurfer\exception\IllegalArgumentException;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
+
 use rosasurfer\util\PHP;
-use function rosasurfer\strIsDigits;
 use rosasurfer\util\Windows;
 
 
@@ -552,11 +553,21 @@ class Test extends PersistableObject {
       // create SQL
       $sql = "insert into t_test (version, created, strategy, reportingid, reportingsymbol, symbol, timeframe, starttime, endtime, tickmodel, spread, bars, ticks, tradedirections, visualmode, duration) values
                  ('$version', '$created', '$strategy', $reportingid, '$reportingsymbol', '$symbol', $timeframe, '$starttime', '$endtime', $tickmodel, $spread, $bars, $ticks, $tradedirections, $visualmode, $duration)";
-      echoPre($sql);
+      /*
+      $sql = "SELECT bar FROM foo";
+
+      $sql = "create table if not exists users (
+                 username string primary key,
+                 password string
+             )";
+      */
+      $sql = "select 1";
 
       // execute SQL
       $db = self::getDb();
-      //$db->executeSql($sql);
+      $result = $db->executeSql($sql);
+
+      echoPre($result);
 
 
       /*

@@ -1,7 +1,8 @@
 <?php
 namespace rosasurfer\myfx\metatrader\model;
 
-use rosasurfer\dao\PersistableObject;
+use rosasurfer\db\orm\PersistableObject;
+
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 

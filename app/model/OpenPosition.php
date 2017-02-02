@@ -1,5 +1,5 @@
 <?php
-use rosasurfer\dao\PersistableObject;
+use rosasurfer\db\orm\PersistableObject;
 
 use rosasurfer\exception\ConcurrentModificationException;
 use rosasurfer\exception\IllegalTypeException;

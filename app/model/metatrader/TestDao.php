@@ -1,7 +1,7 @@
 <?php
 namespace rosasurfer\myfx\metatrader\model;
 
-use rosasurfer\dao\BaseDao;
+use rosasurfer\db\orm\BaseDao;
 
 
 /**
@@ -14,7 +14,8 @@ class TestDao extends BaseDao {
     * @var mixed[] - database mapping
     */
    protected $mapping = [
-      'connection' => 'sqlite',
+    //'connection' => 'sqlite',
+      'connection' => 'postgres',
       'table'      => 't_test',
       'fields'     => [
          'id'              => ['id'             , self::T_INT   , self::T_NOT_NULL],      // int

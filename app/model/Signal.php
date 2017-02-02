@@ -1,5 +1,5 @@
 <?php
-use rosasurfer\dao\PersistableObject;
+use rosasurfer\db\orm\PersistableObject;
 
 
 /**

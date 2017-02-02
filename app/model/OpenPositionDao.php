@@ -1,5 +1,5 @@
 <?php
-use rosasurfer\dao\BaseDao;
+use rosasurfer\db\orm\BaseDao;
 
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;

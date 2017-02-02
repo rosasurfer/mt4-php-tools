@@ -3,10 +3,23 @@
 /**
  * Save a test and its trade history in the database.
  */
+use rosasurfer\core\Object;
 use rosasurfer\myfx\metatrader\model\Test;
 
 require(__DIR__.'/../../app/init.php');
 date_default_timezone_set('GMT');
+
+
+if (0) {
+   function doit() {
+      $a = new Object();
+      return ($a != null);
+   }
+
+   $result = doit();
+   echoPre('$result = '.$result.' ('.getType($result).')');
+   exit();
+}
 
 
 // --- Configuration --------------------------------------------------------------------------------------------------------
