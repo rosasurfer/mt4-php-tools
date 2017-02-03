@@ -31,8 +31,8 @@
         "classmap": ["app/"],
         "files":    [
             "app/globals.php",
-            "app/lib/myfxbook/definitions.php",
-            "app/lib/simpletrader/definitions.php"
+            "app/lib/myfxbook/defines.php",
+            "app/lib/simpletrader/defines.php"
         ]
     }
 }
