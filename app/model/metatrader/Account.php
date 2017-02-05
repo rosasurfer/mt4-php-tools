@@ -181,10 +181,10 @@ class Account extends PersistableObject {
                     where id = $id
                       and version = '$oldVersion'";
          $sql = str_replace("'null'", 'null', $sql);
-         $result = $db->executeSql($sql);
+         $db->executeSql($sql);
 
-         if ($result['rows'] != 1) {
-            $this->version  = $oldVersion;
+         if ($db->affectedRows() != 1) {
+            $this->version = $oldVersion;
             $found = self::dao()->refresh($this);
             throw new ConcurrentModificationException('Error updating '.__CLASS__." ($id), expected version: \"$oldVersion\", found version: \"".$found->getVersion().'"');
          }

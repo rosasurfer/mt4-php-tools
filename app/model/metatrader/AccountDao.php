@@ -52,6 +52,6 @@ class AccountDao extends Dao {
                  from t_account
                  where company = '$company'
                    and number = '$number'";
-      return $this->fetchOne($sql);
+      return $this->findOne($sql);
    }
 }

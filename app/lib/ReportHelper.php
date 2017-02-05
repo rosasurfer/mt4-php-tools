@@ -117,7 +117,8 @@ class ReportHelper extends Object {
                  ) as r";
       $result = $db->executeSql($sql);
 
-      while ($data[] = mysql_fetch_assoc($result['set']));
+      while ($data[] = $result->fetchNext(ARRAY_ASSOC)) {      // TODO: replace with $result->fetchAll(ARRAY_ASSOC)
+      }
       array_pop($data);
 
       foreach ($data as &$row) {

@@ -42,7 +42,7 @@ class SignalDao extends Dao {
       $sql = "select *
                  from t_signal
                  where id = $id";
-      return $this->fetchOne($sql);
+      return $this->findOne($sql);
    }
 
 
@@ -67,7 +67,7 @@ class SignalDao extends Dao {
                  from t_signal
                  where provider = '$provider'
                    and alias = '$alias'";
-      return $this->fetchOne($sql);
+      return $this->findOne($sql);
    }
 
 
@@ -98,11 +98,7 @@ class SignalDao extends Dao {
                          where c.signal_id = $signal_id
                            and c.symbol    = '$symbol'
                  ) as r";
-      $result = $this->executeSql($sql);
-
-      if ($result['rows'])
-         return mysql_result($result['set'], 0);
-      return null;
+      return $this->executeSql($sql)->fetchField(null, null, $onNoRows=null);
    }
 
 
@@ -116,7 +112,7 @@ class SignalDao extends Dao {
                  from t_signal
                  where provider = 'myfxbook'
                  order by alias";
-      return $this->fetchAll($sql);
+      return $this->findMany($sql);
    }
 
 
@@ -136,6 +132,6 @@ class SignalDao extends Dao {
                    and alias != 'overtrader'       -- deactivated: loser
                    and alias != 'yenfortress'      -- loser
                  order by alias";
-      return $this->fetchAll($sql);
+      return $this->findMany($sql);
    }
 }

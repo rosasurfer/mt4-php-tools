@@ -241,7 +241,7 @@ class Order extends PersistableObject {
                     ('$version', '$created', $ticket, '$type', $lots, '$symbol', '$opentime', $openprice, '$closetime', $closeprice, $stoploss, $takeprofit, $commission, $swap, $profit, $netprofit, $magicnumber, $comment, $signal_id)";
          $db->executeSql($sql);
          $result = $db->executeSql("select last_insert_id()");
-         $this->id = (int) mysql_result($result['set'], 0);
+         $this->id = (int) $result->fetchField();
 
          $db->commit();
       }

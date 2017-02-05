@@ -217,9 +217,7 @@ class OpenPosition extends PersistableObject {
          $sql = "insert into t_openposition (version, created, ticket, type, lots, symbol, opentime, openprice, stoploss, takeprofit, commission, swap, magicnumber, comment, signal_id) values
                     ('$version', '$created', $ticket, '$type', $lots, '$symbol', '$opentime', $openprice, $stoploss, $takeprofit, $commission, $swap, $magicnumber, $comment, $signal_id)";
          $db->executeSql($sql);
-         $result = $db->executeSql("select last_insert_id()");
-         $this->id = (int) mysql_result($result['set'], 0);
-
+         $this->id = (int) $db->executeSql("select last_insert_id()")->fetchField();
          $db->commit();
       }
       catch (\Exception $ex) {
@@ -275,14 +273,13 @@ class OpenPosition extends PersistableObject {
                         version     = '$newVersion'
                     where id = $id
                       and version = '$oldVersion'";
-         $result = $db->executeSql($sql);
+         $db->executeSql($sql);
 
-         if ($result['rows'] != 1) {
+         if ($db->affectedRows() != 1) {
             $sql = "select version
                        from t_openposition
                        where id = $id";
-            $result = $db->executeSql($sql);
-            $found  = mysql_result($result['set'], 0);
+            $found = $db->executeSql($sql)->fetchField();
 
             $this->version = $oldVersion;
             throw new ConcurrentModificationException('Error updating '.__CLASS__.' (ticket='.$this->ticket.'), expected version: '.$oldVersion.', found version: '.$found);

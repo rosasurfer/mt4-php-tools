@@ -1,6 +1,9 @@
 <?php
 namespace rosasurfer\myfx\metatrader;
 
+use \DateTime;
+use \DateTimeZone;
+
 use rosasurfer\core\StaticClass;
 
 use rosasurfer\exception\BusinessRuleException;
@@ -101,8 +104,8 @@ class ImportHelper extends StaticClass {
 
       // (1.3) Transaktionen für SQL-Import formatieren und in die hochgeladene Datei zurückschreiben
       $accountId       = $account->getId();
-      $serverTimezone  = new \DateTimeZone($account->getTimezone());
-      $newYorkTimezone = new \DateTimeZone('America/New_York');
+      $serverTimezone  = new DateTimeZone($account->getTimezone());
+      $newYorkTimezone = new DateTimeZone('America/New_York');
 
       $fileName = $form->getFileTmpName();
       $hFile = fOpen($fileName, 'wb');
@@ -114,7 +117,7 @@ class ImportHelper extends StaticClass {
 
          // MT4-Serverzeiten in Forex-Standardzeit (America/New_York+0700) umrechnen
          foreach ([AH_OPENTIME, AH_CLOSETIME] as $time) {
-            $date = new \DateTime(gmDate('Y-m-d H:i:s', $row[$time]), $serverTimezone);
+            $date = new DateTime(gmDate('Y-m-d H:i:s', $row[$time]), $serverTimezone);
             $date->setTimezone($newYorkTimezone);
             $date->modify('+7 hours');
             $row[$time] = $date->format('Y-m-d H:i:s');
@@ -177,11 +180,12 @@ class ImportHelper extends StaticClass {
                         comment                as 'comment',
                         account_id             as 'account_id'
                     from t_tmp";
-         $result = $db->executeSql($sql);
+         $db->executeSql($sql);
+         $rows = $db->affectedRows();
 
          // (1.5) neue AccountBalance gegenprüfen und speichern
          $reportedBalance = $form->getAccountBalance();
-         if ($result['rows'] > 0)
+         if ($rows)
             $account = Account::dao()->refresh($account);
          if ($account->getBalance() != $reportedBalance) throw new BusinessRuleException('balance_mismatch');
 
@@ -204,6 +208,6 @@ class ImportHelper extends StaticClass {
       // (2.1) Credits sortieren
       // (2.1) Daten importieren
       // (2.2) Logische Validierung (Units > 0, OpenTime < CloseTime) in DB-Trigger
-      return $result['rows'];
+      return $rows;
    }
 }

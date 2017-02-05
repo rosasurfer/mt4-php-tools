@@ -299,3 +299,4 @@ var rosasurfer = {
       this.logStatus(ev.type +' event,  window: ['+ (ev.pageX - pageXOffset) +','+ (ev.pageY - pageYOffset) +']  page: ['+ ev.pageX +','+ ev.pageY +']');
    }
 };
+var rs = rs || rosasurfer;

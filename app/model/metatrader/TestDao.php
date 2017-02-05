@@ -15,7 +15,6 @@ class TestDao extends Dao {
     */
    protected $mapping = [
       'connection' => 'sqlite',
-    //'connection' => 'postgres',
       'table'      => 't_test',
       'fields'     => [
          'id'              => ['id'             , self::T_INT   , self::T_NOT_NULL],      // int

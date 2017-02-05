@@ -550,44 +550,20 @@ class Test extends PersistableObject {
       $visualmode      =      (int) $this->visualMode;
       $duration        =            $this->duration;
 
-      // create SQL
-      $sql = "insert into t_test (version, created, strategy, reportingid, reportingsymbol, symbol, timeframe, starttime, endtime, tickmodel, spread, bars, ticks, tradedirections, visualmode, duration) values
-                 ('$version', '$created', '$strategy', $reportingid, '$reportingsymbol', '$symbol', $timeframe, '$starttime', '$endtime', $tickmodel, $spread, $bars, $ticks, $tradedirections, $visualmode, $duration)";
-      /*
-      $sql = "SELECT bar FROM foo";
-
-      $sql = "create table if not exists users (
-                 username string primary key,
-                 password string
-             )";
-      */
-      $sql = "select * from users";
-
-      // execute SQL
-      $db = self::getDb();
-      $result = $db->executeSql($sql);
-
-      echoPre($result);
+      $result = self::getDb()->executeSql(
+         "insert into t_test (version, created, strategy, reportingid, reportingsymbol, symbol, timeframe, starttime, endtime, tickmodel, spread, bars, ticks, tradedirections, visualmode, duration) values
+            ('$version', '$created', '$strategy', $reportingid, '$reportingsymbol', '$symbol', $timeframe, '$starttime', '$endtime', $tickmodel, $spread, $bars, $ticks, $tradedirections, $visualmode, $duration)"
+      );
 
 
       /*
-      // query and assign instance id
-      $result = $db->executeSql("select last_insert_id()");
-      $this->id = (int) mysql_result($result['set'], 0);
+      // assign instance id
+      $result = self::getDb()->executeSql("select last_insert_id()");
+      $this->id = (int) $result->fetchField();
+      $this->id = $result->getInsertId();
       */
 
       /*
-      $created     =  $this->created;
-      $ticket      =  $this->ticket;
-      $closeprice  =  $this->closePrice;
-      $stoploss    = !$this->stopLoss             ? 'null' : $this->stopLoss;
-      $takeprofit  = !$this->takeProfit           ? 'null' : $this->takeProfit;
-      $commission  =  is_null($this->commission ) ? 'null' : $this->commission;
-      $swap        =  is_null($this->swap       ) ? 'null' : $this->swap;
-      $profit      =  is_null($this->grossProfit) ? 'null' : $this->grossProfit;
-      $magicnumber = !$this->magicNumber          ? 'null' : $this->magicNumber;
-      $comment     =  is_null($this->comment)     ? 'null' : "'".addSlashes($this->comment)."'";
-
       $db = self::getDb();
       $db->begin();
       try {
@@ -596,7 +572,7 @@ class Test extends PersistableObject {
                     ('$version', '$created', $ticket, '$type', $lots, '$symbol', '$opentime', $openprice, '$closetime', $closeprice, $stoploss, $takeprofit, $commission, $swap, $profit, $netprofit, $magicnumber, $comment, $signal_id)";
          $db->executeSql($sql);
          $result = $db->executeSql("select last_insert_id()");
-         $this->id = (int) mysql_result($result['set'], 0);
+         $this->id = (int) $result->fetchField();
 
          // insert trades
          foreach ($this->getTrades() as $trade) {
