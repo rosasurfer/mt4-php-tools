@@ -41,16 +41,16 @@ class ReportHelper extends Object {
       if (!is_string($starttime))                  throw new IllegalTypeException('Illegal type of parameter $starttime: '.getType($starttime));
       if (!is_datetime($starttime, 'Y-m-d H:i:s')) throw new InvalidArgumentException('Invalid argument $starttime: '.$starttime);
 
-      $db = Signal::getDb();
+      $db = Signal::db();
 
       $signal_id = $signal->getId();
       $symbol    = addSlashes($symbol);
 
       // SQL-Variablen definieren
-      $db->executeSql("set @change = 0.0");
-      $db->executeSql("set @total  = 0.0");
-      $db->executeSql("set @long   = 0.0");
-      $db->executeSql("set @short  = 0.0");
+      $db->execute("set @change = 0.0");
+      $db->execute("set @total  = 0.0");
+      $db->execute("set @long   = 0.0");
+      $db->execute("set @short  = 0.0");
 
       // Report erstellen
       $sql = "select r.time,
@@ -115,7 +115,7 @@ class ReportHelper extends Object {
                                 ) as ri
                           order by time, ticket
                  ) as r";
-      $result = $db->executeSql($sql);
+      $result = $db->query($sql);
 
       while ($data[] = $result->fetchNext(ARRAY_ASSOC)) {      // TODO: replace with $result->fetchAll(ARRAY_ASSOC)
       }

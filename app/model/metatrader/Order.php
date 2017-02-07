@@ -233,14 +233,14 @@ class Order extends PersistableObject {
       $magicnumber = !$this->magicNumber          ? 'null' : $this->magicNumber;
       $comment     =  is_null($this->comment)     ? 'null' : "'".addSlashes($this->comment)."'";
 
-      $db = self::getDb();
+      $db = self::db();
       $db->begin();
       try {
          // insert instance
          $sql = "insert into t_closedposition (version, created, ticket, type, lots, symbol, opentime, openprice, closetime, closeprice, stoploss, takeprofit, commission, swap, profit, netprofit, magicnumber, comment, signal_id) values
                     ('$version', '$created', $ticket, '$type', $lots, '$symbol', '$opentime', $openprice, '$closetime', $closeprice, $stoploss, $takeprofit, $commission, $swap, $profit, $netprofit, $magicnumber, $comment, $signal_id)";
-         $db->executeSql($sql);
-         $result = $db->executeSql("select last_insert_id()");
+         $db->execute($sql);
+         $result = $db->query("select last_insert_id()");
          $this->id = (int) $result->fetchField();
 
          $db->commit();

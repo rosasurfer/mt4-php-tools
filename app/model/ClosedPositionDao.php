@@ -58,7 +58,7 @@ class ClosedPositionDao extends Dao {
                  from t_closedposition c
                  where c.signal_id = $signal_id
                    and c.ticket    = $ticket";
-      return (bool) $this->executeSql($sql)->numRows();
+      return (bool) $this->query($sql)->numRows();
    }
 
 

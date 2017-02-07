@@ -270,14 +270,14 @@ class ClosedPosition extends PersistableObject {
       $comment     =  is_null($this->comment)     ? 'null' : "'".addSlashes($this->comment)."'";
       $signal_id   =  $this->signal_id;
 
-      $db = self::getDb();
+      $db = self::db();
       $db->begin();
       try {
          // ClosedPosition einfügen
          $sql = "insert into t_closedposition (version, created, ticket, type, lots, symbol, opentime, openprice, closetime, closeprice, stoploss, takeprofit, commission, swap, profit, netprofit, magicnumber, comment, signal_id) values
                     ('$version', '$created', $ticket, '$type', $lots, '$symbol', '$opentime', $openprice, '$closetime', $closeprice, $stoploss, $takeprofit, $commission, $swap, $profit, $netprofit, $magicnumber, $comment, $signal_id)";
-         $db->executeSql($sql);
-         $this->id = (int) $db->executeSql("select last_insert_id()")->fetchField();
+         $db->execute($sql);
+         $this->id = (int) $db->query("select last_insert_id()")->fetchField();
          $db->commit();
       }
       catch (\Exception $ex) {

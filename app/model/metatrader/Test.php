@@ -550,7 +550,7 @@ class Test extends PersistableObject {
       $visualmode      =      (int) $this->visualMode;
       $duration        =            $this->duration;
 
-      $result = self::getDb()->executeSql(
+      $result = self::db()->execute(
          "insert into t_test (version, created, strategy, reportingid, reportingsymbol, symbol, timeframe, starttime, endtime, tickmodel, spread, bars, ticks, tradedirections, visualmode, duration) values
             ('$version', '$created', '$strategy', $reportingid, '$reportingsymbol', '$symbol', $timeframe, '$starttime', '$endtime', $tickmodel, $spread, $bars, $ticks, $tradedirections, $visualmode, $duration)"
       );
@@ -558,20 +558,20 @@ class Test extends PersistableObject {
 
       /*
       // assign instance id
-      $result = self::getDb()->executeSql("select last_insert_id()");
+      $result = self::db()->query("select last_insert_id()");
       $this->id = (int) $result->fetchField();
       $this->id = $result->getInsertId();
       */
 
       /*
-      $db = self::getDb();
+      $db = self::db();
       $db->begin();
       try {
          // insert instance
          $sql = "insert into t_closedposition (version, created, ticket, type, lots, symbol, opentime, openprice, closetime, closeprice, stoploss, takeprofit, commission, swap, profit, netprofit, magicnumber, comment, signal_id) values
                     ('$version', '$created', $ticket, '$type', $lots, '$symbol', '$opentime', $openprice, '$closetime', $closeprice, $stoploss, $takeprofit, $commission, $swap, $profit, $netprofit, $magicnumber, $comment, $signal_id)";
-         $db->executeSql($sql);
-         $result = $db->executeSql("select last_insert_id()");
+         $db->execute($sql);
+         $result = $db->query("select last_insert_id()");
          $this->id = (int) $result->fetchField();
 
          // insert trades

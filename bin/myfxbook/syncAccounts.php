@@ -55,7 +55,7 @@ $args = $args ? array_unique($args) : ['*'];          // without arguments all s
 
 // (2) check database connectivity                    // produces just a short error notice instead of a hard exception
 try {                                                 // as it would happen at runtime
-   Signal::getDb()->executeSql("select 1");
+   Signal::db()->connect();
 }
 catch (InfrastructureException $ex) {
    strStartsWithI($ex->getMessage(), 'can not connect') && exit(1|echoPre($ex->getMessage()));
@@ -150,7 +150,7 @@ function updateDatabase(Signal $signal, array $currentOpenPositions, &$openUpdat
    $lastKnownChangeTimes     = [];
    $modifications            = [];
 
-   $db = Signal::getDb();
+   $db = Signal::db();
    $db->begin();
    try {
       // (1) bei partieller History prüfen, ob die älteste geschlossene Position lokal vorhanden ist

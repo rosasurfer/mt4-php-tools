@@ -127,7 +127,7 @@ class ImportHelper extends StaticClass {
       fClose($hFile);
 
       // (1.4) Transaktionen importieren
-      $db = Account::getDb();
+      $db = Account::db();
 
       // Rohdaten in temporäre Tabelle laden
       $sql = "create temporary table t_tmp (
@@ -147,7 +147,7 @@ class ImportHelper extends StaticClass {
                  comment     varchar(255)            not null,
                  unique index u_account_id_ticket (account_id, ticket)
               )";
-      $db->executeSql($sql);
+      $db->execute($sql);
 
       if (WINDOWS)
          $fileName = str_replace('\\', '/', $fileName);
@@ -159,7 +159,7 @@ class ImportHelper extends StaticClass {
                  lines
                     terminated by '\\n'
                  (account_id, ticket, opentime, type, units, symbol, openprice, closetime, closeprice, commission, swap, netprofit, magicnumber, comment)";
-      $db->executeSql($sql);
+      $db->execute($sql);
 
       // Tickets einfügen und bereits vorhandene ignorieren (die Trigger validieren strikter als IGNORE es ermöglicht)
       $db->begin();
@@ -180,8 +180,7 @@ class ImportHelper extends StaticClass {
                         comment                as 'comment',
                         account_id             as 'account_id'
                     from t_tmp";
-         $db->executeSql($sql);
-         $rows = $db->affectedRows();
+         $rows = $db->execute($sql);
 
          // (1.5) neue AccountBalance gegenprüfen und speichern
          $reportedBalance = $form->getAccountBalance();

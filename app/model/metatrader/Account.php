@@ -162,14 +162,14 @@ class Account extends PersistableObject {
     * @return Invoice
     */
    protected function update() {
-      $id         = $this->id;
-      $oldVersion = $this->version;
-      $newVersion = $this->touch();
+      $id                  = $this->id;
+      $oldVersion          = $this->version;
+      $newVersion          = $this->touch();
 
       $lastreportedbalance = ($this->lastReportedBalance === null) ? 'null' : $this->lastReportedBalance;
-      $mtiaccount_id       = ($this->mtiAccountId        === null) ? 'null' : addSlashes($this->mtiAccountId);
+      $mtiaccount_id       = ($this->mtiAccountId        === null) ? 'null' : "'".addSlashes($this->mtiAccountId)."'";
 
-      $db = self::getDb();
+      $db = self::db();
       $db->begin();
 
       try {
@@ -180,10 +180,7 @@ class Account extends PersistableObject {
                         version             = '$newVersion'
                     where id = $id
                       and version = '$oldVersion'";
-         $sql = str_replace("'null'", 'null', $sql);
-         $db->executeSql($sql);
-
-         if ($db->affectedRows() != 1) {
+         if ($db->execute($sql) != 1) {
             $this->version = $oldVersion;
             $found = self::dao()->refresh($this);
             throw new ConcurrentModificationException('Error updating '.__CLASS__." ($id), expected version: \"$oldVersion\", found version: \"".$found->getVersion().'"');

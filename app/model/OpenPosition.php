@@ -210,14 +210,14 @@ class OpenPosition extends PersistableObject {
       $comment     =  is_null($this->comment   ) ? 'null' : "'".addSlashes($this->comment)."'";
       $signal_id   =          $this->signal_id;
 
-      $db = self::getDb();
+      $db = self::db();
       $db->begin();
       try {
          // OpenPosition einfügen
          $sql = "insert into t_openposition (version, created, ticket, type, lots, symbol, opentime, openprice, stoploss, takeprofit, commission, swap, magicnumber, comment, signal_id) values
                     ('$version', '$created', $ticket, '$type', $lots, '$symbol', '$opentime', $openprice, $stoploss, $takeprofit, $commission, $swap, $magicnumber, $comment, $signal_id)";
-         $db->executeSql($sql);
-         $this->id = (int) $db->executeSql("select last_insert_id()")->fetchField();
+         $db->execute($sql);
+         $this->id = (int) $db->query("select last_insert_id()")->fetchField();
          $db->commit();
       }
       catch (\Exception $ex) {
@@ -253,7 +253,7 @@ class OpenPosition extends PersistableObject {
       $comment     = is_null($this->comment    ) ? 'null' : "'".addSlashes($this->comment)."'";
       $signal_id   = $this->signal_id;
 
-      $db = self::getDb();
+      $db = self::db();
       $db->begin();
       try {
          // OpenPosition updaten
@@ -273,13 +273,12 @@ class OpenPosition extends PersistableObject {
                         version     = '$newVersion'
                     where id = $id
                       and version = '$oldVersion'";
-         $db->executeSql($sql);
 
-         if ($db->affectedRows() != 1) {
+         if ($db->execute($sql) != 1) {
             $sql = "select version
                        from t_openposition
                        where id = $id";
-            $found = $db->executeSql($sql)->fetchField();
+            $found = $db->query($sql)->fetchField();
 
             $this->version = $oldVersion;
             throw new ConcurrentModificationException('Error updating '.__CLASS__.' (ticket='.$this->ticket.'), expected version: '.$oldVersion.', found version: '.$found);
@@ -305,13 +304,13 @@ class OpenPosition extends PersistableObject {
    public function delete() {
       if (!$this->isPersistent()) throw new InvalidArgumentException('Cannot delete non-persistent '.__CLASS__);
 
-      $db = self::getDb();
+      $db = self::db();
       $db->begin();
       try {
          $id  = $this->id;
          $sql = "delete from t_openposition
                     where id = $id";
-         $db->executeSql($sql);
+         $db->execute($sql);
          $db->commit();
       }
       catch (\Exception $ex) {
