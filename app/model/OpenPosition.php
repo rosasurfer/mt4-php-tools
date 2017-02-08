@@ -217,7 +217,7 @@ class OpenPosition extends PersistableObject {
          $sql = "insert into t_openposition (version, created, ticket, type, lots, symbol, opentime, openprice, stoploss, takeprofit, commission, swap, magicnumber, comment, signal_id) values
                     ('$version', '$created', $ticket, '$type', $lots, '$symbol', '$opentime', $openprice, $stoploss, $takeprofit, $commission, $swap, $magicnumber, $comment, $signal_id)";
          $db->execute($sql);
-         $this->id = (int) $db->query("select last_insert_id()")->fetchField();
+         $this->id = $db->lastInsertId();
          $db->commit();
       }
       catch (\Exception $ex) {

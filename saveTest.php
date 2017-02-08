@@ -3,86 +3,23 @@
 /**
  * Save a test and its trade history in the database.
  */
-use rosasurfer\myfx\metatrader\model\City;
-use rosasurfer\myfx\metatrader\model\Country;
+use rosasurfer\core\Object;
 use rosasurfer\myfx\metatrader\model\Test;
 
 require(__DIR__.'/../../app/init.php');
 date_default_timezone_set('GMT');
 
 
+if (0) {
+   function doit() {
+      $a = new Object();
+      return ($a != null);
+   }
 
-
-/*
-$db->query("drop table if exists t_test");
-$db->query("create table t_test (name varchar(100) not null)");
-$db->query("create table t_test (
-               id   int not null auto_increment,
-               name varchar(100) not null,
-               primary key (id)
-            )");
-$db->query("insert into t_test (name) values
-               ('a'),
-               ('b'),
-               ('c')");
-$db->query("select * from t_test where name = 'a'");
-$db->query("select * from t_test where name in ('a','b')");
-$db->query("update t_test set name='aa' where name in ('a') limit 1");
-$db->query("select count(*) from t_test");
-$db->query("delete from t_test where name like 'b%'");
-$db->query("describe t_test");
-$db->query("explain select count(*) from t_test");
-
-$signalDao  = Signal::dao();                 // MySQL
-$signalDb   = Signal::db();
-
-$countryDao = Country::dao();                // PostgreSQL
-$countryDb  = Country::db();
-
-$cityDao    = City::dao();                   // SQLite
-$cityDb     = City::db();
-
-$sql    = "select * from t_signal";
-$result = $signalDb->query($sql);
-$value  = $signalDao->findMany($sql);
-$sql    = "select * from t_signal limit 3";
-$result = $signalDb->query($sql);
-$value  = $signalDb->query("select last_insert_id()")->fetchField();
-
-$sql    = "select * from public.country";
-$result = $countryDb->query($sql);
-$value  = $countryDao->findOne($sql);
-
-$sql    = "select * from city";
-$result = $cityDb->query($sql);
-$value  = $cityDao->findOne($sql);
-*/
-
-
-$db = City::db();
-
-$db->execute("drop table if exists t_test");
-$db->execute("create table t_test (name varchar(100) not null)");
-$db->execute("insert into t_test (name) values ('a'), ('b'), ('c')");
-$db->execute("update t_test set name='c' where name in ('c')");
-$db->execute("select * from t_test where name = 'a'");
-$db->execute("select * from t_test where name in ('a','b')");
-$db->execute("update t_test set name='aa' where name in ('c')");
-$db->execute("select count(*) from t_test");
-$db->execute("delete from t_test where name = 'a' or name = 'b'");
-$db->execute("explain select count(*) from t_test");
-$db->execute("select count(*) from t_test");
-
-
-
-exit();
-
-
-
-echoPre(str_pad(explode(' ', $sql, 2)[0].':', 9).' affectedRows='.mysql_affected_rows($this->connection).'  real='.$this->affectedRows().'  info="'.mysql_info($this->connection).'"');
-echoPre(str_pad(explode(' ', $sql, 2)[0].':', 9).' lastChanges='.$this->lastChanges.'  changes='.$this->handler->changes().'  real='.$affectedRows);
-
-$db->execute("begin; insert into t_test (name) values ('baz'); commit");
+   $result = doit();
+   echoPre('$result = '.$result.' ('.getType($result).')');
+   exit();
+}
 
 
 // --- Configuration --------------------------------------------------------------------------------------------------------

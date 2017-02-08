@@ -240,9 +240,7 @@ class Order extends PersistableObject {
          $sql = "insert into t_closedposition (version, created, ticket, type, lots, symbol, opentime, openprice, closetime, closeprice, stoploss, takeprofit, commission, swap, profit, netprofit, magicnumber, comment, signal_id) values
                     ('$version', '$created', $ticket, '$type', $lots, '$symbol', '$opentime', $openprice, '$closetime', $closeprice, $stoploss, $takeprofit, $commission, $swap, $profit, $netprofit, $magicnumber, $comment, $signal_id)";
          $db->execute($sql);
-         $result = $db->query("select last_insert_id()");
-         $this->id = (int) $result->fetchField();
-
+         $this->id = $db->lastInsertId();
          $db->commit();
       }
       catch (\Exception $ex) {
