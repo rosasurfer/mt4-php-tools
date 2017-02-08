@@ -1,5 +1,5 @@
 <?php
-use rosasurfer\db\orm\Dao;
+use rosasurfer\db\orm\DAO;
 
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
@@ -8,7 +8,7 @@ use rosasurfer\exception\InvalidArgumentException;
 /**
  * DAO zum Zugriff auf OpenPosition-Instanzen.
  */
-class OpenPositionDao extends Dao {
+class OpenPositionDAO extends DAO {
 
 
    // Datenbankmapping
