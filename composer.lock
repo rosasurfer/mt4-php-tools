@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/rosasurfer/ministruts.git",
-                "reference": "e50eafe1aa233f93bcb060749d98da503a5c87af"
+                "reference": "ff97f66ad875fa97e375a2bcd8ff1027d39bc5eb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/e50eafe1aa233f93bcb060749d98da503a5c87af",
-                "reference": "e50eafe1aa233f93bcb060749d98da503a5c87af",
+                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/ff97f66ad875fa97e375a2bcd8ff1027d39bc5eb",
+                "reference": "ff97f66ad875fa97e375a2bcd8ff1027d39bc5eb",
                 "shasum": ""
             },
             "require": {
@@ -47,7 +47,7 @@
                 "source": "https://github.com/rosasurfer/ministruts/tree/master",
                 "issues": "https://github.com/rosasurfer/ministruts/issues"
             },
-            "time": "2017-02-09 15:54:04"
+            "time": "2017-02-10 03:02:57"
         }
     ],
     "packages-dev": [],
