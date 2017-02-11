@@ -230,8 +230,7 @@ class HistoryFile extends Object {
          !$this->isClosed() && $this->close();
       }
       catch (\Exception $ex) {
-         ErrorHandler::handleDestructorException($ex);
-         throw $ex;
+         throw ErrorHandler::handleDestructorException($ex);
       }
    }
 

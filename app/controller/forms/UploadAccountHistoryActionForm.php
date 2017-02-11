@@ -313,8 +313,7 @@ class UploadAccountHistoryActionForm extends ActionForm {
             unlink($this->file['tmp_name']);
       }
       catch (\Exception $ex) {
-         ErrorHandler::handleDestructorException($ex);
-         throw $ex;
+         throw ErrorHandler::handleDestructorException($ex);
       }
    }
 }

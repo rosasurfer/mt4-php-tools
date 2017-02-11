@@ -163,8 +163,7 @@ class HistorySet extends Object {
          $this->close();
       }
       catch (\Exception $ex) {
-         ErrorHandler::handleDestructorException($ex);
-         throw $ex;
+         throw ErrorHandler::handleDestructorException($ex);
       }
    }
 
