@@ -216,12 +216,11 @@ class OpenPosition extends PersistableObject {
          // OpenPosition einfügen
          $sql = "insert into t_openposition (version, created, ticket, type, lots, symbol, opentime, openprice, stoploss, takeprofit, commission, swap, magicnumber, comment, signal_id) values
                     ('$version', '$created', $ticket, '$type', $lots, '$symbol', '$opentime', $openprice, $stoploss, $takeprofit, $commission, $swap, $magicnumber, $comment, $signal_id)";
-         $db->execute($sql);
-         $this->id = $db->lastInsertId();
-         $db->commit();
+         $this->id = $db->execute($sql)
+                        ->commit()
+                        ->lastInsertId();
       }
       catch (\Exception $ex) {
-         $this->id = null;
          $db->rollback();
          throw $ex;
       }
@@ -274,12 +273,11 @@ class OpenPosition extends PersistableObject {
                     where id = $id
                       and version = '$oldVersion'";
 
-         if ($db->execute($sql) != 1) {
+         if ($db->execute($sql)->lastAffectedRows() != 1) {
             $sql = "select version
                        from t_openposition
                        where id = $id";
             $found = $db->query($sql)->fetchField();
-
             $this->version = $oldVersion;
             throw new ConcurrentModificationException('Error updating '.__CLASS__.' (ticket='.$this->ticket.'), expected version: '.$oldVersion.', found version: '.$found);
          }
@@ -310,8 +308,8 @@ class OpenPosition extends PersistableObject {
          $id  = $this->id;
          $sql = "delete from t_openposition
                     where id = $id";
-         $db->execute($sql);
-         $db->commit();
+         $db->execute($sql)
+            ->commit();
       }
       catch (\Exception $ex) {
          $db->rollback();

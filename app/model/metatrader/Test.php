@@ -568,8 +568,7 @@ class Test extends PersistableObject {
          // insert instance
          $sql = "insert into t_closedposition (version, created, ticket, type, lots, symbol, opentime, openprice, closetime, closeprice, stoploss, takeprofit, commission, swap, profit, netprofit, magicnumber, comment, signal_id) values
                     ('$version', '$created', $ticket, '$type', $lots, '$symbol', '$opentime', $openprice, '$closetime', $closeprice, $stoploss, $takeprofit, $commission, $swap, $profit, $netprofit, $magicnumber, $comment, $signal_id)";
-         $db->execute($sql);
-         $this->id = $db->lastInsertId();
+         $this->id = $db->execute($sql)->lastInsertId();
 
          // insert trades
          foreach ($this->getTrades() as $trade) {

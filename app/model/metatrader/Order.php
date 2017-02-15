@@ -239,12 +239,11 @@ class Order extends PersistableObject {
          // insert instance
          $sql = "insert into t_closedposition (version, created, ticket, type, lots, symbol, opentime, openprice, closetime, closeprice, stoploss, takeprofit, commission, swap, profit, netprofit, magicnumber, comment, signal_id) values
                     ('$version', '$created', $ticket, '$type', $lots, '$symbol', '$opentime', $openprice, '$closetime', $closeprice, $stoploss, $takeprofit, $commission, $swap, $profit, $netprofit, $magicnumber, $comment, $signal_id)";
-         $db->execute($sql);
-         $this->id = $db->lastInsertId();
-         $db->commit();
+         $this->id = $db->execute($sql)
+                        ->commit()
+                        ->lastInsertId();
       }
       catch (\Exception $ex) {
-         $this->id = null;
          $db->rollback();
          throw $ex;
       }

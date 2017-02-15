@@ -180,7 +180,7 @@ class ImportHelper extends StaticClass {
                         comment                as 'comment',
                         account_id             as 'account_id'
                     from t_tmp";
-         $rows = $db->execute($sql);
+         $rows = $db->execute($sql)->lastAffectedRows();
 
          // (1.5) neue AccountBalance gegenprüfen und speichern
          $reportedBalance = $form->getAccountBalance();

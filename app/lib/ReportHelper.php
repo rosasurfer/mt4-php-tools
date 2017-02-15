@@ -47,10 +47,10 @@ class ReportHelper extends Object {
       $symbol    = addSlashes($symbol);
 
       // SQL-Variablen definieren
-      $db->execute("set @change = 0.0");
-      $db->execute("set @total  = 0.0");
-      $db->execute("set @long   = 0.0");
-      $db->execute("set @short  = 0.0");
+      $db->execute("set @change = 0.0")
+         ->execute("set @total  = 0.0")
+         ->execute("set @long   = 0.0")
+         ->execute("set @short  = 0.0");
 
       // Report erstellen
       $sql = "select r.time,
