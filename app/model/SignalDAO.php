@@ -4,6 +4,9 @@ use rosasurfer\db\orm\DAO;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 
+use const rosasurfer\PHP_TYPE_INT;
+use const rosasurfer\PHP_TYPE_STRING;
+
 
 /**
  * DAO zum Zugriff auf Signal-Instanzen.
@@ -15,16 +18,16 @@ class SignalDAO extends DAO {
    protected $mapping = [
       'connection' => 'myfx',
       'table'      => 't_signal',
-      'fields'     => [
-         'id'         => ['id'         , self::T_INT   , self::T_NOT_NULL],     // int
-         'version'    => ['version'    , self::T_STRING, self::T_NOT_NULL],     // datetime
-         'created'    => ['created'    , self::T_STRING, self::T_NOT_NULL],     // datetime
+      'columns'    => [
+         'id'         => ['id'         , PHP_TYPE_INT   ],     // int
+         'version'    => ['version'    , PHP_TYPE_STRING],     // datetime
+         'created'    => ['created'    , PHP_TYPE_STRING],     // datetime
 
-         'provider'   => ['provider'   , self::T_STRING, self::T_NOT_NULL],     // enum
-         'providerID' => ['provider_id', self::T_STRING, self::T_NOT_NULL],     // string
-         'name'       => ['name'       , self::T_STRING, self::T_NOT_NULL],     // string
-         'alias'      => ['alias'      , self::T_STRING, self::T_NOT_NULL],     // string
-         'currency'   => ['currency'   , self::T_STRING, self::T_NOT_NULL],     // enum
+         'provider'   => ['provider'   , PHP_TYPE_STRING],     // enum
+         'providerID' => ['provider_id', PHP_TYPE_STRING],     // string
+         'name'       => ['name'       , PHP_TYPE_STRING],     // string
+         'alias'      => ['alias'      , PHP_TYPE_STRING],     // string
+         'currency'   => ['currency'   , PHP_TYPE_STRING],     // enum
    ]];
 
 

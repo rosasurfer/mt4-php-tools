@@ -3,6 +3,11 @@ namespace rosasurfer\myfx\metatrader\model;
 
 use rosasurfer\db\orm\DAO;
 
+use const rosasurfer\PHP_TYPE_BOOL;
+use const rosasurfer\PHP_TYPE_FLOAT;
+use const rosasurfer\PHP_TYPE_INT;
+use const rosasurfer\PHP_TYPE_STRING;
+
 
 /**
  * DAO for accessing Test instances.
@@ -16,24 +21,24 @@ class TestDAO extends DAO {
    protected $mapping = [
       'connection' => 'sqlite',
       'table'      => 't_test',
-      'fields'     => [
-         'id'              => ['id'             , self::T_INT   , self::T_NOT_NULL],      // int
-         'created'         => ['created'        , self::T_STRING, self::T_NOT_NULL],      // text[datetime GMT]
-         'version'         => ['version'        , self::T_STRING, self::T_NOT_NULL],      // text[datetime GMT]
+      'columns'    => [
+         'id'              => ['id'             , PHP_TYPE_INT   ],      // int
+         'created'         => ['created'        , PHP_TYPE_STRING],      // text[datetime GMT]
+         'version'         => ['version'        , PHP_TYPE_STRING],      // text[datetime GMT]
 
-         'strategy'        => ['strategy'       , self::T_STRING, self::T_NOT_NULL],      // text(260)
-         'reportingId'     => ['reportingid'    , self::T_INT   , self::T_NOT_NULL],      // int
-         'reportingSymbol' => ['reportingsymbol', self::T_STRING, self::T_NOT_NULL],      // text(11)
-         'symbol'          => ['symbol'         , self::T_STRING, self::T_NOT_NULL],      // text(11)
-         'timeframe'       => ['timeframe'      , self::T_INT   , self::T_NOT_NULL],      // int
-         'startTime'       => ['starttime'      , self::T_STRING, self::T_NOT_NULL],      // text[datetime FXT]
-         'endTime'         => ['endtime'        , self::T_STRING, self::T_NOT_NULL],      // text[datetime FXT]
-         'tickModel'       => ['tickmodel'      , self::T_INT   , self::T_NOT_NULL],      // text[enum] references enum_TickModel(Type)
-         'spread'          => ['spread'         , self::T_FLOAT , self::T_NOT_NULL],      // float(2,1)
-         'bars'            => ['bars'           , self::T_INT   , self::T_NOT_NULL],      // int
-         'ticks'           => ['ticks'          , self::T_INT   , self::T_NOT_NULL],      // int
-         'tradeDirections' => ['tradedirections', self::T_INT   , self::T_NOT_NULL],      // text[enum] references enum_TradeDirection(Type)
-         'visualMode'      => ['visualmode'     , self::T_BOOL  , self::T_NOT_NULL],      // int[bool]
-         'duration'        => ['duration'       , self::T_INT   , self::T_NOT_NULL],      // int
+         'strategy'        => ['strategy'       , PHP_TYPE_STRING],      // text(260)
+         'reportingId'     => ['reportingid'    , PHP_TYPE_INT   ],      // int
+         'reportingSymbol' => ['reportingsymbol', PHP_TYPE_STRING],      // text(11)
+         'symbol'          => ['symbol'         , PHP_TYPE_STRING],      // text(11)
+         'timeframe'       => ['timeframe'      , PHP_TYPE_INT   ],      // int
+         'startTime'       => ['starttime'      , PHP_TYPE_STRING],      // text[datetime FXT]
+         'endTime'         => ['endtime'        , PHP_TYPE_STRING],      // text[datetime FXT]
+         'tickModel'       => ['tickmodel'      , PHP_TYPE_INT   ],      // text[enum] references enum_TickModel(Type)
+         'spread'          => ['spread'         , PHP_TYPE_FLOAT ],      // float(2,1)
+         'bars'            => ['bars'           , PHP_TYPE_INT   ],      // int
+         'ticks'           => ['ticks'          , PHP_TYPE_INT   ],      // int
+         'tradeDirections' => ['tradedirections', PHP_TYPE_INT   ],      // text[enum] references enum_TradeDirection(Type)
+         'visualMode'      => ['visualmode'     , PHP_TYPE_BOOL  ],      // int[bool]
+         'duration'        => ['duration'       , PHP_TYPE_INT   ],      // int
    ]];
 }

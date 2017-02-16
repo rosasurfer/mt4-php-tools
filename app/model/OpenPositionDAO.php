@@ -4,6 +4,10 @@ use rosasurfer\db\orm\DAO;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 
+use const rosasurfer\PHP_TYPE_FLOAT;
+use const rosasurfer\PHP_TYPE_INT;
+use const rosasurfer\PHP_TYPE_STRING;
+
 
 /**
  * DAO zum Zugriff auf OpenPosition-Instanzen.
@@ -15,24 +19,24 @@ class OpenPositionDAO extends DAO {
    protected $mapping = [
       'connection' => 'myfx',
       'table'      => 't_openposition',
-      'fields'     => [
-         'id'          => ['id'         , self::T_INT   , self::T_NOT_NULL],      // int
-         'version'     => ['version'    , self::T_STRING, self::T_NOT_NULL],      // datetime
-         'created'     => ['created'    , self::T_STRING, self::T_NOT_NULL],      // datetime
+      'columns'    => [
+         'id'          => ['id'         , PHP_TYPE_INT   ],      // int
+         'version'     => ['version'    , PHP_TYPE_STRING],      // datetime
+         'created'     => ['created'    , PHP_TYPE_STRING],      // datetime
 
-         'ticket'      => ['ticket'     , self::T_INT   , self::T_NOT_NULL],      // int
-         'type'        => ['type'       , self::T_STRING, self::T_NOT_NULL],      // string
-         'lots'        => ['lots'       , self::T_FLOAT , self::T_NOT_NULL],      // decimal
-         'symbol'      => ['symbol'     , self::T_STRING, self::T_NOT_NULL],      // string
-         'openTime'    => ['opentime'   , self::T_STRING, self::T_NOT_NULL],      // datetime
-         'openPrice'   => ['openprice'  , self::T_FLOAT , self::T_NOT_NULL],      // decimal
-         'stopLoss'    => ['stoploss'   , self::T_FLOAT , self::T_NULL    ],      // decimal
-         'takeProfit'  => ['takeprofit' , self::T_FLOAT , self::T_NULL    ],      // decimal
-         'commission'  => ['commission' , self::T_FLOAT , self::T_NULL    ],      // decimal
-         'swap'        => ['swap'       , self::T_FLOAT , self::T_NULL    ],      // decimal
-         'magicNumber' => ['magicnumber', self::T_INT   , self::T_NULL    ],      // int
-         'comment'     => ['comment'    , self::T_STRING, self::T_NULL    ],      // string
-         'signal_id'   => ['signal_id'  , self::T_INT   , self::T_NOT_NULL],      // int
+         'ticket'      => ['ticket'     , PHP_TYPE_INT   ],      // int
+         'type'        => ['type'       , PHP_TYPE_STRING],      // string
+         'lots'        => ['lots'       , PHP_TYPE_FLOAT ],      // decimal
+         'symbol'      => ['symbol'     , PHP_TYPE_STRING],      // string
+         'openTime'    => ['opentime'   , PHP_TYPE_STRING],      // datetime
+         'openPrice'   => ['openprice'  , PHP_TYPE_FLOAT ],      // decimal
+         'stopLoss'    => ['stoploss'   , PHP_TYPE_FLOAT ],      // decimal
+         'takeProfit'  => ['takeprofit' , PHP_TYPE_FLOAT ],      // decimal
+         'commission'  => ['commission' , PHP_TYPE_FLOAT ],      // decimal
+         'swap'        => ['swap'       , PHP_TYPE_FLOAT ],      // decimal
+         'magicNumber' => ['magicnumber', PHP_TYPE_INT   ],      // int
+         'comment'     => ['comment'    , PHP_TYPE_STRING],      // string
+         'signal_id'   => ['signal_id'  , PHP_TYPE_INT   ],      // int
    ]];
 
 

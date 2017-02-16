@@ -4,6 +4,11 @@ namespace rosasurfer\myfx\metatrader\model;
 use rosasurfer\db\orm\DAO;
 use rosasurfer\exception\IllegalTypeException;
 
+use const rosasurfer\PHP_TYPE_BOOL;
+use const rosasurfer\PHP_TYPE_FLOAT;
+use const rosasurfer\PHP_TYPE_INT;
+use const rosasurfer\PHP_TYPE_STRING;
+
 
 /**
  * DAO zum Zugriff auf Account-Instanzen.
@@ -15,21 +20,21 @@ class AccountDAO extends DAO {
    protected $mapping = [
       'connection' => 'myfx',
       'table'      => 't_account',
-      'fields'     => [
-         'id'                  => ['id'                 , self::T_INT   , self::T_NOT_NULL],     // int
-         'version'             => ['version'            , self::T_STRING, self::T_NOT_NULL],     // timestamp
-         'created'             => ['created'            , self::T_STRING, self::T_NOT_NULL],     // datetime
+      'columns'    => [
+         'id'                  => ['id'                 , PHP_TYPE_INT   ],     // int
+         'version'             => ['version'            , PHP_TYPE_STRING],     // timestamp
+         'created'             => ['created'            , PHP_TYPE_STRING],     // datetime
 
-         'company'             => ['company'            , self::T_STRING, self::T_NOT_NULL],     // string
-         'number'              => ['number'             , self::T_STRING, self::T_NOT_NULL],     // string
-         'demo'                => ['demo'               , self::T_BOOL  , self::T_NOT_NULL],     // tinyint
-         'type'                => ['type'               , self::T_STRING, self::T_NOT_NULL],     // enum
-         'timezone'            => ['timezone'           , self::T_STRING, self::T_NOT_NULL],     // string
-         'currency'            => ['currency'           , self::T_STRING, self::T_NOT_NULL],     // string
-         'balance'             => ['balance'            , self::T_FLOAT , self::T_NOT_NULL],     // decimal
-         'lastReportedBalance' => ['lastreportedbalance', self::T_FLOAT , self::T_NULL    ],     // decimal
-         'lastUpdate'          => ['lastupdate'         , self::T_STRING, self::T_NULL    ],     // datetime
-         'mtiAccountId'        => ['mtiaccount_id'      , self::T_STRING, self::T_NULL    ],     // string
+         'company'             => ['company'            , PHP_TYPE_STRING],     // string
+         'number'              => ['number'             , PHP_TYPE_STRING],     // string
+         'demo'                => ['demo'               , PHP_TYPE_BOOL  ],     // tinyint
+         'type'                => ['type'               , PHP_TYPE_STRING],     // enum
+         'timezone'            => ['timezone'           , PHP_TYPE_STRING],     // string
+         'currency'            => ['currency'           , PHP_TYPE_STRING],     // string
+         'balance'             => ['balance'            , PHP_TYPE_FLOAT ],     // decimal
+         'lastReportedBalance' => ['lastreportedbalance', PHP_TYPE_FLOAT ],     // decimal
+         'lastUpdate'          => ['lastupdate'         , PHP_TYPE_STRING],     // datetime
+         'mtiAccountId'        => ['mtiaccount_id'      , PHP_TYPE_STRING],     // string
    ]];
 
 
