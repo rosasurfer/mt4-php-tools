@@ -95,7 +95,7 @@ class ClosedPositionDAO extends DAO {
                  join t_closedposition c on s.id = c.signal_id
                  where s.alias = '$alias'
                  order by c.closetime, c.opentime, c.ticket";
-      $results = $this->findMany($sql);
+      $results = $this->findAll($sql);
 
       if ($assocTicket) {
          foreach ($results as $i => $position) {

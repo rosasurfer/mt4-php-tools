@@ -69,7 +69,7 @@ class OpenPositionDAO extends DAO {
                  join t_openposition o on s.id = o.signal_id
                  where s.alias = '$alias'
                  order by o.opentime, o.ticket";
-      $results = $this->findMany($sql);
+      $results = $this->findAll($sql);
 
       if ($assocTicket) {
          foreach ($results as $i => $position) {

@@ -112,7 +112,7 @@ class SignalDAO extends DAO {
                  from t_signal
                  where provider = 'myfxbook'
                  order by alias";
-      return $this->findMany($sql);
+      return $this->findAll($sql);
    }
 
 
@@ -132,6 +132,6 @@ class SignalDAO extends DAO {
                    and alias != 'overtrader'       -- deactivated: loser
                    and alias != 'yenfortress'      -- loser
                  order by alias";
-      return $this->findMany($sql);
+      return $this->findAll($sql);
    }
 }
