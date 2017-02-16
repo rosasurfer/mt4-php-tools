@@ -44,7 +44,7 @@ class ClosedPositionDAO extends DAO {
     * Ob das angegebene Ticket zum angegebenen Signal existiert.
     *
     * @param  Signal $signal - Signal
-    * @param  int    $ticket - zu prüfendes Ticket
+    * @param  int    $ticket - zu pruefendes Ticket
     *
     * @return bool
     */
@@ -54,16 +54,16 @@ class ClosedPositionDAO extends DAO {
 
       $signal_id = $signal->getId();
 
-      $sql = "select 1
+      $sql = "select count(*)
                  from t_closedposition c
                  where c.signal_id = $signal_id
                    and c.ticket    = $ticket";
-      return (bool) $this->query($sql)->numRows();
+      return $this->query($sql)->fetchBool();
    }
 
 
    /**
-    * Gibt die geschlossenen Positionen des angegebenen Signals zurück.
+    * Gibt die geschlossenen Positionen des angegebenen Signals zurueck.
     *
     * @param  Signal $signal      - Signal
     * @param  bool   $assocTicket - ob das Ergebnisarray assoziativ nach Tickets organisiert werden soll (default: nein)
@@ -78,7 +78,7 @@ class ClosedPositionDAO extends DAO {
 
 
    /**
-    * Gibt die geschlossenen Positionen des angegebenen Signals zurück.
+    * Gibt die geschlossenen Positionen des angegebenen Signals zurueck.
     *
     * @param  string $alias       - Signalalias
     * @param  bool   $assocTicket - ob das Ergebnisarray assoziativ nach Tickets organisiert werden soll (default: nein)
