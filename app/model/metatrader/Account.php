@@ -162,16 +162,16 @@ class Account extends PersistableObject {
     * @return Invoice
     */
    protected function update() {
+      $db = self::db();
+
       $id                  = $this->id;
       $oldVersion          = $this->version;
       $newVersion          = $this->touch();
 
       $lastreportedbalance = ($this->lastReportedBalance === null) ? 'null' : $this->lastReportedBalance;
-      $mtiaccount_id       = ($this->mtiAccountId        === null) ? 'null' : "'".addSlashes($this->mtiAccountId)."'";
+      $mtiaccount_id       = ($this->mtiAccountId        === null) ? 'null' : "'".$db->escapeString($this->mtiAccountId)."'";
 
-      $db = self::db();
       $db->begin();
-
       try {
          // Account updaten
          $sql = "update t_account

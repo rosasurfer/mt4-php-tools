@@ -249,6 +249,8 @@ class ClosedPosition extends PersistableObject {
     * @return self
     */
    protected function insert() {
+      $db = self::db();
+
       $created = $this->created;
       $version = $this->version;
 
@@ -267,10 +269,9 @@ class ClosedPosition extends PersistableObject {
       $profit      =  is_null($this->grossProfit) ? 'null' : $this->grossProfit;
       $netprofit   =  $this->netProfit;
       $magicnumber = !$this->magicNumber          ? 'null' : $this->magicNumber;
-      $comment     =  is_null($this->comment)     ? 'null' : "'".addSlashes($this->comment)."'";
+      $comment     =  is_null($this->comment)     ? 'null' : "'".$db->escapeString($this->comment)."'";
       $signal_id   =  $this->signal_id;
 
-      $db = self::db();
       $db->begin();
       try {
          // ClosedPosition einfügen

@@ -92,7 +92,7 @@ class ClosedPositionDAO extends DAO {
    public function listBySignalAlias($alias, $assocTicket=false) {
       if (!is_string($alias)) throw new IllegalTypeException('Illegal type of parameter $alias: '.getType($alias));
 
-      $alias = addSlashes($alias);
+      $alias = $this->escapeString($alias);
 
       $sql = "select c.*
                  from t_signal         s

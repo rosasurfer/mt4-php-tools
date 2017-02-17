@@ -39,7 +39,7 @@ class AccountDAO extends DAO {
 
 
    /**
-    * Gibt einen einzelnen Account zurück.
+    * Gibt einen einzelnen Account zurueck.
     *
     * @param  string $company - company name
     * @param  string $number  - account number
@@ -50,8 +50,8 @@ class AccountDAO extends DAO {
       if (!is_string($company)) throw new IllegalTypeException('Illegal type of parameter $company: '.getType($company));
       if (!is_string($number))  throw new IllegalTypeException('Illegal type of parameter $number: '.getType($number));
 
-      $company = addSlashes($company);
-      $number  = addSlashes($number);
+      $company = $this->escapeString($company);
+      $number  = $this->escapeString($number);
 
       $sql = "select *
                  from t_account

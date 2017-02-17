@@ -193,6 +193,8 @@ class OpenPosition extends PersistableObject {
     * @return self
     */
    protected function insert() {
+      $db = self::db();
+
       $created = $this->created;
       $version = $this->version;
 
@@ -207,10 +209,9 @@ class OpenPosition extends PersistableObject {
       $commission  =  is_null($this->commission) ? 'null' : $this->commission;
       $swap        =  is_null($this->swap      ) ? 'null' : $this->swap;
       $magicnumber =         !$this->magicNumber ? 'null' : $this->magicNumber;
-      $comment     =  is_null($this->comment   ) ? 'null' : "'".addSlashes($this->comment)."'";
+      $comment     =  is_null($this->comment   ) ? 'null' : "'".$db->escapeString($this->comment)."'";
       $signal_id   =          $this->signal_id;
 
-      $db = self::db();
       $db->begin();
       try {
          // OpenPosition einfügen
@@ -234,6 +235,8 @@ class OpenPosition extends PersistableObject {
     * @return self
     */
    protected function update() {
+      $db = self::db();
+
       $id          = $this->id;
       $oldVersion  = $this->version;
       $newVersion  = $this->touch();
@@ -249,10 +252,9 @@ class OpenPosition extends PersistableObject {
       $commission  = is_null($this->commission ) ? 'null' : $this->commission;
       $swap        = is_null($this->swap       ) ? 'null' : $this->swap;
       $magicnumber = is_null($this->magicNumber) ? 'null' : $this->magicNumber;
-      $comment     = is_null($this->comment    ) ? 'null' : "'".addSlashes($this->comment)."'";
+      $comment     = is_null($this->comment    ) ? 'null' : "'".$db->escapeString($this->comment)."'";
       $signal_id   = $this->signal_id;
 
-      $db = self::db();
       $db->begin();
       try {
          // OpenPosition updaten

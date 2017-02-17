@@ -63,8 +63,8 @@ class SignalDAO extends DAO {
       if (!is_string($alias))    throw new IllegalTypeException('Illegal type of parameter $alias: '.getType($alias));
       if (!strLen($alias))       throw new InvalidArgumentException('Invalid argument $alias: '.$alias);
 
-      $provider = addSlashes($provider);
-      $alias    = addSlashes($alias);
+      $provider = $this->escapeString($provider);
+      $alias    = $this->escapeString($alias);
 
       $sql = "select *
                  from t_signal
@@ -88,7 +88,7 @@ class SignalDAO extends DAO {
       if (!strLen($symbol))         throw new InvalidArgumentException('Invalid argument $symbol: '.$symbol);
 
       $signal_id = $signal->getId();
-      $symbol    = addSlashes($symbol);
+      $symbol    = $this->escapeString($symbol);
 
       $sql = "select max(time)
                  from (select max(o.opentime) as 'time'

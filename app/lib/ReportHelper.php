@@ -44,7 +44,7 @@ class ReportHelper extends Object {
       $db = Signal::db();
 
       $signal_id = $signal->getId();
-      $symbol    = addSlashes($symbol);
+      $symbol    = $db->escapeString($symbol);
 
       // SQL-Variablen definieren
       $db->execute("set @change = 0.0")

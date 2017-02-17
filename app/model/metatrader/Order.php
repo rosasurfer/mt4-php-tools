@@ -214,6 +214,7 @@ class Order extends PersistableObject {
     * @return self
     */
    protected function insert() {
+      $db = self::db();
 
       // create SQL
 
@@ -231,9 +232,8 @@ class Order extends PersistableObject {
       $swap        =  is_null($this->swap       ) ? 'null' : $this->swap;
       $profit      =  is_null($this->grossProfit) ? 'null' : $this->grossProfit;
       $magicnumber = !$this->magicNumber          ? 'null' : $this->magicNumber;
-      $comment     =  is_null($this->comment)     ? 'null' : "'".addSlashes($this->comment)."'";
+      $comment     =  is_null($this->comment)     ? 'null' : "'".$db->escapeString($this->comment)."'";
 
-      $db = self::db();
       $db->begin();
       try {
          // insert instance
