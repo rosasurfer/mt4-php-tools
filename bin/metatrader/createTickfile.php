@@ -1,7 +1,7 @@
 #!/usr/bin/php
 <?php
 /**
- * Erzeugt eine FXT-Tickdatei für den Strategy Tester.
+ * Erzeugt eine FXT-Tickdatei fuer den Strategy Tester.
  */
 require(__DIR__.'/../../app/init.php');
 date_default_timezone_set('GMT');
@@ -134,7 +134,7 @@ exit(0);
 /**
  * Hilfefunktion
  *
- * @param  string $message - zusätzlich zur Syntax anzuzeigende Message (default: keine)
+ * @param  string $message - zusaetzlich zur Syntax anzuzeigende Message (default: keine)
  */
 function help($message=null) {
    if (is_null($message))

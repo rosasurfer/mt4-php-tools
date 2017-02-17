@@ -16,7 +16,7 @@ class DownloadFTPConfigurationAction extends Action {
 
 
    /**
-    * Führt die Action aus.
+    * Fuehrt die Action aus.
     *
     * @return ActionForward
     */

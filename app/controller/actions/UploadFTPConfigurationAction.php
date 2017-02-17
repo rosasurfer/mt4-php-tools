@@ -17,7 +17,7 @@ use rosasurfer\util\System;
 class UploadFTPConfigurationAction extends Action {
 
    /**
-    * Führt die Action aus.
+    * Fuehrt die Action aus.
     *
     * @return ActionForward
     */

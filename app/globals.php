@@ -52,8 +52,8 @@ const OP_BUYSTOP   = 4;                       //         stop buy order
 const OP_SELLSTOP  = 5;                       //         stop sell order
 const OP_BALANCE   = 6;                       //         account credit or withdrawal transaction
 const OP_CREDIT    = 7;                       //         credit facility, no transaction
-const OP_TRANSFER  = 8;                       // custom: Balance-Änderung durch Kunden (Deposit/Withdrawal)
-const OP_VENDOR    = 9;                       //         Balance-Änderung durch Criminal (Dividende, Swap, Ausgleich etc.)
+const OP_TRANSFER  = 8;                       // custom: Balance-Aenderung durch Kunden (Deposit/Withdrawal)
+const OP_VENDOR    = 9;                       //         Balance-Aenderung durch Criminal (Dividende, Swap, Ausgleich etc.)
 
 
 // Strategy Tester tick models
