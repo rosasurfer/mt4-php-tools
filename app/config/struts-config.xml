@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE struts-config SYSTEM "struts-config.dtd">
 
-<struts-config view-base="app/view">
+<struts-config file-base="app/view">
 
 
    <!-- ============================================= Global Forwards ============================================= -->

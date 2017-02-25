@@ -21,10 +21,7 @@ PHP::ini_set('default_charset', 'UTF-8'                                  );
 
 
 // initialize MiniStruts
-$options = [
-   'config'            => APPLICATION_ROOT.'/app/config',
-   'handle-errors'     => MiniStruts::THROW_EXCEPTIONS,
-   'handle-exceptions' => true,
-   'global-helpers'    => true,
-];
-MiniStruts::init($options);
+MiniStruts::init([
+   'config'  => APPLICATION_ROOT.'/app/config',
+   'globals' => true,
+]);
