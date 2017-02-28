@@ -24,10 +24,14 @@ class DownloadFTPConfigurationActionForm extends ActionForm {
     * Liest die übergebenen Request-Parameter in das Form-Objekt ein.
     */
    protected function populate(Request $request) {
-      if (isSet($_REQUEST['company' ]) &&   is_string($_REQUEST['company' ])) $this->company  =       $_REQUEST['company' ];
-      if (isSet($_REQUEST['account' ]) && cType_digit($_REQUEST['account' ])) $this->account  = (int) $_REQUEST['account' ];
-      if (isSet($_REQUEST['symbol'  ]) &&   is_string($_REQUEST['symbol'  ])) $this->symbol   =       $_REQUEST['symbol'  ];
-      if (isSet($_REQUEST['sequence']) && cType_digit($_REQUEST['sequence'])) $this->sequence = (int) $_REQUEST['sequence'];
+      $this->company  = $request->getParameter('company');
+      $this->symbol   = $request->getParameter('symbol' );
+
+      $account        = $request->getParameter('account');
+      $this->account  = ctype_digit($account) ? (int) $account : 0;
+
+      $sequence       = $request->getParameter('sequence');
+      $this->sequence = ctype_digit($sequence) ? (int) $sequence : 0;
    }
 
 
