@@ -66,12 +66,12 @@ class OpenPositionDAO extends DAO {
    public function listBySignalAlias($alias, $assocTicket=false) {
       if (!is_string($alias)) throw new IllegalTypeException('Illegal type of parameter $alias: '.getType($alias));
 
-      $alias = $this->escapeString($alias);
+      $alias = $this->escapeLiteral($alias);
 
       $sql = "select o.*
                  from t_signal       s
                  join t_openposition o on s.id = o.signal_id
-                 where s.alias = '$alias'
+                 where s.alias = $alias
                  order by o.opentime, o.ticket";
       $results = $this->findAll($sql);
 

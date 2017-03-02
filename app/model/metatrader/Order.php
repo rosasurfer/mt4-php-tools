@@ -232,7 +232,7 @@ class Order extends PersistableObject {
       $swap        =  is_null($this->swap       ) ? 'null' : $this->swap;
       $profit      =  is_null($this->grossProfit) ? 'null' : $this->grossProfit;
       $magicnumber = !$this->magicNumber          ? 'null' : $this->magicNumber;
-      $comment     =  is_null($this->comment)     ? 'null' : "'".$db->escapeString($this->comment)."'";
+      $comment     =  $db->escapeLiteral($this->comment);
 
       $db->begin();
       try {

@@ -168,8 +168,8 @@ class Account extends PersistableObject {
       $oldVersion          = $this->version;
       $newVersion          = $this->touch();
 
-      $lastreportedbalance = ($this->lastReportedBalance === null) ? 'null' : $this->lastReportedBalance;
-      $mtiaccount_id       = ($this->mtiAccountId        === null) ? 'null' : "'".$db->escapeString($this->mtiAccountId)."'";
+      $lastreportedbalance = $this->lastReportedBalance === null ? 'null' : $this->lastReportedBalance;
+      $mtiaccount_id       = $db->escapeLiteral($this->mtiAccountId);
 
       $db->begin();
       try {

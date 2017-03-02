@@ -198,19 +198,19 @@ class OpenPosition extends PersistableObject {
       $created = $this->created;
       $version = $this->version;
 
-      $ticket      =          $this->ticket;
-      $type        =          $this->type;
-      $lots        =          $this->lots;
-      $symbol      =          $this->symbol;
-      $opentime    =          $this->openTime;
-      $openprice   =          $this->openPrice;
-      $stoploss    =         !$this->stopLoss    ? 'null' : $this->stopLoss;
-      $takeprofit  =         !$this->takeProfit  ? 'null' : $this->takeProfit;
-      $commission  =  is_null($this->commission) ? 'null' : $this->commission;
-      $swap        =  is_null($this->swap      ) ? 'null' : $this->swap;
-      $magicnumber =         !$this->magicNumber ? 'null' : $this->magicNumber;
-      $comment     =  is_null($this->comment   ) ? 'null' : "'".$db->escapeString($this->comment)."'";
-      $signal_id   =          $this->signal_id;
+      $ticket      =         $this->ticket;
+      $type        =         $this->type;
+      $lots        =         $this->lots;
+      $symbol      =         $this->symbol;
+      $opentime    =         $this->openTime;
+      $openprice   =         $this->openPrice;
+      $stoploss    =        !$this->stopLoss    ? 'null' : $this->stopLoss;
+      $takeprofit  =        !$this->takeProfit  ? 'null' : $this->takeProfit;
+      $commission  = is_null($this->commission) ? 'null' : $this->commission;
+      $swap        = is_null($this->swap      ) ? 'null' : $this->swap;
+      $magicnumber =        !$this->magicNumber ? 'null' : $this->magicNumber;
+      $comment     = $db->escapeLiteral($this->comment);
+      $signal_id   =         $this->signal_id;
 
       $db->begin();
       try {
@@ -252,7 +252,7 @@ class OpenPosition extends PersistableObject {
       $commission  = is_null($this->commission ) ? 'null' : $this->commission;
       $swap        = is_null($this->swap       ) ? 'null' : $this->swap;
       $magicnumber = is_null($this->magicNumber) ? 'null' : $this->magicNumber;
-      $comment     = is_null($this->comment    ) ? 'null' : "'".$db->escapeString($this->comment)."'";
+      $comment     = $db->escapeLiteral($this->comment);
       $signal_id   = $this->signal_id;
 
       $db->begin();

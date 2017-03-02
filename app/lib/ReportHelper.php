@@ -44,7 +44,7 @@ class ReportHelper extends Object {
       $db = Signal::db();
 
       $signal_id = $signal->getId();
-      $symbol    = $db->escapeString($symbol);
+      $symbol    = $db->escapeLiteral($symbol);
 
       // SQL-Variablen definieren
       $db->execute("set @change = 0.0")
@@ -85,7 +85,7 @@ class ReportHelper extends Object {
                                         o.openprice as 'price'
                                    from t_openposition o
                                    where o.signal_id = $signal_id
-                                     and o.symbol    = '$symbol')
+                                     and o.symbol    = $symbol)
 
                                 union all
                                 (select c.ticket,                             -- alle Open-Deals der ab dem angegebenen Zeitpunkt geschlossenen Positionen
@@ -97,7 +97,7 @@ class ReportHelper extends Object {
                                         c.openprice
                                    from t_closedposition c
                                    where c.signal_id = $signal_id
-                                     and c.symbol    = '$symbol'
+                                     and c.symbol    = $symbol
                                      and c.closetime >= '$starttime')
 
                                 union all
@@ -110,7 +110,7 @@ class ReportHelper extends Object {
                                         c.closeprice
                                    from t_closedposition c
                                    where c.signal_id = $signal_id
-                                     and c.symbol    = '$symbol'
+                                     and c.symbol    = $symbol
                                      and c.closetime >= '$starttime')
                                 ) as ri
                           order by time, ticket

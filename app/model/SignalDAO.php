@@ -63,13 +63,13 @@ class SignalDAO extends DAO {
       if (!is_string($alias))    throw new IllegalTypeException('Illegal type of parameter $alias: '.getType($alias));
       if (!strLen($alias))       throw new InvalidArgumentException('Invalid argument $alias: '.$alias);
 
-      $provider = $this->escapeString($provider);
-      $alias    = $this->escapeString($alias);
+      $provider = $this->escapeLiteral($provider);
+      $alias    = $this->escapeLiteral($alias);
 
       $sql = "select *
                  from t_signal
-                 where provider = '$provider'
-                   and alias = '$alias'";
+                 where provider = $provider
+                   and alias = $alias";
       return $this->findOne($sql);
    }
 
@@ -88,18 +88,18 @@ class SignalDAO extends DAO {
       if (!strLen($symbol))         throw new InvalidArgumentException('Invalid argument $symbol: '.$symbol);
 
       $signal_id = $signal->getId();
-      $symbol    = $this->escapeString($symbol);
+      $symbol    = $this->escapeLiteral($symbol);
 
       $sql = "select max(time)
                  from (select max(o.opentime) as 'time'
                          from t_openposition o
                          where o.signal_id = $signal_id
-                           and o.symbol    = '$symbol'
+                           and o.symbol    = $symbol
                        union all
                        select max(c.closetime)
                          from t_closedposition c
                          where c.signal_id = $signal_id
-                           and c.symbol    = '$symbol'
+                           and c.symbol    = $symbol
                  ) as r";
       return $this->query($sql)->fetchField(null, null, null, $onNoRows=null);
    }

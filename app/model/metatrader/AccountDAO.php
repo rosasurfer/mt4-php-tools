@@ -50,13 +50,13 @@ class AccountDAO extends DAO {
       if (!is_string($company)) throw new IllegalTypeException('Illegal type of parameter $company: '.getType($company));
       if (!is_string($number))  throw new IllegalTypeException('Illegal type of parameter $number: '.getType($number));
 
-      $company = $this->escapeString($company);
-      $number  = $this->escapeString($number);
+      $company = $this->escapeLiteral($company);
+      $number  = $this->escapeLiteral($number);
 
       $sql = "select *
                  from t_account
-                 where company = '$company'
-                   and number = '$number'";
+                 where company = $company
+                   and number = $number";
       return $this->findOne($sql);
    }
 }

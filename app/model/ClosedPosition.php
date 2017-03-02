@@ -269,7 +269,7 @@ class ClosedPosition extends PersistableObject {
       $profit      =  is_null($this->grossProfit) ? 'null' : $this->grossProfit;
       $netprofit   =  $this->netProfit;
       $magicnumber = !$this->magicNumber          ? 'null' : $this->magicNumber;
-      $comment     =  is_null($this->comment)     ? 'null' : "'".$db->escapeString($this->comment)."'";
+      $comment     =  $db->escapeLiteral($this->comment);
       $signal_id   =  $this->signal_id;
 
       $db->begin();

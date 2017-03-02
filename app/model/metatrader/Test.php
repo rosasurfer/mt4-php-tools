@@ -534,27 +534,27 @@ class Test extends PersistableObject {
    protected function insert() {
       $db = self::db();
 
-      $created         =                   $this->created;
-      $version         =                   $this->version;
+      $created         =                    $this->created;
+      $version         =                    $this->version;
 
-      $strategy        = $db->escapeString($this->strategy);
-      $reportingid     =                   $this->reportingId;
-      $reportingsymbol = $db->escapeString($this->reportingSymbol);
-      $symbol          = $db->escapeString($this->symbol);
-      $timeframe       =                   $this->timeframe;
-      $starttime       =                   $this->startTime;
-      $endtime         =                   $this->endTime;
-      $tickmodel       =                   $this->tickModel;
-      $spread          =                   $this->spread;
-      $bars            =                   $this->bars;
-      $ticks           =                   $this->ticks;
-      $tradedirections =                   $this->tradeDirections;
-      $visualmode      =             (int) $this->visualMode;
-      $duration        =                   $this->duration;
+      $strategy        = $db->escapeLiteral($this->strategy);
+      $reportingid     =                    $this->reportingId;
+      $reportingsymbol = $db->escapeLiteral($this->reportingSymbol);
+      $symbol          = $db->escapeLiteral($this->symbol);
+      $timeframe       =                    $this->timeframe;
+      $starttime       =                    $this->startTime;
+      $endtime         =                    $this->endTime;
+      $tickmodel       =                    $this->tickModel;
+      $spread          =                    $this->spread;
+      $bars            =                    $this->bars;
+      $ticks           =                    $this->ticks;
+      $tradedirections =                    $this->tradeDirections;
+      $visualmode      =              (int) $this->visualMode;
+      $duration        =                    $this->duration;
 
       $result = $db->execute(
          "insert into t_test (version, created, strategy, reportingid, reportingsymbol, symbol, timeframe, starttime, endtime, tickmodel, spread, bars, ticks, tradedirections, visualmode, duration) values
-            ('$version', '$created', '$strategy', $reportingid, '$reportingsymbol', '$symbol', $timeframe, '$starttime', '$endtime', $tickmodel, $spread, $bars, $ticks, $tradedirections, $visualmode, $duration)"
+            ('$version', '$created', $strategy, $reportingid, $reportingsymbol, $symbol, $timeframe, '$starttime', '$endtime', $tickmodel, $spread, $bars, $ticks, $tradedirections, $visualmode, $duration)"
       );
 
 
