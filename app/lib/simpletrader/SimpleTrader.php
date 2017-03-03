@@ -64,7 +64,7 @@ class SimpleTrader extends StaticClass {
    public static function loadSignalPage(\Signal $signal, $fullHistory) {
       if (!is_bool($fullHistory)) throw new IllegalTypeException('Illegal type of parameter $fullHistory: '.getType($fullHistory));
 
-      $providerSignalId = $signal->getProviderID();
+      $providerSignalId = $signal->getProviderId();
 
 
       // (1) Standard-Browser simulieren

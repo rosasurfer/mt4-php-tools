@@ -41,7 +41,7 @@ class MyfxBook extends StaticClass {
       echoPre('downloading statement...');
 
       // prepare signal urls
-      $providerId = $signal->getProviderID();
+      $providerId = $signal->getProviderId();
       $url        = str_replace('{provider_id}', $providerId, self::$urls['statement']);
       $referer    = str_replace('{provider_id}', $providerId, self::$urls['signal'   ]);
 

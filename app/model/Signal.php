@@ -12,7 +12,7 @@ class Signal extends PersistableObject {
    protected $provider;
 
    /** @var string */
-   protected $providerID;
+   protected $providerId;
 
    /** @var string */
    protected $name;
@@ -26,7 +26,7 @@ class Signal extends PersistableObject {
 
    // Simple getters
    public function getProvider()   { return $this->provider;   }
-   public function getProviderID() { return $this->providerID; }
+   public function getProviderId() { return $this->providerId; }
    public function getName()       { return $this->name;       }
    public function getAlias()      { return $this->alias;      }
    public function getCurrency()   { return $this->currency;   }

@@ -7,6 +7,10 @@ use rosasurfer\exception\InvalidArgumentException;
 use const rosasurfer\PHP_TYPE_INT;
 use const rosasurfer\PHP_TYPE_STRING;
 
+use const rosasurfer\db\ID_CREATE;
+use const rosasurfer\db\ID_PRIMARY;
+use const rosasurfer\db\ID_VERSION;
+
 
 /**
  * DAO zum Zugriff auf Signal-Instanzen.
@@ -19,15 +23,15 @@ class SignalDAO extends DAO {
       'connection' => 'myfx',
       'table'      => 't_signal',
       'columns'    => [
-         'id'         => ['id'         , PHP_TYPE_INT   ],     // int
-         'version'    => ['version'    , PHP_TYPE_STRING],     // datetime
-         'created'    => ['created'    , PHP_TYPE_STRING],     // datetime
+         'id'         => ['id'         , PHP_TYPE_INT   , 0, ID_PRIMARY],     // db:int
+         'version'    => ['version'    , PHP_TYPE_STRING, 0, ID_VERSION],     // db:datetime
+         'created'    => ['created'    , PHP_TYPE_STRING, 0, ID_CREATE ],     // db:datetime
 
-         'provider'   => ['provider'   , PHP_TYPE_STRING],     // enum
-         'providerID' => ['provider_id', PHP_TYPE_STRING],     // string
-         'name'       => ['name'       , PHP_TYPE_STRING],     // string
-         'alias'      => ['alias'      , PHP_TYPE_STRING],     // string
-         'currency'   => ['currency'   , PHP_TYPE_STRING],     // enum
+         'provider'   => ['provider'   , PHP_TYPE_STRING, 0, 0         ],     // db:enum
+         'providerId' => ['provider_id', PHP_TYPE_STRING, 0, 0         ],     // db:string
+         'name'       => ['name'       , PHP_TYPE_STRING, 0, 0         ],     // db:string
+         'alias'      => ['alias'      , PHP_TYPE_STRING, 0, 0         ],     // db:string
+         'currency'   => ['currency'   , PHP_TYPE_STRING, 0, 0         ],     // db:enum
    ]];
 
 
