@@ -7,6 +7,9 @@ use rosasurfer\exception\InvalidArgumentException;
 use const rosasurfer\PHP_TYPE_FLOAT;
 use const rosasurfer\PHP_TYPE_INT;
 use const rosasurfer\PHP_TYPE_STRING;
+use const rosasurfer\db\ID_PRIMARY;
+use const rosasurfer\db\ID_CREATE;
+use const rosasurfer\db\ID_VERSION;
 
 
 /**
@@ -20,27 +23,27 @@ class ClosedPositionDAO extends DAO {
       'connection' => 'myfx',
       'table'      => 't_closedposition',
       'columns'    => [
-         'id'          => ['id'         , PHP_TYPE_INT   ],      // int
-         'version'     => ['version'    , PHP_TYPE_STRING],      // datetime
-         'created'     => ['created'    , PHP_TYPE_STRING],      // datetime
+         'id'          => ['id'         , PHP_TYPE_INT   , 0, ID_PRIMARY],      // db:int
+         'created'     => ['created'    , PHP_TYPE_STRING, 0, ID_CREATE ],      // db:datetime
+         'version'     => ['version'    , PHP_TYPE_STRING, 0, ID_VERSION],      // db:datetime
 
-         'ticket'      => ['ticket'     , PHP_TYPE_INT   ],      // int
-         'type'        => ['type'       , PHP_TYPE_STRING],      // string
-         'lots'        => ['lots'       , PHP_TYPE_FLOAT ],      // decimal
-         'symbol'      => ['symbol'     , PHP_TYPE_STRING],      // string
-         'openTime'    => ['opentime'   , PHP_TYPE_STRING],      // datetime
-         'openPrice'   => ['openprice'  , PHP_TYPE_FLOAT ],      // decimal
-         'closeTime'   => ['closetime'  , PHP_TYPE_STRING],      // datetime
-         'closePrice'  => ['closeprice' , PHP_TYPE_FLOAT ],      // decimal
-         'stopLoss'    => ['stoploss'   , PHP_TYPE_FLOAT ],      // decimal
-         'takeProfit'  => ['takeprofit' , PHP_TYPE_FLOAT ],      // decimal
-         'commission'  => ['commission' , PHP_TYPE_FLOAT ],      // decimal
-         'swap'        => ['swap'       , PHP_TYPE_FLOAT ],      // decimal
-         'grossProfit' => ['profit'     , PHP_TYPE_FLOAT ],      // decimal
-         'netProfit'   => ['netprofit'  , PHP_TYPE_FLOAT ],      // decimal
-         'magicNumber' => ['magicnumber', PHP_TYPE_INT   ],      // int
-         'comment'     => ['comment'    , PHP_TYPE_STRING],      // string
-         'signal_id'   => ['signal_id'  , PHP_TYPE_INT   ],      // int
+         'ticket'      => ['ticket'     , PHP_TYPE_INT   , 0, 0         ],      // db:int
+         'type'        => ['type'       , PHP_TYPE_STRING, 0, 0         ],      // db:string
+         'lots'        => ['lots'       , PHP_TYPE_FLOAT , 0, 0         ],      // db:decimal
+         'symbol'      => ['symbol'     , PHP_TYPE_STRING, 0, 0         ],      // db:string
+         'openTime'    => ['opentime'   , PHP_TYPE_STRING, 0, 0         ],      // db:datetime
+         'openPrice'   => ['openprice'  , PHP_TYPE_FLOAT , 0, 0         ],      // db:decimal
+         'closeTime'   => ['closetime'  , PHP_TYPE_STRING, 0, 0         ],      // db:datetime
+         'closePrice'  => ['closeprice' , PHP_TYPE_FLOAT , 0, 0         ],      // db:decimal
+         'stopLoss'    => ['stoploss'   , PHP_TYPE_FLOAT , 0, 0         ],      // db:decimal
+         'takeProfit'  => ['takeprofit' , PHP_TYPE_FLOAT , 0, 0         ],      // db:decimal
+         'commission'  => ['commission' , PHP_TYPE_FLOAT , 0, 0         ],      // db:decimal
+         'swap'        => ['swap'       , PHP_TYPE_FLOAT , 0, 0         ],      // db:decimal
+         'grossProfit' => ['profit'     , PHP_TYPE_FLOAT , 0, 0         ],      // db:decimal
+         'netProfit'   => ['netprofit'  , PHP_TYPE_FLOAT , 0, 0         ],      // db:decimal
+         'magicNumber' => ['magicnumber', PHP_TYPE_INT   , 0, 0         ],      // db:int
+         'comment'     => ['comment'    , PHP_TYPE_STRING, 0, 0         ],      // db:string
+         'signal_id'   => ['signal_id'  , PHP_TYPE_INT   , 0, 0         ],      // db:int
    ]];
 
 

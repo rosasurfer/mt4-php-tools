@@ -24,8 +24,8 @@ class SignalDAO extends DAO {
       'table'      => 't_signal',
       'columns'    => [
          'id'         => ['id'         , PHP_TYPE_INT   , 0, ID_PRIMARY],     // db:int
-         'version'    => ['version'    , PHP_TYPE_STRING, 0, ID_VERSION],     // db:datetime
          'created'    => ['created'    , PHP_TYPE_STRING, 0, ID_CREATE ],     // db:datetime
+         'version'    => ['version'    , PHP_TYPE_STRING, 0, ID_VERSION],     // db:datetime
 
          'provider'   => ['provider'   , PHP_TYPE_STRING, 0, 0         ],     // db:enum
          'providerId' => ['provider_id', PHP_TYPE_STRING, 0, 0         ],     // db:string
