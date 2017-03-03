@@ -16,7 +16,7 @@ class TestDAO extends DAO {
 
 
    /**
-    * @var mixed[] - database mapping
+    * @var array - database mapping
     */
    protected $mapping = [
       'connection' => 'sqlite',
