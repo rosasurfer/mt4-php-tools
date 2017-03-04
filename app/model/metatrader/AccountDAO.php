@@ -8,10 +8,10 @@ use const rosasurfer\PHP_TYPE_BOOL;
 use const rosasurfer\PHP_TYPE_FLOAT;
 use const rosasurfer\PHP_TYPE_INT;
 use const rosasurfer\PHP_TYPE_STRING;
-use const rosasurfer\db\BIND_TYPE_INT;
-use const rosasurfer\db\ID_PRIMARY;
-use const rosasurfer\db\ID_CREATE;
-use const rosasurfer\db\ID_VERSION;
+use const rosasurfer\db\orm\BIND_TYPE_INT;
+use const rosasurfer\db\orm\ID_PRIMARY;
+use const rosasurfer\db\orm\ID_CREATE;
+use const rosasurfer\db\orm\ID_VERSION;
 
 
 /**

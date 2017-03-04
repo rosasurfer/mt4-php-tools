@@ -2,6 +2,7 @@
 use rosasurfer\db\orm\PersistableObject;
 
 
+echoPre(__FILE__.'  # line '.__LINE__);
 /**
  * Signal
  */
