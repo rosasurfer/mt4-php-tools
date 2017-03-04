@@ -14,6 +14,9 @@ use rosasurfer\util\Date;
 class OpenPosition extends PersistableObject {
 
 
+   /** @var int - primary key */
+   protected $id;
+
    protected /*int   */ $ticket;
    protected /*string*/ $type;
    protected /*float */ $lots;
@@ -32,6 +35,7 @@ class OpenPosition extends PersistableObject {
 
 
    // Getter
+   public function getId()          { return $this->id;          }
    public function getTicket()      { return $this->ticket;      }
    public function getType()        { return $this->type;        }
    public function getLots()        { return $this->lots;        }

@@ -16,6 +16,10 @@ use rosasurfer\util\Windows;
  */
 class Test extends PersistableObject {
 
+
+   /** @var int - primary key */
+   protected $id;
+
    /** @var string - strategy name */
    protected $strategy;
 
@@ -66,22 +70,23 @@ class Test extends PersistableObject {
 
 
    // standard getters
-   public function getStrategy          () { return $this->strategy;                    }
-   public function getStrategyParameters() { return $this->strategyParameters;          }
-   public function getReportingId       () { return $this->reportingId;                 }
-   public function getReportingSymbol   () { return $this->reportingSymbol;             }
-   public function getSymbol            () { return $this->symbol;                      }
-   public function getTimeframe         () { return $this->timeframe;                   }
-   public function getStartTime         () { return $this->startTime;                   }
-   public function getEndTime           () { return $this->endTime;                     }
-   public function getTickModel         () { return $this->tickModel;                   }
-   public function getSpread            () { return $this->spread;                      }
-   public function getBars              () { return $this->bars;                        }
-   public function getTicks             () { return $this->ticks;                       }
-   public function getTradeDirections   () { return $this->tradeDirections;             }
-   public function isVisualMode         () { return $this->visualMode;                  }
-   public function getDuration          () { return $this->duration;                    }
-   public function getTrades            () { return $this->trades ? $this->trades : []; }
+   public function getId                () { return $this->id;                 }
+   public function getStrategy          () { return $this->strategy;           }
+   public function getStrategyParameters() { return $this->strategyParameters; }
+   public function getReportingId       () { return $this->reportingId;        }
+   public function getReportingSymbol   () { return $this->reportingSymbol;    }
+   public function getSymbol            () { return $this->symbol;             }
+   public function getTimeframe         () { return $this->timeframe;          }
+   public function getStartTime         () { return $this->startTime;          }
+   public function getEndTime           () { return $this->endTime;            }
+   public function getTickModel         () { return $this->tickModel;          }
+   public function getSpread            () { return $this->spread;             }
+   public function getBars              () { return $this->bars;               }
+   public function getTicks             () { return $this->ticks;              }
+   public function getTradeDirections   () { return $this->tradeDirections;    }
+   public function isVisualMode         () { return $this->visualMode;         }
+   public function getDuration          () { return $this->duration;           }
+   public function getTrades            () { return $this->trades ?: [];       }
 
 
    /**

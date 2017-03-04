@@ -8,6 +8,9 @@ use rosasurfer\db\orm\PersistableObject;
 class Signal extends PersistableObject {
 
 
+   /** @var int - primary key */
+   protected $id;
+
    /** @var string */
    protected $provider;
 
@@ -25,6 +28,7 @@ class Signal extends PersistableObject {
 
 
    // Simple getters
+   public function getId()         { return $this->id;         }
    public function getProvider()   { return $this->provider;   }
    public function getProviderId() { return $this->providerId; }
    public function getName()       { return $this->name;       }

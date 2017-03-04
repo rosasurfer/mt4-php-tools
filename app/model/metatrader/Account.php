@@ -16,6 +16,9 @@ use rosasurfer\util\Number;
 class Account extends PersistableObject {
 
 
+   /** @var int - primary key */
+   protected $id;
+
    protected /*string*/ $company;
    protected /*string*/ $number;
    protected /*bool  */ $demo;
@@ -29,6 +32,7 @@ class Account extends PersistableObject {
 
 
    // Getter
+   public function getId()           { return        $this->id;           }
    public function getCompany()      { return        $this->company;      }
    public function getNumber()       { return        $this->number;       }
    public function isDemo()          { return (bool) $this->demo;         }
