@@ -24,6 +24,9 @@ class Test extends PersistableObject {
    /** @var (string)datetime - time of creation */
    protected $created;
 
+   /** @var (string)datetime - time of last modification */
+   protected $updated;
+
    /** @var string - strategy name */
    protected $strategy;
 
@@ -104,6 +107,20 @@ class Test extends PersistableObject {
       if ($format == 'Y-m-d H:i:s')
          return $this->created;
       return Date::format($this->created, $format);
+   }
+
+
+   /**
+    * Return the last modification time of the instance.
+    *
+    * @param  string $format - format as used by date($format, $timestamp)
+    *
+    * @return string - last modification time
+    */
+   public function getUpdated($format = 'Y-m-d H:i:s')  {
+      if ($format == 'Y-m-d H:i:s')
+         return $this->updated;
+      return Date::format($this->updated, $format);
    }
 
 

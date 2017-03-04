@@ -15,6 +15,9 @@ class Signal extends PersistableObject {
    /** @var (string)datetime - time of creation */
    protected $created;
 
+   /** @var (string)datetime - time of last modification */
+   protected $version;
+
    /** @var string */
    protected $provider;
 
@@ -51,5 +54,19 @@ class Signal extends PersistableObject {
       if ($format == 'Y-m-d H:i:s')
          return $this->created;
       return Date::format($this->created, $format);
+   }
+
+
+   /**
+    * Return the version string of the instance.
+    *
+    * @param  string $format - format as used by date($format, $timestamp)
+    *
+    * @return string - version (last modification time)
+    */
+   public function getVersion($format = 'Y-m-d H:i:s')  {
+      if ($format == 'Y-m-d H:i:s')
+         return $this->version;
+      return Date::format($this->version, $format);
    }
 }
