@@ -19,6 +19,9 @@ class Account extends PersistableObject {
    /** @var int - primary key */
    protected $id;
 
+   /** @var (string)datetime - time of creation */
+   protected $created;
+
    protected /*string*/ $company;
    protected /*string*/ $number;
    protected /*bool  */ $demo;
@@ -40,6 +43,20 @@ class Account extends PersistableObject {
    public function getTimezone()     { return        $this->timezone;     }
    public function getCurrency()     { return        $this->currency;     }
    public function getMTiAccountId() { return        $this->mtiAccountId; }
+
+
+   /**
+    * Return the creation time of the instance.
+    *
+    * @param  string $format - format as used by date($format, $timestamp)
+    *
+    * @return string - creation time
+    */
+   public function getCreated($format = 'Y-m-d H:i:s')  {
+      if ($format == 'Y-m-d H:i:s')
+         return $this->created;
+      return Date::format($this->created, $format);
+   }
 
 
    /**

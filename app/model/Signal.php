@@ -1,8 +1,8 @@
 <?php
 use rosasurfer\db\orm\PersistableObject;
+use rosasurfer\util\Date;
 
 
-echoPre(__FILE__.'  # line '.__LINE__);
 /**
  * Signal
  */
@@ -11,6 +11,9 @@ class Signal extends PersistableObject {
 
    /** @var int - primary key */
    protected $id;
+
+   /** @var (string)datetime - time of creation */
+   protected $created;
 
    /** @var string */
    protected $provider;
@@ -35,4 +38,18 @@ class Signal extends PersistableObject {
    public function getName()       { return $this->name;       }
    public function getAlias()      { return $this->alias;      }
    public function getCurrency()   { return $this->currency;   }
+
+
+   /**
+    * Return the creation time of the instance.
+    *
+    * @param  string $format - format as used by date($format, $timestamp)
+    *
+    * @return string - creation time
+    */
+   public function getCreated($format = 'Y-m-d H:i:s')  {
+      if ($format == 'Y-m-d H:i:s')
+         return $this->created;
+      return Date::format($this->created, $format);
+   }
 }

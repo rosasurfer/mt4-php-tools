@@ -16,6 +16,9 @@ class ClosedPosition extends PersistableObject {
    /** @var int - primary key */
    protected $id;
 
+   /** @var (string)datetime - time of creation */
+   protected $created;
+
    protected /*int   */ $ticket;
    protected /*string*/ $type;
    protected /*float */ $lots;
@@ -134,6 +137,20 @@ class ClosedPosition extends PersistableObject {
       $position->signal_id   = $signal->getId();
 
       return $position;
+   }
+
+
+   /**
+    * Return the creation time of the instance.
+    *
+    * @param  string $format - format as used by date($format, $timestamp)
+    *
+    * @return string - creation time
+    */
+   public function getCreated($format = 'Y-m-d H:i:s')  {
+      if ($format == 'Y-m-d H:i:s')
+         return $this->created;
+      return Date::format($this->created, $format);
    }
 
 

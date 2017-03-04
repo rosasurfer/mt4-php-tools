@@ -9,6 +9,7 @@ use rosasurfer\exception\InvalidArgumentException;
 
 use rosasurfer\util\PHP;
 use rosasurfer\util\Windows;
+use rosasurfer\util\Date;
 
 
 /**
@@ -19,6 +20,9 @@ class Test extends PersistableObject {
 
    /** @var int - primary key */
    protected $id;
+
+   /** @var (string)datetime - time of creation */
+   protected $created;
 
    /** @var string - strategy name */
    protected $strategy;
@@ -87,6 +91,20 @@ class Test extends PersistableObject {
    public function isVisualMode         () { return $this->visualMode;         }
    public function getDuration          () { return $this->duration;           }
    public function getTrades            () { return $this->trades ?: [];       }
+
+
+   /**
+    * Return the creation time of the instance.
+    *
+    * @param  string $format - format as used by date($format, $timestamp)
+    *
+    * @return string - creation time
+    */
+   public function getCreated($format = 'Y-m-d H:i:s')  {
+      if ($format == 'Y-m-d H:i:s')
+         return $this->created;
+      return Date::format($this->created, $format);
+   }
 
 
    /**
