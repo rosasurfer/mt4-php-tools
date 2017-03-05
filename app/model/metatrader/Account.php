@@ -19,10 +19,10 @@ class Account extends PersistableObject {
    /** @var int - primary key */
    protected $id;
 
-   /** @var (string)datetime - time of creation */
+   /** @var string - time of creation */
    protected $created;
 
-   /** @var (string)datetime - time of last modification */
+   /** @var string - time of last modification */
    protected $version;
 
    protected /*string*/ $company;
@@ -203,8 +203,9 @@ class Account extends PersistableObject {
       $db = self::db();
 
       $id                  = $this->id;
-      $oldVersion          = $this->version;
-      $newVersion          = $this->touch();
+      $version             = $this->version;
+      $oldVersion          = $db->escapeLiteral($this->version);
+      $newVersion          = $db->escapeLiteral($this->touch());
 
       $lastreportedbalance = $this->lastReportedBalance === null ? 'null' : $this->lastReportedBalance;
       $mtiaccount_id       = $db->escapeLiteral($this->mtiAccountId);
@@ -215,13 +216,13 @@ class Account extends PersistableObject {
          $sql = "update t_account
                     set lastreportedbalance = $lastreportedbalance,
                         mtiaccount_id       = $mtiaccount_id,
-                        version             = '$newVersion'
-                    where id = $id
-                      and version = '$oldVersion'";
+                        version             = $newVersion
+                    where id      = $id
+                      and version = $oldVersion";
          if ($db->execute($sql)->lastAffectedRows() != 1) {
-            $this->version = $oldVersion;
+            $this->version = $version;
             $found = self::dao()->refresh($this);
-            throw new ConcurrentModificationException('Error updating '.__CLASS__." ($id), expected version: \"$oldVersion\", found version: \"".$found->getVersion().'"');
+            throw new ConcurrentModificationException('Error updating '.__CLASS__." ($id), expected version: $oldVersion, found version: \"".$found->getVersion().'"');
          }
 
          // alles speichern

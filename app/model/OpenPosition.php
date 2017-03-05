@@ -17,10 +17,10 @@ class OpenPosition extends PersistableObject {
    /** @var int - primary key */
    protected $id;
 
-   /** @var (string)datetime - time of creation */
+   /** @var string - time of creation */
    protected $created;
 
-   /** @var (string)datetime - time of last modification */
+   /** @var string - time of last modification */
    protected $version;
 
    protected /*int   */ $ticket;
@@ -233,8 +233,8 @@ class OpenPosition extends PersistableObject {
    protected function insert() {
       $db = self::db();
 
-      $created = $this->created;
-      $version = $this->version;
+      $created     = $db->escapeLiteral($this->created);
+      $version     = $db->escapeLiteral($this->version);
 
       $ticket      =         $this->ticket;
       $type        =         $this->type;
@@ -253,8 +253,8 @@ class OpenPosition extends PersistableObject {
       $db->begin();
       try {
          // OpenPosition einfügen
-         $sql = "insert into t_openposition (version, created, ticket, type, lots, symbol, opentime, openprice, stoploss, takeprofit, commission, swap, magicnumber, comment, signal_id) values
-                    ('$version', '$created', $ticket, '$type', $lots, '$symbol', '$opentime', $openprice, $stoploss, $takeprofit, $commission, $swap, $magicnumber, $comment, $signal_id)";
+         $sql = "insert into t_openposition (created, version, ticket, type, lots, symbol, opentime, openprice, stoploss, takeprofit, commission, swap, magicnumber, comment, signal_id) values
+                    ($created, $version, $ticket, '$type', $lots, '$symbol', '$opentime', $openprice, $stoploss, $takeprofit, $commission, $swap, $magicnumber, $comment, $signal_id)";
          $this->id = $db->execute($sql)
                         ->commit()
                         ->lastInsertId();

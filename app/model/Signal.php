@@ -12,10 +12,10 @@ class Signal extends PersistableObject {
    /** @var int - primary key */
    protected $id;
 
-   /** @var (string)datetime - time of creation */
+   /** @var string - time of creation */
    protected $created;
 
-   /** @var (string)datetime - time of last modification */
+   /** @var string - time of last modification */
    protected $version;
 
    /** @var string */

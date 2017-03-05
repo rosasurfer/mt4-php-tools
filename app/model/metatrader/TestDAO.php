@@ -31,7 +31,7 @@ class TestDAO extends DAO {
       'columns'    => [
          'id'              => ['test_sid'       , PHP_TYPE_INT   , 0               , ID_PRIMARY],      // db:int
          'created'         => ['created_at'     , PHP_TYPE_STRING, 0               , ID_CREATE ],      // db:text[datetime GMT]
-         'updated'         => ['version'        , PHP_TYPE_STRING, 0               , ID_VERSION],      // db:text[datetime GMT]
+         'version'         => ['version'        , PHP_TYPE_STRING, 0               , ID_VERSION],      // db:text[datetime GMT]
          'deleted'         => ['deleted_at'     , PHP_TYPE_STRING, 0               , ID_DELETE ],      // db:text[datetime GMT]
 
          'strategy'        => ['strategy'       , PHP_TYPE_STRING, 0               , 0         ],      // db:text(260)

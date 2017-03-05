@@ -21,13 +21,13 @@ class Test extends PersistableObject {
    /** @var int - primary key */
    protected $id;
 
-   /** @var (string)datetime - time of creation */
+   /** @var string - time of creation */
    protected $created;
 
-   /** @var (string)datetime - time of last modification */
-   protected $updated;
+   /** @var string - time of last modification */
+   protected $version;
 
-   /** @var (string)datetime - time of soft deletion */
+   /** @var string - time of soft deletion */
    protected $deleted;
 
    /** @var string - strategy name */
@@ -120,10 +120,10 @@ class Test extends PersistableObject {
     *
     * @return string - last modification time
     */
-   public function getUpdated($format = 'Y-m-d H:i:s')  {
+   public function getVersion($format = 'Y-m-d H:i:s')  {
       if ($format == 'Y-m-d H:i:s')
-         return $this->updated;
-      return Date::format($this->updated, $format);
+         return $this->version;
+      return Date::format($this->version, $format);
    }
 
 
@@ -591,8 +591,8 @@ class Test extends PersistableObject {
    protected function insert() {
       $db = self::db();
 
-      $created         =                    $this->created;
-      $version         =                    $this->version;
+      $created         = $db->escapeLiteral($this->created);
+      $version         = $db->escapeLiteral($this->version);
 
       $strategy        = $db->escapeLiteral($this->strategy);
       $reportingid     =                    $this->reportingId;
@@ -610,8 +610,8 @@ class Test extends PersistableObject {
       $duration        =                    $this->duration;
 
       $result = $db->execute(
-         "insert into t_test (version, created, strategy, reportingid, reportingsymbol, symbol, timeframe, starttime, endtime, tickmodel, spread, bars, ticks, tradedirections, visualmode, duration) values
-            ('$version', '$created', $strategy, $reportingid, $reportingsymbol, $symbol, $timeframe, '$starttime', '$endtime', $tickmodel, $spread, $bars, $ticks, $tradedirections, $visualmode, $duration)"
+         "insert into t_test (created, version, strategy, reportingid, reportingsymbol, symbol, timeframe, starttime, endtime, tickmodel, spread, bars, ticks, tradedirections, visualmode, duration) values
+            ($created, $version, $strategy, $reportingid, $reportingsymbol, $symbol, $timeframe, '$starttime', '$endtime', $tickmodel, $spread, $bars, $ticks, $tradedirections, $visualmode, $duration)"
       );
 
 

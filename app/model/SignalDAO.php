@@ -47,7 +47,7 @@ class SignalDAO extends DAO {
       if ($id < 1)      throw new InvalidArgumentException('Invalid argument $id: '.$id);
 
       $sql = "select *
-                 from t_signal
+                 from :self
                  where id = $id";
       return $this->findOne($sql);
    }
@@ -71,7 +71,7 @@ class SignalDAO extends DAO {
       $alias    = $this->escapeLiteral($alias);
 
       $sql = "select *
-                 from t_signal
+                 from :self
                  where provider = $provider
                    and alias = $alias";
       return $this->findOne($sql);
@@ -116,7 +116,7 @@ class SignalDAO extends DAO {
     */
    public function listActiveMyfxBook() {
       $sql = "select *
-                 from t_signal
+                 from :self
                  where provider = 'myfxbook'
                  order by alias";
       return $this->findAll($sql);
@@ -130,7 +130,7 @@ class SignalDAO extends DAO {
     */
    public function listActiveSimpleTrader() {
       $sql = "select *
-                 from t_signal
+                 from :self
                  where provider = 'simpletrader'
                    and alias != 'alexprofit'       -- deactivated: margin call
                    and alias != 'asta'             -- deactivated: loser

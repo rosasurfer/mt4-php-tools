@@ -72,8 +72,8 @@ class OpenPositionDAO extends DAO {
       $alias = $this->escapeLiteral($alias);
 
       $sql = "select o.*
-                 from t_signal       s
-                 join t_openposition o on s.id = o.signal_id
+                 from t_signal s
+                 join :self    o on s.id = o.signal_id
                  where s.alias = $alias
                  order by o.opentime, o.ticket";
       $results = $this->findAll($sql);
@@ -103,7 +103,7 @@ class OpenPositionDAO extends DAO {
       $signal_id = $signal->getId();
 
       $sql = "select *
-                 from t_openposition o
+                 from :self o
                  where o.signal_id = $signal_id
                    and o.ticket    = $ticket";
       return $this->findOne($sql);
