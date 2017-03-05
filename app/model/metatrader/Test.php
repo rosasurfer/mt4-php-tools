@@ -27,6 +27,9 @@ class Test extends PersistableObject {
    /** @var (string)datetime - time of last modification */
    protected $updated;
 
+   /** @var (string)datetime - time of soft deletion */
+   protected $deleted;
+
    /** @var string - strategy name */
    protected $strategy;
 
@@ -121,6 +124,20 @@ class Test extends PersistableObject {
       if ($format == 'Y-m-d H:i:s')
          return $this->updated;
       return Date::format($this->updated, $format);
+   }
+
+
+   /**
+    * Return the soft deletion time of the instance (if applicable).
+    *
+    * @param  string $format - format as used by date($format, $timestamp)
+    *
+    * @return string - deletion time
+    */
+   public function getDeleted($format = 'Y-m-d H:i:s')  {
+      if ($format == 'Y-m-d H:i:s')
+         return $this->deleted;
+      return Date::format($this->deleted, $format);
    }
 
 
