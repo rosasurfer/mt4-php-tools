@@ -36,7 +36,7 @@ class SignalDAO extends DAO {
 
 
    /**
-    * Gibt das Signal mit der angegebenen ID zurück.
+    * Gibt das Signal mit der angegebenen ID zurueck.
     *
     * @param  int $id - Signal-ID (PK)
     *
@@ -47,7 +47,7 @@ class SignalDAO extends DAO {
       if ($id < 1)      throw new InvalidArgumentException('Invalid argument $id: '.$id);
 
       $sql = "select *
-                 from :self
+                 from :Signal
                  where id = $id";
       return $this->findOne($sql);
    }
@@ -71,15 +71,15 @@ class SignalDAO extends DAO {
       $alias    = $this->escapeLiteral($alias);
 
       $sql = "select *
-                 from :self
+                 from :Signal
                  where provider = $provider
-                   and alias = $alias";
+                   and alias    = $alias";
       return $this->findOne($sql);
    }
 
 
    /**
-    * Gibt den Zeitpunkt der letzten bekannten Änderung der Net-Position eines Symbols zurück.
+    * Gibt den Zeitpunkt der letzten bekannten Aenderung der Net-Position eines Symbols zurueck.
     *
     * @param  Signal $signal - Signal
     * @param  string $symbol - Symbol
@@ -96,12 +96,12 @@ class SignalDAO extends DAO {
 
       $sql = "select max(time)
                  from (select max(o.opentime) as 'time'
-                         from t_openposition o
+                         from :OpenPosition o
                          where o.signal_id = $signal_id
                            and o.symbol    = $symbol
                        union all
                        select max(c.closetime)
-                         from t_closedposition c
+                         from :ClosedPosition c
                          where c.signal_id = $signal_id
                            and c.symbol    = $symbol
                  ) as r";
@@ -116,7 +116,7 @@ class SignalDAO extends DAO {
     */
    public function listActiveMyfxBook() {
       $sql = "select *
-                 from :self
+                 from :Signal
                  where provider = 'myfxbook'
                  order by alias";
       return $this->findAll($sql);
@@ -130,7 +130,7 @@ class SignalDAO extends DAO {
     */
    public function listActiveSimpleTrader() {
       $sql = "select *
-                 from :self
+                 from :Signal
                  where provider = 'simpletrader'
                    and alias != 'alexprofit'       -- deactivated: margin call
                    and alias != 'asta'             -- deactivated: loser

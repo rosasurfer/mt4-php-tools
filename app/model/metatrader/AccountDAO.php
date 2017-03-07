@@ -58,9 +58,9 @@ class AccountDAO extends DAO {
       $number  = $this->escapeLiteral($number);
 
       $sql = "select *
-                 from :self
+                 from :Account
                  where company = $company
-                   and number = $number";
+                   and number  = $number";
       return $this->findOne($sql);
    }
 }

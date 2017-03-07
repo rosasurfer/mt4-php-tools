@@ -62,7 +62,7 @@ class ClosedPositionDAO extends DAO {
       $signal_id = $signal->getId();
 
       $sql = "select count(*)
-                 from :self c
+                 from :ClosedPosition c
                  where c.signal_id = $signal_id
                    and c.ticket    = $ticket";
       return $this->query($sql)->fetchBool();
@@ -98,8 +98,8 @@ class ClosedPositionDAO extends DAO {
       $alias = $this->escapeLiteral($alias);
 
       $sql = "select c.*
-                 from t_signal s
-                 join :self    c on s.id = c.signal_id
+                 from :Signal         s
+                 join :ClosedPosition c on s.id = c.signal_id
                  where s.alias = $alias
                  order by c.closetime, c.opentime, c.ticket";
       $results = $this->findAll($sql);
