@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "739e10d22da1052f8ae65262fccb90e0",
+    "content-hash": "c1625e5d4aff8e90ce620cf084d8db8b",
     "packages": [
         {
             "name": "rosasurfer/ministruts",

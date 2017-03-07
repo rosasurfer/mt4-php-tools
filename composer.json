@@ -14,10 +14,6 @@
     },
     "repositories": [
         {
-            "type": "path",
-            "url":  "etc/vendor/local-packages/*"
-        },
-        {
             "type": "vcs", 
             "url":  "https://github.com/rosasurfer/ministruts" 
         }
