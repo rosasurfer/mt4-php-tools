@@ -214,7 +214,7 @@ class Order extends PersistableObject {
     * @return self
     */
    protected function insert() {
-      $db = self::db();
+      $dao = self::dao();
 
       // create SQL
 
@@ -232,21 +232,14 @@ class Order extends PersistableObject {
       $swap        =  is_null($this->swap       ) ? 'null' : $this->swap;
       $profit      =  is_null($this->grossProfit) ? 'null' : $this->grossProfit;
       $magicnumber = !$this->magicNumber          ? 'null' : $this->magicNumber;
-      $comment     =  $db->escapeLiteral($this->comment);
+      $comment     =  $dao->escapeLiteral($this->comment);
 
-      $db->begin();
-      try {
-         // insert instance
-         $sql = "insert into t_closedposition (version, created, ticket, type, lots, symbol, opentime, openprice, closetime, closeprice, stoploss, takeprofit, commission, swap, profit, netprofit, magicnumber, comment, signal_id) values
-                    ('$version', '$created', $ticket, '$type', $lots, '$symbol', '$opentime', $openprice, '$closetime', $closeprice, $stoploss, $takeprofit, $commission, $swap, $profit, $netprofit, $magicnumber, $comment, $signal_id)";
-         $this->id = $db->execute($sql)
-                        ->commit()
-                        ->lastInsertId();
-      }
-      catch (\Exception $ex) {
-         $db->rollback();
-         throw $ex;
-      }
+      // insert instance
+      $sql = "insert into t_closedposition (version, created, ticket, type, lots, symbol, opentime, openprice, closetime, closeprice, stoploss, takeprofit, commission, swap, profit, netprofit, magicnumber, comment, signal_id) values
+                 ('$version', '$created', $ticket, '$type', $lots, '$symbol', '$opentime', $openprice, '$closetime', $closeprice, $stoploss, $takeprofit, $commission, $swap, $profit, $netprofit, $magicnumber, $comment, $signal_id)";
+      $this->id = $dao->execute($sql)
+                      ->db()
+                      ->lastInsertId();
       */
       return $this;
    }

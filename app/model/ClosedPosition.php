@@ -59,7 +59,7 @@ class ClosedPosition extends PersistableObject {
 
 
    /**
-    * Überladene Methode.  Erzeugt eine neue geschlossene Position.
+    * Ueberladene Methode.  Erzeugt eine neue geschlossene Position.
     *
     * @return self
     */
@@ -172,7 +172,7 @@ class ClosedPosition extends PersistableObject {
 
 
    /**
-    * Gibt die Beschreibung des OperationTypes dieser Position zurück.
+    * Gibt die Beschreibung des OperationTypes dieser Position zurueck.
     *
     * @return string - Beschreibung
     */
@@ -182,7 +182,7 @@ class ClosedPosition extends PersistableObject {
 
 
    /**
-    * Gibt die OpenTime dieser Position zurück.
+    * Gibt die OpenTime dieser Position zurueck.
     *
     * @param  string $format - Zeitformat (default: 'Y-m-d H:i:s')
     *
@@ -196,7 +196,7 @@ class ClosedPosition extends PersistableObject {
 
 
    /**
-    * Gibt die CloseTime dieser Position zurück.
+    * Gibt die CloseTime dieser Position zurueck.
     *
     * @param  string $format - Zeitformat (default: 'Y-m-d H:i:s')
     *
@@ -210,12 +210,12 @@ class ClosedPosition extends PersistableObject {
 
 
    /**
-    * Gibt den Commission-Betrag dieser Position zurück.
+    * Gibt den Commission-Betrag dieser Position zurueck.
     *
     * @param  int    $decimals  - Anzahl der Nachkommastellen
     * @param  string $separator - Dezimaltrennzeichen
     *
-    * @return float|string - Betrag oder NULL, wenn der Betrag nicht verfügbar ist
+    * @return float|string - Betrag oder NULL, wenn der Betrag nicht verfuegbar ist
     */
    public function getCommission($decimals=2, $separator='.') {
       if (is_null($this->commission) || !func_num_args())
@@ -225,12 +225,12 @@ class ClosedPosition extends PersistableObject {
 
 
    /**
-    * Gibt den Swap-Betrag dieser Position zurück.
+    * Gibt den Swap-Betrag dieser Position zurueck.
     *
     * @param  int    $decimals  - Anzahl der Nachkommastellen
     * @param  string $separator - Dezimaltrennzeichen
     *
-    * @return float|string - Betrag oder NULL, wenn der Betrag nicht verfügbar ist
+    * @return float|string - Betrag oder NULL, wenn der Betrag nicht verfuegbar ist
     */
    public function getSwap($decimals=2, $separator='.') {
       if (is_null($this->swap) || !func_num_args())
@@ -240,12 +240,12 @@ class ClosedPosition extends PersistableObject {
 
 
    /**
-    * Gibt den Gross-Profit-Betrag dieser Position zurück.
+    * Gibt den Gross-Profit-Betrag dieser Position zurueck.
     *
     * @param  int    $decimals  - Anzahl der Nachkommastellen
     * @param  string $separator - Dezimaltrennzeichen
     *
-    * @return float|string - Betrag oder NULL, wenn der Betrag nicht verfügbar ist
+    * @return float|string - Betrag oder NULL, wenn der Betrag nicht verfuegbar ist
     */
    public function getGrossProfit($decimals=2, $separator='.') {
       if (is_null($this->grossProfit) || !func_num_args())
@@ -255,7 +255,7 @@ class ClosedPosition extends PersistableObject {
 
 
    /**
-    * Gibt den Net-Profit-Betrag dieser Position zurück.
+    * Gibt den Net-Profit-Betrag dieser Position zurueck.
     *
     * @param  int    $decimals  - Anzahl der Nachkommastellen
     * @param  string $separator - Dezimaltrennzeichen
@@ -270,7 +270,7 @@ class ClosedPosition extends PersistableObject {
 
 
    /**
-    * Gibt das Signal, zu dem diese Position gehört, zurück.
+    * Gibt das Signal, zu dem diese Position gehoert, zurueck.
     *
     * @return Signal
     */
@@ -282,47 +282,40 @@ class ClosedPosition extends PersistableObject {
 
 
    /**
-    * Fügt diese Instanz in die Datenbank ein.
+    * Fuegt diese Instanz in die Datenbank ein.
     *
     * @return self
     */
    protected function insert() {
-      $db = self::db();
+      $db = self::dao();
 
-      $created     = $db->escapeLiteral($this->created);
-      $version     = $db->escapeLiteral($this->version);
+      $created     = $dao->escapeLiteral($this->created);
+      $version     = $dao->escapeLiteral($this->version);
 
-      $ticket      =  $this->ticket;
-      $type        =  $this->type;
-      $lots        =  $this->lots;
-      $symbol      =  $this->symbol;
-      $opentime    =  $this->openTime;
-      $openprice   =  $this->openPrice;
-      $closetime   =  $this->closeTime;
-      $closeprice  =  $this->closePrice;
-      $stoploss    = !$this->stopLoss             ? 'null' : $this->stopLoss;
-      $takeprofit  = !$this->takeProfit           ? 'null' : $this->takeProfit;
-      $commission  =  is_null($this->commission ) ? 'null' : $this->commission;
-      $swap        =  is_null($this->swap       ) ? 'null' : $this->swap;
-      $profit      =  is_null($this->grossProfit) ? 'null' : $this->grossProfit;
-      $netprofit   =  $this->netProfit;
-      $magicnumber = !$this->magicNumber          ? 'null' : $this->magicNumber;
-      $comment     =  $db->escapeLiteral($this->comment);
-      $signal_id   =  $this->signal_id;
+      $ticket      =                     $this->ticket;
+      $type        = $dao->escapeLiteral($this->type);
+      $lots        =                     $this->lots;
+      $symbol      = $dao->escapeLiteral($this->symbol);
+      $opentime    = $dao->escapeLiteral($this->openTime);
+      $openprice   =                     $this->openPrice;
+      $closetime   = $dao->escapeLiteral($this->closeTime);
+      $closeprice  =                     $this->closePrice;
+      $stoploss    = $dao->escapeLiteral($this->stopLoss);
+      $takeprofit  = $dao->escapeLiteral($this->takeProfit);
+      $commission  = $dao->escapeLiteral($this->commission);
+      $swap        = $dao->escapeLiteral($this->swap);
+      $profit      = $dao->escapeLiteral($this->grossProfit);
+      $netprofit   =                     $this->netProfit;
+      $magicnumber = $dao->escapeLiteral($this->magicNumber);
+      $comment     = $dao->escapeLiteral($this->comment);
+      $signal_id   =                     $this->signal_id;
 
-      $db->begin();
-      try {
-         // ClosedPosition einfügen
-         $sql = "insert into t_closedposition (created, version, ticket, type, lots, symbol, opentime, openprice, closetime, closeprice, stoploss, takeprofit, commission, swap, profit, netprofit, magicnumber, comment, signal_id) values
-                    ($created, $version, $ticket, '$type', $lots, '$symbol', '$opentime', $openprice, '$closetime', $closeprice, $stoploss, $takeprofit, $commission, $swap, $profit, $netprofit, $magicnumber, $comment, $signal_id)";
-         $this->id = $db->execute($sql)
-                        ->commit()
-                        ->lastInsertId();
-      }
-      catch (\Exception $ex) {
-         $db->rollback();
-         throw $ex;
-      }
+      // ClosedPosition einfuegen
+      $sql = "insert into :ClosedPosition (created, version, ticket, type, lots, symbol, opentime, openprice, closetime, closeprice, stoploss, takeprofit, commission, swap, profit, netprofit, magicnumber, comment, signal_id) values
+                 ($created, $version, $ticket, $type, $lots, $symbol, $opentime, $openprice, $closetime, $closeprice, $stoploss, $takeprofit, $commission, $swap, $profit, $netprofit, $magicnumber, $comment, $signal_id)";
+      $this->id = $dao->execute($sql)
+                      ->db()
+                      ->lastInsertId();
       return $this;
    }
 }

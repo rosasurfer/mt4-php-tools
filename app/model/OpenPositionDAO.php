@@ -53,7 +53,6 @@ class OpenPositionDAO extends DAO {
     */
    public function listBySignal(Signal $signal, $assocTicket=false) {
       if (!$signal->isPersistent()) throw new InvalidArgumentException('Cannot process non-persistent '.get_class($signal));
-
       return $this->listBySignalAlias($signal->getAlias(), $assocTicket);
    }
 

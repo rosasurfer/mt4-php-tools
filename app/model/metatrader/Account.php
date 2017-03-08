@@ -200,40 +200,30 @@ class Account extends PersistableObject {
     * @return Invoice
     */
    protected function update() {
-      $db = self::db();
+      $dao = self::dao();
 
       $id                  = $this->id;
       $version             = $this->version;
-      $oldVersion          = $db->escapeLiteral($this->version);
-      $newVersion          = $db->escapeLiteral($this->touch());
+      $oldVersion          = $dao->escapeLiteral($this->version);
+      $newVersion          = $dao->escapeLiteral($this->touch());
 
       $lastreportedbalance = $this->lastReportedBalance === null ? 'null' : $this->lastReportedBalance;
-      $mtiaccount_id       = $db->escapeLiteral($this->mtiAccountId);
+      $mtiaccount_id       = $dao->escapeLiteral($this->mtiAccountId);
 
-      $db->begin();
-      try {
-         // Account updaten
-         $sql = "update t_account
-                    set lastreportedbalance = $lastreportedbalance,
-                        mtiaccount_id       = $mtiaccount_id,
-                        version             = $newVersion
-                    where id      = $id
-                      and version = $oldVersion";
-         if ($db->execute($sql)->lastAffectedRows() != 1) {
-            $this->version = $version;
-            $found = self::dao()->refresh($this);
-            throw new ConcurrentModificationException('Error updating '.__CLASS__." ($id), expected version: $oldVersion, found version: \"".$found->getVersion().'"');
-         }
-
-         // alles speichern
-         $db->commit();
-
-         $this->modifications = null;
+      // Account updaten
+      $sql = "update :Account
+                 set lastreportedbalance = $lastreportedbalance,
+                     mtiaccount_id       = $mtiaccount_id,
+                     version             = $newVersion
+                 where id      = $id
+                   and version = $oldVersion";
+      if ($dao->execute($sql)->db()->lastAffectedRows() != 1) {
+         $this->version = $version;
+         $found = $dao->refresh($this);
+         throw new ConcurrentModificationException('Error updating '.__CLASS__.' ('.$id.'), expected version: '.$oldVersion.', found version: "'.$found->getVersion().'"');
       }
-      catch (\Exception $ex) {
-         $db->rollback();
-         throw $ex;
-      }
+
+      $this->modifications = null;
       return $this;
    }
 }
