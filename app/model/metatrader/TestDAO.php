@@ -13,6 +13,7 @@ use const rosasurfer\db\orm\BIND_TYPE_STRING;
 use const rosasurfer\db\orm\ID_CREATE;
 use const rosasurfer\db\orm\ID_PRIMARY;
 use const rosasurfer\db\orm\ID_VERSION;
+use const rosasurfer\db\orm\F_NOT_NULLABLE;
 
 
 /**
@@ -25,12 +26,14 @@ class TestDAO extends DAO {
     * @var array - database mapping
     */
    protected $mapping = [
-      'connection' => 'sqlite',
+      'connection' => 'mysql-sqlite',
       'table'      => 't_test',
       'columns'    => [
          'id'              => ['id'             , PHP_TYPE_INT   , 0               , ID_PRIMARY],      // db:int
          'created'         => ['created'        , PHP_TYPE_STRING, 0               , ID_CREATE ],      // db:text[datetime UTC]
          'version'         => ['version'        , PHP_TYPE_STRING, 0               , ID_VERSION],      // db:text[datetime UTC]
+       //'created'         => ['created'        , \DateTime::class, 0               , ID_CREATE ],      // db:text[datetime UTC]
+       //'version'         => ['version'        , \DateTime::class, 0               , ID_VERSION|F_NOT_NULLABLE],      // db:text[datetime UTC]
 
          'strategy'        => ['strategy'       , PHP_TYPE_STRING, 0               , 0         ],      // db:text(260)
          'reportingId'     => ['reportingid'    , PHP_TYPE_INT   , 0               , 0         ],      // db:int
@@ -47,4 +50,22 @@ class TestDAO extends DAO {
          'visualMode'      => ['visualmode'     , PHP_TYPE_BOOL  , BIND_TYPE_INT   , 0         ],      // db:int[bool]
          'duration'        => ['duration'       , PHP_TYPE_INT   , 0               , 0         ],      // db:int
    ]];
+
+
+   /**
+    * Find the {@link Test} with the specified id.
+    *
+    * @param  int $id - test id (PK)
+    *
+    * @return Test
+    */
+   public function findById($id) {
+      if (!is_int($id)) throw new IllegalTypeException('Illegal type of parameter $id: '.getType($id));
+      if ($id < 1)      throw new InvalidArgumentException('Invalid argument $id: '.$id);
+
+      $sql = "select *
+                 from :Test
+                 where id = $id";
+      return $this->findOne($sql);
+   }
 }

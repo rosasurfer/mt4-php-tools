@@ -30,9 +30,6 @@ class Test extends PersistableObject {
    /** @var string - time of last modification */
    protected $version;
 
-   /** @var string - time of soft deletion */
-   protected $deleted;
-
    /** @var string - strategy name */
    protected $strategy;
 
