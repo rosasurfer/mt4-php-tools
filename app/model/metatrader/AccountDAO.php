@@ -8,9 +8,11 @@ use const rosasurfer\PHP_TYPE_BOOL;
 use const rosasurfer\PHP_TYPE_FLOAT;
 use const rosasurfer\PHP_TYPE_INT;
 use const rosasurfer\PHP_TYPE_STRING;
+
 use const rosasurfer\db\orm\BIND_TYPE_INT;
-use const rosasurfer\db\orm\ID_PRIMARY;
+use const rosasurfer\db\orm\F_NOT_NULLABLE;
 use const rosasurfer\db\orm\ID_CREATE;
+use const rosasurfer\db\orm\ID_PRIMARY;
 use const rosasurfer\db\orm\ID_VERSION;
 
 
@@ -25,20 +27,20 @@ class AccountDAO extends DAO {
       'connection' => 'myfx',
       'table'      => 't_account',
       'columns'    => [
-         'id'                  => ['id'                 , PHP_TYPE_INT   , 0            , ID_PRIMARY],     // db:int
-         'created'             => ['created'            , PHP_TYPE_STRING, 0            , ID_CREATE ],     // db:datetime
-         'version'             => ['version'            , PHP_TYPE_STRING, 0            , ID_VERSION],     // db:timestamp
+         'id'                  => ['id'                 , PHP_TYPE_INT   , 0            , ID_PRIMARY               ],     // db:int
+         'created'             => ['created'            , PHP_TYPE_STRING, 0            , ID_CREATE                ],     // db:datetime
+         'version'             => ['version'            , PHP_TYPE_STRING, 0            , ID_VERSION|F_NOT_NULLABLE],     // db:timestamp
 
-         'company'             => ['company'            , PHP_TYPE_STRING, 0            , 0         ],     // db:string
-         'number'              => ['number'             , PHP_TYPE_STRING, 0            , 0         ],     // db:string
-         'demo'                => ['demo'               , PHP_TYPE_BOOL  , BIND_TYPE_INT, 0         ],     // db:tinyint
-         'type'                => ['type'               , PHP_TYPE_STRING, 0            , 0         ],     // db:enum
-         'timezone'            => ['timezone'           , PHP_TYPE_STRING, 0            , 0         ],     // db:string
-         'currency'            => ['currency'           , PHP_TYPE_STRING, 0            , 0         ],     // db:string
-         'balance'             => ['balance'            , PHP_TYPE_FLOAT , 0            , 0         ],     // db:decimal
-         'lastReportedBalance' => ['lastreportedbalance', PHP_TYPE_FLOAT , 0            , 0         ],     // db:decimal
-         'lastUpdate'          => ['lastupdate'         , PHP_TYPE_STRING, 0            , 0         ],     // db:datetime
-         'mtiAccountId'        => ['mtiaccount_id'      , PHP_TYPE_STRING, 0            , 0         ],     // db:string
+         'company'             => ['company'            , PHP_TYPE_STRING, 0            , 0                        ],     // db:string
+         'number'              => ['number'             , PHP_TYPE_STRING, 0            , 0                        ],     // db:string
+         'demo'                => ['demo'               , PHP_TYPE_BOOL  , BIND_TYPE_INT, 0                        ],     // db:tinyint
+         'type'                => ['type'               , PHP_TYPE_STRING, 0            , 0                        ],     // db:enum
+         'timezone'            => ['timezone'           , PHP_TYPE_STRING, 0            , 0                        ],     // db:string
+         'currency'            => ['currency'           , PHP_TYPE_STRING, 0            , 0                        ],     // db:string
+         'balance'             => ['balance'            , PHP_TYPE_FLOAT , 0            , 0                        ],     // db:decimal
+         'lastReportedBalance' => ['lastreportedbalance', PHP_TYPE_FLOAT , 0            , 0                        ],     // db:decimal
+         'lastUpdate'          => ['lastupdate'         , PHP_TYPE_STRING, 0            , 0                        ],     // db:datetime
+         'mtiAccountId'        => ['mtiaccount_id'      , PHP_TYPE_STRING, 0            , 0                        ],     // db:string
    ]];
 
 

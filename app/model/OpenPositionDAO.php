@@ -7,9 +7,11 @@ use rosasurfer\exception\InvalidArgumentException;
 use const rosasurfer\PHP_TYPE_FLOAT;
 use const rosasurfer\PHP_TYPE_INT;
 use const rosasurfer\PHP_TYPE_STRING;
+
+use const rosasurfer\db\orm\F_NOT_NULLABLE;
+use const rosasurfer\db\orm\ID_CREATE;
 use const rosasurfer\db\orm\ID_PRIMARY;
 use const rosasurfer\db\orm\ID_VERSION;
-use const rosasurfer\db\orm\ID_CREATE;
 
 
 /**
@@ -23,28 +25,28 @@ class OpenPositionDAO extends DAO {
       'connection' => 'myfx',
       'table'      => 't_openposition',
       'columns'    => [
-         'id'          => ['id'         , PHP_TYPE_INT   , 0, ID_PRIMARY],      // db:int
-         'created'     => ['created'    , PHP_TYPE_STRING, 0, ID_CREATE ],      // db:datetime
-         'version'     => ['version'    , PHP_TYPE_STRING, 0, ID_VERSION],      // db:datetime
+         'id'          => ['id'         , PHP_TYPE_INT   , 0, ID_PRIMARY               ],      // db:int
+         'created'     => ['created'    , PHP_TYPE_STRING, 0, ID_CREATE                ],      // db:datetime
+         'version'     => ['version'    , PHP_TYPE_STRING, 0, ID_VERSION|F_NOT_NULLABLE],      // db:datetime
 
-         'ticket'      => ['ticket'     , PHP_TYPE_INT   , 0, 0         ],      // db:int
-         'type'        => ['type'       , PHP_TYPE_STRING, 0, 0         ],      // db:string
-         'lots'        => ['lots'       , PHP_TYPE_FLOAT , 0, 0         ],      // db:decimal
-         'symbol'      => ['symbol'     , PHP_TYPE_STRING, 0, 0         ],      // db:string
-         'openTime'    => ['opentime'   , PHP_TYPE_STRING, 0, 0         ],      // db:datetime
-         'openPrice'   => ['openprice'  , PHP_TYPE_FLOAT , 0, 0         ],      // db:decimal
-         'stopLoss'    => ['stoploss'   , PHP_TYPE_FLOAT , 0, 0         ],      // db:decimal
-         'takeProfit'  => ['takeprofit' , PHP_TYPE_FLOAT , 0, 0         ],      // db:decimal
-         'commission'  => ['commission' , PHP_TYPE_FLOAT , 0, 0         ],      // db:decimal
-         'swap'        => ['swap'       , PHP_TYPE_FLOAT , 0, 0         ],      // db:decimal
-         'magicNumber' => ['magicnumber', PHP_TYPE_INT   , 0, 0         ],      // db:int
-         'comment'     => ['comment'    , PHP_TYPE_STRING, 0, 0         ],      // db:string
-         'signal_id'   => ['signal_id'  , PHP_TYPE_INT   , 0, 0         ],      // db:int
+         'ticket'      => ['ticket'     , PHP_TYPE_INT   , 0, 0                        ],      // db:int
+         'type'        => ['type'       , PHP_TYPE_STRING, 0, 0                        ],      // db:string
+         'lots'        => ['lots'       , PHP_TYPE_FLOAT , 0, 0                        ],      // db:decimal
+         'symbol'      => ['symbol'     , PHP_TYPE_STRING, 0, 0                        ],      // db:string
+         'openTime'    => ['opentime'   , PHP_TYPE_STRING, 0, 0                        ],      // db:datetime
+         'openPrice'   => ['openprice'  , PHP_TYPE_FLOAT , 0, 0                        ],      // db:decimal
+         'stopLoss'    => ['stoploss'   , PHP_TYPE_FLOAT , 0, 0                        ],      // db:decimal
+         'takeProfit'  => ['takeprofit' , PHP_TYPE_FLOAT , 0, 0                        ],      // db:decimal
+         'commission'  => ['commission' , PHP_TYPE_FLOAT , 0, 0                        ],      // db:decimal
+         'swap'        => ['swap'       , PHP_TYPE_FLOAT , 0, 0                        ],      // db:decimal
+         'magicNumber' => ['magicnumber', PHP_TYPE_INT   , 0, 0                        ],      // db:int
+         'comment'     => ['comment'    , PHP_TYPE_STRING, 0, 0                        ],      // db:string
+         'signal_id'   => ['signal_id'  , PHP_TYPE_INT   , 0, 0                        ],      // db:int
    ]];
 
 
    /**
-    * Gibt die offenen Positionen des angegebenen Signals zurück.
+    * Gibt die offenen Positionen des angegebenen Signals zurueck.
     *
     * @param  Signal $signal      - Signal
     * @param  bool   $assocTicket - ob das Ergebnisarray assoziativ nach Tickets organisiert werden soll (default: nein)
@@ -58,7 +60,7 @@ class OpenPositionDAO extends DAO {
 
 
    /**
-    * Gibt die offenen Positionen des angegebenen Signals zurück.
+    * Gibt die offenen Positionen des angegebenen Signals zurueck.
     *
     * @param  string $alias       - Signalalias
     * @param  bool   $assocTicket - ob das Ergebnisarray assoziativ nach Tickets organisiert werden soll (default: nein)
@@ -88,7 +90,7 @@ class OpenPositionDAO extends DAO {
 
 
    /**
-    * Gibt zu einem angegebenen Ticket die offene Position zurück.
+    * Gibt zu einem angegebenen Ticket die offene Position zurueck.
     *
     * @param  Signal $signal - Signal
     * @param  int    $ticket - Ticket
