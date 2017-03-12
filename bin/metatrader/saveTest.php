@@ -5,6 +5,7 @@
  */
 use rosasurfer\myfx\metatrader\model\Test;
 
+
 require(__DIR__.'/../../app/init.php');
 date_default_timezone_set('GMT');
 
@@ -77,7 +78,7 @@ function processTestFiles() {
    $test = Test::create($testConfigFile, $testResultsFile);
    $test->save();
 
-   //echoPre('Test of "'.$test->getStrategy().'" with '.$test->countTrades().' trades saved.');
+   echoPre('Test of "'.$test->getStrategy().'" with '.$test->countTrades().' trades saved.');
    return true;
 }
 

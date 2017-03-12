@@ -14,6 +14,9 @@ use rosasurfer\util\Date;
 
 /**
  * Represents a test executed in the MetaTrader Strategy Tester.
+ *
+ * @method static Test   findOneById(int $id)            Find the test with the specified id.
+ * @method static Test[] findAllBySymbol(string $symbol) Find all tests for the specified symbol.
  */
 class Test extends PersistableObject {
 
@@ -340,6 +343,7 @@ class Test extends PersistableObject {
          // time (local time)
          $pattern = '/, *time *= *"([^"]+)" *,/i';
          if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal test properties ("time" invalid or not found): "'.$valuesOrig.'"');
+
          date_default_timezone_set(ini_get('date.timezone'));
          if (!$time = strToTime($matches[1][0]))                              throw new IllegalArgumentException('Illegal test property "time": "'.$matches[1][0].'"');
          $properties['time'] = $time;
@@ -593,7 +597,6 @@ class Test extends PersistableObject {
 
       $created         = $db->escapeLiteral($this->created);
       $version         = $db->escapeLiteral($this->version);
-
       $strategy        = $db->escapeLiteral($this->strategy);
       $reportingid     =                    $this->reportingId;
       $reportingsymbol = $db->escapeLiteral($this->reportingSymbol);
@@ -610,9 +613,11 @@ class Test extends PersistableObject {
       $duration        =                    $this->duration;
 
       $result = $db->execute(
-         "insert into t_test (created, version, strategy, reportingid, reportingsymbol, symbol, timeframe, starttime, endtime, tickmodel, spread, bars, ticks, tradedirections, visualmode, duration) values
+         "insert into t_test (created, version, strategy, reportingid, reportingsymbol, symbol, timeframe, starttime_fxt, endtime_fxt, tickmodel, spread, bars, ticks, tradedirections, visualmode, duration) values
             ($created, $version, $strategy, $reportingid, $reportingsymbol, $symbol, $timeframe, '$starttime', '$endtime', $tickmodel, $spread, $bars, $ticks, $tradedirections, $visualmode, $duration)"
       );
+
+      //echoPre($sql);
 
 
       // assign instance id

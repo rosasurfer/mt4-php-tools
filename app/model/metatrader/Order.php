@@ -13,7 +13,16 @@ use rosasurfer\exception\InvalidArgumentException;
 class Order extends PersistableObject {
 
 
-   /** @var int - ticket number */
+   /** @var int - primary key */
+   protected $id;
+
+   /** @var string - time of creation */
+   protected $created;
+
+   /** @var string - time of last modification */
+   protected $version;
+
+    /** @var int - ticket number */
    protected $ticket;
 
    /** @var int - order type */
@@ -58,11 +67,11 @@ class Order extends PersistableObject {
    /** @var string - order comment */
    protected $comment;
 
-   /** @var Test - the Test the Order belongs to */
-   protected $test;
-
    /** @var int - the Test's id */
    protected $test_id;
+
+   /** @var Test - the test the order belongs to */
+   protected $test;
 
 
    /**
