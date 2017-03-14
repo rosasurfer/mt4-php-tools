@@ -1,6 +1,6 @@
 {
     "name":        "rosasurfer/mt4-cli",
-    "description": "MyFX web interface",
+    "description": "MyFX web and cli interface",
     "type":        "project",
     "homepage":    "http://mt4.rosasurfer.com/",
     "license":     "WTFPL",

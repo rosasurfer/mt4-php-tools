@@ -22,6 +22,6 @@ PHP::ini_set('default_charset', 'UTF-8'                                  );
 
 // initialize MiniStruts
 MiniStruts::init([
-   'config'  => APPLICATION_ROOT.'/app/config',
+   'config'  => __DIR__.'/config',
    'globals' => true,
 ]);
