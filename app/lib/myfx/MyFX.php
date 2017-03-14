@@ -53,14 +53,14 @@ class MyFX extends StaticClass {
 
 
    /**
-    * Gibt den absoluten Pfad der unter dem angegebenen Schlüssel konfigurierten Pfadeinstellung zurück.
+    * Gibt den absoluten Pfad der unter dem angegebenen Schluessel konfigurierten Pfadeinstellung zurueck.
     * Ist ein relativer Pfad konfiguriert, wird der Pfad als relativ zu APPLICATION_ROOT interpretiert.
     *
-    * @param  string $key - Schlüssel
+    * @param  string $key - Schluessel
     *
     * @return string - absoluter Pfad mit Forward-Slashes (auch unter Windows)
     *
-    * @throws RuntimeException - wenn unter dem angegebenen Schlüssel keine Pfadeinstellung existiert
+    * @throws RuntimeException wenn unter dem angegebenen Schluessel keine Pfadeinstellung existiert
     */
    public static function getConfigPath($key) {
       if (!is_string($key))              throw new IllegalTypeException('Illegal type of parameter $key: '.getType($key));
@@ -81,7 +81,7 @@ class MyFX extends StaticClass {
 
 
    /**
-    * Gibt eine gefilterte Anzahl von Symbolstammdaten zurück.
+    * Gibt eine gefilterte Anzahl von Symbolstammdaten zurueck.
     *
     * @param  array $filter - Bedingungen, nach denen die Symbole zu filtern sind (default: kein Filter)
     *
@@ -104,13 +104,13 @@ class MyFX extends StaticClass {
 
 
    /**
-    * Parst die String-Repräsentation einer FXT-Zeit in einen GMT-Timestamp.
+    * Parst die String-Repraesentation einer FXT-Zeit in einen GMT-Timestamp.
     *
-    * @param  string $time - FXT-Zeit in einem der Funktion strToTime() verständlichen Format
+    * @param  string $time - FXT-Zeit in einem der Funktion strToTime() verstaendlichen Format
     *
     * @return int - Timestamp
     *
-    * TODO:  Funktion unnötig: strToTime() überladen und um Erkennung der FXT-Zeitzone erweitern
+    * TODO:  Funktion unnoetig: strToTime() ueberladen und um Erkennung der FXT-Zeitzone erweitern
     */
    public static function fxtStrToTime($time) {
       if (!is_string($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
@@ -147,31 +147,31 @@ class MyFX extends StaticClass {
       if (!is_string($format)) throw new IllegalTypeException('Illegal type of parameter $format: '.getType($format));
 
       // FXT = America/New_York +0700           (von 17:00 bis 24:00 = 7h)
-      // date($time+7*HOURS) in der Zone 'America/New_York' reicht nicht aus, da dann keine FXT-Repräsentation
-      // von Zeiten, die in New York in eine Zeitumstellung fallen, möglich ist. Dies ist nur mit einer Zone ohne DST
-      // möglich. Der GMT-Timestamp muß in einen FXT-Timestamp konvertiert und dieser als GMT-Timestamp formatiert werden.
+      // date($time+7*HOURS) in der Zone 'America/New_York' reicht nicht aus, da dann keine FXT-Repraesentation
+      // von Zeiten, die in New York in eine Zeitumstellung fallen, moeglich ist. Dies ist nur mit einer Zone ohne DST
+      // moeglich. Der GMT-Timestamp muss in einen FXT-Timestamp konvertiert und dieser als GMT-Timestamp formatiert werden.
 
       return gmDate($format, fxtTime($time, 'GMT'));
    }
 
 
    /**
-    * Gibt den FXT-Offset einer Zeit zu GMT und ggf. die beiden jeweils angrenzenden nächsten DST-Transitionsdaten zurück.
+    * Gibt den FXT-Offset einer Zeit zu GMT und ggf. die beiden jeweils angrenzenden naechsten DST-Transitionsdaten zurueck.
     *
     * @param  int   $time           - GMT-Zeitpunkt (default: aktuelle Zeit)
-    * @param  array $prevTransition - Wenn angegeben, enthält diese Variable nach Rückkehr ein Array
+    * @param  array $prevTransition - Wenn angegeben, enthaelt diese Variable nach Rueckkehr ein Array
     *                                 ['time'=>{timestamp}, 'offset'=>{offset}] mit dem GMT-Timestamp des vorherigen Zeitwechsels
     *                                 und dem Offset vor diesem Zeitpunkt.
-    * @param  array $nextTransition - Wenn angegeben, enthält diese Variable nach Rückkehr ein Array
-    *                                 ['time'=>{timestamp}, 'offset'=>{offset}] mit dem GMT-Timestamp des nächsten Zeitwechsels
+    * @param  array $nextTransition - Wenn angegeben, enthaelt diese Variable nach Rueckkehr ein Array
+    *                                 ['time'=>{timestamp}, 'offset'=>{offset}] mit dem GMT-Timestamp des naechsten Zeitwechsels
     *                                 und dem Offset nach diesem Zeitpunkt.
     *
-    * @return int - Offset in Sekunden oder NULL, wenn der Zeitpunkt außerhalb der bekannten Transitionsdaten liegt.
-    *               FXT liegt östlich von GMT, der Offset ist also immer positiv. Es gilt: GMT + Offset = FXT
+    * @return int - Offset in Sekunden oder NULL, wenn der Zeitpunkt ausserhalb der bekannten Transitionsdaten liegt.
+    *               FXT liegt oestlich von GMT, der Offset ist also immer positiv. Es gilt: GMT + Offset = FXT
     *
     *
-    * Note: Analog zu date('Z', $time) verhält sich diese Funktion, als wenn lokal die (in PHP nicht existierende) Zeitzone 'FXT'
-    *       eingestellt worden wäre.
+    * Note: Analog zu date('Z', $time) verhaelt sich diese Funktion, als wenn lokal die (in PHP nicht existierende) Zeitzone 'FXT'
+    *       eingestellt worden waere.
     */
    public static function fxtTimezoneOffset($time=null, &$prevTransition=[], &$nextTransition=[]) {
       if (is_null($time)) $time = time();
@@ -226,7 +226,7 @@ class MyFX extends StaticClass {
          }
       }
 
-      // Rückgabewert definieren
+      // Rueckgabewert definieren
       $offset = null;
       if ($i >= 0)                                                   // $transitions ist nicht leer und
          $offset = $transitions[$i]['offset'] + 7*HOURS;             // $time liegt nicht vor der ersten Periode
@@ -235,7 +235,7 @@ class MyFX extends StaticClass {
 
 
    /**
-    * Gibt die Mailadressen aller konfigurierten Signalempfänger per E-Mail zurück.
+    * Gibt die Mailadressen aller konfigurierten Signalempfaenger per E-Mail zurueck.
     *
     * @return string[] - Array mit E-Mailadressen
     */
@@ -259,7 +259,7 @@ class MyFX extends StaticClass {
 
 
    /**
-    * Gibt die Rufnummern aller konfigurierten Signalempfänger per SMS zurück.
+    * Gibt die Rufnummern aller konfigurierten Signalempfaenger per SMS zurueck.
     *
     * @return string[] - Array mit Rufnummern
     */
@@ -285,7 +285,7 @@ class MyFX extends StaticClass {
    /**
     * Verschickt eine SMS.
     *
-    * @param  string $receiver - Empfänger (internationales Format)
+    * @param  string $receiver - Empfaenger (internationales Format)
     * @param  string $message  - Nachricht
     */
    public static function sendSMS($receiver, $message) {
@@ -309,9 +309,9 @@ class MyFX extends StaticClass {
       $message  = urlEncode($message);
       $url      = 'https://api.clickatell.com/http/sendmsg?user='.$username.'&password='.$password.'&api_id='.$api_id.'&to='.$receiver.'&text='.$message;
 
-      // HTTP-Request erzeugen und ausführen
+      // HTTP-Request erzeugen und ausfuehren
       $request  = HttpRequest ::create()->setUrl($url);
-      $options[CURLOPT_SSL_VERIFYPEER] = false;                // das SSL-Zertifikat kann nicht prüfbar oder ungültig sein
+      $options[CURLOPT_SSL_VERIFYPEER] = false;                // das SSL-Zertifikat kann nicht pruefbar oder ungueltig sein
       $response = CurlHttpClient ::create($options)->send($request);
       $status   = $response->getStatus();
       $content  = $response->getContent();
@@ -320,7 +320,7 @@ class MyFX extends StaticClass {
 
 
    /**
-    * Gibt die Beschreibung eines Operation-Types zurück.
+    * Gibt die Beschreibung eines Operation-Types zurueck.
     *
     * @param  int $type - Operation-Type
     *
@@ -351,7 +351,7 @@ class MyFX extends StaticClass {
     * beim Lesen validiert.
     *
     * @param  string $data   - String mit MyFX-Bardaten
-    * @param  string $symbol - Meta-Information für eine evt. Fehlermeldung (falls die Daten fehlerhaft sind)
+    * @param  string $symbol - Meta-Information fuer eine evt. Fehlermeldung (falls die Daten fehlerhaft sind)
     *
     * @return MYFX_BAR[] - Array mit Bardaten
     */
@@ -383,7 +383,7 @@ class MyFX extends StaticClass {
     * Interpretiert die Bardaten einer MyFX-Datei und liest sie in ein Array ein.
     *
     * @param  string $fileName - Name der Datei mit MyFX-Bardaten
-    * @param  string $symbol   - Meta-Information für eine evt. Fehlermeldung (falls die Daten fehlerhaft sind)
+    * @param  string $symbol   - Meta-Information fuer eine evt. Fehlermeldung (falls die Daten fehlerhaft sind)
     *
     * @return MYFX_BAR[] - Array mit Bardaten
     */
@@ -406,12 +406,12 @@ class MyFX extends StaticClass {
 
 
    /**
-    * Gibt den Offset eines Zeitpunktes innerhalb einer Zeitreihe zurück.
+    * Gibt den Offset eines Zeitpunktes innerhalb einer Zeitreihe zurueck.
     *
     * @param  array $series - zu durchsuchende Reihe: Zeiten, Arrays mit dem Feld 'time' oder Objekte mit der Methode getTime()
     * @param  int   $time   - Zeitpunkt
     *
-    * @return int - Offset oder -1, wenn der Offset außerhalb der Arraygrenzen liegt
+    * @return int - Offset oder -1, wenn der Offset ausserhalb der Arraygrenzen liegt
     */
    public static function findTimeOffset(array $series, $time) {
       if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
@@ -493,7 +493,7 @@ class MyFX extends StaticClass {
 
 
    /**
-    * Gibt den Offset der Bar zurück, die den angegebenen Zeitpunkt exakt abdeckt.
+    * Gibt den Offset der Bar zurueck, die den angegebenen Zeitpunkt exakt abdeckt.
     *
     * @param  array $bars   - zu durchsuchende Bars: MYFX_BARs oder HISTORY_BARs
     * @param  int   $period - Barperiode
@@ -512,9 +512,9 @@ class MyFX extends StaticClass {
 
       $offset = self::findTimeOffset($bars, $time);
 
-      if ($offset < 0) {                                                         // Zeitpunkt liegt nach der jüngsten bar[openTime]
+      if ($offset < 0) {                                                         // Zeitpunkt liegt nach der juengsten bar[openTime]
          $closeTime = self::periodCloseTime($bars[$size-1]['time'], $period);
-         if ($time < $closeTime)                                                 // Zeitpunkt liegt innerhalb der jüngsten Bar
+         if ($time < $closeTime)                                                 // Zeitpunkt liegt innerhalb der juengsten Bar
             return $size-1;
          return -1;
       }
@@ -522,7 +522,7 @@ class MyFX extends StaticClass {
       if ($bars[$offset]['time'] == $time)                                       // Zeitpunkt liegt exakt auf der jeweiligen Bar
          return $offset;
 
-      if ($offset == 0)                                                          // Zeitpunkt ist älter die älteste Bar
+      if ($offset == 0)                                                          // Zeitpunkt ist aelter die aelteste Bar
          return -1;
 
       $offset--;
@@ -530,18 +530,18 @@ class MyFX extends StaticClass {
       if ($time < $closeTime)                                                    // Zeitpunkt liegt in der vorhergehenden Bar
          return $offset;
       return -1;                                                                 // Zeitpunkt liegt nicht in der vorhergehenden Bar,
-   }                                                                             // also Lücke zwischen der vorhergehenden und der
+   }                                                                             // also Luecke zwischen der vorhergehenden und der
                                                                                  // folgenden Bar
 
    /**
-    * Gibt den Offset der Bar zurück, die den angegebenen Zeitpunkt abdeckt. Existiert keine solche Bar, wird der Offset
-    * der letzten vorhergehenden Bar zurückgegeben.
+    * Gibt den Offset der Bar zurueck, die den angegebenen Zeitpunkt abdeckt. Existiert keine solche Bar, wird der Offset
+    * der letzten vorhergehenden Bar zurueckgegeben.
     *
     * @param  array $bars   - zu durchsuchende Bars: MYFX_BARs oder HISTORY_BARs
     * @param  int   $period - Barperiode
     * @param  int   $time   - Zeitpunkt
     *
-    * @return int - Offset oder -1, wenn keine solche Bar existiert (der Zeitpunkt ist älter als die älteste Bar)
+    * @return int - Offset oder -1, wenn keine solche Bar existiert (der Zeitpunkt ist aelter als die aelteste Bar)
     */
    public static function findBarOffsetPrevious(array $bars, $period, $time) {
       if (!is_int($period))              throw new IllegalTypeException('Illegal type of parameter $period: '.getType($period));
@@ -554,24 +554,24 @@ class MyFX extends StaticClass {
 
       $offset = self::findTimeOffset($bars, $time);
 
-      if ($offset < 0)                                                           // Zeitpunkt liegt nach der jüngsten bar[openTime]
+      if ($offset < 0)                                                           // Zeitpunkt liegt nach der juengsten bar[openTime]
          return $size-1;
 
       if ($bars[$offset]['time'] == $time)                                       // Zeitpunkt liegt exakt auf der jeweiligen Bar
          return $offset;
-      return $offset - 1;                                                        // Zeitpunkt ist älter als die Bar desselben Offsets
+      return $offset - 1;                                                        // Zeitpunkt ist aelter als die Bar desselben Offsets
    }
 
 
    /**
-    * Gibt den Offset der Bar zurück, die den angegebenen Zeitpunkt abdeckt. Existiert keine solche Bar, wird der Offset
-    * der nächstfolgenden Bar zurückgegeben.
+    * Gibt den Offset der Bar zurueck, die den angegebenen Zeitpunkt abdeckt. Existiert keine solche Bar, wird der Offset
+    * der naechstfolgenden Bar zurueckgegeben.
     *
     * @param  array $bars   - zu durchsuchende Bars: MYFX_BARs oder HISTORY_BARs
     * @param  int   $period - Barperiode
     * @param  int   $time   - Zeitpunkt
     *
-    * @return int - Offset oder -1, wenn keine solche Bar existiert (der Zeitpunkt ist jünger als das Ende der jüngsten Bar)
+    * @return int - Offset oder -1, wenn keine solche Bar existiert (der Zeitpunkt ist juenger als das Ende der juengsten Bar)
     */
    public static function findBarOffsetNext(array $bars, $period, $time) {
       if (!is_int($period))              throw new IllegalTypeException('Illegal type of parameter $period: '.getType($period));
@@ -584,26 +584,26 @@ class MyFX extends StaticClass {
 
       $offset = self::findTimeOffset($bars, $time);
 
-      if ($offset < 0) {                                                         // Zeitpunkt liegt nach der jüngsten bar[openTime]
+      if ($offset < 0) {                                                         // Zeitpunkt liegt nach der juengsten bar[openTime]
          $closeTime = self::periodCloseTime($bars[$size-1]['time'], $period);
          return ($closeTime > $time) ? $size-1 : -1;
       }
       if ($offset == 0)                                                          // Zeitpunkt liegt vor oder exakt auf der ersten Bar
          return 0;
 
-      if ($bars[$offset]['time'] == $time)                                       // Zeitpunkt stimmt mit bar[openTime] überein
+      if ($bars[$offset]['time'] == $time)                                       // Zeitpunkt stimmt mit bar[openTime] ueberein
          return $offset;
       $offset--;                                                                 // Zeitpunkt liegt in der vorherigen oder zwischen der
                                                                                  // vorherigen und der TimeOffset-Bar
       $closeTime = self::periodCloseTime($bars[$offset]['time'], $period);
       if ($closeTime > $time)                                                    // Zeitpunkt liegt innerhalb dieser vorherigen Bar
          return $offset;
-      return ($offset+1 < $bars) ? $offset+1 : -1;                               // Zeitpunkt liegt nach bar[closeTime], also Lücke...
+      return ($offset+1 < $bars) ? $offset+1 : -1;                               // Zeitpunkt liegt nach bar[closeTime], also Luecke...
    }                                                                             // zwischen der vorherigen und der folgenden Bar
 
 
    /**
-    * Gibt die lesbare Konstante eines Timeframe-Codes zurück.
+    * Gibt die lesbare Konstante eines Timeframe-Codes zurueck.
     *
     * @param  int period - Timeframe-Code bzw. Anzahl der Minuten je Bar
     *
@@ -629,7 +629,7 @@ class MyFX extends StaticClass {
 
 
    /**
-    * Alias für periodToStr()
+    * Alias fuer periodToStr()
     *
     * @param  int timeframe
     *
@@ -641,7 +641,7 @@ class MyFX extends StaticClass {
 
 
    /**
-    * Gibt die Beschreibung eines Timeframe-Codes zurück.
+    * Gibt die Beschreibung eines Timeframe-Codes zurueck.
     *
     * @param  int period - Timeframe-Code bzw. Anzahl der Minuten je Bar
     *
@@ -667,7 +667,7 @@ class MyFX extends StaticClass {
 
 
    /**
-    * Alias für periodDescription()
+    * Alias fuer periodDescription()
     *
     * @param  int timeframe
     *
@@ -679,7 +679,7 @@ class MyFX extends StaticClass {
 
 
    /**
-    * Gibt die CloseTime der Periode zurück, die die angegebene Zeit abdeckt.
+    * Gibt die CloseTime der Periode zurueck, die die angegebene Zeit abdeckt.
     *
     * @param  int  $time   - Zeitpunkt
     * @param  int  $period - Periode
@@ -698,12 +698,12 @@ class MyFX extends StaticClass {
       else if ($period == PERIOD_W1) {
          $dow       = (int) gmDate('w', $time);
          $openTime  = $time - $time%DAY - (($dow+6)%7)*DAYS;         // 00:00, Montag
-         $closeTime = $openTime + 1*WEEK;                            // 00:00, nächster Montag
+         $closeTime = $openTime + 1*WEEK;                            // 00:00, naechster Montag
       }
       else /*PERIOD_MN1*/ {
          $m         = (int) gmDate('m', $time);
          $y         = (int) gmDate('Y', $time);
-         $closeTime = gmMkTime(0, 0, 0, $m+1, 1, $y);                // 00:00, 1. des nächsten Monats
+         $closeTime = gmMkTime(0, 0, 0, $m+1, 1, $y);                // 00:00, 1. des naechsten Monats
       }
 
       return $closeTime;
@@ -713,8 +713,8 @@ class MyFX extends StaticClass {
    /**
     * Erzeugt und verwaltet dynamisch generierte Variablen.
     *
-    * Evaluiert und cacht häufig wiederbenutzte dynamische Variablen an einem zentralen Ort. Vereinfacht die Logik,
-    * da die Variablen nicht global gespeichert oder über viele Funktionsaufrufe hinweg weitergereicht werden müssen,
+    * Evaluiert und cacht haeufig wiederbenutzte dynamische Variablen an einem zentralen Ort. Vereinfacht die Logik,
+    * da die Variablen nicht global gespeichert oder ueber viele Funktionsaufrufe hinweg weitergereicht werden muessen,
     * aber trotzdem nicht bei jeder Verwendung neu ermittelt werden brauchen.
     *
     * @param  string $id     - eindeutiger Bezeichner der Variable
