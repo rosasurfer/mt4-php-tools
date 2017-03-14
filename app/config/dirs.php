@@ -2,14 +2,13 @@
 /**
  * Project directory layout.
  *
- * In the main configuration these settings are accessible under "app.dir".
- * Specified paths may be absolute or relative to the "root" directory entry.
+ * These settings are accessible in the main configuration under "app.dir".
+ * Relative paths are interpreted as relative to the "root" value. The "root" value itself must be an absolute path.
  */
 return [
-    'root'   => dirName(dirName(__DIR__)),
-    'config' => __DIR__,
-    'log'    => 'etc/log',
-    'tmp'    => 'etc/tmp',
-    'cache'  => 'etc/cache',
-    'web'    => 'web',
+    'root'  => dirName(dirName(__DIR__)),
+    'cache' => 'etc/cache',
+    'log'   => 'etc/log',
+    'tmp'   => 'etc/tmp',
+    'web'   => 'web',
 ];
