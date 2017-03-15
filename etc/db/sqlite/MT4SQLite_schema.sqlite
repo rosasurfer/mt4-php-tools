@@ -7,7 +7,7 @@ Database    SQLite3
 .open --new "MT4SQLite.db"
 
 
--- drop database
+-- drop all database objects
 pragma writable_schema = 1;
 delete from sqlite_master;
 pragma writable_schema = 0;
@@ -42,7 +42,7 @@ insert into  enum_TradeDirection (Type) values
 create table t_Test (
    Id              integer primary key,
    Created         text[datetime UTC] not null default (datetime('now')),
-   Version         text[datetime UTC],
+   Modified        text[datetime UTC],
    Strategy        text(255)          not null,
    ReportingId     integer            not null,
    ReportingSymbol text(11)           not null,
@@ -61,12 +61,18 @@ create table t_Test (
 create unique index u_reportingsymbol      on t_Test(ReportingSymbol);
 create unique index u_strategy_reportingid on t_Test(Strategy, ReportingId);
 
+create trigger tr_test_after_update after update on t_test
+when (new.modified = old.modified || new.modified is null)
+begin
+   update t_test set modified = datetime('now') where id = new.id;
+end;
+
 
 -- Order
 create table t_Order (
    Id            integer primary key,
    Created       text[datetime GMT] not null default (datetime('now')),
-   Version       text[datetime GMT],
+   Modified      text[datetime GMT],
    Ticket        integer            not null,
    Type          text[enum]         not null references enum_OrderType(Type),
    Lots          float(10,2)        not null,
@@ -85,6 +91,12 @@ create table t_Order (
    Test_id       integer            not null references t_Test(Id)
 );
 create unique index u_test_ticket on t_Order(Test_id, Ticket);
+
+create trigger tr_order_after_update after update on t_order
+when (new.modified = old.modified || new.modified is null)
+begin
+   update t_order set modified = datetime('now') where id = new.id;
+end;
 
 
 -- insert some data
