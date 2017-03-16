@@ -15,23 +15,29 @@ vacuum;
 pragma foreign_keys = on;
 
 
--- enum: OrderType
-create table enum_OrderType (Type text primary key);
+-- enum OrderType
+create table enum_OrderType (
+    Type text primary key collate nocase
+);
 insert into  enum_OrderType (Type) values
    ('Buy' ),
    ('Sell');
 
 
--- enum: TickModel
-create table enum_TickModel (Type text primary key);
+-- enum TickModel
+create table enum_TickModel (
+    Type text primary key collate nocase
+);
 insert into  enum_TickModel (Type) values
    ('EveryTick'    ),
    ('ControlPoints'),
    ('BarOpen'      );
 
 
--- enum: TradeDirection
-create table enum_TradeDirection (Type text primary key);
+-- enum TradeDirection
+create table enum_TradeDirection (
+    Type text primary key collate nocase
+);
 insert into  enum_TradeDirection (Type) values
    ('Long' ),
    ('Short'),
@@ -41,61 +47,61 @@ insert into  enum_TradeDirection (Type) values
 -- Test
 create table t_Test (
    Id              integer primary key,
-   Created         text[datetime UTC] not null default (datetime('now')),
-   Modified        text[datetime UTC],
-   Strategy        text(255)          not null,
-   ReportingId     integer            not null,
-   ReportingSymbol text(11)           not null,
-   Symbol          text(11)           not null,                                         -- tested symbol
-   Timeframe       integer            not null,                                         -- tested timeframe
-   StartTime_fxt   text[datetime FXT] not null,
-   EndTime_fxt     text[datetime FXT] not null,
-   TickModel       text[enum]         not null references enum_TickModel(Type),
-   Spread          float(2,1)         not null,                                         -- in pips
-   Bars            integer            not null,                                         -- number of tested bars
-   Ticks           integer            not null,                                         -- number of tested ticks
-   TradeDirections text[enum]         not null references enum_TradeDirection(Type),
-   VisualMode      integer[bool]      not null,
-   Duration        integer            not null                                          -- test duration in milliseconds
+   Created_utc     text[datetime] not null default (datetime('now')),
+   Modified_utc    text[datetime],
+   Strategy        text(255)      not null collate nocase,
+   ReportingId     integer        not null,
+   ReportingSymbol text(11)       not null collate nocase,
+   Symbol          text(11)       not null collate nocase,                          -- tested symbol
+   Timeframe       integer        not null,                                         -- tested timeframe
+   StartTime_fxt   text[datetime] not null,
+   EndTime_fxt     text[datetime] not null,
+   TickModel       text[enum]     not null collate nocase references enum_TickModel(Type),
+   Spread          float(2,1)     not null,                                         -- in pips
+   Bars            integer        not null,                                         -- number of tested bars
+   Ticks           integer        not null,                                         -- number of tested ticks
+   TradeDirections text[enum]     not null collate nocase references enum_TradeDirection(Type),
+   VisualMode      integer[bool]  not null,
+   Duration        integer        not null                                          -- test duration in milliseconds
 );
-create unique index u_reportingsymbol      on t_Test(ReportingSymbol);
-create unique index u_strategy_reportingid on t_Test(Strategy, ReportingId);
+create unique index u_reportingsymbol      on t_Test(ReportingSymbol collate nocase);
+create unique index u_strategy_reportingid on t_Test(Strategy collate nocase, ReportingId);
 
 create trigger tr_test_after_update after update on t_test
-when (new.modified = old.modified || new.modified is null)
+when (new.modified_utc = old.modified_utc || new.modified_utc is null)
 begin
-   update t_test set modified = datetime('now') where id = new.id;
+   update t_test set modified_utc = datetime('now') where id = new.id;
 end;
 
 
 -- Order
 create table t_Order (
    Id            integer primary key,
-   Created       text[datetime GMT] not null default (datetime('now')),
-   Modified      text[datetime GMT],
-   Ticket        integer            not null,
-   Type          text[enum]         not null references enum_OrderType(Type),
-   Lots          float(10,2)        not null,
-   Symbol        text(11)           not null,
-   OpenPrice     float(10,5)        not null,
-   OpenTime_fxt  text[datetime FXT] not null,
+   Created_utc   text[datetime] not null default (datetime('now')),
+   Modified_utc  text[datetime],
+   Ticket        integer        not null,
+   Type          text[enum]     not null collate nocase references enum_OrderType(Type),
+   Lots          float(10,2)    not null,
+   Symbol        text(11)       not null collate nocase,
+   OpenPrice     float(10,5)    not null,
+   OpenTime_fxt  text[datetime] not null,
    StopLoss      float(10,5),
    TakeProfit    float(10,5),
-   ClosePrice    float(10,5)        not null,
-   CloseTime_fxt text[datetime FXT] not null,
-   Commission    float(10,2)        not null,
-   Swap          float(10,2)        not null,
-   Profit        float(10,2)        not null,                                           -- gross profit
+   ClosePrice    float(10,5)    not null,
+   CloseTime_fxt text[datetime] not null,
+   Commission    float(10,2)    not null,
+   Swap          float(10,2)    not null,
+   Profit        float(10,2)    not null,                                           -- gross profit
    MagicNumber   integer,
-   Comment       text(27),
-   Test_id       integer            not null references t_Test(Id)
+   Comment       text(27) collate nocase,
+   Test_id       integer not null references t_Test(Id)
 );
 create unique index u_test_ticket on t_Order(Test_id, Ticket);
 
 create trigger tr_order_after_update after update on t_order
-when (new.modified = old.modified || new.modified is null)
+when (new.modified_utc = old.modified_utc || new.modified_utc is null)
 begin
-   update t_order set modified = datetime('now') where id = new.id;
+   update t_order set modified_utc = datetime('now') where id = new.id;
 end;
 
 
