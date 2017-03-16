@@ -26,5 +26,5 @@ for file in $(git diff --staged --name-only); do
 done
 
 
-# explicitly specify exit code
+# explicitly specify the exit code
 exit 0
