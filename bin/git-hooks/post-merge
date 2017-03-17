@@ -22,33 +22,39 @@ if [ -f "$0.user" ]; then
 fi
 
 
-# check and configure Composer
+# check for Composer
 result=$(type -P composer.phar 2> /dev/null)
 if [ ".$result" == "." ]; then
     result=$(type -P composer 2> /dev/null)
     [ ".$result" == "." ] && echo "ERROR: could not find Composer" && exit 1
 fi
 if [ ".$OSTYPE" = ".msys" ] || [ ".$OSTYPE" = ".cygwin" ] ; then
-    if [ ".$BASH_VERSION" != "." ]; then
-        # if running bash in msys or cygwin
-        ansi='--ansi'
-    fi
+   if [ ".$TERM" != ".cygwin" ]; then
+      # Windows: respect an existing Composer alias in an interactive shell
+      USE_ALIAS=1
+   fi
 fi
-COMPOSER_ALLOW_SUPERUSER=1
 
 
 # get changed file names
 changed_files=$(git diff-tree -r --name-only --no-commit-id HEAD@{1} HEAD)
 
 
+# run Composer if lock file has changed
 check_run() {
-    [ -f "$1" ]                                     && \
-    echo "$changed_files" | grep --quiet -Fx "$1"   && \
-    echo " * changes detected in $1"                && \
-    echo " * running $2"                            && \
-    composer $ansi install
+   [ -f "$1" ]                                     && \
+   echo "$changed_files" | grep --quiet -Fx "$1"   && \
+   echo " * changes detected in $1"                && \
+   echo " * running composer install"              && \
+   RUN_COMPOSER=1
+   
+   if [ ".$RUN_COMPOSER" = ".1" ]; then
+      if [ ".$USE_ALIAS" = ".1" ] && [ -f "${HOME}/.bash_aliases" ]; then
+         . "${HOME}/.bash_aliases"
+         shopt -s expand_aliases
+      fi
+      COMPOSER_ALLOW_SUPERUSER=1
+      eval "composer install"
+   fi
 }
-
-
-# run composer if lock file has changed
 check_run 'composer.lock'
