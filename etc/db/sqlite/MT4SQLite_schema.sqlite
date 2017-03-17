@@ -52,20 +52,22 @@ create table t_Test (
    Strategy        text(255)      not null collate nocase,
    ReportingId     integer        not null,
    ReportingSymbol text(11)       not null collate nocase,
-   Symbol          text(11)       not null collate nocase,                          -- tested symbol
-   Timeframe       integer        not null,                                         -- tested timeframe
+   Symbol          text(11)       not null collate nocase,              -- tested symbol
+   Timeframe       integer        not null,                             -- tested timeframe
    StartTime_fxt   text[datetime] not null,
    EndTime_fxt     text[datetime] not null,
-   TickModel       text[enum]     not null collate nocase references enum_TickModel(Type),
-   Spread          float(2,1)     not null,                                         -- in pips
-   Bars            integer        not null,                                         -- number of tested bars
-   Ticks           integer        not null,                                         -- number of tested ticks
-   TradeDirections text[enum]     not null collate nocase references enum_TradeDirection(Type),
+   TickModel       text[enum]     not null collate nocase,
+   Spread          float(2,1)     not null,                             -- in pips
+   Bars            integer        not null,                             -- number of tested bars
+   Ticks           integer        not null,                             -- number of tested ticks
+   TradeDirections text[enum]     not null collate nocase,
    VisualMode      integer[bool]  not null,
-   Duration        integer        not null                                          -- test duration in milliseconds
+   Duration        integer        not null,                             -- test duration in milliseconds
+   constraint u_reportingsymbol       unique (ReportingSymbol),
+   constraint u_strategy_reportingid  unique (Strategy, ReportingId),
+   constraint fk_test_tickmodel       foreign key (tickmodel)       references enum_TickModel(Type)      on delete restrict on update cascade,
+   constraint fk_test_tradedirections foreign key (tradedirections) references enum_TradeDirection(Type) on delete restrict on update cascade
 );
-create unique index u_reportingsymbol      on t_Test(ReportingSymbol collate nocase);
-create unique index u_strategy_reportingid on t_Test(Strategy collate nocase, ReportingId);
 
 create trigger tr_test_after_update after update on t_test
 when (new.modified_utc = old.modified_utc || new.modified_utc is null)
@@ -80,7 +82,7 @@ create table t_Order (
    Created_utc   text[datetime] not null default (datetime('now')),
    Modified_utc  text[datetime],
    Ticket        integer        not null,
-   Type          text[enum]     not null collate nocase references enum_OrderType(Type),
+   Type          text[enum]     not null collate nocase,
    Lots          float(10,2)    not null,
    Symbol        text(11)       not null collate nocase,
    OpenPrice     float(10,5)    not null,
@@ -91,12 +93,14 @@ create table t_Order (
    CloseTime_fxt text[datetime] not null,
    Commission    float(10,2)    not null,
    Swap          float(10,2)    not null,
-   Profit        float(10,2)    not null,                                           -- gross profit
+   Profit        float(10,2)    not null,                               -- gross profit
    MagicNumber   integer,
    Comment       text(27) collate nocase,
-   Test_id       integer not null references t_Test(Id)
+   Test_id       integer not null,
+   constraint u_order_test_ticket unique (Test_id, Ticket),
+   constraint fk_order_type foreign key (type)    references enum_OrderType(Type) on delete restrict on update cascade,
+   constraint fk_order_test foreign key (test_id) references t_Test(Id)           on delete restrict on update cascade
 );
-create unique index u_test_ticket on t_Order(Test_id, Ticket);
 
 create trigger tr_order_after_update after update on t_order
 when (new.modified_utc = old.modified_utc || new.modified_utc is null)
