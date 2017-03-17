@@ -24,14 +24,14 @@ fi
 
 # check for Composer
 result=$(type -P composer.phar 2> /dev/null)
-if [ ".$result" == "." ]; then
+if [ -z $result ]; then
     result=$(type -P composer 2> /dev/null)
-    [ ".$result" == "." ] && echo "ERROR: could not find Composer" && exit 1
+    [ -z $result ] && echo "ERROR: could not find Composer" && exit 1
 fi
 if [ ".$OSTYPE" = ".msys" ] || [ ".$OSTYPE" = ".cygwin" ] ; then
    if [ ".$TERM" != ".cygwin" ]; then
       # Windows: respect an existing Composer alias in an interactive shell
-      USE_ALIAS=1
+      use_alias=1
    fi
 fi
 
@@ -46,10 +46,10 @@ check_run() {
    echo "$changed_files" | grep --quiet -Fx "$1"   && \
    echo " * changes detected in $1"                && \
    echo " * running composer install"              && \
-   RUN_COMPOSER=1
+   run_composer=1
    
-   if [ ".$RUN_COMPOSER" = ".1" ]; then
-      if [ ".$USE_ALIAS" = ".1" ] && [ -f "${HOME}/.bash_aliases" ]; then
+   if [ -n $run_composer ]; then
+      if [ -n $use_alias ] && [ -f "${HOME}/.bash_aliases" ]; then
          . "${HOME}/.bash_aliases"
          shopt -s expand_aliases
       fi
