@@ -703,6 +703,41 @@ class MT4 extends StaticClass {
 
 
    /**
+    * Convert a Strategy Tester trade direction representation to a direction id.
+    *
+    * @param  mixed $value - trade direction representation
+    *
+    * @return int - direction id or -1 if the value doesn't represent a trade direction
+    */
+   public static function strToTradeDirection($value) {
+      if (is_string($value)) {
+         if (!strIsNumeric($value)) {
+            $value = strToUppper($value);
+            if (strStartsWith($value, 'TRADEDIRECTION_'))
+               $value = strRight($value, -15);
+            switch ($value) {
+               case 'LONG' : return TRADEDIRECTION_LONG;
+               case 'SHORT': return TRADEDIRECTION_SHORT;
+               case 'BOTH' : return TRADEDIRECTION_BOTH;
+            }
+         }
+         $value = (float)$value;
+      }
+
+      if (is_int($value) || is_float($value)) {
+         switch ((float)$value) {
+            case TRADEDIRECTION_LONG : return TRADEDIRECTION_LONG;
+            case TRADEDIRECTION_SHORT: return TRADEDIRECTION_SHORT;
+            case TRADEDIRECTION_BOTH : return TRADEDIRECTION_BOTH;
+         }
+      }
+      else throw new IllegalTypeException('Illegal type of parameter $value: '.getType($value));
+
+      return -1;
+   }
+
+
+   /**
     * Whether or not a value is a valid order type.
     *
     * @param  int $value
@@ -762,40 +797,42 @@ class MT4 extends StaticClass {
    }
 
 
-   /**
-    * Convert a Strategy Tester trade direction representation to a direction id.
-    *
-    * @param  mixed $value - trade direction representation
-    *
-    * @return int - direction id or -1 if the value doesn't represent a trade direction
-    */
-   public static function strToTradeDirection($value) {
-      if (is_string($value)) {
-         if (!strIsNumeric($value)) {
-            $value = strToUppper($value);
-            if (strStartsWith($value, 'TRADEDIRECTION_'))
-               $value = strRight($value, -15);
-            switch ($value) {
-               case 'LONG' : return TRADEDIRECTION_LONG;
-               case 'SHORT': return TRADEDIRECTION_SHORT;
-               case 'BOTH' : return TRADEDIRECTION_BOTH;
+    /**
+     * Return a tick model description.
+     *
+     * @param  int - tick model id
+     *
+     * @return string|null - description or NULL if the parameter is not a valid tick model id
+     */
+    public static function tickModelDescription($id) {
+        $id = self::strToTickModel($id);
+        if ($id !== null) {
+            switch ($id) {
+               case TICKMODEL_EVERYTICK:     return 'EveryTick';
+               case TICKMODEL_CONTROLPOINTS: return 'ControlPoints';
+               case TICKMODEL_BAROPEN:       return 'BarOpen';
             }
-         }
-         $value = (float)$value;
-      }
-
-      if (is_int($value) || is_float($value)) {
-         switch ((float)$value) {
-            case TRADEDIRECTION_LONG : return TRADEDIRECTION_LONG;
-            case TRADEDIRECTION_SHORT: return TRADEDIRECTION_SHORT;
-            case TRADEDIRECTION_BOTH : return TRADEDIRECTION_BOTH;
-         }
-      }
-      else throw new IllegalTypeException('Illegal type of parameter $value: '.getType($value));
-
-      return -1;
-   }
+        }
+        return null;
+    }
 
 
-
+    /**
+     * Return a trade direction description.
+     *
+     * @param  int - direction id
+     *
+     * @return string|null - description or NULL if the parameter is not a valid trade direction id
+     */
+    public static function tradeDirectionDescription($id) {
+        $id = self::strToTradeDirection($id);
+        if ($id !== null) {
+            switch ($id) {
+               case TRADEDIRECTION_LONG:  return 'Long';
+               case TRADEDIRECTION_SHORT: return 'Short';
+               case TRADEDIRECTION_BOTH:  return 'Both';
+            }
+        }
+        return null;
+    }
 }

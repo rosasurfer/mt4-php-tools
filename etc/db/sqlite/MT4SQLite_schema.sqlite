@@ -107,10 +107,3 @@ when (new.modified_utc = old.modified_utc || new.modified_utc is null)
 begin
    update t_order set modified_utc = datetime('now') where id = new.id;
 end;
-
-
--- insert some data
-insert into t_Test (strategy, reportingid, reportingsymbol, symbol, timeframe, starttime_fxt, endtime_fxt, tickmodel, spread, bars, ticks, tradedirections, visualmode, duration) values
-   ('MA example', 1, 'MAex.001', 'EURUSD',  5, datetime('now', 'localtime'), datetime('now', 'localtime'), 'BarOpen', 0.2, 1000, 1001, 'Both', 0, 1234);
-/*
-*/

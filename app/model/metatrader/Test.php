@@ -11,6 +11,8 @@ use rosasurfer\util\PHP;
 use rosasurfer\util\Windows;
 use rosasurfer\util\Date;
 
+use MT4;
+
 
 /**
  * Represents a test executed in the MetaTrader Strategy Tester.
@@ -28,7 +30,7 @@ class Test extends PersistableObject {
    protected $created;
 
    /** @var string - time of last modification */
-   protected $version;
+   protected $modified;
 
    /** @var string - strategy name */
    protected $strategy;
@@ -54,7 +56,7 @@ class Test extends PersistableObject {
    /** @var int - time of the last tick of testing (server timezone) */
    protected $endTime;
 
-   /** @var int - used tick model: EveryTick|ControlPoints|BarOpen */
+   /** @var string - used tick model: EveryTick|ControlPoints|BarOpen */
    protected $tickModel;
 
    /** @var float - spread in pips */
@@ -120,24 +122,10 @@ class Test extends PersistableObject {
     *
     * @return string - last modification time
     */
-   public function getVersion($format = 'Y-m-d H:i:s')  {
+   public function getModified($format = 'Y-m-d H:i:s')  {
       if ($format == 'Y-m-d H:i:s')
-         return $this->version;
-      return Date::format($this->version, $format);
-   }
-
-
-   /**
-    * Return the soft deletion time of the instance (if applicable).
-    *
-    * @param  string $format - format as used by date($format, $timestamp)
-    *
-    * @return string - deletion time
-    */
-   public function getDeleted($format = 'Y-m-d H:i:s')  {
-      if ($format == 'Y-m-d H:i:s')
-         return $this->deleted;
-      return Date::format($this->deleted, $format);
+         return $this->modified;
+      return Date::format($this->modified, $format);
    }
 
 
@@ -178,89 +166,89 @@ class Test extends PersistableObject {
             // first line: test properties
             $properties = self::parseTestProperties($line);
 
-            $time = $properties['time'];                   // GMT timestamp
-            if (!is_int($time))                            throw new IllegalTypeException('Illegal type of property "time": '.getType($time));
-            if ($time <= 0)                                throw new InvalidArgumentException('Invalid property "time": '.$time.' (not positive)');
+            $time = $properties['time'];                  // GMT timestamp
+            if (!is_int($time))                           throw new IllegalTypeException('Illegal type of property "time": '.getType($time));
+            if ($time <= 0)                               throw new InvalidArgumentException('Invalid property "time": '.$time.' (not positive)');
             $test->created = gmDate('Y-m-d H:i:s', $time);
 
             $strategy = $properties['strategy'];
-            if (!is_string($strategy))                     throw new IllegalTypeException('Illegal type of property "strategy": '.getType($strategy));
-            if ($strategy != trim($strategy))              throw new InvalidArgumentException('Invalid property "strategy": "'.$strategy.'" (format violation)');
-            if (!strLen($strategy))                        throw new InvalidArgumentException('Invalid property "strategy": "'.$strategy.'" (length violation)');
-            if (strLen($strategy) > Windows::MAX_PATH)     throw new InvalidArgumentException('Invalid property "strategy": "'.$strategy.'" (length violation)');
+            if (!is_string($strategy))                    throw new IllegalTypeException('Illegal type of property "strategy": '.getType($strategy));
+            if ($strategy != trim($strategy))             throw new InvalidArgumentException('Invalid property "strategy": "'.$strategy.'" (format violation)');
+            if (!strLen($strategy))                       throw new InvalidArgumentException('Invalid property "strategy": "'.$strategy.'" (length violation)');
+            if (strLen($strategy) > Windows::MAX_PATH)    throw new InvalidArgumentException('Invalid property "strategy": "'.$strategy.'" (length violation)');
             $test->strategy = $strategy;
 
             $reportingId = $properties['reportingId'];
-            if (!is_int($reportingId))                     throw new IllegalTypeException('Illegal type of property "reportingId": '.getType($reportingId));
-            if ($reportingId <= 0)                         throw new InvalidArgumentException('Invalid property "reportingId": '.$reportingId.' (not positive)');
+            if (!is_int($reportingId))                    throw new IllegalTypeException('Illegal type of property "reportingId": '.getType($reportingId));
+            if ($reportingId <= 0)                        throw new InvalidArgumentException('Invalid property "reportingId": '.$reportingId.' (not positive)');
             $test->reportingId = $reportingId;
 
             $symbol = $properties['reportingSymbol'];
-            if (!is_string($symbol))                       throw new IllegalTypeException('Illegal type of property "reportingSymbol": '.getType($symbol));
-            if ($symbol != trim($symbol))                  throw new InvalidArgumentException('Invalid property "reportingSymbol": "'.$symbol.'" (format violation)');
-            if (!strLen($symbol))                          throw new InvalidArgumentException('Invalid property "reportingSymbol": "'.$symbol.'" (length violation)');
-            if (strLen($symbol) > \MT4::MAX_SYMBOL_LENGTH) throw new InvalidArgumentException('Invalid property "reportingSymbol": "'.$symbol.'" (length violation)');
+            if (!is_string($symbol))                      throw new IllegalTypeException('Illegal type of property "reportingSymbol": '.getType($symbol));
+            if ($symbol != trim($symbol))                 throw new InvalidArgumentException('Invalid property "reportingSymbol": "'.$symbol.'" (format violation)');
+            if (!strLen($symbol))                         throw new InvalidArgumentException('Invalid property "reportingSymbol": "'.$symbol.'" (length violation)');
+            if (strLen($symbol) > MT4::MAX_SYMBOL_LENGTH) throw new InvalidArgumentException('Invalid property "reportingSymbol": "'.$symbol.'" (length violation)');
             $test->reportingSymbol = $symbol;
 
             $symbol = $properties['symbol'];
-            if (!is_string($symbol))                       throw new IllegalTypeException('Illegal type of property "symbol": '.getType($symbol));
-            if ($symbol != trim($symbol))                  throw new InvalidArgumentException('Invalid property "symbol": "'.$symbol.'" (format violation)');
-            if (!strLen($symbol))                          throw new InvalidArgumentException('Invalid property "symbol": "'.$symbol.'" (length violation)');
-            if (strLen($symbol) > \MT4::MAX_SYMBOL_LENGTH) throw new InvalidArgumentException('Invalid property "symbol": "'.$symbol.'" (length violation)');
+            if (!is_string($symbol))                      throw new IllegalTypeException('Illegal type of property "symbol": '.getType($symbol));
+            if ($symbol != trim($symbol))                 throw new InvalidArgumentException('Invalid property "symbol": "'.$symbol.'" (format violation)');
+            if (!strLen($symbol))                         throw new InvalidArgumentException('Invalid property "symbol": "'.$symbol.'" (length violation)');
+            if (strLen($symbol) > MT4::MAX_SYMBOL_LENGTH) throw new InvalidArgumentException('Invalid property "symbol": "'.$symbol.'" (length violation)');
             $test->symbol = $symbol;
 
             $timeframe = $properties['timeframe'];
-            if (!is_int($timeframe))                       throw new IllegalTypeException('Illegal type of property "timeframe": '.getType($timeframe));
-            if (!\MT4::isStdTimeframe($timeframe))         throw new InvalidArgumentException('Invalid property "timeframe": '.$timeframe.' (not a timeframe)');
+            if (!is_int($timeframe))                      throw new IllegalTypeException('Illegal type of property "timeframe": '.getType($timeframe));
+            if (!MT4::isStdTimeframe($timeframe))         throw new InvalidArgumentException('Invalid property "timeframe": '.$timeframe.' (not a timeframe)');
             $test->timeframe = $timeframe;
 
-            $startTime = $properties['startTime'];         // FXT timestamp
-            if (!is_int($startTime))                       throw new IllegalTypeException('Illegal type of property "startTime": '.getType($startTime));
-            if ($startTime <= 0)                           throw new InvalidArgumentException('Invalid property "startTime": '.$startTime.' (not positive)');
+            $startTime = $properties['startTime'];        // FXT timestamp
+            if (!is_int($startTime))                      throw new IllegalTypeException('Illegal type of property "startTime": '.getType($startTime));
+            if ($startTime <= 0)                          throw new InvalidArgumentException('Invalid property "startTime": '.$startTime.' (not positive)');
             $test->startTime = gmDate('Y-m-d H:i:s', $startTime);
 
-            $endTime = $properties['endTime'];             // FXT timestamp
-            if (!is_int($endTime))                         throw new IllegalTypeException('Illegal type of property "endTime": '.getType($endTime));
-            if ($endTime <= 0)                             throw new InvalidArgumentException('Invalid property "endTime": '.$endTime.' (not positive)');
-            if ($startTime > $endTime)                     throw new InvalidArgumentException('Invalid properties "startTime|endTime": '.$startTime.'|'.$endTime.' (mis-match)');
+            $endTime = $properties['endTime'];            // FXT timestamp
+            if (!is_int($endTime))                        throw new IllegalTypeException('Illegal type of property "endTime": '.getType($endTime));
+            if ($endTime <= 0)                            throw new InvalidArgumentException('Invalid property "endTime": '.$endTime.' (not positive)');
+            if ($startTime > $endTime)                    throw new InvalidArgumentException('Invalid properties "startTime|endTime": '.$startTime.'|'.$endTime.' (mis-match)');
             $test->endTime = gmDate('Y-m-d H:i:s', $endTime);
 
             $tickModel = $properties['tickModel'];
-            if (!is_int($tickModel))                       throw new IllegalTypeException('Illegal type of property "tickModel": '.getType($tickModel));
-            if (!\MT4::isTickModel($tickModel))            throw new InvalidArgumentException('Invalid property "tickModel": '.$tickModel.' (not a tick model)');
-            $test->tickModel = $tickModel;
+            if (!is_int($tickModel))                      throw new IllegalTypeException('Illegal type of property "tickModel": '.getType($tickModel));
+            if (!MT4::isTickModel($tickModel))            throw new InvalidArgumentException('Invalid property "tickModel": '.$tickModel.' (not a tick model)');
+            $test->tickModel = MT4::tickModelDescription($tickModel);
 
             $spread = $properties['spread'];
-            if (!is_float($spread))                        throw new IllegalTypeException('Illegal type of property "spread": '.getType($spread));
-            if ($spread < 0)                               throw new InvalidArgumentException('Invalid property "spread": '.$spread.' (not non-negative)');
-            if ($spread != round($spread, 1))              throw new InvalidArgumentException('Invalid property "spread": '.$spread.' (illegal)');
+            if (!is_float($spread))                       throw new IllegalTypeException('Illegal type of property "spread": '.getType($spread));
+            if ($spread < 0)                              throw new InvalidArgumentException('Invalid property "spread": '.$spread.' (not non-negative)');
+            if ($spread != round($spread, 1))             throw new InvalidArgumentException('Invalid property "spread": '.$spread.' (illegal)');
             $test->spread = $spread;
 
             $bars = $properties['bars'];
-            if (!is_int($bars))                            throw new IllegalTypeException('Illegal type of property "bars": '.getType($bars));
-            if ($bars <= 0)                                throw new InvalidArgumentException('Invalid property "bars": '.$bars.' (not positive)');
+            if (!is_int($bars))                           throw new IllegalTypeException('Illegal type of property "bars": '.getType($bars));
+            if ($bars <= 0)                               throw new InvalidArgumentException('Invalid property "bars": '.$bars.' (not positive)');
             $test->bars = $bars;
 
             $ticks = $properties['ticks'];
-            if (!is_int($ticks))                           throw new IllegalTypeException('Illegal type of property "ticks": '.getType($ticks));
-            if ($ticks <= 0)                               throw new InvalidArgumentException('Invalid property "ticks": '.$ticks.' (not positive)');
+            if (!is_int($ticks))                          throw new IllegalTypeException('Illegal type of property "ticks": '.getType($ticks));
+            if ($ticks <= 0)                              throw new InvalidArgumentException('Invalid property "ticks": '.$ticks.' (not positive)');
             $test->ticks = $ticks;
 
             $visualMode = $properties['visualMode'];
             if (is_int($visualMode)) {
-               if ($visualMode != (int)(bool)$visualMode)  throw new InvalidArgumentException('Invalid property "visualMode": '.$visualMode.' (non-standard)');
+               if ($visualMode != (int)(bool)$visualMode) throw new InvalidArgumentException('Invalid property "visualMode": '.$visualMode.' (non-standard)');
                $visualMode = (bool)$visualMode;
             }
-            else if (!is_bool($visualMode))                throw new IllegalTypeException('Illegal type of property "visualMode": '.getType($visualMode));
+            else if (!is_bool($visualMode))               throw new IllegalTypeException('Illegal type of property "visualMode": '.getType($visualMode));
             $test->visualMode = $visualMode;
 
             $duration = $properties['duration'];
-            if (!is_int($duration))                        throw new IllegalTypeException('Illegal type of property "duration": '.getType($duration));
-            if ($duration <= 0)                            throw new InvalidArgumentException('Invalid property "duration": '.$duration.' (not positive)');
+            if (!is_int($duration))                       throw new IllegalTypeException('Illegal type of property "duration": '.getType($duration));
+            if ($duration <= 0)                           throw new InvalidArgumentException('Invalid property "duration": '.$duration.' (not positive)');
             $test->duration = $duration;
 
             if ($ticks == $bars+1)
-               $test->tickModel = TICKMODEL_BAROPEN;
+               $test->tickModel = MT4::tickModelDescription(TICKMODEL_BAROPEN);
             continue;
          }
 
@@ -281,9 +269,9 @@ class Test extends PersistableObject {
 
       // tradeDirections
       $pattern = '|^\s*<common\s*>\s*\n(?:.*\n)*(\s*positions\s*=\s*(.+)\s*\n)(?:.*\n)*\s*</common>|imU';
-      if (!preg_match($pattern, $content, $matches))                 throw new InvalidArgumentException('Unsupported file format in test config file "'.$configFile.'" ("/common positions" not found)');
-      if (($direction = \MT4::strToTradeDirection($matches[2])) < 0) throw new IllegalArgumentException('Illegal test property "tradeDirections": "'.$matches[2].'"');
-      $test->tradeDirections = $direction;
+      if (!preg_match($pattern, $content, $matches))                throw new InvalidArgumentException('Unsupported file format in test config file "'.$configFile.'" ("/common positions" not found)');
+      if (($direction = MT4::strToTradeDirection($matches[2])) < 0) throw new IllegalArgumentException('Illegal test property "tradeDirections": "'.$matches[2].'"');
+      $test->tradeDirections = MT4::tradeDirectionDescription($direction);
 
       // input parameters
       $pattern = '|^\s*<inputs\s*>\s*\n(.*)^\s*</inputs>\s*$|ismU';
@@ -373,7 +361,7 @@ class Test extends PersistableObject {
          // timeframe
          $pattern = '/, *timeframe *= *(PERIOD_[^ ]+) *,/i';
          if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal test properties ("timeframe" invalid or not found): "'.$valuesOrig.'"');
-         if (!$id = \MT4::strToTimeframe($matches[1][0]))                     throw new IllegalArgumentException('Illegal test property "timeframe": "'.$matches[1][0].'"');
+         if (!$id = MT4::strToTimeframe($matches[1][0]))                      throw new IllegalArgumentException('Illegal test property "timeframe": "'.$matches[1][0].'"');
          $properties['timeframe'] = $id;
          if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal test properties (multiple "timeframe" occurrences): "'.$valuesOrig.'"');
 
@@ -396,7 +384,7 @@ class Test extends PersistableObject {
          // tickModel
          $pattern = '/, *tickModel *= *([0-9]+) *,/i';
          if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal test properties ("tickModel" invalid or not found): "'.$valuesOrig.'"');
-         if (($id = \MT4::strToTickModel($matches[1][0])) < 0)                throw new IllegalArgumentException('Illegal test property "tickModel": "'.$matches[1][0].'"');
+         if (($id = MT4::strToTickModel($matches[1][0])) < 0)                 throw new IllegalArgumentException('Illegal test property "tickModel": "'.$matches[1][0].'"');
          $properties['tickModel'] = $id;
          if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal test properties (multiple "tickModel" occurrences): "'.$valuesOrig.'"');
 
@@ -484,7 +472,7 @@ class Test extends PersistableObject {
       // type
       $pattern = '/, *type *= *(OP_[^ ]+) *,/i';
       if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal order properties ("type" invalid or not found): "'.$valuesOrig.'"');
-      if (($type = \MT4::strToOrderType($matches[1][0])) < 0)              throw new IllegalArgumentException('Illegal order property "type": "'.$matches[1][0].'"');
+      if (($type = MT4::strToOrderType($matches[1][0])) < 0)               throw new IllegalArgumentException('Illegal order property "type": "'.$matches[1][0].'"');
       $properties['type'] = $type;
       if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal order properties (multiple "type" occurrences): "'.$valuesOrig.'"');
 
@@ -593,7 +581,7 @@ class Test extends PersistableObject {
       $db = self::db();
 
       $created         = $db->escapeLiteral($this->created);
-      $version         = $db->escapeLiteral($this->version);
+      $modified        = $db->escapeLiteral($this->modified);
       $strategy        = $db->escapeLiteral($this->strategy);
       $reportingid     =                    $this->reportingId;
       $reportingsymbol = $db->escapeLiteral($this->reportingSymbol);
@@ -601,19 +589,19 @@ class Test extends PersistableObject {
       $timeframe       =                    $this->timeframe;
       $starttime       =                    $this->startTime;
       $endtime         =                    $this->endTime;
-      $tickmodel       =                    $this->tickModel;
+      $tickmodel       = $db->escapeLiteral($this->tickModel);
       $spread          =                    $this->spread;
       $bars            =                    $this->bars;
       $ticks           =                    $this->ticks;
-      $tradedirections =                    $this->tradeDirections;
+      $tradedirections = $db->escapeLiteral($this->tradeDirections);
       $visualmode      =              (int) $this->visualMode;
       $duration        =                    $this->duration;
 
       $db->begin();
       try {
           // insert instance
-          $sql = "insert into t_test (created_utc, version_utc, strategy, reportingid, reportingsymbol, symbol, timeframe, starttime_fxt, endtime_fxt, tickmodel, spread, bars, ticks, tradedirections, visualmode, duration) values
-                     ($created, $version, $strategy, $reportingid, $reportingsymbol, $symbol, $timeframe, '$starttime', '$endtime', $tickmodel, $spread, $bars, $ticks, $tradedirections, $visualmode, $duration)";
+          $sql = "insert into t_test (created_utc, modified_utc, strategy, reportingid, reportingsymbol, symbol, timeframe, starttime_fxt, endtime_fxt, tickmodel, spread, bars, ticks, tradedirections, visualmode, duration) values
+                     ($created, $modified, $strategy, $reportingid, $reportingsymbol, $symbol, $timeframe, '$starttime', '$endtime', $tickmodel, $spread, $bars, $ticks, $tradedirections, $visualmode, $duration)";
           $this->id = $db->execute($sql)->lastInsertId();
 
          // insert trades

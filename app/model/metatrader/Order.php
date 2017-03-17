@@ -20,7 +20,7 @@ class Order extends PersistableObject {
    protected $created;
 
    /** @var string - time of last modification */
-   protected $version;
+   protected $modified;
 
     /** @var int - ticket number */
    protected $ticket;
@@ -223,7 +223,7 @@ class Order extends PersistableObject {
     * @return self
     */
    protected function insert() {
-      $dao = self::dao();
+      $db = self::db();
 
       // create SQL
 
