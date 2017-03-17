@@ -29,7 +29,7 @@ check_run() {
     echo "$changed_files" | grep --quiet -Fx "$1"   && \
     echo " * changes detected in $1"                && \
     echo " * running $2"                            && \
-    eval "$2 --ansi"
+    eval "$2"
 }
 
 
