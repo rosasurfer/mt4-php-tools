@@ -25,22 +25,22 @@ class TestDAO extends DAO {
     * @var array - database mapping
     */
    protected $mapping = [
-      'connection' => 'mysql-sqlite',
+      'connection' => 'sqlite',
       'table'      => 't_test',
       'columns'    => [
          'id'              => ['id'             , PHP_TYPE_INT   , 0               , ID_PRIMARY],      // db:int
-         'created'         => ['created'        , PHP_TYPE_STRING, 0               , ID_CREATE ],      // db:text[datetime UTC]
-         'version'         => ['version'        , PHP_TYPE_STRING, 0               , ID_VERSION],      // db:text[datetime UTC]
-       //'created'         => ['created'        , \DateTime::class, 0               , ID_CREATE ],      // db:text[datetime UTC]
-       //'version'         => ['version'        , \DateTime::class, 0               , ID_VERSION],      // db:text[datetime UTC]
+         'created'         => ['created_utc'    , PHP_TYPE_STRING, 0               , ID_CREATE ],      // db:text[datetime]
+         'version'         => ['version_utc'    , PHP_TYPE_STRING, 0               , ID_VERSION],      // db:text[datetime]
+       //'created'         => ['created_utc'    ,\DateTime::class, 0               , ID_CREATE ],      // db:text[datetime]
+       //'version'         => ['version_utc'    ,\DateTime::class, 0               , ID_VERSION],      // db:text[datetime]
 
          'strategy'        => ['strategy'       , PHP_TYPE_STRING, 0               , 0         ],      // db:text(260)
          'reportingId'     => ['reportingid'    , PHP_TYPE_INT   , 0               , 0         ],      // db:int
          'reportingSymbol' => ['reportingsymbol', PHP_TYPE_STRING, 0               , 0         ],      // db:text(11)
          'symbol'          => ['symbol'         , PHP_TYPE_STRING, 0               , 0         ],      // db:text(11)
          'timeframe'       => ['timeframe'      , PHP_TYPE_INT   , 0               , 0         ],      // db:int
-         'startTime'       => ['starttime_fxt'  , PHP_TYPE_STRING, 0               , 0         ],      // db:text[datetime FXT]
-         'endTime'         => ['endtime_fxt'    , PHP_TYPE_STRING, 0               , 0         ],      // db:text[datetime FXT]
+         'startTime'       => ['starttime_fxt'  , PHP_TYPE_STRING, 0               , 0         ],      // db:text[datetime]
+         'endTime'         => ['endtime_fxt'    , PHP_TYPE_STRING, 0               , 0         ],      // db:text[datetime]
          'tickModel'       => ['tickmodel'      , PHP_TYPE_INT   , BIND_TYPE_STRING, 0         ],      // db:text[enum] references enum_TickModel(Type)
          'spread'          => ['spread'         , PHP_TYPE_FLOAT , 0               , 0         ],      // db:float(2,1)
          'bars'            => ['bars'           , PHP_TYPE_INT   , 0               , 0         ],      // db:int

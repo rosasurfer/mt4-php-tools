@@ -609,27 +609,12 @@ class Test extends PersistableObject {
       $visualmode      =              (int) $this->visualMode;
       $duration        =                    $this->duration;
 
-      $result = $db->execute(
-         "insert into t_test (created, version, strategy, reportingid, reportingsymbol, symbol, timeframe, starttime_fxt, endtime_fxt, tickmodel, spread, bars, ticks, tradedirections, visualmode, duration) values
-            ($created, $version, $strategy, $reportingid, $reportingsymbol, $symbol, $timeframe, '$starttime', '$endtime', $tickmodel, $spread, $bars, $ticks, $tradedirections, $visualmode, $duration)"
-      );
-
-      //echoPre($sql);
-
-
-      // assign instance id
-      /*
-      $this->id = self::db()->lastInsertId();
-      */
-
-      /*
-      $db = self::db();
       $db->begin();
       try {
-         // insert instance
-         $sql = "insert into t_closedposition (version, created, ticket, type, lots, symbol, opentime, openprice, closetime, closeprice, stoploss, takeprofit, commission, swap, profit, netprofit, magicnumber, comment, signal_id) values
-                    ('$version', '$created', $ticket, '$type', $lots, '$symbol', '$opentime', $openprice, '$closetime', $closeprice, $stoploss, $takeprofit, $commission, $swap, $profit, $netprofit, $magicnumber, $comment, $signal_id)";
-         $this->id = $db->execute($sql)->lastInsertId();
+          // insert instance
+          $sql = "insert into t_test (created_utc, version_utc, strategy, reportingid, reportingsymbol, symbol, timeframe, starttime_fxt, endtime_fxt, tickmodel, spread, bars, ticks, tradedirections, visualmode, duration) values
+                     ($created, $version, $strategy, $reportingid, $reportingsymbol, $symbol, $timeframe, '$starttime', '$endtime', $tickmodel, $spread, $bars, $ticks, $tradedirections, $visualmode, $duration)";
+          $this->id = $db->execute($sql)->lastInsertId();
 
          // insert trades
          foreach ($this->getTrades() as $trade) {
@@ -642,7 +627,6 @@ class Test extends PersistableObject {
          $db->rollback();
          throw $ex;
       }
-      */
       return $this;
    }
 

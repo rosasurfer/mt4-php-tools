@@ -26,19 +26,19 @@ class OrderDAO extends DAO {
       'table'      => 't_order',
       'columns'    => [
          'id'          => ['id'           , PHP_TYPE_INT   , 0, ID_PRIMARY],      // db:int
-         'created'     => ['created'      , PHP_TYPE_STRING, 0, ID_CREATE ],      // db:text[datetime UTC]
-         'version'     => ['version'      , PHP_TYPE_STRING, 0, ID_VERSION],      // db:text[datetime UTC]
+         'created'     => ['created_utc'  , PHP_TYPE_STRING, 0, ID_CREATE ],      // db:text[datetime]
+         'version'     => ['version_utc'  , PHP_TYPE_STRING, 0, ID_VERSION],      // db:text[datetime]
 
          'ticket'      => ['ticket'       , PHP_TYPE_INT   , 0, 0         ],      // db:int
          'type'        => ['type'         , PHP_TYPE_INT   , 0, 0         ],      // db:int
          'lots'        => ['lots'         , PHP_TYPE_FLOAT , 0, 0         ],      // db:float(10,2)
          'symbol'      => ['symbol'       , PHP_TYPE_STRING, 0, 0         ],      // db:text(11)
          'openPrice'   => ['openprice'    , PHP_TYPE_FLOAT , 0, 0         ],      // db:float(10,5)
-         'openTime'    => ['opentime_fxt' , PHP_TYPE_STRING, 0, 0         ],      // db:text[datetime FXT]
+         'openTime'    => ['opentime_fxt' , PHP_TYPE_STRING, 0, 0         ],      // db:text[datetime]
          'stopLoss'    => ['stoploss'     , PHP_TYPE_FLOAT , 0, 0         ],      // db:float(10,5)
          'takeProfit'  => ['takeprofit'   , PHP_TYPE_FLOAT , 0, 0         ],      // db:float(10,5)
          'closePrice'  => ['closeprice'   , PHP_TYPE_FLOAT , 0, 0         ],      // db:float(10,5)
-         'closeTime'   => ['closetime_fxt', PHP_TYPE_STRING, 0, 0         ],      // db:text[datetime FXT]
+         'closeTime'   => ['closetime_fxt', PHP_TYPE_STRING, 0, 0         ],      // db:text[datetime]
          'commission'  => ['commission'   , PHP_TYPE_FLOAT , 0, 0         ],      // db:float(10,2)
          'swap'        => ['swap'         , PHP_TYPE_FLOAT , 0, 0         ],      // db:float(10,2)
          'profit'      => ['profit'       , PHP_TYPE_FLOAT , 0, 0         ],      // db:float(10,2)

@@ -75,12 +75,6 @@ exit(0);
 function processTestFiles() {
    global $testConfigFile, $testResultsFile, $verbose;
 
-   $test = Test::dao()->findById(1);
-   echoPre($test);
-   exit();
-
-
-
    $test = Test::create($testConfigFile, $testResultsFile);
    $test->save();
 
