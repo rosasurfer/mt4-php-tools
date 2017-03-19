@@ -28,8 +28,8 @@
 
    <!-- ================================================== Tiles ================================================== -->
    <tiles>
-      <tile name=".default" 					file="tiles/default.phtml"             />
-		<tile name=".uploadAccountHistory"  file="tiles/uploadAccountHistory.phtml"/>
+      <tile name=".default"               file="tiles/default.phtml"             />
+      <tile name=".uploadAccountHistory"  file="tiles/uploadAccountHistory.phtml"/>
    </tiles>
 
 </struts-config>
