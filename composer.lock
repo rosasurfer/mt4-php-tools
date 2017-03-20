@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "c1625e5d4aff8e90ce620cf084d8db8b",
+    "content-hash": "a8a8f799903266ea87aca82775a918cf",
     "packages": [
         {
             "name": "rosasurfer/ministruts",
@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/rosasurfer/ministruts.git",
-                "reference": "93e0eab9b60fc9492429d0d0b3ead95d762518aa"
+                "reference": "a0168a99e0665d9f1beaf8937d2ee903b85365c3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/93e0eab9b60fc9492429d0d0b3ead95d762518aa",
-                "reference": "93e0eab9b60fc9492429d0d0b3ead95d762518aa",
+                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/a0168a99e0665d9f1beaf8937d2ee903b85365c3",
+                "reference": "a0168a99e0665d9f1beaf8937d2ee903b85365c3",
                 "shasum": ""
             },
             "require": {
@@ -32,6 +32,11 @@
                     "src/load.php"
                 ]
             },
+            "scripts": {
+                "post-install-cmd": [
+                    "sh -c '[ -f bin/git-hooks/setup.sh ] && sh bin/git-hooks/setup.sh'"
+                ]
+            },
             "license": [
                 "WTFPL"
             ],
@@ -41,13 +46,13 @@
                     "email": "ministruts@rosasurfer.com"
                 }
             ],
-            "description": "Struts 1.2 like MVC web framework for PHP",
+            "description": "Struts 1.2 inspired MVC web framework for PHP",
             "homepage": "http://ministruts.rosasurfer.com/",
             "support": {
                 "source": "https://github.com/rosasurfer/ministruts/tree/master",
                 "issues": "https://github.com/rosasurfer/ministruts/issues"
             },
-            "time": "2017-03-15 12:49:46"
+            "time": "2017-03-20 20:58:02"
         }
     ],
     "packages-dev": [],

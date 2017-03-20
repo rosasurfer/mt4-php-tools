@@ -12,9 +12,9 @@
 exec 1>&2
 
 
-# check for and execute a user hook
-if [ -f "$0.user" ]; then
-   "$0.user" "$@" || exit 1
+# execute an existing user hook
+if [ -x "$0.user" ]; then
+   "$0.user" "$@" || exit $?
 fi
 
 

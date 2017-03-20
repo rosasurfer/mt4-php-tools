@@ -30,5 +30,8 @@
             "app/lib/myfxbook/defines.php",
             "app/lib/simpletrader/defines.php"
         ]
-    }
+    },
+    "scripts": {
+        "post-install-cmd": "sh -c '[ -f bin/git-hooks/setup.sh ] && sh bin/git-hooks/setup.sh'"
+    }    
 }
