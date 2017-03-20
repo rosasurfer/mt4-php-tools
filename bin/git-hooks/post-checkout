@@ -6,10 +6,6 @@
 #
 
 
-echo runnning: $0
-set | grep GIT
-
-
 # execute an existing user hook
 if [ -x "$0.user" ]; then
    "$0.user" "$@" || exit $?
