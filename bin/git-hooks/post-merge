@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 #
 # Git hook to run "composer install" if the file "composer.lock" was changed.
 #
