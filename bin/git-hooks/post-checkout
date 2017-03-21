@@ -13,13 +13,13 @@ fi
 
 
 # find Composer
-result=$(type -P composer.phar 2> /dev/null)
+result=$(type -P composer 2> /dev/null)
 if [ -z "$result" ]; then
-    result=$(type -P composer 2> /dev/null)
+    result=$(type -P composer.phar 2> /dev/null)
     [ -z "$result" ] && echo "ERROR: could not find Composer" && exit 1
 fi
 if [[ ".$OSTYPE" = ".msys" || ".$OSTYPE" = ".cygwin" ]]; then
-   # Windows: In interactive shells (i.e. MinTTy) use an existing alias to prevent terminal color support issues.
+   # Windows/MinTTy: Use an existing alias which can fix color support issues.
    [ ".$TERM" != ".cygwin" ] && use_alias=1 
 fi
 
@@ -31,7 +31,7 @@ changed_files=$(git diff-tree -r --name-only --no-commit-id $1 $2)
 # check if composer.lock has changed and run Composer
 check_run() {
    [ -f "$1" ]                                     && \
-   #echo "$changed_files" | grep --quiet -Fx "$1"   && \
+   echo "$changed_files" | grep --quiet -Fx "$1"   && \
    echo " * changes detected in $1"                && \
    echo " * running composer install"              && \
    {
