@@ -4,8 +4,8 @@
 
 
 # check environment  
-which git &>/dev/null || { echo "ERROR: Git binary not found."; exit; }
-CYGPATH=; which cygpath.exe &>/dev/null && CYGPATH=1
+which git >/dev/null 2>&1 || { echo "ERROR: Git binary not found."; exit; }
+CYGPATH=; which cygpath.exe >/dev/null 2>&1 && CYGPATH=1
 
 
 # resolve directories
