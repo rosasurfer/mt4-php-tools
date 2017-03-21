@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/rosasurfer/ministruts.git",
-                "reference": "04098e1294c860a3592650b476bb1b7a53bbe63d"
+                "reference": "ed9d314d663a3fdff749444fbe4fb456c031813b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/04098e1294c860a3592650b476bb1b7a53bbe63d",
-                "reference": "04098e1294c860a3592650b476bb1b7a53bbe63d",
+                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/ed9d314d663a3fdff749444fbe4fb456c031813b",
+                "reference": "ed9d314d663a3fdff749444fbe4fb456c031813b",
                 "shasum": ""
             },
             "require": {
@@ -34,7 +34,7 @@
             },
             "scripts": {
                 "post-install-cmd": [
-                    "sh -c '[ -f bin/git-hooks/setup.sh ] && sh bin/git-hooks/setup.sh'"
+                    "sh -c '[ -f bin/git-hooks/setup.sh ] && sh bin/git-hooks/setup.sh || [ -n 1 ]'"
                 ]
             },
             "license": [
@@ -52,7 +52,7 @@
                 "source": "https://github.com/rosasurfer/ministruts/tree/master",
                 "issues": "https://github.com/rosasurfer/ministruts/issues"
             },
-            "time": "2017-03-20 22:59:05"
+            "time": "2017-03-20 23:33:13"
         }
     ],
     "packages-dev": [],

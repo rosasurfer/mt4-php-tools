@@ -32,6 +32,6 @@
         ]
     },
     "scripts": {
-        "post-install-cmd": "sh -c '[ -f bin/git-hooks/setup.sh ] && sh bin/git-hooks/setup.sh || [ -n 1 ]'"
+        "post-install-cmd": "sh bin/git-hooks/setup.sh post-checkout post-merge"
     }    
 }
