@@ -27,17 +27,17 @@ $args = array_slice($_SERVER['argv'], 1);
 
 // Optionen parsen
 foreach ($args as $i => $arg) {
-   if ($arg == '-h'  )   exit(1|help());                                            // Hilfe
-   if ($arg == '-v'  ) { $verbose = max($verbose, 1); unset($args[$i]); continue; } // verbose output
-   if ($arg == '-vv' ) { $verbose = max($verbose, 2); unset($args[$i]); continue; } // more verbose output
-   if ($arg == '-vvv') { $verbose = max($verbose, 3); unset($args[$i]); continue; } // very verbose output
+    if ($arg == '-h'  )   exit(1|help());                                            // Hilfe
+    if ($arg == '-v'  ) { $verbose = max($verbose, 1); unset($args[$i]); continue; } // verbose output
+    if ($arg == '-vv' ) { $verbose = max($verbose, 2); unset($args[$i]); continue; } // more verbose output
+    if ($arg == '-vvv') { $verbose = max($verbose, 3); unset($args[$i]); continue; } // very verbose output
 }
 
 // Symbole parsen
 foreach ($args as $i => $arg) {
-   $arg = strToUpper($arg);
-   if (!isSet(MyFX::$symbols[$arg])) exit(1|help('error: unknown or unsupported symbol "'.$args[$i].'"'));
-   $args[$i] = $arg;
+    $arg = strToUpper($arg);
+    if (!isSet(MyFX::$symbols[$arg])) exit(1|help('error: unknown or unsupported symbol "'.$args[$i].'"'));
+    $args[$i] = $arg;
 }                                                                                   // ohne Symbol werden alle Instrumente verarbeitet
 $args = $args ? array_unique($args) : array_keys(MyFX::$symbols);
 
@@ -48,7 +48,7 @@ if (!WINDOWS) pcntl_signal(SIGINT, create_function('$signal', 'exit();'));      
 
 // (3) History erstellen
 foreach ($args as $symbol) {
-   !createHistory($symbol) && exit(1);
+    !createHistory($symbol) && exit(1);
 }
 exit(0);
 
@@ -64,49 +64,49 @@ exit(0);
  * @return bool - Erfolgsstatus
  */
 function createHistory($symbol) {
-   if (!is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
-   if (!strLen($symbol))    throw new InvalidArgumentException('Invalid parameter $symbol: ""');
+    if (!is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
+    if (!strLen($symbol))    throw new InvalidArgumentException('Invalid parameter $symbol: ""');
 
-   $startDay  = fxtTime(MyFX::$symbols[$symbol]['historyStart']['M1']);             // FXT
-   $startDay -= $startDay%DAY;                                                      // 00:00 FXT Starttag
-   $today     = ($today=fxtTime()) - $today%DAY;                                    // 00:00 FXT aktueller Tag
-
-
-   // MT4-HistorySet erzeugen
-   $digits    = MyFX::$symbols[$symbol]['digits'];
-   $format    = 400;
-   $directory = MyFX::getConfigPath('myfx.data-directory').'/history/mt4/MyFX-Dukascopy';
-   $history   = HistorySet::create($symbol, $digits, $format, $directory);
+    $startDay  = fxtTime(MyFX::$symbols[$symbol]['historyStart']['M1']);             // FXT
+    $startDay -= $startDay%DAY;                                                      // 00:00 FXT Starttag
+    $today     = ($today=fxtTime()) - $today%DAY;                                    // 00:00 FXT aktueller Tag
 
 
-   // Gesamte Zeitspanne tageweise durchlaufen
-   for ($day=$startDay, $lastMonth=-1; $day < $today; $day+=1*DAY) {
-      $shortDate = gmDate('D, d-M-Y', $day);
-      $month     = (int) gmDate('m', $day);
-      if ($month != $lastMonth) {
-         echoPre('[Info]    '.gmDate('M-Y', $day));
-         $lastMonth = $month;
-      }
+    // MT4-HistorySet erzeugen
+    $digits    = MyFX::$symbols[$symbol]['digits'];
+    $format    = 400;
+    $directory = MyFX::getConfigPath('myfx.data-directory').'/history/mt4/MyFX-Dukascopy';
+    $history   = HistorySet::create($symbol, $digits, $format, $directory);
 
-      // außer an Wochenenden: MyFX-History verarbeiten
-      if (!isForexWeekend($day, 'FXT')) {
-         if      (is_file($file=getVar('myfxFile.compressed', $symbol, $day))) {}   // wenn komprimierte MyFX-Datei existiert
-         else if (is_file($file=getVar('myfxFile.raw'       , $symbol, $day))) {}   // wenn unkomprimierte MyFX-Datei existiert
-         else {
-            echoPre('[Error]   '.$symbol.' MyFX history for '.$shortDate.' not found');
-            return false;
-         }
-         // Bars einlesen und der MT4-History hinzufügen
-         $bars = MyFX::readBarFile($file, $symbol);
-         $history->appendBars($bars);
-      }
 
-      if (!WINDOWS) pcntl_signal_dispatch();                                        // Auf Ctrl-C prüfen, um bei Abbruch den
-   }                                                                                // Schreibbuffer der History leeren zu können.
-   $history->close();
+    // Gesamte Zeitspanne tageweise durchlaufen
+    for ($day=$startDay, $lastMonth=-1; $day < $today; $day+=1*DAY) {
+        $shortDate = gmDate('D, d-M-Y', $day);
+        $month     = (int) gmDate('m', $day);
+        if ($month != $lastMonth) {
+            echoPre('[Info]    '.gmDate('M-Y', $day));
+            $lastMonth = $month;
+        }
 
-   echoPre('[Ok]      '.$symbol);
-   return true;
+        // außer an Wochenenden: MyFX-History verarbeiten
+        if (!isForexWeekend($day, 'FXT')) {
+            if      (is_file($file=getVar('myfxFile.compressed', $symbol, $day))) {}   // wenn komprimierte MyFX-Datei existiert
+            else if (is_file($file=getVar('myfxFile.raw'       , $symbol, $day))) {}   // wenn unkomprimierte MyFX-Datei existiert
+            else {
+                echoPre('[Error]   '.$symbol.' MyFX history for '.$shortDate.' not found');
+                return false;
+            }
+            // Bars einlesen und der MT4-History hinzufügen
+            $bars = MyFX::readBarFile($file, $symbol);
+            $history->appendBars($bars);
+        }
+
+        if (!WINDOWS) pcntl_signal_dispatch();                                        // Auf Ctrl-C prüfen, um bei Abbruch den
+    }                                                                                // Schreibbuffer der History leeren zu können.
+    $history->close();
+
+    echoPre('[Ok]      '.$symbol);
+    return true;
 }
 
 
@@ -124,45 +124,45 @@ function createHistory($symbol) {
  * @return string - Variable
  */
 function getVar($id, $symbol=null, $time=null) {
-   //global $varCache;
-   static $varCache = [];
-   if (array_key_exists(($key=$id.'|'.$symbol.'|'.$time), $varCache))
-      return $varCache[$key];
+    //global $varCache;
+    static $varCache = [];
+    if (array_key_exists(($key=$id.'|'.$symbol.'|'.$time), $varCache))
+        return $varCache[$key];
 
-   if (!is_string($id))                          throw new IllegalTypeException('Illegal type of parameter $id: '.getType($id));
-   if (!is_null($symbol) && !is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
-   if (!is_null($time) && !is_int($time))        throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+    if (!is_string($id))                          throw new IllegalTypeException('Illegal type of parameter $id: '.getType($id));
+    if (!is_null($symbol) && !is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
+    if (!is_null($time) && !is_int($time))        throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
 
-   $self = __FUNCTION__;
+    $self = __FUNCTION__;
 
-   if ($id == 'myfxDirDate') {               // $yyyy/$mm/$dd                                                  // lokales Pfad-Datum
-      if (!$time)   throw new InvalidArgumentException('Invalid parameter $time: '.$time);
-      $result = gmDate('Y/m/d', $time);
-   }
-   else if ($id == 'myfxDir') {              // $dataDirectory/history/myfx/$type/$symbol/$myfxDirDate         // lokales Verzeichnis
-      if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
-      static $dataDirectory; if (!$dataDirectory)
-      $dataDirectory = MyFX::getConfigPath('myfx.data-directory');
-      $type          = MyFX::$symbols[$symbol]['type'];
-      $myfxDirDate   = $self('myfxDirDate', null, $time);
-      $result        = "$dataDirectory/history/myfx/$type/$symbol/$myfxDirDate";
-   }
-   else if ($id == 'myfxFile.raw') {         // $myfxDir/M1.myfx                                               // lokale Datei ungepackt
-      $myfxDir = $self('myfxDir' , $symbol, $time);
-      $result  = "$myfxDir/M1.myfx";
-   }
-   else if ($id == 'myfxFile.compressed') {  // $myfxDir/M1.rar                                                // lokale Datei gepackt
-      $myfxDir = $self('myfxDir' , $symbol, $time);
-      $result  = "$myfxDir/M1.rar";
-   }
-   else {
-     throw new InvalidArgumentException('Unknown parameter $id: "'.$id.'"');
-   }
+    if ($id == 'myfxDirDate') {               // $yyyy/$mm/$dd                                                  // lokales Pfad-Datum
+        if (!$time)   throw new InvalidArgumentException('Invalid parameter $time: '.$time);
+        $result = gmDate('Y/m/d', $time);
+    }
+    else if ($id == 'myfxDir') {              // $dataDirectory/history/myfx/$type/$symbol/$myfxDirDate         // lokales Verzeichnis
+        if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
+        static $dataDirectory; if (!$dataDirectory)
+        $dataDirectory = MyFX::getConfigPath('myfx.data-directory');
+        $type          = MyFX::$symbols[$symbol]['type'];
+        $myfxDirDate   = $self('myfxDirDate', null, $time);
+        $result        = "$dataDirectory/history/myfx/$type/$symbol/$myfxDirDate";
+    }
+    else if ($id == 'myfxFile.raw') {         // $myfxDir/M1.myfx                                               // lokale Datei ungepackt
+        $myfxDir = $self('myfxDir' , $symbol, $time);
+        $result  = "$myfxDir/M1.myfx";
+    }
+    else if ($id == 'myfxFile.compressed') {  // $myfxDir/M1.rar                                                // lokale Datei gepackt
+        $myfxDir = $self('myfxDir' , $symbol, $time);
+        $result  = "$myfxDir/M1.rar";
+    }
+    else {
+      throw new InvalidArgumentException('Unknown parameter $id: "'.$id.'"');
+    }
 
-   $varCache[$key] = $result;
-   (sizeof($varCache) > ($maxSize=128)) && array_shift($varCache) /*&& echoPre('cache size limit of '.$maxSize.' hit')*/;
+    $varCache[$key] = $result;
+    (sizeof($varCache) > ($maxSize=128)) && array_shift($varCache) /*&& echoPre('cache size limit of '.$maxSize.' hit')*/;
 
-   return $result;
+    return $result;
 }
 
 
@@ -172,10 +172,10 @@ function getVar($id, $symbol=null, $time=null) {
  * @param  string $message - zusätzlich zur Syntax anzuzeigende Message (default: keine)
  */
 function help($message=null) {
-   if (!is_null($message))
-      echo($message.NL.NL);
+    if (!is_null($message))
+        echo($message.NL.NL);
 
-   $self = baseName($_SERVER['PHP_SELF']);
+    $self = baseName($_SERVER['PHP_SELF']);
 
 echo <<<HELP_MESSAGE
 

@@ -98,52 +98,52 @@ define('DUKASCOPY_TICK_SIZE', 20);
  * @return int - FXT based timestamp
  */
 function fxtTime($timestamp=null, $timezone='GMT') {
-   if (!is_string($timezone))    throw new IllegalTypeException('Illegal type of parameter $timezone: '.getType($timezone));
-   if (is_null($timestamp)) {
-      $timestamp = time();
-      $timezone  = 'GMT';
-   }
-   else if (!is_int($timestamp)) throw new IllegalTypeException('Illegal type of parameter $timestamp: '.getType($timestamp));
-   $timezone = strToUpper($timezone);
+    if (!is_string($timezone))    throw new IllegalTypeException('Illegal type of parameter $timezone: '.getType($timezone));
+    if (is_null($timestamp)) {
+        $timestamp = time();
+        $timezone  = 'GMT';
+    }
+    else if (!is_int($timestamp)) throw new IllegalTypeException('Illegal type of parameter $timestamp: '.getType($timestamp));
+    $timezone = strToUpper($timezone);
 
-   if ($timezone == 'FXT')
-      return $timestamp;                           // with FXT input and result are equal
+    if ($timezone == 'FXT')
+        return $timestamp;                           // with FXT input and result are equal
 
-   $gmtTimestamp = null;
+    $gmtTimestamp = null;
 
-   if ($timezone=='GMT' || $timezone=='UTC') {
-      $gmtTimestamp = $timestamp;
-   }
-   else {
-      // convert $timestamp to GMT timestamp
-      $oldTimezone = date_default_timezone_get();
-      try {
-         date_default_timezone_set($timezone);
+    if ($timezone=='GMT' || $timezone=='UTC') {
+        $gmtTimestamp = $timestamp;
+    }
+    else {
+        // convert $timestamp to GMT timestamp
+        $oldTimezone = date_default_timezone_get();
+        try {
+            date_default_timezone_set($timezone);
 
-         $offsetA = iDate('Z', $timestamp);
-         $gmtTime = $timestamp + $offsetA;
+            $offsetA = iDate('Z', $timestamp);
+            $gmtTime = $timestamp + $offsetA;
 
-         $offsetB = iDate('Z', $gmtTime);          // double check if DST change is exactly between $timestamp and $gmtTime
-         if ($offsetA != $offsetB) { /* TODO */ }
-      }
-      finally {
-         date_default_timezone_set($oldTimezone);
-      }
-   }
+            $offsetB = iDate('Z', $gmtTime);          // double check if DST change is exactly between $timestamp and $gmtTime
+            if ($offsetA != $offsetB) { /* TODO */ }
+        }
+        finally {
+            date_default_timezone_set($oldTimezone);
+        }
+    }
 
-   // convert $gmtTime to FXT timestamp
-   $oldTimezone = date_default_timezone_get();
-   try {
-      date_default_timezone_set('America/New_York');
+    // convert $gmtTime to FXT timestamp
+    $oldTimezone = date_default_timezone_get();
+    try {
+        date_default_timezone_set('America/New_York');
 
-      $estOffset = iDate('Z', $gmtTime);
-      $fxtTime   = $gmtTime + $estOffset + 7*HOURS;
+        $estOffset = iDate('Z', $gmtTime);
+        $fxtTime   = $gmtTime + $estOffset + 7*HOURS;
 
-      return $fxtTime;
-   }
-   finally {
-      date_default_timezone_set($oldTimezone);
-   }
+        return $fxtTime;
+    }
+    finally {
+        date_default_timezone_set($oldTimezone);
+    }
 }
 
 
@@ -156,10 +156,10 @@ function fxtTime($timestamp=null, $timezone='GMT') {
  * @return bool
  */
 function isForexTradingDay($timestamp, $timezone='GMT') {
-   if (!is_int($timestamp))   throw new IllegalTypeException('Illegal type of parameter $timestamp: '.getType($timestamp));
-   if (!is_string($timezone)) throw new IllegalTypeException('Illegal type of parameter $timezone: '.getType($timezone));
+    if (!is_int($timestamp))   throw new IllegalTypeException('Illegal type of parameter $timestamp: '.getType($timestamp));
+    if (!is_string($timezone)) throw new IllegalTypeException('Illegal type of parameter $timezone: '.getType($timezone));
 
-   return (!isForexWeekend($timestamp, $timezone) && !isForexHoliday($timestamp, $timezone));
+    return (!isForexWeekend($timestamp, $timezone) && !isForexHoliday($timestamp, $timezone));
 }
 
 
@@ -172,16 +172,16 @@ function isForexTradingDay($timestamp, $timezone='GMT') {
  * @return bool
  */
 function isForexWeekend($timestamp, $timezone='GMT') {
-   if (!is_int($timestamp))   throw new IllegalTypeException('Illegal type of parameter $timestamp: '.getType($timestamp));
-   if (!is_string($timezone)) throw new IllegalTypeException('Illegal type of parameter $timezone: '.getType($timezone));
+    if (!is_int($timestamp))   throw new IllegalTypeException('Illegal type of parameter $timestamp: '.getType($timestamp));
+    if (!is_string($timezone)) throw new IllegalTypeException('Illegal type of parameter $timezone: '.getType($timezone));
 
-   // convert $timestamp to FXT timestamp
-   if (strToUpper($timezone) != 'FXT')
-      $timestamp = fxtTime($timestamp, $timezone);
+    // convert $timestamp to FXT timestamp
+    if (strToUpper($timezone) != 'FXT')
+        $timestamp = fxtTime($timestamp, $timezone);
 
-   // check $timestamp as GMT timestamp
-   $dow = (int) gmDate('w', $timestamp);
-   return ($dow==SATURDAY || $dow==SUNDAY);
+    // check $timestamp as GMT timestamp
+    $dow = (int) gmDate('w', $timestamp);
+    return ($dow==SATURDAY || $dow==SUNDAY);
 }
 
 
@@ -194,20 +194,20 @@ function isForexWeekend($timestamp, $timezone='GMT') {
  * @return bool
  */
 function isForexHoliday($timestamp, $timezone='GMT') {
-   if (!is_int($timestamp))   throw new IllegalTypeException('Illegal type of parameter $timestamp: '.getType($timestamp));
-   if (!is_string($timezone)) throw new IllegalTypeException('Illegal type of parameter $timezone: '.getType($timezone));
+    if (!is_int($timestamp))   throw new IllegalTypeException('Illegal type of parameter $timestamp: '.getType($timestamp));
+    if (!is_string($timezone)) throw new IllegalTypeException('Illegal type of parameter $timezone: '.getType($timezone));
 
-   // convert $timestamp to FXT timestamp
-   if (strToUpper($timezone) != 'FXT')
-      $timestamp = fxtTime($timestamp, $timezone);
+    // convert $timestamp to FXT timestamp
+    if (strToUpper($timezone) != 'FXT')
+        $timestamp = fxtTime($timestamp, $timezone);
 
-   // check $timestamp as GMT timestamp
-   $m   = (int) gmDate('n', $timestamp);     // month
-   $dom = (int) gmDate('j', $timestamp);     // day of month
+    // check $timestamp as GMT timestamp
+    $m   = (int) gmDate('n', $timestamp);     // month
+    $dom = (int) gmDate('j', $timestamp);     // day of month
 
-   if ($dom==1 && $m==1)                     // 1. January
-      return true;
-   if ($dom==25 && $m==12)                   // 25. December
-      return true;
-   return false;
+    if ($dom==1 && $m==1)                     // 1. January
+        return true;
+    if ($dom==25 && $m==12)                   // 25. December
+        return true;
+    return false;
 }

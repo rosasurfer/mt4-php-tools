@@ -36,12 +36,12 @@ $quiet = false;                                          // whether or not "quie
 $args = array_slice($_SERVER['argv'], 1);
 
 foreach ($args as $i => $arg) {
-   if ($arg == '-h') { help(); exit(0);                           }     // help
-   if ($arg == '-q') { $quiet = true; unset($args[$i]); continue; }     // quiet mode
+    if ($arg == '-h') { help(); exit(0);                           }     // help
+    if ($arg == '-q') { $quiet = true; unset($args[$i]); continue; }     // quiet mode
 
-   error('invalid argument: '.$arg);
-   !$quiet && help();
-   exit(1);
+    error('invalid argument: '.$arg);
+    !$quiet && help();
+    exit(1);
 }
 
 
@@ -54,17 +54,17 @@ $config = Config::getDefault();
 $sender = $config->get('mail.from', get_current_user().'@localhost');
 $receivers = [];
 foreach (explode(',', $config->get('log.mail.receiver', '')) as $receiver) {
-   if ($receiver=trim($receiver))
-      $receivers[] = $receiver;                          // @TODO: validate address format
+    if ($receiver=trim($receiver))
+        $receivers[] = $receiver;                          // @TODO: validate address format
 }
 
 // check setting "mail.forced-receiver" (may be set in development)
 if ($receivers && $forcedReceivers=$config->get('mail.forced-receiver', false)) {
-   $receivers = [];
-   foreach (explode(',', $forcedReceivers) as $receiver) {
-      if ($receiver=trim($receiver))
-         $receivers[] = $receiver;
-   }
+    $receivers = [];
+    foreach (explode(',', $forcedReceivers) as $receiver) {
+        if ($receiver=trim($receiver))
+            $receivers[] = $receiver;
+    }
 }
 
 // w/o receiver mail is sent to the current system user
@@ -74,9 +74,9 @@ if ($receivers && $forcedReceivers=$config->get('mail.forced-receiver', false)) 
 // (2) define the location of the error log
 $errorLog = ini_get('error_log');
 if (empty($errorLog) || $errorLog=='syslog') {           // errors are logged elsewhere
-   if (empty($errorLog)) $quiet || echoPre('errors are logged elsewhere ('.(CLI     ?    'stderr':'sapi'  ).')');
-   else                  $quiet || echoPre('errors are logged elsewhere ('.(WINDOWS ? 'event log':'syslog').')');
-   exit(0);
+    if (empty($errorLog)) $quiet || echoPre('errors are logged elsewhere ('.(CLI     ?    'stderr':'sapi'  ).')');
+    else                  $quiet || echoPre('errors are logged elsewhere ('.(WINDOWS ? 'event log':'syslog').')');
+    exit(0);
 }
 
 
@@ -88,8 +88,8 @@ $errorLog = realPath($errorLog);
 // rename the file (we don't want to lock it, doing so could block the main app)
 $tempName = tempNam(dirName($errorLog), baseName($errorLog).'.');
 if (!rename($errorLog, $tempName)) {
-   error('cannot rename log file: '  .$errorLog);
-   exit(1);
+    error('cannot rename log file: '  .$errorLog);
+    exit(1);
 }
 
 // read the log file line by line
@@ -98,12 +98,12 @@ $hFile = fOpen($tempName, 'rb');
 $line  = $entry = '';
 $i = 0;
 while (($line=fGets($hFile)) !== false) {
-   $i++;
-   if (strStartsWith($line, '[')) {                      // lines starting with "[" are considered the start of an entry
-      processEntry($entry);
-      $entry = '';
-   }
-   $entry .= $line;
+    $i++;
+    if (strStartsWith($line, '[')) {                      // lines starting with "[" are considered the start of an entry
+        processEntry($entry);
+        $entry = '';
+    }
+    $entry .= $line;
 }
 processEntry($entry);                                    // process the last entry (if any)
 
@@ -126,29 +126,29 @@ exit(0);
  * @param  string $entry - a single or multi line log entry
  */
 function processEntry($entry) {
-   if (!is_string($entry)) throw new IllegalTypeException('Illegal type of parameter $entry: '.getType($entry));
-   $entry = trim($entry);
-   if (!strLen($entry))    return;
+    if (!is_string($entry)) throw new IllegalTypeException('Illegal type of parameter $entry: '.getType($entry));
+    $entry = trim($entry);
+    if (!strLen($entry))    return;
 
-   global $quiet, $sender, $receivers;
+    global $quiet, $sender, $receivers;
 
-   // normalize line-breaks
-   $entry = str_replace(["\r\n", "\r"], "\n", $entry);            // use Unix line-breaks by default but...
-   if (WINDOWS)                                                   // use Windows line-breaks on Windows
-      $entry = str_replace("\n", "\r\n", $entry);
-   $entry = str_replace(chr(0), "?", $entry);                     // replace NUL bytes which destroy the mail
+    // normalize line-breaks
+    $entry = str_replace(["\r\n", "\r"], "\n", $entry);            // use Unix line-breaks by default but...
+    if (WINDOWS)                                                   // use Windows line-breaks on Windows
+        $entry = str_replace("\n", "\r\n", $entry);
+    $entry = str_replace(chr(0), "?", $entry);                     // replace NUL bytes which destroy the mail
 
-   $subject = strTok($entry, "\r\n");                             // that's CR or LF, not CRLF
-   $message = $entry;
+    $subject = strTok($entry, "\r\n");                             // that's CR or LF, not CRLF
+    $message = $entry;
 
-   $quiet || echoPre('sending log entry: '.subStr($subject, 0, 50).'...');
+    $quiet || echoPre('sending log entry: '.subStr($subject, 0, 50).'...');
 
-   // send log entry to receivers
-   foreach ($receivers as $receiver) {
-      // Linux:   "From:" header is not reqired but may be set
-      // Windows: mail() fails if "sendmail_from" is not set and "From:" header is missing
-      mail($receiver, $subject, $message, $headers='From: '.$sender);
-   }
+    // send log entry to receivers
+    foreach ($receivers as $receiver) {
+        // Linux:   "From:" header is not reqired but may be set
+        // Windows: mail() fails if "sendmail_from" is not set and "From:" header is missing
+        mail($receiver, $subject, $message, $headers='From: '.$sender);
+    }
 }
 
 
@@ -158,7 +158,7 @@ function processEntry($entry) {
  * @param  string $message
  */
 function error($message) {
-   fWrite(STDERR, $message.NL);
+    fWrite(STDERR, $message.NL);
 }
 
 
@@ -168,17 +168,17 @@ function error($message) {
  * @param  string $message - additional message to display (default: none)
  */
 function help($message = null) {
-   if (!is_null($message))
-      echo($message.NL);
+    if (!is_null($message))
+        echo($message.NL);
 
-   $self = baseName($_SERVER['PHP_SELF']);
+    $self = baseName($_SERVER['PHP_SELF']);
 
-   echo <<<HELP_SYNTAX
+    echo <<<HELP_SYNTAX
 
  Syntax:  $self [options]
 
  Options:  -q   Quiet mode. Suppress status messages but not errors (for execution by CRON).
-           -h   This help screen.
+              -h   This help screen.
 
 
 HELP_SYNTAX;

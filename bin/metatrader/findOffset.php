@@ -23,10 +23,10 @@ $args = array_slice($_SERVER['argv'], 1);
 
 // (1.1) Optionen parsen
 foreach ($args as $i => $arg) {
-   $arg = strToLower($arg);
-   if ($arg == '-h')   exit(1|help());                                     // Hilfe
-   if ($arg == '-c') { $byteOffset=true; unset($args[$i]); continue; }     // -c: byte offset
-   if ($arg == '-q') { $quietMode =true; unset($args[$i]); continue; }     // -q: quiet mode
+    $arg = strToLower($arg);
+    if ($arg == '-h')   exit(1|help());                                     // Hilfe
+    if ($arg == '-c') { $byteOffset=true; unset($args[$i]); continue; }     // -c: byte offset
+    if ($arg == '-q') { $quietMode =true; unset($args[$i]); continue; }     // -q: quiet mode
 }
 
 // (1.2) Das verbleibende erste Argument muß ein Zeitpunkt sein.
@@ -48,12 +48,12 @@ $fileSize = fileSize($fileName);
 $hFile  = fOpen($fileName, 'rb');
 $header = null;
 try {
-   $header = new HistoryHeader(fRead($hFile, HistoryHeader::SIZE));
+    $header = new HistoryHeader(fRead($hFile, HistoryHeader::SIZE));
 }
 catch (MetaTraderException $ex) {
-   if (strStartsWith($ex->getMessage(), 'version.unsupported'))
-      exit(1|echoPre('unsupported history format in "'.$fileName.'": '.$ex->getMessage()));
-   throw $ex;
+    if (strStartsWith($ex->getMessage(), 'version.unsupported'))
+        exit(1|echoPre('unsupported history format in "'.$fileName.'": '.$ex->getMessage()));
+    throw $ex;
 }
 
 if ($header->getFormat() == 400) { $barSize = MT4::HISTORY_BAR_400_SIZE; $barFormat = 'Vtime/dopen/dlow/dhigh/dclose/dticks';                          }
@@ -64,44 +64,44 @@ else                      /*401*/{ $barSize = MT4::HISTORY_BAR_401_SIZE; $barFor
 $i = 0;
 $allBars = $bars = ($fileSize-HistoryHeader::SIZE)/$barSize;
 if (!is_int($bars)) {
-   echoPre('unexpected EOF of "'.$fileName.'"');;
-   $allBars = $bars = (int) $bars;
+    echoPre('unexpected EOF of "'.$fileName.'"');;
+    $allBars = $bars = (int) $bars;
 }
 $barFrom = $barTo = [];
 if (!$bars) {
-   $i = -1;                      // Datei enthält keine Bars
+    $i = -1;                      // Datei enthält keine Bars
 }
 else {
-   $barFrom = unpack($barFormat, fRead($hFile, $barSize));
-   $iFrom   = 0;
-   fSeek($hFile, HistoryHeader::SIZE + $barSize*($bars-1));
-   $barTo   = unpack($barFormat, fRead($hFile, $barSize));
-   $iTo     = $bars-1;
+    $barFrom = unpack($barFormat, fRead($hFile, $barSize));
+    $iFrom   = 0;
+    fSeek($hFile, HistoryHeader::SIZE + $barSize*($bars-1));
+    $barTo   = unpack($barFormat, fRead($hFile, $barSize));
+    $iTo     = $bars-1;
 }
 
 
 // (4) Zeitfenster von Beginn- und Endbar rekursiv bis zum gesuchten Zeitpunkt verkleinern
 while ($i != -1) {
-   if ($barFrom['time'] >= $datetime) {
-      $i = $iFrom;
-      break;
-   }
-   if ($barTo['time'] < $datetime) {
-      $i = -1;
-      break;
-   }
-   if ($barTo['time']==$datetime || $bars==2) {
-      $i = $iTo;
-      break;
-   }
+    if ($barFrom['time'] >= $datetime) {
+        $i = $iFrom;
+        break;
+    }
+    if ($barTo['time'] < $datetime) {
+        $i = -1;
+        break;
+    }
+    if ($barTo['time']==$datetime || $bars==2) {
+        $i = $iTo;
+        break;
+    }
 
-   $halfSize = (int) ceil($bars/2);
-   $iMid     = $iFrom + $halfSize - 1;
-   fSeek($hFile, HistoryHeader::SIZE + $iMid*$barSize);
-   $barMid   = unpack($barFormat, fRead($hFile, $barSize));
-   if ($barMid['time'] <= $datetime) { $barFrom = $barMid; $iFrom = $iMid; }
-   else                              { $barTo   = $barMid; $iTo   = $iMid; }
-   $bars = $iTo - $iFrom + 1;
+    $halfSize = (int) ceil($bars/2);
+    $iMid     = $iFrom + $halfSize - 1;
+    fSeek($hFile, HistoryHeader::SIZE + $iMid*$barSize);
+    $barMid   = unpack($barFormat, fRead($hFile, $barSize));
+    if ($barMid['time'] <= $datetime) { $barFrom = $barMid; $iFrom = $iMid; }
+    else                              { $barTo   = $barMid; $iTo   = $iMid; }
+    $bars = $iTo - $iFrom + 1;
 }
 
 
@@ -126,10 +126,10 @@ exit(0);
  * @param  string $message - zusätzlich zur Syntax anzuzeigende Message (default: keine)
  */
 function help($message=null) {
-   if (!is_null($message))
-      echo($message.NL.NL);
+    if (!is_null($message))
+        echo($message.NL.NL);
 
-   $self = baseName($_SERVER['PHP_SELF']);
+    $self = baseName($_SERVER['PHP_SELF']);
 
 echo <<<HELP_MESSAGE
 Returns the offset of the first bar in a MetaTrader history file at or after a specified time or -1 if no such bar is found.
@@ -137,8 +137,8 @@ Returns the offset of the first bar in a MetaTrader history file at or after a s
   Syntax:  $self  [OPTION]... TIME FILE
 
   Options:  -c  Returns the byte offset of the found bar instead of the bar offset.
-            -q  Quiet mode. Returns only the numeric result value.
-            -h  This help screen.
+                -q  Quiet mode. Returns only the numeric result value.
+                -h  This help screen.
 
 
 HELP_MESSAGE;

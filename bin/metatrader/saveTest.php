@@ -26,8 +26,8 @@ $args = array_slice($_SERVER['argv'], 1);
 
 // parse options
 foreach ($args as $i => $arg) {
-   if ($arg == '-h')   exit(1|help());                                              // help
-   if ($arg == '-v') { $verbose = max($verbose, 1); unset($args[$i]); continue; }   // verbose output
+    if ($arg == '-h')   exit(1|help());                                              // help
+    if ($arg == '-v') { $verbose = max($verbose, 1); unset($args[$i]); continue; }   // verbose output
 }
 
 // (1.1) the remaining argument must be a file
@@ -38,14 +38,14 @@ $fileName = array_shift($args);
 // (1.2) fileName must be a test configuration or a test result file
 $ext = (new SplFileInfo($fileName))->getExtension();
 if ($ext == 'ini') {
-   $testConfigFile  = $fileName;
-   $testResultsFile = strLeft($fileName, -strLen($ext)).'log';
-   !is_file($testResultsFile) && exit(1|echoPre('test results file not found: "'.$testResultsFile.'"'));
+    $testConfigFile  = $fileName;
+    $testResultsFile = strLeft($fileName, -strLen($ext)).'log';
+    !is_file($testResultsFile) && exit(1|echoPre('test results file not found: "'.$testResultsFile.'"'));
 }
 elseif ($ext == 'log') {
-   $testConfigFile  = strLeft($fileName, -strLen($ext)).'ini';
-   $testResultsFile = $fileName;
-   !is_file($testConfigFile) && exit(1|echoPre('test config file not found: "'.$testConfigFile.'"'));
+    $testConfigFile  = strLeft($fileName, -strLen($ext)).'ini';
+    $testResultsFile = $fileName;
+    !is_file($testConfigFile) && exit(1|echoPre('test config file not found: "'.$testConfigFile.'"'));
 }
 else exit(1|echoPre('unsupported file: "'.$fileName.'" (see -h for help)'));
 
@@ -73,13 +73,13 @@ exit(0);
  * @return bool - success status
  */
 function processTestFiles() {
-   global $testConfigFile, $testResultsFile, $verbose;
+    global $testConfigFile, $testResultsFile, $verbose;
 
-   $test = Test::create($testConfigFile, $testResultsFile);
-   $test->save();
+    $test = Test::create($testConfigFile, $testResultsFile);
+    $test->save();
 
-   echoPre('Test of "'.$test->getStrategy().'" with '.$test->countTrades().' trades saved.');
-   return true;
+    echoPre('Test of "'.$test->getStrategy().'" with '.$test->countTrades().' trades saved.');
+    return true;
 }
 
 
@@ -89,9 +89,9 @@ function processTestFiles() {
  * @param  string $message - additional message to display (default: none)
  */
 function help($message = null) {
-   if (is_null($message))
-      $message = 'Save a test with its trade history in the database.';
-   $self = baseName($_SERVER['PHP_SELF']);
+    if (is_null($message))
+        $message = 'Save a test with its trade history in the database.';
+    $self = baseName($_SERVER['PHP_SELF']);
 
 echo <<<HELP_MESSAGE
 $message
@@ -99,7 +99,7 @@ $message
   Syntax:  $self  [OPTIONS] FILE
 
   Options:  -v  Verbose output.
-            -h  This help screen.
+                -h  This help screen.
 
   FILE - test config (.ini) or test result (.log) file
 

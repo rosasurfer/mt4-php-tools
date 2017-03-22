@@ -12,6 +12,6 @@ require(__DIR__.'/../etc/vendor/autoload.php');
 
 // initialize application
 MiniStruts::init([
-   'config'  => __DIR__.'/config',
-   'globals' => true,
+    'config'  => __DIR__.'/config',
+    'globals' => true,
 ]);

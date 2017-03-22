@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-   <meta charset="utf-8">
+    <meta charset="utf-8">
 
-   <title>uploadAccountHistory.html</title>
-   <script type="text/javascript" src="<?=vurl('/js/rosasurfer.js')?>"></script>
+    <title>uploadAccountHistory.html</title>
+    <script type="text/javascript" src="<?=vurl('/js/rosasurfer.js')?>"></script>
 </head>
 
 <body>
@@ -14,34 +14,34 @@
 <br>
 
 <div style="margin:8px">
-   <br>
-   <div style="font-size:12px; font-weight:bold">UploadAccountHistory</div>
-   <br>
+    <br>
+    <div style="font-size:12px; font-weight:bold">UploadAccountHistory</div>
+    <br>
 
-   <form action="<?=$request->getPath()?>" method="post" enctype="multipart/form-data">
-      <input type="hidden" name="MAX_FILE_SIZE" value="<?=ini_get('upload_max_filesize')?>">
+    <form action="<?=$request->getPath()?>" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="MAX_FILE_SIZE" value="<?=ini_get('upload_max_filesize')?>">
 
-   <table cellspacing=0 cellpadding=0 border=0>
-   <tr>
-      <td><input type="file" name="file" size=70></td>
-      <td style="text-align:left; vertical-align:middle; color:red"><?=$request->getActionError('file')?></td>
-   </tr>
-   <tr>
-      <td colspan=2>
-         <br>
-         <br>
-      </td>
-   </tr>
-   <tr>
-      <td align="center">
-         <input type="submit" value="Submit" style="width:160px; height:24px">
-      </td>
-      <td></td>
-   </tr>
-   </table>
+    <table cellspacing=0 cellpadding=0 border=0>
+    <tr>
+        <td><input type="file" name="file" size=70></td>
+        <td style="text-align:left; vertical-align:middle; color:red"><?=$request->getActionError('file')?></td>
+    </tr>
+    <tr>
+        <td colspan=2>
+            <br>
+            <br>
+        </td>
+    </tr>
+    <tr>
+        <td align="center">
+            <input type="submit" value="Submit" style="width:160px; height:24px">
+        </td>
+        <td></td>
+    </tr>
+    </table>
 
-   </form>
-   <br>
+    </form>
+    <br>
 </div>
 
 </body>
