@@ -7,13 +7,13 @@ require(__DIR__.'/../../app/init.php');
 date_default_timezone_set('GMT');
 
 
-// -- Konfiguration --------------------------------------------------------------------------------------------------------------------------------
+// -- Konfiguration ---------------------------------------------------------------------------------------------------------
 
 
 $options = ['verbose' => 0];
 
 
-// -- Start ----------------------------------------------------------------------------------------------------------------------------------------
+// -- Start -----------------------------------------------------------------------------------------------------------------
 
 
 // (1) Befehlszeilenargumente einlesen und validieren
@@ -128,7 +128,7 @@ echoPre($options);
 exit(0);
 
 
-// --- Funktionen ----------------------------------------------------------------------------------------------------------------------------------
+// --- Funktionen -----------------------------------------------------------------------------------------------------------
 
 
 /**
@@ -147,15 +147,15 @@ $message
   Syntax:  $self -s=SYMBOL -p=PERIOD [-from=DATE] [-to=DATE] [-model=TYPE] [-spread=PIPS] [...]
 
   Options:  -s=SYMBOL       The symbol to generate the tick file for.
-                -p=PERIOD       Timeframe of the generated tick file as an id or in minutes.
-                -from=DATE      Testing start date of the generated tick file (default: start of data).
-                -to=DATE        Testing end date of the generated tick file (default: end of data).
-                -model=[R|S|B]  Tick generation algorythm: (R)EALTICKS|(S)IMULATEDTICKS|(B)AROPEN (default: real ticks).
-                -spread=PIPS    Fixed spread of the generated tick file in fractional pips (default: 0).
-                -v              Verbose output.
-                -vv             More verbose output.
-                -vvv            Most verbose output.
-                -h              This help screen.
+            -p=PERIOD       Timeframe of the generated tick file as an id or in minutes.
+            -from=DATE      Testing start date of the generated tick file (default: start of data).
+            -to=DATE        Testing end date of the generated tick file (default: end of data).
+            -model=[R|S|B]  Tick generation algorythm: (R)EALTICKS|(S)IMULATEDTICKS|(B)AROPEN (default: real ticks).
+            -spread=PIPS    Fixed spread of the generated tick file in fractional pips (default: 0).
+            -v              Verbose output.
+            -vv             More verbose output.
+            -vvv            Most verbose output.
+            -h              This help screen.
 
 
 HELP_MESSAGE;
