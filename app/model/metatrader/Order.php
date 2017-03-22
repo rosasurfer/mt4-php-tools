@@ -215,41 +215,4 @@ class Order extends PersistableObject {
     public function isClosedPosition() {
         return ($this->isPosition() &&  $this->isClosed());
     }
-
-
-    /**
-     * Insert the instance into the database.
-     *
-     * @return self
-     */
-    protected function insert() {
-        $db = self::db();
-
-        // create SQL
-
-        // execute SQL
-
-        // query instance id
-
-        /*
-        $created     =  $this->created;
-        $ticket      =  $this->ticket;
-        $closeprice  =  $this->closePrice;
-        $stoploss    = !$this->stopLoss             ? 'null' : $this->stopLoss;
-        $takeprofit  = !$this->takeProfit           ? 'null' : $this->takeProfit;
-        $commission  =  is_null($this->commission ) ? 'null' : $this->commission;
-        $swap        =  is_null($this->swap       ) ? 'null' : $this->swap;
-        $profit      =  is_null($this->grossProfit) ? 'null' : $this->grossProfit;
-        $magicnumber = !$this->magicNumber          ? 'null' : $this->magicNumber;
-        $comment     =  $dao->escapeLiteral($this->comment);
-
-        // insert instance
-        $sql = "insert into t_closedposition (version, created, ticket, type, lots, symbol, opentime, openprice, closetime, closeprice, stoploss, takeprofit, commission, swap, profit, netprofit, magicnumber, comment, signal_id) values
-                      ('$version', '$created', $ticket, '$type', $lots, '$symbol', '$opentime', $openprice, '$closetime', $closeprice, $stoploss, $takeprofit, $commission, $swap, $profit, $netprofit, $magicnumber, $comment, $signal_id)";
-        $this->id = $dao->execute($sql)
-                             ->db()
-                             ->lastInsertId();
-        */
-        return $this;
-    }
 }

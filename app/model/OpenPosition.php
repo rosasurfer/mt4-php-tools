@@ -252,40 +252,6 @@ class OpenPosition extends PersistableObject {
 
 
     /**
-     * Fügt diese Instanz in die Datenbank ein.
-     *
-     * @return self
-     */
-    protected function insert() {
-        $dao = self::dao();
-
-        $created     = $dao->escapeLiteral($this->created);
-        $version     = $dao->escapeLiteral($this->version);
-        $ticket      =                     $this->ticket;
-        $type        = $dao->escapeLiteral($this->type);
-        $lots        =                     $this->lots;
-        $symbol      = $dao->escapeLiteral($this->symbol);
-        $opentime    = $dao->escapeLiteral($this->openTime);
-        $openprice   =                     $this->openPrice;
-        $stoploss    = $dao->escapeLiteral($this->stopLoss);
-        $takeprofit  = $dao->escapeLiteral($this->takeProfit);
-        $commission  = $dao->escapeLiteral($this->commission);
-        $swap        = $dao->escapeLiteral($this->swap);
-        $magicnumber = $dao->escapeLiteral($this->magicNumber);
-        $comment     = $dao->escapeLiteral($this->comment);
-        $signal_id   =                     $this->signal_id;
-
-        // OpenPosition einfügen
-        $sql = "insert into :OpenPosition (created, version, ticket, type, lots, symbol, opentime, openprice, stoploss, takeprofit, commission, swap, magicnumber, comment, signal_id) values
-                      ($created, $version, $ticket, $type, $lots, $symbol, $opentime, $openprice, $stoploss, $takeprofit, $commission, $swap, $magicnumber, $comment, $signal_id)";
-        $this->id = $dao->execute($sql)
-                             ->db()
-                             ->lastInsertId();
-        return $this;
-    }
-
-
-    /**
      * Aktualisiert diese Instanz in der Datenbank.
      *
      * @return self

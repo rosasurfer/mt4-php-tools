@@ -578,41 +578,14 @@ class Test extends PersistableObject {
      * @return self
      */
     protected function insert() {
-        $db = self::db();
-
-        $created         = $db->escapeLiteral($this->created);
-        $modified        = $db->escapeLiteral($this->modified);
-        $strategy        = $db->escapeLiteral($this->strategy);
-        $reportingid     =                    $this->reportingId;
-        $reportingsymbol = $db->escapeLiteral($this->reportingSymbol);
-        $symbol          = $db->escapeLiteral($this->symbol);
-        $timeframe       =                    $this->timeframe;
-        $starttime       =                    $this->startTime;
-        $endtime         =                    $this->endTime;
-        $tickmodel       = $db->escapeLiteral($this->tickModel);
-        $spread          =                    $this->spread;
-        $bars            =                    $this->bars;
-        $ticks           =                    $this->ticks;
-        $tradedirections = $db->escapeLiteral($this->tradeDirections);
-        $visualmode      =              (int) $this->visualMode;
-        $duration        =                    $this->duration;
-
-        $db->begin();
+        $this->db()->begin();
         try {
-             // insert instance
-             $sql = "insert into t_test (created_utc, modified_utc, strategy, reportingid, reportingsymbol, symbol, timeframe, starttime_fxt, endtime_fxt, tickmodel, spread, bars, ticks, tradedirections, visualmode, duration) values
-                            ($created, $modified, $strategy, $reportingid, $reportingsymbol, $symbol, $timeframe, '$starttime', '$endtime', $tickmodel, $spread, $bars, $ticks, $tradedirections, $visualmode, $duration)";
-             $this->id = $db->execute($sql)->lastInsertId();
-
-            // insert trades
-            foreach ($this->getTrades() as $trade) {
-                $trade->save();
-            }
-            $db->commit();
+            parent::insert();
+            foreach ($this->getTrades() as $trade) $trade->save();
+            $this->db()->commit();
         }
         catch (\Exception $ex) {
-            $this->id = null;
-            $db->rollback();
+            $this->db()->rollback();
             throw $ex;
         }
         return $this;

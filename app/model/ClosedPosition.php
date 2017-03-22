@@ -279,43 +279,4 @@ class ClosedPosition extends PersistableObject {
             $this->signal = Signal::dao()->getById($this->signal_id);
         return $this->signal;
     }
-
-
-    /**
-     * Fuegt diese Instanz in die Datenbank ein.
-     *
-     * @return self
-     */
-    protected function insert() {
-        $db = self::dao();
-
-        $created     = $dao->escapeLiteral($this->created);
-        $version     = $dao->escapeLiteral($this->version);
-
-        $ticket      =                     $this->ticket;
-        $type        = $dao->escapeLiteral($this->type);
-        $lots        =                     $this->lots;
-        $symbol      = $dao->escapeLiteral($this->symbol);
-        $opentime    = $dao->escapeLiteral($this->openTime);
-        $openprice   =                     $this->openPrice;
-        $closetime   = $dao->escapeLiteral($this->closeTime);
-        $closeprice  =                     $this->closePrice;
-        $stoploss    = $dao->escapeLiteral($this->stopLoss);
-        $takeprofit  = $dao->escapeLiteral($this->takeProfit);
-        $commission  = $dao->escapeLiteral($this->commission);
-        $swap        = $dao->escapeLiteral($this->swap);
-        $profit      = $dao->escapeLiteral($this->grossProfit);
-        $netprofit   =                     $this->netProfit;
-        $magicnumber = $dao->escapeLiteral($this->magicNumber);
-        $comment     = $dao->escapeLiteral($this->comment);
-        $signal_id   =                     $this->signal_id;
-
-        // ClosedPosition einfuegen
-        $sql = "insert into :ClosedPosition (created, version, ticket, type, lots, symbol, opentime, openprice, closetime, closeprice, stoploss, takeprofit, commission, swap, profit, netprofit, magicnumber, comment, signal_id) values
-                      ($created, $version, $ticket, $type, $lots, $symbol, $opentime, $openprice, $closetime, $closeprice, $stoploss, $takeprofit, $commission, $swap, $profit, $netprofit, $magicnumber, $comment, $signal_id)";
-        $this->id = $dao->execute($sql)
-                             ->db()
-                             ->lastInsertId();
-        return $this;
-    }
 }
