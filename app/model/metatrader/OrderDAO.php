@@ -30,7 +30,7 @@ class OrderDAO extends DAO {
             'modified'    => ['modified_utc' , PHP_TYPE_STRING, 0, ID_VERSION],      // db:text[datetime]
 
             'ticket'      => ['ticket'       , PHP_TYPE_INT   , 0, 0         ],      // db:int
-            'type'        => ['type'         , PHP_TYPE_INT   , 0, 0         ],      // db:int
+            'type'        => ['type'         , PHP_TYPE_STRING, 0, 0         ],      // db:string[enum] references enum_OrderType(Type)
             'lots'        => ['lots'         , PHP_TYPE_FLOAT , 0, 0         ],      // db:float
             'symbol'      => ['symbol'       , PHP_TYPE_STRING, 0, 0         ],      // db:text
             'openPrice'   => ['openprice'    , PHP_TYPE_FLOAT , 0, 0         ],      // db:float

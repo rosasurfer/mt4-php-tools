@@ -797,42 +797,65 @@ class MT4 extends StaticClass {
     }
 
 
-     /**
-      * Return a tick model description.
-      *
-      * @param  int - tick model id
-      *
-      * @return string|null - description or NULL if the parameter is not a valid tick model id
-      */
-     public static function tickModelDescription($id) {
-          $id = self::strToTickModel($id);
-          if ($id !== null) {
-                switch ($id) {
-                    case TICKMODEL_EVERYTICK:     return 'EveryTick';
-                    case TICKMODEL_CONTROLPOINTS: return 'ControlPoints';
-                    case TICKMODEL_BAROPEN:       return 'BarOpen';
-                }
-          }
-          return null;
-     }
+    /**
+     * Return an order type description.
+     *
+     * @param  int - order type id
+     *
+     * @return string|null - description or NULL if the parameter is not a valid order type id
+     */
+    public static function orderTypeDescription($id) {
+        $id = self::strToOrderType($id);
+        if ($id !== null) {
+            switch ($id) {
+                case OP_BUY      : return 'Buy';
+                case OP_SELL     : return 'Sell';
+                case OP_BUYLIMIT : return 'Buy Limit';
+                case OP_SELLLIMIT: return 'Sell Limit';
+                case OP_BUYSTOP  : return 'Buy Stop';
+                case OP_SELLSTOP : return 'Sell Stop';
+            }
+        }
+        return null;
+    }
 
 
-     /**
-      * Return a trade direction description.
-      *
-      * @param  int - direction id
-      *
-      * @return string|null - description or NULL if the parameter is not a valid trade direction id
-      */
-     public static function tradeDirectionDescription($id) {
-          $id = self::strToTradeDirection($id);
-          if ($id !== null) {
-                switch ($id) {
-                    case TRADEDIRECTION_LONG:  return 'Long';
-                    case TRADEDIRECTION_SHORT: return 'Short';
-                    case TRADEDIRECTION_BOTH:  return 'Both';
-                }
-          }
-          return null;
-     }
+    /**
+     * Return a tick model description.
+     *
+     * @param  int - tick model id
+     *
+     * @return string|null - description or NULL if the parameter is not a valid tick model id
+     */
+    public static function tickModelDescription($id) {
+        $id = self::strToTickModel($id);
+        if ($id !== null) {
+            switch ($id) {
+                case TICKMODEL_EVERYTICK:     return 'EveryTick';
+                case TICKMODEL_CONTROLPOINTS: return 'ControlPoints';
+                case TICKMODEL_BAROPEN:       return 'BarOpen';
+            }
+        }
+        return null;
+    }
+
+
+    /**
+     * Return a trade direction description.
+     *
+     * @param  int - direction id
+     *
+     * @return string|null - description or NULL if the parameter is not a valid trade direction id
+     */
+    public static function tradeDirectionDescription($id) {
+        $id = self::strToTradeDirection($id);
+        if ($id !== null) {
+            switch ($id) {
+                case TRADEDIRECTION_LONG:  return 'Long';
+                case TRADEDIRECTION_SHORT: return 'Short';
+                case TRADEDIRECTION_BOTH:  return 'Both';
+            }
+        }
+        return null;
+    }
 }

@@ -25,7 +25,7 @@ class Order extends PersistableObject {
      /** @var int - ticket number */
     protected $ticket;
 
-    /** @var int - order type */
+    /** @var string - order type: Buy|Sell */
     protected $type;
 
     /** @var float - lot size */
@@ -80,9 +80,8 @@ class Order extends PersistableObject {
      * @return self
      */
     public static function create(Test $test, array $properties) {
-        $order          = new static();
-        $order->test    = $test;
-        $order->test_id = $test->getId();
+        $order       = new static();
+        $order->test = $test;
 
         $id = $properties['id'];
         if (!is_int($id))                                      throw new IllegalTypeException('Illegal type of property "id": '.getType($id));
@@ -97,7 +96,7 @@ class Order extends PersistableObject {
         $type = $properties['type'];
         if (!is_int($type))                                    throw new IllegalTypeException('Illegal type of property "type": '.getType($type));
         if (!\MT4::isOrderType($type))                         throw new InvalidArgumentException('Invalid property "type": '.$type.' (not an order type)');
-        $order->type = $type;
+        $order->type = \MT4::orderTypeDescription($type);
 
         $lots = $properties['lots'];
         if (!is_float($lots))                                  throw new IllegalTypeException('Illegal type of property "lots": '.getType($lots));
@@ -118,11 +117,11 @@ class Order extends PersistableObject {
         if ($openPrice <= 0)                                   throw new InvalidArgumentException('Invalid property "openPrice": '.$openPrice.' (not positive)');
         $order->openPrice = $openPrice;
 
-        $openTime = $properties['openTime'];
+        $openTime = $properties['openTime'];                   // FXT timestamp
         if (!is_int($openTime))                                throw new IllegalTypeException('Illegal type of property "openTime": '.getType($openTime));
         if ($openTime <= 0)                                    throw new InvalidArgumentException('Invalid property "openTime": '.$openTime.' (not positive)');
         if (!isForexTradingDay($openTime, 'FXT'))              throw new InvalidArgumentException('Invalid property "openTime": '.$openTime.' (not a trading day)');
-        $order->openTime = $openTime;
+        $order->openTime = gmDate('Y-m-d H:i:s', $openTime);
 
         $stopLoss = $properties['stopLoss'];
         if (!is_float($stopLoss))                              throw new IllegalTypeException('Illegal type of property "stopLoss": '.getType($stopLoss));
@@ -138,9 +137,9 @@ class Order extends PersistableObject {
 
         if ($stopLoss && $takeProfit) {
             if (\MT4::isLongOrderType($order->type)) {
-                if ($stopLoss >= $takeProfit)                    throw new InvalidArgumentException('Invalid properties "stopLoss|takeProfit" for LONG order: '.$stopLoss.'|'.$takeProfit.' (mis-match)');
+                if ($stopLoss >= $takeProfit)                  throw new InvalidArgumentException('Invalid properties "stopLoss|takeProfit" for LONG order: '.$stopLoss.'|'.$takeProfit.' (mis-match)');
             }
-            else if ($stopLoss <= $takeProfit)                  throw new InvalidArgumentException('Invalid properties "stopLoss|takeProfit" for SHORT order: '.$stopLoss.'|'.$takeProfit.' (mis-match)');
+            else if ($stopLoss <= $takeProfit)                 throw new InvalidArgumentException('Invalid properties "stopLoss|takeProfit" for SHORT order: '.$stopLoss.'|'.$takeProfit.' (mis-match)');
         }
 
         $closePrice = $properties['closePrice'];
@@ -149,16 +148,16 @@ class Order extends PersistableObject {
         if ($closePrice < 0)                                   throw new InvalidArgumentException('Invalid property "closePrice": '.$closePrice.' (not non-negative)');
         $order->closePrice = !$closePrice ? null : $closePrice;
 
-        $closeTime = $properties['closeTime'];
+        $closeTime = $properties['closeTime'];                 // FXT timestamp
         if (!is_int($closeTime))                               throw new IllegalTypeException('Illegal type of property "closeTime": '.getType($closeTime));
         if ($closeTime < 0)                                    throw new InvalidArgumentException('Invalid property "closeTime": '.$closeTime.' (not positive)');
         if      ($closeTime && !$closePrice)                   throw new InvalidArgumentException('Invalid properties "closePrice|closeTime": '.$closePrice.'|'.$closeTime.' (mis-match)');
         else if (!$closeTime && $closePrice)                   throw new InvalidArgumentException('Invalid properties "closePrice|closeTime": '.$closePrice.'|'.$closeTime.' (mis-match)');
         if ($closeTime) {
-            if (!isForexTradingDay($closeTime, 'FXT'))          throw new InvalidArgumentException('Invalid property "closeTime": '.$closeTime.' (not a trading day)');
-            if ($closeTime < $openTime)                         throw new InvalidArgumentException('Invalid properties "openTime|closeTime": '.$openTime.'|'.$closeTime.' (mis-match)');
+            if (!isForexTradingDay($closeTime, 'FXT'))         throw new InvalidArgumentException('Invalid property "closeTime": '.$closeTime.' (not a trading day)');
+            if ($closeTime < $openTime)                        throw new InvalidArgumentException('Invalid properties "openTime|closeTime": '.$openTime.'|'.$closeTime.' (mis-match)');
         }
-        $order->closeTime = !$closeTime ? null : $closeTime;
+        $order->closeTime = !$closeTime ? null : gmDate('Y-m-d H:i:s', $closeTime);
 
         $commission = $properties['commission'];
         if (!is_float($commission))                            throw new IllegalTypeException('Illegal type of property "commission": '.getType($commission));
@@ -214,5 +213,17 @@ class Order extends PersistableObject {
      */
     public function isClosedPosition() {
         return ($this->isPosition() &&  $this->isClosed());
+    }
+
+
+    /**
+     * Insert pre-processing hook. Assigns a {@link Test} id as long as this is not yet done automatically by the ORM.
+     *
+     * @return self
+     */
+    protected function beforeInsert() {
+        if (!$this->test_id)
+            $this->test_id = $this->test->getId();
+        return $this;
     }
 }
