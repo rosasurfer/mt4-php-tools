@@ -14,9 +14,9 @@ use rosasurfer\net\http\HttpResponse;
 
 /**
  * Aktualisiert die lokal vorhandenen Dukascopy-Tickdaten. Die Daten werden nach FXT konvertiert und im MyFX-Format
- * gespeichert. Am Wochenende, an Feiertagen und wenn keine Tickdaten verfügbar sind, sind die Dukascopy-Dateien leer.
- * Wochenenden werden lokal nicht gespeichert. Montags früh können die Daten erst um 01:00 FXT beginnen.
- * Die Daten der aktuellen Stunde sind frühestens ab der nächsten Stunde verfügbar.
+ * gespeichert. Am Wochenende, an Feiertagen und wenn keine Tickdaten verfuegbar sind, sind die Dukascopy-Dateien leer.
+ * Wochenenden werden lokal nicht gespeichert. Montags frueh koennen die Daten erst um 01:00 FXT beginnen.
+ * Die Daten der aktuellen Stunde sind fruehestens ab der naechsten Stunde verfuegbar.
  *
  *
  * Webseite:      https://www.dukascopy.com/swiss/english/marketwatch/historical/
@@ -31,7 +31,7 @@ use rosasurfer\net\http\HttpResponse;
  *                • http://datafeed.dukascopy.com/datafeed/EURUSD/2013/00/06/00h_ticks.bi5
  *                • http://datafeed.dukascopy.com/datafeed/EURUSD/2013/05/10/23h_ticks.bi5
  *
- * Dateiformat:   Binär, LZMA-gepackt, Zeiten in GMT (keine Sommerzeit).
+ * Dateiformat:   Binaer, LZMA-gepackt, Zeiten in GMT (keine Sommerzeit).
  *
  *                @see class Dukascopy
  *
@@ -80,7 +80,7 @@ foreach ($args as $i => $arg) {
 $args = $args ? array_unique($args) : array_keys(MyFX::filterSymbols(['provider'=>'dukascopy']));
 
 
-// (2) SIGINT-Handler installieren                                                  // Um bei Ctrl-C Destruktoren auszuführen, reicht es,
+// (2) SIGINT-Handler installieren                                                  // Um bei Ctrl-C Destruktoren auszufuehren, reicht es,
 if (!WINDOWS) pcntl_signal(SIGINT, create_function('$signal', 'exit();'));          // wenn im Handler exit() aufgerufen wird.
 
 
@@ -97,8 +97,8 @@ exit(0);
 /**
  * Aktualisiert die Tickdaten eines Symbol.
  *
- * Eine Dukascopy-Datei enthält eine Stunde Tickdaten. Die Daten der aktuellen Stunde sind frühestens
- * ab der nächsten Stunde verfügbar.
+ * Eine Dukascopy-Datei enthaelt eine Stunde Tickdaten. Die Daten der aktuellen Stunde sind fruehestens
+ * ab der naechsten Stunde verfuegbar.
  *
  * @param  string $symbol - Symbol
  *
@@ -111,28 +111,28 @@ function updateSymbol($symbol) {
     echoPre('[Info]    '.$symbol);
 
 
-    // (1) Beginn des nächsten Forex-Tages ermitteln
+    // (1) Beginn des naechsten Forex-Tages ermitteln
     $startTimeGMT = MyFX::$symbols[$symbol]['historyStart']['ticks'];    // Beginn der Tickdaten des Symbols GMT
     $prev = $next = null;
     $fxtOffset = MyFX::fxtTimezoneOffset($startTimeGMT, $prev, $next);   // es gilt: FXT = GMT + Offset
     $startTimeFXT = $startTimeGMT + $fxtOffset;                          // Beginn der Tickdaten FXT
 
-    if ($remainder=$startTimeFXT % DAY) {                                // Beginn auf den nächsten Forex-Tag 00:00 aufrunden, sodaß
-        $diff = 1*DAY - $remainder;                                       // wir nur vollständige Forex-Tage verarbeiten. Dabei
-        if ($startTimeGMT + $diff >= $next['time']) {                     // berücksichtigen, daß sich zu Beginn des nächsten Forex-Tages
-            $startTimeGMT = $next['time'];                                 // der DST-Offset der FXT geändert haben kann.
+    if ($remainder=$startTimeFXT % DAY) {                                // Beginn auf den naechsten Forex-Tag 00:00 aufrunden, sodass
+        $diff = 1*DAY - $remainder;                                       // wir nur vollstaendige Forex-Tage verarbeiten. Dabei
+        if ($startTimeGMT + $diff >= $next['time']) {                     // beruecksichtigen, dass sich zu Beginn des naechsten Forex-Tages
+            $startTimeGMT = $next['time'];                                 // der DST-Offset der FXT geaendert haben kann.
             $startTimeFXT = $startTimeGMT + $next['offset'];
             if ($remainder=$startTimeFXT % DAY) $diff = 1*DAY - $remainder;
             else                                $diff = 0;
             $fxtOffset = MyFX::fxtTimezoneOffset($startTimeGMT, $prev, $next);
         }
-        $startTimeGMT += $diff;                                           // nächster Forex-Tag 00:00 in GMT
-        $startTimeFXT += $diff;                                           // nächster Forex-Tag 00:00 in FXT
+        $startTimeGMT += $diff;                                           // naechster Forex-Tag 00:00 in GMT
+        $startTimeFXT += $diff;                                           // naechster Forex-Tag 00:00 in FXT
     }
 
 
     // (2) Gesamte Zeitspanne inklusive Wochenenden stundenweise durchlaufen, um von vorherigen Durchlaufen ggf. vorhandene
-    // Zwischendateien finden und löschen zu können.
+    // Zwischendateien finden und loeschen zu koennen.
     $thisHour = ($thisHour=time()) - $thisHour%HOUR;                     // Beginn der aktuellen Stunde GMT
     $lastHour = $thisHour - 1*HOUR;                                      // Beginn der letzten Stunde GMT
 
@@ -142,7 +142,7 @@ function updateSymbol($symbol) {
         $fxtHour = $gmtHour + $fxtOffset;
 
         if (!checkHistory($symbol, $gmtHour, $fxtHour)) return false;
-        if (!WINDOWS) pcntl_signal_dispatch();                            // Auf Ctrl-C prüfen, um bei Abbruch die Destruktoren auszuführen.
+        if (!WINDOWS) pcntl_signal_dispatch();                            // Auf Ctrl-C pruefen, um bei Abbruch die Destruktoren auszufuehren.
     }
 
     echoPre('[Ok]      '.$symbol);
@@ -151,11 +151,11 @@ function updateSymbol($symbol) {
 
 
 /**
- * Prüft den Stand der MyFX-Tickdaten einer einzelnen Stunde und stößt ggf. das Update an.
+ * Prueft den Stand der MyFX-Tickdaten einer einzelnen Stunde und stoesst ggf. das Update an.
  *
  * @param  string $symbol  - Symbol
- * @param  int    $gmtHour - GMT-Timestamp der zu prüfenden Stunde
- * @param  int    $fxtHour - FXT-Timestamp der zu prüfenden Stunde
+ * @param  int    $gmtHour - GMT-Timestamp der zu pruefenden Stunde
+ * @param  int    $fxtHour - FXT-Timestamp der zu pruefenden Stunde
  *
  * @return bool - Erfolgsstatus
  */
@@ -167,7 +167,7 @@ function checkHistory($symbol, $gmtHour, $fxtHour) {
     global $verbose, $saveCompressedDukascopyFiles, $saveRawDukascopyFiles, $saveRawMyFXData;
     static $lastDay=-1, $lastMonth=-1;
 
-    // (1) nur an Handelstagen prüfen, ob die MyFX-History existiert und ggf. aktualisieren
+    // (1) nur an Handelstagen pruefen, ob die MyFX-History existiert und ggf. aktualisieren
     if (!isForexWeekend($fxtHour, 'FXT')) {
         $day = (int) gmDate('d', $fxtHour);
         if ($day != $lastDay) {
@@ -202,12 +202,12 @@ function checkHistory($symbol, $gmtHour, $fxtHour) {
     }
 
 
-    // (2) an allen Tagen: nicht mehr benötigte Dateien und Verzeichnisse löschen
-    // komprimierte Dukascopy-Daten (Downloads) der geprüften Stunde
+    // (2) an allen Tagen: nicht mehr benoetigte Dateien und Verzeichnisse loeschen
+    // komprimierte Dukascopy-Daten (Downloads) der geprueften Stunde
     if (!$saveCompressedDukascopyFiles) {
         if (is_file($file=getVar('dukaFile.compressed', $symbol, $gmtHour))) unlink($file);
     }
-    // dekomprimierte Dukascopy-Daten der geprüften Stunde
+    // dekomprimierte Dukascopy-Daten der geprueften Stunde
     if (!$saveRawDukascopyFiles) {
         if (is_file($file=getVar('dukaFile.raw', $symbol, $gmtHour))) unlink($file);
     }
@@ -223,7 +223,7 @@ function checkHistory($symbol, $gmtHour, $fxtHour) {
 
 
 /**
- * Aktualisiert die Tickdaten einer einzelnen Forex-Handelstunde. Wird aufgerufen, wenn für diese Stunde keine lokalen
+ * Aktualisiert die Tickdaten einer einzelnen Forex-Handelstunde. Wird aufgerufen, wenn fuer diese Stunde keine lokalen
  * MyFX-Tickdateien existieren.
  *
  * @param  string $symbol  - Symbol
@@ -249,7 +249,7 @@ function updateTicks($symbol, $gmtHour, $fxtHour) {
 
 
 /**
- * Lädt die Daten einer einzelnen Forex-Handelsstunde und gibt sie zurück.
+ * Laedt die Daten einer einzelnen Forex-Handelsstunde und gibt sie zurueck.
  *
  * @param  string $symbol  - Symbol
  * @param  int    $gmtHour - GMT-Timestamp der zu ladenden Stunde
@@ -316,7 +316,7 @@ function saveTicks($symbol, $gmtHour, $fxtHour, array $ticks) {
     global $saveRawMyFXData;
 
 
-    // (1) Tickdaten nochmal prüfen
+    // (1) Tickdaten nochmal pruefen
     if (!$ticks) throw new RuntimeException('No ticks for '.$shortDate);
     $size = sizeof($ticks);
     $fromHour = ($time=$ticks[      0]['time_fxt']) - $time%HOUR;
@@ -325,7 +325,7 @@ function saveTicks($symbol, $gmtHour, $fxtHour, array $ticks) {
     if ($fromHour != $toHour)  throw new RuntimeException('Ticks for '.$shortDate.' span multiple hours from=\''.gmDate('d-M-Y H:i:s \F\X\T', $ticks[0]['time_fxt']).'\' to=\''.gmDate('d-M-Y H:i:s \F\X\T', $ticks[$size-1]['time_fxt']).'\'');
 
 
-    // (2) Ticks binär packen
+    // (2) Ticks binaer packen
     $data = null;
     foreach ($ticks as $tick) {
         $data .= pack('VVV', $tick['timeDelta'],
@@ -334,7 +334,7 @@ function saveTicks($symbol, $gmtHour, $fxtHour, array $ticks) {
     }
 
 
-    // (3) binäre Daten ggf. unkomprimiert speichern
+    // (3) binaere Daten ggf. unkomprimiert speichern
     if ($saveRawMyFXData) {
         if (is_file($file=getVar('myfxFile.raw', $symbol, $fxtHour))) {
             echoPre('[Error]   '.$symbol.' ticks for '.$shortDate.' already exists');
@@ -349,19 +349,19 @@ function saveTicks($symbol, $gmtHour, $fxtHour, array $ticks) {
     }
 
 
-    // (4) binäre Daten ggf. komprimieren und speichern
+    // (4) binaere Daten ggf. komprimieren und speichern
 
     return true;
 }
 
 
 /**
- * Lädt eine Dukascopy-Tickdatei und gibt ihren Inhalt zurück.
+ * Laedt eine Dukascopy-Tickdatei und gibt ihren Inhalt zurueck.
  *
  * @param  string $symbol    - Symbol der herunterzuladenen Datei
  * @param  int    $gmtHour   - GMT-Timestamp der zu ladenden Stunde
  * @param  int    $fxtHour   - FXT-Timestamp der zu ladenden Stunde
- * @param  bool   $quiet     - ob Statusmeldungen unterdrückt werden sollen (default: nein)
+ * @param  bool   $quiet     - ob Statusmeldungen unterdrueckt werden sollen (default: nein)
  * @param  bool   $saveData  - ob die Datei gespeichert werden soll (default: nein)
  * @param  bool   $saveError - ob ein 404-Fehler mit einer entsprechenden Fehlerdatei signalisiert werden soll (default: ja)
  *
@@ -400,20 +400,20 @@ function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=f
 
     // (2) HTTP-Request abschicken und auswerten
     static $httpClient = null;
-    !$httpClient && $httpClient=CurlHttpClient::create($options);        // Instanz für KeepAlive-Connections wiederverwenden
+    !$httpClient && $httpClient=CurlHttpClient::create($options);        // Instanz fuer KeepAlive-Connections wiederverwenden
 
     $response = $httpClient->send($request);                             // TODO: CURL-Fehler wie bei SimpleTrader behandeln
     $status   = $response->getStatus();
     if ($status!=200 && $status!=404) throw new RuntimeException('Unexpected HTTP status '.$status.' ('.HttpResponse::$sc[$status].') for url "'.$url.'"'.NL.printPretty($response, true));
 
-    // eine leere Antwort ist möglich und wird als Fehler behandelt
+    // eine leere Antwort ist moeglich und wird als Fehler behandelt
     $content = $response->getContent();
-    if ($status == 404) $content = '';                                   // möglichen Content eines 404-Fehlers zurücksetzen
+    if ($status == 404) $content = '';                                   // moeglichen Content eines 404-Fehlers zuruecksetzen
 
 
     // (3) Download-Success: 200 und Datei ist nicht leer
     if ($status==200 && strLen($content)) {
-        // vorhandene Fehlerdateien löschen (haben FXT-Namen)
+        // vorhandene Fehlerdateien loeschen (haben FXT-Namen)
         if (is_file($file=getVar('dukaFile.404',   $symbol, $fxtHour))) unlink($file);
         if (is_file($file=getVar('dukaFile.empty', $symbol, $fxtHour))) unlink($file);
 
@@ -451,7 +451,7 @@ function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=f
 
 
 /**
- * Lädt die in einem komprimierten Dukascopy-Tickfile enthaltenen Ticks.
+ * Laedt die in einem komprimierten Dukascopy-Tickfile enthaltenen Ticks.
  *
  * @return array[] - Array mit Tickdaten
  */
@@ -467,7 +467,7 @@ function loadCompressedDukascopyTickFile($file, $symbol, $gmtHour, $fxtHour) {
 
 
 /**
- * Lädt die in einem komprimierten String enthaltenen Dukascopy-Tickdaten.
+ * Laedt die in einem komprimierten String enthaltenen Dukascopy-Tickdaten.
  *
  * @return array[] - Array mit Tickdaten
  */
@@ -483,7 +483,7 @@ function loadCompressedDukascopyTickData($data, $symbol, $gmtHour, $fxtHour) {
 
 
 /**
- * Lädt die in einem unkomprimierten Dukascopy-Tickfile enthaltenen Ticks.
+ * Laedt die in einem unkomprimierten Dukascopy-Tickfile enthaltenen Ticks.
  *
  * @return array[] - Array mit Tickdaten
  */
@@ -499,7 +499,7 @@ function loadRawDukascopyTickFile($file, $symbol, $gmtHour, $fxtHour) {
 
 
 /**
- * Lädt die in einem unkomprimierten String enthaltenen Dukascopy-Tickdaten.
+ * Laedt die in einem unkomprimierten String enthaltenen Dukascopy-Tickdaten.
  *
  * @return array[] - Array mit Tickdaten
  */
@@ -511,7 +511,7 @@ function loadRawDukascopyTickData($data, $symbol, $gmtHour, $fxtHour) {
     // Ticks einlesen
     $ticks = Dukascopy::readTickData($data);
 
-    // GMT- und FXT-Timestamps hinzufügen
+    // GMT- und FXT-Timestamps hinzufuegen
     foreach ($ticks as &$tick) {
         $sec    = (int)($tick['timeDelta'] / 1000);
         $millis =       $tick['timeDelta'] % 1000;
@@ -527,8 +527,8 @@ function loadRawDukascopyTickData($data, $symbol, $gmtHour, $fxtHour) {
 /**
  * Erzeugt und verwaltet dynamisch generierte Variablen.
  *
- * Evaluiert und cacht ständig wiederbenutzte dynamische Variablen an einem zentralen Ort. Vereinfacht die Logik,
- * da die Variablen nicht global gespeichert oder über viele Funktionsaufrufe hinweg weitergereicht werden müssen,
+ * Evaluiert und cacht staendig wiederbenutzte dynamische Variablen an einem zentralen Ort. Vereinfacht die Logik,
+ * da die Variablen nicht global gespeichert oder ueber viele Funktionsaufrufe hinweg weitergereicht werden muessen,
  * aber trotzdem nicht bei jeder Verwendung neu ermittelt werden brauchen.
  *
  * @param  string $id     - eindeutiger Bezeichner der Variable (ID)
@@ -619,7 +619,7 @@ function getVar($id, $symbol=null, $time=null) {
 /**
  * Hilfefunktion: Zeigt die Syntax des Aufrufs an.
  *
- * @param  string $message - zusätzlich zur Syntax anzuzeigende Message (default: keine)
+ * @param  string $message - zusaetzlich zur Syntax anzuzeigende Message (default: keine)
  */
 function help($message=null) {
     if (!is_null($message))

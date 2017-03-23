@@ -39,17 +39,17 @@ foreach ($args as $i => $arg) {
             is_dir($value) && !is_file(($value.=(strEndsWith($value, '/') ? '':'/').'symbols.raw')) && exit(1|help('file not found: '.$value));
             $files[] = $value;
         }
-        else {                                 // Argument existiert nicht, Wildcards expandieren und Ergebnisse prüfen (z.B. unter Windows)
+        else {                                 // Argument existiert nicht, Wildcards expandieren und Ergebnisse pruefen (z.B. unter Windows)
             strEndsWith($value, ['/', '\\']) && ($value.='symbols.raw');
             $entries    = glob($value, GLOB_NOESCAPE|GLOB_BRACE|GLOB_ERR);
             $matchesDir = false;
             foreach ($entries as $entry) {
                 if (is_dir($entry) && ($matchesDir=true))
                     continue;
-                $files[] = $entry;               // nur Dateien übernehmen
+                $files[] = $entry;               // nur Dateien uebernehmen
             }
             !$files && exit(1|help('file(s) not found: '.$arg.($matchesDir ? ' (enter a trailing slash "/" to search directories)':'')));
-            uSort($files, 'compareFileNames');  // Datei-/Verzeichnisnamen lassen sich mit den existierenden Funktionen nicht natürlich sortieren
+            uSort($files, 'compareFileNames');  // Datei-/Verzeichnisnamen lassen sich mit den existierenden Funktionen nicht natuerlich sortieren
         }
         continue;
     }
@@ -97,8 +97,8 @@ foreach ($args as $i => $arg) {
 }
 
 
-// (2) ggf. verfügbare Felder anzeigen und danach abbrechen
-$allFields = MT4::SYMBOL_getFields();                 // TODO: Feld 'leverage' dynamisch hinzufügen
+// (2) ggf. verfuegbare Felder anzeigen und danach abbrechen
+$allFields = MT4::SYMBOL_getFields();                 // TODO: Feld 'leverage' dynamisch hinzufuegen
                                                                         // array_splice($fields, array_search('marginDivider', $fields)+1, 0, ['leverage']);
 if (isSet($options['listFields'])) {
     echoPre($s='Available symbol fields:');
@@ -149,7 +149,7 @@ foreach ($fieldArgs as $arg) {
 $usedFields['name'] = 'symbol';                                               // Symbol ist immer ON (kann nicht ausgeschaltet werden)
 
 foreach ($usedFields as $name => $value) {
-    if (is_null($value)) {                                                     // verbliebene NULL-Felder löschen
+    if (is_null($value)) {                                                     // verbliebene NULL-Felder loeschen
         unset($usedFields[$name]);
         continue;
     }
@@ -159,7 +159,7 @@ foreach ($usedFields as $name => $value) {
 }
 
 
-// (5) Symbolinformationen erfassen und ausgeben (getrennt, damit Spalten übergreifend formatiert werden können)
+// (5) Symbolinformationen erfassen und ausgeben (getrennt, damit Spalten uebergreifend formatiert werden koennen)
 $data = [];
 foreach ($files as $file)
     collectData($file, $usedFields, $data, $options) || exit(1);
@@ -173,17 +173,17 @@ exit(0);
 
 
 /**
- * Erfaßt die Informationen einer Symboldatei.
+ * Erfasst die Informationen einer Symboldatei.
  *
  * @param  _In_     string $file    - Name der Symboldatei
- * @param  _In_Out_ array &$fields  - zu erfassende Felder (Längen werden im Array gespeichert)
- * @param  _In_Out_ array &$data    - Array zum Zwischenspeichern der erfaßten Daten
+ * @param  _In_Out_ array &$fields  - zu erfassende Felder (Laengen werden im Array gespeichert)
+ * @param  _In_Out_ array &$data    - Array zum Zwischenspeichern der erfassten Daten
  * @param  _In_     array  $options - Optionen
  *
  * @return bool - Erfolgsstatus
  */
 function collectData($file, array &$fields, array &$data, array $options) {
-    // (1) Dateigröße prüfen
+    // (1) Dateigroesse pruefen
     $fileSize = fileSize($file);
     if ($fileSize < MT4::SYMBOL_SIZE) {
         $data[$file]['meta:error'] = 'invalid or unsupported format, file size ('.$fileSize.') < MinFileSize ('.MT4::SYMBOL_SIZE.')';
@@ -193,7 +193,7 @@ function collectData($file, array &$fields, array &$data, array $options) {
         $data[$file]['meta:warn'][] = 'file contains '.($fileSize % MT4::SYMBOL_SIZE).' trailing bytes';
 
 
-    // (2) Länge des längsten Dateinamens speichern
+    // (2) Laenge des laengsten Dateinamens speichern
     $data['meta:maxFileLength'] = max(strLen($file), isSet($data['meta:maxFileLength']) ? $data['meta:maxFileLength'] : 0);
 
 
@@ -201,8 +201,8 @@ function collectData($file, array &$fields, array &$data, array $options) {
     $symbolsSize = (int)($fileSize/MT4::SYMBOL_SIZE);
     $data[$file]['meta:symbolsSize'] = $symbolsSize;
     if (isSet($options['countSymbols']))                                             // Die Meta-Daten liegen in derselben Arrayebene wie
-        return true;                           // ggf. sofort zurückkehren            // die Symboldaten und müssen Namen haben, die mit den
-                                                                                                                // Feldnamen der Symbole nicht kollidieren können.
+        return true;                           // ggf. sofort zurueckkehren            // die Symboldaten und muessen Namen haben, die mit den
+                                                                                                                // Feldnamen der Symbole nicht kollidieren koennen.
 
     // (4) Daten auslesen
     $hFile   = fOpen($file, 'rb');
@@ -213,7 +213,7 @@ function collectData($file, array &$fields, array &$data, array $options) {
     fClose($hFile);
 
 
-    // (5) Daten auslesen und maximale Feldlängen speichern
+    // (5) Daten auslesen und maximale Feldlaengen speichern
     $values = $lengths = [];
     foreach ($symbols as $i => $symbol) {
         foreach ($fields as $name => $v) {
@@ -293,7 +293,7 @@ function printData(array $files, array $fields, array $data, array $options) {
 
 /**
  * Comparator, der zwei Dateinamen vergleicht. Mit den existierenden Funktionen lassen sich Datei- und Verzeichnisnamen
- * nicht natürlich sortieren (z.B. wie im Windows Explorer).
+ * nicht natuerlich sortieren (z.B. wie im Windows Explorer).
  *
  * @param  string $fileA
  * @param  string $fileB
@@ -319,7 +319,7 @@ function compareFileNames($fileA, $fileB) {
         return $lenA ? +1 : 0;
     }
 
-    // beide Strings haben eine Länge > 0
+    // beide Strings haben eine Laenge > 0
     $fileALower = strToLower(str_replace('\\', '/', $fileA));
     $fileBLower = strToLower(str_replace('\\', '/', $fileB));
     $len   = min($lenA, $lenB);
@@ -335,17 +335,17 @@ function compareFileNames($fileA, $fileB) {
         }
     }
 
-    // Kleinschreibung ist soweit identisch, Längen vergleichen
+    // Kleinschreibung ist soweit identisch, Laengen vergleichen
     if ($lenA == $lenB)
-        return ($fileA > $fileB)        ? +1 : -1;   // gleiche Länge, Originalnamen vergleichen
-    return ($fileALower > $fileBLower) ? +1 : -1;   // unterschiedliche Länge, Lower-Names vergleichen
+        return ($fileA > $fileB)        ? +1 : -1;   // gleiche Laenge, Originalnamen vergleichen
+    return ($fileALower > $fileBLower) ? +1 : -1;   // unterschiedliche Laenge, Lower-Names vergleichen
 }
 
 
 /**
  * Hilfefunktion
  *
- * @param  string $message - zusätzlich zur Syntax anzuzeigende Message (default: keine)
+ * @param  string $message - zusaetzlich zur Syntax anzuzeigende Message (default: keine)
  */
 function help($message=null) {
     if (is_null($message))

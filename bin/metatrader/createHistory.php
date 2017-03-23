@@ -7,7 +7,7 @@ use rosasurfer\exception\InvalidArgumentException;
 /**
  * Liest die MyFX-M1-History der angegebenen Instrumente ein und erzeugt daraus jeweils eine neue MetaTrader-History.
  * Speichert diese MetaTrader-History im globalen MT4-Serververzeichnis "MyFX-Dukascopy". Vorhandene Historydateien
- * werden überschrieben. Um vorhandene Historydateien zu aktualisieren, ist "updateHistory.php" zu benutzen.
+ * werden ueberschrieben. Um vorhandene Historydateien zu aktualisieren, ist "updateHistory.php" zu benutzen.
  */
 require(__DIR__.'/../../app/init.php');
 date_default_timezone_set('GMT');
@@ -42,7 +42,7 @@ foreach ($args as $i => $arg) {
 $args = $args ? array_unique($args) : array_keys(MyFX::$symbols);
 
 
-// (2) SIGINT-Handler installieren                                                  // Um bei Ctrl-C Destruktoren auszuführen, reicht es,
+// (2) SIGINT-Handler installieren                                                  // Um bei Ctrl-C Destruktoren auszufuehren, reicht es,
 if (!WINDOWS) pcntl_signal(SIGINT, create_function('$signal', 'exit();'));          // wenn im Handler exit() aufgerufen wird.
 
 
@@ -88,7 +88,7 @@ function createHistory($symbol) {
             $lastMonth = $month;
         }
 
-        // außer an Wochenenden: MyFX-History verarbeiten
+        // ausser an Wochenenden: MyFX-History verarbeiten
         if (!isForexWeekend($day, 'FXT')) {
             if      (is_file($file=getVar('myfxFile.compressed', $symbol, $day))) {}   // wenn komprimierte MyFX-Datei existiert
             else if (is_file($file=getVar('myfxFile.raw'       , $symbol, $day))) {}   // wenn unkomprimierte MyFX-Datei existiert
@@ -96,13 +96,13 @@ function createHistory($symbol) {
                 echoPre('[Error]   '.$symbol.' MyFX history for '.$shortDate.' not found');
                 return false;
             }
-            // Bars einlesen und der MT4-History hinzufügen
+            // Bars einlesen und der MT4-History hinzufuegen
             $bars = MyFX::readBarFile($file, $symbol);
             $history->appendBars($bars);
         }
 
-        if (!WINDOWS) pcntl_signal_dispatch();                                        // Auf Ctrl-C prüfen, um bei Abbruch den
-    }                                                                                // Schreibbuffer der History leeren zu können.
+        if (!WINDOWS) pcntl_signal_dispatch();                                        // Auf Ctrl-C pruefen, um bei Abbruch den
+    }                                                                                // Schreibbuffer der History leeren zu koennen.
     $history->close();
 
     echoPre('[Ok]      '.$symbol);
@@ -113,8 +113,8 @@ function createHistory($symbol) {
 /**
  * Erzeugt und verwaltet dynamisch generierte Variablen.
  *
- * Evaluiert und cacht häufig wiederbenutzte dynamische Variablen an einem zentralen Ort. Vereinfacht die Logik,
- * da die Variablen nicht global gespeichert oder über viele Funktionsaufrufe hinweg weitergereicht werden müssen,
+ * Evaluiert und cacht haeufig wiederbenutzte dynamische Variablen an einem zentralen Ort. Vereinfacht die Logik,
+ * da die Variablen nicht global gespeichert oder ueber viele Funktionsaufrufe hinweg weitergereicht werden muessen,
  * aber trotzdem nicht bei jeder Verwendung neu ermittelt werden brauchen.
  *
  * @param  string $id     - eindeutiger Bezeichner der Variable (ID)
@@ -169,7 +169,7 @@ function getVar($id, $symbol=null, $time=null) {
 /**
  * Hilfefunktion: Zeigt die Syntax des Aufrufs an.
  *
- * @param  string $message - zusätzlich zur Syntax anzuzeigende Message (default: keine)
+ * @param  string $message - zusaetzlich zur Syntax anzuzeigende Message (default: keine)
  */
 function help($message=null) {
     if (!is_null($message))

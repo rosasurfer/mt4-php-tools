@@ -9,8 +9,8 @@ use rosasurfer\exception\RuntimeException;
  * Aktualisiert anhand existierender Dukascopy-Daten die M1-History der angegebenen FX-Indizes und speichert sie
  * im MyFX-Historyverzeichnis.
  *
- * Unterstützte Instrumente:
- *  • LFX-Indizes: LiteForex (gestauchte FX6-Indizes, außer NZDLFX=NZDFX7)
+ * Unterstuetzte Instrumente:
+ *  • LFX-Indizes: LiteForex (gestauchte FX6-Indizes, ausser NZDLFX=NZDFX7)
  *  • FX6-Indizes: AUDFX6, CADFX6, CHFFX6, EURFX6, GBPFX6, JPYFX6, USDFX6
  *  • FX7-Indizes: AUDFX7, CADFX7, CHFFX7, EURFX7, GBPFX7, JPYFX7, USDFX7, NOKFX7, NZDFX7, SEKFX7, SGDFX7, ZARFX7
  *  • ICE-Indizes: EURX, USDX
@@ -31,7 +31,7 @@ $verbose         = 0;                                       // output verbosity
 $saveRawMyFXData = true;                                    // ob unkomprimierte MyFX-Historydaten gespeichert werden sollen
 
 
-// Indizes und die zu ihrer Berechnung benötigten Instrumente
+// Indizes und die zu ihrer Berechnung benoetigten Instrumente
 $indexes['AUDLFX'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
 $indexes['CADLFX'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
 $indexes['CHFLFX'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
@@ -89,7 +89,7 @@ foreach ($args as $i => $arg) {
 $args = $args ? array_unique($args) : array_keys($indexes);                         // ohne Angabe werden alle Indizes aktualisiert
 
 
-// (2) SIGINT-Handler installieren                                                  // Um bei Ctrl-C Destruktoren auszuführen, reicht es,
+// (2) SIGINT-Handler installieren                                                  // Um bei Ctrl-C Destruktoren auszufuehren, reicht es,
 if (!WINDOWS) pcntl_signal(SIGINT, create_function('$signal', 'exit();'));          // wenn im Handler exit() aufgerufen wird.
 
 
@@ -116,7 +116,7 @@ function updateIndex($index) {
 
     global $verbose, $indexes, $saveRawMyFXData;
 
-    // (1) Starttag der benötigten Daten ermitteln
+    // (1) Starttag der benoetigten Daten ermitteln
     $startTime = 0;
     $pairs = array_flip($indexes[$index]);                                                 // ['AUDUSD', ...] => ['AUDUSD'=>null, ...]
     foreach($pairs as $pair => &$data) {
@@ -131,10 +131,10 @@ function updateIndex($index) {
     // (2) Gesamte Zeitspanne tageweise durchlaufen
     for ($day=$startDay, $lastMonth=-1; $day < $today; $day+=1*DAY) {
 
-        if (!isForexWeekend($day, 'FXT')) {                                                 // außer an Wochenenden
+        if (!isForexWeekend($day, 'FXT')) {                                                 // ausser an Wochenenden
             $shortDate = gmDate('D, d-M-Y', $day);
 
-            // Prüfen, ob die History bereits existiert
+            // Pruefen, ob die History bereits existiert
             if (is_file($file=getVar('fxiTarget.compressed', $index, $day))) {
                 if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'   '.$index.' compressed history file: '.baseName($file));
             }
@@ -148,7 +148,7 @@ function updateIndex($index) {
                     $lastMonth = $month;
                 }
 
-                // History aktualisieren: M1-Bars der benötigten Instrumente dieses Tages einlesen
+                // History aktualisieren: M1-Bars der benoetigten Instrumente dieses Tages einlesen
                 foreach($pairs as $pair => $data) {
                     if      (is_file($file=getVar('fxiSource.compressed', $pair, $day))) {}    // komprimierte oder
                     else if (is_file($file=getVar('fxiSource.raw'       , $pair, $day))) {}    // unkomprimierte MyFX-Datei
@@ -160,7 +160,7 @@ function updateIndex($index) {
                     $pairs[$pair]['bars'] = MyFX::readBarFile($file, $pair);                   // ['AUDUSD'=>array('bars'=>[]), ...]
                 }
 
-                // Indexdaten für diesen Tag berechnen
+                // Indexdaten fuer diesen Tag berechnen
                 $function = 'calculate'.$index;
                 $fxiBars   = $function($day, $pairs); if (!$fxiBars) return false;
 
@@ -168,7 +168,7 @@ function updateIndex($index) {
                 if (!saveBars($index, $day, $fxiBars)) return false;
             }
         }
-        if (!WINDOWS) pcntl_signal_dispatch();                         // Auf Ctrl-C prüfen, um bei Abbruch die Destruktoren auszuführen.
+        if (!WINDOWS) pcntl_signal_dispatch();                         // Auf Ctrl-C pruefen, um bei Abbruch die Destruktoren auszufuehren.
     }
 
     echoPre('[Ok]      '.$index);
@@ -177,10 +177,10 @@ function updateIndex($index) {
 
 
 /**
- * Berechnet für die übergebenen M1-Daten den AUDFX6-Index.
+ * Berechnet fuer die uebergebenen M1-Daten den AUDFX6-Index.
  *
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
- * @param  array $data - M1-Bars dieses Tages aller für den Index benötigten Instrumente
+ * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
  * @return MYFX_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
@@ -232,10 +232,10 @@ function calculateAUDFX6($day, array $data) {
 
 
 /**
- * Berechnet für die übergebenen M1-Daten den AUDFX7-Index.
+ * Berechnet fuer die uebergebenen M1-Daten den AUDFX7-Index.
  *
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
- * @param  array $data - M1-Bars dieses Tages aller für den Index benötigten Instrumente
+ * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
  * @return MYFX_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
@@ -290,10 +290,10 @@ function calculateAUDFX7($day, array $data) {
 
 
 /**
- * Berechnet für die übergebenen M1-Daten den AUDLFX-Index.
+ * Berechnet fuer die uebergebenen M1-Daten den AUDLFX-Index.
  *
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
- * @param  array $data - M1-Bars dieses Tages aller für den Index benötigten Instrumente
+ * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
  * @return MYFX_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
@@ -346,10 +346,10 @@ function calculateAUDLFX($day, array $data) {
 
 
 /**
- * Berechnet für die übergebenen M1-Daten den CADFX6-Index.
+ * Berechnet fuer die uebergebenen M1-Daten den CADFX6-Index.
  *
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
- * @param  array $data - M1-Bars dieses Tages aller für den Index benötigten Instrumente
+ * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
  * @return MYFX_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
@@ -401,10 +401,10 @@ function calculateCADFX6($day, array $data) {
 
 
 /**
- * Berechnet für die übergebenen M1-Daten den CADFX7-Index.
+ * Berechnet fuer die uebergebenen M1-Daten den CADFX7-Index.
  *
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
- * @param  array $data - M1-Bars dieses Tages aller für den Index benötigten Instrumente
+ * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
  * @return MYFX_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
@@ -459,10 +459,10 @@ function calculateCADFX7($day, array $data) {
 
 
 /**
- * Berechnet für die übergebenen M1-Daten den CADLFX-Index.
+ * Berechnet fuer die uebergebenen M1-Daten den CADLFX-Index.
  *
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
- * @param  array $data - M1-Bars dieses Tages aller für den Index benötigten Instrumente
+ * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
  * @return MYFX_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
@@ -515,10 +515,10 @@ function calculateCADLFX($day, array $data) {
 
 
 /**
- * Berechnet für die übergebenen M1-Daten den CHFFX6-Index.
+ * Berechnet fuer die uebergebenen M1-Daten den CHFFX6-Index.
  *
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
- * @param  array $data - M1-Bars dieses Tages aller für den Index benötigten Instrumente
+ * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
  * @return MYFX_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
@@ -570,10 +570,10 @@ function calculateCHFFX6($day, array $data) {
 
 
 /**
- * Berechnet für die übergebenen M1-Daten den CHFFX7-Index.
+ * Berechnet fuer die uebergebenen M1-Daten den CHFFX7-Index.
  *
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
- * @param  array $data - M1-Bars dieses Tages aller für den Index benötigten Instrumente
+ * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
  * @return MYFX_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
@@ -628,10 +628,10 @@ function calculateCHFFX7($day, array $data) {
 
 
 /**
- * Berechnet für die übergebenen M1-Daten den CHFLFX-Index.
+ * Berechnet fuer die uebergebenen M1-Daten den CHFLFX-Index.
  *
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
- * @param  array $data - M1-Bars dieses Tages aller für den Index benötigten Instrumente
+ * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
  * @return MYFX_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
@@ -684,10 +684,10 @@ function calculateCHFLFX($day, array $data) {
 
 
 /**
- * Berechnet für die übergebenen M1-Daten den EURFX6-Index.
+ * Berechnet fuer die uebergebenen M1-Daten den EURFX6-Index.
  *
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
- * @param  array $data - M1-Bars dieses Tages aller für den Index benötigten Instrumente
+ * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
  * @return MYFX_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
@@ -739,10 +739,10 @@ function calculateEURFX6($day, array $data) {
 
 
 /**
- * Berechnet für die übergebenen M1-Daten den EURFX7-Index.
+ * Berechnet fuer die uebergebenen M1-Daten den EURFX7-Index.
  *
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
- * @param  array $data - M1-Bars dieses Tages aller für den Index benötigten Instrumente
+ * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
  * @return MYFX_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
@@ -797,10 +797,10 @@ function calculateEURFX7($day, array $data) {
 
 
 /**
- * Berechnet für die übergebenen M1-Daten den EURLFX-Index.
+ * Berechnet fuer die uebergebenen M1-Daten den EURLFX-Index.
  *
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
- * @param  array $data - M1-Bars dieses Tages aller für den Index benötigten Instrumente
+ * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
  * @return MYFX_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
@@ -853,10 +853,10 @@ function calculateEURLFX($day, array $data) {
 
 
 /**
- * Berechnet für die übergebenen M1-Daten den EURX-Index (ICE).
+ * Berechnet fuer die uebergebenen M1-Daten den EURX-Index (ICE).
  *
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
- * @param  array $data - M1-Bars dieses Tages aller für den Index benötigten Instrumente
+ * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
  * @return MYFX_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
@@ -915,10 +915,10 @@ function calculateEURX($day, array $data) {
 
 
 /**
- * Berechnet für die übergebenen M1-Daten den GBPFX6-Index.
+ * Berechnet fuer die uebergebenen M1-Daten den GBPFX6-Index.
  *
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
- * @param  array $data - M1-Bars dieses Tages aller für den Index benötigten Instrumente
+ * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
  * @return MYFX_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
@@ -970,10 +970,10 @@ function calculateGBPFX6($day, array $data) {
 
 
 /**
- * Berechnet für die übergebenen M1-Daten den GBPFX7-Index.
+ * Berechnet fuer die uebergebenen M1-Daten den GBPFX7-Index.
  *
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
- * @param  array $data - M1-Bars dieses Tages aller für den Index benötigten Instrumente
+ * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
  * @return MYFX_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
@@ -1028,10 +1028,10 @@ function calculateGBPFX7($day, array $data) {
 
 
 /**
- * Berechnet für die übergebenen M1-Daten den GBPLFX-Index.
+ * Berechnet fuer die uebergebenen M1-Daten den GBPLFX-Index.
  *
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
- * @param  array $data - M1-Bars dieses Tages aller für den Index benötigten Instrumente
+ * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
  * @return MYFX_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
@@ -1084,10 +1084,10 @@ function calculateGBPLFX($day, array $data) {
 
 
 /**
- * Berechnet für die übergebenen M1-Daten den JPYFX6-Index.
+ * Berechnet fuer die uebergebenen M1-Daten den JPYFX6-Index.
  *
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
- * @param  array $data - M1-Bars dieses Tages aller für den Index benötigten Instrumente
+ * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
  * @return MYFX_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
@@ -1139,10 +1139,10 @@ function calculateJPYFX6($day, array $data) {
 
 
 /**
- * Berechnet für die übergebenen M1-Daten den JPYFX7-Index.
+ * Berechnet fuer die uebergebenen M1-Daten den JPYFX7-Index.
  *
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
- * @param  array $data - M1-Bars dieses Tages aller für den Index benötigten Instrumente
+ * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
  * @return MYFX_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
@@ -1197,10 +1197,10 @@ function calculateJPYFX7($day, array $data) {
 
 
 /**
- * Berechnet für die übergebenen M1-Daten den JPYLFX-Index.
+ * Berechnet fuer die uebergebenen M1-Daten den JPYLFX-Index.
  *
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
- * @param  array $data - M1-Bars dieses Tages aller für den Index benötigten Instrumente
+ * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
  * @return MYFX_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
@@ -1253,10 +1253,10 @@ function calculateJPYLFX($day, array $data) {
 
 
 /**
- * Berechnet für die übergebenen M1-Daten den NOKFX7-Index.
+ * Berechnet fuer die uebergebenen M1-Daten den NOKFX7-Index.
  *
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
- * @param  array $data - M1-Bars dieses Tages aller für den Index benötigten Instrumente
+ * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
  * @return MYFX_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
@@ -1312,10 +1312,10 @@ function calculateNOKFX7($day, array $data) {
 
 
 /**
- * Berechnet für die übergebenen M1-Daten den NZDFX7-Index.
+ * Berechnet fuer die uebergebenen M1-Daten den NZDFX7-Index.
  *
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
- * @param  array $data - M1-Bars dieses Tages aller für den Index benötigten Instrumente
+ * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
  * @return MYFX_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
@@ -1327,11 +1327,11 @@ function calculateNZDFX7($day, array $data) {
 
 
 /**
- * Berechnet für die übergebenen M1-Daten den NZDLFX-Index. Dieser Index entspricht dem NZDFX7.
+ * Berechnet fuer die uebergebenen M1-Daten den NZDLFX-Index. Dieser Index entspricht dem NZDFX7.
  *
  * @param  int    $day  - FXT-Timestamp des Tages der zu berechnenden Daten
- * @param  array  $data - M1-Bars dieses Tages aller für den Index benötigten Instrumente
- * @param  string $name - optionaler Name (um die Funktion gleichzeitig für NZDLFX und NZDFX7 nutzen zu können)
+ * @param  array  $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
+ * @param  string $name - optionaler Name (um die Funktion gleichzeitig fuer NZDLFX und NZDFX7 nutzen zu koennen)
  *
  * @return MYFX_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
@@ -1387,10 +1387,10 @@ function calculateNZDLFX($day, array $data, $name='NZDLFX') {
 
 
 /**
- * Berechnet für die übergebenen M1-Daten den SEKFX7-Index.
+ * Berechnet fuer die uebergebenen M1-Daten den SEKFX7-Index.
  *
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
- * @param  array $data - M1-Bars dieses Tages aller für den Index benötigten Instrumente
+ * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
  * @return MYFX_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
@@ -1446,10 +1446,10 @@ function calculateSEKFX7($day, array $data) {
 
 
 /**
- * Berechnet für die übergebenen M1-Daten den SGDFX7-Index.
+ * Berechnet fuer die uebergebenen M1-Daten den SGDFX7-Index.
  *
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
- * @param  array $data - M1-Bars dieses Tages aller für den Index benötigten Instrumente
+ * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
  * @return MYFX_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
@@ -1505,10 +1505,10 @@ function calculateSGDFX7($day, array $data) {
 
 
 /**
- * Berechnet für die übergebenen M1-Daten den USDFX6-Index.
+ * Berechnet fuer die uebergebenen M1-Daten den USDFX6-Index.
  *
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
- * @param  array $data - M1-Bars dieses Tages aller für den Index benötigten Instrumente
+ * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
  * @return MYFX_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
@@ -1560,10 +1560,10 @@ function calculateUSDFX6($day, array $data) {
 
 
 /**
- * Berechnet für die übergebenen M1-Daten den USDFX7-Index.
+ * Berechnet fuer die uebergebenen M1-Daten den USDFX7-Index.
  *
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
- * @param  array $data - M1-Bars dieses Tages aller für den Index benötigten Instrumente
+ * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
  * @return MYFX_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
@@ -1618,10 +1618,10 @@ function calculateUSDFX7($day, array $data) {
 
 
 /**
- * Berechnet für die übergebenen M1-Daten den USDLFX-Index.
+ * Berechnet fuer die uebergebenen M1-Daten den USDLFX-Index.
  *
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
- * @param  array $data - M1-Bars dieses Tages aller für den Index benötigten Instrumente
+ * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
  * @return MYFX_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
@@ -1673,10 +1673,10 @@ function calculateUSDLFX($day, array $data) {
 
 
 /**
- * Berechnet für die übergebenen M1-Daten den USDX-Index (ICE).
+ * Berechnet fuer die uebergebenen M1-Daten den USDX-Index (ICE).
  *
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
- * @param  array $data - M1-Bars dieses Tages aller für den Index benötigten Instrumente
+ * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
  * @return MYFX_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
@@ -1732,10 +1732,10 @@ function calculateUSDX($day, array $data) {
 
 
 /**
- * Berechnet für die übergebenen M1-Daten den ZARFX7-Index.
+ * Berechnet fuer die uebergebenen M1-Daten den ZARFX7-Index.
  *
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
- * @param  array $data - M1-Bars dieses Tages aller für den Index benötigten Instrumente
+ * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
  * @return MYFX_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
@@ -1806,7 +1806,7 @@ function saveBars($symbol, $day, array $bars) {
     global $saveRawMyFXData;
 
 
-    // (1) Daten nochmal prüfen
+    // (1) Daten nochmal pruefen
     $errorMsg = null;
     if (!$errorMsg && ($size=sizeOf($bars))!=1*DAY/MINUTES)             $errorMsg = 'Invalid number of bars for '.$shortDate.': '.$size;
     if (!$errorMsg && $bars[0]['time']%DAYS!=0)                         $errorMsg = 'No beginning bars for '.$shortDate.' found, first bar:'.NL.printPretty($bars[0], true);
@@ -1817,7 +1817,7 @@ function saveBars($symbol, $day, array $bars) {
     }
 
 
-    // (2) Bars in Binärstring umwandeln
+    // (2) Bars in Binaerstring umwandeln
     $data = null;
     foreach ($bars as $bar) {
         // Bardaten vorm Schreiben validieren
@@ -1836,7 +1836,7 @@ function saveBars($symbol, $day, array $bars) {
     }
 
 
-    // (3) binäre Daten ggf. speichern
+    // (3) binaere Daten ggf. speichern
     if ($saveRawMyFXData) {
         if (is_file($file=getVar('fxiTarget.raw', $symbol, $day))) {
             echoPre('[Error]   '.$symbol.' history for '.gmDate('D, d-M-Y', $day).' already exists');
@@ -1851,7 +1851,7 @@ function saveBars($symbol, $day, array $bars) {
     }
 
 
-    // (4) TODO: binäre Daten komprimieren und speichern
+    // (4) TODO: binaere Daten komprimieren und speichern
 
     return true;
 }
@@ -1882,8 +1882,8 @@ function showBuffer($bars) {
 /**
  * Erzeugt und verwaltet dynamisch generierte Variablen.
  *
- * Evaluiert und cacht ständig wiederbenutzte dynamische Variablen an einem zentralen Ort. Vereinfacht die Logik,
- * da die Variablen nicht global gespeichert oder über viele Funktionsaufrufe hinweg weitergereicht werden müssen,
+ * Evaluiert und cacht staendig wiederbenutzte dynamische Variablen an einem zentralen Ort. Vereinfacht die Logik,
+ * da die Variablen nicht global gespeichert oder ueber viele Funktionsaufrufe hinweg weitergereicht werden muessen,
  * aber trotzdem nicht bei jeder Verwendung neu ermittelt werden brauchen.
  *
  * @param  string $id     - eindeutiger Bezeichner der Variable (ID)
@@ -1955,7 +1955,7 @@ function getVar($id, $symbol=null, $time=null) {
 /**
  * Hilfefunktion: Zeigt die Syntax des Aufrufs an.
  *
- * @param  string $message - zusätzlich zur Syntax anzuzeigende Message (default: keine)
+ * @param  string $message - zusaetzlich zur Syntax anzuzeigende Message (default: keine)
  */
 function help($message=null) {
     if (!is_null($message))

@@ -1,7 +1,7 @@
 #!/usr/bin/php
 <?php
 /**
- * Verzeichnislisting für MetaTrader-Historydateien
+ * Verzeichnislisting fuer MetaTrader-Historydateien
  */
 require(__DIR__.'/../../app/init.php');
 
@@ -21,22 +21,22 @@ foreach ($args as $arg) {
     if (file_exists($value)) {
         // explizites Argument oder Argument von Shell expandiert
         if (is_file($value)) {                                      // existierende Datei beliebigen Typs (alle werden analysiert)
-            $expandedArgs[] = dirName($value).'/'.baseName($value);  // durch dirName() haben wir immer ein Verzeichnis für die Ausgabe (ggf. '.')
+            $expandedArgs[] = dirName($value).'/'.baseName($value);  // durch dirName() haben wir immer ein Verzeichnis fuer die Ausgabe (ggf. '.')
             continue;
         }
         // Verzeichnis, Glob-Pattern bereitstellen (siehe unten)
-        $globPattern = $value.'/*.[Hh][Ss][Tt]';                    // *.hst in beliebiger Groß/Kleinschreibung
+        $globPattern = $value.'/*.[Hh][Ss][Tt]';                    // *.hst in beliebiger Gross/Kleinschreibung
     }
     else {
-        // Argument existiert nicht, Wildcards expandieren und Ergebnisse prüfen (z.B. unter Windows)
+        // Argument existiert nicht, Wildcards expandieren und Ergebnisse pruefen (z.B. unter Windows)
         strEndsWith($value, ['/', '\\']) && ($value.='*');
         $dirName  = dirName($value);
         $baseName = baseName($value); strEndsWith($baseName, '*') && ($baseName.='.hst');
 
-        // um Groß-/Kleinschreibung von Symbolen ignorieren zu können, wird $baseName modifiziert
+        // um Gross-/Kleinschreibung von Symbolen ignorieren zu koennen, wird $baseName modifiziert
         $len = strLen($baseName); $s = ''; $inBrace = $inBracket = false;
         for ($i=0; $i < $len; $i++) {
-            $char = $baseName[$i];                                   // angegebene Expansion-Pattern werden berücksichtigt: {a,b,c}, [0-9] etc.
+            $char = $baseName[$i];                                   // angegebene Expansion-Pattern werden beruecksichtigt: {a,b,c}, [0-9] etc.
             if ($inBrace  ) { $inBrace   = ($char!='}'); $s .= $char; continue; }
             if ($inBracket) { $inBracket = ($char!=']'); $s .= $char; continue; }
             if (($inBrace=($char=='{')) || ($inBracket=($char=='[')) || !ctype_alpha($char)) {
@@ -74,7 +74,7 @@ foreach ($expandedArgs as $fileName) {
     }
     $lastDir = $dirName;
 
-    // Daten auslesen und für Anzeige zwischenspeichern
+    // Daten auslesen und fuer Anzeige zwischenspeichern
     $files[]  = $baseName;
     $fileSize = fileSize($fileName);
 
@@ -161,13 +161,13 @@ foreach ($expandedArgs as $fileName) {
     fClose($hFile);
 }
 
-// abschließende Ausgabe für das letzte Verzeichnis
+// abschliessende Ausgabe fuer das letzte Verzeichnis
 if ($files) {
     showDirResults($dirName, $files, $formats, $symbols, $symbolsU, $periods, $digits, $syncMarkers, $lastSyncTimes, $bars, $barsFrom, $barsTo, $errors);
 }
 
 
-// (4) reguläres Programm-Ende
+// (4) regulaeres Programm-Ende
 exit(0);
 
 
@@ -214,7 +214,7 @@ function showDirResults($dirName, array $files, array $formats, array $symbols, 
 /**
  * Hilfefunktion: Zeigt die Syntax des Aufrufs an.
  *
- * @param  string $message - zusätzlich zur Syntax anzuzeigende Message (default: keine)
+ * @param  string $message - zusaetzlich zur Syntax anzuzeigende Message (default: keine)
  */
 function help($message=null) {
     if (!is_null($message))

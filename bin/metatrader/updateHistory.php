@@ -40,7 +40,7 @@ foreach ($args as $i => $arg) {
 $args = $args ? array_unique($args) : array_keys(MyFX::$symbols);             // ohne Angabe werden alle Instrumente verarbeitet
 
 
-// (2) SIGINT-Handler installieren (sauberer Abbruch bei Ctrl-C)              // Um bei Ctrl-C Destruktoren auszuführen,
+// (2) SIGINT-Handler installieren (sauberer Abbruch bei Ctrl-C)              // Um bei Ctrl-C Destruktoren auszufuehren,
 if (!WINDOWS) pcntl_signal(SIGINT, create_function('$signal', 'exit();'));    // reicht es, wenn der Handler exit() aufruft.
 
 
@@ -72,7 +72,7 @@ function updateHistory($symbol) {
     $lastSyncTime = null;
     echoPre('[Info]    '.$symbol);
 
-    // HistorySet öffnen bzw. neues Set erstellen
+    // HistorySet oeffnen bzw. neues Set erstellen
     if ($history=HistorySet::get($symbol, $directory)) {
         if ($verbose > 0) echoPre('[Info]    lastSyncTime: '.(($lastSyncTime=$history->getLastSyncTime()) ? gmDate('D, d-M-Y H:i:s', $lastSyncTime) : 0));
     }
@@ -104,8 +104,8 @@ function updateHistory($symbol) {
             $bars = MyFX::readBarFile($file, $symbol);
             $history->synchronize($bars);
         }
-        if (!WINDOWS) pcntl_signal_dispatch();                                                 // Auf Ctrl-C prüfen, um bei Abbruch den
-    }                                                                                         // Schreibbuffer der History leeren zu können.
+        if (!WINDOWS) pcntl_signal_dispatch();                                                 // Auf Ctrl-C pruefen, um bei Abbruch den
+    }                                                                                         // Schreibbuffer der History leeren zu koennen.
     $history->close();
 
     echoPre('[Ok]      '.$symbol);
@@ -116,7 +116,7 @@ function updateHistory($symbol) {
 /**
  * Hilfefunktion: Zeigt die Syntax des Aufrufs an.
  *
- * @param  string $message - zusätzlich zur Syntax anzuzeigende Message (default: keine)
+ * @param  string $message - zusaetzlich zur Syntax anzuzeigende Message (default: keine)
  */
 function help($message=null) {
     if (is_null($message))

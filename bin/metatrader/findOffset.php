@@ -1,7 +1,7 @@
 #!/usr/bin/php
 <?php
 /**
- * Gibt den Offset der ersten Bar einer MetaTrader-Historydatei zurück, die am oder nach dem angegebenen Zeitpunkt beginnt
+ * Gibt den Offset der ersten Bar einer MetaTrader-Historydatei zurueck, die am oder nach dem angegebenen Zeitpunkt beginnt
  * oder -1, wenn keine solche Bar existiert.
  */
 require(__DIR__.'/../../app/init.php');
@@ -29,7 +29,7 @@ foreach ($args as $i => $arg) {
     if ($arg == '-q') { $quietMode =true; unset($args[$i]); continue; }     // -q: quiet mode
 }
 
-// (1.2) Das verbleibende erste Argument muß ein Zeitpunkt sein.
+// (1.2) Das verbleibende erste Argument muss ein Zeitpunkt sein.
 (sizeOf($args) < 2) && exit(1|help());
 $sTime = $arg = array_shift($args);
 
@@ -37,12 +37,12 @@ if (strIsQuoted($sTime)) $sTime = trim(strLeft(strRight($sTime, -1), -1));
 !is_datetime($sTime, ['Y-m-d', 'Y-m-d H:i', 'Y-m-d H:i:s']) && exit(1|echoPre('invalid argument datetime = '.$arg));
 $datetime = strToTime($sTime.' GMT');
 
-// (1.2) Das verbleibende zweite Argument muß ein History-File sein.
+// (1.2) Das verbleibende zweite Argument muss ein History-File sein.
 $fileName = array_shift($args);
 !is_file($fileName) && exit(1|echoPre('file not found "'.$fileName.'"'));
 
 
-// (2) Datei öffnen und Header auslesen
+// (2) Datei oeffnen und Header auslesen
 $fileSize = fileSize($fileName);
 ($fileSize < HistoryHeader::SIZE) && exit(1|echoPre('invalid or unknown history file format: file size of "'.$fileName.'" < MinFileSize ('.HistoryHeader::SIZE.')'));
 $hFile  = fOpen($fileName, 'rb');
@@ -69,7 +69,7 @@ if (!is_int($bars)) {
 }
 $barFrom = $barTo = [];
 if (!$bars) {
-    $i = -1;                      // Datei enthält keine Bars
+    $i = -1;                      // Datei enthaelt keine Bars
 }
 else {
     $barFrom = unpack($barFormat, fRead($hFile, $barSize));
@@ -123,7 +123,7 @@ exit(0);
 /**
  * Hilfefunktion: Zeigt die Syntax des Aufrufs an.
  *
- * @param  string $message - zusätzlich zur Syntax anzuzeigende Message (default: keine)
+ * @param  string $message - zusaetzlich zur Syntax anzuzeigende Message (default: keine)
  */
 function help($message=null) {
     if (!is_null($message))

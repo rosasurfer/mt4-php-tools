@@ -212,11 +212,11 @@ class Account extends PersistableObject {
 
         // Account updaten
         $sql = "update :Account
-                      set lastreportedbalance = $lastreportedbalance,
-                            mtiaccount_id       = $mtiaccount_id,
-                            version             = $newVersion
-                      where id      = $id
-                         and version = $oldVersion";
+                   set lastreportedbalance = $lastreportedbalance,
+                       mtiaccount_id       = $mtiaccount_id,
+                       version             = $newVersion
+                   where id      = $id
+                     and version = $oldVersion";
         if ($dao->execute($sql)->db()->lastAffectedRows() != 1) {
             $this->version = $version;
             $found = $dao->refresh($this);

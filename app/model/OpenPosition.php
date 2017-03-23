@@ -83,7 +83,7 @@ class OpenPosition extends PersistableObject {
     /**
      * Erzeugt eine neue offene Position mit den angegebenen Daten.
      *
-     * @param  Signal $signal - Signal, zu dem die Position gehört
+     * @param  Signal $signal - Signal, zu dem die Position gehoert
      * @param  array  $data   - Positionsdaten
      *
      * @return self
@@ -140,7 +140,7 @@ class OpenPosition extends PersistableObject {
 
 
     /**
-     * Gibt die Beschreibung des OperationTypes dieser Position zurück.
+     * Gibt die Beschreibung des OperationTypes dieser Position zurueck.
      *
      * @return string - Beschreibung
      */
@@ -150,7 +150,7 @@ class OpenPosition extends PersistableObject {
 
 
     /**
-     * Gibt die OpenTime dieser Position zurück.
+     * Gibt die OpenTime dieser Position zurueck.
      *
      * @param  string $format - Zeitformat (default: 'Y-m-d H:i:s')
      *
@@ -164,12 +164,12 @@ class OpenPosition extends PersistableObject {
 
 
     /**
-     * Gibt den Commission-Betrag dieser Position zurück.
+     * Gibt den Commission-Betrag dieser Position zurueck.
      *
      * @param  int    $decimals  - Anzahl der Nachkommastellen
      * @param  string $separator - Dezimaltrennzeichen
      *
-     * @return float|string - Betrag oder NULL, wenn der Betrag nicht verfügbar ist
+     * @return float|string - Betrag oder NULL, wenn der Betrag nicht verfuegbar ist
      */
     public function getCommission($decimals=2, $separator='.') {
         if (is_null($this->commission) || !func_num_args())
@@ -179,12 +179,12 @@ class OpenPosition extends PersistableObject {
 
 
     /**
-     * Gibt den Swap-Betrag dieser Position zurück.
+     * Gibt den Swap-Betrag dieser Position zurueck.
      *
      * @param  int    $decimals  - Anzahl der Nachkommastellen
      * @param  string $separator - Dezimaltrennzeichen
      *
-     * @return float|string - Betrag oder NULL, wenn der Betrag nicht verfügbar ist
+     * @return float|string - Betrag oder NULL, wenn der Betrag nicht verfuegbar ist
      */
     public function getSwap($decimals=2, $separator='.') {
         if (is_null($this->swap) || !func_num_args())
@@ -196,7 +196,7 @@ class OpenPosition extends PersistableObject {
     /**
      * Setzt den StopLoss dieser Position auf den angegebenen Wert.
      *
-     * @param  float $value - StopLoss-Value (0 oder NULL löschen den aktuellen Wert)
+     * @param  float $value - StopLoss-Value (0 oder NULL loeschen den aktuellen Wert)
      *
      * @return Customer
      */
@@ -219,7 +219,7 @@ class OpenPosition extends PersistableObject {
     /**
      * Setzt den TakeProfit dieser Position auf den angegebenen Wert.
      *
-     * @param  float $value - TakeProfit-Value (0 oder NULL löschen den aktuellen Wert)
+     * @param  float $value - TakeProfit-Value (0 oder NULL loeschen den aktuellen Wert)
      *
      * @return Customer
      */
@@ -240,7 +240,7 @@ class OpenPosition extends PersistableObject {
 
 
     /**
-     * Gibt das Signal, zu dem diese Position gehört, zurück.
+     * Gibt das Signal, zu dem diese Position gehoert, zurueck.
      *
      * @return Signal
      */
@@ -280,21 +280,21 @@ class OpenPosition extends PersistableObject {
 
         // OpenPosition updaten
         $sql = "update :OpenPosition
-                      set ticket      = $ticket,
-                            type        = $type,
-                            lots        = $lots,
-                            symbol      = $symbol,
-                            opentime    = $opentime,
-                            openprice   = $openprice,
-                            stoploss    = $stoploss,
-                            takeprofit  = $takeprofit,
-                            commission  = $commission,
-                            swap        = $swap,
-                            magicnumber = $magicnumber,
-                            comment     = $comment,
-                            version     = $newVersion
-                      where id = $id
-                         and version = $oldVersion";
+                   set ticket      = $ticket,
+                       type        = $type,
+                       lots        = $lots,
+                       symbol      = $symbol,
+                       opentime    = $opentime,
+                       openprice   = $openprice,
+                       stoploss    = $stoploss,
+                       takeprofit  = $takeprofit,
+                       commission  = $commission,
+                       swap        = $swap,
+                       magicnumber = $magicnumber,
+                       comment     = $comment,
+                       version     = $newVersion
+                   where id      = $id
+                     and version = $oldVersion";
 
         if ($dao->execute($sql)->db()->lastAffectedRows() != 1) {
             $this->version = $version;
@@ -308,7 +308,7 @@ class OpenPosition extends PersistableObject {
 
 
     /**
-     * Löscht diese Instanz aus der Datenbank.
+     * Loescht diese Instanz aus der Datenbank.
      *
      * @return NULL
      */
