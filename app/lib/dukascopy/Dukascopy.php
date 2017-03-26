@@ -50,7 +50,7 @@ class Dukascopy extends StaticClass {
             if (!strLen($saveAs))    throw new InvalidArgumentException('Invalid parameter $saveAs: ""');
         }
 
-        $rawData = LZMA ::decompressData($data);
+        $rawData = LZMA::decompressData($data);
 
         if (!is_null($saveAs)) {
             mkDirWritable(dirName($saveAs));
