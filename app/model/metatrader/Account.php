@@ -77,7 +77,7 @@ class Account extends PersistableObject {
 
 
     /**
-     * Gibt den aktuellen Kontostand des Accounts zurück.
+     * Gibt den aktuellen Kontostand des Accounts zurueck.
      *
      * @param  int    $decimals  - Anzahl der Nachkommastellen
      * @param  string $separator - Dezimaltrennzeichen
@@ -93,7 +93,7 @@ class Account extends PersistableObject {
 
 
     /**
-     * Gibt den letzten gemeldeten Kontostand des Accounts zurück.
+     * Gibt den letzten gemeldeten Kontostand des Accounts zurueck.
      *
      * @param  int    $decimals  - Anzahl der Nachkommastellen
      * @param  string $separator - Dezimaltrennzeichen
@@ -123,13 +123,13 @@ class Account extends PersistableObject {
 
         $this->lastReportedBalance = $balance;
 
-        $this->isPersistent() && $this->modified=true;
+        $this->isPersistent() && $this->_modified=true;
         return $this;
     }
 
 
     /**
-     * Gibt den Zeitpunkt des letzten History-Updates zurück.
+     * Gibt den Zeitpunkt des letzten History-Updates zurueck.
      *
      * @param  string $format - Zeitformat
      *
@@ -144,7 +144,7 @@ class Account extends PersistableObject {
 
 
     /**
-     * Normalisiert den übergebenen Account-Companynamen.
+     * Normalisiert den uebergebenen Account-Companynamen.
      *
      * @param  string $name - company name
      *
@@ -223,7 +223,8 @@ class Account extends PersistableObject {
             throw new ConcurrentModificationException('Error updating '.__CLASS__.' ('.$id.'), expected version: '.$oldVersion.', found version: "'.$found->getVersion().'"');
         }
 
-        $this->modifications = null;
+        $this->_modifications = null;
+        $this->_modified      = false;
         return $this;
     }
 }

@@ -599,12 +599,12 @@ class Test extends PersistableObject {
      *
      * @return self
      */
-    protected function setReportingId($id) {
+    public function setReportingId($id) {
         if (!is_int($id)) throw new IllegalTypeException('Illegal type of parameter $id: '.getType($id));
         if ($id <= 0)     throw new InvalidArgumentException('Invalid parameter $id: '.$id.' (not positive)');
 
         $this->reportingId = $id;
-        $this->isPersistent() && $this->modified = true;
+        $this->isPersistent() && $this->_modified=true;
         return $this;
     }
 }

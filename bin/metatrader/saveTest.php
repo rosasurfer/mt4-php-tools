@@ -77,8 +77,15 @@ function processTestFiles() {
 
     $test = Test::create($testConfigFile, $testResultsFile);
     $test->save();
-
     echoPre('Test(id='.$test->getId().') of "'.$test->getStrategy().'" with '.$test->countTrades().' trades saved.');
+    return true;
+
+    echoPre($test);
+
+    $test->setReportingId($test->getReportingId() + 1);
+    $test->save();
+    echoPre('Test(id='.$test->getId().') of "'.$test->getStrategy().'" updated.');
+    echoPre($test);
     return true;
 }
 

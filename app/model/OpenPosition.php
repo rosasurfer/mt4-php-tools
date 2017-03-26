@@ -210,7 +210,7 @@ class OpenPosition extends PersistableObject {
         if ($value !== $this->stopLoss) {
             $this->stopLoss = $value;
 
-            $this->isPersistent() && $this->modified=true;
+            $this->isPersistent() && $this->_modified=true;
         }
         return $this;
     }
@@ -233,7 +233,7 @@ class OpenPosition extends PersistableObject {
         if ($value !== $this->takeProfit) {
             $this->takeProfit = $value;
 
-            $this->isPersistent() && $this->modified=true;
+            $this->isPersistent() && $this->_modified=true;
         }
         return $this;
     }
@@ -302,7 +302,8 @@ class OpenPosition extends PersistableObject {
             throw new ConcurrentModificationException('Error updating '.__CLASS__.' (ticket='.$this->ticket.'), expected version: '.$oldVersion.', found version: '.$found->getVersion());
         }
 
-        $this->modifications = null;
+        $this->_modifications = null;
+        $this->_modified      = false;
         return $this;
     }
 
