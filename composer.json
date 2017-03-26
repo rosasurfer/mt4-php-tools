@@ -26,7 +26,7 @@
     "autoload": {
         "classmap": ["app/"],
         "files":    [
-            "app/globals.php",
+            "app/defines.php",
             "app/lib/myfxbook/defines.php",
             "app/lib/simpletrader/defines.php"
         ]
