@@ -1,5 +1,7 @@
 #!/usr/bin/php
 <?php
+use rosasurfer\config\Config;
+
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 
@@ -68,7 +70,7 @@ function updateHistory($symbol) {
 
     global $verbose;
     $digits       = MyFX::$symbols[$symbol]['digits'];
-    $directory    = MyFX::getConfigPath('myfx.data-directory').'/history/mt4/MyFX-Dukascopy';
+    $directory    = Config::getDefault()->get('app.dir.data').'/history/mt4/MyFX-Dukascopy';
     $lastSyncTime = null;
     echoPre('[Info]    '.$symbol);
 

@@ -1,5 +1,7 @@
 #!/usr/bin/php
 <?php
+use rosasurfer\config\Config;
+
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 
@@ -75,7 +77,7 @@ function createHistory($symbol) {
     // MT4-HistorySet erzeugen
     $digits    = MyFX::$symbols[$symbol]['digits'];
     $format    = 400;
-    $directory = MyFX::getConfigPath('myfx.data-directory').'/history/mt4/MyFX-Dukascopy';
+    $directory = Config::getDefault()->get('app.dir.data').'/history/mt4/MyFX-Dukascopy';
     $history   = HistorySet::create($symbol, $digits, $format, $directory);
 
 
@@ -142,7 +144,7 @@ function getVar($id, $symbol=null, $time=null) {
     else if ($id == 'myfxDir') {              // $dataDirectory/history/myfx/$type/$symbol/$myfxDirDate         // lokales Verzeichnis
         if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
         static $dataDirectory; if (!$dataDirectory)
-        $dataDirectory = MyFX::getConfigPath('myfx.data-directory');
+        $dataDirectory = Config::getDefault()->get('app.dir.data');
         $type          = MyFX::$symbols[$symbol]['type'];
         $myfxDirDate   = $self('myfxDirDate', null, $time);
         $result        = "$dataDirectory/history/myfx/$type/$symbol/$myfxDirDate";

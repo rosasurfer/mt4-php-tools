@@ -1,5 +1,7 @@
 #!/usr/bin/php
 <?php
+use rosasurfer\config\Config;
+
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
@@ -1912,7 +1914,7 @@ function getVar($id, $symbol=null, $time=null) {
     else if ($id == 'fxiSourceDir') {            // $dataDirectory/history/myfx/$type/$symbol/$myfxDirDate         // lokales Quell-Verzeichnis
         if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
         if (!$dataDirectory)
-        $dataDirectory = MyFX::getConfigPath('myfx.data-directory');
+        $dataDirectory = Config::getDefault()->get('app.dir.data');
         $type          = MyFX::$symbols[$symbol]['type'];
         $myfxDirDate   = $self('myfxDirDate', null, $time);
         $result        = "$dataDirectory/history/myfx/$type/$symbol/$myfxDirDate";
@@ -1920,7 +1922,7 @@ function getVar($id, $symbol=null, $time=null) {
     else if ($id == 'fxiTargetDir') {            // $dataDirectory/history/myfx/$type/$symbol/$myfxDirDate         // lokales Ziel-Verzeichnis
         if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
         if (!$dataDirectory)
-        $dataDirectory = MyFX::getConfigPath('myfx.data-directory');
+        $dataDirectory = Config::getDefault()->get('app.dir.data');
         $type          = MyFX::$symbols[$symbol]['type'];
         $myfxDirDate   = $self('myfxDirDate', null, $time);
         $result        = "$dataDirectory/history/myfx/$type/$symbol/$myfxDirDate";

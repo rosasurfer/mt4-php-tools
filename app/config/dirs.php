@@ -8,6 +8,7 @@
 return [
     'root'  => dirName(dirName(__DIR__)),
     'cache' => 'etc/cache',
+    'data'  => 'data',
     'log'   => 'etc/log',
     'tmp'   => 'etc/tmp',
     'web'   => 'web',

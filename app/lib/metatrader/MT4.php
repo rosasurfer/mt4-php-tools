@@ -1,8 +1,10 @@
 <?php
+use rosasurfer\config\Config;
 use rosasurfer\core\StaticClass;
 
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\RuntimeException;
+
 use function rosasurfer\strIsNumeric;
 
 
@@ -362,7 +364,7 @@ class MT4 extends StaticClass {
 
         // (1) Datenverzeichnis bestimmen
         static $dataDirectory = null;
-        if (is_null($dataDirectory)) $dataDirectory = MyFX ::getConfigPath('myfx.data-directory');
+        if (is_null($dataDirectory)) $dataDirectory = Config::getDefault()->get('app.dir.data');
 
 
         // (2) Prüfen, ob OpenTrades- und History-Datei existieren
