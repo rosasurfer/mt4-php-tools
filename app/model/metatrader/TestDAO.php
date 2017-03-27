@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\myfx\metatrader\model;
+namespace rosasurfer\trade\model\metatrader;
 
 use rosasurfer\db\orm\DAO;
 
@@ -13,6 +13,8 @@ use const rosasurfer\db\orm\BIND_TYPE_STRING;
 use const rosasurfer\db\orm\ID_CREATE;
 use const rosasurfer\db\orm\ID_PRIMARY;
 use const rosasurfer\db\orm\ID_VERSION;
+use rosasurfer\exception\IllegalTypeException;
+use rosasurfer\exception\InvalidArgumentException;
 
 
 /**

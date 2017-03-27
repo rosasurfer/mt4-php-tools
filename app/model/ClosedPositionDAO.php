@@ -1,4 +1,6 @@
 <?php
+namespace rosasurfer\trade\model;
+
 use rosasurfer\db\orm\DAO;
 
 use rosasurfer\exception\IllegalTypeException;

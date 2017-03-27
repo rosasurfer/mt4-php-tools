@@ -1,4 +1,6 @@
 <?php
+namespace rosasurfer\trade\model;
+
 use rosasurfer\db\orm\PersistableObject;
 
 use rosasurfer\exception\ConcurrentModificationException;
@@ -6,6 +8,7 @@ use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 
 use rosasurfer\util\Date;
+use rosasurfer\util\Number;
 
 
 /**

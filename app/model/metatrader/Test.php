@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\myfx\metatrader\model;
+namespace rosasurfer\trade\model\metatrader;
 
 use rosasurfer\db\orm\PersistableObject;
 

@@ -1,10 +1,13 @@
 <?php
+namespace rosasurfer\trade\model;
+
 use rosasurfer\db\orm\PersistableObject;
 
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 
 use rosasurfer\util\Date;
+use rosasurfer\util\Number;
 
 
 /**
