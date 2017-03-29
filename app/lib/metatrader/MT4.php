@@ -5,6 +5,10 @@ use rosasurfer\core\StaticClass;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\RuntimeException;
 
+use rosasurfer\trade\model\ClosedPosition;
+use rosasurfer\trade\model\OpenPosition;
+use rosasurfer\trade\model\Signal;
+
 use function rosasurfer\strIsNumeric;
 
 
@@ -638,7 +642,7 @@ class MT4 extends StaticClass {
     public static function strToTickModel($value) {
         if (is_string($value)) {
             if (!strIsNumeric($value)) {
-                $value = strToUppper($value);
+                $value = strToUpper($value);
                 if (strStartsWith($value, 'TICKMODEL_'))
                     $value = strRight($value, -10);
                 switch ($value) {
@@ -714,7 +718,7 @@ class MT4 extends StaticClass {
     public static function strToTradeDirection($value) {
         if (is_string($value)) {
             if (!strIsNumeric($value)) {
-                $value = strToUppper($value);
+                $value = strToUpper($value);
                 if (strStartsWith($value, 'TRADEDIRECTION_'))
                     $value = strRight($value, -15);
                 switch ($value) {

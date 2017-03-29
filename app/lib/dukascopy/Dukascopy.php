@@ -90,7 +90,7 @@ class Dukascopy extends StaticClass {
      * @param  string $type   - ...
      * @param  int    $time   - ...
      *
-     * @return DUKASCOPY_BAR[] - Array mit Bardaten
+     * @return array - DUKASCOPY_BAR-Daten
      */
     public static function readBarData($data, $symbol, $type, $time) {
         if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
@@ -145,7 +145,7 @@ class Dukascopy extends StaticClass {
      * @param  string $type     - ...
      * @param  int    $time     - ...
      *
-     * @return DUKASCOPY_BAR[] - Array mit Bardaten
+     * @return array - DUKASCOPY_BAR-Daten
      */
     public static function readBarFile($fileName, $symbol, $type, $time) {
         if (!is_string($fileName)) throw new IllegalTypeException('Illegal type of parameter $fileName: '.getType($fileName));
@@ -159,7 +159,7 @@ class Dukascopy extends StaticClass {
      *
      * @param  string $data - String mit Dukascopy-Tickdaten
      *
-     * @return DUKASCOPY_TICK[] - Array mit Tickdaten
+     * @return array - DUKASCOPY_TICK-Daten
      */
     public static function readTickData($data) {
         if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
@@ -192,7 +192,7 @@ class Dukascopy extends StaticClass {
      *
      * @param  string $fileName - Name der Datei mit Dukascopy-Tickdaten
      *
-     * @return DUKASCOPY_TICK[] - Array mit Tickdaten
+     * @return array - DUKASCOPY_TICK-Daten
      */
     public static function readTickFile($fileName) {
         if (!is_string($fileName)) throw new IllegalTypeException('Illegal type of parameter $fileName: '.getType($fileName));

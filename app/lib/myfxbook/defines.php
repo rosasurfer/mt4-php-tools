@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\myfx\lib\myfxbook;
+namespace rosasurfer\trade\lib\myfxbook;
 
 
 // data indices of account history in CSV statements

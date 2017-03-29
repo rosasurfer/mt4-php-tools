@@ -77,7 +77,7 @@ class Order extends PersistableObject {
     /**
      * Create a new Order.
      *
-     * @return self
+     * @return static
      */
     public static function create(Test $test, array $properties) {
         $order       = new static();
@@ -219,7 +219,7 @@ class Order extends PersistableObject {
     /**
      * Insert pre-processing hook. Assigns a {@link Test} id as long as this is not yet done automatically by the ORM.
      *
-     * @return self
+     * @return $this
      */
     protected function beforeInsert() {
         if (!$this->test_id)

@@ -64,7 +64,7 @@ class ClosedPosition extends PersistableObject {
     /**
      * Ueberladene Methode.  Erzeugt eine neue geschlossene Position.
      *
-     * @return self
+     * @return static
      */
     public static function create() {
         if (func_num_args() != 2) throw new RuntimeException('Invalid number of function arguments: '.func_num_args());
@@ -83,7 +83,7 @@ class ClosedPosition extends PersistableObject {
      * @param  OpenPosition $openPosition - vormals offene Position
      * @param  array        $data         - Positionsdaten
      *
-     * @return self
+     * @return static
      */
     private static function create_1(OpenPosition $openPosition, array $data) {
         $position = new static();
@@ -117,7 +117,7 @@ class ClosedPosition extends PersistableObject {
      * @param  Signal $signal - Signal der Position
      * @param  array  $data   - Positionsdaten
      *
-     * @return self
+     * @return static
      */
     private static function create_2(Signal $signal, array $data) {
         if (!$signal->isPersistent()) throw new InvalidArgumentException('Cannot process '.__CLASS__.' for non-persistent '.get_class($signal));
@@ -223,7 +223,7 @@ class ClosedPosition extends PersistableObject {
     public function getCommission($decimals=2, $separator='.') {
         if (is_null($this->commission) || !func_num_args())
             return $this->commission;
-        return Number::format($this->commission, $decimals, $separator);
+        return Number::formatMoney($this->commission, $decimals, $separator);
     }
 
 
@@ -238,7 +238,7 @@ class ClosedPosition extends PersistableObject {
     public function getSwap($decimals=2, $separator='.') {
         if (is_null($this->swap) || !func_num_args())
             return $this->swap;
-        return Number::format($this->swap, $decimals, $separator);
+        return Number::formatMoney($this->swap, $decimals, $separator);
     }
 
 
@@ -253,7 +253,7 @@ class ClosedPosition extends PersistableObject {
     public function getGrossProfit($decimals=2, $separator='.') {
         if (is_null($this->grossProfit) || !func_num_args())
             return $this->grossProfit;
-        return Number::format($this->grossProfit, $decimals, $separator);
+        return Number::formatMoney($this->grossProfit, $decimals, $separator);
     }
 
 
@@ -268,7 +268,7 @@ class ClosedPosition extends PersistableObject {
     public function getNetProfit($decimals=2, $separator='.') {
         if (!func_num_args())
             return $this->netProfit;
-        return Number::format($this->netProfit, $decimals, $separator);
+        return Number::formatMoney($this->netProfit, $decimals, $separator);
     }
 
 

@@ -145,7 +145,7 @@ class Test extends PersistableObject {
      * @param  string $configFile  - name of the test's configuration file
      * @param  string $resultsFile - name of the test's results file
      *
-     * @return self
+     * @return static
      */
     public static function create($configFile, $resultsFile) {
         if (!is_string($configFile))  throw new IllegalTypeException('Illegal type of parameter $configFile: '.getType($configFile));
@@ -575,7 +575,7 @@ class Test extends PersistableObject {
     /**
      * Insert this instance into the database.
      *
-     * @return self
+     * @return $this
      */
     protected function insert() {
         $this->db()->begin();
@@ -597,7 +597,7 @@ class Test extends PersistableObject {
      *
      * @param  int $id - positive value
      *
-     * @return self
+     * @return $this
      */
     public function setReportingId($id) {
         if (!is_int($id)) throw new IllegalTypeException('Illegal type of parameter $id: '.getType($id));

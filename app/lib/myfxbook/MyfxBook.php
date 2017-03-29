@@ -1,15 +1,18 @@
 <?php
-namespace rosasurfer\myfx\lib\myfxbook;
+namespace rosasurfer\trade\lib\myfxbook;
 
 use rosasurfer\config\Config;
 use rosasurfer\core\StaticClass;
 
+use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\IOException;
 use rosasurfer\exception\RuntimeException;
 
 use rosasurfer\net\http\CurlHttpClient;
 use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
+
+use rosasurfer\trade\model\Signal;
 
 
 /**
@@ -34,7 +37,7 @@ class MyfxBook extends StaticClass {
      *
      * @return string - statement content
      */
-    public static function loadCsvStatement(\Signal $signal) {
+    public static function loadCsvStatement(Signal $signal) {
         $localFile = dirName(realPath($_SERVER['PHP_SELF'])).DIRECTORY_SEPARATOR.$signal->getAlias().'.csv';
         if (is_file($localFile)) return file_get_contents($localFile);
 
@@ -90,7 +93,7 @@ class MyfxBook extends StaticClass {
      *
      * @return string - NULL or error message if an error occurred
      */
-    public static function parseCsvStatement(\Signal $signal, $csv, array &$positions, array &$history) {
+    public static function parseCsvStatement(Signal $signal, $csv, array &$positions, array &$history) {
         if (!is_string($csv)) throw new IllegalTypeException('Illegal type of parameter $csv: '.getType($csv));
         $positions = $history = [];
 

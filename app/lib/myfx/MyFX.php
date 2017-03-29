@@ -353,7 +353,7 @@ class MyFX extends StaticClass {
      * @param  string $data   - String mit MyFX-Bardaten
      * @param  string $symbol - Meta-Information fuer eine evt. Fehlermeldung (falls die Daten fehlerhaft sind)
      *
-     * @return MYFX_BAR[] - Array mit Bardaten
+     * @return array - MYFX_BAR-Daten
      */
     public static function readBarData($data, $symbol) {
         if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
@@ -385,7 +385,7 @@ class MyFX extends StaticClass {
      * @param  string $fileName - Name der Datei mit MyFX-Bardaten
      * @param  string $symbol   - Meta-Information fuer eine evt. Fehlermeldung (falls die Daten fehlerhaft sind)
      *
-     * @return MYFX_BAR[] - Array mit Bardaten
+     * @return array - MYFX_BAR-Daten
      */
     public static function readBarFile($fileName, $symbol) {
         if (!is_string($fileName)) throw new IllegalTypeException('Illegal type of parameter $fileName: '.getType($fileName));
@@ -398,7 +398,7 @@ class MyFX extends StaticClass {
      *
      * @param  string $fileName - Name der Datei mit MyFX-Bardaten
      *
-     * @return MYFX_BAR[] - Array mit Bardaten
+     * @return array - MYFX_BAR-Daten
      */
     public static function readCompressedBarFile($fileName) {
         throw new UnimplementedFeatureException(__METHOD__);

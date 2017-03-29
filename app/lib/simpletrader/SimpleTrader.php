@@ -1,8 +1,7 @@
 <?php
-namespace rosasurfer\myfx\lib\simpletrader;
+namespace rosasurfer\trade\lib\simpletrader;
 
 use rosasurfer\config\Config;
-
 use rosasurfer\core\StaticClass;
 
 use rosasurfer\exception\IllegalTypeException;
@@ -17,7 +16,12 @@ use rosasurfer\net\http\HttpClient;
 use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
 
+use rosasurfer\trade\model\ClosedPosition;
+use rosasurfer\trade\model\OpenPosition;
+use rosasurfer\trade\model\Signal;
+
 use rosasurfer\util\Date;
+use rosasurfer\util\PHP;
 
 
 /**
@@ -61,7 +65,7 @@ class SimpleTrader extends StaticClass {
      *
      * @return string - Inhalt der HTML-Seite
      */
-    public static function loadSignalPage(\Signal $signal, $fullHistory) {
+    public static function loadSignalPage(Signal $signal, $fullHistory) {
         if (!is_bool($fullHistory)) throw new IllegalTypeException('Illegal type of parameter $fullHistory: '.getType($fullHistory));
 
         $providerSignalId = $signal->getProviderId();
@@ -139,7 +143,7 @@ class SimpleTrader extends StaticClass {
      *
      * @return string - NULL oder Fehlermeldung, falls ein Fehler auftrat
      */
-    public static function parseSignalData(\Signal $signal, &$html, array &$openTrades, array &$history) {      // der zusätzliche Zeiger minimiert den benötigten Speicher
+    public static function parseSignalData(Signal $signal, &$html, array &$openTrades, array &$history) {      // der zusätzliche Zeiger minimiert den benötigten Speicher
         if (!is_string($html)) throw new IllegalTypeException('Illegal type of parameter $html: '.getType($html));
 
         $signalAlias = $signal->getAlias();
@@ -355,6 +359,7 @@ class SimpleTrader extends StaticClass {
                     // Tickets mit fehlerhaften OperationType reparieren
                     if ($sValue!='buy' && $sValue!='sell') {
                         if (is_numeric($sProfit=trim($row[I_HISTORY_PROFIT])) && $row['openprice'] != $row['closeprice']) {
+                            $sTicket = trim($row[I_HISTORY_COMMENT]);
                             $dProfit = (float)$sProfit;
                             if ($row['openprice'] < $row['closeprice']) $fixedValue = ($dProfit > 0) ? 'Buy' :'Sell';
                             else                                        $fixedValue = ($dProfit > 0) ? 'Sell':'Buy' ;
@@ -453,7 +458,7 @@ class SimpleTrader extends StaticClass {
      *
      * @param  OpenPosition $position - die geöffnete Position
      */
-    public static function onPositionOpen(\OpenPosition $position) {
+    public static function onPositionOpen(OpenPosition $position) {
         $signal = $position->getSignal();
 
         // Ausgabe in Console
@@ -496,7 +501,7 @@ class SimpleTrader extends StaticClass {
      * @param  float        $prevTP   - der vorherige TakeProfit-Wert
      * @param  float        $prevSL   - der vorherige StopLoss-Wert
      */
-    public static function onPositionModify(\OpenPosition $position, $prevTP, $prevSL) {
+    public static function onPositionModify(OpenPosition $position, $prevTP, $prevSL) {
         if (!is_null($prevTP) && !is_float($prevTP)) throw new IllegalTypeException('Illegal type of parameter $prevTP: '.getType($prevSL));
         if (!is_null($prevSL) && !is_float($prevSL)) throw new IllegalTypeException('Illegal type of parameter $prevSL: '.getType($prevSL));
 
@@ -546,7 +551,7 @@ class SimpleTrader extends StaticClass {
      *
      * @param  ClosedPosition $position - die geschlossene Position
      */
-    public static function onPositionClose(\ClosedPosition $position) {
+    public static function onPositionClose(ClosedPosition $position) {
         $signal = $position->getSignal();
 
         // Ausgabe in Console
@@ -585,7 +590,7 @@ class SimpleTrader extends StaticClass {
     /**
      * Handler für PositionChange-Events eines SimpleTrader-Signals.
      */
-    public static function onPositionChange(\Signal $signal, $symbol, array $report, $iFirstNewRow, $oldNetPosition, $newNetPosition) {
+    public static function onPositionChange(Signal $signal, $symbol, array $report, $iFirstNewRow, $oldNetPosition, $newNetPosition) {
         if (!$signal->isPersistent())    throw new InvalidArgumentException('Cannot process non-persistent '.get_class($signal));
         if (!is_string($symbol))         throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
         if (!strLen($symbol))            throw new InvalidArgumentException('Invalid argument $symbol: '.$symbol);

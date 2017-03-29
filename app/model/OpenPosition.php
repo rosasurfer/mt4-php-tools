@@ -89,7 +89,7 @@ class OpenPosition extends PersistableObject {
      * @param  Signal $signal - Signal, zu dem die Position gehoert
      * @param  array  $data   - Positionsdaten
      *
-     * @return self
+     * @return static
      */
     public static function create(Signal $signal, array $data) {
         if (!$signal->isPersistent()) throw new InvalidArgumentException('Cannot process '.__CLASS__.' for non-persistent '.get_class($signal));
@@ -172,12 +172,12 @@ class OpenPosition extends PersistableObject {
      * @param  int    $decimals  - Anzahl der Nachkommastellen
      * @param  string $separator - Dezimaltrennzeichen
      *
-     * @return float|string - Betrag oder NULL, wenn der Betrag nicht verfuegbar ist
+     * @return string|float|null - Betrag oder NULL, wenn der Betrag nicht verfuegbar ist
      */
     public function getCommission($decimals=2, $separator='.') {
         if (is_null($this->commission) || !func_num_args())
             return $this->commission;
-        return Number::format($this->commission, $decimals, $separator);
+        return Number::formatMoney($this->commission, $decimals, $separator);
     }
 
 
@@ -187,12 +187,12 @@ class OpenPosition extends PersistableObject {
      * @param  int    $decimals  - Anzahl der Nachkommastellen
      * @param  string $separator - Dezimaltrennzeichen
      *
-     * @return float|string - Betrag oder NULL, wenn der Betrag nicht verfuegbar ist
+     * @return string|float|null - Betrag oder NULL, wenn der Betrag nicht verfuegbar ist
      */
     public function getSwap($decimals=2, $separator='.') {
         if (is_null($this->swap) || !func_num_args())
             return $this->swap;
-        return Number::format($this->swap, $decimals, $separator);
+        return Number::formatMoney($this->swap, $decimals, $separator);
     }
 
 
@@ -201,7 +201,7 @@ class OpenPosition extends PersistableObject {
      *
      * @param  float $value - StopLoss-Value (0 oder NULL loeschen den aktuellen Wert)
      *
-     * @return Customer
+     * @return $this
      */
     public function setStopLoss($value) {
         if (!is_null($value) && !is_int($value) && !is_float($value)) throw new IllegalTypeException('Illegal type of parameter $value: '.getType($value));
@@ -224,7 +224,7 @@ class OpenPosition extends PersistableObject {
      *
      * @param  float $value - TakeProfit-Value (0 oder NULL loeschen den aktuellen Wert)
      *
-     * @return Customer
+     * @return $this
      */
     public function setTakeProfit($value) {
         if (!is_null($value) && !is_int($value) && !is_float($value)) throw new IllegalTypeException('Illegal type of parameter $value: '.getType($value));
@@ -257,7 +257,7 @@ class OpenPosition extends PersistableObject {
     /**
      * Aktualisiert diese Instanz in der Datenbank.
      *
-     * @return self
+     * @return $this
      */
     protected function update() {
         $dao = self::dao();

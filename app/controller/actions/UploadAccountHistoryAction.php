@@ -12,7 +12,7 @@ use rosasurfer\ministruts\Response;
 use rosasurfer\util\Date;
 use rosasurfer\util\System;
 
-use rosasurfer\myfx\metatrader\ImportHelper;
+use rosasurfer\trade\lib\metatrader\ImportHelper;
 
 
 /**

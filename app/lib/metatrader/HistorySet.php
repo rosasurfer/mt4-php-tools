@@ -124,7 +124,7 @@ class HistorySet extends Object {
         $symbolUpper = strToUpper($this->symbol);
         foreach (self::$instances as $instance) {
             if (!$instance->isClosed() && $symbolUpper==strToUpper($instance->getSymbol()) && $this->serverDirectory==$instance->getServerDirectory())
-                throw RuntimeException('Multiple open HistorySets for "'.$this->serverName.'::'.$this->symbol.'"');
+                throw new RuntimeException('Multiple open HistorySets for "'.$this->serverName.'::'.$this->symbol.'"');
         }
 
         // alle übrigen existierenden HistoryFiles öffnen und validieren (nicht existierende Dateien werden erst bei Bedarf erstellt)
@@ -303,7 +303,7 @@ class HistorySet extends Object {
     /**
      * Fügt dem Ende der Zeitreihen des Sets weitere Bardaten hinzu. Vorhandene Daten werden nicht geändert.
      *
-     * @param  MYFX_BAR[] $bars - Bardaten der Periode M1
+     * @param  array - MYFX_BAR-Daten der Periode M1
      *
      * @return bool - Erfolgsstatus
      */
@@ -324,7 +324,7 @@ class HistorySet extends Object {
      * Synchronisationszeitpunkt der Zeitreihe geschrieben wurden und die sich mit den übergebenen Bars überschneiden,
      * werden ersetzt. Vorhandene Bars, die sich mit den übergebenen Bars nicht überschneiden, bleiben unverändert.
      *
-     * @param  MYFX_BAR[] $bars - Bardaten der Periode M1
+     * @param  array - MYFX_BAR-Daten der Periode M1
      */
     public function synchronize(array $bars) {
         if ($this->closed) throw new IllegalStateException('Cannot process a closed '.__CLASS__);
@@ -340,7 +340,7 @@ class HistorySet extends Object {
      */
     public function showBuffer() {
         echoPre(NL);
-        foreach ($this->historyFile as $timeframe => $file) {
+        foreach ($this->historyFiles as $timeframe => $file) {
             if ($file) {
                 $bars = $file->barBuffer;
                 $size = sizeOf($bars);

@@ -4,6 +4,8 @@ use rosasurfer\core\Object;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 
+use rosasurfer\trade\model\Signal;
+
 
 /**
  * ReportHelper

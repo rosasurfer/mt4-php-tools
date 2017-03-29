@@ -1,13 +1,14 @@
 <?php
-namespace rosasurfer\myfx\metatrader;
+namespace rosasurfer\trade\lib\metatrader;
 
+use \ViewHelper;
 use rosasurfer\core\StaticClass;
 
 use rosasurfer\exception\BusinessRuleException;
 use rosasurfer\exception\InfrastructureException;
 use rosasurfer\exception\InvalidArgumentException;
 
-use rosasurfer\myfx\metatrader\model\Account;
+use rosasurfer\trade\model\metatrader\Account;
 
 
 /**
@@ -17,11 +18,11 @@ class ImportHelper extends StaticClass {
 
 
     /**
-     * Importiert die mit der ActionForm übergebenen Historydaten eines MetaTrader-Accounts.
+     * Importiert die mit der ActionForm uebergebenen Historydaten eines MetaTrader-Accounts.
      *
      * @param  \UploadAccountHistoryActionForm $form - ActionForm
      *
-     * @return int - Anzahl der importierten Datensätze
+     * @return int - Anzahl der importierten Datensaetze
      */
     public static function updateAccountHistory(\UploadAccountHistoryActionForm $form) {
         // Account suchen
@@ -71,10 +72,10 @@ class ImportHelper extends StaticClass {
 
             // Hedges korrigieren
             if ($row[AH_UNITS] == 0) {
-                // TODO: Prüfen, wie sich OrderComment() bei partiellem Close und/oder custom comments verhält.
+                // TODO: Pruefen, wie sich OrderComment() bei partiellem Close und/oder custom comments verhaelt.
                 if (!strStartsWithI($row[AH_COMMENT], 'close hedge by #')) throw new InvalidArgumentException('ticket #'.$row[AH_TICKET].' - unknown comment for assumed hedged position: "'.$row[AH_COMMENT].'"');
 
-                // Gegenstück suchen und alle Orderdaten in der 1. Order speichern
+                // Gegenstueck suchen und alle Orderdaten in der 1. Order speichern
                 $ticket = (int) subStr($row[AH_COMMENT], 16);            // (int) schneidet ggf. auf die Ticket# folgende nicht-numerische Zeichen ab
                 if ($ticket == 0)                                        throw new InvalidArgumentException('ticket #'.$row[AH_TICKET].' - unknown comment for assumed hedged position: "'.$row[AH_COMMENT].'"');
                 if (($n=array_search($ticket, $tickets, true)) == false) throw new InvalidArgumentException('cannot find counterpart for hedged position #'.$row[AH_TICKET].': "'.$row[AH_COMMENT].'"');
@@ -91,15 +92,15 @@ class ImportHelper extends StaticClass {
                 }
                 $transactions[$first ][AH_CLOSETIME] = $transactions[$second][AH_OPENTIME];
                 $transactions[$first ][AH_COMMENT  ] = (strToLower($transactions[$first][AH_COMMENT])=='partial close' || strToLower($transactions[$second][AH_COMMENT])=='partial close' ? 'partial ':'').'close by hedge #'.$transactions[$second][AH_TICKET];
-                $transactions[$second][AH_OPENTIME ] = 0;                // erste Order enthält jetzt alle Daten, hedgende Order markieren (und später verwerfen)
-                $transactions[$second][AH_COMMENT  ] = ''; // temporär
+                $transactions[$second][AH_OPENTIME ] = 0;                // erste Order enthaelt jetzt alle Daten, hedgende Order markieren (und spaeter verwerfen)
+                $transactions[$second][AH_COMMENT  ] = ''; // temporaer
                 if ($i == $second)
                     continue;
             }
             if ($row[AH_OPENTIME] >= $row[AH_CLOSETIME]) throw new InvalidArgumentException('ticket #'.$row[AH_TICKET].' - illegal order times: open = "'.gmDate('Y.m.d H:i:s', $row[AH_OPENTIME]).'", close = "'.gmDate('Y.m.d H:i:s', $row[AH_CLOSETIME]).'"');
         } unset($row);
 
-        // (1.3) Transaktionen für SQL-Import formatieren und in die hochgeladene Datei zurückschreiben
+        // (1.3) Transaktionen fuer SQL-Import formatieren und in die hochgeladene Datei zurueckschreiben
         $accountId       = $account->getId();
         $serverTimezone  = new \DateTimeZone($account->getTimezone());
         $newYorkTimezone = new \DateTimeZone('America/New_York');
@@ -110,7 +111,7 @@ class ImportHelper extends StaticClass {
         foreach ($transactions as &$row) {
             if ($row[AH_OPENTIME] == 0)
                 continue;
-            $row[AH_TYPE] = strToLower(ViewHelper ::$operationTypes[$row[AH_TYPE]]);
+            $row[AH_TYPE] = strToLower(\ViewHelper::$operationTypes[$row[AH_TYPE]]);
 
             // MT4-Serverzeiten in Forex-Standardzeit (America/New_York+0700) umrechnen
             foreach ([AH_OPENTIME, AH_CLOSETIME] as $time) {
@@ -126,7 +127,7 @@ class ImportHelper extends StaticClass {
         // (1.4) Transaktionen importieren
         $db = Account::db();
 
-        // Rohdaten in temporäre Tabelle laden
+        // Rohdaten in temporaere Tabelle laden
         $sql = "create temporary table t_tmp (
                       account_id  int           unsigned  not null,
                       ticket      varchar(50)             not null,
@@ -158,7 +159,7 @@ class ImportHelper extends StaticClass {
                       (account_id, ticket, opentime, type, units, symbol, openprice, closetime, closeprice, commission, swap, netprofit, magicnumber, comment)";
         $db->execute($sql);
 
-        // Tickets einfügen und bereits vorhandene ignorieren (die Trigger validieren strikter als IGNORE es ermöglicht)
+        // Tickets einfuegen und bereits vorhandene ignorieren (die Trigger validieren strikter als IGNORE es ermoeglicht)
         $db->begin();
         try {
             $sql = "insert ignore into t_transaction (ticket, type, units, symbol, opentime, openprice, closetime, closeprice, commission, swap, netprofit, magicnumber, comment, account_id)
@@ -179,7 +180,7 @@ class ImportHelper extends StaticClass {
                           from t_tmp";
             $rows = $db->execute($sql)->lastAffectedRows();
 
-            // (1.5) neue AccountBalance gegenprüfen und speichern
+            // (1.5) neue AccountBalance gegenpruefen und speichern
             $reportedBalance = $form->getAccountBalance();
             if ($rows)
                 $account = Account::dao()->refresh($account);

@@ -8,6 +8,7 @@ use rosasurfer\exception\IllegalStateException;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
+use rosasurfer\exception\UnimplementedFeatureException;
 
 
 /**
@@ -356,32 +357,32 @@ class HistoryFile extends Object {
 
         $offset = $this->findTimeOffset($time);
 
-        if ($offset < 0) {                                                         // Zeitpunkt liegt nach der jüngsten bar[openTime]
+        if ($offset < 0) {                                              // Zeitpunkt liegt nach der jüngsten bar[openTime]
             $closeTime = $this->full_to_closeTime;
-            if ($time < $closeTime)                                                 // Zeitpunkt liegt innerhalb der jüngsten Bar
+            if ($time < $closeTime)                                     // Zeitpunkt liegt innerhalb der jüngsten Bar
                 return $size-1;
             return -1;
         }
 
         if ($offset == 0) {
-            if ($this->full_from_openTime == $time)                                 // Zeitpunkt liegt exakt auf der ältesten Bar
+            if ($this->full_from_openTime == $time)                     // Zeitpunkt liegt exakt auf der ältesten Bar
                 return 0;
-            return -1;                                                              // Zeitpunkt ist älter die älteste Bar
+            return -1;                                                  // Zeitpunkt ist älter die älteste Bar
         }
 
         $bar = $this->getBar($offset);
-        if ($bar['time'] == $time)                                                 // Zeitpunkt liegt exakt auf der jeweiligen Bar
+        if ($bar['time'] == $time)                                      // Zeitpunkt liegt exakt auf der jeweiligen Bar
             return $offset;
         $offset--;
 
         $bar       = $this->getBar($offset);
-        $closeTime = self::periodCloseTime($bar['time'], $this->period);
+        $closeTime = MyFX::periodCloseTime($bar['time'], $this->period);
 
-        if ($time < $closeTime)                                                    // Zeitpunkt liegt in der vorhergehenden Bar
+        if ($time < $closeTime)                                         // Zeitpunkt liegt in der vorhergehenden Bar
             return $offset;
-        return -1;                                                                 // Zeitpunkt liegt nicht in der vorhergehenden Bar,
-    }                                                                             // also Lücke zwischen der vorhergehenden und der
-                                                                                                            // folgenden Bar
+        return -1;                                                      // Zeitpunkt liegt nicht in der vorhergehenden Bar,
+    }                                                                   // also Lücke zwischen der vorhergehenden und der
+                                                                        // folgenden Bar
 
     /**
      * Gibt den Offset der Bar dieser Historydatei zurück, die den angegebenen Zeitpunkt abdeckt. Existiert keine solche Bar,
@@ -427,45 +428,47 @@ class HistoryFile extends Object {
 
         $offset = $this->findTimeOffset($time);
 
-        if ($offset < 0) {                                                         // Zeitpunkt liegt nach der jüngsten bar[openTime]
+        if ($offset < 0) {                                              // Zeitpunkt liegt nach der jüngsten bar[openTime]
             $closeTime = $this->full_to_closeTime;
             return ($closeTime > $time) ? $size-1 : -1;
         }
-        if ($offset == 0)                                                          // Zeitpunkt liegt vor oder exakt auf der ersten Bar
+        if ($offset == 0)                                               // Zeitpunkt liegt vor oder exakt auf der ersten Bar
             return 0;
 
         $bar = $this->getBar($offset);
-        if ($bar['time'] == $time)                                                 // Zeitpunkt stimmt mit bar[openTime] überein
+        if ($bar['time'] == $time)                                      // Zeitpunkt stimmt mit bar[openTime] überein
             return $offset;
 
-        $offset--;                                                                 // Zeitpunkt liegt in der vorherigen oder zwischen der
-        $bar = $this->getBar($offset);                                             // vorherigen und der TimeOffset-Bar
+        $offset--;                                                      // Zeitpunkt liegt in der vorherigen oder zwischen der
+        $bar = $this->getBar($offset);                                  // vorherigen und der TimeOffset-Bar
 
         $closeTime = MyFX::periodCloseTime($bar['time'], $this->period);
-        if ($closeTime > $time)                                                    // Zeitpunkt liegt innerhalb dieser vorherigen Bar
+        if ($closeTime > $time)                                         // Zeitpunkt liegt innerhalb dieser vorherigen Bar
             return $offset;
-        return ($offset+1 < $size) ? $offset+1 : -1;                               // Zeitpunkt liegt nach bar[closeTime], also Lücke...
-    }                                                                             // zwischen der vorherigen und der folgenden Bar
+        return ($offset+1 < $size) ? $offset+1 : -1;                    // Zeitpunkt liegt nach bar[closeTime], also Lücke...
+    }                                                                   // zwischen der vorherigen und der folgenden Bar
 
 
     /**
-     * Entfernt einen Teil der Historydatei und ersetzt ihn mit den übergebenen Bardaten. Die Größe der Datei wird entsprechend angepaßt.
+     * Entfernt einen Teil der Historydatei und ersetzt ihn mit den übergebenen Bardaten. Die Größe der Datei wird
+     * entsprechend angepaßt.
      *
-     * @param  int        $offset - If offset is zero or positive then the start of the removed bars is at that bar offset from the beginning
-     *                              of the history. If offset is negative then removing starts that far from the end of the history.
+     * @param  int   $offset - If offset is zero or positive then the start of the removed bars is at that bar offset from
+     *                         the beginning of the history. If offset is negative then removing starts that far from the end
+     *                         of the history.
      *
-     * @param  int        $length - If length is omitted everything from offset to the end of the history is removed. If length is specified
-     *                              and is positive then that many bars will be removed. If length is specified and is negative then length
-     *                              bars at the end of the history  will be left.
+     * @param  int   $length - If length is omitted everything from offset to the end of the history is removed. If length is
+     *                         specified and is positive then that many bars will be removed. If length is specified and is
+     *                         negative then length bars at the end of the history  will be left.
      *
-     * @param  MYFX_BAR[] $bars   - If replacement bars are specified then the removed bars are replaced with bars from this array. If offset
-     *                              and length are such that nothing is removed then the bars from the replacement array are inserted at the
-     *                              specified offset. If offset is one greater than the greatest existing offset the replacement array is
-     *                              appended.
+     * @param  array $bars   - MYFX_BAR data. If replacement bars are specified then the removed bars are replaced with bars
+     *                         from this array. If offset and length are such that nothing is removed then the bars from the
+     *                         replacement array are inserted at the specified offset. If offset is one greater than the
+     *                         greatest existing offset the replacement array is appended.
      *
-     * Examples: • HistoryFile->spliceBars(0, 1)   removes the first bar
-     *           • HistoryFile->spliceBars(-1)     removes the last bar (to be exact: everything from the last bar to the end)
-     *           • HistoryFile->spliceBars(0, -2)  removes everything from the beginning to the end except the last two bars
+     * Examples: • HistoryFile->spliceBars(0, 1)  removes the first bar
+     *           • HistoryFile->spliceBars(-1)    removes the last bar (to be exact: everything from the last bar to the end)
+     *           • HistoryFile->spliceBars(0, -2) removes everything from the beginning to the end except the last two bars
      */
     public function spliceBars($offset, $length=0, array $bars=[]) {
         if (!is_int($offset)) throw new IllegalTypeException('Illegal type of parameter $offset: '.getType($offset));
@@ -573,10 +576,11 @@ class HistoryFile extends Object {
     /**
      * Fügt Bardaten am angebenen Offset einer Historydatei ein. Die Datei wird entsprechend vergrößert.
      *
-     * @param  int         $offset - If offset is zero or positive then the insertion point is at that bar offset from the beginning
-     *                               of the history. If offset is negative then the insertion point is that far from the end of the history.
+     * @param  int   $offset - If offset is zero or positive then the insertion point is at that bar offset from the
+     *                         beginning of the history. If offset is negative then the insertion point is that far from the
+     *                         end of the history.
      *
-     * @param  MYFX_BARS[] $bars   - einzufügende Bardaten
+     * @param  array $bars   - einzufügende MYFX_BARS[]-Daten
      */
     public function insertBars($offset, array $bars) {
         if (!is_int($offset)) throw new IllegalTypeException('Illegal type of parameter $offset: '.getType($offset));
@@ -620,14 +624,16 @@ class HistoryFile extends Object {
     /**
      * Ersetzt einen Teil der Historydatei durch andere Bardaten. Die Größe der Datei wird entsprechend angepaßt.
      *
-     * @param  int         $offset - If offset is zero or positive then the start of the removed bars is at that bar offset from the beginning
-     *                               of the history. If offset is negative then removing starts that far from the end of the history.
+     * @param  int   $offset - If offset is zero or positive then the start of the removed bars is at that bar offset from
+     *                         the beginning of the history. If offset is negative then removing starts that far from the
+     *                         end of the history.
      *
-     * @param  int         $length - If length is omitted everything from offset to the end of the history is removed. If length is specified
-     *                               and is positive then that many bars will be removed. If length is specified and is negative then the end
-     *                               of the removed part will be that many bars from the end of the history.
+     * @param  int   $length - If length is omitted everything from offset to the end of the history is removed. If length
+     *                         is specified and is positive then that many bars will be removed. If length is specified and
+     *                         is negative then the end of the removed part will be that many bars from the end of the
+     *                         history.
      *
-     * @param  MYFX_BARS[] $bars   - die ersetzenden Bardaten
+     * @param  array $bars   - die ersetzenden MYFX_BARS-Daten
      */
     public function replaceBars($offset, $length=null, array $bars) {
     }
@@ -638,7 +644,7 @@ class HistoryFile extends Object {
      * Synchronisationszeitpunkt der Datei hinzugefügt wurden und sich mit den übergebenen Daten überschneiden, werden
      * ersetzt. Vorhandene Bars, die sich mit den übergebenen Daten nicht überschneiden, bleiben unverändert.
      *
-     * @param  MYFX_BAR[] $bars - Bardaten der Periode M1 (werden automatisch in die Periode der Historydatei konvertiert)
+     * @param  array $bars - MYFX_BAR-Daten der Periode M1 (werden automatisch in die Periode der Historydatei konvertiert)
      */
     public function synchronize(array $bars) {
         switch ($this->period) {
@@ -660,7 +666,7 @@ class HistoryFile extends Object {
     /**
      * Synchronisiert die M1-History dieser Instanz.
      *
-     * @param  MYFX_BAR[] $bars - Bardaten der Periode M1
+     * @param  array $bars - MYFX_BAR-Daten der Periode M1
      */
     private function synchronizeM1(array $bars) {
         if ($this->closed) throw new IllegalStateException('Cannot process a closed '.__CLASS__);
@@ -691,9 +697,89 @@ class HistoryFile extends Object {
 
 
     /**
+     * Synchronisiert die M5-History dieser Instanz.
+     *
+     * @param  array $bars - MYFX_BAR-Daten der Periode M5
+     */
+    private function synchronizeM5(array $bars) {
+        throw new UnimplementedFeatureException(__METHOD__.'() not yet implemented');
+    }
+
+
+    /**
+     * Synchronisiert die M15-History dieser Instanz.
+     *
+     * @param  array $bars - MYFX_BAR-Daten der Periode M15
+     */
+    private function synchronizeM15(array $bars) {
+        throw new UnimplementedFeatureException(__METHOD__.'() not yet implemented');
+    }
+
+
+    /**
+     * Synchronisiert die M30-History dieser Instanz.
+     *
+     * @param  array $bars - MYFX_BAR-Daten der Periode M30
+     */
+    private function synchronizeM30(array $bars) {
+        throw new UnimplementedFeatureException(__METHOD__.'() not yet implemented');
+    }
+
+
+    /**
+     * Synchronisiert die H1-History dieser Instanz.
+     *
+     * @param  array $bars - MYFX_BAR-Daten der Periode H1
+     */
+    private function synchronizeH1(array $bars) {
+        throw new UnimplementedFeatureException(__METHOD__.'() not yet implemented');
+    }
+
+
+    /**
+     * Synchronisiert die H4-History dieser Instanz.
+     *
+     * @param  array $bars - MYFX_BAR-Daten der Periode H4
+     */
+    private function synchronizeH4(array $bars) {
+        throw new UnimplementedFeatureException(__METHOD__.'() not yet implemented');
+    }
+
+
+    /**
+     * Synchronisiert die D1-History dieser Instanz.
+     *
+     * @param  array $bars - MYFX_BAR-Daten der Periode D1
+     */
+    private function synchronizeD1(array $bars) {
+        throw new UnimplementedFeatureException(__METHOD__.'() not yet implemented');
+    }
+
+
+    /**
+     * Synchronisiert die W1-History dieser Instanz.
+     *
+     * @param  array $bars - MYFX_BAR-Daten der Periode W1
+     */
+    private function synchronizeW1(array $bars) {
+        throw new UnimplementedFeatureException(__METHOD__.'() not yet implemented');
+    }
+
+
+    /**
+     * Synchronisiert die MN1-History dieser Instanz.
+     *
+     * @param  array $bars - MYFX_BAR-Daten der Periode MN1
+     */
+    private function synchronizeMN1(array $bars) {
+        throw new UnimplementedFeatureException(__METHOD__.'() not yet implemented');
+    }
+
+
+    /**
      * Fügt der Historydatei dieser Instanz Bardaten hinzu. Die Daten werden ans Ende der Zeitreihe angefügt.
      *
-     * @param  MYFX_BAR[] $bars - Bardaten der Periode M1
+     * @param  array $bars - MYFX_BAR-Daten der Periode M1
      */
     public function appendBars(array $bars) {
         switch ($this->period) {
@@ -715,7 +801,7 @@ class HistoryFile extends Object {
     /**
      * Fügt der M1-History dieser Instanz weitere Daten hinzu.
      *
-     * @param  MYFX_BAR[] $bars - Bardaten der Periode M1
+     * @param  array $bars - MYFX_BAR-Daten der Periode M1
      */
     private function appendToM1(array $bars) {
         if ($this->closed)                             throw new IllegalStateException('Cannot process a closed '.__CLASS__);
@@ -746,7 +832,7 @@ class HistoryFile extends Object {
     /**
      * Fügt der History dieser Instanz weitere Daten hinzu.
      *
-     * @param  MYFX_BAR[] $bars - Bardaten der Periode M1
+     * @param  array $bars - MYFX_BAR-Daten der Periode M1
      */
     private function appendToTimeframe(array $bars) {
         if ($this->closed)                             throw new IllegalStateException('Cannot process a closed '.__CLASS__);
@@ -798,7 +884,7 @@ class HistoryFile extends Object {
     /**
      * Fügt der W1-History dieser Instanz weitere Daten hinzu.
      *
-     * @param  MYFX_BAR[] $bars - Bardaten der Periode M1
+     * @param  array $bars - MYFX_BAR-Daten der Periode M1
      */
     private function appendToW1(array $bars) {
         if ($this->closed)                             throw new IllegalStateException('Cannot process a closed '.__CLASS__);
@@ -851,7 +937,7 @@ class HistoryFile extends Object {
     /**
      * Fügt der MN1-History dieser Instanz weitere Daten hinzu.
      *
-     * @param  MYFX_BAR[] $bars - Bardaten der Periode M1
+     * @param  array $bars - MYFX_BAR-Daten der Periode M1
      */
     private function appendToMN1(array $bars) {
         if ($this->closed)                             throw new IllegalStateException('Cannot process a closed '.__CLASS__);

@@ -109,10 +109,10 @@ function fxtTime($timestamp=null, $timezone='GMT') {
     if ($timezone == 'FXT')
         return $timestamp;                           // with FXT input and result are equal
 
-    $gmtTimestamp = null;
+    $gmtTime = null;
 
     if ($timezone=='GMT' || $timezone=='UTC') {
-        $gmtTimestamp = $timestamp;
+        $gmtTime = $timestamp;
     }
     else {
         // convert $timestamp to GMT timestamp

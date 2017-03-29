@@ -7,7 +7,7 @@ use rosasurfer\exception\RuntimeException;
 use rosasurfer\log\Logger;
 use rosasurfer\util\Date;
 
-use rosasurfer\myfx\lib\simpletrader\SimpleTrader;
+use rosasurfer\trade\lib\simpletrader\SimpleTrader;
 
 
 /**

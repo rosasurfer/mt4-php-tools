@@ -88,7 +88,7 @@ class Account extends PersistableObject {
         if (func_num_args() == 0)
             return $this->balance;
 
-        return Number::format($this->balance, $decimals, $separator);
+        return Number::formatMoney($this->balance, $decimals, $separator);
     }
 
 
@@ -104,7 +104,7 @@ class Account extends PersistableObject {
         if (is_null($this->lastReportedBalance) || func_num_args()==0)
             return $this->lastReportedBalance;
 
-        return Number::format($this->lastReportedBalance, $decimals, $separator);
+        return Number::formatMoney($this->lastReportedBalance, $decimals, $separator);
     }
 
 
@@ -113,7 +113,7 @@ class Account extends PersistableObject {
      *
      * @param  float $balance - Kontostand
      *
-     * @return self
+     * @return $this
      */
     public function setLastReportedBalance($balance) {
         if (!is_float($balance)) throw new IllegalTypeException('Illegal type of parameter $balance: '.getType($balance));
@@ -197,7 +197,7 @@ class Account extends PersistableObject {
     /**
      * Aktualisiert diese Instanz in der Datenbank.
      *
-     * @return Invoice
+     * @return $this
      */
     protected function update() {
         $dao = self::dao();
