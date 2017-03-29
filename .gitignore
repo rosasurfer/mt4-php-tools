@@ -26,4 +26,5 @@
 /data
 /log
 /src/
+vendor/
 config.properties
