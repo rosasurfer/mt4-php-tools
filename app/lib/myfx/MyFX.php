@@ -1,4 +1,6 @@
 <?php
+namespace rosasurfer\trade\myfx;
+
 use rosasurfer\config\Config;
 use rosasurfer\core\StaticClass;
 
@@ -10,6 +12,8 @@ use rosasurfer\exception\UnimplementedFeatureException;
 use rosasurfer\net\http\CurlHttpClient;
 use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
+
+use rosasurfer\trade\metatrader\MT4;
 
 
 /**

@@ -4,7 +4,7 @@ use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InfrastructureException;
 use rosasurfer\exception\RuntimeException;
 
-use rosasurfer\trade\lib\myfxbook\MyfxBook;
+use rosasurfer\trade\myfxbook\MyfxBook;
 
 
 /**

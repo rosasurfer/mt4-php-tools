@@ -14,7 +14,7 @@ use rosasurfer\ministruts\Response;
 use rosasurfer\util\Date;
 use rosasurfer\util\System;
 
-use rosasurfer\trade\lib\metatrader\ImportHelper;
+use rosasurfer\trade\metatrader\ImportHelper;
 
 
 /**

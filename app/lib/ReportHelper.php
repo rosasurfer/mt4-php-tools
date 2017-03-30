@@ -1,4 +1,6 @@
 <?
+namespace rosasurfer\trade;
+
 use rosasurfer\core\Object;
 
 use rosasurfer\exception\IllegalTypeException;
@@ -14,9 +16,9 @@ class ReportHelper extends Object {
 
 
     /**
-     * Gibt einen Verlaufsreport der Netto-Position eines Signals ab dem angegebenen Zeitpunkt zurück. Waren zu diesem
-     * Zeitpunkt Positionen offen, wird der Reportzeitraum über den angegebenen Startzeitpunkt hinaus bis zum Open-Zeitpunkt
-     * der offenen Positionen vergrößert.
+     * Gibt einen Verlaufsreport der Netto-Position eines Signals ab dem angegebenen Zeitpunkt zurueck. Waren zu diesem
+     * Zeitpunkt Positionen offen, wird der Reportzeitraum ueber den angegebenen Startzeitpunkt hinaus bis zum Open-Zeitpunkt
+     * der offenen Positionen vergroessert.
      *
      * @param  Signal $signal    - Signal
      * @param  string $symbol    - Symbol

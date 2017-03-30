@@ -3,7 +3,7 @@
 /**
  * Save a test and its trade history in the database.
  */
-use rosasurfer\trade\lib\model\metatrader\Test;
+use rosasurfer\trade\model\metatrader\Test;
 
 
 require(__DIR__.'/../../app/init.php');

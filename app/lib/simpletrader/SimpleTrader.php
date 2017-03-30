@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\trade\lib\simpletrader;
+namespace rosasurfer\trade\simpletrader;
 
 use rosasurfer\config\Config;
 use rosasurfer\core\StaticClass;
@@ -16,6 +16,8 @@ use rosasurfer\net\http\HttpClient;
 use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
 
+use rosasurfer\trade\myfx\MyFX;
+
 use rosasurfer\trade\model\ClosedPosition;
 use rosasurfer\trade\model\OpenPosition;
 use rosasurfer\trade\model\Signal;
@@ -31,7 +33,7 @@ class SimpleTrader extends StaticClass {
 
 
     /**
-     * Die TTL der DNS-Einträge ist äußerst kurz:  60 Sekunden (03.09.2016)
+     * Die TTL der DNS-Eintraege ist aeusserst kurz:  60 Sekunden (03.09.2016)
      *
      *  $ dig cp.forexsignals.com a
      *  cp.forexsignals.com.    59      IN      CNAME   simpletrader.net.
@@ -57,7 +59,7 @@ class SimpleTrader extends StaticClass {
 
 
     /**
-     * Lädt die HTML-Seite mit den Tradedaten des angegebenen Signals. Schlägt der Download fehl, wird zwei mal versucht,
+     * Laedt die HTML-Seite mit den Tradedaten des angegebenen Signals. Schlaegt der Download fehl, wird zwei mal versucht,
      * die Seite von alternativen URL's zu laden, bevor der Download mit einem Fehler abbricht.
      *
      * @param  Signal $signal
@@ -87,13 +89,13 @@ class SimpleTrader extends StaticClass {
         $cookieFile = dirName(realPath($_SERVER['PHP_SELF'])).DIRECTORY_SEPARATOR.'cookies.txt';
         $options[CURLOPT_COOKIEFILE    ] = $cookieFile;                   // read cookies from
         $options[CURLOPT_COOKIEJAR     ] = $cookieFile;                   // write cookies to
-        $options[CURLOPT_SSL_VERIFYPEER] = false;                         // das SimpleTrader-SSL-Zertifikat ist evt. ungültig
+        $options[CURLOPT_SSL_VERIFYPEER] = false;                         // das SimpleTrader-SSL-Zertifikat ist evt. ungueltig
 
 
-        // TODO: Bei einem Netzwerkausfall am Server muß das Script weiterlaufen und seine Arbeit bei Rückkehr des Netzwerkes fortsetzen.
+        // TODO: Bei einem Netzwerkausfall am Server muss das Script weiterlaufen und seine Arbeit bei Rueckkehr des Netzwerkes fortsetzen.
 
 
-        // (2) HTTP-Request ausführen
+        // (2) HTTP-Request ausfuehren
         $key     = $fullHistory ? 'fullHistory':'currentHistory';
         $counter = 0;
         while (true) {
@@ -102,7 +104,7 @@ class SimpleTrader extends StaticClass {
             $referer = self::$urls[$i]['referer'];
             $request->setUrl($url)->setHeader('Referer', $referer);
 
-            static $httpClient = null;                                     // Instanz wiederverwenden, um Keep-Alive-Connections zu ermöglichen
+            static $httpClient = null;                                     // Instanz wiederverwenden, um Keep-Alive-Connections zu ermoeglichen
             !$httpClient && $httpClient=CurlHttpClient::create($options);
 
             try {
@@ -143,7 +145,7 @@ class SimpleTrader extends StaticClass {
      *
      * @return string - NULL oder Fehlermeldung, falls ein Fehler auftrat
      */
-    public static function parseSignalData(Signal $signal, &$html, array &$openTrades, array &$history) {      // der zusätzliche Zeiger minimiert den benötigten Speicher
+    public static function parseSignalData(Signal $signal, &$html, array &$openTrades, array &$history) {      // der zusaetzliche Zeiger minimiert den benoetigten Speicher
         if (!is_string($html)) throw new IllegalTypeException('Illegal type of parameter $html: '.getType($html));
 
         $signalAlias = $signal->getAlias();
@@ -151,7 +153,7 @@ class SimpleTrader extends StaticClass {
         // HTML-Entities konvertieren
         $html = str_replace('&nbsp;', ' ', $html);
 
-        // ggf. RegExp-Stringlimit erhöhen
+        // ggf. RegExp-Stringlimit erhoehen
         if (strLen($html) > (int)ini_get('pcre.backtrack_limit'))
             PHP::ini_set('pcre.backtrack_limit', strLen($html));
 
@@ -161,7 +163,7 @@ class SimpleTrader extends StaticClass {
         // Tabellen <table id="openTrades"> und <table id="history"> extrahieren
         $matchedTables = preg_match_all('/<table\b.*\bid="(opentrades|history)".*>.*<tbody\b.*>(.*)<\/tbody>.*<\/table>/isU', $html, $tables, PREG_SET_ORDER);
         if ($matchedTables != 2) {
-            // Login ungültig (falls Cookies ungültig oder korrupt sind)
+            // Login ungueltig (falls Cookies ungueltig oder korrupt sind)
             if (preg_match('/Please read the following information<\/h4>\s*(You do not have access to view this page\.)/isU', $html, $matches)) throw new RuntimeException($signal->getName().': '.$matches[1]);
             if (preg_match('/Please read the following information<\/h4>\s*(This signal does not exist\.)/isU'              , $html, $matches)) throw new RuntimeException($signal->getName().': '.$matches[1]);
 
@@ -197,7 +199,7 @@ class SimpleTrader extends StaticClass {
                         // keine OpenTrades vorhanden
                     }
                     else if (preg_match('/"sEmptyTable": "(There are currently trades open[^"]*)"/', $html, $matches)) {
-                        // OpenTrades sind gesperrt und können durch begonne, aber nicht abgeschlossene Subscription freigeschaltet werden.
+                        // OpenTrades sind gesperrt und koennen durch begonne, aber nicht abgeschlossene Subscription freigeschaltet werden.
                         throw new RuntimeException($signal->getName().': '.$matches[1]);
                     }
                     else throw new RuntimeException($signal->getName().': no open trade rows found, HTML:'.NL.NL.$html);
@@ -242,7 +244,7 @@ class SimpleTrader extends StaticClass {
 
                     // 6:Type
                     $sValue = trim(strToLower($row[I_OPEN_TYPE]));
-                    // Bekannte Tickets mit fehlerhaften OperationType überspringen
+                    // Bekannte Tickets mit fehlerhaften OperationType ueberspringen
                     if ($sValue!='buy' && $sValue!='sell') {
                         $sTicket = trim($row[I_OPEN_COMMENT]);
                         if ($signalAlias=='novolr' && $sTicket=='3488580')          // permanente Fehler nicht jedesmal anzeigen
@@ -329,7 +331,7 @@ class SimpleTrader extends StaticClass {
                     // 4:CloseTime
                     $sCloseTime = trim($row[I_HISTORY_CLOSETIME]);
                     if (!($iTime=strToTime($sCloseTime.' GMT'))) throw new RuntimeException('Invalid CloseTime found in history row '.($i+1).': "'.$row[I_HISTORY_CLOSETIME].'", HTML:'.NL.NL.$row[0]);
-                    // Tickets mit fehlerhaften Open-/CloseTimes überspringen
+                    // Tickets mit fehlerhaften Open-/CloseTimes ueberspringen
                     if ($row['opentime'] > $iTime) {
                         $sTicket = trim($row[I_HISTORY_COMMENT]);
                         $row     = [];
@@ -408,15 +410,15 @@ class SimpleTrader extends StaticClass {
 
 
     /**
-     * Comparator, der zwei Trades zunächst anhand ihrer OpenTime vergleicht. Ist die OpenTime gleich,
+     * Comparator, der zwei Trades zunaechst anhand ihrer OpenTime vergleicht. Ist die OpenTime gleich,
      * werden die Trades anhand ihres Tickets verglichen.
      *
      * @param  array $tradeA
      * @param  array $tradeB
      *
-     * @return int - positiver Wert, wenn $tradeA nach $tradeB geöffnet wurde;
-     *               negativer Wert, wenn $tradeA vor $tradeB geöffnet wurde;
-     *               0, wenn beide Trades zum selben Zeitpunkt geöffnet wurden
+     * @return int - positiver Wert, wenn $tradeA nach $tradeB geoeffnet wurde;
+     *               negativer Wert, wenn $tradeA vor $tradeB geoeffnet wurde;
+     *               0, wenn beide Trades zum selben Zeitpunkt geoeffnet wurden
      */
     private static function compareTradesByOpenTimeTicket(array $tradeA, array $tradeB) {
         if (!$tradeA) return $tradeB ? -1 : 0;
@@ -433,7 +435,7 @@ class SimpleTrader extends StaticClass {
 
 
     /**
-     * Comparator, der zwei Trades zunächst anhand ihrer CloseTime vergleicht. Ist die CloseTime gleich, werden die Trades
+     * Comparator, der zwei Trades zunaechst anhand ihrer CloseTime vergleicht. Ist die CloseTime gleich, werden die Trades
      * anhand ihrer OpenTime verglichen. Ist auch die OpenTime gleich, werden die Trades anhand ihres Tickets verglichen.
      *
      * @param  array $tradeA
@@ -441,7 +443,7 @@ class SimpleTrader extends StaticClass {
      *
      * @return int - positiver Wert, wenn $tradeA nach $tradeB geschlossen wurde;
      *               negativer Wert, wenn $tradeA vor $tradeB geschlossen wurde;
-     *               0, wenn beide Trades zum selben Zeitpunkt geöffnet und geschlossen wurden
+     *               0, wenn beide Trades zum selben Zeitpunkt geoeffnet und geschlossen wurden
      */
     private static function compareTradesByCloseTimeOpenTimeTicket(array $tradeA, array $tradeB) {
         if (!$tradeA) return $tradeB ? -1 : 0;
@@ -454,9 +456,9 @@ class SimpleTrader extends StaticClass {
 
 
     /**
-     * Handler für PositionOpen-Events eines SimpleTrader-Signals.
+     * Handler fuer PositionOpen-Events eines SimpleTrader-Signals.
      *
-     * @param  OpenPosition $position - die geöffnete Position
+     * @param  OpenPosition $position - die geoeffnete Position
      */
     public static function onPositionOpen(OpenPosition $position) {
         $signal = $position->getSignal();
@@ -469,7 +471,7 @@ class SimpleTrader extends StaticClass {
         // Benachrichtigung per E-Mail
         try {
             $mailMsg = $signal->getName().' Open '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice();
-            foreach (\MyFX::getMailSignalReceivers() as $receiver) {
+            foreach (MyFX::getMailSignalReceivers() as $receiver) {
                 mail($receiver, $subject=$mailMsg, $msg=$mailMsg);
             }
         }
@@ -477,16 +479,16 @@ class SimpleTrader extends StaticClass {
 
 
         // SMS-Benachrichtigung, wenn das Ereignis zur Laufzeit des Scriptes eintrat
-        $openTime = \MyFX::fxtStrToTime($position->getOpenTime());
+        $openTime = MyFX::fxtStrToTime($position->getOpenTime());
         if ($openTime >= $_SERVER['REQUEST_TIME']) {
             try {
                 $smsMsg = 'Opened '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice().(($tp=$position->getTakeProfit()) ? "\nTP: $tp":'').(($sl=$position->getStopLoss()) ? ($tp ? '  ':"\n")."SL: $sl":'')."\n\n#".$position->getTicket().'  ('.$position->getOpenTime('H:i:s').')';
 
-                // Warnung, wenn das Ereignis älter als 2 Minuten ist (also von SimpleTrader verzögert publiziert wurde)
-                if (($now=time()) > $openTime+2*MINUTES) $smsMsg = 'WARN: '.$smsMsg.' detected at '.date($now); // \MyFX::fxtDate($now)
+                // Warnung, wenn das Ereignis aelter als 2 Minuten ist (also von SimpleTrader verzoegert publiziert wurde)
+                if (($now=time()) > $openTime+2*MINUTES) $smsMsg = 'WARN: '.$smsMsg.' detected at '.date($now); // MyFX::fxtDate($now)
 
-                foreach (\MyFX::getSmsSignalReceivers() as $receiver) {
-                    \MyFX::sendSms($receiver, $smsMsg);
+                foreach (MyFX::getSmsSignalReceivers() as $receiver) {
+                    MyFX::sendSms($receiver, $smsMsg);
                 }
             }
             catch (\Exception $ex) { Logger::log($ex, L_ERROR); }
@@ -495,9 +497,9 @@ class SimpleTrader extends StaticClass {
 
 
     /**
-     * Handler für PositionModify-Events eines SimpleTrader-Signals.
+     * Handler fuer PositionModify-Events eines SimpleTrader-Signals.
      *
-     * @param  OpenPosition $position - die modifizierte Position (nach der Änderung)
+     * @param  OpenPosition $position - die modifizierte Position (nach der Aenderung)
      * @param  float        $prevTP   - der vorherige TakeProfit-Wert
      * @param  float        $prevSL   - der vorherige StopLoss-Wert
      */
@@ -524,7 +526,7 @@ class SimpleTrader extends StaticClass {
         // Benachrichtigung per E-Mail
         $mailMsg = $signal->getName().': modify '.$msg.$modification;
         try {
-            foreach (\MyFX::getMailSignalReceivers() as $receiver) {
+            foreach (MyFX::getMailSignalReceivers() as $receiver) {
                 mail($receiver, $subject=$mailMsg, $mailMsg);
             }
         }
@@ -532,13 +534,13 @@ class SimpleTrader extends StaticClass {
 
 
         // Benachrichtigung per SMS
-        if (false) {                                                   // für Limitänderungen vorerst deaktiviert
+        if (false) {                                                   // fuer Limitaenderungen vorerst deaktiviert
             try {
                 $smsMsg = $signal->getName().': modified '.str_replace('  ', ' ', $msg)."\n"
                             .$modification                                                ."\n"
-                            .date('(H:i:s)', time());                       // \MyFX::fxtDate(time(), '(H:i:s)')
-                foreach (\MyFX::getSmsSignalReceivers() as $receiver) {
-                    \MyFX::sendSms($receiver, $smsMsg);
+                            .date('(H:i:s)', time());                       // MyFX::fxtDate(time(), '(H:i:s)')
+                foreach (MyFX::getSmsSignalReceivers() as $receiver) {
+                    MyFX::sendSms($receiver, $smsMsg);
                 }
             }
             catch (\Exception $ex) { Logger::log($ex, L_ERROR); }
@@ -547,7 +549,7 @@ class SimpleTrader extends StaticClass {
 
 
     /**
-     * Handler für PositionClose-Events eines SimpleTrader-Signals.
+     * Handler fuer PositionClose-Events eines SimpleTrader-Signals.
      *
      * @param  ClosedPosition $position - die geschlossene Position
      */
@@ -562,7 +564,7 @@ class SimpleTrader extends StaticClass {
         // Benachrichtigung per E-Mail
         try {
             $mailMsg = $signal->getName().' Close '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getClosePrice();
-            foreach (\MyFX::getMailSignalReceivers() as $receiver) {
+            foreach (MyFX::getMailSignalReceivers() as $receiver) {
                 mail($receiver, $subject=$mailMsg, $msg=$mailMsg);
             }
         }
@@ -570,16 +572,16 @@ class SimpleTrader extends StaticClass {
 
 
         // SMS-Benachrichtigung, wenn das Ereignis zur Laufzeit des Scriptes eintrat
-        $closeTime = \MyFX::fxtStrToTime($position->getCloseTime());
+        $closeTime = MyFX::fxtStrToTime($position->getCloseTime());
         if ($closeTime >= $_SERVER['REQUEST_TIME']) {
             try {
                 $smsMsg = 'Closed '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getClosePrice()."\nOpen: ".$position->getOpenPrice()."\n\n#".$position->getTicket().'  ('.$position->getCloseTime('H:i:s').')';
 
-                // Warnung, wenn das Ereignis älter als 2 Minuten ist (also von SimpleTrader verzögert publiziert wurde)
-                if (($now=time()) > $closeTime+2*MINUTES) $smsMsg = 'WARN: '.$smsMsg.' detected at '.date($now);      // \MyFX::fxtDate($now)
+                // Warnung, wenn das Ereignis aelter als 2 Minuten ist (also von SimpleTrader verzoegert publiziert wurde)
+                if (($now=time()) > $closeTime+2*MINUTES) $smsMsg = 'WARN: '.$smsMsg.' detected at '.date($now);      // MyFX::fxtDate($now)
 
-                foreach (\MyFX::getSmsSignalReceivers() as $receiver) {
-                    \MyFX::sendSms($receiver, $smsMsg);
+                foreach (MyFX::getSmsSignalReceivers() as $receiver) {
+                    MyFX::sendSms($receiver, $smsMsg);
                 }
             }
             catch (\Exception $ex) { Logger::log($ex, L_ERROR); }
@@ -588,7 +590,7 @@ class SimpleTrader extends StaticClass {
 
 
     /**
-     * Handler für PositionChange-Events eines SimpleTrader-Signals.
+     * Handler fuer PositionChange-Events eines SimpleTrader-Signals.
      */
     public static function onPositionChange(Signal $signal, $symbol, array $report, $iFirstNewRow, $oldNetPosition, $newNetPosition) {
         if (!$signal->isPersistent())    throw new InvalidArgumentException('Cannot process non-persistent '.get_class($signal));
@@ -604,7 +606,7 @@ class SimpleTrader extends StaticClass {
         if (!is_string($newNetPosition)) throw new IllegalTypeException('Illegal type of parameter $newNetPosition: '.getType($newNetPosition));
         if (!strLen($newNetPosition))    throw new InvalidArgumentException('Invalid argument $newNetPosition: '.$newNetPosition);
 
-        $lastTradeTime = \MyFX::fxtStrToTime($report[$rows-1]['time']);
+        $lastTradeTime = MyFX::fxtStrToTime($report[$rows-1]['time']);
 
         $msg = $signal->getName().': ';
         if ($i < $rows-1) $msg .= ($rows-$i).' trades in '.$symbol;
@@ -613,12 +615,12 @@ class SimpleTrader extends StaticClass {
         $subject = $msg;
         $msg .= "\nwas: ".str_replace('  ', ' ', $oldNetPosition);
         $msg .= "\nnow: ".str_replace('  ', ' ', $newNetPosition);
-        $msg .= "\n".date('(H:i:s)', $lastTradeTime);               // \MyFX::fxtDate($lastTradeTime, '(H:i:s)')
+        $msg .= "\n".date('(H:i:s)', $lastTradeTime);               // MyFX::fxtDate($lastTradeTime, '(H:i:s)')
 
 
         // Benachrichtigung per E-Mail
         try {
-            foreach (\MyFX::getMailSignalReceivers() as $receiver) {
+            foreach (MyFX::getMailSignalReceivers() as $receiver) {
                 mail($receiver, $subject, $msg);
             }
         }
@@ -628,11 +630,11 @@ class SimpleTrader extends StaticClass {
         // Benachrichtigung per SMS, wenn das Event zur Laufzeit des Scriptes eintrat
         if ($lastTradeTime >= $_SERVER['REQUEST_TIME']) {
             try {
-                // Warnung, wenn der letzte Trade älter als 2 Minuten ist (von SimpleTrader also verzögert publiziert wurde)
-                if (($now=time()) > $lastTradeTime+2*MINUTES) $msg = 'WARN: '.$msg.', detected at '.date('H:i:s', $now);    // \MyFX::fxtDate($now, 'H:i:s')
+                // Warnung, wenn der letzte Trade aelter als 2 Minuten ist (von SimpleTrader also verzoegert publiziert wurde)
+                if (($now=time()) > $lastTradeTime+2*MINUTES) $msg = 'WARN: '.$msg.', detected at '.date('H:i:s', $now);    // MyFX::fxtDate($now, 'H:i:s')
 
-                foreach (\MyFX::getSmsSignalReceivers() as $receiver) {
-                    \MyFX::sendSms($receiver, $msg);
+                foreach (MyFX::getSmsSignalReceivers() as $receiver) {
+                    MyFX::sendSms($receiver, $msg);
                 }
             }
             catch (\Exception $ex) { Logger::log($ex, L_ERROR); }

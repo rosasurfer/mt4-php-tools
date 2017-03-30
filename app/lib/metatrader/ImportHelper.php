@@ -1,7 +1,6 @@
 <?php
-namespace rosasurfer\trade\lib\metatrader;
+namespace rosasurfer\trade\metatrader;
 
-use \ViewHelper;
 use rosasurfer\core\StaticClass;
 
 use rosasurfer\exception\BusinessRuleException;
@@ -9,6 +8,7 @@ use rosasurfer\exception\InfrastructureException;
 use rosasurfer\exception\InvalidArgumentException;
 
 use rosasurfer\trade\controller\forms\UploadAccountHistoryActionForm;
+use rosasurfer\trade\ViewHelper;
 use rosasurfer\trade\model\metatrader\Account;
 
 
@@ -112,7 +112,7 @@ class ImportHelper extends StaticClass {
         foreach ($transactions as &$row) {
             if ($row[AH_OPENTIME] == 0)
                 continue;
-            $row[AH_TYPE] = strToLower(\ViewHelper::$operationTypes[$row[AH_TYPE]]);
+            $row[AH_TYPE] = strToLower(ViewHelper::$operationTypes[$row[AH_TYPE]]);
 
             // MT4-Serverzeiten in Forex-Standardzeit (America/New_York+0700) umrechnen
             foreach ([AH_OPENTIME, AH_CLOSETIME] as $time) {

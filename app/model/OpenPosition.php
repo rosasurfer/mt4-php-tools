@@ -7,6 +7,8 @@ use rosasurfer\exception\ConcurrentModificationException;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 
+use rosasurfer\trade\myfx\MyFX;
+
 use rosasurfer\util\Date;
 use rosasurfer\util\Number;
 
@@ -96,18 +98,18 @@ class OpenPosition extends PersistableObject {
 
         $position = new static();
 
-        $position->ticket      =                $data['ticket'     ];
-        $position->type        =                $data['type'       ];
-        $position->lots        =                $data['lots'       ];
-        $position->symbol      =                $data['symbol'     ];
-        $position->openTime    = \MyFX::fxtDate($data['opentime'   ]);
-        $position->openPrice   =                $data['openprice'  ];
-        $position->stopLoss    =          isSet($data['stoploss'   ]) ? $data['stoploss'   ] : null;
-        $position->takeProfit  =          isSet($data['takeprofit' ]) ? $data['takeprofit' ] : null;
-        $position->commission  =          isSet($data['commission' ]) ? $data['commission' ] : null;
-        $position->swap        =          isSet($data['swap'       ]) ? $data['swap'       ] : null;
-        $position->magicNumber =          isSet($data['magicnumber']) ? $data['magicnumber'] : null;
-        $position->comment     =          isSet($data['comment'    ]) ? $data['comment'    ] : null;
+        $position->ticket      =               $data['ticket'     ];
+        $position->type        =               $data['type'       ];
+        $position->lots        =               $data['lots'       ];
+        $position->symbol      =               $data['symbol'     ];
+        $position->openTime    = MyFX::fxtDate($data['opentime'   ]);
+        $position->openPrice   =               $data['openprice'  ];
+        $position->stopLoss    =         isSet($data['stoploss'   ]) ? $data['stoploss'   ] : null;
+        $position->takeProfit  =         isSet($data['takeprofit' ]) ? $data['takeprofit' ] : null;
+        $position->commission  =         isSet($data['commission' ]) ? $data['commission' ] : null;
+        $position->swap        =         isSet($data['swap'       ]) ? $data['swap'       ] : null;
+        $position->magicNumber =         isSet($data['magicnumber']) ? $data['magicnumber'] : null;
+        $position->comment     =         isSet($data['comment'    ]) ? $data['comment'    ] : null;
         $position->signal_id   = $signal->getId();
 
         return $position;

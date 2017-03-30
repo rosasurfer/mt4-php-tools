@@ -1,4 +1,6 @@
 <?php
+namespace rosasurfer\trade\metatrader;
+
 use rosasurfer\config\Config;
 use rosasurfer\core\StaticClass;
 
@@ -48,12 +50,12 @@ class MT4 extends StaticClass {
     const SYMBOL_SELECTED_SIZE = 128;
 
     /**
-     * Höchstlänge eines MetaTrader-Symbols
+     * Hoechstlaenge eines MetaTrader-Symbols
      */
     const MAX_SYMBOL_LENGTH = 11;
 
     /**
-     * Höchstlänge eines MetaTrader-Orderkommentars
+     * Hoechstlaenge eines MetaTrader-Orderkommentars
      */
     const MAX_ORDER_COMMENT_LENGTH = 27;
 
@@ -190,7 +192,7 @@ class MT4 extends StaticClass {
 
 
     /**
-     * Gibt die Namen der Felder eines struct SYMBOL zurück.
+     * Gibt die Namen der Felder eines struct SYMBOL zurueck.
      *
      * @return string[] - Array mit SYMBOL-Feldern
      */
@@ -202,7 +204,7 @@ class MT4 extends StaticClass {
             foreach ($lines as $i => &$line) {
                 $line = strLeftTo($line, '//');                             // Kommentare entfernen
                 $line = trim(strRightFrom(trim($line), ' '));               // Format-Code entfernen
-                if (!strLen($line) || strStartsWith($line, '_alignment'))   // Leerzeilen und Alignment-Felder löschen
+                if (!strLen($line) || strStartsWith($line, '_alignment'))   // Leerzeilen und Alignment-Felder loeschen
                     unset($lines[$i]);
             } unset($line);
             $fields = array_values($lines);                                // Indizes neuordnen
@@ -212,7 +214,7 @@ class MT4 extends StaticClass {
 
 
     /**
-     * Gibt den Formatstring zum Entpacken eines struct SYMBOL zurück.
+     * Gibt den Formatstring zum Entpacken eines struct SYMBOL zurueck.
      *
      * @return string - unpack()-Formatstring
      */
@@ -237,7 +239,7 @@ class MT4 extends StaticClass {
 
 
     /**
-     * Gibt den Formatstring zum Packen eines struct HISTORY_BAR_400 oder HISTORY_BAR_401 zurück.
+     * Gibt den Formatstring zum Packen eines struct HISTORY_BAR_400 oder HISTORY_BAR_401 zurueck.
      *
      * @param  int $version - Barversion: 400 oder 401
      *
@@ -272,7 +274,7 @@ class MT4 extends StaticClass {
 
 
     /**
-     * Gibt den Formatstring zum Entpacken eines struct HISTORY_BAR_400 oder HISTORY_BAR_401 zurück.
+     * Gibt den Formatstring zum Entpacken eines struct HISTORY_BAR_400 oder HISTORY_BAR_401 zurueck.
      *
      * @param  int $version - Barversion: 400 oder 401
      *
@@ -304,10 +306,10 @@ class MT4 extends StaticClass {
 
 
     /**
-     * Schreibt eine einzelne Bar in die zum Handle gehörende Datei. Die Bardaten werden vorm Schreiben validiert.
+     * Schreibt eine einzelne Bar in die zum Handle gehoerende Datei. Die Bardaten werden vorm Schreiben validiert.
      *
-     * @param  resource $hFile  - File-Handle eines History-Files, muß Schreibzugriff erlauben
-     * @param  int      $digits - Digits des Symbols (für Normalisierung)
+     * @param  resource $hFile  - File-Handle eines History-Files, muss Schreibzugriff erlauben
+     * @param  int      $digits - Digits des Symbols (fuer Normalisierung)
      * @param  int      $time   - Timestamp der Bar
      * @param  float    $open
      * @param  float    $high
@@ -324,14 +326,14 @@ class MT4 extends StaticClass {
         $low   = round($low  , $digits);
         $close = round($close, $digits);
 
-        // ...vorm Schreiben nochmals prüfen (nicht mit min()/max(), da nicht performant)
+        // ...vorm Schreiben nochmals pruefen (nicht mit min()/max(), da nicht performant)
         if ($open  > $high ||
              $open  < $low  ||                  // aus (H >= O && O >= L) folgt (H >= L)
              $close > $high ||
              $close < $low  ||
             !$ticks) throw new RuntimeException('Illegal history bar of '.gmDate('D, d-M-Y', $time).": O=$open H=$high L=$low C=$close V=$ticks");
 
-        // Bardaten in Binärstring umwandeln
+        // Bardaten in Binaerstring umwandeln
         $data = pack('Vddddd', $time,    // V
                                       $open,    // d
                                       $low,     // d
@@ -339,7 +341,7 @@ class MT4 extends StaticClass {
                                       $close,   // d
                                       $ticks);  // d
 
-        // pack() unterstützt keinen expliziten Little-Endian-Double, die Byte-Order der Doubles muß ggf. manuell reversed werden.
+        // pack() unterstuetzt keinen expliziten Little-Endian-Double, die Byte-Order der Doubles muss ggf. manuell reversed werden.
         static $isLittleEndian = null; is_null($isLittleEndian) && $isLittleEndian=isLittleEndian();
         if (!$isLittleEndian) {
             $time  =        substr($data,  0, 4);
@@ -355,11 +357,11 @@ class MT4 extends StaticClass {
 
 
     /**
-     * Aktualisiert die Daten-Files des angegebenen Signals (Datenbasis für MT4-Terminals).
+     * Aktualisiert die Daten-Files des angegebenen Signals (Datenbasis fuer MT4-Terminals).
      *
      * @param  Signal $signal
-     * @param  bool   $openUpdates   - ob beim letzten Abgleich der Datenbank Änderungen an den offenen Positionen festgestellt wurden
-     * @param  bool   $closedUpdates - ob beim letzten Abgleich der Datenbank Änderungen an der Trade-History festgestellt wurden
+     * @param  bool   $openUpdates   - ob beim letzten Abgleich der Datenbank Aenderungen an den offenen Positionen festgestellt wurden
+     * @param  bool   $closedUpdates - ob beim letzten Abgleich der Datenbank Aenderungen an der Trade-History festgestellt wurden
      */
     public static function updateAccountHistory(Signal $signal, $openUpdates, $closedUpdates) {
         if (!is_bool($openUpdates))   throw new IllegalTypeException('Illegal type of parameter $openUpdates: '.getType($openUpdates));
@@ -371,7 +373,7 @@ class MT4 extends StaticClass {
         if (is_null($dataDirectory)) $dataDirectory = Config::getDefault()->get('app.dir.data');
 
 
-        // (2) Prüfen, ob OpenTrades- und History-Datei existieren
+        // (2) Pruefen, ob OpenTrades- und History-Datei existieren
         $alias          = $signal->getAlias();
         $openFileName   = $dataDirectory.'/simpletrader/'.$alias.'_open.ini';
         $closedFileName = $dataDirectory.'/simpletrader/'.$alias.'_closed.ini';
@@ -417,9 +419,9 @@ class MT4 extends StaticClass {
                 fClose($hFile);
             }
             catch (\Exception $ex) {
-                if (is_resource($hFile)) fClose($hFile);                 // Unter Windows kann die Datei u.U. (versionsabhängig) nicht im Exception-Handler gelöscht werden
-            }                                                           // (gesperrt, da das Handle im Exception-Kontext dupliziert wird). Das Handle muß daher innerhalb UND
-            if ($ex) {                                                  // außerhalb des Handlers geschlossen werden, erst dann läßt sich die Datei unter Windows löschen.
+                if (is_resource($hFile)) fClose($hFile);                 // Unter Windows kann die Datei u.U. (versionsabhaengig) nicht im Exception-Handler geloescht werden
+            }                                                           // (gesperrt, da das Handle im Exception-Kontext dupliziert wird). Das Handle muss daher innerhalb UND
+            if ($ex) {                                                  // ausserhalb des Handlers geschlossen werden, erst dann laesst sich die Datei unter Windows loeschen.
                 if (is_resource($hFile))                    fClose($hFile);
                 if (!$isOpenFile && is_file($openFileName)) unlink($openFileName);
                 throw $ex;
@@ -476,9 +478,9 @@ class MT4 extends StaticClass {
                     fClose($hFile);
                 }
                 catch (\Exception $ex) {
-                    if (is_resource($hFile)) fClose($hFile);              // Unter Windows kann die Datei u.U. (versionsabhängig) nicht im Exception-Handler gelöscht werden
-                }                                                        // (gesperrt, da das Handle im Exception-Kontext dupliziert wird). Das Handle muß daher innerhalb UND
-                if ($ex) {                                               // außerhalb des Handlers geschlossen werden, erst dann läßt sich die Datei unter Windows löschen.
+                    if (is_resource($hFile)) fClose($hFile);              // Unter Windows kann die Datei u.U. (versionsabhaengig) nicht im Exception-Handler geloescht werden
+                }                                                        // (gesperrt, da das Handle im Exception-Kontext dupliziert wird). Das Handle muss daher innerhalb UND
+                if ($ex) {                                               // ausserhalb des Handlers geschlossen werden, erst dann laesst sich die Datei unter Windows loeschen.
                     if (is_resource($hFile))                        fClose($hFile);
                     if (!$isClosedFile && is_file($closedFileName)) unlink($closedFileName);
                     throw $ex;
@@ -489,7 +491,7 @@ class MT4 extends StaticClass {
 
 
     /**
-     * Ob ein String ein gültiges MetaTrader-Symbol darstellt. Insbesondere darf ein Symbol keine Leerzeichen enthalten.
+     * Ob ein String ein gueltiges MetaTrader-Symbol darstellt. Insbesondere darf ein Symbol keine Leerzeichen enthalten.
      *
      * @return bool
      */
@@ -544,7 +546,7 @@ class MT4 extends StaticClass {
 
 
     /**
-     * Ob der angegebene Wert die gültige Beschreibung eines MetaTrader-Timeframes darstellt.
+     * Ob der angegebene Wert die gueltige Beschreibung eines MetaTrader-Timeframes darstellt.
      *
      * @param  string $value - Beschreibung
      *

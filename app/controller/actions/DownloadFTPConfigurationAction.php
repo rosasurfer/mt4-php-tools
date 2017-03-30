@@ -1,8 +1,6 @@
 <?php
 namespace rosasurfer\trade\controller\actions;
 
-use \MyFX;
-
 use rosasurfer\log\Logger;
 
 use rosasurfer\ministruts\Action;
@@ -10,6 +8,7 @@ use rosasurfer\ministruts\ActionForward;
 use rosasurfer\ministruts\Request;
 use rosasurfer\ministruts\Response;
 
+use rosasurfer\trade\myfx\MyFX;
 use rosasurfer\util\System;
 
 

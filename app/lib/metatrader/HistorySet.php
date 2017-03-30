@@ -1,6 +1,7 @@
 <?php
-use rosasurfer\core\Object;
+namespace rosasurfer\trade\metatrader;
 
+use rosasurfer\core\Object;
 use rosasurfer\debug\ErrorHandler;
 
 use rosasurfer\exception\IllegalStateException;
@@ -10,17 +11,20 @@ use rosasurfer\exception\RuntimeException;
 
 use rosasurfer\log\Logger;
 
+use rosasurfer\trade\metatrader\MT4;
+use rosasurfer\trade\myfx\MyFX;
+
 
 /**
  * Ein HistorySet zur Verwaltung der MetaTrader-History eines Instruments. Die Formate der einzelnen Dateien
- * eines HistorySets können gemischt sein.
+ * eines HistorySets koennen gemischt sein.
  */
 class HistorySet extends Object {
 
     protected /*string*/ $symbol;
     protected /*int   */ $digits;
     protected /*string*/ $serverName;                  // einfacher Servername
-    protected /*string*/ $serverDirectory;             // vollständiger Verzeichnisname
+    protected /*string*/ $serverDirectory;             // vollstaendiger Verzeichnisname
     protected /*bool  */ $closed = false;              // ob das Set geschlossen und seine Resourcen freigegeben sind
 
     // Getter
@@ -46,7 +50,7 @@ class HistorySet extends Object {
 
 
     /**
-     * Überladener Constructor.
+     * Ueberladener Constructor.
      *
      * Signaturen:
      * -----------
@@ -64,9 +68,9 @@ class HistorySet extends Object {
     /**
      * Constructor 1
      *
-     * Erzeugt eine neue Instanz und legt alle Historydateien neu an. Vorhandene Daten werden gelöscht. Mehrfachaufrufe
-     * dieser Funktion für dasselbe Symbol desselben Servers geben jeweils eine neue Instanz zurück, weitere existierende
-     * Instanzen werden als ungültig markiert.
+     * Erzeugt eine neue Instanz und legt alle Historydateien neu an. Vorhandene Daten werden geloescht. Mehrfachaufrufe
+     * dieser Funktion fuer dasselbe Symbol desselben Servers geben jeweils eine neue Instanz zurueck, weitere existierende
+     * Instanzen werden als ungueltig markiert.
      *
      * @param  string $symbol          - Symbol der HistorySet-Daten
      * @param  int    $digits          - Digits der Datenreihe
@@ -89,14 +93,14 @@ class HistorySet extends Object {
         $this->serverDirectory = realPath($serverDirectory);
         $this->serverName      = baseName($this->serverDirectory);
 
-        // offene Sets durchsuchen und Sets desselben Symbols schließen
+        // offene Sets durchsuchen und Sets desselben Symbols schliessen
         $symbolUpper = strToUpper($this->symbol);
         foreach (self::$instances as $instance) {
             if (!$instance->isClosed() && $symbolUpper==strToUpper($instance->getSymbol()) && $this->serverDirectory==$instance->getServerDirectory())
                 $instance->close();
         }
 
-        // alle HistoryFiles zurücksetzen
+        // alle HistoryFiles zuruecksetzen
         foreach ($this->historyFiles as $timeframe => &$file) {
             $file = new HistoryFile($symbol, $timeframe, $digits, $format, $serverDirectory);
         } unset($file);
@@ -109,7 +113,7 @@ class HistorySet extends Object {
     /**
      * Constructor 2
      *
-     * Erzeugt eine neue Instanz. Vorhandene Daten werden nicht gelöscht.
+     * Erzeugt eine neue Instanz. Vorhandene Daten werden nicht geloescht.
      *
      * @param  HistoryFile $file - existierende History-Datei
      */
@@ -127,7 +131,7 @@ class HistorySet extends Object {
                 throw new RuntimeException('Multiple open HistorySets for "'.$this->serverName.'::'.$this->symbol.'"');
         }
 
-        // alle übrigen existierenden HistoryFiles öffnen und validieren (nicht existierende Dateien werden erst bei Bedarf erstellt)
+        // alle uebrigen existierenden HistoryFiles oeffnen und validieren (nicht existierende Dateien werden erst bei Bedarf erstellt)
         foreach ($this->historyFiles as $timeframe => &$file) {
             if (!$file) {
                 $fileName = $this->serverDirectory.'/'.$this->symbol.$timeframe.'.hst';
@@ -137,7 +141,7 @@ class HistorySet extends Object {
                     }
                     catch (MetaTraderException $ex) {
                         if (strStartsWith($ex->getMessage(), 'filesize.insufficient')) {
-                            Logger::log($ex->getMessage(), L_WARN);            // eine zu kurze Datei wird später überschrieben
+                            Logger::log($ex->getMessage(), L_WARN);            // eine zu kurze Datei wird spaeter ueberschrieben
                             continue;
                         }
                         throw $ex;
@@ -154,7 +158,7 @@ class HistorySet extends Object {
     /**
      * Destructor
      *
-     * Sorgt bei Zerstörung der Instanz dafür, daß alle gehaltenen Resourcen freigegeben werden.
+     * Sorgt bei Zerstoerung der Instanz dafuer, dass alle gehaltenen Resourcen freigegeben werden.
      */
     public function __destruct() {
         // Attempting to throw an exception from a destructor during script shutdown causes a fatal error.
@@ -169,7 +173,7 @@ class HistorySet extends Object {
 
 
     /**
-     * Schließt dieses HistorySet. Gibt alle Resourcen dieser Instanz frei. Nach dem Aufruf kann die Instanz nicht mehr verwendet werden.
+     * Schliesst dieses HistorySet. Gibt alle Resourcen dieser Instanz frei. Nach dem Aufruf kann die Instanz nicht mehr verwendet werden.
      *
      * @return bool - Erfolgsstatus; FALSE, wenn die Instanz bereits geschlossen war
      */
@@ -185,9 +189,9 @@ class HistorySet extends Object {
 
 
     /**
-     * Erzeugt eine neue Instanz und legt alle Historydateien neu an. Vorhandene Daten werden gelöscht. Mehrfachaufrufe
-     * dieser Funktion für dasselbe Symbol desselben Servers geben jeweils eine neue Instanz zurück, weitere existierende
-     * Instanzen werden als ungültig markiert.
+     * Erzeugt eine neue Instanz und legt alle Historydateien neu an. Vorhandene Daten werden geloescht. Mehrfachaufrufe
+     * dieser Funktion fuer dasselbe Symbol desselben Servers geben jeweils eine neue Instanz zurueck, weitere existierende
+     * Instanzen werden als ungueltig markiert.
      *
      * @param  string $symbol          - Symbol der HistorySet-Daten
      * @param  int    $digits          - Digits der Datenreihe
@@ -202,11 +206,11 @@ class HistorySet extends Object {
 
 
     /**
-     * Öffentlicher Zugriff auf Constructor 2
+     * Oeffentlicher Zugriff auf Constructor 2
      *
-     * Gibt eine Instanz für bereits vorhandene Historydateien zurück. Vorhandene Daten werden nicht gelöscht. Es muß mindestens
-     * ein HistoryFile des Symbols existieren. Nicht existierende HistoryFiles werden beim Speichern der ersten hinzugefügten
-     * Daten angelegt. Mehrfachaufrufe dieser Funktion für dasselbe Symbol desselben Servers geben dieselbe Instanz zurück.
+     * Gibt eine Instanz fuer bereits vorhandene Historydateien zurueck. Vorhandene Daten werden nicht geloescht. Es muss mindestens
+     * ein HistoryFile des Symbols existieren. Nicht existierende HistoryFiles werden beim Speichern der ersten hinzugefuegten
+     * Daten angelegt. Mehrfachaufrufe dieser Funktion fuer dasselbe Symbol desselben Servers geben dieselbe Instanz zurueck.
      *
      * @param  string $symbol          - Symbol der Historydateien
      * @param  string $serverDirectory - Serververzeichnis, in dem die Historydateien gespeichert sind
@@ -220,7 +224,7 @@ class HistorySet extends Object {
         if (!is_string($serverDirectory)) throw new IllegalTypeException('Illegal type of parameter $serverDirectory: '.getType($serverDirectory));
         if (!is_dir($serverDirectory))    throw new InvalidArgumentException('Directory "'.$serverDirectory.'" not found');
 
-        // existierende Instanzen durchsuchen und bei Erfolg die entsprechende Instanz zurückgeben
+        // existierende Instanzen durchsuchen und bei Erfolg die entsprechende Instanz zurueckgeben
         $symbolUpper     = strToUpper($symbol);
         $serverDirectory = realPath($serverDirectory);
         foreach (self::$instances as $instance) {
@@ -228,7 +232,7 @@ class HistorySet extends Object {
                 return $instance;
         }
 
-        // das erste existierende HistoryFile an den Constructor übergeben, das Set liest die weiteren dann selbst ein
+        // das erste existierende HistoryFile an den Constructor uebergeben, das Set liest die weiteren dann selbst ein
         $set = $file = null;
         foreach (MT4::$timeframes as $timeframe) {
             $fileName = $serverDirectory.'/'.$symbol.$timeframe.'.hst';
@@ -249,7 +253,7 @@ class HistorySet extends Object {
 
 
     /**
-     * Gibt das HistoryFile des angegebenen Timeframes zurück. Existiert es nicht, wird es erzeugt.
+     * Gibt das HistoryFile des angegebenen Timeframes zurueck. Existiert es nicht, wird es erzeugt.
      *
      * @param  int $timeframe
      *
@@ -266,7 +270,7 @@ class HistorySet extends Object {
                 }
                 catch (MetaTraderException $ex) {
                     if (!strStartsWith($ex->getMessage(), 'filesize.insufficient')) throw $ex;
-                    Logger::log($ex->getMessage(), L_WARN);                     // eine zu kurze Datei wird mit einer neuen Datei überschrieben
+                    Logger::log($ex->getMessage(), L_WARN);                     // eine zu kurze Datei wird mit einer neuen Datei ueberschrieben
                 }
                 if ($file->getDigits() != $this->getDigits()) throw new RuntimeException('Digits mis-match in "'.$fileName.'": file.digits='.$file->getDigits().' instead of set.digits='.$this->getDigits());
             }
@@ -279,8 +283,8 @@ class HistorySet extends Object {
 
 
     /**
-     * Gibt den letzten für alle HistoryFiles des Sets gültigen Synchronisationszeitpunkt zurück.
-     * Dies ist der älteste Synchronisationszeitpunkt der einzelnen HistoryFiles.
+     * Gibt den letzten fuer alle HistoryFiles des Sets gueltigen Synchronisationszeitpunkt zurueck.
+     * Dies ist der aelteste Synchronisationszeitpunkt der einzelnen HistoryFiles.
      *
      * @return int - Timestamp (in jeweiliger Serverzeit)
      *               0, wenn mindestens eines der HistoryFiles noch gar nicht synchronisiert wurde
@@ -301,7 +305,7 @@ class HistorySet extends Object {
 
 
     /**
-     * Fügt dem Ende der Zeitreihen des Sets weitere Bardaten hinzu. Vorhandene Daten werden nicht geändert.
+     * Fuegt dem Ende der Zeitreihen des Sets weitere Bardaten hinzu. Vorhandene Daten werden nicht geaendert.
      *
      * @param  array - MYFX_BAR-Daten der Periode M1
      *
@@ -320,9 +324,9 @@ class HistorySet extends Object {
 
 
     /**
-     * Synchronisiert die Zeitreihen des Sets mit den übergebenen Bardaten. Vorhandene Bars, die nach dem letzten
-     * Synchronisationszeitpunkt der Zeitreihe geschrieben wurden und die sich mit den übergebenen Bars überschneiden,
-     * werden ersetzt. Vorhandene Bars, die sich mit den übergebenen Bars nicht überschneiden, bleiben unverändert.
+     * Synchronisiert die Zeitreihen des Sets mit den uebergebenen Bardaten. Vorhandene Bars, die nach dem letzten
+     * Synchronisationszeitpunkt der Zeitreihe geschrieben wurden und die sich mit den uebergebenen Bars ueberschneiden,
+     * werden ersetzt. Vorhandene Bars, die sich mit den uebergebenen Bars nicht ueberschneiden, bleiben unveraendert.
      *
      * @param  array - MYFX_BAR-Daten der Periode M1
      */

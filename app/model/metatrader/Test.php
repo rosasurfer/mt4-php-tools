@@ -7,11 +7,11 @@ use rosasurfer\exception\IllegalArgumentException;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 
+use rosasurfer\trade\metatrader\MT4;
+
+use rosasurfer\util\Date;
 use rosasurfer\util\PHP;
 use rosasurfer\util\Windows;
-use rosasurfer\util\Date;
-
-use MT4;
 
 
 /**

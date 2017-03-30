@@ -1,4 +1,6 @@
 <?php
+namespace rosasurfer\trade\metatrader;
+
 use rosasurfer\core\Object;
 
 use rosasurfer\exception\IllegalTypeException;
@@ -54,7 +56,7 @@ class HistoryHeader extends Object {
 
 
     /**
-     * Überladener Constructor.
+     * Ueberladener Constructor.
      *
      * Signaturen:
      * -----------
@@ -72,9 +74,9 @@ class HistoryHeader extends Object {
     /**
      * Constructor 1
      *
-     * Erzeugt eine neue Instanz anhand der übergebenen Parameter.
+     * Erzeugt eine neue Instanz anhand der uebergebenen Parameter.
      *
-     * @param  int    $format       - unterstützte Formate: 400 und 401
+     * @param  int    $format       - unterstuetzte Formate: 400 und 401
      * @param  string $copyright
      * @param  string $symbol
      * @param  int    $period
@@ -116,7 +118,7 @@ class HistoryHeader extends Object {
     /**
      * Constructor 2
      *
-     * Erzeugt eine neue Instanz anhand eines binär gespeicherten struct HISTORY_HEADER.
+     * Erzeugt eine neue Instanz anhand eines binaer gespeicherten struct HISTORY_HEADER.
      *
      * @param  string $data - gespeichertes struct HISTORY_HEADER
      */
@@ -152,7 +154,7 @@ class HistoryHeader extends Object {
 
 
     /**
-     * Gibt den Formatstring zum Packen eines struct HISTORY_HEADER zurück.
+     * Gibt den Formatstring zum Packen eines struct HISTORY_HEADER zurueck.
      *
      * @return string - pack()-Formatstring
      */
@@ -180,7 +182,7 @@ class HistoryHeader extends Object {
 
 
     /**
-     * Gibt den Formatstring zum Entpacken eines struct HISTORY_HEADER zurück.
+     * Gibt den Formatstring zum Entpacken eines struct HISTORY_HEADER zurueck.
      *
      * @return string - unpack()-Formatstring
      */

@@ -1,14 +1,17 @@
 <?php
+namespace rosasurfer\trade;
+
+
 /**
  * Validator
  */
-class Validator extends rosasurfer\util\Validator {
+class Validator extends \rosasurfer\util\Validator {
 
 
     /**
-     * Ob der übergebene Wert ein gültiger OperationType-Identifier ist.
+     * Ob der uebergebene Wert ein gueltiger OperationType-Identifier ist.
      *
-     * @param  int $type - zu prüfender Wert
+     * @param  int $type - zu pruefender Wert
      *
      * @return bool
      */
@@ -18,9 +21,9 @@ class Validator extends rosasurfer\util\Validator {
 
 
     /**
-     * Ob der übergebene Wert ein gültiger MT4-OperationType-Identifier ist.
+     * Ob der uebergebene Wert ein gueltiger MT4-OperationType-Identifier ist.
      *
-     * @param  int $type - zu prüfender Wert
+     * @param  int $type - zu pruefender Wert
      *
      * @return bool
      */
@@ -30,9 +33,9 @@ class Validator extends rosasurfer\util\Validator {
 
 
     /**
-     * Ob der übergebene Wert ein gültiger Custom-OperationType-Identifier ist.
+     * Ob der uebergebene Wert ein gueltiger Custom-OperationType-Identifier ist.
      *
-     * @param  int $type - zu prüfender Wert
+     * @param  int $type - zu pruefender Wert
      *
      * @return bool
      */
@@ -42,9 +45,9 @@ class Validator extends rosasurfer\util\Validator {
 
 
     /**
-     * Ob der übergebene String ein gültiger Instrumentbezeichner ist.
+     * Ob der uebergebene String ein gueltiger Instrumentbezeichner ist.
      *
-     * @param  string $string - zu prüfender Sring
+     * @param  string $string - zu pruefender Sring
      *
      * @return bool
      */

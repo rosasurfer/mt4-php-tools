@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\trade\lib\simpletrader;
+namespace rosasurfer\trade\simpletrader;
 
 
 // HTML data array indices of open positions

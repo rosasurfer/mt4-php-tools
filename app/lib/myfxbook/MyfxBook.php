@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\trade\lib\myfxbook;
+namespace rosasurfer\trade\myfxbook;
 
 use rosasurfer\config\Config;
 use rosasurfer\core\StaticClass;

@@ -1,8 +1,5 @@
 <?php
-namespace rosasurfer\trade\lib\Dukascopy;
-
-use \LZMA;
-use \MyFX;
+namespace rosasurfer\trade\dukascopy;
 
 use rosasurfer\core\StaticClass;
 
@@ -11,6 +8,9 @@ use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 
 use rosasurfer\log\Logger;
+
+use rosasurfer\trade\LZMA;
+use rosasurfer\trade\myfx\MyFX;
 
 
 /**
@@ -32,7 +32,7 @@ use rosasurfer\log\Logger;
  *    uint  timeDelta;                    4            0        Zeitdifferenz in Millisekunden seit Stundenbeginn
  *    uint  ask;                          4            4        in Points
  *    uint  bid;                          4            8        in Points
- *    float askSize;                      4           12        Angebotsgröße in Lots. Da Dukascopy als MarketMaker
+ *    float askSize;                      4           12        Angebotsgroesse in Lots. Da Dukascopy als MarketMaker
  *    float bidSize;                      4           16        auftritt, ist der Mindestwert immer 1 Lot.
  * };                                  = 20 byte
  */
@@ -40,11 +40,11 @@ class Dukascopy extends StaticClass {
 
 
     /**
-     * Dekomprimiert einen komprimierten String mit Dukascopy-Historydaten und gibt ihn zurück. Wird ein Dateiname angegeben,
-     * wird der dekomprimierte Inhalt zusätzlich in dieser Datei gespeichert.
+     * Dekomprimiert einen komprimierten String mit Dukascopy-Historydaten und gibt ihn zurueck. Wird ein Dateiname angegeben,
+     * wird der dekomprimierte Inhalt zusaetzlich in dieser Datei gespeichert.
      *
      * @param  string $data   - String mit komprimierten Historydaten (Bars oder Ticks)
-     * @param  string $saveAs - Name der Datei, in der der dekomprimierte Inhalt zusätzlich gespeichert wird
+     * @param  string $saveAs - Name der Datei, in der der dekomprimierte Inhalt zusaetzlich gespeichert wird
      *
      * @return string - dekomprimierter String
      */
@@ -71,11 +71,11 @@ class Dukascopy extends StaticClass {
 
 
     /**
-     * Dekomprimiert eine komprimierte Dukascopy-Historydatei und gibt ihren Inhalt zurück. Wird ein zusätzlicher Dateiname
-     * angegeben, wird der dekomprimierte Inhalt zusätzlich in dieser Datei gespeichert.
+     * Dekomprimiert eine komprimierte Dukascopy-Historydatei und gibt ihren Inhalt zurueck. Wird ein zusaetzlicher Dateiname
+     * angegeben, wird der dekomprimierte Inhalt zusaetzlich in dieser Datei gespeichert.
      *
      * @param  string $compressedFile - Name der komprimierten Dukascopy-Datei
-     * @param  string $saveAsFile     - Name der Datei, in der der dekomprimierte Inhalt zusätzlich gespeichert wird
+     * @param  string $saveAsFile     - Name der Datei, in der der dekomprimierte Inhalt zusaetzlich gespeichert wird
      *
      * @return string - dekomprimierter Inhalt der Datei
      */
@@ -91,7 +91,7 @@ class Dukascopy extends StaticClass {
      *
      * @param  string $data   - String mit Dukascopy-Bardaten
      *
-     * @param  string $symbol - Meta-Informationen für eine evt. Fehlermeldung (die Dukascopy-Daten sind nicht einwandfrei)
+     * @param  string $symbol - Meta-Informationen fuer eine evt. Fehlermeldung (die Dukascopy-Daten sind nicht einwandfrei)
      * @param  string $type   - ...
      * @param  int    $time   - ...
      *
@@ -107,7 +107,7 @@ class Dukascopy extends StaticClass {
 
         static $isLittleEndian = null; is_null($isLittleEndian) && $isLittleEndian=isLittleEndian();
 
-        // unpack() unterstützt keinen expliziten Big-Endian-Float, die Byte-Order von 'lots' muß ggf. manuell reversed werden.
+        // unpack() unterstuetzt keinen expliziten Big-Endian-Float, die Byte-Order von 'lots' muss ggf. manuell reversed werden.
         while ($offset < $lenData) {
             $i++;
             $bars[] = unpack("@$offset/NtimeDelta/Nopen/Nclose/Nlow/Nhigh", $data);
@@ -146,7 +146,7 @@ class Dukascopy extends StaticClass {
      *
      * @param  string $fileName - Name der Datei mit Dukascopy-Bardaten
      *
-     * @param  string $symbol   - Meta-Informationen für eine evt. Fehlermeldung (die Dukascopy-Daten sind nicht einwandfrei)
+     * @param  string $symbol   - Meta-Informationen fuer eine evt. Fehlermeldung (die Dukascopy-Daten sind nicht einwandfrei)
      * @param  string $type     - ...
      * @param  int    $time     - ...
      *
@@ -176,7 +176,7 @@ class Dukascopy extends StaticClass {
 
         static $isLittleEndian = null; is_null($isLittleEndian) && $isLittleEndian=isLittleEndian();
 
-        // unpack() unterstützt keinen expliziten Big-Endian-Float, die Byte-Order von 'bidSize' und 'askSize' muß ggf. manuell
+        // unpack() unterstuetzt keinen expliziten Big-Endian-Float, die Byte-Order von 'bidSize' und 'askSize' muss ggf. manuell
         // reversed werden.
         while ($offset < $lenData) {
             $i++;

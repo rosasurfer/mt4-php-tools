@@ -6,6 +6,8 @@ use rosasurfer\db\orm\PersistableObject;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 
+use rosasurfer\trade\metatrader\MT4;
+
 
 /**
  * Represents a MetaTrader order ticket.
@@ -84,102 +86,102 @@ class Order extends PersistableObject {
         $order->test = $test;
 
         $id = $properties['id'];
-        if (!is_int($id))                                      throw new IllegalTypeException('Illegal type of property "id": '.getType($id));
-        if ($id)                                               throw new InvalidArgumentException('Invalid property "id": '.$id.' (not zero)');
+        if (!is_int($id))                                     throw new IllegalTypeException('Illegal type of property "id": '.getType($id));
+        if ($id)                                              throw new InvalidArgumentException('Invalid property "id": '.$id.' (not zero)');
         $order->id = null;
 
         $ticket = $properties['ticket'];
-        if (!is_int($ticket))                                  throw new IllegalTypeException('Illegal type of property "ticket": '.getType($ticket));
-        if ($ticket <= 0)                                      throw new InvalidArgumentException('Invalid property "ticket": '.$ticket.' (not positive)');
+        if (!is_int($ticket))                                 throw new IllegalTypeException('Illegal type of property "ticket": '.getType($ticket));
+        if ($ticket <= 0)                                     throw new InvalidArgumentException('Invalid property "ticket": '.$ticket.' (not positive)');
         $order->ticket = $ticket;
 
         $type = $properties['type'];
-        if (!is_int($type))                                    throw new IllegalTypeException('Illegal type of property "type": '.getType($type));
-        if (!\MT4::isOrderType($type))                         throw new InvalidArgumentException('Invalid property "type": '.$type.' (not an order type)');
-        $order->type = \MT4::orderTypeDescription($type);
+        if (!is_int($type))                                   throw new IllegalTypeException('Illegal type of property "type": '.getType($type));
+        if (!MT4::isOrderType($type))                         throw new InvalidArgumentException('Invalid property "type": '.$type.' (not an order type)');
+        $order->type = MT4::orderTypeDescription($type);
 
         $lots = $properties['lots'];
-        if (!is_float($lots))                                  throw new IllegalTypeException('Illegal type of property "lots": '.getType($lots));
-        if ($lots <= 0)                                        throw new InvalidArgumentException('Invalid property "lots": '.$lots.' (not positive)');
-        if ($lots != round($lots, 2))                          throw new InvalidArgumentException('Invalid property "lots": '.$lots.' (lot step violation)');
+        if (!is_float($lots))                                 throw new IllegalTypeException('Illegal type of property "lots": '.getType($lots));
+        if ($lots <= 0)                                       throw new InvalidArgumentException('Invalid property "lots": '.$lots.' (not positive)');
+        if ($lots != round($lots, 2))                         throw new InvalidArgumentException('Invalid property "lots": '.$lots.' (lot step violation)');
         $order->lots = $lots;
 
         $symbol = $properties['symbol'];
-        if (!is_string($symbol))                               throw new IllegalTypeException('Illegal type of property "symbol": '.getType($symbol));
-        if ($symbol != trim($symbol))                          throw new InvalidArgumentException('Invalid property "symbol": "'.$symbol.'" (format violation)');
-        if (!strLen($symbol))                                  throw new InvalidArgumentException('Invalid property "symbol": "'.$symbol.'" (length violation)');
-        if (strLen($symbol) > \MT4::MAX_SYMBOL_LENGTH)         throw new InvalidArgumentException('Invalid property "symbol": "'.$symbol.'" (length violation)');
+        if (!is_string($symbol))                              throw new IllegalTypeException('Illegal type of property "symbol": '.getType($symbol));
+        if ($symbol != trim($symbol))                         throw new InvalidArgumentException('Invalid property "symbol": "'.$symbol.'" (format violation)');
+        if (!strLen($symbol))                                 throw new InvalidArgumentException('Invalid property "symbol": "'.$symbol.'" (length violation)');
+        if (strLen($symbol) > MT4::MAX_SYMBOL_LENGTH)         throw new InvalidArgumentException('Invalid property "symbol": "'.$symbol.'" (length violation)');
         $order->symbol = $symbol;
 
         $openPrice = $properties['openPrice'];
-        if (!is_float($openPrice))                             throw new IllegalTypeException('Illegal type of property "openPrice": '.getType($openPrice));
+        if (!is_float($openPrice))                            throw new IllegalTypeException('Illegal type of property "openPrice": '.getType($openPrice));
         $openPrice = round($openPrice, 5);
-        if ($openPrice <= 0)                                   throw new InvalidArgumentException('Invalid property "openPrice": '.$openPrice.' (not positive)');
+        if ($openPrice <= 0)                                  throw new InvalidArgumentException('Invalid property "openPrice": '.$openPrice.' (not positive)');
         $order->openPrice = $openPrice;
 
-        $openTime = $properties['openTime'];                   // FXT timestamp
-        if (!is_int($openTime))                                throw new IllegalTypeException('Illegal type of property "openTime": '.getType($openTime));
-        if ($openTime <= 0)                                    throw new InvalidArgumentException('Invalid property "openTime": '.$openTime.' (not positive)');
-        if (!isForexTradingDay($openTime, 'FXT'))              throw new InvalidArgumentException('Invalid property "openTime": '.$openTime.' (not a trading day)');
+        $openTime = $properties['openTime'];                  // FXT timestamp
+        if (!is_int($openTime))                               throw new IllegalTypeException('Illegal type of property "openTime": '.getType($openTime));
+        if ($openTime <= 0)                                   throw new InvalidArgumentException('Invalid property "openTime": '.$openTime.' (not positive)');
+        if (!isForexTradingDay($openTime, 'FXT'))             throw new InvalidArgumentException('Invalid property "openTime": '.$openTime.' (not a trading day)');
         $order->openTime = gmDate('Y-m-d H:i:s', $openTime);
 
         $stopLoss = $properties['stopLoss'];
-        if (!is_float($stopLoss))                              throw new IllegalTypeException('Illegal type of property "stopLoss": '.getType($stopLoss));
+        if (!is_float($stopLoss))                             throw new IllegalTypeException('Illegal type of property "stopLoss": '.getType($stopLoss));
         $stopLoss = round($stopLoss, 5);
-        if ($stopLoss < 0)                                     throw new InvalidArgumentException('Invalid property "stopLoss": '.$stopLoss.' (not non-negative)');
+        if ($stopLoss < 0)                                    throw new InvalidArgumentException('Invalid property "stopLoss": '.$stopLoss.' (not non-negative)');
         $order->stopLoss = !$stopLoss ? null : $stopLoss;
 
         $takeProfit = $properties['takeProfit'];
-        if (!is_float($takeProfit))                            throw new IllegalTypeException('Illegal type of property "takeProfit": '.getType($takeProfit));
+        if (!is_float($takeProfit))                           throw new IllegalTypeException('Illegal type of property "takeProfit": '.getType($takeProfit));
         $takeProfit = round($takeProfit, 5);
-        if ($takeProfit < 0)                                   throw new InvalidArgumentException('Invalid property "takeProfit": '.$takeProfit.' (not non-negative)');
+        if ($takeProfit < 0)                                  throw new InvalidArgumentException('Invalid property "takeProfit": '.$takeProfit.' (not non-negative)');
         $order->takeProfit = !$takeProfit ? null : $takeProfit;
 
         if ($stopLoss && $takeProfit) {
-            if (\MT4::isLongOrderType($order->type)) {
-                if ($stopLoss >= $takeProfit)                  throw new InvalidArgumentException('Invalid properties "stopLoss|takeProfit" for LONG order: '.$stopLoss.'|'.$takeProfit.' (mis-match)');
+            if (MT4::isLongOrderType($order->type)) {
+                if ($stopLoss >= $takeProfit)                 throw new InvalidArgumentException('Invalid properties "stopLoss|takeProfit" for LONG order: '.$stopLoss.'|'.$takeProfit.' (mis-match)');
             }
-            else if ($stopLoss <= $takeProfit)                 throw new InvalidArgumentException('Invalid properties "stopLoss|takeProfit" for SHORT order: '.$stopLoss.'|'.$takeProfit.' (mis-match)');
+            else if ($stopLoss <= $takeProfit)                throw new InvalidArgumentException('Invalid properties "stopLoss|takeProfit" for SHORT order: '.$stopLoss.'|'.$takeProfit.' (mis-match)');
         }
 
         $closePrice = $properties['closePrice'];
-        if (!is_float($closePrice))                            throw new IllegalTypeException('Illegal type of property "closePrice": '.getType($closePrice));
+        if (!is_float($closePrice))                           throw new IllegalTypeException('Illegal type of property "closePrice": '.getType($closePrice));
         $closePrice = round($closePrice, 5);
-        if ($closePrice < 0)                                   throw new InvalidArgumentException('Invalid property "closePrice": '.$closePrice.' (not non-negative)');
+        if ($closePrice < 0)                                  throw new InvalidArgumentException('Invalid property "closePrice": '.$closePrice.' (not non-negative)');
         $order->closePrice = !$closePrice ? null : $closePrice;
 
-        $closeTime = $properties['closeTime'];                 // FXT timestamp
-        if (!is_int($closeTime))                               throw new IllegalTypeException('Illegal type of property "closeTime": '.getType($closeTime));
-        if ($closeTime < 0)                                    throw new InvalidArgumentException('Invalid property "closeTime": '.$closeTime.' (not positive)');
-        if      ($closeTime && !$closePrice)                   throw new InvalidArgumentException('Invalid properties "closePrice|closeTime": '.$closePrice.'|'.$closeTime.' (mis-match)');
-        else if (!$closeTime && $closePrice)                   throw new InvalidArgumentException('Invalid properties "closePrice|closeTime": '.$closePrice.'|'.$closeTime.' (mis-match)');
+        $closeTime = $properties['closeTime'];                // FXT timestamp
+        if (!is_int($closeTime))                              throw new IllegalTypeException('Illegal type of property "closeTime": '.getType($closeTime));
+        if ($closeTime < 0)                                   throw new InvalidArgumentException('Invalid property "closeTime": '.$closeTime.' (not positive)');
+        if      ($closeTime && !$closePrice)                  throw new InvalidArgumentException('Invalid properties "closePrice|closeTime": '.$closePrice.'|'.$closeTime.' (mis-match)');
+        else if (!$closeTime && $closePrice)                  throw new InvalidArgumentException('Invalid properties "closePrice|closeTime": '.$closePrice.'|'.$closeTime.' (mis-match)');
         if ($closeTime) {
-            if (!isForexTradingDay($closeTime, 'FXT'))         throw new InvalidArgumentException('Invalid property "closeTime": '.$closeTime.' (not a trading day)');
-            if ($closeTime < $openTime)                        throw new InvalidArgumentException('Invalid properties "openTime|closeTime": '.$openTime.'|'.$closeTime.' (mis-match)');
+            if (!isForexTradingDay($closeTime, 'FXT'))        throw new InvalidArgumentException('Invalid property "closeTime": '.$closeTime.' (not a trading day)');
+            if ($closeTime < $openTime)                       throw new InvalidArgumentException('Invalid properties "openTime|closeTime": '.$openTime.'|'.$closeTime.' (mis-match)');
         }
         $order->closeTime = !$closeTime ? null : gmDate('Y-m-d H:i:s', $closeTime);
 
         $commission = $properties['commission'];
-        if (!is_float($commission))                            throw new IllegalTypeException('Illegal type of property "commission": '.getType($commission));
+        if (!is_float($commission))                           throw new IllegalTypeException('Illegal type of property "commission": '.getType($commission));
         $order->commission = round($commission, 2);
 
         $swap = $properties['swap'];
-        if (!is_float($swap))                                  throw new IllegalTypeException('Illegal type of property "swap": '.getType($swap));
+        if (!is_float($swap))                                 throw new IllegalTypeException('Illegal type of property "swap": '.getType($swap));
         $order->swap = round($swap, 2);
 
         $profit = $properties['profit'];
-        if (!is_float($profit))                                throw new IllegalTypeException('Illegal type of property "profit": '.getType($profit));
+        if (!is_float($profit))                               throw new IllegalTypeException('Illegal type of property "profit": '.getType($profit));
         $order->profit = round($profit, 2);
 
         $magicNumber = $properties['magicNumber'];
-        if (!is_int($magicNumber))                             throw new IllegalTypeException('Illegal type of property "magicNumber": '.getType($magicNumber));
-        if ($magicNumber < 0)                                  throw new InvalidArgumentException('Invalid property "magicNumber": '.$magicNumber.' (not non-negative)');
+        if (!is_int($magicNumber))                            throw new IllegalTypeException('Illegal type of property "magicNumber": '.getType($magicNumber));
+        if ($magicNumber < 0)                                 throw new InvalidArgumentException('Invalid property "magicNumber": '.$magicNumber.' (not non-negative)');
         $order->magicNumber = !$magicNumber ? null : $magicNumber;
 
         $comment = $properties['comment'];
-        if (!is_string($comment))                              throw new IllegalTypeException('Illegal type of property "comment": '.getType($comment));
+        if (!is_string($comment))                             throw new IllegalTypeException('Illegal type of property "comment": '.getType($comment));
         $comment = trim($comment);
-        if (strLen($comment) > \MT4::MAX_ORDER_COMMENT_LENGTH) throw new InvalidArgumentException('Invalid property "comment": "'.$comment.'" (length violation)');
+        if (strLen($comment) > MT4::MAX_ORDER_COMMENT_LENGTH) throw new InvalidArgumentException('Invalid property "comment": "'.$comment.'" (length violation)');
         $order->comment = strLen($comment) ? $comment : null;
 
         return $order;
