@@ -3,6 +3,8 @@
 /**
  * Save a test and its trade history in the database.
  */
+namespace rosasurfer\trade\metatrader\save_test;
+
 use rosasurfer\trade\model\Signal;
 use rosasurfer\trade\model\metatrader\Test;
 

@@ -3,6 +3,8 @@
 /**
  * Verzeichnislisting fuer MetaTrader-Historydateien
  */
+namespace rosasurfer\trade\metatrader\dir;
+
 use rosasurfer\trade\metatrader\HistoryHeader;
 use rosasurfer\trade\metatrader\MT4;
 use rosasurfer\trade\metatrader\MetaTraderException;

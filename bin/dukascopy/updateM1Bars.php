@@ -30,6 +30,8 @@
  * GMT:     |   Sunday      Monday   |  Tuesday   | Wednesday  |  Thursday  |   Friday     Saturday  |   Sunday      Monday   |
  *          +------------------------+------------+------------+------------+------------------------+------------------------+
  */
+namespace rosasurfer\trade\dukascopy\update_m1_bars;
+
 use rosasurfer\config\Config;
 
 use rosasurfer\exception\IllegalTypeException;

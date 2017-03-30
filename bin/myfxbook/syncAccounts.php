@@ -25,6 +25,8 @@
  *
  *
  */
+namespace rosasurfer\trade\myfxbook\sync_accounts;
+
 use \Exception;
 
 use rosasurfer\exception\IllegalTypeException;

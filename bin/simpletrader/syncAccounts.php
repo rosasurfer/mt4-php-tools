@@ -4,6 +4,8 @@
  * Synchronisiert die Daten ein oder mehrerer Signale mit den lokal gespeicherten Daten (Datenbank und MT4-Datenfiles).
  * Bei Datenaenderung kann eine Mail oder eine SMS verschickt werden.
  */
+namespace rosasurfer\trade\simpletrader\sync_accounts;
+
 use \Exception;
 
 use rosasurfer\exception\IllegalTypeException;

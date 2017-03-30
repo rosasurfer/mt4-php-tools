@@ -8,6 +8,8 @@
  * TODO: Error messages must not be printed to STDOUT but to STDERR.
  * TODO: Parameter for (not) suppressing regular output to enable status messages when not executed by CRON.
  */
+namespace rosasurfer\trade\logwatch;
+
 use rosasurfer\config\Config;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\util\PHP;

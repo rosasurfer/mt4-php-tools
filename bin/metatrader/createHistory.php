@@ -5,6 +5,8 @@
  * Speichert diese MetaTrader-History im globalen MT4-Serververzeichnis "MyFX-Dukascopy". Vorhandene Historydateien
  * werden ueberschrieben. Um vorhandene Historydateien zu aktualisieren, ist "updateHistory.php" zu benutzen.
  */
+namespace rosasurfer\trade\metatrader\create_history;
+
 use rosasurfer\config\Config;
 
 use rosasurfer\exception\IllegalTypeException;

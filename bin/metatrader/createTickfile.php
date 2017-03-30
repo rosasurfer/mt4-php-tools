@@ -3,6 +3,8 @@
 /**
  * Erzeugt eine FXT-Tickdatei fuer den Strategy Tester.
  */
+namespace rosasurfer\trade\metatrader\create_tickfile;
+
 use rosasurfer\trade\metatrader\MT4;
 
 require(__DIR__.'/../../app/init.php');

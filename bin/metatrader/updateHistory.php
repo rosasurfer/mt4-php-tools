@@ -3,6 +3,8 @@
 /**
  * Aktualisiert die MetaTrader-History der angegebenen Instrumente im globalen MT4-Serververzeichnis "MyFX-Dukascopy".
  */
+namespace rosasurfer\trade\metatrader\update_history;
+
 use rosasurfer\config\Config;
 
 use rosasurfer\exception\IllegalTypeException;

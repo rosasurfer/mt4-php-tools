@@ -15,6 +15,8 @@
  *
  * @see  MetaTrader::indicators\LFX-Monitor.mq4
  */
+namespace rosasurfer\trade\fxi\update_m1_bars;
+
 use rosasurfer\config\Config;
 
 use rosasurfer\exception\IllegalTypeException;
