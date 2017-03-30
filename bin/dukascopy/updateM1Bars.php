@@ -41,9 +41,6 @@ use rosasurfer\net\http\HttpClient;
 use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
 
-use rosasurfer\trade\dukascopy\Dukascopy;
-use rosasurfer\trade\myfx\MyFX;
-
 use rosasurfer\trade\LZMA;
 use rosasurfer\trade\dukascopy\Dukascopy;
 use rosasurfer\trade\model\Signal;
