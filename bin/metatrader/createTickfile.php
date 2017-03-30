@@ -3,6 +3,8 @@
 /**
  * Erzeugt eine FXT-Tickdatei fuer den Strategy Tester.
  */
+use rosasurfer\trade\metatrader\MT4;
+
 require(__DIR__.'/../../app/init.php');
 date_default_timezone_set('GMT');
 

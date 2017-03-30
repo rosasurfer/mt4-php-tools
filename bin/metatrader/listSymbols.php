@@ -5,6 +5,8 @@
  *
  * @see Struct-Formate in MT4Expander.dll::Expander.h
  */
+use rosasurfer\trade\metatrader\MT4;
+
 require(__DIR__.'/../../app/init.php');
 
 

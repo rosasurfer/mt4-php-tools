@@ -1,5 +1,9 @@
 #!/usr/bin/php
 <?php
+/**
+ * Synchronisiert die Daten ein oder mehrerer Signale mit den lokal gespeicherten Daten (Datenbank und MT4-Datenfiles).
+ * Bei Datenaenderung kann eine Mail oder eine SMS verschickt werden.
+ */
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InfrastructureException;
 use rosasurfer\exception\RuntimeException;
@@ -7,16 +11,16 @@ use rosasurfer\exception\RuntimeException;
 use rosasurfer\log\Logger;
 use rosasurfer\util\Date;
 
+use rosasurfer\trade\ReportHelper;
+use rosasurfer\trade\metatrader\MT4;
+use rosasurfer\trade\model\ClosedPosition;
+use rosasurfer\trade\model\OpenPosition;
+use rosasurfer\trade\model\Signal;
+use rosasurfer\trade\model\metatrader\Account;
+use rosasurfer\trade\myfx\MyFX;
+use rosasurfer\trade\simpletrader\DataNotFoundException;
 use rosasurfer\trade\simpletrader\SimpleTrader;
 
-
-/**
- * Synchronisiert die Daten ein oder mehrerer Signale mit den lokal gespeicherten Daten (Datenbank und MT4-Datenfiles).
- * Bei Datenaenderung kann eine Mail oder eine SMS verschickt werden.
- *
- *
- *
- */
 require(__DIR__.'/../../app/init.php');
 
 

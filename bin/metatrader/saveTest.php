@@ -5,6 +5,8 @@
  */
 use rosasurfer\trade\model\metatrader\Test;
 
+use rosasurfer\trade\model\Signal;
+use rosasurfer\trade\model\metatrader\Test;
 
 require(__DIR__.'/../../app/init.php');
 date_default_timezone_set('GMT');

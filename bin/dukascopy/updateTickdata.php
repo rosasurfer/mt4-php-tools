@@ -1,17 +1,5 @@
 #!/usr/bin/php
 <?php
-use rosasurfer\config\Config;
-
-use rosasurfer\exception\IllegalTypeException;
-use rosasurfer\exception\InvalidArgumentException;
-use rosasurfer\exception\RuntimeException;
-
-use rosasurfer\net\http\CurlHttpClient;
-use rosasurfer\net\http\HttpClient;
-use rosasurfer\net\http\HttpRequest;
-use rosasurfer\net\http\HttpResponse;
-
-
 /**
  * Aktualisiert die lokal vorhandenen Dukascopy-Tickdaten. Die Daten werden nach FXT konvertiert und im MyFX-Format
  * gespeichert. Am Wochenende, an Feiertagen und wenn keine Tickdaten verfuegbar sind, sind die Dukascopy-Dateien leer.
@@ -42,6 +30,24 @@ use rosasurfer\net\http\HttpResponse;
  * GMT:     |   Sunday      Monday   |  Tuesday   | Wednesday  |  Thursday  |   Friday     Saturday  |   Sunday      Monday   |
  *          +------------------------+------------+------------+------------+------------------------+------------------------+
  */
+use rosasurfer\config\Config;
+
+use rosasurfer\exception\IllegalTypeException;
+use rosasurfer\exception\InvalidArgumentException;
+use rosasurfer\exception\RuntimeException;
+
+use rosasurfer\net\http\CurlHttpClient;
+use rosasurfer\net\http\HttpClient;
+use rosasurfer\net\http\HttpRequest;
+use rosasurfer\net\http\HttpResponse;
+
+use rosasurfer\trade\LZMA;
+use rosasurfer\trade\dukascopy\Dukascopy;
+use rosasurfer\trade\dukascopy\DukascopyException;
+use rosasurfer\trade\model\Signal;
+use rosasurfer\trade\myfx\MyFX;
+use rosasurfer\trade\simpletrader\SimpleTrader;
+
 require(__DIR__.'/../../app/init.php');
 date_default_timezone_set('GMT');
 

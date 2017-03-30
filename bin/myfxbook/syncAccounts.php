@@ -1,12 +1,5 @@
 #!/usr/bin/php
 <?php
-use rosasurfer\exception\IllegalTypeException;
-use rosasurfer\exception\InfrastructureException;
-use rosasurfer\exception\RuntimeException;
-
-use rosasurfer\trade\myfxbook\MyfxBook;
-
-
 /**
  *
  *
@@ -32,6 +25,21 @@ use rosasurfer\trade\myfxbook\MyfxBook;
  *
  *
  */
+use rosasurfer\exception\IllegalTypeException;
+use rosasurfer\exception\InfrastructureException;
+use rosasurfer\exception\RuntimeException;
+
+use rosasurfer\trade\ReportHelper;
+use rosasurfer\trade\metatrader\MT4;
+use rosasurfer\trade\model\ClosedPosition;
+use rosasurfer\trade\model\OpenPosition;
+use rosasurfer\trade\model\Signal;
+use rosasurfer\trade\model\metatrader\Account;
+use rosasurfer\trade\myfx\MyFX;
+use rosasurfer\trade\myfxbook\MyfxBook;
+use rosasurfer\trade\simpletrader\DataNotFoundException;
+use rosasurfer\trade\simpletrader\SimpleTrader;
+
 require(__DIR__.'/../../app/init.php');
 
 

@@ -1,17 +1,5 @@
 #!/usr/bin/php
 <?php
-use rosasurfer\config\Config;
-
-use rosasurfer\exception\IllegalTypeException;
-use rosasurfer\exception\InvalidArgumentException;
-use rosasurfer\exception\RuntimeException;
-
-use rosasurfer\net\http\CurlHttpClient;
-use rosasurfer\net\http\HttpClient;
-use rosasurfer\net\http\HttpRequest;
-use rosasurfer\net\http\HttpResponse;
-
-
 /**
  * Aktualisiert die lokal vorhandenen Dukascopy-M1-Daten. Bid und Ask werden zu Median gemerged, nach FXT konvertiert und im
  * MyFX-Format gespeichert. Die Dukascopy-Daten sind durchgehend, Feiertage werden, Wochenenden werden nicht gespeichert.
@@ -42,6 +30,26 @@ use rosasurfer\net\http\HttpResponse;
  * GMT:     |   Sunday      Monday   |  Tuesday   | Wednesday  |  Thursday  |   Friday     Saturday  |   Sunday      Monday   |
  *          +------------------------+------------+------------+------------+------------------------+------------------------+
  */
+use rosasurfer\config\Config;
+
+use rosasurfer\exception\IllegalTypeException;
+use rosasurfer\exception\InvalidArgumentException;
+use rosasurfer\exception\RuntimeException;
+
+use rosasurfer\net\http\CurlHttpClient;
+use rosasurfer\net\http\HttpClient;
+use rosasurfer\net\http\HttpRequest;
+use rosasurfer\net\http\HttpResponse;
+
+use rosasurfer\trade\dukascopy\Dukascopy;
+use rosasurfer\trade\myfx\MyFX;
+
+use rosasurfer\trade\LZMA;
+use rosasurfer\trade\dukascopy\Dukascopy;
+use rosasurfer\trade\model\Signal;
+use rosasurfer\trade\myfx\MyFX;
+use rosasurfer\trade\simpletrader\SimpleTrader;
+
 require(__DIR__.'/../../app/init.php');
 date_default_timezone_set('GMT');
 
@@ -421,15 +429,15 @@ function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $save
 
     // (1) Standard-Browser simulieren
     $userAgent = $config->get('myfx.useragent'); if (!$userAgent) throw new InvalidArgumentException('Invalid user agent configuration: "'.$userAgent.'"');
-    $request = HttpRequest ::create()
-                                  ->setUrl($url)
-                                  ->setHeader('User-Agent'     , $userAgent                                                       )
-                                  ->setHeader('Accept'         , 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
-                                  ->setHeader('Accept-Language', 'en-us'                                                          )
-                                  ->setHeader('Accept-Charset' , 'ISO-8859-1,utf-8;q=0.7,*;q=0.7'                                 )
-                                  ->setHeader('Connection'     , 'keep-alive'                                                     )
-                                  ->setHeader('Cache-Control'  , 'max-age=0'                                                      )
-                                  ->setHeader('Referer'        , 'http://www.dukascopy.com/free/candelabrum/'                     );
+    $request = HttpRequest::create()
+                          ->setUrl($url)
+                          ->setHeader('User-Agent'     , $userAgent                                                       )
+                          ->setHeader('Accept'         , 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
+                          ->setHeader('Accept-Language', 'en-us'                                                          )
+                          ->setHeader('Accept-Charset' , 'ISO-8859-1,utf-8;q=0.7,*;q=0.7'                                 )
+                          ->setHeader('Connection'     , 'keep-alive'                                                     )
+                          ->setHeader('Cache-Control'  , 'max-age=0'                                                      )
+                          ->setHeader('Referer'        , 'http://www.dukascopy.com/free/candelabrum/'                     );
     $options[CURLOPT_SSL_VERIFYPEER] = false;                            // falls HTTPS verwendet wird
     //$options[CURLOPT_VERBOSE     ] = true;
 
@@ -503,7 +511,7 @@ function processCompressedDukascopyBarData($data, $symbol, $day, $type) {
     global $saveRawDukascopyFiles;
     $saveAs = $saveRawDukascopyFiles ? getVar('dukaFile.raw', $symbol, $day, $type) : null;
 
-    $rawData = Dukascopy ::decompressHistoryData($data, $saveAs);
+    $rawData = Dukascopy::decompressHistoryData($data, $saveAs);
     return processRawDukascopyBarData($rawData, $symbol, $day, $type);
 }
 
@@ -629,17 +637,17 @@ function saveBars($symbol, $day) {
     foreach ($barBuffer['avg'][$shortDate] as $bar) {
         // Bardaten vorm Schreiben validieren
         if ($bar['open' ] > $bar['high'] ||
-             $bar['open' ] < $bar['low' ] ||          // aus (H >= O && O >= L) folgt (H >= L)
-             $bar['close'] > $bar['high'] ||          // nicht mit min()/max(), da nicht performant
-             $bar['close'] < $bar['low' ] ||
-            !$bar['ticks']) throw new RuntimeException('Illegal data for MYFX_BAR of '.gmDate('D, d-M-Y H:i:s', $bar['time_fxt']).": O=$bar[open] H=$bar[high] L=$bar[low] C=$bar[close] V=$bar[ticks]");
+            $bar['open' ] < $bar['low' ] ||          // aus (H >= O && O >= L) folgt (H >= L)
+            $bar['close'] > $bar['high'] ||          // nicht mit min()/max(), da nicht performant
+            $bar['close'] < $bar['low' ] ||
+           !$bar['ticks']) throw new RuntimeException('Illegal data for MYFX_BAR of '.gmDate('D, d-M-Y H:i:s', $bar['time_fxt']).": O=$bar[open] H=$bar[high] L=$bar[low] C=$bar[close] V=$bar[ticks]");
 
         $data .= pack('VVVVVV', $bar['time_fxt'],
-                                        $bar['open'    ],
-                                        $bar['high'    ],
-                                        $bar['low'     ],
-                                        $bar['close'   ],
-                                        $bar['ticks'   ]);
+                                $bar['open'    ],
+                                $bar['high'    ],
+                                $bar['low'     ],
+                                $bar['close'   ],
+                                $bar['ticks'   ]);
     }
 
 
@@ -684,15 +692,15 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
     if (array_key_exists(($key=$id.'|'.$symbol.'|'.$time.'|'.$type), $varCache))
         return $varCache[$key];
 
-    if (!is_string($id))                                 throw new IllegalTypeException('Illegal type of parameter $id: '.getType($id));
-    if (!is_null($symbol) && !is_string($symbol))        throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
+    if (!is_string($id))                          throw new IllegalTypeException('Illegal type of parameter $id: '.getType($id));
+    if (!is_null($symbol) && !is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
     if (!is_null($time)) {
-        if (!is_int($time))                               throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
-        if ($time % DAY)                                  throw new InvalidArgumentException('Invalid parameter $time: '.$time.' (not 00:00)');
+        if (!is_int($time))                       throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+        if ($time % DAY)                          throw new InvalidArgumentException('Invalid parameter $time: '.$time.' (not 00:00)');
     }
     if (!is_null($type)) {
-        if (!is_string($type))                            throw new IllegalTypeException('Illegal type of parameter $type: '.getType($type));
-        if ($type!='bid' && $type!='ask')                 throw new InvalidArgumentException('Invalid parameter $type: "'.$type.'"');
+        if (!is_string($type))                    throw new IllegalTypeException('Illegal type of parameter $type: '.getType($type));
+        if ($type!='bid' && $type!='ask')         throw new InvalidArgumentException('Invalid parameter $type: "'.$type.'"');
     }
     $self  = __FUNCTION__;
 
