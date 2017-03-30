@@ -1,4 +1,6 @@
 <?php
+namespace rosasurfer\trade\controller\forms;
+
 use rosasurfer\debug\ErrorHandler;
 
 use rosasurfer\ministruts\ActionForm;

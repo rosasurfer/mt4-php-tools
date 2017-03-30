@@ -1,4 +1,8 @@
 <?php
+namespace rosasurfer\trade\controller\actions;
+
+use \MyFX;
+
 use rosasurfer\log\Logger;
 
 use rosasurfer\ministruts\Action;
@@ -29,7 +33,7 @@ class DownloadFTPConfigurationAction extends Action {
                 $account   = $form->getAccount();
                 $symbol    = $form->getSymbol();
                 $sequence  = $form->getSequence();
-                $directory = MyFX ::getConfigPath('strategies.config.ftp').'/'.$company.'/'.$account.'/'.$symbol;
+                $directory = MyFX::getConfigPath('strategies.config.ftp').'/'.$company.'/'.$account.'/'.$symbol;
                 $file      = 'FTP.'.$sequence.'.set';
 
                 if (is_file($directory.'/'.$file)) {

@@ -1,4 +1,6 @@
 <?php
+namespace rosasurfer\trade\controller\forms;
+
 use rosasurfer\ministruts\ActionForm;
 use rosasurfer\ministruts\Request;
 

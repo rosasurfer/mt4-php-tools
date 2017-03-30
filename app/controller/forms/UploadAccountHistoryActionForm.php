@@ -1,6 +1,9 @@
 <?php
-use rosasurfer\debug\ErrorHandler;
+namespace rosasurfer\trade\controller\forms;
 
+use \Validator;
+
+use rosasurfer\debug\ErrorHandler;
 use rosasurfer\log\Logger;
 
 use rosasurfer\ministruts\ActionForm;
@@ -204,7 +207,7 @@ class UploadAccountHistoryActionForm extends ActionForm {
                 }
                 $openTimestamp = (int) $openTimestamp;
 
-                if ($type!==(string)(int)$type || !Validator ::isMT4OperationType((int) $type)) {
+                if ($type!==(string)(int)$type || !Validator::isMT4OperationType((int) $type)) {
                     $request->setActionError('', '103: Invalid file format (unexpected value in line '.($i+1).',5)');
                     return false;
                 }

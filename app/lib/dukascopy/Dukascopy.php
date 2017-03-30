@@ -1,4 +1,9 @@
 <?php
+namespace rosasurfer\trade\lib\Dukascopy;
+
+use \LZMA;
+use \MyFX;
+
 use rosasurfer\core\StaticClass;
 
 use rosasurfer\exception\IllegalTypeException;

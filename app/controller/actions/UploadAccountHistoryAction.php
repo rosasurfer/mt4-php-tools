@@ -1,4 +1,6 @@
 <?php
+namespace rosasurfer\trade\controller\actions;
+
 use rosasurfer\exception\BusinessRuleException;
 use rosasurfer\exception\InvalidArgumentException;
 

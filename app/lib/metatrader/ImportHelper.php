@@ -8,6 +8,7 @@ use rosasurfer\exception\BusinessRuleException;
 use rosasurfer\exception\InfrastructureException;
 use rosasurfer\exception\InvalidArgumentException;
 
+use rosasurfer\trade\controller\forms\UploadAccountHistoryActionForm;
 use rosasurfer\trade\model\metatrader\Account;
 
 
@@ -24,7 +25,7 @@ class ImportHelper extends StaticClass {
      *
      * @return int - Anzahl der importierten Datensaetze
      */
-    public static function updateAccountHistory(\UploadAccountHistoryActionForm $form) {
+    public static function updateAccountHistory(UploadAccountHistoryActionForm $form) {
         // Account suchen
         $company = Account::normalizeCompanyName($form->getAccountCompany());
         $account = Account::dao()->getByCompanyAndNumber($company, $form->getAccountNumber());

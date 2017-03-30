@@ -1,6 +1,9 @@
 <?php
-use rosasurfer\exception\IOException;
+namespace rosasurfer\trade\controller\actions;
 
+use \MyFX;
+
+use rosasurfer\exception\IOException;
 use rosasurfer\log\Logger;
 
 use rosasurfer\ministruts\Action;
@@ -30,7 +33,7 @@ class UploadFTPConfigurationAction extends Action {
                 $company   = $form->getCompany();
                 $account   = $form->getAccount();
                 $symbol    = $form->getSymbol();
-                $directory = MyFX ::getConfigPath('strategies.config.ftp').'/'.$company.'/'.$account.'/'.$symbol;
+                $directory = MyFX::getConfigPath('strategies.config.ftp').'/'.$company.'/'.$account.'/'.$symbol;
                 $filename  = $directory.'/'.$form->getFileName();
 
                 // Datei speichern
