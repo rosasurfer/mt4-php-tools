@@ -1,0 +1,26 @@
+#
+# php7 -d memory_limit=128M ../vendor/phpstan/phpstan/bin/phpstan --ansi
+#
+# phpstan analyse -a autoload.php -c config.neon -l 0 [--] <directory>
+#
+services:                                                           # loaded and validated before "parameters" 
+
+parameters:
+    autoload_files:
+        - etc/phpstan/functions.php                                 # function stubs for procedural code and PHP extensions
+
+    fileExtensions:                                                 # additional files to analyse
+       #- html                                                      
+       #- phtml                                                     # TODO: Tiles default vars are not recognized 
+                                                                    
+    excludes_analyse:                                               
+        - %currentWorkingDirectory%/etc/vendor/composer/
+
+    ignoreErrors:
+        - '#Call to function [a-zA-Z0-9\\_]+\(\) with incorrect case: [a-zA-Z0-9\\_]+.#'
+        - '#Call to (static )?method [a-zA-Z0-9\\:_]+\(\) with incorrect case: [a-zA-Z0-9\\_]+#'        
+        - '#Parameter \$[a-zA-Z0-9_]+ of method [a-zA-Z0-9\\:_]+\(\) has invalid typehint type [a-zA-Z0-9\\_]*\bscalar.#'
+
+    reportUnmatchedIgnoredErrors: false
+    polluteScopeWithLoopInitialAssignments: true
+    polluteCatchScopeWithTryAssignments: true
