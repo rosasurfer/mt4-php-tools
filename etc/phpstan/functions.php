@@ -95,6 +95,53 @@ namespace rosasurfer\trade\dukascopy\update_m1_bars {
 }
 
 
+namespace rosasurfer\trade\logwatch {
+
+    /**
+     * @param  string $entry
+     */
+    function processEntry($entry) {}
+
+    /**
+     * @param  string $message
+     */
+    function error($message) {}
+
+    /**
+     * @param  string $message
+     */
+    function help($message = null) {}
+}
+
+
+namespace rosasurfer\trade\myfxbook\sync_accounts {
+
+    use rosasurfer\trade\model\Signal;
+
+    /**
+     * @param  string $alias
+     * @return bool
+     */
+    function processAccounts($alias) {}
+
+    /**
+     * @param  Signal $signal
+     * @param  array  $currentOpenPositions
+     * @param  bool   $openUpdates
+     * @param  array  $currentHistory
+     * @param  bool   $closedUpdates
+     * @param  bool   $isFullHistory
+     * @return bool
+     */
+    function updateDatabase(Signal $signal, array $currentOpenPositions, &$openUpdates, array $currentHistory, &$closedUpdates, $isFullHistory) {}
+
+    /**
+     * @param  string $message
+     */
+    function help($message=null) {}
+}
+
+
 namespace rosasurfer\trade\simpletrader\sync_accounts {
 
     use rosasurfer\trade\model\Signal;
