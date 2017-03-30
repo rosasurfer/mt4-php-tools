@@ -1,6 +1,7 @@
 <?php
 namespace rosasurfer\trade\metatrader;
 
+use \Exception;
 use rosasurfer\core\Object;
 use rosasurfer\debug\ErrorHandler;
 
@@ -105,8 +106,8 @@ class HistoryFile extends Object {
      * @param  int    $timeframe       - Timeframe
      * @param  int    $digits          - Digits
      * @param  int    $format          - Speicherformat der Datenreihe:
-     *                                   • 400 - MetaTrader <= Build 509
-     *                                   • 401 - MetaTrader  > Build 509
+     *                                   - 400 - MetaTrader <= Build 509
+     *                                   - 401 - MetaTrader  > Build 509
      * @param  string $serverDirectory - Speicherort der Datei
      */
     private function __construct_1($symbol, $timeframe, $digits, $format, $serverDirectory) {
@@ -233,7 +234,7 @@ class HistoryFile extends Object {
         try {
             !$this->isClosed() && $this->close();
         }
-        catch (\Exception $ex) {
+        catch (Exception $ex) {
             throw ErrorHandler::handleDestructorException($ex);
         }
     }
@@ -281,9 +282,9 @@ class HistoryFile extends Object {
      *
      * @param  int $offset
      *
-     * @return array - • MYFX_BAR,    wenn die Bar im Schreibbuffer liegt
-     *                 • HISTORY_BAR, wenn die Bar aus der Datei gelesen wurde
-     *                 • NULL,        wenn keine solche Bar existiert (Offset ist groesser als die Anzahl der Bars der Datei)
+     * @return array - MYFX_BAR,    wenn die Bar im Schreibbuffer liegt
+     *                 HISTORY_BAR, wenn die Bar aus der Datei gelesen wurde
+     *                 NULL,        wenn keine solche Bar existiert (Offset ist groesser als die Anzahl der Bars der Datei)
      *
      * @see    HistoryFile::getMyfxBar(), HistoryFile::getHistoryBar()
      */
@@ -469,9 +470,9 @@ class HistoryFile extends Object {
      *                         replacement array are inserted at the specified offset. If offset is one greater than the
      *                         greatest existing offset the replacement array is appended.
      *
-     * Examples: • HistoryFile->spliceBars(0, 1)  removes the first bar
-     *           • HistoryFile->spliceBars(-1)    removes the last bar (to be exact: everything from the last bar to the end)
-     *           • HistoryFile->spliceBars(0, -2) removes everything from the beginning to the end except the last two bars
+     * Examples: - HistoryFile->spliceBars(0, 1)  removes the first bar
+     *           - HistoryFile->spliceBars(-1)    removes the last bar (to be exact: everything from the last bar to the end)
+     *           - HistoryFile->spliceBars(0, -2) removes everything from the beginning to the end except the last two bars
      */
     public function spliceBars($offset, $length=0, array $bars=[]) {
         if (!is_int($offset)) throw new IllegalTypeException('Illegal type of parameter $offset: '.getType($offset));

@@ -1,6 +1,7 @@
 <?php
 namespace rosasurfer\trade\model\metatrader;
 
+use \Exception;
 use rosasurfer\db\orm\PersistableObject;
 
 use rosasurfer\exception\IllegalArgumentException;
@@ -584,7 +585,7 @@ class Test extends PersistableObject {
             foreach ($this->getTrades() as $trade) $trade->save();
             $this->db()->commit();
         }
-        catch (\Exception $ex) {
+        catch (Exception $ex) {
             $this->db()->rollback();
             throw $ex;
         }

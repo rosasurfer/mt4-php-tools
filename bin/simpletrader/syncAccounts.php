@@ -4,6 +4,8 @@
  * Synchronisiert die Daten ein oder mehrerer Signale mit den lokal gespeicherten Daten (Datenbank und MT4-Datenfiles).
  * Bei Datenaenderung kann eine Mail oder eine SMS verschickt werden.
  */
+use \Exception;
+
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InfrastructureException;
 use rosasurfer\exception\RuntimeException;
@@ -298,7 +300,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
             foreach ($positionChangeStartTimes as $symbol => $startTime) {
                 $n++;
                 if ($startTime < $lastKnownChangeTimes[$symbol])
-                    $startTime = \MyFX::fxtDate(MyFX::fxtStrToTime($lastKnownChangeTimes[$symbol]) + 1);
+                    $startTime = MyFX::fxtDate(MyFX::fxtStrToTime($lastKnownChangeTimes[$symbol]) + 1);
 
                 $report = ReportHelper::getNetPositionHistory($signal, $symbol, $startTime);
                 $oldNetPosition     = 'Flat';
@@ -371,7 +373,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
         // (8) alles speichern
         $db->commit();
     }
-    catch (\Exception $ex) {
+    catch (Exception $ex) {
         $db->rollback();
         throw $ex;
     }

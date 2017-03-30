@@ -1,6 +1,7 @@
 <?php
 namespace rosasurfer\trade\controller\actions;
 
+use \Exception;
 use rosasurfer\exception\IOException;
 use rosasurfer\log\Logger;
 
@@ -42,7 +43,7 @@ class UploadFTPConfigurationAction extends Action {
                 echo("200\n");
                 return null;
             }
-            catch (\Exception $ex) {
+            catch (Exception $ex) {
                 Logger::log('System not available', L_ERROR, ['exception'=>$ex]);
                 $request->setActionError('', '500: Server error, try again later.');
             }

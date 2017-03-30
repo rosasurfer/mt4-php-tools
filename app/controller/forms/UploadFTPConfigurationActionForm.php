@@ -1,6 +1,7 @@
 <?php
 namespace rosasurfer\trade\controller\forms;
 
+use \Exception;
 use rosasurfer\debug\ErrorHandler;
 
 use rosasurfer\ministruts\ActionForm;
@@ -96,7 +97,7 @@ class UploadFTPConfigurationActionForm extends ActionForm {
             if (is_file($this->file['tmp_name']))
                 unlink($this->file['tmp_name']);
         }
-        catch (\Exception $ex) {
+        catch (Exception $ex) {
             throw ErrorHandler::handleDestructorException($ex);
         }
     }

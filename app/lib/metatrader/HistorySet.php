@@ -1,6 +1,7 @@
 <?php
 namespace rosasurfer\trade\metatrader;
 
+use \Exception;
 use rosasurfer\core\Object;
 use rosasurfer\debug\ErrorHandler;
 
@@ -72,11 +73,11 @@ class HistorySet extends Object {
      * dieser Funktion fuer dasselbe Symbol desselben Servers geben jeweils eine neue Instanz zurueck, weitere existierende
      * Instanzen werden als ungueltig markiert.
      *
-     * @param  string $symbol          - Symbol der HistorySet-Daten
-     * @param  int    $digits          - Digits der Datenreihe
-     * @param  int    $format          - Speicherformat der Datenreihen:
-     *                                   • 400: MetaTrader <= Build 509
-     *                                   • 401: MetaTrader  > Build 509
+     * @param  string $symbol - Symbol der HistorySet-Daten
+     * @param  int    $digits - Digits der Datenreihe
+     * @param  int    $format - Speicherformat der Datenreihen:
+     *                          400: MetaTrader <= Build 509
+     *                          401: MetaTrader  > Build 509
      * @param  string $serverDirectory - Serververzeichnis der Historydateien des Sets
      */
     private function __construct_1($symbol, $digits, $format, $serverDirectory) {
@@ -166,7 +167,7 @@ class HistorySet extends Object {
         try {
             $this->close();
         }
-        catch (\Exception $ex) {
+        catch (Exception $ex) {
             throw ErrorHandler::handleDestructorException($ex);
         }
     }
@@ -193,11 +194,11 @@ class HistorySet extends Object {
      * dieser Funktion fuer dasselbe Symbol desselben Servers geben jeweils eine neue Instanz zurueck, weitere existierende
      * Instanzen werden als ungueltig markiert.
      *
-     * @param  string $symbol          - Symbol der HistorySet-Daten
-     * @param  int    $digits          - Digits der Datenreihe
-     * @param  int    $format          - Speicherformat der Datenreihen:
-     *                                   • 400: MetaTrader <= Build 509
-     *                                   • 401: MetaTrader  > Build 509
+     * @param  string $symbol - Symbol der HistorySet-Daten
+     * @param  int    $digits - Digits der Datenreihe
+     * @param  int    $format - Speicherformat der Datenreihen:
+     *                          400: MetaTrader <= Build 509
+     *                          401: MetaTrader  > Build 509
      * @param  string $serverDirectory - Serververzeichnis der Historydateien des Sets
      */
     public static function create($symbol, $digits, $format, $serverDirectory) {

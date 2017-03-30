@@ -1,6 +1,7 @@
 <?php
 namespace rosasurfer\trade\myfx;
 
+use \DateTimeZone;
 use rosasurfer\config\Config;
 use rosasurfer\core\StaticClass;
 
@@ -183,7 +184,7 @@ class MyFX extends StaticClass {
 
         static $transitions = null;
         if (!$transitions) {
-            $timezone    = new \DateTimeZone('America/New_York');
+            $timezone    = new DateTimeZone('America/New_York');
             $transitions = $timezone->getTransitions();
         }
 

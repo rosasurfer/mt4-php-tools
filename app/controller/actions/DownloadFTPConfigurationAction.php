@@ -1,6 +1,7 @@
 <?php
 namespace rosasurfer\trade\controller\actions;
 
+use \Exception;
 use rosasurfer\log\Logger;
 
 use rosasurfer\ministruts\Action;
@@ -51,7 +52,7 @@ class DownloadFTPConfigurationAction extends Action {
                 }
                 $request->setActionError('', '404: File not found');
             }
-            catch (\Exception $ex) {
+            catch (Exception $ex) {
                 Logger::log('System not available', L_ERROR, ['exception'=>$ex]);
                 $request->setActionError('', '500: Server error, try again later.');
             }

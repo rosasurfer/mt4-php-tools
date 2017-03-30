@@ -1,6 +1,9 @@
 <?php
 namespace rosasurfer\trade\metatrader;
 
+use \DateTime;
+use \DateTimeZone;
+use \Exception;
 use rosasurfer\core\StaticClass;
 
 use rosasurfer\exception\BusinessRuleException;
@@ -21,7 +24,7 @@ class ImportHelper extends StaticClass {
     /**
      * Importiert die mit der ActionForm uebergebenen Historydaten eines MetaTrader-Accounts.
      *
-     * @param  \UploadAccountHistoryActionForm $form - ActionForm
+     * @param  UploadAccountHistoryActionForm $form - ActionForm
      *
      * @return int - Anzahl der importierten Datensaetze
      */
@@ -116,7 +119,7 @@ class ImportHelper extends StaticClass {
 
             // MT4-Serverzeiten in Forex-Standardzeit (America/New_York+0700) umrechnen
             foreach ([AH_OPENTIME, AH_CLOSETIME] as $time) {
-                $date = new \DateTime(gmDate('Y-m-d H:i:s', $row[$time]), $serverTimezone);
+                $date = new DateTime(gmDate('Y-m-d H:i:s', $row[$time]), $serverTimezone);
                 $date->setTimezone($newYorkTimezone);
                 $date->modify('+7 hours');
                 $row[$time] = $date->format('Y-m-d H:i:s');
@@ -197,7 +200,7 @@ class ImportHelper extends StaticClass {
             $db->rollback();
             throw $ex;
         }
-        catch (\Exception $ex) {
+        catch (Exception $ex) {
             $db->rollback();
             throw new InfrastructureException(null, null, $ex);
         }
