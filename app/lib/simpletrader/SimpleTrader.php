@@ -1,7 +1,6 @@
 <?php
 namespace rosasurfer\trade\simpletrader;
 
-use \Exception;
 use rosasurfer\config\Config;
 use rosasurfer\core\StaticClass;
 
@@ -25,6 +24,8 @@ use rosasurfer\trade\model\Signal;
 
 use rosasurfer\util\Date;
 use rosasurfer\util\PHP;
+
+use \Exception;
 
 
 /**

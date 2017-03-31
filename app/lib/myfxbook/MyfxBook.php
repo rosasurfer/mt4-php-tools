@@ -1,7 +1,6 @@
 <?php
 namespace rosasurfer\trade\myfxbook;
 
-use \DateTime;
 use rosasurfer\config\Config;
 use rosasurfer\core\StaticClass;
 
@@ -14,6 +13,7 @@ use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
 
 use rosasurfer\trade\model\Signal;
+use \DateTime;
 
 
 /**

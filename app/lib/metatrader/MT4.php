@@ -1,7 +1,6 @@
 <?php
 namespace rosasurfer\trade\metatrader;
 
-use \Exception;
 use rosasurfer\config\Config;
 use rosasurfer\core\StaticClass;
 
@@ -11,6 +10,8 @@ use rosasurfer\exception\RuntimeException;
 use rosasurfer\trade\model\ClosedPosition;
 use rosasurfer\trade\model\OpenPosition;
 use rosasurfer\trade\model\Signal;
+
+use \Exception;
 
 use function rosasurfer\strIsNumeric;
 

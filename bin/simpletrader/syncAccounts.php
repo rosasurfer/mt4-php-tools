@@ -6,8 +6,6 @@
  */
 namespace rosasurfer\trade\simpletrader\sync_accounts;
 
-use \Exception;
-
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InfrastructureException;
 use rosasurfer\exception\RuntimeException;
@@ -24,6 +22,8 @@ use rosasurfer\trade\model\metatrader\Account;
 use rosasurfer\trade\myfx\MyFX;
 use rosasurfer\trade\simpletrader\DataNotFoundException;
 use rosasurfer\trade\simpletrader\SimpleTrader;
+
+use \Exception;
 
 require(__DIR__.'/../../app/init.php');
 

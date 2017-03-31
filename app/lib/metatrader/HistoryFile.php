@@ -1,7 +1,6 @@
 <?php
 namespace rosasurfer\trade\metatrader;
 
-use \Exception;
 use rosasurfer\core\Object;
 use rosasurfer\debug\ErrorHandler;
 
@@ -13,6 +12,7 @@ use rosasurfer\exception\RuntimeException;
 use rosasurfer\exception\UnimplementedFeatureException;
 
 use rosasurfer\trade\myfx\MyFX;
+use \Exception;
 
 
 /**

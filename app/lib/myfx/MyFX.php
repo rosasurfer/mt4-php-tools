@@ -1,7 +1,6 @@
 <?php
 namespace rosasurfer\trade\myfx;
 
-use \DateTimeZone;
 use rosasurfer\config\Config;
 use rosasurfer\core\StaticClass;
 
@@ -15,6 +14,7 @@ use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
 
 use rosasurfer\trade\metatrader\MT4;
+use \DateTimeZone;
 
 
 /**

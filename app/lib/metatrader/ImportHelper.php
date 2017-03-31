@@ -1,9 +1,6 @@
 <?php
 namespace rosasurfer\trade\metatrader;
 
-use \DateTime;
-use \DateTimeZone;
-use \Exception;
 use rosasurfer\core\StaticClass;
 
 use rosasurfer\exception\BusinessRuleException;
@@ -13,6 +10,10 @@ use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\trade\controller\forms\UploadAccountHistoryActionForm;
 use rosasurfer\trade\ViewHelper;
 use rosasurfer\trade\model\metatrader\Account;
+
+use \DateTime;
+use \DateTimeZone;
+use \Exception;
 
 
 /**
