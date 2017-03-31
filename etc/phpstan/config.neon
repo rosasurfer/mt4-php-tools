@@ -3,11 +3,11 @@
 #
 # phpstan analyse -a autoload.php -c config.neon -l 0 [--] <directory>
 #
-services:                                                           # loaded and validated before "parameters" 
+services:                                                           # initialized before auto-loading in "parameters" 
 
 parameters:
     autoload_files:
-        - etc/phpstan/functions.php                                 # function stubs for procedural code and PHP extensions
+        - etc/phpstan/function-stubs.php                            # stubs for PHP extensions and procedural code 
 
     fileExtensions:                                                 # additional files to analyse
        #- html                                                      
