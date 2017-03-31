@@ -8,6 +8,8 @@ namespace rosasurfer\trade\metatrader\save_test;
 use rosasurfer\trade\model\Signal;
 use rosasurfer\trade\model\metatrader\Test;
 
+use \SplFileInfo;
+
 require(__DIR__.'/../../app/init.php');
 date_default_timezone_set('GMT');
 
@@ -108,9 +110,9 @@ $message
   Syntax:  $self  [OPTIONS] FILE
 
   Options:  -v  Verbose output.
-                -h  This help screen.
+            -h  This help screen.
 
-  FILE - test config (.ini) or test result (.log) file
+  FILE - test config file ".ini" or test result file ".log" as created by MT4Expander
 
 
 HELP_MESSAGE;
