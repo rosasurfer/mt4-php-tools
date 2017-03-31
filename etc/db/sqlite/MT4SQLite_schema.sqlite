@@ -1,6 +1,6 @@
 /*
 Project     MyFX
-Model       MetaTrader DB
+Model       MetaTrader
 Author      Peter Walther
 Database    SQLite3
 */
@@ -52,17 +52,17 @@ create table t_Test (
    Strategy        text(255)      not null collate nocase,
    ReportingId     integer        not null,
    ReportingSymbol text(11)       not null collate nocase,
-   Symbol          text(11)       not null collate nocase,              -- tested symbol
-   Timeframe       integer        not null,                             -- tested timeframe
+   Symbol          text(11)       not null collate nocase,           -- tested symbol
+   Timeframe       integer        not null,                          -- tested timeframe
    StartTime_fxt   text[datetime] not null,
    EndTime_fxt     text[datetime] not null,
    TickModel       text[enum]     not null collate nocase,
-   Spread          float(2,1)     not null,                             -- in pips
-   Bars            integer        not null,                             -- number of tested bars
-   Ticks           integer        not null,                             -- number of tested ticks
+   Spread          float(2,1)     not null,                          -- in pips
+   Bars            integer        not null,                          -- number of tested bars
+   Ticks           integer        not null,                          -- number of tested ticks
    TradeDirections text[enum]     not null collate nocase,
    VisualMode      integer[bool]  not null,
-   Duration        integer        not null,                             -- test duration in milliseconds
+   Duration        integer        not null,                          -- test duration in milliseconds
    constraint u_reportingsymbol       unique (ReportingSymbol),
    constraint u_strategy_reportingid  unique (Strategy, ReportingId),
    constraint fk_test_tickmodel       foreign key (tickmodel)       references enum_TickModel(Type)      on delete restrict on update cascade,
@@ -93,7 +93,7 @@ create table t_Order (
    CloseTime_fxt text[datetime] not null,
    Commission    float(10,2)    not null,
    Swap          float(10,2)    not null,
-   Profit        float(10,2)    not null,                               -- gross profit
+   Profit        float(10,2)    not null,                            -- gross profit
    MagicNumber   integer,
    Comment       text(27) collate nocase,
    Test_id       integer not null,
