@@ -2,8 +2,8 @@
 /**
  * Project directory layout.
  *
- * These settings are accessible in the main configuration under "app.dir".
- * Relative paths are interpreted as relative to the "root" value. The "root" value itself must be an absolute path.
+ * These settings are accessible in the main configuration under "app.dir". Relative paths are interpreted
+ * relative to the "root" value. The "root" value must be an absolute path.
  */
 return [
     'root'  => dirName(dirName(__DIR__)),
