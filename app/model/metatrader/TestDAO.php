@@ -3,6 +3,11 @@ namespace rosasurfer\trade\model\metatrader;
 
 use rosasurfer\db\orm\DAO;
 
+use rosasurfer\exception\IllegalTypeException;
+use rosasurfer\exception\InvalidArgumentException;
+
+use const rosasurfer\ARRAY_ASSOC;
+
 use const rosasurfer\PHP_TYPE_BOOL;
 use const rosasurfer\PHP_TYPE_FLOAT;
 use const rosasurfer\PHP_TYPE_INT;
@@ -13,8 +18,6 @@ use const rosasurfer\db\orm\BIND_TYPE_STRING;
 use const rosasurfer\db\orm\ID_CREATE;
 use const rosasurfer\db\orm\ID_PRIMARY;
 use const rosasurfer\db\orm\ID_VERSION;
-use rosasurfer\exception\IllegalTypeException;
-use rosasurfer\exception\InvalidArgumentException;
 
 
 /**
@@ -52,7 +55,7 @@ class TestDAO extends DAO {
 
 
     /**
-     * Find the {@link Test} with the specified id.
+     * Find and return the {@link Test} with the specified id.
      *
      * @param  int $id - test id (PK)
      *
@@ -63,8 +66,35 @@ class TestDAO extends DAO {
         if ($id < 1)      throw new InvalidArgumentException('Invalid argument $id: '.$id);
 
         $sql = "select *
-                      from :Test
-                      where id = $id";
+                   from :Test
+                   where id = $id";
         return $this->findOne($sql);
+    }
+
+
+    /**
+     * Find and return all strategy parameters of the specified {@link Test}.
+     *
+     * @param  Test $test
+     *
+     * @return string[]
+     */
+    public function findStrategyParameters(Test $test) {
+        if (!$test->isPersistent()) throw new InvalidArgumentException('Cannot process non-persistent '.get_class($test));
+        $id = $test->getId();
+        $sql = "select *
+                   from t_strategyparameter
+                   where test_id = $id
+                   order by rowid";
+        $result = $this->db()->query($sql);
+
+        $params = [];
+        while ($row = $result->fetchNext(ARRAY_ASSOC)) {
+            $row = array_change_key_case($row, CASE_LOWER);
+            $name  = $row['name' ];
+            $value = $row['value'];
+            $params[] = $name.'='.$value;
+        }
+        return $params;
     }
 }

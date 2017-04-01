@@ -82,12 +82,10 @@ end;
 
 -- StrategyParameters
 create table t_strategyparameter (
-   id      integer   not null,
+   test_id integer   not null,
    name    text(32)  not null collate nocase,
    value   text(255) not null collate nocase,
-   test_id integer   not null,
-   primary key (id),
-   constraint u_test_name               unique (test_id,name),
+   primary key (test_id,name),
    constraint fk_strategyparameter_test foreign key (test_id) references t_test(id) on delete cascade on update cascade
 );
 

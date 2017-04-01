@@ -15,6 +15,8 @@ use rosasurfer\util\Windows;
 
 use \Exception;
 
+use function rosasurfer\strLeft;
+
 
 /**
  * Represents a test executed in the MetaTrader Strategy Tester.
@@ -37,7 +39,7 @@ class Test extends PersistableObject {
     /** @var string - strategy name */
     protected $strategy;
 
-    /** @var string[] - strategy input parameters */
+    /** @var StrategyParameter[] - strategy input parameters */
     protected $strategyParameters;
 
     /** @var int - reporting id (for composition of reportingSymbol) */
@@ -84,30 +86,29 @@ class Test extends PersistableObject {
 
 
     // standard getters
-    public function getId                () { return $this->id;                 }
-    public function getStrategy          () { return $this->strategy;           }
-    public function getStrategyParameters() { return $this->strategyParameters; }
-    public function getReportingId       () { return $this->reportingId;        }
-    public function getReportingSymbol   () { return $this->reportingSymbol;    }
-    public function getSymbol            () { return $this->symbol;             }
-    public function getTimeframe         () { return $this->timeframe;          }
-    public function getStartTime         () { return $this->startTime;          }
-    public function getEndTime           () { return $this->endTime;            }
-    public function getTickModel         () { return $this->tickModel;          }
-    public function getSpread            () { return $this->spread;             }
-    public function getBars              () { return $this->bars;               }
-    public function getTicks             () { return $this->ticks;              }
-    public function getTradeDirections   () { return $this->tradeDirections;    }
-    public function isVisualMode         () { return $this->visualMode;         }
-    public function getDuration          () { return $this->duration;           }
-    public function getTrades            () { return $this->trades ?: [];       }
+    public function getId                () { return $this->id;                       }
+    public function getStrategy          () { return $this->strategy;                 }
+    public function getReportingId       () { return $this->reportingId;              }
+    public function getReportingSymbol   () { return $this->reportingSymbol;          }
+    public function getSymbol            () { return $this->symbol;                   }
+    public function getTimeframe         () { return $this->timeframe;                }
+    public function getStartTime         () { return $this->startTime;                }
+    public function getEndTime           () { return $this->endTime;                  }
+    public function getTickModel         () { return $this->tickModel;                }
+    public function getSpread            () { return $this->spread;                   }
+    public function getBars              () { return $this->bars;                     }
+    public function getTicks             () { return $this->ticks;                    }
+    public function getTradeDirections   () { return $this->tradeDirections;          }
+    public function isVisualMode         () { return $this->visualMode;               }
+    public function getDuration          () { return $this->duration;                 }
+    public function getTrades            () { return $this->trades ?: [];             }
 
 
     /**
      * Create a new Test instance from the provided data files.
      *
-     * @param  string $configFile  - name of the test's configuration file
-     * @param  string $resultsFile - name of the test's results file
+     * @param  string $configFile  - name of the test configuration file
+     * @param  string $resultsFile - name of the test results file
      *
      * @return static
      */
@@ -281,6 +282,22 @@ class Test extends PersistableObject {
         if ($format == 'Y-m-d H:i:s')
             return $this->modified;
         return Date::format($this->modified, $format);
+    }
+
+
+    /**
+     * Return the strategy parameters of the Test.
+     *
+     * @return string[]
+     */
+    public function getStrategyParameters() {
+        if (is_null($this->strategyParameters)) {
+            $this->strategyParameters = [];
+            if ($this->isPersistent()) {
+                $this->strategyParameters = $this->dao()->findStrategyParameters($this);
+            }
+        }
+        return $this->strategyParameters;
     }
 
 
@@ -580,14 +597,30 @@ class Test extends PersistableObject {
      * @return $this
      */
     protected function insert() {
-        $this->db()->begin();
+        $db = $this->db()->begin();
         try {
             parent::insert();
-            foreach ($this->getTrades() as $trade) $trade->save();
-            $this->db()->commit();
+
+            if ($this->strategyParameters) {
+                $id  = $this->id;
+                $sql = "insert into t_strategyparameter (test_id, name, value) values";
+                foreach ($this->strategyParameters as $parameter) {
+                    list($name, $value) = explode('=', $parameter, 2);
+                    $name  = $db->escapeLiteral($name);
+                    $value = $db->escapeLiteral($value);
+                    $sql  .= " ($id, $name, $value),";
+                }
+                $sql = strLeft($sql, -1);
+                $db->execute($sql);
+            }
+
+            foreach ($this->getTrades() as $trade) {
+                $trade->save();
+            }
+            $db->commit();
         }
         catch (Exception $ex) {
-            $this->db()->rollback();
+            $db->rollback();
             throw $ex;
         }
         return $this;
