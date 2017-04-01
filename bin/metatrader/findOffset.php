@@ -74,6 +74,7 @@ if (!is_int($bars)) {
     $allBars = $bars = (int) $bars;
 }
 $barFrom = $barTo = [];
+$iFrom = $iTo = null;
 if (!$bars) {
     $i = -1;                      // Datei enthaelt keine Bars
 }

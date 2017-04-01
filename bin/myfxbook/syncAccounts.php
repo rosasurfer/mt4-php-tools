@@ -272,6 +272,7 @@ function updateDatabase(Signal $signal, array $currentOpenPositions, &$openUpdat
         // (6) bei Aenderungen: formatierter und sortierter Report
         if ($positionChangeStartTimes) {
             global $signalNamePadding;
+            $symbol = null;
             $n = 0;
 
             // (6.1) Positionsaenderungen
@@ -283,6 +284,7 @@ function updateDatabase(Signal $signal, array $currentOpenPositions, &$openUpdat
                 $report = ReportHelper ::getNetPositionHistory($signal, $symbol, $startTime);
                 $oldNetPosition     = 'Flat';
                 $oldNetPositionDone = false;
+                $netPosition        = '';
                 $iFirstNewRow       = 0;
 
                 foreach ($report as $i => $row) {

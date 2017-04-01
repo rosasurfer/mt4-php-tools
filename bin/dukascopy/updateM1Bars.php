@@ -62,6 +62,8 @@ $saveCompressedDukascopyFiles = false;          // ob heruntergeladene Dukascopy
 $saveRawDukascopyFiles        = false;          // ob entpackte Dukascopy-Dateien zwischengespeichert werden sollen
 $saveRawMyFXData              = true;           // ob unkomprimierte MyFX-Historydaten gespeichert werden sollen
 
+$barBuffer = [];
+
 
 // -- Start ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -119,7 +121,7 @@ function updateSymbol($symbol) {
     $startTime -= $startTime % DAY;                                   // 00:00 GMT
 
     global $verbose, $barBuffer;
-    $barBuffer        = null;                                         // Barbuffer zurücksetzen
+    $barBuffer        = [];                                           // Barbuffer zurücksetzen
     $barBuffer['bid'] = [];
     $barBuffer['ask'] = [];
     $barBuffer['avg'] = [];
