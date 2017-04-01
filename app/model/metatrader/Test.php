@@ -104,44 +104,6 @@ class Test extends PersistableObject {
 
 
     /**
-     * Return the creation time of the instance.
-     *
-     * @param  string $format - format as used by date($format, $timestamp)
-     *
-     * @return string - creation time
-     */
-    public function getCreated($format = 'Y-m-d H:i:s')  {
-        if ($format == 'Y-m-d H:i:s')
-            return $this->created;
-        return Date::format($this->created, $format);
-    }
-
-
-    /**
-     * Return the last modification time of the instance.
-     *
-     * @param  string $format - format as used by date($format, $timestamp)
-     *
-     * @return string - last modification time
-     */
-    public function getModified($format = 'Y-m-d H:i:s')  {
-        if ($format == 'Y-m-d H:i:s')
-            return $this->modified;
-        return Date::format($this->modified, $format);
-    }
-
-
-    /**
-     * Return the number of trades of the Test.
-     *
-     * @return int
-     */
-    public function countTrades() {
-        return sizeOf($this->trades);
-    }
-
-
-    /**
      * Create a new Test instance from the provided data files.
      *
      * @param  string $configFile  - name of the test's configuration file
@@ -291,6 +253,44 @@ class Test extends PersistableObject {
         $test->strategyParameters = array_values($params);
 
         return $test;
+    }
+
+
+    /**
+     * Return the creation time of the instance.
+     *
+     * @param  string $format - format as used by date($format, $timestamp)
+     *
+     * @return string - creation time
+     */
+    public function getCreated($format = 'Y-m-d H:i:s')  {
+        if ($format == 'Y-m-d H:i:s')
+            return $this->created;
+        return Date::format($this->created, $format);
+    }
+
+
+    /**
+     * Return the last modification time of the instance.
+     *
+     * @param  string $format - format as used by date($format, $timestamp)
+     *
+     * @return string - last modification time
+     */
+    public function getModified($format = 'Y-m-d H:i:s')  {
+        if ($format == 'Y-m-d H:i:s')
+            return $this->modified;
+        return Date::format($this->modified, $format);
+    }
+
+
+    /**
+     * Return the number of trades of the Test.
+     *
+     * @return int
+     */
+    public function countTrades() {
+        return sizeOf($this->trades);
     }
 
 

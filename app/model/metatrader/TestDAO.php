@@ -41,11 +41,11 @@ class TestDAO extends DAO {
             'timeframe'       => ['timeframe'      , PHP_TYPE_INT   , 0               , 0         ],      // db:int
             'startTime'       => ['starttime_fxt'  , PHP_TYPE_STRING, 0               , 0         ],      // db:text[datetime]
             'endTime'         => ['endtime_fxt'    , PHP_TYPE_STRING, 0               , 0         ],      // db:text[datetime]
-            'tickModel'       => ['tickmodel'      , PHP_TYPE_STRING, 0               , 0         ],      // db:text[enum] references enum_TickModel(Type)
+            'tickModel'       => ['tickmodel'      , PHP_TYPE_STRING, 0               , 0         ],      // db:text[enum] references enum_tickmodel(type)
             'spread'          => ['spread'         , PHP_TYPE_FLOAT , 0               , 0         ],      // db:float
             'bars'            => ['bars'           , PHP_TYPE_INT   , 0               , 0         ],      // db:int
             'ticks'           => ['ticks'          , PHP_TYPE_INT   , 0               , 0         ],      // db:int
-            'tradeDirections' => ['tradedirections', PHP_TYPE_INT   , BIND_TYPE_STRING, 0         ],      // db:text[enum] references enum_TradeDirection(Type)
+            'tradeDirections' => ['tradedirections', PHP_TYPE_INT   , BIND_TYPE_STRING, 0         ],      // db:text[enum] references enum_tradedirection(type)
             'visualMode'      => ['visualmode'     , PHP_TYPE_BOOL  , BIND_TYPE_INT   , 0         ],      // db:int[bool]
             'duration'        => ['duration'       , PHP_TYPE_INT   , 0               , 0         ],      // db:int
     ]];
