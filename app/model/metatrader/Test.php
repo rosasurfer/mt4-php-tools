@@ -39,7 +39,7 @@ class Test extends PersistableObject {
     /** @var string - strategy name */
     protected $strategy;
 
-    /** @var StrategyParameter[] - strategy input parameters */
+    /** @var string[] - strategy input parameters */
     protected $strategyParameters;
 
     /** @var int - reporting id (for composition of reportingSymbol) */
@@ -603,12 +603,12 @@ class Test extends PersistableObject {
 
             if ($this->strategyParameters) {
                 $id  = $this->id;
-                $sql = "insert into t_strategyparameter (test_id, name, value) values";
+                $sql = 'insert into t_strategyparameter (test_id, name, value) values';
                 foreach ($this->strategyParameters as $parameter) {
                     list($name, $value) = explode('=', $parameter, 2);
                     $name  = $db->escapeLiteral($name);
                     $value = $db->escapeLiteral($value);
-                    $sql  .= " ($id, $name, $value),";
+                    $sql  .= ' ('.$id.', '.$name.', '.$value.'),';
                 }
                 $sql = strLeft($sql, -1);
                 $db->execute($sql);

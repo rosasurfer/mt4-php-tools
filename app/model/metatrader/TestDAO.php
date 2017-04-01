@@ -82,16 +82,16 @@ class TestDAO extends DAO {
     public function findStrategyParameters(Test $test) {
         if (!$test->isPersistent()) throw new InvalidArgumentException('Cannot process non-persistent '.get_class($test));
         $id = $test->getId();
-        $sql = "select *
+        $sql = 'select *
                    from t_strategyparameter
-                   where test_id = $id
-                   order by rowid";
+                   where test_id = '.$id.'
+                   order by rowid';
         $result = $this->db()->query($sql);
 
         $params = [];
         while ($row = $result->fetchNext(ARRAY_ASSOC)) {
             $row = array_change_key_case($row, CASE_LOWER);
-            $name  = $row['name' ];
+            $name  = $row['name'];
             $value = $row['value'];
             $params[] = $name.'='.$value;
         }
