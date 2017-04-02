@@ -1,25 +1,36 @@
 #
-# php7 -d memory_limit=128M ../vendor/phpstan/phpstan/bin/phpstan --ansi
+# alias phpstan='php7 -d memory_limit=128M ~/.composer/vendor/phpstan/phpstan/bin/phpstan --ansi'
 #
-# phpstan analyse -a autoload.php -c config.neon -l 0 [--] <directory>
+# phpstan analyse -a autoload.php -c config.neon --level=0 [--] <directory>
 #
-services:                                                           # initialized before auto-loading in "parameters" 
+
+services:                                                           # loaded before auto-loading in "parameters" 
+    -
+        class: rosasurfer\db\orm\phpstan\PersistableObjectDaoReturnType
+        tags:
+            - phpstan.broker.dynamicStaticMethodReturnTypeExtension
+    -
+        class: rosasurfer\core\phpstan\SingletonGetInstanceReturnType
+        tags:
+            - phpstan.broker.dynamicStaticMethodReturnTypeExtension
 
 parameters:
     autoload_files:
-        - etc/phpstan/function-stubs.php                            # stubs for PHP extensions and procedural code 
+        - etc/phpstan/function-stubs.php                            # stubs for PHP extensions and procedural code
+        - etc/vendor/rosasurfer/ministruts/etc/phpstan/function-stubs.php
 
     fileExtensions:                                                 # additional files to analyse
-       #- html                                                      
-       #- phtml                                                     # TODO: Tiles default vars are not recognized 
-                                                                    
-    excludes_analyse:                                               
-        - %currentWorkingDirectory%/etc/vendor/composer/
+       #- html
+       #- phtml                                                     # TODO: Tiles default variables trigger errors 
+
+    excludes_analyse:
+        - etc/vendor/composer/
 
     ignoreErrors:
-        - '#Call to function [a-zA-Z0-9\\_]+\(\) with incorrect case: [a-zA-Z0-9\\_]+.#'
-        - '#Call to (static )?method [a-zA-Z0-9\\:_]+\(\) with incorrect case: [a-zA-Z0-9\\_]+#'        
-        - '#Parameter \$[a-zA-Z0-9_]+ of method [a-zA-Z0-9\\:_]+\(\) has invalid typehint type [a-zA-Z0-9\\_]*\bscalar.#'
+        - '#Call to ((static )?method|function) [^ ]+ with incorrect case:#'                    # PHP is case insensitive
+        - '#(Array \([^ ]+\[\]\)|(Static )?property [^ ]+ \([^ ]+\)) does not accept null\b#i'  # every variable is nullable
+        - '#Parameter [^ ]+ of method [^ ]+ has invalid typehint type ([^ ]+)?\bscalar\b#'      # fixed but not yet released
+        - "#Casting to (bool|int) something that's already (bool|int).#"                        # simply wrong
 
     reportUnmatchedIgnoredErrors: false
     polluteScopeWithLoopInitialAssignments: true
