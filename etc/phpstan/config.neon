@@ -18,6 +18,7 @@ services:                                                           # loaded bef
     -
         class: rosasurfer\core\phpstan\Singleton_GetInstance_ReturnType
         tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
             - phpstan.broker.dynamicStaticMethodReturnTypeExtension
             
 parameters:
