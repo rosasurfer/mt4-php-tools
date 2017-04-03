@@ -6,14 +6,20 @@
 
 services:                                                           # loaded before auto-loading in "parameters" 
     -
-        class: rosasurfer\db\orm\phpstan\PersistableObjectDaoReturnType
+        class: rosasurfer\db\orm\phpstan\PersistableObject_CreateInstance_ReturnType
         tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
             - phpstan.broker.dynamicStaticMethodReturnTypeExtension
     -
-        class: rosasurfer\core\phpstan\SingletonGetInstanceReturnType
+        class: rosasurfer\db\orm\phpstan\PersistableObject_Dao_ReturnType
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+            - phpstan.broker.dynamicStaticMethodReturnTypeExtension
+    -
+        class: rosasurfer\core\phpstan\Singleton_GetInstance_ReturnType
         tags:
             - phpstan.broker.dynamicStaticMethodReturnTypeExtension
-
+            
 parameters:
     autoload_files:
         - etc/phpstan/function-stubs.php                            # stubs for PHP extensions and procedural code
@@ -26,12 +32,15 @@ parameters:
     excludes_analyse:
         - etc/vendor/composer/
 
-    ignoreErrors:
-        - '#Call to ((static )?method|function) [^ ]+ with incorrect case:#'                    # PHP is case insensitive
-        - '#(Array \([^ ]+\[\]\)|(Static )?property [^ ]+ \([^ ]+\)) does not accept null\b#i'  # every variable is nullable
-        - '#Parameter [^ ]+ of method [^ ]+ has invalid typehint type ([^ ]+)?\bscalar\b#'      # fixed but not yet released
-        - "#Casting to (bool|int) something that's already (bool|int).#"                        # simply wrong
-
-    reportUnmatchedIgnoredErrors: false
+    reportUnmatchedIgnoredErrors:           false
     polluteScopeWithLoopInitialAssignments: true
-    polluteCatchScopeWithTryAssignments: true
+    polluteCatchScopeWithTryAssignments:    true
+    
+    ignoreErrors:
+        - '/Call to ((static )?method|function) [^ ]+ with incorrect case:/'                    # seriously?
+        - '/(Array \([^ ]+\[\]\)|(Static )?property [^ ]+ \([^ ]+\)) does not accept null\b/i'  # everything is nullable
+        - "/Casting to (bool|int) something that's already (bool|int)./"                        # simply wrong
+
+        # fixed but not yet released PHPStan bugs 
+        - '/Parameter [^ ]+ of method [^ ]+ has invalid typehint type ([^ ]+)?\bscalar\b/'
+        - '/Parameter #[0-9]+ [^ ]+ of method [^ ]+ expects ([^ ]+)?\bscalar(\|[^|]+)*, (bool|int|float|string|null|([^ ]+)?scalar)(\|(bool|int|float|string|null|([^ ]+)?scalar))* given\b/'
