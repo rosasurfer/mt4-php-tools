@@ -42,8 +42,6 @@ use rosasurfer\trade\myfxbook\MyfxBook;
 use rosasurfer\trade\simpletrader\DataNotFoundException;
 use rosasurfer\trade\simpletrader\SimpleTrader;
 
-use \Exception;
-
 require(__DIR__.'/../../app/init.php');
 
 
@@ -353,7 +351,7 @@ function updateDatabase(Signal $signal, array $currentOpenPositions, &$openUpdat
         // (8) alles speichern
         $db->commit();
     }
-    catch (Exception $ex) {
+    catch (\Exception $ex) {
         $db->rollback();
         throw $ex;
     }

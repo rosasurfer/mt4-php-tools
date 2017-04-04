@@ -7,13 +7,9 @@ use rosasurfer\exception\BusinessRuleException;
 use rosasurfer\exception\InfrastructureException;
 use rosasurfer\exception\InvalidArgumentException;
 
-use rosasurfer\trade\controller\forms\UploadAccountHistoryActionForm;
 use rosasurfer\trade\ViewHelper;
+use rosasurfer\trade\controller\forms\UploadAccountHistoryActionForm;
 use rosasurfer\trade\model\metatrader\Account;
-
-use \DateTime;
-use \DateTimeZone;
-use \Exception;
 
 
 /**
@@ -120,7 +116,7 @@ class ImportHelper extends StaticClass {
 
             // MT4-Serverzeiten in Forex-Standardzeit (America/New_York+0700) umrechnen
             foreach ([AH_OPENTIME, AH_CLOSETIME] as $time) {
-                $date = new DateTime(gmDate('Y-m-d H:i:s', $row[$time]), $serverTimezone);
+                $date = new \DateTime(gmDate('Y-m-d H:i:s', $row[$time]), $serverTimezone);
                 $date->setTimezone($newYorkTimezone);
                 $date->modify('+7 hours');
                 $row[$time] = $date->format('Y-m-d H:i:s');
@@ -201,7 +197,7 @@ class ImportHelper extends StaticClass {
             $db->rollback();
             throw $ex;
         }
-        catch (Exception $ex) {
+        catch (\Exception $ex) {
             $db->rollback();
             throw new InfrastructureException(null, null, $ex);
         }

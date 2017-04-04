@@ -14,7 +14,6 @@ use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
 
 use rosasurfer\trade\metatrader\MT4;
-use \DateTimeZone;
 
 
 /**
@@ -184,7 +183,7 @@ class MyFX extends StaticClass {
 
         static $transitions = null;
         if (!$transitions) {
-            $timezone    = new DateTimeZone('America/New_York');
+            $timezone    = new \DateTimeZone('America/New_York');
             $transitions = $timezone->getTransitions();
         }
 

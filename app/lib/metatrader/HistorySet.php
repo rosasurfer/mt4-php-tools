@@ -14,8 +14,6 @@ use rosasurfer\log\Logger;
 use rosasurfer\trade\metatrader\MT4;
 use rosasurfer\trade\myfx\MyFX;
 
-use \Exception;
-
 
 /**
  * Ein HistorySet zur Verwaltung der MetaTrader-History eines Instruments. Die Formate der einzelnen Dateien
@@ -168,7 +166,7 @@ class HistorySet extends Object {
         try {
             $this->close();
         }
-        catch (Exception $ex) {
+        catch (\Exception $ex) {
             throw ErrorHandler::handleDestructorException($ex);
         }
     }

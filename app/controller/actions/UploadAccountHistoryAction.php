@@ -11,11 +11,11 @@ use rosasurfer\ministruts\ActionForward;
 use rosasurfer\ministruts\Request;
 use rosasurfer\ministruts\Response;
 
+use rosasurfer\trade\metatrader\ImportHelper;
+
 use rosasurfer\util\Date;
 use rosasurfer\util\System;
 
-use rosasurfer\trade\metatrader\ImportHelper;
-use \Exception;
 
 
 /**
@@ -66,7 +66,7 @@ class UploadAccountHistoryAction extends Action {
                     throw $ex;
                 $request->setActionError('', self::$messages[$key]);
             }
-            catch (Exception $ex) {
+            catch (\Exception $ex) {
                 Logger::log('System not available', L_ERROR, ['exception'=>$ex]);
                 $request->setActionError('', '500: Server error, try again later.');    // 500
             }

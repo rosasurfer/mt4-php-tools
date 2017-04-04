@@ -9,9 +9,10 @@ use rosasurfer\ministruts\ActionForward;
 use rosasurfer\ministruts\Request;
 use rosasurfer\ministruts\Response;
 
+use rosasurfer\trade\controller\forms\UploadAccountHistoryActionForm;
 use rosasurfer\trade\myfx\MyFX;
+
 use rosasurfer\util\System;
-use \Exception;
 
 
 /**
@@ -25,6 +26,7 @@ class UploadFTPConfigurationAction extends Action {
      * @return ActionForward
      */
     public function execute(Request $request, Response $response) {
+        /** @var UploadAccountHistoryActionForm $form */
         $form = $this->form;
 
         if ($form->validate()) {
@@ -43,7 +45,7 @@ class UploadFTPConfigurationAction extends Action {
                 echo("200\n");
                 return null;
             }
-            catch (Exception $ex) {
+            catch (\Exception $ex) {
                 Logger::log('System not available', L_ERROR, ['exception'=>$ex]);
                 $request->setActionError('', '500: Server error, try again later.');
             }

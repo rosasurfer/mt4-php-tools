@@ -8,7 +8,6 @@ use rosasurfer\ministruts\ActionForm;
 use rosasurfer\ministruts\Request;
 
 use rosasurfer\trade\Validator;
-use \Exception;
 
 
 /**
@@ -316,7 +315,7 @@ class UploadAccountHistoryActionForm extends ActionForm {
             if (is_file($this->file['tmp_name']))
                 unlink($this->file['tmp_name']);
         }
-        catch (Exception $ex) {
+        catch (\Exception $ex) {
             throw ErrorHandler::handleDestructorException($ex);
         }
     }

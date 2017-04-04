@@ -11,8 +11,6 @@ use rosasurfer\trade\model\ClosedPosition;
 use rosasurfer\trade\model\OpenPosition;
 use rosasurfer\trade\model\Signal;
 
-use \Exception;
-
 use function rosasurfer\strIsNumeric;
 
 
@@ -420,7 +418,7 @@ class MT4 extends StaticClass {
                 }
                 fClose($hFile);
             }
-            catch (Exception $ex) {
+            catch (\Exception $ex) {
                 if (is_resource($hFile)) fClose($hFile);                 // Unter Windows kann die Datei u.U. (versionsabhaengig) nicht im Exception-Handler geloescht werden
             }                                                           // (gesperrt, da das Handle im Exception-Kontext dupliziert wird). Das Handle muss daher innerhalb UND
             if ($ex) {                                                  // ausserhalb des Handlers geschlossen werden, erst dann laesst sich die Datei unter Windows loeschen.
@@ -479,7 +477,7 @@ class MT4 extends StaticClass {
                     }
                     fClose($hFile);
                 }
-                catch (Exception $ex) {
+                catch (\Exception $ex) {
                     if (is_resource($hFile)) fClose($hFile);             // Unter Windows kann die Datei u.U. (versionsabhaengig) nicht im Exception-Handler geloescht werden
                 }                                                        // (gesperrt, da das Handle im Exception-Kontext dupliziert wird). Das Handle muss daher innerhalb UND
                 if ($ex) {                                               // ausserhalb des Handlers geschlossen werden, erst dann laesst sich die Datei unter Windows loeschen.

@@ -12,7 +12,6 @@ use rosasurfer\exception\RuntimeException;
 use rosasurfer\exception\UnimplementedFeatureException;
 
 use rosasurfer\trade\myfx\MyFX;
-use \Exception;
 
 
 /**
@@ -234,7 +233,7 @@ class HistoryFile extends Object {
         try {
             !$this->isClosed() && $this->close();
         }
-        catch (Exception $ex) {
+        catch (\Exception $ex) {
             throw ErrorHandler::handleDestructorException($ex);
         }
     }

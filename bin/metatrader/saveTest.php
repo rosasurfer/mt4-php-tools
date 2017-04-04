@@ -8,8 +8,6 @@ namespace rosasurfer\trade\metatrader\save_test;
 use rosasurfer\trade\model\Signal;
 use rosasurfer\trade\model\metatrader\Test;
 
-use \SplFileInfo;
-
 require(__DIR__.'/../../app/init.php');
 date_default_timezone_set('GMT');
 
@@ -40,7 +38,7 @@ $fileName = array_shift($args);
 !is_file($fileName) && exit(1|echoPre('file not found: "'.$fileName.'"'));
 
 // (1.2) fileName must be a test configuration or a test result file
-$ext = (new SplFileInfo($fileName))->getExtension();
+$ext = (new \SplFileInfo($fileName))->getExtension();
 if ($ext == 'ini') {
     $testConfigFile  = $fileName;
     $testResultsFile = strLeft($fileName, -strLen($ext)).'log';

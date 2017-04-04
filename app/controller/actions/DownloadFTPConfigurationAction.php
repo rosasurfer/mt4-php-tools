@@ -10,7 +10,6 @@ use rosasurfer\ministruts\Response;
 
 use rosasurfer\trade\myfx\MyFX;
 use rosasurfer\util\System;
-use \Exception;
 
 
 /**
@@ -52,7 +51,7 @@ class DownloadFTPConfigurationAction extends Action {
                 }
                 $request->setActionError('', '404: File not found');
             }
-            catch (Exception $ex) {
+            catch (\Exception $ex) {
                 Logger::log('System not available', L_ERROR, ['exception'=>$ex]);
                 $request->setActionError('', '500: Server error, try again later.');
             }

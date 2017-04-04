@@ -13,8 +13,6 @@ use rosasurfer\util\Date;
 use rosasurfer\util\PHP;
 use rosasurfer\util\Windows;
 
-use \Exception;
-
 use function rosasurfer\strLeft;
 
 
@@ -619,7 +617,7 @@ class Test extends PersistableObject {
             }
             $db->commit();
         }
-        catch (Exception $ex) {
+        catch (\Exception $ex) {
             $db->rollback();
             throw $ex;
         }

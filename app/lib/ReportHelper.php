@@ -1,4 +1,4 @@
-<?
+<?php
 namespace rosasurfer\trade;
 
 use rosasurfer\core\Object;

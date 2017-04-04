@@ -13,7 +13,6 @@ use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
 
 use rosasurfer\trade\model\Signal;
-use \DateTime;
 
 
 /**
@@ -123,11 +122,11 @@ class MyfxBook extends StaticClass {
             $history[$i]['ticket'] = $ticket = null;
 
             // OpenTime
-            $date = DateTime::createFromFormat($csvDateFormat.' O', trim($values[I_CSV_OPEN_DATE]).' +0300'); if (!$date) throw new RuntimeException('Unexpected date/time format in data line '.($i+2).' of CSV statement: "'.$values[I_CSV_OPEN_DATE].'" ('.array_shift(DateTime::getLastErrors()['errors']).')');
+            $date = \DateTime::createFromFormat($csvDateFormat.' O', trim($values[I_CSV_OPEN_DATE]).' +0300'); if (!$date) throw new RuntimeException('Unexpected date/time format in data line '.($i+2).' of CSV statement: "'.$values[I_CSV_OPEN_DATE].'" ('.array_shift(\DateTime::getLastErrors()['errors']).')');
             $history[$i]['opentime'] = $openTime = $date->getTimestamp();
 
             // CloseTime
-            $date = DateTime::createFromFormat($csvDateFormat.' O', trim($values[I_CSV_CLOSE_DATE]).' +0300'); if (!$date) throw new RuntimeException('Unexpected date/time format in data line '.($i+2).' of CSV statement: "'.$values[I_CSV_CLOSE_DATE].'" ('.array_shift(DateTime::getLastErrors()['errors']).')');
+            $date = \DateTime::createFromFormat($csvDateFormat.' O', trim($values[I_CSV_CLOSE_DATE]).' +0300'); if (!$date) throw new RuntimeException('Unexpected date/time format in data line '.($i+2).' of CSV statement: "'.$values[I_CSV_CLOSE_DATE].'" ('.array_shift(\DateTime::getLastErrors()['errors']).')');
             if ($openTime > $date->getTimestamp())                                                                         throw new RuntimeException('Illegal open time/close time in data line '.($i+2).' of CSV statement: OpenTime="'.$values[I_CSV_OPEN_DATE].'"  CloseTime="'.$values[I_CSV_CLOSE_DATE].'"');
             $history[$i]['closetime'] = $closeTime= $date->getTimestamp();
 
