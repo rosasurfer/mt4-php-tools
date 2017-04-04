@@ -32,15 +32,16 @@ parameters:
 
     excludes_analyse:
         - etc/vendor/composer/
+        - etc/vendor/rosasurfer/ministruts/src/util/apc/apc.php
 
     reportUnmatchedIgnoredErrors:           false
     polluteScopeWithLoopInitialAssignments: true
     polluteCatchScopeWithTryAssignments:    true
     
     ignoreErrors:
-        - '/Call to ((static )?method|function) [^ ]+ with incorrect case:/'                    # seriously?
-        - '/(Array \([^ ]+\[\]\)|(Static )?property [^ ]+ \([^ ]+\)) does not accept null\b/i'  # everything is nullable
-        - "/Casting to (bool|int) something that's already (bool|int)./"                        # simply wrong
+        - '/Call to ((static )?method|function) [^ ]+ with incorrect case:/'                        # seriously?
+        - '/(Array \([^ ]+\[\]\)|(Static )?property [^ ]+ \([^ ]+\)) does not accept null\b/i'      # everything is nullable
+        - "/Casting to (bool|int|float|string) something that's already (bool|int|float|string)./"  # simply wrong
 
         # fixed but not yet released PHPStan bugs 
         - '/Parameter [^ ]+ of method [^ ]+ has invalid typehint type ([^ ]+)?\bscalar\b/'
