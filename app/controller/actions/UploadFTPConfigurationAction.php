@@ -9,7 +9,7 @@ use rosasurfer\ministruts\ActionForward;
 use rosasurfer\ministruts\Request;
 use rosasurfer\ministruts\Response;
 
-use rosasurfer\trade\controller\forms\UploadAccountHistoryActionForm;
+use rosasurfer\trade\controller\forms\UploadFTPConfigurationActionForm;
 use rosasurfer\trade\myfx\MyFX;
 
 use rosasurfer\util\System;
@@ -26,7 +26,7 @@ class UploadFTPConfigurationAction extends Action {
      * @return ActionForward
      */
     public function execute(Request $request, Response $response) {
-        /** @var UploadAccountHistoryActionForm $form */
+        /** @var UploadFTPConfigurationActionForm $form */
         $form = $this->form;
 
         if ($form->validate()) {

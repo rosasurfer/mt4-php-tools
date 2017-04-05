@@ -10,6 +10,7 @@ use rosasurfer\ministruts\Response;
 
 use rosasurfer\trade\myfx\MyFX;
 use rosasurfer\util\System;
+use rosasurfer\trade\controller\forms\DownloadFTPConfigurationActionForm;
 
 
 /**
@@ -24,6 +25,7 @@ class DownloadFTPConfigurationAction extends Action {
      * @return ActionForward
      */
     public function execute(Request $request, Response $response) {
+        /** @var DownloadFTPConfigurationActionForm $form */
         $form = $this->form;
 
         if ($form->validate()) {
