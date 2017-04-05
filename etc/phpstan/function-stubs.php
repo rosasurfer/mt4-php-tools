@@ -1,32 +1,16 @@
 <?php declare(strict_types=1);
 
-namespace {
-
-    if (!function_exists('pcntl_signal')) {
-        /**
-         * @param  int          $signo
-         * @param  callable|int $handler
-         * @param  bool         $restart_syscalls
-         * @return bool
-         */
-        function pcntl_signal($signo, $handler, $restart_syscalls = null) {}
-
-        /**
-         * @return bool
-         */
-        function pcntl_signal_dispatch() {}
-    }
-}
-
-
 namespace rosasurfer\trade\dukascopy\update_m1_bars {
 
     /**
      * @param  string $symbol
      * @param  int    $day
+     *
      * @return bool
      */
-    function checkHistory($symbol, $day) {}
+    function checkHistory($symbol, $day) {
+        return false;
+    }
 
     /**
      * @param  string $symbol
@@ -35,18 +19,24 @@ namespace rosasurfer\trade\dukascopy\update_m1_bars {
      * @param  bool   $quiet
      * @param  bool   $saveData
      * @param  bool   $saveError
+     *
      * @return string
      */
-    function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $saveError=true) {}
+    function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $saveError=true) {
+        return '';
+    }
 
     /**
      * @param  string $id
      * @param  string $symbol
      * @param  int    $time
      * @param  string $type
+     *
      * @return string
      */
-    function getVar($id, $symbol=null, $time=null, $type=null) {}
+    function getVar($id, $symbol=null, $time=null, $type=null) {
+        return '';
+    }
 
     /**
      * @param  string $message
@@ -57,43 +47,60 @@ namespace rosasurfer\trade\dukascopy\update_m1_bars {
      * @param  string $symbol
      * @param  int    $day
      * @param  string $type
+     *
      * @return bool
      */
-    function loadHistory($symbol, $day, $type) {}
+    function loadHistory($symbol, $day, $type) {
+        return false;
+    }
 
     /**
      * @param  string $symbol
      * @param  int    $day
+     *
      * @return bool
      */
-    function mergeHistory($symbol, $day) {}
+    function mergeHistory($symbol, $day) {
+        return false;
+    }
 
     /**
      * @return bool
      */
-    function processCompressedDukascopyBarData($data, $symbol, $day, $type) {}
+    function processCompressedDukascopyBarData($data, $symbol, $day, $type) {
+        return false;
+    }
 
     /**
      * @return bool
      */
-    function processCompressedDukascopyBarFile($file, $symbol, $day, $type) {}
+    function processCompressedDukascopyBarFile($file, $symbol, $day, $type) {
+        return false;
+    }
 
     /**
      * @return bool
      */
-    function processRawDukascopyBarData($data, $symbol, $day, $type) {}
+    function processRawDukascopyBarData($data, $symbol, $day, $type) {
+        return false;
+    }
 
     /**
      * @return bool
      */
-    function processRawDukascopyBarFile($file, $symbol, $day, $type) {}
+    function processRawDukascopyBarFile($file, $symbol, $day, $type) {
+        return false;
+    }
 
     /**
      * @param  string $symbol
      * @param  int    $day
+     *
      * @return bool
      */
-    function saveBars($symbol, $day) {}
+    function saveBars($symbol, $day) {
+        return false;
+    }
 
     /**
      *
@@ -103,15 +110,21 @@ namespace rosasurfer\trade\dukascopy\update_m1_bars {
     /**
      * @param  string $symbol
      * @param  int    $day
+     *
      * @return bool
      */
-    function updateHistory($symbol, $day) {}
+    function updateHistory($symbol, $day) {
+        return false;
+    }
 
     /**
      * @param  string $symbol
+     *
      * @return bool
      */
-    function updateSymbol($symbol) {}
+    function updateSymbol($symbol) {
+        return false;
+    }
 }
 
 
@@ -119,42 +132,57 @@ namespace rosasurfer\trade\dukascopy\update_tickdata {
 
     /**
      * @param  string $symbol
+     *
      * @return bool
      */
-    function updateSymbol($symbol) {}
+    function updateSymbol($symbol) {
+        return false;
+    }
 
     /**
      * @param  string $symbol
      * @param  int    $gmtHour
      * @param  int    $fxtHour
+     *
      * @return bool
      */
-    function checkHistory($symbol, $gmtHour, $fxtHour) {}
+    function checkHistory($symbol, $gmtHour, $fxtHour) {
+        return false;
+    }
 
     /**
      * @param  string $symbol
      * @param  int    $gmtHour
      * @param  int    $fxtHour
+     *
      * @return bool
      */
-    function updateTicks($symbol, $gmtHour, $fxtHour) {}
+    function updateTicks($symbol, $gmtHour, $fxtHour) {
+        return false;
+    }
 
     /**
      * @param  string $symbol
      * @param  int    $gmtHour
      * @param  int    $fxtHour
+     *
      * @return array
      */
-    function loadTicks($symbol, $gmtHour, $fxtHour) {}
+    function loadTicks($symbol, $gmtHour, $fxtHour) {
+        return [];
+    }
 
     /**
      * @param  string $symbol
      * @param  int    $gmtHour
      * @param  int    $fxtHour
      * @param  array  $ticks
+     *
      * @return bool
      */
-    function saveTicks($symbol, $gmtHour, $fxtHour, array $ticks) {}
+    function saveTicks($symbol, $gmtHour, $fxtHour, array $ticks) {
+        return false;
+    }
 
     /**
      * @param  string $symbol
@@ -163,37 +191,51 @@ namespace rosasurfer\trade\dukascopy\update_tickdata {
      * @param  bool   $quiet
      * @param  bool   $saveData
      * @param  bool   $saveError
+     *
      * @return string
      */
-    function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=false, $saveError=true) {}
+    function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=false, $saveError=true) {
+        return '';
+    }
 
     /**
      * @return array
      */
-    function loadCompressedDukascopyTickFile($file, $symbol, $gmtHour, $fxtHour) {}
+    function loadCompressedDukascopyTickFile($file, $symbol, $gmtHour, $fxtHour) {
+        return [];
+    }
 
     /**
      * @return array
      */
-    function loadCompressedDukascopyTickData($data, $symbol, $gmtHour, $fxtHour) {}
+    function loadCompressedDukascopyTickData($data, $symbol, $gmtHour, $fxtHour) {
+        return [];
+    }
 
     /**
      * @return array
      */
-    function loadRawDukascopyTickFile($file, $symbol, $gmtHour, $fxtHour) {}
+    function loadRawDukascopyTickFile($file, $symbol, $gmtHour, $fxtHour) {
+        return [];
+    }
 
     /**
      * @return array
      */
-    function loadRawDukascopyTickData($data, $symbol, $gmtHour, $fxtHour) {}
+    function loadRawDukascopyTickData($data, $symbol, $gmtHour, $fxtHour) {
+        return [];
+    }
 
     /**
      * @param  string $id
      * @param  string $symbol
      * @param  int    $time
+     *
      * @return string
      */
-    function getVar($id, $symbol=null, $time=null) {}
+    function getVar($id, $symbol=null, $time=null) {
+        return '';
+    }
 
     /**
      * @param  string $message
@@ -206,221 +248,314 @@ namespace rosasurfer\trade\fxi\update_m1_bars {
 
     /**
      * @param  string $index
+     *
      * @return bool
      */
-    function updateIndex($index) {}
+    function updateIndex($index) {
+        return false;
+    }
 
     /**
      * @param  int   $day
      * @param  array $data
+     *
      * @return array
      */
-    function calculateAUDFX6($day, array $data) {}
+    function calculateAUDFX6($day, array $data) {
+        return [];
+    }
 
     /**
      * @param  int   $day
      * @param  array $data
+     *
      * @return array
      */
-    function calculateAUDFX7($day, array $data) {}
+    function calculateAUDFX7($day, array $data) {
+        return [];
+    }
 
     /**
      * @param  int   $day
      * @param  array $data
+     *
      * @return array
      */
-    function calculateAUDLFX($day, array $data) {}
+    function calculateAUDLFX($day, array $data) {
+        return [];
+    }
 
     /**
      * @param  int   $day
      * @param  array $data
+     *
      * @return array
      */
-    function calculateCADFX6($day, array $data) {}
+    function calculateCADFX6($day, array $data) {
+        return [];
+    }
 
     /**
      * @param  int   $day
      * @param  array $data
+     *
      * @return array
      */
-    function calculateCADFX7($day, array $data) {}
+    function calculateCADFX7($day, array $data) {
+        return [];
+    }
 
     /**
      * @param  int   $day
      * @param  array $data
+     *
      * @return array
      */
-    function calculateCADLFX($day, array $data) {}
+    function calculateCADLFX($day, array $data) {
+        return [];
+    }
 
     /**
      * @param  int   $day
      * @param  array $data
+     *
      * @return array
      */
-    function calculateCHFFX6($day, array $data) {}
+    function calculateCHFFX6($day, array $data) {
+        return [];
+    }
 
     /**
      * @param  int   $day
      * @param  array $data
+     *
      * @return array
      */
-    function calculateCHFFX7($day, array $data) {}
+    function calculateCHFFX7($day, array $data) {
+        return [];
+    }
 
     /**
      * @param  int   $day
      * @param  array $data
+     *
      * @return array
      */
-    function calculateCHFLFX($day, array $data) {}
+    function calculateCHFLFX($day, array $data) {
+        return [];
+    }
 
     /**
      * @param  int   $day
      * @param  array $data
+     *
      * @return array
      */
-    function calculateEURFX6($day, array $data) {}
+    function calculateEURFX6($day, array $data) {
+        return [];
+    }
 
     /**
      * @param  int   $day
      * @param  array $data
+     *
      * @return array
      */
-    function calculateEURFX7($day, array $data) {}
+    function calculateEURFX7($day, array $data) {
+        return [];
+    }
 
     /**
      * @param  int   $day
      * @param  array $data
+     *
      * @return array
      */
-    function calculateEURLFX($day, array $data) {}
+    function calculateEURLFX($day, array $data) {
+        return [];
+    }
 
     /**
      * @param  int   $day
      * @param  array $data
+     *
      * @return array
      */
-    function calculateEURX($day, array $data) {}
+    function calculateEURX($day, array $data) {
+        return [];
+    }
 
     /**
      * @param  int   $day
      * @param  array $data
+     *
      * @return array
      */
-    function calculateGBPFX6($day, array $data) {}
+    function calculateGBPFX6($day, array $data) {
+        return [];
+    }
 
     /**
      * @param  int   $day
      * @param  array $data
+     *
      * @return array
      */
-    function calculateGBPFX7($day, array $data) {}
+    function calculateGBPFX7($day, array $data) {
+        return [];
+    }
 
     /**
      * @param  int   $day
      * @param  array $data
+     *
      * @return array
      */
-    function calculateGBPLFX($day, array $data) {}
+    function calculateGBPLFX($day, array $data) {
+        return [];
+    }
 
     /**
      * @param  int   $day
      * @param  array $data
+     *
      * @return array
      */
-    function calculateJPYFX6($day, array $data) {}
+    function calculateJPYFX6($day, array $data) {
+        return [];
+    }
 
     /**
      * @param  int   $day
      * @param  array $data
+     *
      * @return array
      */
-    function calculateJPYFX7($day, array $data) {}
+    function calculateJPYFX7($day, array $data) {
+        return [];
+    }
 
     /**
      * @param  int   $day
      * @param  array $data
+     *
      * @return array
      */
-    function calculateJPYLFX($day, array $data) {}
+    function calculateJPYLFX($day, array $data) {
+        return [];
+    }
 
     /**
      * @param  int   $day
      * @param  array $data
+     *
      * @return array
      */
-    function calculateNOKFX7($day, array $data) {}
+    function calculateNOKFX7($day, array $data) {
+        return [];
+    }
 
     /**
      * @param  int   $day
      * @param  array $data
+     *
      * @return array
      */
-    function calculateNZDFX7($day, array $data) {}
+    function calculateNZDFX7($day, array $data) {
+        return [];
+    }
 
     /**
      * @param  int    $day
      * @param  array  $data
      * @param  string $name
+     *
      * @return array
      */
-    function calculateNZDLFX($day, array $data, $name='NZDLFX') {}
+    function calculateNZDLFX($day, array $data, $name='NZDLFX') {
+        return [];
+    }
 
     /**
      * @param  int   $day
      * @param  array $data
+     *
      * @return array
      */
-    function calculateSEKFX7($day, array $data) {}
+    function calculateSEKFX7($day, array $data) {
+        return [];
+    }
 
     /**
      * @param  int   $day
      * @param  array $data
+     *
      * @return array
      */
-    function calculateSGDFX7($day, array $data) {}
+    function calculateSGDFX7($day, array $data) {
+        return [];
+    }
 
     /**
      * @param  int   $day
      * @param  array $data
+     *
      * @return array
      */
-    function calculateUSDFX6($day, array $data) {}
+    function calculateUSDFX6($day, array $data) {
+        return [];
+    }
 
     /**
      * @param  int   $day
      * @param  array $data
+     *
      * @return array
      */
-    function calculateUSDFX7($day, array $data) {}
+    function calculateUSDFX7($day, array $data) {
+        return [];
+    }
 
     /**
      * @param  int   $day
      * @param  array $data
+     *
      * @return array
      */
-    function calculateUSDLFX($day, array $data) {}
+    function calculateUSDLFX($day, array $data) {
+        return [];
+    }
 
     /**
      * @param  int   $day
      * @param  array $data
+     *
      * @return array
      */
-    function calculateUSDX($day, array $data) {}
+    function calculateUSDX($day, array $data) {
+        return [];
+    }
 
     /**
      * @param  int   $day
      * @param  array $data
+     *
      * @return array
      */
-    function calculateZARFX7($day, array $data) {}
+    function calculateZARFX7($day, array $data) {
+        return [];
+    }
 
     /**
      * @param  string $symbol
      * @param  int    $day
      * @param  array  $bars
+     *
      * @return bool
      */
-    function saveBars($symbol, $day, array $bars) {}
+    function saveBars($symbol, $day, array $bars) {
+        return false;
+    }
 
     /**
      * @param  array $bars
@@ -431,9 +566,12 @@ namespace rosasurfer\trade\fxi\update_m1_bars {
      * @param  string $id
      * @param  string $symbol
      * @param  int    $time
+     *
      * @return string
      */
-    function getVar($id, $symbol=null, $time=null) {}
+    function getVar($id, $symbol=null, $time=null) {
+        return '';
+    }
 
     /**
      * @param  string $message
@@ -465,17 +603,23 @@ namespace rosasurfer\trade\metatrader\create_history {
 
     /**
      * @param  string $symbol
+     *
      * @return bool
      */
-    function createHistory($symbol) {}
+    function createHistory($symbol) {
+        return false;
+    }
 
     /**
      * @param  string $id
      * @param  string $symbol
      * @param  int    $time
+     *
      * @return string
      */
-    function getVar($id, $symbol=null, $time=null) {}
+    function getVar($id, $symbol=null, $time=null) {
+        return '';
+    }
 
     /**
      * @param  string $message
@@ -524,16 +668,22 @@ namespace rosasurfer\trade\metatrader\list_symbols {
      * @param  array &$fields
      * @param  array &$data
      * @param  array  $options
+     *
      * @return bool
      */
-    function collectData($file, array &$fields, array &$data, array $options) {}
+    function collectData($file, array &$fields, array &$data, array $options) {
+        return false;
+    }
 
     /**
      * @param  string $fileA
      * @param  string $fileB
+     *
      * @return int
      */
-    function compareFileNames($fileA, $fileB) {}
+    function compareFileNames($fileA, $fileB) {
+        return 0;
+    }
 
     /**
      * @param  string $message
@@ -545,9 +695,12 @@ namespace rosasurfer\trade\metatrader\list_symbols {
      * @param  array    $fields
      * @param  array    $data
      * @param  array    $options
+     *
      * @return bool
      */
-    function printData(array $files, array $fields, array $data, array $options) {}
+    function printData(array $files, array $fields, array $data, array $options) {
+        return false;
+    }
 }
 
 
@@ -561,7 +714,9 @@ namespace rosasurfer\trade\metatrader\save_test {
     /**
      * @return bool
      */
-    function processTestFiles() {}
+    function processTestFiles() {
+        return false;
+    }
 }
 
 
@@ -574,9 +729,12 @@ namespace rosasurfer\trade\metatrader\update_history {
 
     /**
      * @param  string $symbol
+     *
      * @return bool
      */
-    function updateHistory($symbol) {}
+    function updateHistory($symbol) {
+        return false;
+    }
 }
 
 
@@ -591,9 +749,12 @@ namespace rosasurfer\trade\myfxbook\sync_accounts {
 
     /**
      * @param  string $alias
+     *
      * @return bool
      */
-    function processAccounts($alias) {}
+    function processAccounts($alias) {
+        return false;
+    }
 
     /**
      * @param  Signal $signal
@@ -602,9 +763,12 @@ namespace rosasurfer\trade\myfxbook\sync_accounts {
      * @param  array  $currentHistory
      * @param  bool   $closedUpdates
      * @param  bool   $isFullHistory
+     *
      * @return bool
      */
-    function updateDatabase(Signal $signal, array $currentOpenPositions, &$openUpdates, array $currentHistory, &$closedUpdates, $isFullHistory) {}
+    function updateDatabase(Signal $signal, array $currentOpenPositions, &$openUpdates, array $currentHistory, &$closedUpdates, $isFullHistory) {
+        return false;
+    }
 }
 
 
@@ -620,9 +784,12 @@ namespace rosasurfer\trade\simpletrader\sync_accounts {
     /**
      * @param  string $alias
      * @param  bool   $fileSyncOnly
+     *
      * @return bool
      */
-    function processSignal($alias, $fileSyncOnly) {}
+    function processSignal($alias, $fileSyncOnly) {
+        return false;
+    }
 
     /**
      * @param  Signal $signal
@@ -631,7 +798,10 @@ namespace rosasurfer\trade\simpletrader\sync_accounts {
      * @param  array  $currentHistory
      * @param  bool  &$closedUpdates
      * @param  bool   $fullHistory
+     *
      * @return bool
      */
-    function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpdates, array &$currentHistory, &$closedUpdates, $fullHistory) {}
+    function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpdates, array &$currentHistory, &$closedUpdates, $fullHistory) {
+        return false;
+    }
 }
