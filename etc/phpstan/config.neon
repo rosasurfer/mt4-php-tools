@@ -6,6 +6,18 @@
 
 services:                                                           # loaded before auto-loading in "parameters" 
     -
+        class: rosasurfer\db\orm\phpstan\DAO_FindAll_ReturnType
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+    -
+        class: rosasurfer\db\orm\phpstan\DAO_FindOne_ReturnType
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+    -
+        class: rosasurfer\db\orm\phpstan\DAO_Refresh_ReturnType
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+    -
         class: rosasurfer\db\orm\phpstan\PersistableObject_CreateInstance_ReturnType
         tags:
             - phpstan.broker.dynamicMethodReturnTypeExtension
@@ -46,3 +58,6 @@ parameters:
         # fixed but not yet released PHPStan bugs 
         - '/Parameter [^ ]+ of method [^ ]+ has invalid typehint type ([^ ]+)?\bscalar\b/'
         - '/Parameter #[0-9]+ [^ ]+ of method [^ ]+ expects ([^ ]+)?\bscalar(\|[^|]+)*, (bool|int|float|string|null|([^ ]+)?scalar)(\|(bool|int|float|string|null|([^ ]+)?scalar))* given\b/'
+
+        # unfixed PHPStan bugs 
+        - '/Method DateTimeZone::getTransitions\(\) invoked with 0 parameters, 2 required./'
