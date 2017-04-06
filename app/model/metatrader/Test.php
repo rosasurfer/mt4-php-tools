@@ -293,7 +293,9 @@ class Test extends PersistableObject {
         if (is_null($this->strategyParameters)) {
             $this->strategyParameters = [];
             if ($this->isPersistent()) {
-                $this->strategyParameters = $this->dao()->findStrategyParameters($this);
+                /** @var TestDAO $dao */
+                $testDao = $this->dao();
+                $this->strategyParameters = $testDao->findStrategyParameters($this);
             }
         }
         return $this->strategyParameters;

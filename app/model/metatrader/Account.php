@@ -2,8 +2,6 @@
 namespace rosasurfer\trade\model\metatrader;
 
 use rosasurfer\db\orm\PersistableObject;
-
-use rosasurfer\exception\ConcurrentModificationException;
 use rosasurfer\exception\IllegalTypeException;
 
 use rosasurfer\util\Date;
@@ -210,40 +208,5 @@ class Account extends PersistableObject {
             case 'straighthold investment group, inc.': return 'Straighthold Investment';
         }
         return $name;
-    }
-
-
-    /**
-     * Aktualisiert diese Instanz in der Datenbank.
-     *
-     * @return $this
-     */
-    protected function update() {
-        $dao = self::dao();
-
-        $id                  = $this->id;
-        $version             = $this->version;
-        $oldVersion          = $dao->escapeLiteral($this->version);
-        $newVersion          = $dao->escapeLiteral($this->touch());
-
-        $lastreportedbalance = $this->lastReportedBalance === null ? 'null' : $this->lastReportedBalance;
-        $mtiaccount_id       = $dao->escapeLiteral($this->mtiAccountId);
-
-        // Account updaten
-        $sql = "update :Account
-                   set lastreportedbalance = $lastreportedbalance,
-                       mtiaccount_id       = $mtiaccount_id,
-                       version             = $newVersion
-                   where id      = $id
-                     and version = $oldVersion";
-        if ($dao->execute($sql)->db()->lastAffectedRows() != 1) {
-            $this->version = $version;
-            $found = $dao->refresh($this);
-            throw new ConcurrentModificationException('Error updating '.__CLASS__.' ('.$id.'), expected version: '.$oldVersion.', found version: "'.$found->getVersion().'"');
-        }
-
-        $this->_modifications = null;
-        $this->_modified      = false;
-        return $this;
     }
 }

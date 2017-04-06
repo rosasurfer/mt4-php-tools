@@ -14,12 +14,19 @@ use rosasurfer\log\Logger;
 use rosasurfer\util\Date;
 
 use rosasurfer\trade\ReportHelper;
+
 use rosasurfer\trade\metatrader\MT4;
+
 use rosasurfer\trade\model\ClosedPosition;
+use rosasurfer\trade\model\ClosedPositionDAO;
 use rosasurfer\trade\model\OpenPosition;
+use rosasurfer\trade\model\OpenPositionDAO;
 use rosasurfer\trade\model\Signal;
+use rosasurfer\trade\model\SignalDAO;
+
 use rosasurfer\trade\model\metatrader\Account;
 use rosasurfer\trade\myfx\MyFX;
+
 use rosasurfer\trade\simpletrader\DataNotFoundException;
 use rosasurfer\trade\simpletrader\SimpleTrader;
 
@@ -93,15 +100,19 @@ function processSignal($alias, $fileSyncOnly) {
     if (!is_string($alias))      throw new IllegalTypeException('Illegal type of parameter $alias: '.getType($alias));
     if (!is_bool($fileSyncOnly)) throw new IllegalTypeException('Illegal type of parameter $fileSyncOnly: '.getType($fileSyncOnly));
 
+    /** @var SignalDAO $signalDao */
+    $signalDao = Signal::dao();
+
     // if the wildcard "*" is specified recursively process all active accounts
     if ($alias == '*') {
         $me = __FUNCTION__;
-        foreach (Signal::dao()->listActiveSimpleTrader() as $signal)
+        foreach ($signalDao->listActiveSimpleTrader() as $signal) {
             $me($signal->getAlias(), $fileSyncOnly);
+        }
         return true;
     }
 
-    $signal = Signal::dao()->getByProviderAndAlias($provider='simpletrader', $alias);
+    $signal = $signalDao->getByProviderAndAlias($provider='simpletrader', $alias);
     if (!$signal) return _false(echoPre('Invalid or unknown signal: "'.$provider.':'.$alias.'"'));
 
     global $signalNamePadding;                               // output formatting: whether or not the last function call
@@ -184,6 +195,13 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
     $lastKnownChangeTimes     = [];
     $modifications            = [];
 
+    /** @var OpenPositionDAO $openPositionDao */
+    $openPositionDao = OpenPosition::dao();
+    /** @var ClosedPositionDAO $closedPositionDao */
+    $closedPositionDao = ClosedPosition::dao();
+    /** @var SignalDAO $signalDao */
+    $signalDao = Signal::dao();
+
     $db = Signal::db();
     $db->begin();
     try {
@@ -192,7 +210,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
             foreach ($currentHistory as $data) {
                 if (!$data) continue;                                    // Datensaetze uebersprungener Zeilen koennen leer sein.
                 $ticket = $data['ticket'];
-                if (!ClosedPosition::dao()->isTicket($signal, $ticket))
+                if (!$closedPositionDao->isTicket($signal, $ticket))
                     throw new DataNotFoundException('Closed position #'.$ticket.' not found locally');
                 break;
             }
@@ -200,7 +218,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
 
 
         // (2) lokalen Stand der offenen Positionen holen
-        $knownOpenPositions = OpenPosition::dao()->listBySignal($signal, $assocTicket=true);
+        $knownOpenPositions = $openPositionDao->listBySignal($signal, $assocTicket=true);
 
 
         // (3) offene Positionen abgleichen
@@ -211,7 +229,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
             if (!isSet($knownOpenPositions[$sTicket])) {
                 // (3.1) neue offene Position
                 if (!isSet($positionChangeStartTimes[$data['symbol']]))
-                    $lastKnownChangeTimes[$data['symbol']] = Signal::dao()->getLastKnownPositionChangeTime($signal, $data['symbol']);
+                    $lastKnownChangeTimes[$data['symbol']] = $signalDao->getLastKnownPositionChangeTime($signal, $data['symbol']);
 
                 $position = OpenPosition::create($signal, $data)->save();
                 $symbol   = $position->getSymbol();
@@ -251,12 +269,12 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
             if ($formerOpenPositions) {
                 $sTicket = (string) $ticket;
                 if (isSet($formerOpenPositions[$sTicket])) {
-                    $openPosition = OpenPosition::dao()->getByTicket($signal, $ticket);
+                    $openPosition = $openPositionDao->getByTicket($signal, $ticket);
                     unset($formerOpenPositions[$sTicket]);
                 }
             }
 
-            if (!$openPosition && ClosedPosition::dao()->isTicket($signal, $ticket)) {
+            if (!$openPosition && $closedPositionDao->isTicket($signal, $ticket)) {
                 $matchingPositions++;
                 if ($matchingPositions >= 3 && !$formerOpenPositions)    // Nach Uebereinstimmung von 3 Datensaetzen wird abgebrochen.
                     break;
@@ -264,7 +282,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
             }
 
             if (!isSet($positionChangeStartTimes[$data['symbol']]))
-                $lastKnownChangeTimes[$data['symbol']] = Signal::dao()->getLastKnownPositionChangeTime($signal, $data['symbol']);
+                $lastKnownChangeTimes[$data['symbol']] = $signalDao->getLastKnownPositionChangeTime($signal, $data['symbol']);
 
             // Position in t_closedposition einfuegen
             if ($openPosition) {

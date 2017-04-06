@@ -12,6 +12,8 @@ use rosasurfer\trade\model\OpenPosition;
 use rosasurfer\trade\model\Signal;
 
 use function rosasurfer\strIsNumeric;
+use rosasurfer\trade\model\OpenPositionDAO;
+use rosasurfer\trade\model\ClosedPositionDAO;
 
 
 /**
@@ -380,10 +382,14 @@ class MT4 extends StaticClass {
         $isOpenFile     = is_file($openFileName);
         $isClosedFile   = is_file($closedFileName);
 
+        /** @var OpenPositionDAO $openPositionDao */
+        $openPositionDao   = OpenPosition::dao();
+        /** @var ClosedPositionDAO $closedPositionDao */
+        $closedPositionDao = ClosedPosition::dao();
 
         // (3) Open-Datei neu schreiben, wenn die offenen Positionen modifiziert wurden oder die Datei nicht existiert
         if ($openUpdates || !$isOpenFile) {
-            $positions = OpenPosition::dao()->listBySignal($signal);   // aufsteigend sortiert nach {OpenTime,Ticket}
+            $positions = $openPositionDao->listBySignal($signal);   // aufsteigend sortiert nach {OpenTime,Ticket}
 
             // Datei schreiben
             mkDirWritable(dirName($openFileName), 0755);
@@ -439,7 +445,7 @@ class MT4 extends StaticClass {
             }
             else {
                 // (4.2) History-Datei komplett neuschreiben
-                $positions = ClosedPosition::dao()->listBySignal($signal); // aufsteigend sortiert nach {CloseTime,OpenTime,Ticket}
+                $positions = $closedPositionDao->listBySignal($signal); // aufsteigend sortiert nach {CloseTime,OpenTime,Ticket}
 
                 // Datei schreiben
                 mkDirWritable(dirName($closedFileName), 0755);

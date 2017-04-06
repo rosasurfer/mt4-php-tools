@@ -314,8 +314,11 @@ class ClosedPosition extends PersistableObject {
      * @return Signal
      */
     public function getSignal() {
-        if ($this->signal === null)
-            $this->signal = Signal::dao()->getById($this->signal_id);
+        if ($this->signal === null) {
+            /** @var SignalDAO $signalDao */
+            $signalDao = Signal::dao();
+            $this->signal = $signalDao->getById($this->signal_id);
+        }
         return $this->signal;
     }
 }

@@ -3,7 +3,6 @@ namespace rosasurfer\trade\model;
 
 use rosasurfer\db\orm\PersistableObject;
 
-use rosasurfer\exception\ConcurrentModificationException;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 
@@ -250,66 +249,12 @@ class OpenPosition extends PersistableObject {
      * @return Signal
      */
     public function getSignal() {
-        if ($this->signal === null)
-            $this->signal = Signal::dao()->getById($this->signal_id);
-        return $this->signal;
-    }
-
-
-    /**
-     * Aktualisiert diese Instanz in der Datenbank.
-     *
-     * @return $this
-     */
-    protected function update() {
-        $dao = self::dao();
-
-        $id          =                     $this->id;
-        $version     =                     $this->version;
-        $oldVersion  = $dao->escapeLiteral($this->version);
-        $newVersion  = $dao->escapeLiteral($this->touch());
-
-        $ticket      =                     $this->ticket;
-        $type        = $dao->escapeLiteral($this->type);
-        $lots        =                     $this->lots;
-        $symbol      = $dao->escapeLiteral($this->symbol);
-        $opentime    = $dao->escapeLiteral($this->openTime);
-        $openprice   =                     $this->openPrice;
-        $stoploss    = $dao->escapeLiteral($this->stopLoss);
-        $takeprofit  = $dao->escapeLiteral($this->takeProfit);
-        $commission  = $dao->escapeLiteral($this->commission);
-        $swap        = $dao->escapeLiteral($this->swap);
-        $magicnumber = $dao->escapeLiteral($this->magicNumber);
-        $comment     = $dao->escapeLiteral($this->comment);
-        $signal_id   =                     $this->signal_id;
-
-        // OpenPosition updaten
-        $sql = "update :OpenPosition
-                   set ticket      = $ticket,
-                       type        = $type,
-                       lots        = $lots,
-                       symbol      = $symbol,
-                       opentime    = $opentime,
-                       openprice   = $openprice,
-                       stoploss    = $stoploss,
-                       takeprofit  = $takeprofit,
-                       commission  = $commission,
-                       swap        = $swap,
-                       magicnumber = $magicnumber,
-                       comment     = $comment,
-                       version     = $newVersion
-                   where id      = $id
-                     and version = $oldVersion";
-
-        if ($dao->execute($sql)->db()->lastAffectedRows() != 1) {
-            $this->version = $version;
-            $found = $dao->refresh($this);
-            throw new ConcurrentModificationException('Error updating '.__CLASS__.' (ticket='.$this->ticket.'), expected version: '.$oldVersion.', found version: '.$found->getObjectVersion());
+        if ($this->signal === null) {
+            /** @var SignalDAO $signalDao */
+            $signalDao = Signal::dao();
+            $this->signal = $signalDao->getById($this->signal_id);
         }
-
-        $this->_modifications = null;
-        $this->_modified      = false;
-        return $this;
+        return $this->signal;
     }
 
 
