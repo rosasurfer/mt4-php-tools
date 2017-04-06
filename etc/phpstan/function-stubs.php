@@ -166,10 +166,10 @@ namespace rosasurfer\trade\dukascopy\update_tickdata {
      * @param  int    $gmtHour
      * @param  int    $fxtHour
      *
-     * @return array
+     * @return array[]|bool
      */
     function loadTicks($symbol, $gmtHour, $fxtHour) {
-        return [];
+        return false;
     }
 
     /**
@@ -199,31 +199,31 @@ namespace rosasurfer\trade\dukascopy\update_tickdata {
     }
 
     /**
-     * @return array
+     * @return array[]
      */
     function loadCompressedDukascopyTickFile($file, $symbol, $gmtHour, $fxtHour) {
-        return [];
+        return [[]];
     }
 
     /**
-     * @return array
+     * @return array[]
      */
     function loadCompressedDukascopyTickData($data, $symbol, $gmtHour, $fxtHour) {
-        return [];
+        return [[]];
     }
 
     /**
-     * @return array
+     * @return array[]
      */
     function loadRawDukascopyTickFile($file, $symbol, $gmtHour, $fxtHour) {
-        return [];
+        return [[]];
     }
 
     /**
-     * @return array
+     * @return array[]
      */
     function loadRawDukascopyTickData($data, $symbol, $gmtHour, $fxtHour) {
-        return [];
+        return [[]];
     }
 
     /**

@@ -51,13 +51,17 @@ parameters:
     polluteCatchScopeWithTryAssignments:    true
     
     ignoreErrors:
-        - '/Call to ((static )?method|function) [^ ]+ with incorrect case:/'                        # seriously?
-        - '/(Array \([^ ]+\[\]\)|(Static )?property [^ ]+ \([^ ]+\)) does not accept null\b/i'      # everything is nullable
-        - "/Casting to (bool|int|float|string) something that's already (bool|int|float|string)./"  # simply wrong
+        - '/Call to ((static )?method|function) [^ ]+ with incorrect case:/'                            # seriously?
+        - '/(Array \([^ ]+\[\]\)|(Static )?property [^ ]+ \(([^ ]+)\)) does not accept (\3\|)?null\b/i' # everything is nullable
+        - "/Casting to (bool|int|float|string) something that's already (bool|int|float|string)./"      # simply wrong
 
         # fixed but not yet released PHPStan bugs 
         - '/Parameter [^ ]+ of method [^ ]+ has invalid typehint type ([^ ]+)?\bscalar\b/'
         - '/Parameter #[0-9]+ [^ ]+ of method [^ ]+ expects ([^ ]+)?\bscalar(\|[^|]+)*, (bool|int|float|string|null|([^ ]+)?scalar)(\|(bool|int|float|string|null|([^ ]+)?scalar))* given\b/'
+        - '/Property rosasurfer\\trade\\model\\metatrader\\Test::\$strategyParameters \(null\) does not accept mixed\[\]./'
+        - '/Property rosasurfer\\trade\\model\\metatrader\\Test::\$strategyParameters \(null\) does not accept string\[\]./'
 
         # unfixed PHPStan bugs 
+        - '/Function fxtTime\(\) should return int but returns int\|mixed\|null./'
         - '/Method DateTimeZone::getTransitions\(\) invoked with 0 parameters, 2 required./'
+        - '/Property rosasurfer\\trade\\model\\metatrader\\Test::\$visualMode \(bool\) does not accept bool\|mixed./'
