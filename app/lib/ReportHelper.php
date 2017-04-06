@@ -51,10 +51,10 @@ class ReportHelper extends Object {
         $symbol    = $db->escapeLiteral($symbol);
 
         // SQL-Variablen definieren
-        $db->execute("set @change = 0.0")
-            ->execute("set @total  = 0.0")
-            ->execute("set @long   = 0.0")
-            ->execute("set @short  = 0.0");
+        $db->execute('set @change = 0.0')
+           ->execute('set @total  = 0.0')
+           ->execute('set @long   = 0.0')
+           ->execute('set @short  = 0.0');
 
         // Report erstellen
         $sql = "select r.time,
@@ -80,7 +80,7 @@ class ReportHelper extends Object {
                                         @short :=round(@short+if(type='sell', @change, 0), 2)           as 'short',
                                         round(least(@long, -@short), 2)                                 as 'hedged',
                                         @total :=round(@total+@change, 2)                               as 'total'
-                                  from ((select o.ticket,                             -- alle Open-Deals der zur Zeit offenen Positionen
+                                  from ((select o.ticket,                               -- alle Open-Deals der zur Zeit offenen Positionen
                                                      o.opentime  as 'time',
                                                      o.type,
                                                      o.lots,
@@ -88,8 +88,8 @@ class ReportHelper extends Object {
                                                      'open'      as 'trade',
                                                      o.openprice as 'price'
                                               from t_openposition o
-                                              where o.signal_id = $signal_id
-                                                 and o.symbol    = $symbol)
+                                              where o.signal_id = ".$signal_id."
+                                                 and o.symbol    = ".$symbol.")
 
                                           union all
                                           (select c.ticket,                             -- alle Open-Deals der ab dem angegebenen Zeitpunkt geschlossenen Positionen
@@ -100,9 +100,9 @@ class ReportHelper extends Object {
                                                      'open',
                                                      c.openprice
                                               from t_closedposition c
-                                              where c.signal_id = $signal_id
-                                                 and c.symbol    = $symbol
-                                                 and c.closetime >= '$starttime')
+                                              where c.signal_id = ".$signal_id."
+                                                 and c.symbol    = ".$symbol."
+                                                 and c.closetime >= '".$starttime."')
 
                                           union all
                                           (select c.ticket,                             -- alle Close-Deals ab dem angegebenen Zeitpunkt
@@ -113,9 +113,9 @@ class ReportHelper extends Object {
                                                      'close',
                                                      c.closeprice
                                               from t_closedposition c
-                                              where c.signal_id = $signal_id
-                                                 and c.symbol    = $symbol
-                                                 and c.closetime >= '$starttime')
+                                              where c.signal_id = ".$signal_id."
+                                                 and c.symbol    = ".$symbol."
+                                                 and c.closetime >= '".$starttime."')
                                           ) as ri
                                   order by time, ticket
                       ) as r";
