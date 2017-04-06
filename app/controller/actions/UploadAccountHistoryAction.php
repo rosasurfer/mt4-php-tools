@@ -31,9 +31,7 @@ class UploadAccountHistoryAction extends Action {
 
 
     /**
-     * Fuehrt die Action aus.
-     *
-     * @return ActionForward
+     * {@inheritdoc}
      */
     public function execute(Request $request, Response $response) {
         if ($request->isPost())
@@ -46,7 +44,7 @@ class UploadAccountHistoryAction extends Action {
     /**
      * Verarbeitet einen POST-Request.
      *
-     * @return ActionForward
+     * @return ActionForward|string|null
      */
     public function onPost(Request $request, Response $response) {
         $form = $this->form;

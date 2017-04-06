@@ -103,7 +103,7 @@ class HistorySet extends Object {
         // alle HistoryFiles zuruecksetzen
         foreach ($this->historyFiles as $timeframe => &$file) {
             $file = new HistoryFile($symbol, $timeframe, $digits, $format, $serverDirectory);
-        } unset($file);
+        }; unset($file);
 
         // Instanz speichern
         self::$instances[] = $this;
@@ -149,7 +149,7 @@ class HistorySet extends Object {
                     if ($file->getDigits() != $this->getDigits()) throw new RuntimeException('Digits mis-match in "'.$fileName.'": file.digits='.$file->getDigits().' instead of set.digits='.$this->getDigits());
                 }
             }
-        } unset($file);
+        }; unset($file);
 
         self::$instances[] = $this;
     }

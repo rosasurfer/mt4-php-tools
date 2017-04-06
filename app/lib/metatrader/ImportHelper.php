@@ -37,7 +37,7 @@ class ImportHelper extends StaticClass {
         foreach ($data as &$row) {
             if      ($row[AH_TYPE]==OP_BUY || $row[AH_TYPE]==OP_SELL || $row[AH_TYPE]==OP_BALANCE) $transactions[] =& $row;
             else if ($row[AH_TYPE]==OP_CREDIT)                                                     $credits     [] =& $row;
-        }
+        }; unset($row);
 
         // (1.1) Transaktionen sortieren (by CloseTime ASC, OpenTime ASC, Ticket ASC)
         foreach ($transactions as $i => $row) {
@@ -99,7 +99,7 @@ class ImportHelper extends StaticClass {
                     continue;
             }
             if ($row[AH_OPENTIME] >= $row[AH_CLOSETIME]) throw new InvalidArgumentException('ticket #'.$row[AH_TICKET].' - illegal order times: open = "'.gmDate('Y.m.d H:i:s', $row[AH_OPENTIME]).'", close = "'.gmDate('Y.m.d H:i:s', $row[AH_CLOSETIME]).'"');
-        } unset($row);
+        }; unset($row);
 
         // (1.3) Transaktionen fuer SQL-Import formatieren und in die hochgeladene Datei zurueckschreiben
         $accountId       = $account->getId();
@@ -122,7 +122,7 @@ class ImportHelper extends StaticClass {
                 $row[$time] = $date->format('Y-m-d H:i:s');
             }
             fWrite($hFile, $accountId."\t".join("\t", $row)."\n");
-        }
+        }; unset($row);
         fClose($hFile);
 
         // (1.4) Transaktionen importieren

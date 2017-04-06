@@ -87,10 +87,10 @@ class SimpleTrader extends StaticClass {
 
         // Cookies in der angegebenen Datei verwenden
         $cookieFile = dirName(realPath($_SERVER['PHP_SELF'])).DIRECTORY_SEPARATOR.'cookies.txt';
+        $options = [];
         $options[CURLOPT_COOKIEFILE    ] = $cookieFile;                   // read cookies from
         $options[CURLOPT_COOKIEJAR     ] = $cookieFile;                   // write cookies to
         $options[CURLOPT_SSL_VERIFYPEER] = false;                         // das SimpleTrader-SSL-Zertifikat ist evt. ungueltig
-
 
         // TODO: Bei einem Netzwerkausfall am Server muss das Script weiterlaufen und seine Arbeit bei Rueckkehr des Netzwerkes fortsetzen.
 
@@ -143,7 +143,7 @@ class SimpleTrader extends StaticClass {
      * @param  array  &$openTrades - Array zur Aufnahme der offenen Positionen
      * @param  array  &$history    - Array zur Aufnahme der Signalhistory
      *
-     * @return string - NULL oder Fehlermeldung, falls ein Fehler auftrat
+     * @return string|null - NULL oder Fehlermeldung, falls ein Fehler auftrat
      */
     public static function parseSignalData(Signal $signal, &$html, array &$openTrades, array &$history) {      // der zusaetzliche Zeiger minimiert den benoetigten Speicher
         if (!is_string($html)) throw new IllegalTypeException('Illegal type of parameter $html: '.getType($html));
@@ -274,7 +274,7 @@ class SimpleTrader extends StaticClass {
                     $row['ticket'] = (int)$sValue;
 
                     unset($row[0], $row[1], $row[2], $row[3], $row[4], $row[5], $row[6], $row[7], $row[8], $row[9], $row[10]);
-                } unset($row);
+                }; unset($row);
 
                 // offene Positionen sortieren: ORDER BY OpenTime asc, Ticket asc
                 uSort($openTrades, __CLASS__.'::compareTradesByOpenTimeTicket');
@@ -395,12 +395,12 @@ class SimpleTrader extends StaticClass {
                     $row['ticket'] = (int)$sValue;
 
                     unset($row[0], $row[1], $row[2], $row[3], $row[4], $row[5], $row[6], $row[7], $row[8], $row[9], $row[10], $row[11], $row[12], $row[13]);
-                } unset($row);
+                }; unset($row);
 
                 // History sortieren: ORDER BY CloseTime asc, OpenTime asc, Ticket asc
                 uSort($history, __CLASS__.'::compareTradesByCloseTimeOpenTimeTicket');
             }
-        } unset($table);
+        }; unset($table);
 
         if ($openTradeRows != $matchedOpenTrades    ) throw new RuntimeException('Could not match '.($openTradeRows-$matchedOpenTrades  ).' row'.pluralize($openTradeRows-$matchedOpenTrades));
         if ($historyRows   != $matchedHistoryEntries) throw new RuntimeException('Could not match '.($historyRows-$matchedHistoryEntries).' row'.pluralize($historyRows-$matchedHistoryEntries));

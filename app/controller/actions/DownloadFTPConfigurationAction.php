@@ -4,7 +4,6 @@ namespace rosasurfer\trade\controller\actions;
 use rosasurfer\log\Logger;
 
 use rosasurfer\ministruts\Action;
-use rosasurfer\ministruts\ActionForward;
 use rosasurfer\ministruts\Request;
 use rosasurfer\ministruts\Response;
 
@@ -20,9 +19,7 @@ class DownloadFTPConfigurationAction extends Action {
 
 
     /**
-     * Fuehrt die Action aus.
-     *
-     * @return ActionForward
+     * {@inheritdoc}
      */
     public function execute(Request $request, Response $response) {
         /** @var DownloadFTPConfigurationActionForm $form */

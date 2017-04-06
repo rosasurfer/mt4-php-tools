@@ -165,7 +165,7 @@ class HistoryHeader extends Object {
             $lines = explode("\n", self::$formatStr);
             foreach ($lines as &$line) {
                 $line = strLeftTo($line, '//');                          // Kommentare entfernen
-            } unset($line);
+            }; unset($line);
 
             $values = explode('/', join('', $lines));                   // in Format-Codes zerlegen
 
@@ -174,7 +174,7 @@ class HistoryHeader extends Object {
                 $value = strLeftTo($value, ' ');                         // dem Code folgende Bezeichner entfernen
                 if (!strLen($value))
                     unset($values[$i]);
-            } unset($value);
+            }; unset($value);
             $format = join('', $values);
         }
         return $format;
@@ -193,7 +193,7 @@ class HistoryHeader extends Object {
             $lines = explode("\n", self::$formatStr);
             foreach ($lines as $i => &$line) {
                 $line = strLeftTo($line, '//');                          // Kommentare entfernen
-            } unset($line);
+            }; unset($line);
             $format = join('', $lines);
 
             // since PHP 5.5.0: The 'a' code now retains trailing NULL bytes, 'Z' replaces the former 'a'.

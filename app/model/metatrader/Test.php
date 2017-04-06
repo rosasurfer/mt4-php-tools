@@ -70,7 +70,7 @@ class Test extends PersistableObject {
     /** @var int - number of tested ticks */
     protected $ticks;
 
-    /** @var int - enabled trade directions: Long|Short|Both */
+    /** @var string - enabled trade directions: Long|Short|Both */
     protected $tradeDirections;
 
     /** @var bool - whether or not the test was run in visual mode */

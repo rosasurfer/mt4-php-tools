@@ -14,7 +14,6 @@ use const rosasurfer\PHP_TYPE_INT;
 use const rosasurfer\PHP_TYPE_STRING;
 
 use const rosasurfer\db\orm\BIND_TYPE_INT;
-use const rosasurfer\db\orm\BIND_TYPE_STRING;
 use const rosasurfer\db\orm\ID_CREATE;
 use const rosasurfer\db\orm\ID_PRIMARY;
 use const rosasurfer\db\orm\ID_VERSION;
@@ -48,7 +47,7 @@ class TestDAO extends DAO {
             'spread'          => ['spread'         , PHP_TYPE_FLOAT , 0               , 0         ],      // db:float
             'bars'            => ['bars'           , PHP_TYPE_INT   , 0               , 0         ],      // db:int
             'ticks'           => ['ticks'          , PHP_TYPE_INT   , 0               , 0         ],      // db:int
-            'tradeDirections' => ['tradedirections', PHP_TYPE_INT   , BIND_TYPE_STRING, 0         ],      // db:text[enum] references enum_tradedirection(type)
+            'tradeDirections' => ['tradedirections', PHP_TYPE_STRING, 0               , 0         ],      // db:text[enum] references enum_tradedirection(type)
             'visualMode'      => ['visualmode'     , PHP_TYPE_BOOL  , BIND_TYPE_INT   , 0         ],      // db:int[bool]
             'duration'        => ['duration'       , PHP_TYPE_INT   , 0               , 0         ],      // db:int
     ]];

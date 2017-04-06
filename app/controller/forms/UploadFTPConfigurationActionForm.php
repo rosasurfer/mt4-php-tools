@@ -37,7 +37,7 @@ class UploadFTPConfigurationActionForm extends ActionForm {
 
 
     /**
-     * Liest die uebergebenen Request-Parameter in das Form-Objekt ein.
+     * {@inheritdoc}
      */
     protected function populate(Request $request) {
         // Hochgeladene Datei in temporaere Datei schreiben und $_FILES-Array emulieren
@@ -63,10 +63,7 @@ class UploadFTPConfigurationActionForm extends ActionForm {
 
 
     /**
-     * Validiert die uebergebenen Parameter syntaktisch.
-     *
-     * @return boolean - TRUE, wenn die uebergebenen Parameter gueltig sind,
-     *                   FALSE andererseits
+     * {@inheritdoc}
      */
     public function validate() {
         $request =  $this->request;

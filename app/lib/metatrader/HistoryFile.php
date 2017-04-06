@@ -281,11 +281,12 @@ class HistoryFile extends Object {
      *
      * @param  int $offset
      *
-     * @return array - MYFX_BAR,    wenn die Bar im Schreibbuffer liegt
-     *                 HISTORY_BAR, wenn die Bar aus der Datei gelesen wurde
-     *                 NULL,        wenn keine solche Bar existiert (Offset ist groesser als die Anzahl der Bars der Datei)
+     * @return array|null - MYFX_BAR,    wenn die Bar im Schreibbuffer liegt
+     *                      HISTORY_BAR, wenn die Bar aus der Datei gelesen wurde
+     *                      NULL,        wenn keine solche Bar existiert (Offset ist groesser als die Anzahl der Bars der Datei)
      *
-     * @see    HistoryFile::getMyfxBar(), HistoryFile::getHistoryBar()
+     * @see  HistoryFile::getMyfxBar()
+     * @see  HistoryFile::getHistoryBar()
      */
     public function getBar($offset) {
         if (!is_int($offset)) throw new IllegalTypeException('Illegal type of parameter $offset: '.getType($offset));

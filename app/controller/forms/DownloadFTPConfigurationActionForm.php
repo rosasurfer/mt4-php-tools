@@ -23,7 +23,7 @@ class DownloadFTPConfigurationActionForm extends ActionForm {
 
 
     /**
-     * Liest die uebergebenen Request-Parameter in das Form-Objekt ein.
+     * {@inheritdoc}
      */
     protected function populate(Request $request) {
         $this->company  = $request->getParameter('company');
@@ -38,10 +38,7 @@ class DownloadFTPConfigurationActionForm extends ActionForm {
 
 
     /**
-     * Validiert die uebergebenen Parameter syntaktisch.
-     *
-     * @return boolean - TRUE, wenn die uebergebenen Parameter gueltig sind,
-     *                   FALSE andererseits
+     * {@inheritdoc}
      */
     public function validate() {
         $request = $this->request;

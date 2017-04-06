@@ -263,7 +263,7 @@ function updateTicks($symbol, $gmtHour, $fxtHour) {
  * @param  int    $gmtHour - GMT-Timestamp der zu ladenden Stunde
  * @param  int    $fxtHour - FXT-Timestamp der zu ladenden Stunde
  *
- * @return array[] - Array mit Tickdaten
+ * @return array[]|false - Array mit Tickdaten oder FALSE in case of errors
  */
 function loadTicks($symbol, $gmtHour, $fxtHour) {
     if (!is_int($gmtHour)) throw new IllegalTypeException('Illegal type of parameter $gmtHour: '.getType($gmtHour));
@@ -527,7 +527,7 @@ function loadRawDukascopyTickData($data, $symbol, $gmtHour, $fxtHour) {
         $tick['time_gmt']    = $gmtHour + $sec;
         $tick['time_fxt']    = $fxtHour + $sec;
         $tick['time_millis'] = $millis;
-    }
+    }; unset($tick);
     return $ticks;
 }
 

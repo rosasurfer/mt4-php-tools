@@ -558,7 +558,7 @@ function processRawDukascopyBarData($data, $symbol, $day, $type) {
         $bar['time_fxt' ] = $bar['time_gmt'] + $fxtOffset;             // Es gilt: FXT = GMT + Offset
         $bar['delta_fxt'] = $bar['time_fxt'] % DAY;                    //     bzw: GMT = FXT - Offset
         unset($bar['timeDelta']);
-    }
+    }; unset($bar);
 
 
     // (3) Index von 00:00 FXT bestimmen und Bars FXT-tageweise im Buffer speichern

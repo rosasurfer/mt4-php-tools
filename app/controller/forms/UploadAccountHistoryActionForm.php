@@ -49,7 +49,7 @@ class UploadAccountHistoryActionForm extends ActionForm {
 
 
     /**
-     * Liest die uebergebenen Request-Parameter in das Form-Objekt ein.
+     * {@inheritdoc}
      */
     protected function populate(Request $request) {
         if ($request->isPost()) {
@@ -80,10 +80,7 @@ class UploadAccountHistoryActionForm extends ActionForm {
 
 
     /**
-     * Validiert die uebergebenen Parameter syntaktisch.
-     *
-     * @return boolean - TRUE, wenn die uebergebenen Parameter gueltig sind,
-     *                   FALSE andererseits
+     * {@inheritdoc}
      */
     public function validate() {
         $request = $this->request;
@@ -297,7 +294,7 @@ class UploadAccountHistoryActionForm extends ActionForm {
                     AH_COMMENT     => $comment,           // 12
                 ];
             }
-        } unset($line);
+        }; unset($line);
         $this->data =& $data;
 
         return !$request->isActionError();

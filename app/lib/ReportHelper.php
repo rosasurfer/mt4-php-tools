@@ -132,7 +132,7 @@ class ReportHelper extends Object {
             $row['hedged'] = (float) $row['hedged'];
             $row['long'  ] = (float) $row['long'  ];
             $row['short' ] = (float) $row['short' ];
-        }
+        }; unset($row);
         return $data;
     }
 }

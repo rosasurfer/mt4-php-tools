@@ -99,7 +99,7 @@ define('DUKASCOPY_TICK_SIZE', 20);
  */
 function fxtTime($timestamp=null, $timezone='GMT') {
     if (!is_string($timezone))    throw new IllegalTypeException('Illegal type of parameter $timezone: '.getType($timezone));
-    if (is_null($timestamp)) {
+    if ($timestamp === null) {
         $timestamp = time();
         $timezone  = 'GMT';
     }

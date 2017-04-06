@@ -126,13 +126,13 @@ $allFieldsLower = array_change_key_case(array_flip($allFields), CASE_LOWER);  //
 $usedFields     = array_flip($allFields);                                     // real-name  => (int)
 foreach ($usedFields as &$value) {
     $value = null;                                                             // real-name  => (null)       default: alle Felder OFF
-} unset($value);
+}; unset($value);
 
 foreach ($fieldArgs as $arg) {
     if ($arg == '++') {
         foreach ($usedFields as $name => &$value) {
             $value = $name;                                                      // real-name  => print-name   alle Felder ON
-        } unset($value);
+        }; unset($value);
         continue;
     }
     if ($arg[0] == '+') {

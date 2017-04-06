@@ -206,7 +206,7 @@ class MT4 extends StaticClass {
                 $line = trim(strRightFrom(trim($line), ' '));               // Format-Code entfernen
                 if (!strLen($line) || strStartsWith($line, '_alignment'))   // Leerzeilen und Alignment-Felder loeschen
                     unset($lines[$i]);
-            } unset($line);
+            }; unset($line);
             $fields = array_values($lines);                                // Indizes neuordnen
         }
         return $fields;
@@ -225,7 +225,7 @@ class MT4 extends StaticClass {
             $lines = explode("\n", self::$SYMBOL_formatStr);
             foreach ($lines as $i => &$line) {
                 $line = strLeftTo($line, '//');                          // Kommentare entfernen
-            } unset($line);
+            }; unset($line);
             $format = join('', $lines);
 
             // since PHP 5.5.0: The 'a' code now retains trailing NULL bytes, 'Z' replaces the former 'a'.
@@ -256,7 +256,7 @@ class MT4 extends StaticClass {
             $lines = explode("\n", self::${'BAR_'.$version.'_formatStr'});
             foreach ($lines as &$line) {
                 $line = strLeftTo($line, '//');                          // Kommentare entfernen
-            } unset($line);
+            }; unset($line);
 
             $values = explode('/', join('', $lines));                   // in Format-Codes zerlegen
 
@@ -265,7 +265,7 @@ class MT4 extends StaticClass {
                 $value = strLeftTo($value, ' ');                         // dem Code folgende Bezeichner entfernen
                 if (!strLen($value))
                     unset($values[$i]);
-            } unset($value);
+            }; unset($value);
             $format = join('', $values);
             ${'format_'.$version} = $format;
         }
@@ -291,7 +291,7 @@ class MT4 extends StaticClass {
             $lines = explode("\n", self::${'BAR_'.$version.'_formatStr'});
             foreach ($lines as $i => &$line) {
                 $line = strLeftTo($line, '//');                          // Kommentare entfernen
-            } unset($line);
+            }; unset($line);
             $format = join('', $lines);
 
             // since PHP 5.5.0: The 'a' code now retains trailing NULL bytes, 'Z' replaces the former 'a'.

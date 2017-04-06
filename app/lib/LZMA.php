@@ -76,7 +76,7 @@ class LZMA extends StaticClass {
     private static function getDecompressFileCmd() {
         static $cmd = null;
 
-        if (!$cmd) {
+        if ($cmd === null) {
             $output = [];
 
             if (WINDOWS) {
@@ -105,7 +105,7 @@ class LZMA extends StaticClass {
                 !$cmd && exec('xz -V 2> /dev/null', $output);                              // xz im Suchpfad suchen
                 !$cmd && $output && ($cmd='xz -dc "%s"');
             }
-            if (!$cmd) throw new InfrastructureException('No LZMA decoder found.');
+            if ($cmd === null) throw new InfrastructureException('No LZMA decoder found.');
         }
         return $cmd;
     }
