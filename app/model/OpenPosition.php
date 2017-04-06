@@ -304,7 +304,7 @@ class OpenPosition extends PersistableObject {
         if ($dao->execute($sql)->db()->lastAffectedRows() != 1) {
             $this->version = $version;
             $found = $dao->refresh($this);
-            throw new ConcurrentModificationException('Error updating '.__CLASS__.' (ticket='.$this->ticket.'), expected version: '.$oldVersion.', found version: '.$found->getOversion());
+            throw new ConcurrentModificationException('Error updating '.__CLASS__.' (ticket='.$this->ticket.'), expected version: '.$oldVersion.', found version: '.$found->getObjectVersion());
         }
 
         $this->_modifications = null;

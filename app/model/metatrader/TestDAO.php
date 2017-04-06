@@ -88,7 +88,7 @@ class TestDAO extends DAO {
         $result = $this->db()->query($sql);
 
         $params = [];
-        while ($row = $result->fetchNext(ARRAY_ASSOC)) {
+        while ($row = $result->fetchRow(ARRAY_ASSOC)) {
             $row = array_change_key_case($row, CASE_LOWER);
             $name  = $row['name'];
             $value = $row['value'];
