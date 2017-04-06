@@ -15,6 +15,7 @@ use rosasurfer\trade\metatrader\ImportHelper;
 
 use rosasurfer\util\Date;
 use rosasurfer\util\System;
+use rosasurfer\trade\controller\forms\UploadAccountHistoryActionForm;
 
 
 
@@ -47,6 +48,7 @@ class UploadAccountHistoryAction extends Action {
      * @return ActionForward|string|null
      */
     public function onPost(Request $request, Response $response) {
+        /** @var UploadAccountHistoryActionForm $form */
         $form = $this->form;
 
         if ($form->validate()) {

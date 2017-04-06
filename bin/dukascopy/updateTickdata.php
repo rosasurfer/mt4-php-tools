@@ -247,7 +247,7 @@ function updateTicks($symbol, $gmtHour, $fxtHour) {
 
     // Tickdaten laden
     $ticks = loadTicks($symbol, $gmtHour, $fxtHour);
-    if (!$ticks) return false;
+    if (!is_array($ticks)) return false;
 
     // Tickdaten speichern
     if (!saveTicks($symbol, $gmtHour, $fxtHour, $ticks)) return false;
@@ -263,7 +263,7 @@ function updateTicks($symbol, $gmtHour, $fxtHour) {
  * @param  int    $gmtHour - GMT-Timestamp der zu ladenden Stunde
  * @param  int    $fxtHour - FXT-Timestamp der zu ladenden Stunde
  *
- * @return array[]|false - Array mit Tickdaten oder FALSE in case of errors
+ * @return array[]|bool - Array mit Tickdaten oder FALSE in case of errors
  */
 function loadTicks($symbol, $gmtHour, $fxtHour) {
     if (!is_int($gmtHour)) throw new IllegalTypeException('Illegal type of parameter $gmtHour: '.getType($gmtHour));
@@ -310,10 +310,10 @@ function loadTicks($symbol, $gmtHour, $fxtHour) {
 /**
  * Schreibt die Tickdaten einer Handelsstunde in die lokale MyFX-Tickdatei.
  *
- * @param  string $symbol  - Symbol
- * @param  int    $gmtHour - GMT-Timestamp der Handelsstunde
- * @param  int    $fxtHour - FXT-Timestamp der Handelsstunde
- * @param  array  $ticks   - zu speichernde Ticks
+ * @param  string  $symbol  - Symbol
+ * @param  int     $gmtHour - GMT-Timestamp der Handelsstunde
+ * @param  int     $fxtHour - FXT-Timestamp der Handelsstunde
+ * @param  array[] $ticks   - zu speichernde Ticks
  *
  * @return bool - Erfolgsstatus
  */
@@ -593,7 +593,7 @@ function getVar($id, $symbol=null, $time=null) {
     else if ($id == 'dukaUrlDate') {          // $yyyy/$mmD/$dd                                                 // Dukascopy-URL-Datum
         if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
         $yyyy   = gmDate('Y', $time);
-        $mmD    = strRight(((int)gmDate('m', $time))+99, 2);  // Januar = 00
+        $mmD    = strRight((string)(gmDate('m', $time)+99), 2);  // Januar = 00
         $dd     = gmDate('d', $time);
         $result = "$yyyy/$mmD/$dd";
     }

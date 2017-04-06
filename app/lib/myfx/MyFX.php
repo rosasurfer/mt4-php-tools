@@ -73,10 +73,10 @@ class MyFX extends StaticClass {
         $directory = str_replace('\\', '/', $config->get($key));    // Backslashes in Konfiguration ersetzen
 
         if (WINDOWS) {
-            if (!preg_match('/^[a-z]:/i', $directory))               // Pfad ist relativ, wenn er nicht mit einem Lw.-Bezeichner beginnt
-                $directory = APPLICATION_ROOT.($directory{0}=='/'?'':'/').$directory;
+            if (!preg_match('/^[a-z]:/i', $directory))              // Pfad ist relativ, wenn er nicht mit einem Lw.-Bezeichner beginnt
+                $directory = APPLICATION_ROOT.($directory[0]=='/'?'':'/').$directory;
         }
-        else if ($directory{0} != '/') {                            // Pfad ist relativ, wenn er nicht mit einem Slash beginnt
+        else if ($directory[0] != '/') {                            // Pfad ist relativ, wenn er nicht mit einem Slash beginnt
             $directory = APPLICATION_ROOT.'/'.$directory;
         }
 
@@ -162,13 +162,13 @@ class MyFX extends StaticClass {
     /**
      * Gibt den FXT-Offset einer Zeit zu GMT und ggf. die beiden jeweils angrenzenden naechsten DST-Transitionsdaten zurueck.
      *
-     * @param  int   $time           - GMT-Zeitpunkt (default: aktuelle Zeit)
-     * @param  array $prevTransition - Wenn angegeben, enthaelt diese Variable nach Rueckkehr ein Array
-     *                                 ['time'=>{timestamp}, 'offset'=>{offset}] mit dem GMT-Timestamp des vorherigen Zeitwechsels
-     *                                 und dem Offset vor diesem Zeitpunkt.
-     * @param  array $nextTransition - Wenn angegeben, enthaelt diese Variable nach Rueckkehr ein Array
-     *                                 ['time'=>{timestamp}, 'offset'=>{offset}] mit dem GMT-Timestamp des naechsten Zeitwechsels
-     *                                 und dem Offset nach diesem Zeitpunkt.
+     * @param  int        $time           - GMT-Zeitpunkt (default: aktuelle Zeit)
+     * @param  array|null $prevTransition - Wenn angegeben, enthaelt diese Variable nach Rueckkehr ein Array
+     *                                      ['time'=>{timestamp}, 'offset'=>{offset}] mit dem GMT-Timestamp des vorherigen
+     *                                      Zeitwechsels und dem Offset vor diesem Zeitpunkt.
+     * @param  array|null $nextTransition - Wenn angegeben, enthaelt diese Variable nach Rueckkehr ein Array
+     *                                      ['time'=>{timestamp}, 'offset'=>{offset}] mit dem GMT-Timestamp des naechsten
+     *                                      Zeitwechsels und dem Offset nach diesem Zeitpunkt.
      *
      * @return int - Offset in Sekunden oder NULL, wenn der Zeitpunkt ausserhalb der bekannten Transitionsdaten liegt.
      *               FXT liegt oestlich von GMT, der Offset ist also immer positiv. Es gilt: GMT + Offset = FXT
@@ -347,6 +347,120 @@ class MyFX extends StaticClass {
             return $operationTypes[$type];
 
         throw new InvalidArgumentException('Invalid parameter $type: '.$type.' (not an operation type)');
+    }
+
+
+    /**
+     * Whether or not an integer is a valid order type.
+     *
+     * @param  int $integer
+     *
+     * @return bool
+     */
+    public static function isOrderType($integer) {
+        $description = self::orderTypeDescription($integer);
+        return ($description !== null);
+    }
+
+
+    /**
+     * Whether or not an integer is a long order type.
+     *
+     * @param  int $integer
+     *
+     * @return bool
+     */
+    public static function isLongOrderType($integer) {
+        if (is_int($integer)) {
+            switch ($integer) {
+                case OP_BUY     :
+                case OP_BUYLIMIT:
+                case OP_BUYSTOP : return true;
+            }
+        }
+        return false;
+    }
+
+
+    /**
+     * Whether or not an integer is a short order type.
+     *
+     * @param  int $integer
+     *
+     * @return bool
+     */
+    public static function isShortOrderType($integer) {
+        if (is_int($integer)) {
+            switch ($integer) {
+                case OP_SELL     :
+                case OP_SELLLIMIT:
+                case OP_SELLSTOP : return true;
+            }
+        }
+        return false;
+    }
+
+
+    /**
+     * Return an order type description.
+     *
+     * @param  int - order type id
+     *
+     * @return string|null - description or NULL if the parameter is not a valid order type id
+     */
+    public static function orderTypeDescription($id) {
+        if (is_int($id)) {
+            switch ($id) {
+                case OP_BUY      : return 'Buy';
+                case OP_SELL     : return 'Sell';
+                case OP_BUYLIMIT : return 'Buy Limit';
+                case OP_SELLLIMIT: return 'Sell Limit';
+                case OP_BUYSTOP  : return 'Buy Stop';
+                case OP_SELLSTOP : return 'Sell Stop';
+            }
+        }
+        return null;
+    }
+
+
+    /**
+     * Convert an order type representation to an order type.
+     *
+     * @param  mixed $value - order type representation
+     *
+     * @return int - order type or -1 if the value doesn't represent an order type
+     */
+    public static function strToOrderType($value) {
+        if (is_string($value)) {
+            if (!strIsNumeric($value)) {
+                $value = strToUpper($value);
+                if (strStartsWith($value, 'OP_'))
+                    $value = strRight($value, -3);
+                switch ($value) {
+                    case 'BUY'      : return OP_BUY;
+                    case 'SELL'     : return OP_SELL;
+                    case 'BUYLIMIT' : return OP_BUYLIMIT;
+                    case 'SELLLIMIT': return OP_SELLLIMIT;
+                    case 'BUYSTOP'  : return OP_BUYSTOP;
+                    case 'SELLSTOP' : return OP_SELLSTOP;
+                }
+                return -1;
+            }
+            $value = (float)$value;
+        }
+
+        if (is_int($value) || is_float($value)) {
+            switch ((float)$value) {
+                case OP_BUY      : return OP_BUY;
+                case OP_SELL     : return OP_SELL;
+                case OP_BUYLIMIT : return OP_BUYLIMIT;
+                case OP_SELLLIMIT: return OP_SELLLIMIT;
+                case OP_BUYSTOP  : return OP_BUYSTOP;
+                case OP_SELLSTOP : return OP_SELLSTOP;
+            }
+            return -1;
+        }
+        throw new IllegalTypeException('Illegal type of parameter $value: '.getType($value));
     }
 
 

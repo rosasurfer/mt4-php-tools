@@ -598,6 +598,7 @@ class MT4 extends StaticClass {
                     case 'MN1': return PERIOD_MN1;
                     case 'Q1' : return PERIOD_Q1;
                 }
+                return 0;
             }
             $value = (float)$value;
         }
@@ -615,19 +616,18 @@ class MT4 extends StaticClass {
                 case PERIOD_MN1: return PERIOD_MN1;
                 case PERIOD_Q1 : return PERIOD_Q1;
             }
+            return 0;
         }
-        else throw new IllegalTypeException('Illegal type of parameter $value: '.getType($value));
-
-        return 0;
+        throw new IllegalTypeException('Illegal type of parameter $value: '.getType($value));
     }
 
 
     /**
-     * Alias for MT4::strToTimeframe()
+     * Alias of MT4::strToTimeframe()
      *
      * @param  mixed $value - period representation
      *
-     * @return int - period id or NULL if the value doesn't represent a period
+     * @return int - period id or 0 if the value doesn't represent a period
      */
     public static function strToPeriod($value) {
         return self::strToTimeframe($value);
@@ -652,6 +652,7 @@ class MT4 extends StaticClass {
                     case 'CONTROLPOINTS': return TICKMODEL_CONTROLPOINTS;
                     case 'BAROPEN'      : return TICKMODEL_BAROPEN;
                 }
+                return -1;
             }
             $value = (float)$value;
         }
@@ -662,51 +663,9 @@ class MT4 extends StaticClass {
                 case TICKMODEL_CONTROLPOINTS: return TICKMODEL_CONTROLPOINTS;
                 case TICKMODEL_BAROPEN      : return TICKMODEL_BAROPEN;
             }
+            return -1;
         }
-        else throw new IllegalTypeException('Illegal type of parameter $value: '.getType($value));
-
-        return -1;
-    }
-
-
-    /**
-     * Convert an order type representation to an order type.
-     *
-     * @param  mixed $value - order type representation
-     *
-     * @return int - order type or -1 if the value doesn't represent an order type
-     */
-    public static function strToOrderType($value) {
-        if (is_string($value)) {
-            if (!strIsNumeric($value)) {
-                $value = strToUpper($value);
-                if (strStartsWith($value, 'OP_'))
-                    $value = strRight($value, -3);
-                switch ($value) {
-                    case 'BUY'      : return OP_BUY;
-                    case 'SELL'     : return OP_SELL;
-                    case 'BUYLIMIT' : return OP_BUYLIMIT;
-                    case 'SELLLIMIT': return OP_SELLLIMIT;
-                    case 'BUYSTOP'  : return OP_BUYSTOP;
-                    case 'SELLSTOP' : return OP_SELLSTOP;
-                }
-            }
-            $value = (float)$value;
-        }
-
-        if (is_int($value) || is_float($value)) {
-            switch ((float)$value) {
-                case OP_BUY      : return OP_BUY;
-                case OP_SELL     : return OP_SELL;
-                case OP_BUYLIMIT : return OP_BUYLIMIT;
-                case OP_SELLLIMIT: return OP_SELLLIMIT;
-                case OP_BUYSTOP  : return OP_BUYSTOP;
-                case OP_SELLSTOP : return OP_SELLSTOP;
-            }
-        }
-        else throw new IllegalTypeException('Illegal type of parameter $value: '.getType($value));
-
-        return -1;
+        throw new IllegalTypeException('Illegal type of parameter $value: '.getType($value));
     }
 
 
@@ -728,6 +687,7 @@ class MT4 extends StaticClass {
                     case 'SHORT': return TRADEDIRECTION_SHORT;
                     case 'BOTH' : return TRADEDIRECTION_BOTH;
                 }
+                return -1;
             }
             $value = (float)$value;
         }
@@ -738,93 +698,9 @@ class MT4 extends StaticClass {
                 case TRADEDIRECTION_SHORT: return TRADEDIRECTION_SHORT;
                 case TRADEDIRECTION_BOTH : return TRADEDIRECTION_BOTH;
             }
+            return -1;
         }
-        else throw new IllegalTypeException('Illegal type of parameter $value: '.getType($value));
-
-        return -1;
-    }
-
-
-    /**
-     * Whether or not a value is a valid order type.
-     *
-     * @param  int $value
-     *
-     * @return bool
-     */
-    public static function isOrderType($value) {
-        if (is_int($value)) {
-            switch ($value) {
-                case OP_BUY      :
-                case OP_SELL     :
-                case OP_BUYLIMIT :
-                case OP_SELLLIMIT:
-                case OP_BUYSTOP  :
-                case OP_SELLSTOP : return true;
-            }
-        }
-        return false;
-    }
-
-
-    /**
-     * Whether or not a value is a long order type.
-     *
-     * @param  int $value
-     *
-     * @return bool
-     */
-    public static function isLongOrderType($value) {
-        if (is_int($value)) {
-            switch ($value) {
-                case OP_BUY     :
-                case OP_BUYLIMIT:
-                case OP_BUYSTOP : return true;
-            }
-        }
-        return false;
-    }
-
-
-    /**
-     * Whether or not a value is a short order type.
-     *
-     * @param  int $value
-     *
-     * @return bool
-     */
-    public static function isShortOrderType($value) {
-        if (is_int($value)) {
-            switch ($value) {
-                case OP_SELL     :
-                case OP_SELLLIMIT:
-                case OP_SELLSTOP : return true;
-            }
-        }
-        return false;
-    }
-
-
-    /**
-     * Return an order type description.
-     *
-     * @param  int - order type id
-     *
-     * @return string|null - description or NULL if the parameter is not a valid order type id
-     */
-    public static function orderTypeDescription($id) {
-        $id = self::strToOrderType($id);
-        if ($id !== null) {
-            switch ($id) {
-                case OP_BUY      : return 'Buy';
-                case OP_SELL     : return 'Sell';
-                case OP_BUYLIMIT : return 'Buy Limit';
-                case OP_SELLLIMIT: return 'Sell Limit';
-                case OP_BUYSTOP  : return 'Buy Stop';
-                case OP_SELLSTOP : return 'Sell Stop';
-            }
-        }
-        return null;
+        throw new IllegalTypeException('Illegal type of parameter $value: '.getType($value));
     }
 
 
@@ -837,7 +713,7 @@ class MT4 extends StaticClass {
      */
     public static function tickModelDescription($id) {
         $id = self::strToTickModel($id);
-        if ($id !== null) {
+        if ($id >= 0) {
             switch ($id) {
                 case TICKMODEL_EVERYTICK:     return 'EveryTick';
                 case TICKMODEL_CONTROLPOINTS: return 'ControlPoints';
@@ -857,7 +733,7 @@ class MT4 extends StaticClass {
      */
     public static function tradeDirectionDescription($id) {
         $id = self::strToTradeDirection($id);
-        if ($id !== null) {
+        if ($id >= 0) {
             switch ($id) {
                 case TRADEDIRECTION_LONG:  return 'Long';
                 case TRADEDIRECTION_SHORT: return 'Short';

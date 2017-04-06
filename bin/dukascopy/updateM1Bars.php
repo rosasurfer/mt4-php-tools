@@ -742,7 +742,7 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
     else if ($id == 'dukaUrlDate') {          // $yyyy/$mmD/$dd                                           // Dukascopy-URL-Datum
         if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
         $yyyy   = gmDate('Y', $time);
-        $mmD    = strRight(((int)gmDate('m', $time))+99, 2);  // Januar = 00
+        $mmD    = strRight((string)(gmDate('m', $time)+99), 2);  // Januar = 00
         $dd     = gmDate('d', $time);
         $result = "$yyyy/$mmD/$dd";
     }

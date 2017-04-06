@@ -27,25 +27,59 @@ class ClosedPosition extends PersistableObject {
     /** @var string - time of last modification */
     protected $version;
 
-    protected /*int   */ $ticket;
-    protected /*string*/ $type;
-    protected /*float */ $lots;
-    protected /*string*/ $symbol;
-    protected /*string*/ $openTime;
-    protected /*float */ $openPrice;
-    protected /*string*/ $closeTime;
-    protected /*float */ $closePrice;
-    protected /*float */ $stopLoss;
-    protected /*float */ $takeProfit;
-    protected /*float */ $commission;
-    protected /*float */ $swap;
-    protected /*float */ $grossProfit;
-    protected /*float */ $netProfit;
-    protected /*int   */ $magicNumber;
-    protected /*string*/ $comment;
-    protected /*int   */ $signal_id;
+    /** @var int */
+    protected $ticket;
 
-    private   /*Signal*/ $signal;
+    /** @var string */
+    protected $type;
+
+    /** @var float */
+    protected $lots;
+
+    /** @var string */
+    protected $symbol;
+
+    /** @var string */
+    protected $openTime;
+
+    /** @var float */
+    protected $openPrice;
+
+    /** @var string */
+    protected $closeTime;
+
+    /** @var float */
+    protected $closePrice;
+
+    /** @var float */
+    protected $stopLoss;
+
+    /** @var float */
+    protected $takeProfit;
+
+    /** @var float */
+    protected $commission;
+
+    /** @var float */
+    protected $swap;
+
+    /** @var float */
+    protected $grossProfit;
+
+    /** @var float */
+    protected $netProfit;
+
+    /** @var int */
+    protected $magicNumber;
+
+    /** @var string */
+    protected $comment;
+
+    /** @var int */
+    protected $signal_id;
+
+    /** @var Signal */
+    private $signal;
 
 
     // Getter
@@ -220,7 +254,7 @@ class ClosedPosition extends PersistableObject {
      * @param  int    $decimals  - Anzahl der Nachkommastellen
      * @param  string $separator - Dezimaltrennzeichen
      *
-     * @return float|string - Betrag oder NULL, wenn der Betrag nicht verfuegbar ist
+     * @return float|string|null - Betrag oder NULL, wenn der Betrag nicht verfuegbar ist
      */
     public function getCommission($decimals=2, $separator='.') {
         if (is_null($this->commission) || !func_num_args())
@@ -235,7 +269,7 @@ class ClosedPosition extends PersistableObject {
      * @param  int    $decimals  - Anzahl der Nachkommastellen
      * @param  string $separator - Dezimaltrennzeichen
      *
-     * @return float|string - Betrag oder NULL, wenn der Betrag nicht verfuegbar ist
+     * @return float|string|null - Betrag oder NULL, wenn der Betrag nicht verfuegbar ist
      */
     public function getSwap($decimals=2, $separator='.') {
         if (is_null($this->swap) || !func_num_args())
@@ -250,7 +284,7 @@ class ClosedPosition extends PersistableObject {
      * @param  int    $decimals  - Anzahl der Nachkommastellen
      * @param  string $separator - Dezimaltrennzeichen
      *
-     * @return float|string - Betrag oder NULL, wenn der Betrag nicht verfuegbar ist
+     * @return float|string|null - Betrag oder NULL, wenn der Betrag nicht verfuegbar ist
      */
     public function getGrossProfit($decimals=2, $separator='.') {
         if (is_null($this->grossProfit) || !func_num_args())

@@ -125,7 +125,7 @@ class UploadAccountHistoryActionForm extends ActionForm {
 
         foreach ($lines as $i => &$line) {
             $line = trim($line, " \r\n");
-            if ($line==='' || $line{0}=='#')                      // Leerzeilen und Kommentare ueberspringen
+            if ($line==='' || $line[0]=='#')                      // Leerzeilen und Kommentare ueberspringen
                 continue;
 
             if (preg_match('/^\[(\w+)\]/i', $line, $matches)) {   // Abschnittsnamen analysieren
