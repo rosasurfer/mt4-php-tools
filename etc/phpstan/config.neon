@@ -64,4 +64,5 @@ parameters:
         # unfixed PHPStan bugs 
         - '/Function fxtTime\(\) should return int but returns int\|mixed\|null./'
         - '/Method DateTimeZone::getTransitions\(\) invoked with 0 parameters, 2 required./'
+        - '/Parameter #3 \$closedUpdates of static method rosasurfer\\trade\\metatrader\\MT4::updateAccountHistory\(\) expects bool, false\|mixed given./'
         - '/Property rosasurfer\\trade\\model\\metatrader\\Test::\$visualMode \(bool\) does not accept bool\|mixed./'
