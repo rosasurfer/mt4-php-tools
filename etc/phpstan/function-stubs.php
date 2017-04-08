@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace rosasurfer\trade\dukascopy\update_m1_bars {
+namespace rosasurfer\xtrade\dukascopy\update_m1_bars {
 
     /**
      * @param  string $symbol
@@ -128,7 +128,7 @@ namespace rosasurfer\trade\dukascopy\update_m1_bars {
 }
 
 
-namespace rosasurfer\trade\dukascopy\update_tickdata {
+namespace rosasurfer\xtrade\dukascopy\update_tickdata {
 
     /**
      * @param  string $symbol
@@ -244,7 +244,7 @@ namespace rosasurfer\trade\dukascopy\update_tickdata {
 }
 
 
-namespace rosasurfer\trade\fxi\update_m1_bars {
+namespace rosasurfer\xtrade\fxi\update_m1_bars {
 
     /**
      * @param  string $index
@@ -580,7 +580,7 @@ namespace rosasurfer\trade\fxi\update_m1_bars {
 }
 
 
-namespace rosasurfer\trade\logwatch {
+namespace rosasurfer\xtrade\logwatch {
 
     /**
      * @param  string $message
@@ -599,7 +599,7 @@ namespace rosasurfer\trade\logwatch {
 }
 
 
-namespace rosasurfer\trade\metatrader\create_history {
+namespace rosasurfer\xtrade\metatrader\create_history {
 
     /**
      * @param  string $symbol
@@ -628,7 +628,7 @@ namespace rosasurfer\trade\metatrader\create_history {
 }
 
 
-namespace rosasurfer\trade\metatrader\create_tickfile {
+namespace rosasurfer\xtrade\metatrader\create_tickfile {
 
     /**
      * @param  string $message
@@ -637,7 +637,7 @@ namespace rosasurfer\trade\metatrader\create_tickfile {
 }
 
 
-namespace rosasurfer\trade\metatrader\dir {
+namespace rosasurfer\xtrade\metatrader\dir {
 
     /**
      * @param  string $dirName
@@ -652,7 +652,7 @@ namespace rosasurfer\trade\metatrader\dir {
 }
 
 
-namespace rosasurfer\trade\metatrader\find_offset {
+namespace rosasurfer\xtrade\metatrader\find_offset {
 
     /**
      * @param  string $message
@@ -661,7 +661,7 @@ namespace rosasurfer\trade\metatrader\find_offset {
 }
 
 
-namespace rosasurfer\trade\metatrader\list_symbols {
+namespace rosasurfer\xtrade\metatrader\list_symbols {
 
     /**
      * @param  string $file
@@ -704,7 +704,7 @@ namespace rosasurfer\trade\metatrader\list_symbols {
 }
 
 
-namespace rosasurfer\trade\metatrader\save_test {
+namespace rosasurfer\xtrade\metatrader\save_test {
 
     /**
      * @param  string $message
@@ -720,7 +720,7 @@ namespace rosasurfer\trade\metatrader\save_test {
 }
 
 
-namespace rosasurfer\trade\metatrader\update_history {
+namespace rosasurfer\xtrade\metatrader\update_history {
 
     /**
      * @param  string $message
@@ -738,9 +738,9 @@ namespace rosasurfer\trade\metatrader\update_history {
 }
 
 
-namespace rosasurfer\trade\myfxbook\sync_accounts {
+namespace rosasurfer\xtrade\myfxbook\sync_accounts {
 
-    use rosasurfer\trade\model\Signal;
+    use rosasurfer\xtrade\model\Signal;
 
     /**
      * @param  string $message
@@ -772,9 +772,9 @@ namespace rosasurfer\trade\myfxbook\sync_accounts {
 }
 
 
-namespace rosasurfer\trade\simpletrader\sync_accounts {
+namespace rosasurfer\xtrade\simpletrader\sync_accounts {
 
-    use rosasurfer\trade\model\Signal;
+    use rosasurfer\xtrade\model\Signal;
 
     /**
      * @param  string $message

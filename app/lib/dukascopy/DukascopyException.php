@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\trade\dukascopy;
+namespace rosasurfer\xtrade\dukascopy;
 
 use rosasurfer\exception\RuntimeException;
 

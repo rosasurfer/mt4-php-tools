@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\trade\dukascopy;
+namespace rosasurfer\xtrade\dukascopy;
 
 use rosasurfer\core\StaticClass;
 
@@ -9,8 +9,8 @@ use rosasurfer\exception\RuntimeException;
 
 use rosasurfer\log\Logger;
 
-use rosasurfer\trade\LZMA;
-use rosasurfer\trade\myfx\MyFX;
+use rosasurfer\xtrade\LZMA;
+use rosasurfer\xtrade\myfx\MyFX;
 
 
 /**

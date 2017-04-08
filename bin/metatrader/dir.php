@@ -3,13 +3,13 @@
 /**
  * Verzeichnislisting fuer MetaTrader-Historydateien
  */
-namespace rosasurfer\trade\metatrader\dir;
+namespace rosasurfer\xtrade\metatrader\dir;
 
-use rosasurfer\trade\metatrader\HistoryHeader;
-use rosasurfer\trade\metatrader\MT4;
-use rosasurfer\trade\metatrader\MetaTraderException;
-use rosasurfer\trade\model\metatrader\Order;
-use rosasurfer\trade\myfx\MyFX;
+use rosasurfer\xtrade\metatrader\HistoryHeader;
+use rosasurfer\xtrade\metatrader\MT4;
+use rosasurfer\xtrade\metatrader\MetaTraderException;
+use rosasurfer\xtrade\model\metatrader\Order;
+use rosasurfer\xtrade\myfx\MyFX;
 
 require(__DIR__.'/../../app/init.php');
 

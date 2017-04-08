@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\trade\controller\forms;
+namespace rosasurfer\xtrade\controller\forms;
 
 use rosasurfer\debug\ErrorHandler;
 

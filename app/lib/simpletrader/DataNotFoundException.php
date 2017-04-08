@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\trade\simpletrader;
+namespace rosasurfer\xtrade\simpletrader;
 
 use rosasurfer\exception\RuntimeException;
 

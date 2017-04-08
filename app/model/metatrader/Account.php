@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\trade\model\metatrader;
+namespace rosasurfer\xtrade\model\metatrader;
 
 use rosasurfer\db\orm\PersistableObject;
 use rosasurfer\exception\IllegalTypeException;

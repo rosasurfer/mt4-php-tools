@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\trade\metatrader;
+namespace rosasurfer\xtrade\metatrader;
 
 use rosasurfer\core\Object;
 

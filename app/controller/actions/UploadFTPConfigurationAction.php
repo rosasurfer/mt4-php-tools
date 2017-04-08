@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\trade\controller\actions;
+namespace rosasurfer\xtrade\controller\actions;
 
 use rosasurfer\exception\IOException;
 use rosasurfer\log\Logger;
@@ -8,8 +8,8 @@ use rosasurfer\ministruts\Action;
 use rosasurfer\ministruts\Request;
 use rosasurfer\ministruts\Response;
 
-use rosasurfer\trade\controller\forms\UploadFTPConfigurationActionForm;
-use rosasurfer\trade\myfx\MyFX;
+use rosasurfer\xtrade\controller\forms\UploadFTPConfigurationActionForm;
+use rosasurfer\xtrade\myfx\MyFX;
 
 use rosasurfer\util\System;
 

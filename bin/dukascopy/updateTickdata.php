@@ -30,7 +30,7 @@
  * GMT:     |   Sunday      Monday   |  Tuesday   | Wednesday  |  Thursday  |   Friday     Saturday  |   Sunday      Monday   |
  *          +------------------------+------------+------------+------------+------------------------+------------------------+
  */
-namespace rosasurfer\trade\dukascopy\update_tickdata;
+namespace rosasurfer\xtrade\dukascopy\update_tickdata;
 
 use rosasurfer\config\Config;
 
@@ -43,12 +43,12 @@ use rosasurfer\net\http\HttpClient;
 use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
 
-use rosasurfer\trade\LZMA;
-use rosasurfer\trade\dukascopy\Dukascopy;
-use rosasurfer\trade\dukascopy\DukascopyException;
-use rosasurfer\trade\model\Signal;
-use rosasurfer\trade\myfx\MyFX;
-use rosasurfer\trade\simpletrader\SimpleTrader;
+use rosasurfer\xtrade\LZMA;
+use rosasurfer\xtrade\dukascopy\Dukascopy;
+use rosasurfer\xtrade\dukascopy\DukascopyException;
+use rosasurfer\xtrade\model\Signal;
+use rosasurfer\xtrade\myfx\MyFX;
+use rosasurfer\xtrade\simpletrader\SimpleTrader;
 
 require(__DIR__.'/../../app/init.php');
 date_default_timezone_set('GMT');

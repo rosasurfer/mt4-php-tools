@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\trade\metatrader;
+namespace rosasurfer\xtrade\metatrader;
 
 use rosasurfer\core\Object;
 use rosasurfer\debug\ErrorHandler;
@@ -11,8 +11,8 @@ use rosasurfer\exception\RuntimeException;
 
 use rosasurfer\log\Logger;
 
-use rosasurfer\trade\metatrader\MT4;
-use rosasurfer\trade\myfx\MyFX;
+use rosasurfer\xtrade\metatrader\MT4;
+use rosasurfer\xtrade\myfx\MyFX;
 
 
 /**

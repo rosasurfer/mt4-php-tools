@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\trade\metatrader;
+namespace rosasurfer\xtrade\metatrader;
 
 use rosasurfer\config\Config;
 use rosasurfer\core\StaticClass;
@@ -7,13 +7,13 @@ use rosasurfer\core\StaticClass;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\RuntimeException;
 
-use rosasurfer\trade\model\ClosedPosition;
-use rosasurfer\trade\model\OpenPosition;
-use rosasurfer\trade\model\Signal;
+use rosasurfer\xtrade\model\ClosedPosition;
+use rosasurfer\xtrade\model\OpenPosition;
+use rosasurfer\xtrade\model\Signal;
 
 use function rosasurfer\strIsNumeric;
-use rosasurfer\trade\model\OpenPositionDAO;
-use rosasurfer\trade\model\ClosedPositionDAO;
+use rosasurfer\xtrade\model\OpenPositionDAO;
+use rosasurfer\xtrade\model\ClosedPositionDAO;
 
 
 /**

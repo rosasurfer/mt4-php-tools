@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\trade\metatrader;
+namespace rosasurfer\xtrade\metatrader;
 
 use rosasurfer\core\Object;
 use rosasurfer\debug\ErrorHandler;
@@ -11,7 +11,7 @@ use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 use rosasurfer\exception\UnimplementedFeatureException;
 
-use rosasurfer\trade\myfx\MyFX;
+use rosasurfer\xtrade\myfx\MyFX;
 
 
 /**

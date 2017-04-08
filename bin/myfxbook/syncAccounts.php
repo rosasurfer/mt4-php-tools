@@ -3,30 +3,30 @@
 /**
  *
  */
-namespace rosasurfer\trade\myfxbook\sync_accounts;
+namespace rosasurfer\xtrade\myfxbook\sync_accounts;
 
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InfrastructureException;
 use rosasurfer\exception\RuntimeException;
 
-use rosasurfer\trade\ReportHelper;
+use rosasurfer\xtrade\ReportHelper;
 
-use rosasurfer\trade\metatrader\MT4;
+use rosasurfer\xtrade\metatrader\MT4;
 
-use rosasurfer\trade\model\ClosedPosition;
-use rosasurfer\trade\model\ClosedPositionDAO;
-use rosasurfer\trade\model\OpenPosition;
-use rosasurfer\trade\model\OpenPositionDAO;
-use rosasurfer\trade\model\Signal;
-use rosasurfer\trade\model\SignalDAO;
+use rosasurfer\xtrade\model\ClosedPosition;
+use rosasurfer\xtrade\model\ClosedPositionDAO;
+use rosasurfer\xtrade\model\OpenPosition;
+use rosasurfer\xtrade\model\OpenPositionDAO;
+use rosasurfer\xtrade\model\Signal;
+use rosasurfer\xtrade\model\SignalDAO;
 
-use rosasurfer\trade\model\metatrader\Account;
-use rosasurfer\trade\myfx\MyFX;
+use rosasurfer\xtrade\model\metatrader\Account;
+use rosasurfer\xtrade\myfx\MyFX;
 
-use rosasurfer\trade\myfxbook\MyfxBook;
+use rosasurfer\xtrade\myfxbook\MyfxBook;
 
-use rosasurfer\trade\simpletrader\DataNotFoundException;
-use rosasurfer\trade\simpletrader\SimpleTrader;
+use rosasurfer\xtrade\simpletrader\DataNotFoundException;
+use rosasurfer\xtrade\simpletrader\SimpleTrader;
 
 require(__DIR__.'/../../app/init.php');
 

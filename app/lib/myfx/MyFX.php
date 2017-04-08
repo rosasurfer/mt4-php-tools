@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\trade\myfx;
+namespace rosasurfer\xtrade\myfx;
 
 use rosasurfer\config\Config;
 use rosasurfer\core\StaticClass;
@@ -13,7 +13,7 @@ use rosasurfer\net\http\CurlHttpClient;
 use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
 
-use rosasurfer\trade\metatrader\MT4;
+use rosasurfer\xtrade\metatrader\MT4;
 
 
 /**

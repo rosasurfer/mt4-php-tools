@@ -15,7 +15,7 @@
  *
  * @see  MetaTrader::indicators\LFX-Monitor.mq4
  */
-namespace rosasurfer\trade\fxi\update_m1_bars;
+namespace rosasurfer\xtrade\fxi\update_m1_bars;
 
 use rosasurfer\config\Config;
 
@@ -23,9 +23,9 @@ use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 
-use rosasurfer\trade\dukascopy\Dukascopy;
-use rosasurfer\trade\model\Signal;
-use rosasurfer\trade\myfx\MyFX;
+use rosasurfer\xtrade\dukascopy\Dukascopy;
+use rosasurfer\xtrade\model\Signal;
+use rosasurfer\xtrade\myfx\MyFX;
 
 require(__DIR__.'/../../app/init.php');
 date_default_timezone_set('GMT');

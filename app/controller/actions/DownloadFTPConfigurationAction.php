@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\trade\controller\actions;
+namespace rosasurfer\xtrade\controller\actions;
 
 use rosasurfer\log\Logger;
 
@@ -7,9 +7,9 @@ use rosasurfer\ministruts\Action;
 use rosasurfer\ministruts\Request;
 use rosasurfer\ministruts\Response;
 
-use rosasurfer\trade\myfx\MyFX;
+use rosasurfer\xtrade\myfx\MyFX;
 use rosasurfer\util\System;
-use rosasurfer\trade\controller\forms\DownloadFTPConfigurationActionForm;
+use rosasurfer\xtrade\controller\forms\DownloadFTPConfigurationActionForm;
 
 
 /**

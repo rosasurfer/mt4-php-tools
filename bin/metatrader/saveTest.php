@@ -3,10 +3,10 @@
 /**
  * Save a test and its trade history in the database.
  */
-namespace rosasurfer\trade\metatrader\save_test;
+namespace rosasurfer\xtrade\metatrader\save_test;
 
-use rosasurfer\trade\model\Signal;
-use rosasurfer\trade\model\metatrader\Test;
+use rosasurfer\xtrade\model\Signal;
+use rosasurfer\xtrade\model\metatrader\Test;
 
 require(__DIR__.'/../../app/init.php');
 date_default_timezone_set('GMT');

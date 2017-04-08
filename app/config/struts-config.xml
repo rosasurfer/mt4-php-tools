@@ -5,8 +5,8 @@
 
     <!-- =================================================== Imports ==================================================== -->
     <imports>
-        <import value="rosasurfer/trade/controller/actions/*"/>
-        <import value="rosasurfer/trade/controller/forms/*"/>
+        <import value="rosasurfer/xtrade/controller/actions/*"/>
+        <import value="rosasurfer/xtrade/controller/forms/*"/>
     </imports>
 
 

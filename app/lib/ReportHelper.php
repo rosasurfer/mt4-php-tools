@@ -1,12 +1,12 @@
 <?php
-namespace rosasurfer\trade;
+namespace rosasurfer\xtrade;
 
 use rosasurfer\core\Object;
 
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 
-use rosasurfer\trade\model\Signal;
+use rosasurfer\xtrade\model\Signal;
 
 
 /**

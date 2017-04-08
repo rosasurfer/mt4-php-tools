@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\trade\metatrader;
+namespace rosasurfer\xtrade\metatrader;
 
 use rosasurfer\core\StaticClass;
 
@@ -7,11 +7,11 @@ use rosasurfer\exception\BusinessRuleException;
 use rosasurfer\exception\InfrastructureException;
 use rosasurfer\exception\InvalidArgumentException;
 
-use rosasurfer\trade\ViewHelper;
-use rosasurfer\trade\controller\forms\UploadAccountHistoryActionForm;
+use rosasurfer\xtrade\ViewHelper;
+use rosasurfer\xtrade\controller\forms\UploadAccountHistoryActionForm;
 
-use rosasurfer\trade\model\metatrader\Account;
-use rosasurfer\trade\model\metatrader\AccountDAO;
+use rosasurfer\xtrade\model\metatrader\Account;
+use rosasurfer\xtrade\model\metatrader\AccountDAO;
 
 
 /**

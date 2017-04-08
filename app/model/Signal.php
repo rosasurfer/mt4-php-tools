@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\trade\model;
+namespace rosasurfer\xtrade\model;
 
 use rosasurfer\db\orm\PersistableObject;
 use rosasurfer\util\Date;

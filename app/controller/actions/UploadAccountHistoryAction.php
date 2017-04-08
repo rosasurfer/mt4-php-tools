@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\trade\controller\actions;
+namespace rosasurfer\xtrade\controller\actions;
 
 use rosasurfer\exception\BusinessRuleException;
 use rosasurfer\exception\InvalidArgumentException;
@@ -11,11 +11,11 @@ use rosasurfer\ministruts\ActionForward;
 use rosasurfer\ministruts\Request;
 use rosasurfer\ministruts\Response;
 
-use rosasurfer\trade\metatrader\ImportHelper;
+use rosasurfer\xtrade\metatrader\ImportHelper;
 
 use rosasurfer\util\Date;
 use rosasurfer\util\System;
-use rosasurfer\trade\controller\forms\UploadAccountHistoryActionForm;
+use rosasurfer\xtrade\controller\forms\UploadAccountHistoryActionForm;
 
 
 

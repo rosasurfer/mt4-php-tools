@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\trade\simpletrader;
+namespace rosasurfer\xtrade\simpletrader;
 
 use rosasurfer\config\Config;
 use rosasurfer\core\StaticClass;
@@ -16,11 +16,11 @@ use rosasurfer\net\http\HttpClient;
 use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
 
-use rosasurfer\trade\myfx\MyFX;
+use rosasurfer\xtrade\myfx\MyFX;
 
-use rosasurfer\trade\model\ClosedPosition;
-use rosasurfer\trade\model\OpenPosition;
-use rosasurfer\trade\model\Signal;
+use rosasurfer\xtrade\model\ClosedPosition;
+use rosasurfer\xtrade\model\OpenPosition;
+use rosasurfer\xtrade\model\Signal;
 
 use rosasurfer\util\Date;
 use rosasurfer\util\PHP;

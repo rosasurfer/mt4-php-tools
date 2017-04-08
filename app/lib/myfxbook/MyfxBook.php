@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\trade\myfxbook;
+namespace rosasurfer\xtrade\myfxbook;
 
 use rosasurfer\config\Config;
 use rosasurfer\core\StaticClass;
@@ -12,7 +12,7 @@ use rosasurfer\net\http\CurlHttpClient;
 use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
 
-use rosasurfer\trade\model\Signal;
+use rosasurfer\xtrade\model\Signal;
 
 
 /**
