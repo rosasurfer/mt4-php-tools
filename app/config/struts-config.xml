@@ -3,33 +3,37 @@
 
 <struts-config file-base="app/view">
 
-
-   <!-- ============================================= Global Forwards ============================================= -->
-   <global-forwards>
-      <forward name="home"          include=".default"/>
-      <forward name="redirect.home" redirect="/"/>
-   </global-forwards>
-
-
-   <!-- ============================================= Action Mappings ============================================= -->
-   <action-mappings>
-      <mapping path="/"  forward="home"/>
-
-      <mapping path="/uploadAccountHistory.php"  form="UploadAccountHistoryActionForm"  action="UploadAccountHistoryAction"  http-methods="get,post">
-         <forward name="default"  include=".uploadAccountHistory"/>
-      </mapping>
-
-      <mapping path="/uploadFTPConfiguration.php"  form="UploadFTPConfigurationActionForm"  action="UploadFTPConfigurationAction"  http-methods="post">
-      </mapping>
-      <mapping path="/downloadFTPConfiguration.php"  form="DownloadFTPConfigurationActionForm"  action="DownloadFTPConfigurationAction">
-      </mapping>
-   </action-mappings>
+    <!-- =================================================== Imports ==================================================== -->
+    <imports>
+        <import value="rosasurfer/trade/controller/actions/*"/>
+        <import value="rosasurfer/trade/controller/forms/*"/>
+    </imports>
 
 
-   <!-- ================================================== Tiles ================================================== -->
-   <tiles>
-      <tile name=".default"               file="tiles/default.phtml"             />
-      <tile name=".uploadAccountHistory"  file="tiles/uploadAccountHistory.phtml"/>
-   </tiles>
+    <!-- ================================================ Global Forwards =============================================== -->
+    <global-forwards>
+        <forward name="home"          include=".default"/>
+        <forward name="redirect.home" redirect="/"/>
+    </global-forwards>
+    
+    
+    <!-- ================================================ Action Mappings =============================================== -->
+    <action-mappings>
+        <mapping path="/"  forward="home" />
+        
+        <mapping path="/uploadAccountHistory"  form="UploadAccountHistoryActionForm"  action="UploadAccountHistoryAction"  http-methods="get,post">
+            <forward name="default"  include=".uploadAccountHistory"/>
+        </mapping>
+        
+        <mapping path="/uploadFTPConfiguration"    form="UploadFTPConfigurationActionForm"    action="UploadFTPConfigurationAction"  http-methods="post" />
+        <mapping path="/downloadFTPConfiguration"  form="DownloadFTPConfigurationActionForm"  action="DownloadFTPConfigurationAction" />
+    </action-mappings>
+    
+    
+    <!-- ===================================================== Tiles ==================================================== -->
+    <tiles>
+        <tile name=".default"               file="tiles/default.phtml"             />
+        <tile name=".uploadAccountHistory"  file="tiles/uploadAccountHistory.phtml"/>
+    </tiles>
 
 </struts-config>
