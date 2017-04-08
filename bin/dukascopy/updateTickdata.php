@@ -19,9 +19,9 @@
  *                • http://datafeed.dukascopy.com/datafeed/EURUSD/2013/00/06/00h_ticks.bi5
  *                • http://datafeed.dukascopy.com/datafeed/EURUSD/2013/05/10/23h_ticks.bi5
  *
- * Dateiformat:   Binaer, LZMA-gepackt, Zeiten in GMT (keine Sommerzeit).
+ * Dateiformat:   • Binaer, LZMA-gepackt, Zeiten in GMT (keine Sommerzeit).
  *
- *                @see class Dukascopy
+ * @see class Dukascopy
  *
  *      +------------------------+------------+------------+------------+------------------------+------------------------+
  * FXT: |   Sunday      Monday   |  Tuesday   | Wednesday  |  Thursday  |   Friday     Saturday  |   Sunday      Monday   |

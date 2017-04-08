@@ -3,7 +3,7 @@
 /**
  * Aktualisiert die lokal vorhandenen Dukascopy-M1-Daten. Bid und Ask werden zu Median gemerged, nach FXT konvertiert und im
  * MyFX-Format gespeichert. Die Dukascopy-Daten sind durchgehend, Feiertage werden, Wochenenden werden nicht gespeichert.
- * Die Daten des aktuellen Tags sind frühestens am nächsten Tag verfügbar.
+ * Die Daten des aktuellen Tags sind fruehestens am naechsten Tag verfuegbar.
  *
  *
  * Webseite:      https://www.dukascopy.com/swiss/english/marketwatch/historical/
@@ -18,10 +18,10 @@
  *                • http://datafeed.dukascopy.com/datafeed/GBPUSD/2013/00/10/BID_candles_min_1.bi5
  *                • http://datafeed.dukascopy.com/datafeed/GBPUSD/2013/11/31/ASK_candles_min_1.bi5
  *
- * Dateiformat:   • Binär, LZMA-gepackt, Zeiten in GMT (keine Sommerzeit).
- *                • In Handelspausen ist durchgehend der letzte Schlußkurs (OHLC) und V=0 (zero) angegeben.
+ * Dateiformat:   • Binaer, LZMA-gepackt, Zeiten in GMT (keine Sommerzeit).
+ *                • In Handelspausen ist durchgehend der letzte Schlusskurs (OHLC) und V=0 (zero) angegeben.
  *
- *                @see class Dukascopy
+ * @see class Dukascopy
  *
  *      +------------------------+------------+------------+------------+------------------------+------------------------+
  * FXT: |   Sunday      Monday   |  Tuesday   | Wednesday  |  Thursday  |   Friday     Saturday  |   Sunday      Monday   |
@@ -89,7 +89,7 @@ foreach ($args as $i => $arg) {
 $args = $args ? array_unique($args) : array_keys(MyFX::filterSymbols(['provider'=>'dukascopy']));
 
 
-// (2) SIGINT-Handler installieren                                                  // Um bei Ctrl-C Destruktoren auszuführen, reicht es,
+// (2) SIGINT-Handler installieren                                                  // Um bei Ctrl-C Destruktoren auszufuehren, reicht es,
 if (!WINDOWS) pcntl_signal(SIGINT, create_function('$signal', 'exit();'));          // wenn im Handler exit() aufgerufen wird.
 
 
@@ -106,8 +106,8 @@ exit(0);
 /**
  * Aktualisiert die M1-Daten eines Symbol.
  *
- * Eine Dukascopy-Datei enthält immer anteilige Daten zweier FXT-Tage. Zum Update eines FXT-Tages sind immer die Daten
- * zweier Dukascopy-Tage notwendig. Die Daten des aktuellen Tags sind frühestens am nächsten Tag verfügbar.
+ * Eine Dukascopy-Datei enthaelt immer anteilige Daten zweier FXT-Tage. Zum Update eines FXT-Tages sind immer die Daten
+ * zweier Dukascopy-Tage notwendig. Die Daten des aktuellen Tags sind fruehestens am naechsten Tag verfuegbar.
  *
  * @param  string $symbol - Symbol
  *
@@ -121,7 +121,7 @@ function updateSymbol($symbol) {
     $startTime -= $startTime % DAY;                                   // 00:00 GMT
 
     global $verbose, $barBuffer;
-    $barBuffer        = [];                                           // Barbuffer zurücksetzen
+    $barBuffer        = [];                                           // Barbuffer zuruecksetzen
     $barBuffer['bid'] = [];
     $barBuffer['ask'] = [];
     $barBuffer['avg'] = [];
@@ -129,9 +129,9 @@ function updateSymbol($symbol) {
     echoPre('[Info]    '.$symbol);
 
 
-    // (1) Prüfen, ob sich der Startzeitpunkt der History des Symbols geändert hat
+    // (1) Pruefen, ob sich der Startzeitpunkt der History des Symbols geaendert hat
     if (array_search($symbol, ['USDNOK', 'USDSEK', 'USDSGD', 'USDZAR', 'XAUUSD']) === false) {
-        $content = downloadData($symbol, $startTime-1*DAY, 'bid', true, false, false);   // Statusmeldungen unterdrücken, nichts speichern
+        $content = downloadData($symbol, $startTime-1*DAY, 'bid', true, false, false);   // Statusmeldungen unterdruecken, nichts speichern
         if (strLen($content)) {
             echoPre('[Notice]  '.$symbol.' M1 history was extended. Please update the history start time.');
             return false;
@@ -140,7 +140,7 @@ function updateSymbol($symbol) {
 
 
     // (2) Gesamte Zeitspanne inklusive Wochenenden tageweise durchlaufen, um von vorherigen Durchlaufen ggf. vorhandene
-    //     Zwischendateien finden und löschen zu können.
+    //     Zwischendateien finden und loeschen zu koennen.
     static $lastMonth=-1;
     $today = ($today=time()) - $today%DAY;                            // 00:00 GMT aktueller Tag
 
@@ -151,7 +151,7 @@ function updateSymbol($symbol) {
             $lastMonth = $month;
         }
         if (!checkHistory($symbol, $day)) return false;
-        if (!WINDOWS) pcntl_signal_dispatch();                         // Auf Ctrl-C prüfen, um bei Abbruch die Destruktoren auszuführen.
+        if (!WINDOWS) pcntl_signal_dispatch();                         // Auf Ctrl-C pruefen, um bei Abbruch die Destruktoren auszufuehren.
     }
 
     echoPre('[Ok]      '.$symbol);
@@ -160,10 +160,10 @@ function updateSymbol($symbol) {
 
 
 /**
- * Prüft den Stand der MyFX-History eines einzelnen Forex-Tages und stößt ggf. das Update an.
+ * Prueft den Stand der MyFX-History eines einzelnen Forex-Tages und stoesst ggf. das Update an.
  *
  * @param  string $symbol - Symbol
- * @param  int    $day    - GMT-Timestamp des zu prüfenden Tages
+ * @param  int    $day    - GMT-Timestamp des zu pruefenden Tages
  *
  * @return bool - Erfolgsstatus
  */
@@ -174,7 +174,7 @@ function checkHistory($symbol, $day) {
     global $verbose, $saveCompressedDukascopyFiles, $saveRawDukascopyFiles, $saveRawMyFXData, $barBuffer;
     $day -= $day%DAY;                                              // 00:00 GMT
 
-    // (1) nur an Wochentagen: prüfen, ob die MyFX-History existiert und ggf. aktualisieren
+    // (1) nur an Wochentagen: pruefen, ob die MyFX-History existiert und ggf. aktualisieren
     if (!isForexWeekend($day, 'FXT')) {                            // um 00:00 GMT sind GMT- und FXT-Wochentag immer gleich
         // History ist ok, wenn entweder die komprimierte MyFX-Datei existiert...
         if (is_file($file=getVar('myfxFile.compressed', $symbol, $day))) {
@@ -185,13 +185,13 @@ function checkHistory($symbol, $day) {
             if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'   MyFX raw history file: '.baseName($file));
         }
         // andererseits History aktualisieren
-        else if (!updateHistory($symbol, $day)) {                   // da 00:00, kann der GMT- als FXT-Timestamp übergeben werden
+        else if (!updateHistory($symbol, $day)) {                   // da 00:00, kann der GMT- als FXT-Timestamp uebergeben werden
             return false;
         }
     }
 
 
-    // (2) an allen Tagen: nicht mehr benötigte Dateien, Verzeichnisse und Barbuffer-Daten löschen
+    // (2) an allen Tagen: nicht mehr benoetigte Dateien, Verzeichnisse und Barbuffer-Daten loeschen
     $previousDay   = $day - 1*DAY;
     $shortDatePrev = gmDate('D, d-M-Y', $previousDay);
 
@@ -229,7 +229,7 @@ function checkHistory($symbol, $day) {
 
 
 /**
- * Aktualisiert die Daten eines einzelnen Forex-Tages. Wird aufgerufen, wenn für einen Wochentag keine lokalen
+ * Aktualisiert die Daten eines einzelnen Forex-Tages. Wird aufgerufen, wenn fuer einen Wochentag keine lokalen
  * MyFX-Historydateien existieren.
  *
  * @param  string $symbol - Symbol
@@ -260,7 +260,7 @@ function updateHistory($symbol, $day) {
 
 
 /**
- * Lädt die Daten eines einzelnen Forex-Tages und Typs in den Barbuffer.
+ * Laedt die Daten eines einzelnen Forex-Tages und Typs in den Barbuffer.
  *
  * @param  string $symbol - Symbol
  * @param  int    $day    - FXT-Timestamp des zu ladenden Forex-Tages
@@ -273,7 +273,7 @@ function loadHistory($symbol, $day, $type) {
     $shortDate = gmDate('D, d-M-Y', $day);
     global $barBuffer, $saveCompressedDukascopyFiles; $barBuffer[$type];
 
-    // Für jeden Forex-Tag werden die GMT-Dukascopy-Daten des vorherigen und des aktuellen Tages benötigt.
+    // Fuer jeden Forex-Tag werden die GMT-Dukascopy-Daten des vorherigen und des aktuellen Tages benoetigt.
     // Die Daten werden jeweils in folgender Reihenfolge gesucht:
     //  • im Barbuffer selbst
     //  • in bereits dekomprimierten Dukascopy-Dateien
@@ -360,7 +360,7 @@ function mergeHistory($symbol, $day) {
     global $barBuffer;
 
 
-    // (1) beide Datenreihen nochmal prüfen
+    // (1) beide Datenreihen nochmal pruefen
     $types = ['bid', 'ask'];
     foreach ($types as $type) {
         if (!isSet($barBuffer[$type][$shortDate]) || ($size=sizeOf($barBuffer[$type][$shortDate]))!=1*DAY/MINUTES)
@@ -380,7 +380,7 @@ function mergeHistory($symbol, $day) {
         $avg['low'      ] = (int) round(($bid['low'      ] + $ask['low'  ])/2);
         $avg['close'    ] = (int) round(($bid['close'    ] + $ask['close'])/2);
 
-        // Resultierende Avg-Bar validieren (Bid- und Ask-Bar für sich allein sind schon validiert).
+        // Resultierende Avg-Bar validieren (Bid- und Ask-Bar fuer sich allein sind schon validiert).
         // Es kann Spikes mit negativem Spread geben. In diesem Fall werden Open und Close normal berechnet (Average),
         // und High und Low auf das Extrem gesetzt.
         if ($bid['open'] > $ask['open'] || $bid['high'] > $ask['high'] || $bid['low'] > $ask['low'] || $bid['close'] > $ask['close']) {
@@ -388,8 +388,8 @@ function mergeHistory($symbol, $day) {
             $avg['low' ] = min($avg['open'], $avg['high'], $avg['low'], $avg['close']);
         }
 
-        // Ursprünglich wurden die Ticks von Bid- und Ask-Bar einzeln berechnet und diese Werte addiert.
-        // Ziel ist jedoch ein möglichst kleiner Tickwert (um Tests nicht unnötig zu verlangsamen).
+        // Urspruenglich wurden die Ticks von Bid- und Ask-Bar einzeln berechnet und diese Werte addiert.
+        // Ziel ist jedoch ein moeglichst kleiner Tickwert (um Tests nicht unnoetig zu verlangsamen).
         // Daher werden die Ticks nur noch von der Avg-Bar berechnet und dieser eine Wert gespeichert.
         $ticks = ($avg['high'] - $avg['low']) << 1;                                            // unchanged bar (O == C)
         if      ($avg['open'] < $avg['close']) $ticks += ($avg['open' ] - $avg['close']);      // bull bar
@@ -403,12 +403,12 @@ function mergeHistory($symbol, $day) {
 
 
 /**
- * Lädt eine Dukascopy-M1-Datei und gibt ihren Inhalt zurück.
+ * Laedt eine Dukascopy-M1-Datei und gibt ihren Inhalt zurueck.
  *
  * @param  string $symbol    - Symbol der herunterzuladenen Datei
  * @param  int    $day       - Tag der herunterzuladenen Datei
  * @param  string $type      - Kurstyp der herunterzuladenen Datei: 'bid'|'ask'
- * @param  bool   $quiet     - ob Statusmeldungen unterdrückt werden sollen (default: nein)
+ * @param  bool   $quiet     - ob Statusmeldungen unterdrueckt werden sollen (default: nein)
  * @param  bool   $saveData  - ob die Datei gespeichert werden soll (default: nein)
  * @param  bool   $saveError - ob ein 404-Fehler mit einer entsprechenden Fehlerdatei signalisiert werden soll (default: ja)
  *
@@ -445,13 +445,13 @@ function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $save
 
     // (2) HTTP-Request abschicken und auswerten
     static $httpClient = null;
-    !$httpClient && $httpClient=CurlHttpClient::create($options);        // Instanz für KeepAlive-Connections wiederverwenden
+    !$httpClient && $httpClient=CurlHttpClient::create($options);        // Instanz fuer KeepAlive-Connections wiederverwenden
 
     $response = $httpClient->send($request);                             // TODO: CURL-Fehler wie bei SimpleTrader behandeln
     $status   = $response->getStatus();
     if ($status!=200 && $status!=404) throw new RuntimeException('Unexpected HTTP status '.$status.' ('.HttpResponse::$sc[$status].') for url "'.$url.'"'.NL.printPretty($response, true));
 
-    // eine leere Antwort ist möglich und wird wie ein 404-Fehler behandelt
+    // eine leere Antwort ist moeglich und wird wie ein 404-Fehler behandelt
     $content = $response->getContent();
     if (!strLen($content))
         $status = 404;
@@ -459,7 +459,7 @@ function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $save
 
     // (3) Download-Success
     if ($status == 200) {
-        // ggf. vorhandene Fehlerdatei löschen
+        // ggf. vorhandene Fehlerdatei loeschen
         if (is_file($file=getVar('dukaFile.404', $symbol, $day, $type))) unlink($file);
 
         // ist das Flag $saveData gesetzt, Content speichern
@@ -547,11 +547,11 @@ function processRawDukascopyBarData($data, $symbol, $day, $type) {
     $size = sizeOf($bars); if ($size != 1*DAY/MINUTES) throw new RuntimeException('Unexpected number of Dukascopy bars in '.getVar('dukaName', null, null, $type).': '.$size.' ('.($size > 1*DAY/MINUTES ? 'more':'less').' then a day)');
 
 
-    // (2) Timestamps und FXT-Daten zu den Bars hinzufügen
-    $prev = $next = null;                                             // Die Daten der Datei können einen DST-Wechsel abdecken, wenn
-    $fxtOffset = MyFX::fxtTimezoneOffset($day, $prev, $next);         // $day = "Sun, 00:00 GMT" ist. In diesem Fall muß innerhalb
+    // (2) Timestamps und FXT-Daten zu den Bars hinzufuegen
+    $prev = $next = null;                                             // Die Daten der Datei koennen einen DST-Wechsel abdecken, wenn
+    $fxtOffset = MyFX::fxtTimezoneOffset($day, $prev, $next);         // $day = "Sun, 00:00 GMT" ist. In diesem Fall muss innerhalb
     foreach ($bars as &$bar) {                                        // der Datenreihe bei der Ermittlung von time_fxt und delta_fxt
-        $bar['time_gmt' ] = $day + $bar['timeDelta'];                  // auf den nächsten DST-Offset gewechselt werden.
+        $bar['time_gmt' ] = $day + $bar['timeDelta'];                  // auf den naechsten DST-Offset gewechselt werden.
         $bar['delta_gmt'] =        $bar['timeDelta'];
         if ($bar['time_gmt'] >= $next['time'])
             $fxtOffset = $next['offset'];                               // $fxtOffset on-the-fly aktualisieren
@@ -563,7 +563,7 @@ function processRawDukascopyBarData($data, $symbol, $day, $type) {
 
     // (3) Index von 00:00 FXT bestimmen und Bars FXT-tageweise im Buffer speichern
     $newDayOffset = $size - $fxtOffset/MINUTES;
-    if ($fxtOffset == $next['offset']) {                              // bei DST-Change sicherheitshalber Lots prüfen
+    if ($fxtOffset == $next['offset']) {                              // bei DST-Change sicherheitshalber Lots pruefen
         $lastBar  = $bars[$newDayOffset-1];
         $firstBar = $bars[$newDayOffset];
         if ($lastBar['lots']/*|| !$firstBar['lots']*/) {
@@ -581,7 +581,7 @@ function processRawDukascopyBarData($data, $symbol, $day, $type) {
     $shortDate2 = gmDate('D, d-M-Y', $bars2[0]['time_fxt']-$bars2[0]['delta_fxt']);
 
     if (isSet($barBuffer[$type][$shortDate1])) {
-        // Sicherstellen, daß die Daten zu mergender Bars nahtlos ineinander übergehen.
+        // Sicherstellen, dass die Daten zu mergender Bars nahtlos ineinander uebergehen.
         $lastBarTime = $barBuffer[$type][$shortDate1][sizeOf($barBuffer[$type][$shortDate1])-1]['time_fxt'];
         $nextBarTime = $bars1[0]['time_fxt'];
         if ($lastBarTime + 1*MINUTE != $nextBarTime) throw new RuntimeException('Bar time mis-match, bars to merge: "'.getVar('dukaName', null, null, $type).'", $lastBarTime='.$lastBarTime.', $nextBarTime='.$nextBarTime);
@@ -592,7 +592,7 @@ function processRawDukascopyBarData($data, $symbol, $day, $type) {
     }
 
     if (isSet($barBuffer[$type][$shortDate2])) {
-        // Sicherstellen, daß die Daten zu mergender Bars nahtlos ineinander übergehen.
+        // Sicherstellen, dass die Daten zu mergender Bars nahtlos ineinander uebergehen.
         $lastBarTime = $barBuffer[$type][$shortDate2][sizeOf($barBuffer[$type][$shortDate2])-1]['time_fxt'];
         $nextBarTime = $bars2[0]['time_fxt'];
         if ($lastBarTime + 1*MINUTE != $nextBarTime) throw new RuntimeException('Bar time mis-match, bars to merge: "'.getVar('dukaName', null, null, $type).'", $lastBarTime='.$lastBarTime.', $nextBarTime='.$nextBarTime);
@@ -620,7 +620,7 @@ function saveBars($symbol, $day) {
     global $barBuffer, $saveRawMyFXData;
 
 
-    // (1) gepufferte Datenreihe nochmal prüfen
+    // (1) gepufferte Datenreihe nochmal pruefen
     $errorMsg = null;
     if (!$errorMsg && !isSet($barBuffer['avg'][$shortDate]))                                    $errorMsg = 'No "avg" bars of '.$shortDate.' in buffer';
     if (!$errorMsg && ($size=sizeOf($barBuffer['avg'][$shortDate]))!=1*DAY/MINUTES)             $errorMsg = 'Invalid number of "avg" bars for '.$shortDate.' in buffer: '.$size;
@@ -633,7 +633,7 @@ function saveBars($symbol, $day) {
     }
 
 
-    // (2) Bars in Binärstring umwandeln
+    // (2) Bars in Binaerstring umwandeln
     $data = null;
     foreach ($barBuffer['avg'][$shortDate] as $bar) {
         // Bardaten vorm Schreiben validieren
@@ -652,7 +652,7 @@ function saveBars($symbol, $day) {
     }
 
 
-    // (3) binäre Daten ggf. unkomprimiert speichern
+    // (3) binaere Daten ggf. unkomprimiert speichern
     if ($saveRawMyFXData) {
         if (is_file($file=getVar('myfxFile.raw', $symbol, $day))) {
             echoPre('[Error]   '.$symbol.' history for '.$shortDate.' already exists');
@@ -667,7 +667,7 @@ function saveBars($symbol, $day) {
     }
 
 
-    // (4) binäre Daten ggf. komprimieren und speichern
+    // (4) binaere Daten ggf. komprimieren und speichern
 
     return true;
 }
@@ -676,8 +676,8 @@ function saveBars($symbol, $day) {
 /**
  * Verwaltet dynamisch generierte Variablen.
  *
- * Evaluiert und cacht ständig wiederbenutzte dynamische Variablen an einem zentralen Ort. Vereinfacht die Logik,
- * da die Variablen nicht global gespeichert oder über viele Funktionsaufrufe hinweg weitergereicht werden müssen,
+ * Evaluiert und cacht staendig wiederbenutzte dynamische Variablen an einem zentralen Ort. Vereinfacht die Logik,
+ * da die Variablen nicht global gespeichert oder ueber viele Funktionsaufrufe hinweg weitergereicht werden muessen,
  * aber trotzdem nicht bei jeder Verwendung neu ermittelt werden brauchen.
  *
  * @param  string $id     - eindeutiger Bezeichner der Variable (ID)
@@ -798,7 +798,7 @@ function showBuffer() {
 /**
  * Hilfefunktion: Zeigt die Syntax des Aufrufs an.
  *
- * @param  string $message - zusätzlich zur Syntax anzuzeigende Message (default: keine)
+ * @param  string $message - zusaetzlich zur Syntax anzuzeigende Message (default: keine)
  */
 function help($message=null) {
     if (!is_null($message))
