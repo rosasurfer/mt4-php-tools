@@ -2,28 +2,6 @@
 <?php
 /**
  *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
  */
 namespace rosasurfer\trade\myfxbook\sync_accounts;
 
