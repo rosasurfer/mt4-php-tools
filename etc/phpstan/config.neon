@@ -43,8 +43,7 @@ parameters:
        #- phtml                                                     # TODO: Tiles default variables trigger errors 
 
     excludes_analyse:
-        - etc/vendor/composer/
-        - etc/vendor/rosasurfer/ministruts/src/util/apc/apc.php
+        - etc/vendor/
 
     reportUnmatchedIgnoredErrors:           false
     polluteScopeWithLoopInitialAssignments: true
