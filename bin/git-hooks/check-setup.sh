@@ -1,21 +1,19 @@
 #!/bin/sh
 #
-#
-
 
 # check environment
 which git >/dev/null 2>&1 || { echo "ERROR: Git binary not found."; exit; }
-CYGPATH=; which cygpath.exe >/dev/null 2>&1 && CYGPATH=1
 
 
 # resolve directories
-CWD=$PWD
+CWD=$(readlink -e "$PWD")
 SCRIPT_DIR=$(dirname "$0")
 TOP_LEVEL_DIR=$(git rev-parse --show-toplevel 2>/dev/null)
 GIT_HOOK_DIR=$(git rev-parse --git-dir 2>/dev/null)'/hooks'
 
 
 # normalize paths on Windows
+CYGPATH=; which cygpath.exe >/dev/null 2>&1 && CYGPATH=1
 [ -n "$CYGPATH" ] && {
     CWD=$(cygpath -m "$CWD")
     SCRIPT_DIR=$(cygpath -m "$SCRIPT_DIR")
@@ -26,7 +24,7 @@ GIT_HOOK_DIR=$(git rev-parse --git-dir 2>/dev/null)'/hooks'
 
 # make sure we run in the repo's root directory (as to not to mess-up nested repos)
 if [ "$CWD" != "$TOP_LEVEL_DIR" ]; then
-    echo "ERROR: This script must run in the repository's root directory."; exit
+    echo "ERROR: $(basename "$0") must run in the repository's root directory."; exit
 fi
 
 
