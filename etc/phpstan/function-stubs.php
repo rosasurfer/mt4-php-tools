@@ -27,10 +27,10 @@ namespace rosasurfer\xtrade\dukascopy\update_m1_bars {
     }
 
     /**
-     * @param  string $id
-     * @param  string $symbol
-     * @param  int    $time
-     * @param  string $type
+     * @param  string      $id
+     * @param  string|null $symbol
+     * @param  int|null    $time
+     * @param  string|null $type
      *
      * @return string
      */
@@ -39,7 +39,7 @@ namespace rosasurfer\xtrade\dukascopy\update_m1_bars {
     }
 
     /**
-     * @param  string $message
+     * @param  string|null $message
      */
     function help($message=null) {}
 
@@ -227,9 +227,9 @@ namespace rosasurfer\xtrade\dukascopy\update_tickdata {
     }
 
     /**
-     * @param  string $id
-     * @param  string $symbol
-     * @param  int    $time
+     * @param  string      $id
+     * @param  string|null $symbol
+     * @param  int|null    $time
      *
      * @return string
      */
@@ -238,7 +238,7 @@ namespace rosasurfer\xtrade\dukascopy\update_tickdata {
     }
 
     /**
-     * @param  string $message
+     * @param  string|null $message
      */
     function help($message=null) {}
 }
@@ -563,9 +563,9 @@ namespace rosasurfer\xtrade\fxi\update_m1_bars {
     function showBuffer($bars) {}
 
     /**
-     * @param  string $id
-     * @param  string $symbol
-     * @param  int    $time
+     * @param  string      $id
+     * @param  string|null $symbol
+     * @param  int|null    $time
      *
      * @return string
      */
@@ -574,7 +574,7 @@ namespace rosasurfer\xtrade\fxi\update_m1_bars {
     }
 
     /**
-     * @param  string $message
+     * @param  string|null $message
      */
     function help($message=null) {}
 }
@@ -588,7 +588,7 @@ namespace rosasurfer\xtrade\logwatch {
     function error($message) {}
 
     /**
-     * @param  string $message
+     * @param  string|null $message
      */
     function help($message = null) {}
 
@@ -611,9 +611,9 @@ namespace rosasurfer\xtrade\metatrader\create_history {
     }
 
     /**
-     * @param  string $id
-     * @param  string $symbol
-     * @param  int    $time
+     * @param  string      $id
+     * @param  string|null $symbol
+     * @param  int|null    $time
      *
      * @return string
      */
@@ -631,7 +631,7 @@ namespace rosasurfer\xtrade\metatrader\create_history {
 namespace rosasurfer\xtrade\metatrader\create_tickfile {
 
     /**
-     * @param  string $message
+     * @param  string|null $message
      */
     function help($message=null) {}
 }
@@ -646,7 +646,7 @@ namespace rosasurfer\xtrade\metatrader\dir {
     function showDirResults($dirName, array $files, array $formats, array $symbols, array $symbolsU, array $periods, array $digits, array $syncMarkers, array $lastSyncTimes, array $bars, array $barsFrom, array $barsTo, array $errors) {}
 
     /**
-     * @param  string $message
+     * @param  string|null $message
      */
     function help($message=null) {}
 }
@@ -655,7 +655,7 @@ namespace rosasurfer\xtrade\metatrader\dir {
 namespace rosasurfer\xtrade\metatrader\find_offset {
 
     /**
-     * @param  string $message
+     * @param  string|null $message
      */
     function help($message=null) {}
 }
@@ -686,7 +686,7 @@ namespace rosasurfer\xtrade\metatrader\list_symbols {
     }
 
     /**
-     * @param  string $message
+     * @param  string|null $message
      */
     function help($message=null) {}
 
@@ -707,7 +707,7 @@ namespace rosasurfer\xtrade\metatrader\list_symbols {
 namespace rosasurfer\xtrade\metatrader\save_test {
 
     /**
-     * @param  string $message
+     * @param  string|null $message
      */
     function help($message = null) {}
 
@@ -723,7 +723,7 @@ namespace rosasurfer\xtrade\metatrader\save_test {
 namespace rosasurfer\xtrade\metatrader\update_history {
 
     /**
-     * @param  string $message
+     * @param  string|null $message
      */
     function help($message=null) {}
 
@@ -743,7 +743,7 @@ namespace rosasurfer\xtrade\myfxbook\sync_accounts {
     use rosasurfer\xtrade\model\Signal;
 
     /**
-     * @param  string $message
+     * @param  string|null $message
      */
     function help($message=null) {}
 
@@ -777,7 +777,7 @@ namespace rosasurfer\xtrade\simpletrader\sync_accounts {
     use rosasurfer\xtrade\model\Signal;
 
     /**
-     * @param  string $message
+     * @param  string|null $message
      */
     function help($message=null) {}
 
