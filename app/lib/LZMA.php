@@ -62,7 +62,7 @@ class LZMA extends StaticClass {
         $cmdLine = sprintf($cmd, $file);
         $stdout  = PHP::shellExec($cmdLine);
 
-        if (!strLen($stdout)) throw new RuntimeException("Decoding of file \"$file\" failed (decoded size=0)");
+        if (!strLen($stdout)) throw new RuntimeException('Decoding of file "'.$file.'" failed (decoded size=0)');
 
         return $stdout;
     }

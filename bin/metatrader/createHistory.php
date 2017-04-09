@@ -154,15 +154,15 @@ function getVar($id, $symbol=null, $time=null) {
         $dataDirectory = Config::getDefault()->get('app.dir.data');
         $type          = Tools::$symbols[$symbol]['type'];
         $myfxDirDate   = $self('myfxDirDate', null, $time);
-        $result        = "$dataDirectory/history/myfx/$type/$symbol/$myfxDirDate";
+        $result        = $dataDirectory.'/history/myfx/'.$type.'/'.$symbol.'/'.$myfxDirDate;
     }
     else if ($id == 'myfxFile.raw') {         // $myfxDir/M1.myfx                                               // lokale Datei ungepackt
         $myfxDir = $self('myfxDir' , $symbol, $time);
-        $result  = "$myfxDir/M1.myfx";
+        $result  = $myfxDir.'/M1.myfx';
     }
     else if ($id == 'myfxFile.compressed') {  // $myfxDir/M1.rar                                                // lokale Datei gepackt
         $myfxDir = $self('myfxDir' , $symbol, $time);
-        $result  = "$myfxDir/M1.rar";
+        $result  = $myfxDir.'/M1.rar';
     }
     else {
       throw new InvalidArgumentException('Unknown parameter $id: "'.$id.'"');

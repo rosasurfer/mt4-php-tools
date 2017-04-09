@@ -569,50 +569,50 @@ function getVar($id, $symbol=null, $time=null) {
         $dataDirectory = Config::getDefault()->get('app.dir.data');
         $type          = Tools::$symbols[$symbol]['type'];
         $myfxDirDate   = $self('myfxDirDate', null, $time);
-        $result        = "$dataDirectory/history/myfx/$type/$symbol/$myfxDirDate";
+        $result        = $dataDirectory.'/history/myfx/'.$type.'/'.$symbol.'/'.$myfxDirDate;
     }
     else if ($id == 'myfxFile.raw') {         // $myfxDir/${hour}h_ticks.myfx                                   // lokale Datei ungepackt
         $myfxDir = $self('myfxDir', $symbol, $time);
         $hour    = gmDate('H', $time);
-        $result  = "$myfxDir/${hour}h_ticks.myfx";
+        $result  = $myfxDir.'/'.$hour.'h_ticks.myfx';
     }
     else if ($id == 'myfxFile.compressed') {  // $myfxDir/${hour}h_ticks.rar                                    // lokale Datei gepackt
         $myfxDir = $self('myfxDir', $symbol, $time);
         $hour    = gmDate('H', $time);
-        $result  = "$myfxDir/${hour}h_ticks.rar";
+        $result  = $myfxDir.'/'.$hour.'h_ticks.rar';
     }
     else if ($id == 'dukaFile.raw') {         // $myfxDir/${hour}h_ticks.bin                                    // Dukascopy-Datei ungepackt
-        $myfxDir  = $self('myfxDir', $symbol, $time);
+        $myfxDir = $self('myfxDir', $symbol, $time);
         $hour    = gmDate('H', $time);
-        $result   = "$myfxDir/${hour}h_ticks.bin";
+        $result  = $myfxDir.'/'.$hour.'h_ticks.bin';
     }
     else if ($id == 'dukaFile.compressed') {  // $myfxDir/${hour}h_ticks.bi5                                    // Dukascopy-Datei gepackt
         $myfxDir = $self('myfxDir', $symbol, $time);
         $hour    = gmDate('H', $time);
-        $result  = "$myfxDir/${hour}h_ticks.bi5";
+        $result  = $myfxDir.'/'.$hour.'h_ticks.bi5';
     }
     else if ($id == 'dukaUrlDate') {          // $yyyy/$mmD/$dd                                                 // Dukascopy-URL-Datum
         if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
         $yyyy   = gmDate('Y', $time);
         $mmD    = strRight((string)(gmDate('m', $time)+99), 2);  // Januar = 00
         $dd     = gmDate('d', $time);
-        $result = "$yyyy/$mmD/$dd";
+        $result = $yyyy.'/'.$mmD.'/'.$dd;
     }
     else if ($id == 'dukaUrl') {              // http://datafeed.dukascopy.com/datafeed/$symbol/$dukaUrlDate/${hour}h_ticks.bi5  // URL
         if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
         $dukaUrlDate = $self('dukaUrlDate', null, $time);
         $hour        = gmDate('H', $time);
-        $result      = "http://datafeed.dukascopy.com/datafeed/$symbol/$dukaUrlDate/${hour}h_ticks.bi5";
+        $result      = 'http://datafeed.dukascopy.com/datafeed/'.$symbol.'/'.$dukaUrlDate.'/'.$hour.'h_ticks.bi5';
     }
     else if ($id == 'dukaFile.404') {         // $myfxDir/${hour}h_ticks.404                                    // Download-Fehler 404
         $myfxDir = $self('myfxDir', $symbol, $time);
         $hour    = gmDate('H', $time);
-        $result  = "$myfxDir/${hour}h_ticks.404";
+        $result  = $myfxDir.'/'.$hour.'h_ticks.404';
     }
     else if ($id == 'dukaFile.empty') {       // $myfxDir/${hour}h_ticks.na                                     // Download-Fehler leerer Response
         $myfxDir = $self('myfxDir', $symbol, $time);
         $hour    = gmDate('H', $time);
-        $result  = "$myfxDir/${hour}h_ticks.na";
+        $result  = $myfxDir.'/'.$hour.'h_ticks.na';
     }
     else {
       throw new InvalidArgumentException('Unknown parameter $id: "'.$id.'"');

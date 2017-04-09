@@ -715,15 +715,15 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
         $dataDirectory = Config::getDefault()->get('app.dir.data');
         $type          = Tools::$symbols[$symbol]['type'];
         $dateL         = $self('myfxDirDate', null, $time, null);
-        $result        = "$dataDirectory/history/myfx/$type/$symbol/$dateL";
+        $result        = $dataDirectory.'/history/myfx/'.$type.'/'.$symbol.'/'.$dateL;
     }
     else if ($id == 'myfxFile.raw') {         // $myfxDir/M1.myfx                                         // lokale Datei ungepackt
         $myfxDir = $self('myfxDir' , $symbol, $time, null);
-        $result  = "$myfxDir/M1.myfx";
+        $result  = $myfxDir.'/M1.myfx';
     }
     else if ($id == 'myfxFile.compressed') {  // $myfxDir/M1.rar                                          // lokale Datei gepackt
         $myfxDir = $self('myfxDir' , $symbol, $time, null);
-        $result  = "$myfxDir/M1.rar";
+        $result  = $myfxDir.'/M1.rar';
     }
     else if ($id == 'dukaName') {             // BID_candles_min_1                                        // Dukascopy-Name
         if (is_null($type)) throw new InvalidArgumentException('Invalid parameter $type: (null)');
@@ -732,30 +732,30 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
     else if ($id == 'dukaFile.raw') {         // $myfxDir/$dukaName.bin                                   // Dukascopy-Datei ungepackt
         $myfxDir  = $self('myfxDir' , $symbol, $time, null);
         $dukaName = $self('dukaName', null, null, $type);
-        $result   = "$myfxDir/$dukaName.bin";
+        $result   = $myfxDir.'/'.$dukaName.'.bin';
     }
     else if ($id == 'dukaFile.compressed') {  // $myfxDir/$dukaName.bi5                                   // Dukascopy-Datei gepackt
         $myfxDir  = $self('myfxDir' , $symbol, $time, null);
         $dukaName = $self('dukaName', null, null, $type);
-        $result   = "$myfxDir/$dukaName.bi5";
+        $result   = $myfxDir.'/'.$dukaName.'.bi5';
     }
     else if ($id == 'dukaUrlDate') {          // $yyyy/$mmD/$dd                                           // Dukascopy-URL-Datum
         if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
         $yyyy   = gmDate('Y', $time);
         $mmD    = strRight((string)(gmDate('m', $time)+99), 2);  // Januar = 00
         $dd     = gmDate('d', $time);
-        $result = "$yyyy/$mmD/$dd";
+        $result = $yyyy.'/'.$mmD.'/'.$dd;
     }
     else if ($id == 'dukaUrl') {  // http://datafeed.dukascopy.com/datafeed/$symbol/$dateD/$dukaName.bi5       // Dukascopy-URL
         if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
         $dateD    = $self('dukaUrlDate', null, $time, null);
         $dukaName = $self('dukaName'   , null, null, $type);
-        $result   = "http://datafeed.dukascopy.com/datafeed/$symbol/$dateD/$dukaName.bi5";
+        $result   = 'http://datafeed.dukascopy.com/datafeed/'.$symbol.'/'.$dateD.'/'.$dukaName.'.bi5';
     }
     else if ($id == 'dukaFile.404') {         // $myfxDir/$dukaName.404                                   // Download-Fehlerdatei (404)
         $myfxDir  = $self('myfxDir' , $symbol, $time, null);
         $dukaName = $self('dukaName', null, null, $type);
-        $result   = "$myfxDir/$dukaName.404";
+        $result   = $myfxDir.'/'.$dukaName.'.404';
     }
     else {
       throw new InvalidArgumentException('Unknown parameter $id: "'.$id.'"');
