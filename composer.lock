@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "feaee6221df7800b3847c57d044997b4",
+    "content-hash": "347bffbc7b26204a6e0dde7754dc5f36",
     "packages": [
         {
             "name": "rosasurfer/ministruts",
@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/rosasurfer/ministruts.git",
-                "reference": "e00f92fbce89048de6451fcd49c0690c777b65f1"
+                "reference": "7076fe0332950616cccc136f371dc60fe7e6fee5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/e00f92fbce89048de6451fcd49c0690c777b65f1",
-                "reference": "e00f92fbce89048de6451fcd49c0690c777b65f1",
+                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/7076fe0332950616cccc136f371dc60fe7e6fee5",
+                "reference": "7076fe0332950616cccc136f371dc60fe7e6fee5",
                 "shasum": ""
             },
             "require": {
@@ -34,7 +34,7 @@
             },
             "scripts": {
                 "post-install-cmd": [
-                    "sh bin/git-hooks/setup.sh post-checkout post-merge"
+                    "sh bin/git-hooks/check-setup.sh post-checkout post-merge"
                 ]
             },
             "license": [
@@ -52,7 +52,7 @@
                 "source": "https://github.com/rosasurfer/ministruts/tree/master",
                 "issues": "https://github.com/rosasurfer/ministruts/issues"
             },
-            "time": "2017-04-08 09:19:50"
+            "time": "2017-04-09 14:38:01"
         }
     ],
     "packages-dev": [],
