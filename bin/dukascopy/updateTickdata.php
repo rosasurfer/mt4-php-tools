@@ -44,10 +44,12 @@ use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
 
 use rosasurfer\xtrade\LZMA;
+use rosasurfer\xtrade\Tools;
+
 use rosasurfer\xtrade\dukascopy\Dukascopy;
 use rosasurfer\xtrade\dukascopy\DukascopyException;
+
 use rosasurfer\xtrade\model\Signal;
-use rosasurfer\xtrade\myfx\MyFX;
 use rosasurfer\xtrade\simpletrader\SimpleTrader;
 
 require(__DIR__.'/../../app/init.php');
@@ -81,11 +83,11 @@ foreach ($args as $i => $arg) {
 // Symbole parsen
 foreach ($args as $i => $arg) {
     $arg = strToUpper($arg);
-    if (!isSet(MyFX::$symbols[$arg]) || MyFX::$symbols[$arg]['provider']!='dukascopy')
+    if (!isSet(Tools::$symbols[$arg]) || Tools::$symbols[$arg]['provider']!='dukascopy')
         exit(1|help('unknown or unsupported symbol "'.$args[$i].'"'));
     $args[$i] = $arg;
 }                                                                                   // ohne Angabe werden alle Dukascopy-Instrumente aktualisiert
-$args = $args ? array_unique($args) : array_keys(MyFX::filterSymbols(['provider'=>'dukascopy']));
+$args = $args ? array_unique($args) : array_keys(Tools::filterSymbols(['provider'=>'dukascopy']));
 
 
 // (2) SIGINT-Handler installieren                                                  // Um bei Ctrl-C Destruktoren auszufuehren, reicht es,
@@ -120,9 +122,9 @@ function updateSymbol($symbol) {
 
 
     // (1) Beginn des naechsten Forex-Tages ermitteln
-    $startTimeGMT = MyFX::$symbols[$symbol]['historyStart']['ticks'];    // Beginn der Tickdaten des Symbols GMT
+    $startTimeGMT = Tools::$symbols[$symbol]['historyStart']['ticks'];    // Beginn der Tickdaten des Symbols GMT
     $prev = $next = null;
-    $fxtOffset = MyFX::fxtTimezoneOffset($startTimeGMT, $prev, $next);   // es gilt: FXT = GMT + Offset
+    $fxtOffset = Tools::fxtTimezoneOffset($startTimeGMT, $prev, $next);   // es gilt: FXT = GMT + Offset
     $startTimeFXT = $startTimeGMT + $fxtOffset;                          // Beginn der Tickdaten FXT
 
     if ($remainder=$startTimeFXT % DAY) {                                // Beginn auf den naechsten Forex-Tag 00:00 aufrunden, sodass
@@ -132,7 +134,7 @@ function updateSymbol($symbol) {
             $startTimeFXT = $startTimeGMT + $next['offset'];
             if ($remainder=$startTimeFXT % DAY) $diff = 1*DAY - $remainder;
             else                                $diff = 0;
-            $fxtOffset = MyFX::fxtTimezoneOffset($startTimeGMT, $prev, $next);
+            $fxtOffset = Tools::fxtTimezoneOffset($startTimeGMT, $prev, $next);
         }
         $startTimeGMT += $diff;                                           // naechster Forex-Tag 00:00 in GMT
         $startTimeFXT += $diff;                                           // naechster Forex-Tag 00:00 in FXT
@@ -146,7 +148,7 @@ function updateSymbol($symbol) {
 
     for ($gmtHour=$startTimeGMT; $gmtHour < $lastHour; $gmtHour+=1*HOUR) {
         if ($gmtHour >= $next['time'])
-            $fxtOffset = MyFX::fxtTimezoneOffset($gmtHour, $prev, $next);  // $fxtOffset on-the-fly aktualisieren
+            $fxtOffset = Tools::fxtTimezoneOffset($gmtHour, $prev, $next);  // $fxtOffset on-the-fly aktualisieren
         $fxtHour = $gmtHour + $fxtOffset;
 
         if (!checkHistory($symbol, $gmtHour, $fxtHour)) return false;
@@ -566,7 +568,7 @@ function getVar($id, $symbol=null, $time=null) {
         if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
         if (!$dataDirectory)
         $dataDirectory = Config::getDefault()->get('app.dir.data');
-        $type          = MyFX::$symbols[$symbol]['type'];
+        $type          = Tools::$symbols[$symbol]['type'];
         $myfxDirDate   = $self('myfxDirDate', null, $time);
         $result        = "$dataDirectory/history/myfx/$type/$symbol/$myfxDirDate";
     }

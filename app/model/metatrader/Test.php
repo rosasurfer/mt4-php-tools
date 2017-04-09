@@ -7,12 +7,12 @@ use rosasurfer\exception\IllegalArgumentException;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 
-use rosasurfer\xtrade\metatrader\MT4;
-use rosasurfer\xtrade\myfx\MyFX;
-
 use rosasurfer\util\Date;
 use rosasurfer\util\PHP;
 use rosasurfer\util\Windows;
+
+use rosasurfer\xtrade\Tools;
+use rosasurfer\xtrade\metatrader\MT4;
 
 use function rosasurfer\strLeft;
 
@@ -492,7 +492,7 @@ class Test extends PersistableObject {
         // type
         $pattern = '/, *type *= *(OP_[^ ]+) *,/i';
         if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal order properties ("type" invalid or not found): "'.$valuesOrig.'"');
-        if (($type = MyFX::strToOrderType($matches[1][0])) < 0)              throw new IllegalArgumentException('Illegal order property "type": "'.$matches[1][0].'"');
+        if (($type = Tools::strToOrderType($matches[1][0])) < 0)              throw new IllegalArgumentException('Illegal order property "type": "'.$matches[1][0].'"');
         $properties['type'] = $type;
         if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal order properties (multiple "type" occurrences): "'.$valuesOrig.'"');
 

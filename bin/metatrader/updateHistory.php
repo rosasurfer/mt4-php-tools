@@ -10,11 +10,13 @@ use rosasurfer\config\Config;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 
+use rosasurfer\xtrade\Tools;
 use rosasurfer\xtrade\dukascopy\Dukascopy;
+
 use rosasurfer\xtrade\metatrader\HistorySet;
 use rosasurfer\xtrade\metatrader\MT4;
+
 use rosasurfer\xtrade\model\Signal;
-use rosasurfer\xtrade\myfx\MyFX;
 
 require(__DIR__.'/../../app/init.php');
 date_default_timezone_set('GMT');
@@ -43,10 +45,10 @@ foreach ($args as $i => $arg) {
 // Symbole parsen
 foreach ($args as $i => $arg) {
     $arg = strToUpper($arg);
-    if (!isSet(MyFX::$symbols[$arg])) exit(1|help('error: unknown or unsupported symbol "'.$args[$i].'"'));
+    if (!isSet(Tools::$symbols[$arg])) exit(1|help('error: unknown or unsupported symbol "'.$args[$i].'"'));
     $args[$i] = $arg;
 }
-$args = $args ? array_unique($args) : array_keys(MyFX::$symbols);             // ohne Angabe werden alle Instrumente verarbeitet
+$args = $args ? array_unique($args) : array_keys(Tools::$symbols);             // ohne Angabe werden alle Instrumente verarbeitet
 
 
 // (2) SIGINT-Handler installieren (sauberer Abbruch bei Ctrl-C)              // Um bei Ctrl-C Destruktoren auszufuehren,
@@ -76,7 +78,7 @@ function updateHistory($symbol) {
     if (!strLen($symbol))    throw new InvalidArgumentException('Invalid parameter $symbol: ""');
 
     global $verbose;
-    $digits       = MyFX::$symbols[$symbol]['digits'];
+    $digits       = Tools::$symbols[$symbol]['digits'];
     $directory    = Config::getDefault()->get('app.dir.data').'/history/mt4/MyFX-Dukascopy';
     $lastSyncTime = null;
     echoPre('[Info]    '.$symbol);
@@ -88,7 +90,7 @@ function updateHistory($symbol) {
     !$history && $history=HistorySet::create($symbol, $digits, $format=400, $directory);
 
     // History beginnend mit dem letzten synchronisierten Tag aktualisieren
-    $startTime = $lastSyncTime ? $lastSyncTime : fxtTime(MyFX::$symbols[$symbol]['historyStart']['M1']);
+    $startTime = $lastSyncTime ? $lastSyncTime : fxtTime(Tools::$symbols[$symbol]['historyStart']['M1']);
     $startDay  = $startTime - $startTime%DAY;                                                 // 00:00 der Startzeit
     $today     = ($time=fxtTime()) - $time%DAY;                                               // 00:00 des aktuellen Tages
     $today     = $startDay + 5*DAYS;                                                          // zu Testzwecken nur x Tage
@@ -102,15 +104,15 @@ function updateHistory($symbol) {
             $lastMonth = $month;
         }
         if (!isForexWeekend($day, 'FXT')) {                                                    // nur an Handelstagen
-            if      (is_file($file=MyFX::getVar('myfxFile.M1.compressed', $symbol, $day))) {}   // wenn komprimierte MyFX-Datei existiert
-            else if (is_file($file=MyFX::getVar('myfxFile.M1.raw'       , $symbol, $day))) {}   // wenn unkomprimierte MyFX-Datei existiert
+            if      (is_file($file=Tools::getVar('myfxFile.M1.compressed', $symbol, $day))) {}   // wenn komprimierte MyFX-Datei existiert
+            else if (is_file($file=Tools::getVar('myfxFile.M1.raw'       , $symbol, $day))) {}   // wenn unkomprimierte MyFX-Datei existiert
             else {
                 echoPre('[Error]   '.$symbol.' MyFX history for '.$shortDate.' not found');
                 return false;
             }
             if ($verbose > 0) echoPre('[Info]    synchronizing '.$shortDate);
 
-            $bars = MyFX::readBarFile($file, $symbol);
+            $bars = Tools::readBarFile($file, $symbol);
             $history->synchronize($bars);
         }
         if (!WINDOWS) pcntl_signal_dispatch();                                                 // Auf Ctrl-C pruefen, um bei Abbruch den

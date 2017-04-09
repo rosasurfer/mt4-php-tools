@@ -14,6 +14,7 @@ use rosasurfer\log\Logger;
 use rosasurfer\util\Date;
 
 use rosasurfer\xtrade\ReportHelper;
+use rosasurfer\xtrade\Tools;
 
 use rosasurfer\xtrade\metatrader\MT4;
 
@@ -25,7 +26,6 @@ use rosasurfer\xtrade\model\Signal;
 use rosasurfer\xtrade\model\SignalDAO;
 
 use rosasurfer\xtrade\model\metatrader\Account;
-use rosasurfer\xtrade\myfx\MyFX;
 
 use rosasurfer\xtrade\simpletrader\DataNotFoundException;
 use rosasurfer\xtrade\simpletrader\SimpleTrader;
@@ -319,7 +319,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
             foreach ($positionChangeStartTimes as $symbol => $startTime) {
                 $n++;
                 if ($startTime < $lastKnownChangeTimes[$symbol])
-                    $startTime = MyFX::fxtDate(MyFX::fxtStrToTime($lastKnownChangeTimes[$symbol]) + 1);
+                    $startTime = Tools::fxtDate(Tools::fxtStrToTime($lastKnownChangeTimes[$symbol]) + 1);
 
                 $report = ReportHelper::getNetPositionHistory($signal, $symbol, $startTime);
                 $oldNetPosition     = 'Flat';
@@ -344,7 +344,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
                             $oldNetPositionDone = true;
                         }
                         $format = "%s:  %-6s %-4s %4.2F %s @ %-8s now: %s";
-                        $date   = date('Y-m-d H:i:s', MyFX::fxtStrToTime($row['time'  ]));
+                        $date   = date('Y-m-d H:i:s', Tools::fxtStrToTime($row['time'  ]));
                         $deal   =          ($row['trade']=='open') ? '': $row['trade' ];     // "open" wird nicht extra angezeigt
                         $type   =                                ucFirst($row['type'  ]);
                         $lots   =                                        $row['lots'  ];

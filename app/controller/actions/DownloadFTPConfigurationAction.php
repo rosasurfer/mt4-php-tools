@@ -7,8 +7,9 @@ use rosasurfer\ministruts\Action;
 use rosasurfer\ministruts\Request;
 use rosasurfer\ministruts\Response;
 
-use rosasurfer\xtrade\myfx\MyFX;
 use rosasurfer\util\System;
+
+use rosasurfer\xtrade\Tools;
 use rosasurfer\xtrade\controller\forms\DownloadFTPConfigurationActionForm;
 
 
@@ -31,7 +32,7 @@ class DownloadFTPConfigurationAction extends Action {
                 $account   = $form->getAccount();
                 $symbol    = $form->getSymbol();
                 $sequence  = $form->getSequence();
-                $directory = MyFX::getConfigPath('strategies.config.ftp').'/'.$company.'/'.$account.'/'.$symbol;
+                $directory = Tools::getConfigPath('strategies.config.ftp').'/'.$company.'/'.$account.'/'.$symbol;
                 $file      = 'FTP.'.$sequence.'.set';
 
                 if (is_file($directory.'/'.$file)) {

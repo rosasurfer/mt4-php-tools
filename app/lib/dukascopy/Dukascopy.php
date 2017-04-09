@@ -10,7 +10,7 @@ use rosasurfer\exception\RuntimeException;
 use rosasurfer\log\Logger;
 
 use rosasurfer\xtrade\LZMA;
-use rosasurfer\xtrade\myfx\MyFX;
+use rosasurfer\xtrade\Tools;
 
 
 /**
@@ -122,7 +122,7 @@ class Dukascopy extends StaticClass {
                  $bars[$i]['close'] > $bars[$i]['high'] ||
                  $bars[$i]['close'] < $bars[$i]['low' ]) {
 
-                $digits  = MyFX::$symbols[$symbol]['digits'];
+                $digits  = Tools::$symbols[$symbol]['digits'];
                 $divider = pow(10, $digits);
 
                 $O = number_format($bars[$i]['open' ]/$divider, $digits);

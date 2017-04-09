@@ -8,10 +8,10 @@ use rosasurfer\ministruts\Action;
 use rosasurfer\ministruts\Request;
 use rosasurfer\ministruts\Response;
 
-use rosasurfer\xtrade\controller\forms\UploadFTPConfigurationActionForm;
-use rosasurfer\xtrade\myfx\MyFX;
-
 use rosasurfer\util\System;
+
+use rosasurfer\xtrade\controller\forms\UploadFTPConfigurationActionForm;
+use rosasurfer\xtrade\Tools;
 
 
 /**
@@ -33,7 +33,7 @@ class UploadFTPConfigurationAction extends Action {
                 $company   = $form->getCompany();
                 $account   = $form->getAccount();
                 $symbol    = $form->getSymbol();
-                $directory = MyFX::getConfigPath('strategies.config.ftp').'/'.$company.'/'.$account.'/'.$symbol;
+                $directory = Tools::getConfigPath('strategies.config.ftp').'/'.$company.'/'.$account.'/'.$symbol;
                 $filename  = $directory.'/'.$form->getFileName();
 
                 // Datei speichern

@@ -6,10 +6,10 @@ use rosasurfer\db\orm\PersistableObject;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 
-use rosasurfer\xtrade\myfx\MyFX;
-
 use rosasurfer\util\Date;
 use rosasurfer\util\Number;
+
+use rosasurfer\xtrade\Tools;
 
 
 /**
@@ -101,7 +101,7 @@ class OpenPosition extends PersistableObject {
         $position->type        =               $data['type'       ];
         $position->lots        =               $data['lots'       ];
         $position->symbol      =               $data['symbol'     ];
-        $position->openTime    = MyFX::fxtDate($data['opentime'   ]);
+        $position->openTime    = Tools::fxtDate($data['opentime'   ]);
         $position->openPrice   =               $data['openprice'  ];
         $position->stopLoss    =         isSet($data['stoploss'   ]) ? $data['stoploss'   ] : null;
         $position->takeProfit  =         isSet($data['takeprofit' ]) ? $data['takeprofit' ] : null;

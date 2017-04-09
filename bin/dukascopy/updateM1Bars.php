@@ -44,9 +44,10 @@ use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
 
 use rosasurfer\xtrade\LZMA;
+use rosasurfer\xtrade\Tools;
+
 use rosasurfer\xtrade\dukascopy\Dukascopy;
 use rosasurfer\xtrade\model\Signal;
-use rosasurfer\xtrade\myfx\MyFX;
 use rosasurfer\xtrade\simpletrader\SimpleTrader;
 
 require(__DIR__.'/../../app/init.php');
@@ -82,11 +83,11 @@ foreach ($args as $i => $arg) {
 // Symbole parsen
 foreach ($args as $i => $arg) {
     $arg = strToUpper($arg);
-    if (!isSet(MyFX::$symbols[$arg]) || MyFX::$symbols[$arg]['provider']!='dukascopy')
+    if (!isSet(Tools::$symbols[$arg]) || Tools::$symbols[$arg]['provider']!='dukascopy')
         exit(1|help('unknown or unsupported symbol "'.$args[$i].'"'));
     $args[$i] = $arg;
 }                                                                                   // ohne Angabe werden alle Dukascopy-Instrumente aktualisiert
-$args = $args ? array_unique($args) : array_keys(MyFX::filterSymbols(['provider'=>'dukascopy']));
+$args = $args ? array_unique($args) : array_keys(Tools::filterSymbols(['provider'=>'dukascopy']));
 
 
 // (2) SIGINT-Handler installieren                                                  // Um bei Ctrl-C Destruktoren auszufuehren, reicht es,
@@ -117,7 +118,7 @@ function updateSymbol($symbol) {
     if (!is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
     $symbol = strToUpper($symbol);
 
-    $startTime  = MyFX::$symbols[$symbol]['historyStart']['M1'];      // Beginns der Dukascopy-Daten dieses Symbols in GMT
+    $startTime  = Tools::$symbols[$symbol]['historyStart']['M1'];      // Beginns der Dukascopy-Daten dieses Symbols in GMT
     $startTime -= $startTime % DAY;                                   // 00:00 GMT
 
     global $verbose, $barBuffer;
@@ -549,7 +550,7 @@ function processRawDukascopyBarData($data, $symbol, $day, $type) {
 
     // (2) Timestamps und FXT-Daten zu den Bars hinzufuegen
     $prev = $next = null;                                             // Die Daten der Datei koennen einen DST-Wechsel abdecken, wenn
-    $fxtOffset = MyFX::fxtTimezoneOffset($day, $prev, $next);         // $day = "Sun, 00:00 GMT" ist. In diesem Fall muss innerhalb
+    $fxtOffset = Tools::fxtTimezoneOffset($day, $prev, $next);         // $day = "Sun, 00:00 GMT" ist. In diesem Fall muss innerhalb
     foreach ($bars as &$bar) {                                        // der Datenreihe bei der Ermittlung von time_fxt und delta_fxt
         $bar['time_gmt' ] = $day + $bar['timeDelta'];                  // auf den naechsten DST-Offset gewechselt werden.
         $bar['delta_gmt'] =        $bar['timeDelta'];
@@ -713,7 +714,7 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
         if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
         static $dataDirectory; if (!$dataDirectory)
         $dataDirectory = Config::getDefault()->get('app.dir.data');
-        $type          = MyFX::$symbols[$symbol]['type'];
+        $type          = Tools::$symbols[$symbol]['type'];
         $dateL         = $self('myfxDirDate', null, $time, null);
         $result        = "$dataDirectory/history/myfx/$type/$symbol/$dateL";
     }
@@ -811,9 +812,9 @@ echo <<<HELP_MESSAGE
  Syntax:  $self [symbol ...]
 
  Options:  -v    Verbose output.
-              -vv   More verbose output.
-              -vvv  Very verbose output.
-              -h    This help screen.
+           -vv   More verbose output.
+           -vvv  Very verbose output.
+           -h    This help screen.
 
 
 HELP_MESSAGE;

@@ -23,9 +23,9 @@ use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 
+use rosasurfer\xtrade\Tools;
 use rosasurfer\xtrade\dukascopy\Dukascopy;
 use rosasurfer\xtrade\model\Signal;
-use rosasurfer\xtrade\myfx\MyFX;
 
 require(__DIR__.'/../../app/init.php');
 date_default_timezone_set('GMT');
@@ -128,7 +128,7 @@ function updateIndex($index) {
     $pairs = array_flip($indexes[$index]);                                                 // ['AUDUSD', ...] => ['AUDUSD'=>null, ...]
     foreach($pairs as $pair => &$data) {
         $data      = [];                                                                    // $data initialisieren: ['AUDUSD'=>[], ...]
-        $startTime = max($startTime, MyFX::$symbols[$pair]['historyStart']['M1']);          // GMT-Timestamp
+        $startTime = max($startTime, Tools::$symbols[$pair]['historyStart']['M1']);          // GMT-Timestamp
     } unset($data);
     $startTime = fxtTime($startTime);
     $startDay  = $startTime - $startTime%DAY;                                              // 00:00 Starttag FXT
@@ -164,7 +164,7 @@ function updateIndex($index) {
                         return false;
                     }
                     // M1-Bars zwischenspeichern
-                    $pairs[$pair]['bars'] = MyFX::readBarFile($file, $pair);                   // ['AUDUSD'=>array('bars'=>[]), ...]
+                    $pairs[$pair]['bars'] = Tools::readBarFile($file, $pair);                   // ['AUDUSD'=>array('bars'=>[]), ...]
                 }
 
                 // Indexdaten fuer diesen Tag berechnen
@@ -1920,7 +1920,7 @@ function getVar($id, $symbol=null, $time=null) {
         if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
         if (!$dataDirectory)
         $dataDirectory = Config::getDefault()->get('app.dir.data');
-        $type          = MyFX::$symbols[$symbol]['type'];
+        $type          = Tools::$symbols[$symbol]['type'];
         $myfxDirDate   = $self('myfxDirDate', null, $time);
         $result        = "$dataDirectory/history/myfx/$type/$symbol/$myfxDirDate";
     }
@@ -1928,7 +1928,7 @@ function getVar($id, $symbol=null, $time=null) {
         if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
         if (!$dataDirectory)
         $dataDirectory = Config::getDefault()->get('app.dir.data');
-        $type          = MyFX::$symbols[$symbol]['type'];
+        $type          = Tools::$symbols[$symbol]['type'];
         $myfxDirDate   = $self('myfxDirDate', null, $time);
         $result        = "$dataDirectory/history/myfx/$type/$symbol/$myfxDirDate";
     }
