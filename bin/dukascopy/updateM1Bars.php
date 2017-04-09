@@ -47,7 +47,6 @@ use rosasurfer\xtrade\LZMA;
 use rosasurfer\xtrade\Tools;
 
 use rosasurfer\xtrade\dukascopy\Dukascopy;
-use rosasurfer\xtrade\model\Signal;
 use rosasurfer\xtrade\simpletrader\SimpleTrader;
 
 require(__DIR__.'/../../app/init.php');
@@ -86,12 +85,12 @@ foreach ($args as $i => $arg) {
     if (!isSet(Tools::$symbols[$arg]) || Tools::$symbols[$arg]['provider']!='dukascopy')
         exit(1|help('unknown or unsupported symbol "'.$args[$i].'"'));
     $args[$i] = $arg;
-}                                                                                   // ohne Angabe werden alle Dukascopy-Instrumente aktualisiert
+}                                                                       // ohne Angabe werden alle Dukascopy-Instrumente aktualisiert
 $args = $args ? array_unique($args) : array_keys(Tools::filterSymbols(['provider'=>'dukascopy']));
 
 
-// (2) SIGINT-Handler installieren                                                  // Um bei Ctrl-C Destruktoren auszufuehren, reicht es,
-if (!WINDOWS) pcntl_signal(SIGINT, create_function('$signal', 'exit();'));          // wenn im Handler exit() aufgerufen wird.
+// (2) install SIGINT handler (catches Ctrl-C)                          // To execute destructors calling exit()
+if (!WINDOWS) pcntl_signal(SIGINT, function($signo) { exit(); });       // in the handler is sufficient.
 
 
 // (3) Daten aktualisieren

@@ -25,7 +25,6 @@ use rosasurfer\exception\RuntimeException;
 
 use rosasurfer\xtrade\Tools;
 use rosasurfer\xtrade\dukascopy\Dukascopy;
-use rosasurfer\xtrade\model\Signal;
 
 require(__DIR__.'/../../app/init.php');
 date_default_timezone_set('GMT');
@@ -93,11 +92,11 @@ foreach ($args as $i => $arg) {
     if (!array_key_exists($arg, $indexes)) exit(1|help('error: unknown or unsupported index "'.$args[$i].'"'));
     $args[$i] = $arg;
 }
-$args = $args ? array_unique($args) : array_keys($indexes);                         // ohne Angabe werden alle Indizes aktualisiert
+$args = $args ? array_unique($args) : array_keys($indexes);             // ohne Angabe werden alle Indizes aktualisiert
 
 
-// (2) SIGINT-Handler installieren                                                  // Um bei Ctrl-C Destruktoren auszufuehren, reicht es,
-if (!WINDOWS) pcntl_signal(SIGINT, create_function('$signal', 'exit();'));          // wenn im Handler exit() aufgerufen wird.
+// (2) install SIGINT handler (catches Ctrl-C)                          // To execute destructors calling exit()
+if (!WINDOWS) pcntl_signal(SIGINT, function($signo) { exit(); });       // in the handler is sufficient.
 
 
 // (3) Indizes berechnen

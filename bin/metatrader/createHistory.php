@@ -18,8 +18,6 @@ use rosasurfer\xtrade\dukascopy\Dukascopy;
 use rosasurfer\xtrade\metatrader\HistorySet;
 use rosasurfer\xtrade\metatrader\MT4;
 
-use rosasurfer\xtrade\model\Signal;
-
 require(__DIR__.'/../../app/init.php');
 date_default_timezone_set('GMT');
 
@@ -49,12 +47,12 @@ foreach ($args as $i => $arg) {
     $arg = strToUpper($arg);
     if (!isSet(Tools::$symbols[$arg])) exit(1|help('error: unknown or unsupported symbol "'.$args[$i].'"'));
     $args[$i] = $arg;
-}                                                                                   // ohne Symbol werden alle Instrumente verarbeitet
+}                                                                       // ohne Symbol werden alle Instrumente verarbeitet
 $args = $args ? array_unique($args) : array_keys(Tools::$symbols);
 
 
-// (2) SIGINT-Handler installieren                                                  // Um bei Ctrl-C Destruktoren auszufuehren, reicht es,
-if (!WINDOWS) pcntl_signal(SIGINT, create_function('$signal', 'exit();'));          // wenn im Handler exit() aufgerufen wird.
+// (2) install SIGINT handler (catches Ctrl-C)                          // To execute destructors calling exit()
+if (!WINDOWS) pcntl_signal(SIGINT, function($signo) { exit(); });       // in the handler is sufficient.
 
 
 // (3) History erstellen

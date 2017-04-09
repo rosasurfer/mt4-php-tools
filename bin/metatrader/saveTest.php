@@ -5,7 +5,6 @@ namespace rosasurfer\xtrade\metatrader\save_test;
 /**
  * Save a test and its trade history in the database.
  */
-use rosasurfer\xtrade\model\Signal;
 use rosasurfer\xtrade\model\metatrader\Test;
 
 require(__DIR__.'/../../app/init.php');
@@ -56,8 +55,8 @@ else exit(1|echoPre('unsupported file: "'.$fileName.'" (see -h for help)'));
 !is_readable($testResultsFile) && exit(1|echoPre('file not readable: "'.$testResultsFile.'"'));
 
 
-// (2) install SIGINT handler (catches Ctrl-C)                                      // To execute destructors it is enough to
-if (!WINDOWS) pcntl_signal(SIGINT, create_function('$signal', 'exit();'));          // call exit() in the handler.
+// (2) install SIGINT handler (catches Ctrl-C)                          // To execute destructors calling exit()
+if (!WINDOWS) pcntl_signal(SIGINT, function($signo) { exit(); });       // in the handler is sufficient.
 
 
 // (3) process the files
