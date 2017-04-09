@@ -1,5 +1,7 @@
 #!/usr/bin/php
 <?php
+namespace rosasurfer\xtrade\dukascopy\update_m1_bars;
+
 /**
  * Aktualisiert die lokal vorhandenen Dukascopy-M1-Daten. Bid und Ask werden zu Median gemerged, nach FXT konvertiert und im
  * MyFX-Format gespeichert. Die Dukascopy-Daten sind durchgehend, Feiertage werden, Wochenenden werden nicht gespeichert.
@@ -30,8 +32,6 @@
  * GMT:     |   Sunday      Monday   |  Tuesday   | Wednesday  |  Thursday  |   Friday     Saturday  |   Sunday      Monday   |
  *          +------------------------+------------+------------+------------+------------------------+------------------------+
  */
-namespace rosasurfer\xtrade\dukascopy\update_m1_bars;
-
 use rosasurfer\config\Config;
 
 use rosasurfer\exception\IllegalTypeException;
@@ -54,7 +54,7 @@ require(__DIR__.'/../../app/init.php');
 date_default_timezone_set('GMT');
 
 
-// -- Konfiguration --------------------------------------------------------------------------------------------------------------------------------
+// -- Konfiguration ---------------------------------------------------------------------------------------------------------
 
 
 $verbose = 0;                                   // output verbosity
@@ -66,7 +66,7 @@ $saveRawMyFXData              = true;           // ob unkomprimierte MyFX-Histor
 $barBuffer = [];
 
 
-// -- Start ----------------------------------------------------------------------------------------------------------------------------------------
+// -- Start -----------------------------------------------------------------------------------------------------------------
 
 
 // (1) Befehlszeilenargumente einlesen und validieren
@@ -101,7 +101,7 @@ foreach ($args as $symbol) {
 exit(0);
 
 
-// --- Funktionen ----------------------------------------------------------------------------------------------------------------------------------
+// --- Funktionen -----------------------------------------------------------------------------------------------------------
 
 
 /**

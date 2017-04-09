@@ -1,5 +1,7 @@
 #!/usr/bin/php
 <?php
+namespace rosasurfer\xtrade\logwatch;
+
 /**
  * Scans the application's PHP error log file for entries and notifies by email. Mail will be sent to the configured log
  * message receivers. If no receivers are configured mail will be sent to the system user running the script. Log entries
@@ -8,8 +10,6 @@
  * TODO: Error messages must not be printed to STDOUT but to STDERR.
  * TODO: Parameter for (not) suppressing regular output to enable status messages when not executed by CRON.
  */
-namespace rosasurfer\xtrade\logwatch;
-
 use rosasurfer\config\Config;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\util\PHP;
@@ -25,13 +25,13 @@ require(__DIR__.'/../app/init.php');
 set_time_limit(0);                                       // no time limit for CLI
 
 
-// --- configuration ---------------------------------------------------------------------------------------------------
+// --- configuration --------------------------------------------------------------------------------------------------------
 
 
 $quiet = false;                                          // whether or not "quiet" mode is enabled (for cron)
 
 
-// --- parse/validate command line arguments ---------------------------------------------------------------------------
+// --- parse/validate command line arguments --------------------------------------------------------------------------------
 
 
 $args = array_slice($_SERVER['argv'], 1);
@@ -46,7 +46,7 @@ foreach ($args as $i => $arg) {
 }
 
 
-// --- start -----------------------------------------------------------------------------------------------------------
+// --- start ----------------------------------------------------------------------------------------------------------------
 
 
 // (1) define error log sender and receivers
@@ -117,7 +117,7 @@ unlink($tempName);
 exit(0);
 
 
-// --- function definitions --------------------------------------------------------------------------------------------
+// --- function definitions -------------------------------------------------------------------------------------------------
 
 
 /**

@@ -1,10 +1,10 @@
 #!/usr/bin/php
 <?php
+namespace rosasurfer\xtrade\metatrader\save_test;
+
 /**
  * Save a test and its trade history in the database.
  */
-namespace rosasurfer\xtrade\metatrader\save_test;
-
 use rosasurfer\xtrade\model\Signal;
 use rosasurfer\xtrade\model\metatrader\Test;
 

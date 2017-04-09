@@ -1,10 +1,10 @@
 #!/usr/bin/php
 <?php
+namespace rosasurfer\xtrade\metatrader\update_history;
+
 /**
  * Aktualisiert die MetaTrader-History der angegebenen Instrumente im globalen MT4-Serververzeichnis "MyFX-Dukascopy".
  */
-namespace rosasurfer\xtrade\metatrader\update_history;
-
 use rosasurfer\config\Config;
 
 use rosasurfer\exception\IllegalTypeException;
@@ -22,13 +22,13 @@ require(__DIR__.'/../../app/init.php');
 date_default_timezone_set('GMT');
 
 
-// -- Konfiguration ----------------------------------------------------------------------------------------------------
+// -- Konfiguration ---------------------------------------------------------------------------------------------------------
 
 
 $verbose = 0;                                                                       // output verbosity
 
 
-// -- Start ------------------------------------------------------------------------------------------------------------
+// -- Start -----------------------------------------------------------------------------------------------------------------
 
 
 // (1) Befehlszeilenargumente einlesen und validieren
@@ -63,7 +63,7 @@ foreach ($args as $symbol) {
 exit(0);
 
 
-// --- Funktionen ------------------------------------------------------------------------------------------------------
+// --- Funktionen -----------------------------------------------------------------------------------------------------------
 
 
 /**

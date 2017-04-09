@@ -1,10 +1,10 @@
 #!/usr/bin/php
 <?php
+namespace rosasurfer\xtrade\metatrader\dir;
+
 /**
  * Verzeichnislisting fuer MetaTrader-Historydateien
  */
-namespace rosasurfer\xtrade\metatrader\dir;
-
 use rosasurfer\xtrade\Tools;
 
 use rosasurfer\xtrade\metatrader\HistoryHeader;
@@ -16,7 +16,7 @@ use rosasurfer\xtrade\model\metatrader\Order;
 require(__DIR__.'/../../app/init.php');
 
 
-// -- Start ----------------------------------------------------------------------------------------------------------------------------------------
+// -- Start -----------------------------------------------------------------------------------------------------------------
 
 
 // (1) Befehlszeilenparameter auswerten
@@ -181,7 +181,7 @@ if ($files) {
 exit(0);
 
 
-// --- Funktionen ---------------------------------------------------------------------------------------------------------------------------------------------
+// --- Funktionen -----------------------------------------------------------------------------------------------------------
 
 
 /**

@@ -1,11 +1,11 @@
 #!/usr/bin/php
 <?php
+namespace rosasurfer\xtrade\simpletrader\sync_accounts;
+
 /**
  * Synchronisiert die Daten ein oder mehrerer Signale mit den lokal gespeicherten Daten (Datenbank und MT4-Datenfiles).
  * Bei Datenaenderung kann eine Mail oder eine SMS verschickt werden.
  */
-namespace rosasurfer\xtrade\simpletrader\sync_accounts;
-
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InfrastructureException;
 use rosasurfer\exception\RuntimeException;
@@ -37,7 +37,7 @@ $sleepSeconds      = 30;         // Laenge der Pause zwischen zwei Updates
 $signalNamePadding = 21;         // Padding der Anzeige des Signalnamens:  @see function processSignal()
 
 
-// --- Start --------------------------------------------------------------------------------------------------------------------------------------------------
+// --- Start ----------------------------------------------------------------------------------------------------------------
 
 
 // (1) Befehlszeilenargumente einlesen und validieren
@@ -85,7 +85,7 @@ while (true) {
 exit(0);
 
 
-// --- Funktionen ---------------------------------------------------------------------------------------------------------------------------------------------
+// --- Funktionen -----------------------------------------------------------------------------------------------------------
 
 
 /**

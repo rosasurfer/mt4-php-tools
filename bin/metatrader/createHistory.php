@@ -1,12 +1,12 @@
 #!/usr/bin/php
 <?php
+namespace rosasurfer\xtrade\metatrader\create_history;
+
 /**
  * Liest die MyFX-M1-History der angegebenen Instrumente ein und erzeugt daraus jeweils eine neue MetaTrader-History.
  * Speichert diese MetaTrader-History im globalen MT4-Serververzeichnis "MyFX-Dukascopy". Vorhandene Historydateien
  * werden ueberschrieben. Um vorhandene Historydateien zu aktualisieren, ist "updateHistory.php" zu benutzen.
  */
-namespace rosasurfer\xtrade\metatrader\create_history;
-
 use rosasurfer\config\Config;
 
 use rosasurfer\exception\IllegalTypeException;
@@ -24,13 +24,13 @@ require(__DIR__.'/../../app/init.php');
 date_default_timezone_set('GMT');
 
 
-// -- Konfiguration ----------------------------------------------------------------------------------------------------
+// -- Konfiguration ---------------------------------------------------------------------------------------------------------
 
 
 $verbose = 0;                                                                       // output verbosity
 
 
-// -- Start ------------------------------------------------------------------------------------------------------------
+// -- Start -----------------------------------------------------------------------------------------------------------------
 
 
 // (1) Befehlszeilenargumente einlesen und validieren
@@ -64,7 +64,7 @@ foreach ($args as $symbol) {
 exit(0);
 
 
-// --- Funktionen ------------------------------------------------------------------------------------------------------
+// --- Funktionen -----------------------------------------------------------------------------------------------------------
 
 
 /**

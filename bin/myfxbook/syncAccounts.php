@@ -1,10 +1,10 @@
 #!/usr/bin/php
 <?php
+namespace rosasurfer\xtrade\myfxbook\sync_accounts;
+
 /**
  *
  */
-namespace rosasurfer\xtrade\myfxbook\sync_accounts;
-
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InfrastructureException;
 use rosasurfer\exception\RuntimeException;
@@ -30,11 +30,10 @@ use rosasurfer\xtrade\simpletrader\SimpleTrader;
 
 require(__DIR__.'/../../app/init.php');
 
-
 $signalNamePadding = 21;                              // configuration of output formatting
 
 
-// --- program start ---------------------------------------------------------------------------------------------------
+// --- program start --------------------------------------------------------------------------------------------------------
 
 
 // (1) read command line arguments
@@ -69,7 +68,7 @@ foreach ($args as $arg) {
 exit(0);
 
 
-// --- function definitions --------------------------------------------------------------------------------------------
+// --- function definitions -------------------------------------------------------------------------------------------------
 
 
 /**

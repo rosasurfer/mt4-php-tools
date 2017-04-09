@@ -1,18 +1,18 @@
 #!/usr/bin/php
 <?php
+namespace rosasurfer\xtrade\metatrader\list_symbols;
+
 /**
  * Listet die Symbol-Informationen einer MetaTrader-Datei "symbols.raw" auf.
  *
  * @see Struct-Formate in MT4Expander.dll::Expander.h
  */
-namespace rosasurfer\xtrade\metatrader\list_symbols;
-
 use rosasurfer\xtrade\metatrader\MT4;
 
 require(__DIR__.'/../../app/init.php');
 
 
-// -- Konfiguration --------------------------------------------------------------------------------------------------------------------------------
+// -- Konfiguration ---------------------------------------------------------------------------------------------------------
 
 
 $files     = [];
@@ -20,7 +20,7 @@ $options   = [];
 $fieldArgs = [];
 
 
-// -- Start ----------------------------------------------------------------------------------------------------------------------------------------
+// -- Start -----------------------------------------------------------------------------------------------------------------
 
 
 // (1) Befehlszeilenargumente auswerten
@@ -173,7 +173,7 @@ printData(    $files, $usedFields, $data, $options) || exit(1);
 exit(0);
 
 
-// --- Funktionen ---------------------------------------------------------------------------------------------------------------------------------------------
+// --- Funktionen -----------------------------------------------------------------------------------------------------------
 
 
 /**

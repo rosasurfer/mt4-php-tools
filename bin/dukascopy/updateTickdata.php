@@ -1,5 +1,7 @@
 #!/usr/bin/php
 <?php
+namespace rosasurfer\xtrade\dukascopy\update_tickdata;
+
 /**
  * Aktualisiert die lokal vorhandenen Dukascopy-Tickdaten. Die Daten werden nach FXT konvertiert und im MyFX-Format
  * gespeichert. Am Wochenende, an Feiertagen und wenn keine Tickdaten verfuegbar sind, sind die Dukascopy-Dateien leer.
@@ -30,8 +32,6 @@
  * GMT:     |   Sunday      Monday   |  Tuesday   | Wednesday  |  Thursday  |   Friday     Saturday  |   Sunday      Monday   |
  *          +------------------------+------------+------------+------------+------------------------+------------------------+
  */
-namespace rosasurfer\xtrade\dukascopy\update_tickdata;
-
 use rosasurfer\config\Config;
 
 use rosasurfer\exception\IllegalTypeException;
@@ -56,7 +56,7 @@ require(__DIR__.'/../../app/init.php');
 date_default_timezone_set('GMT');
 
 
-// -- Konfiguration --------------------------------------------------------------------------------------------------------------------------------
+// -- Konfiguration ---------------------------------------------------------------------------------------------------------
 
 
 $verbose = 0;                                   // output verbosity
@@ -66,7 +66,7 @@ $saveRawDukascopyFiles        = false;          // ob entpackte Dukascopy-Dateie
 $saveRawMyFXData              = true;           // ob unkomprimierte MyFX-Historydaten gespeichert werden sollen
 
 
-// -- Start ----------------------------------------------------------------------------------------------------------------------------------------
+// -- Start -----------------------------------------------------------------------------------------------------------------
 
 
 // (1) Befehlszeilenargumente einlesen und validieren
@@ -101,7 +101,7 @@ foreach ($args as $symbol) {
 exit(0);
 
 
-// --- Funktionen ----------------------------------------------------------------------------------------------------------------------------------
+// --- Funktionen -----------------------------------------------------------------------------------------------------------
 
 
 /**

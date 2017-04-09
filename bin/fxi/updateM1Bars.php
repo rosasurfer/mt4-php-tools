@@ -1,5 +1,7 @@
 #!/usr/bin/php
 <?php
+namespace rosasurfer\xtrade\fxi\update_m1_bars;
+
 /**
  * Aktualisiert anhand existierender Dukascopy-Daten die M1-History der angegebenen FX-Indizes und speichert sie
  * im MyFX-Historyverzeichnis.
@@ -15,8 +17,6 @@
  *
  * @see  MetaTrader::indicators\LFX-Monitor.mq4
  */
-namespace rosasurfer\xtrade\fxi\update_m1_bars;
-
 use rosasurfer\config\Config;
 
 use rosasurfer\exception\IllegalTypeException;
@@ -31,7 +31,7 @@ require(__DIR__.'/../../app/init.php');
 date_default_timezone_set('GMT');
 
 
-// -- Konfiguration --------------------------------------------------------------------------------------------------------------------------------
+// -- Konfiguration ---------------------------------------------------------------------------------------------------------
 
 
 $verbose         = 0;                                       // output verbosity
@@ -73,7 +73,7 @@ $indexes['EURX'  ] = ['EURUSD', 'GBPUSD', 'USDCHF', 'USDJPY', 'USDSEK'];
 $indexes['USDX'  ] = ['EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'USDSEK'];
 
 
-// -- Start ----------------------------------------------------------------------------------------------------------------------------------------
+// -- Start -----------------------------------------------------------------------------------------------------------------
 
 
 // (1) Befehlszeilenargumente einlesen und validieren
@@ -107,7 +107,7 @@ foreach ($args as $index) {
 exit(0);
 
 
-// --- Funktionen ----------------------------------------------------------------------------------------------------------------------------------
+// --- Funktionen -----------------------------------------------------------------------------------------------------------
 
 
 /**

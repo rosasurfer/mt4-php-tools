@@ -15,7 +15,6 @@ use rosasurfer\net\http\HttpResponse;
 
 use rosasurfer\xtrade\metatrader\MT4;
 
-
 /**
  * MyFX related functionality
  *
