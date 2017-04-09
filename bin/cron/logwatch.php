@@ -137,7 +137,7 @@ function processEntry($entry) {
     $entry = str_replace(["\r\n", "\r"], "\n", $entry);            // use Unix line-breaks by default but...
     if (WINDOWS)                                                   // use Windows line-breaks on Windows
         $entry = str_replace("\n", "\r\n", $entry);
-    $entry = str_replace(chr(0), "?", $entry);                     // replace NUL bytes which destroy the mail
+    $entry = str_replace(chr(0), '?', $entry);                     // replace NUL bytes which destroy the mail
 
     $subject = strTok($entry, "\r\n");                             // that's CR or LF, not CRLF
     $message = $entry;
@@ -179,7 +179,7 @@ function help($message = null) {
  Syntax:  $self [options]
 
  Options:  -q   Quiet mode. Suppress status messages but not errors (for execution by CRON).
-              -h   This help screen.
+           -h   This help screen.
 
 
 HELP_SYNTAX;

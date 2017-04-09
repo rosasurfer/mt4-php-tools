@@ -374,7 +374,7 @@ echo <<<HELP_MESSAGE
  Syntax:  $self [-f] [signal_name ...]
 
  Options:  -f  Rewrites the MetaTrader account history files (does not go online).
-              -h  This help screen.
+           -h  This help screen.
 
 
 HELP_MESSAGE;

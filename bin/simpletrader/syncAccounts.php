@@ -421,8 +421,8 @@ echo <<<HELP_MESSAGE
  Syntax:  $self [-l] [-f] [signal_name ...]
 
  Options:  -l  Runs infinitely and synchronizes every 30 seconds.
-              -f  Synchronizes MetaTrader data files but not the database (does not go online).
-              -h  This help screen.
+           -f  Synchronizes MetaTrader data files but not the database (does not go online).
+           -h  This help screen.
 
 
 HELP_MESSAGE;

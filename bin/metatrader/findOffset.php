@@ -144,8 +144,8 @@ Returns the offset of the first bar in a MetaTrader history file at or after a s
   Syntax:  $self  [OPTION]... TIME FILE
 
   Options:  -c  Returns the byte offset of the found bar instead of the bar offset.
-                -q  Quiet mode. Returns only the numeric result value.
-                -h  This help screen.
+            -q  Quiet mode. Returns only the numeric result value.
+            -h  This help screen.
 
 
 HELP_MESSAGE;

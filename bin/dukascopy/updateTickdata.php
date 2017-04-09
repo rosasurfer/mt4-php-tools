@@ -642,9 +642,9 @@ echo <<<HELP_MESSAGE
  Syntax:  $self [symbol ...]
 
  Options:  -v    Verbose output.
-              -vv   More verbose output.
-              -vvv  Very verbose output.
-              -h    This help screen.
+           -vv   More verbose output.
+           -vvv  Very verbose output.
+           -h    This help screen.
 
 
 HELP_MESSAGE;
