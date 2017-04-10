@@ -68,22 +68,6 @@ const TRADEDIRECTION_SHORT = 1;
 const TRADEDIRECTION_BOTH  = 2;
 
 
-// Spalten der internen History-Daten in UploadAccountHistoryForm
-const AH_TICKET      =  0;
-const AH_OPENTIME    =  1;
-const AH_TYPE        =  2;
-const AH_UNITS       =  3;
-const AH_SYMBOL      =  4;
-const AH_OPENPRICE   =  5;
-const AH_CLOSETIME   =  6;
-const AH_CLOSEPRICE  =  7;
-const AH_COMMISSION  =  8;
-const AH_SWAP        =  9;
-const AH_PROFIT      = 10;
-const AH_MAGICNUMBER = 11;
-const AH_COMMENT     = 12;
-
-
 // Struct-Sizes
 define('DUKASCOPY_BAR_SIZE' , 24);
 define('DUKASCOPY_TICK_SIZE', 20);
