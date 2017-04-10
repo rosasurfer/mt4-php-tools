@@ -56,34 +56,6 @@ class Tools extends StaticClass {
 
 
     /**
-     * Gibt den absoluten Pfad der unter dem angegebenen Schluessel konfigurierten Pfadeinstellung zurueck.
-     * Ist ein relativer Pfad konfiguriert, wird der Pfad als relativ zu APPLICATION_ROOT interpretiert.
-     *
-     * @param  string $key - Schluessel
-     *
-     * @return string - absoluter Pfad mit Forward-Slashes (auch unter Windows)
-     *
-     * @throws RuntimeException wenn unter dem angegebenen Schluessel keine Pfadeinstellung existiert
-     */
-    public static function getConfigPath($key) {
-        if (!is_string($key))              throw new IllegalTypeException('Illegal type of parameter $key: '.getType($key));
-        if (!$config=Config::getDefault()) throw new RuntimeException('Service locator returned invalid default config: '.getType($config));
-
-        $directory = str_replace('\\', '/', $config->get($key));    // Backslashes in Konfiguration ersetzen
-
-        if (WINDOWS) {
-            if (!preg_match('/^[a-z]:/i', $directory))              // Pfad ist relativ, wenn er nicht mit einem Lw.-Bezeichner beginnt
-                $directory = APPLICATION_ROOT.($directory[0]=='/'?'':'/').$directory;
-        }
-        else if ($directory[0] != '/') {                            // Pfad ist relativ, wenn er nicht mit einem Slash beginnt
-            $directory = APPLICATION_ROOT.'/'.$directory;
-        }
-
-        return str_replace('\\', '/', $directory);                  // Backslashes in APPLICATION_ROOT ersetzen
-    }
-
-
-    /**
      * Gibt eine gefilterte Anzahl von Symbolstammdaten zurueck.
      *
      * @param  array $filter - Bedingungen, nach denen die Symbole zu filtern sind (default: kein Filter)
