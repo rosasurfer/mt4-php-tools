@@ -2,7 +2,7 @@
 #
 
 # check environment
-which git >/dev/null 2>&1 || { echo "ERROR: Git binary not found."; exit; }
+command -v git >/dev/null || { echo "ERROR: Git binary not found."; exit; }
 
 
 # resolve directories
@@ -13,7 +13,7 @@ GIT_HOOK_DIR=$(git rev-parse --git-dir 2>/dev/null)'/hooks'
 
 
 # normalize paths on Windows
-CYGPATH=; which cygpath.exe >/dev/null 2>&1 && CYGPATH=1
+CYGPATH=; command -v cygpath.exe >/dev/null && CYGPATH=1
 [ -n "$CYGPATH" ] && {
     CWD=$(cygpath -m "$CWD")
     SCRIPT_DIR=$(cygpath -m "$SCRIPT_DIR")
