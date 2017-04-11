@@ -1,4 +1,4 @@
-#!/usr/bin/php
+#!/usr/bin/env php
 <?php
 namespace rosasurfer\xtrade\dukascopy\update_m1_bars;
 

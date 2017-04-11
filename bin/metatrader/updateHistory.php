@@ -1,4 +1,4 @@
-#!/usr/bin/php
+#!/usr/bin/env php
 <?php
 namespace rosasurfer\xtrade\metatrader\update_history;
 
