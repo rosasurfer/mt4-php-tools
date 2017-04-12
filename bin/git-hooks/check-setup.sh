@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 
 # check environment
@@ -13,8 +13,8 @@ GIT_HOOK_DIR=$(git rev-parse --git-dir 2>/dev/null)'/hooks'
 
 
 # normalize paths on Windows
-CYGPATH=; command -v cygpath.exe >/dev/null && CYGPATH=1
-[ -n "$CYGPATH" ] && {
+CYGWIN=$(type -P cygpath.exe)
+[ -n "$CYGWIN" ] && {
     CWD=$(cygpath -m "$CWD")
     SCRIPT_DIR=$(cygpath -m "$SCRIPT_DIR")
     TOP_LEVEL_DIR=$(cygpath -m "$TOP_LEVEL_DIR")
@@ -56,5 +56,5 @@ done
 echo "Git hooks: $status"
 
 
-# the ugly end: never return an error as to not to trigger Composer's red alert bar
+# Never return an error as to not to trigger Composer's red alert bar.
 exit

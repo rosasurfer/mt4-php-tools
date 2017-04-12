@@ -1,13 +1,13 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Git hook to run "composer install" if the file "composer.lock" was changed.
 #
 # Notes:
 # ------
 #  - This hook is not executed by Eclipse.
-#
-#  - error: The hook is not executed if merging failed due to conflicts.
-#  - error: The hook is not executed if you run pull with --rebase option.
+
+#  - The hook is not executed if merging failed due to conflicts.
+#  - The hook is not executed if you run pull with --rebase option.
 #
 #  - post-rewrite works for me. As side effect it is also executed on amend.
 #    @see  http://stackoverflow.com/questions/21307744/git-post-rebase-hook
@@ -16,40 +16,49 @@
 #    check_run .gitmodules "git submodule init && git submodule update"
 
 
-# execute an existing user hook
+# Execute an existing user hook.
 if [ -x "$0.user" ]; then
     "$0.user" "$@" || exit $?
 fi
 
 
-# find Composer
-result=$(type -P composer 2> /dev/null)
-if [ -z "$result" ]; then
-    result=$(type -P composer.phar 2> /dev/null)
-    [ -z "$result" ] && echo "ERROR: could not find Composer" && exit 1
-fi
-if [[ ".$OSTYPE" = ".msys" || ".$OSTYPE" = ".cygwin" ]]; then
-    # Windows/MinTTy: Use an existing alias which can fix color support issues.
-    [ ".$TERM" != ".cygwin" ] && use_alias=1 
-fi
+# Check user aliases and get an existing Composer definition.
+check_composer_alias() {
+    if [[ -z "$COMPOSER_ALIAS_CHECKED" && -f ~/.bash_aliases ]]; then
+        . ~/.bash_aliases 
+        COMPOSER_ALIAS=${BASH_ALIASES[composer]:-${BASH_ALIASES[composer.phar]}}
+        unalias -a 
+    fi
+    COMPOSER_ALIAS_CHECKED=done
+}
+COMPOSER_ALIAS=; COMPOSER_ALIAS_CHECKED=
 
 
-# get the changed files
+# Find Composer.
+composer=$(type -P composer)
+composer=${composer:-$(type -P composer.phar)}
+[ -z "$composer" ] && { check_composer_alias; composer=$COMPOSER_ALIAS; }
+[ -z "$composer" ] && echo "ERROR: could not find Composer" && exit 1
+
+
+# Check for Cygwin terminal with color issues. Use an existing alias as workaround.
+CYGWIN=$(type -P cygpath.exe)
+if [[ -n "$CYGWIN" && "$TERM" == *"color"* ]]; then
+    check_composer_alias
+    composer=${COMPOSER_ALIAS:-$composer}
+fi    
+
+
+# Get the changed files from Git.
 changed_files=$(git diff-tree -r --name-only --no-commit-id HEAD@{1} HEAD)
 
 
-# check if composer.lock has changed and run Composer
-check_run() {
+# Check if composer.lock has changed and run Composer.
+check_and_run() {
     [ -f "$1" ]                                     && \
     echo "$changed_files" | grep --quiet -Fx "$1"   && \
     echo " * changes detected in $1"                && \
     echo " * running composer install"              && \
-    {
-    if [[ -n "$use_alias" && -f ~/.bash_aliases ]]; then
-        shopt -s expand_aliases
-        . ~/.bash_aliases
-    fi
-    eval "COMPOSER_ALLOW_SUPERUSER=1 composer install"
-    }
+    COMPOSER_ALLOW_SUPERUSER=1 $composer install
 }
-check_run 'composer.lock'
+check_and_run 'composer.lock'

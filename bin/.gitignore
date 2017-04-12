@@ -1,0 +1,12 @@
+/dukascopy.updateM1Bars
+/dukascopy.updateTickdata
+/fxi.updateM1Bars
+/mt.createHistory
+/mt.createTickfile
+/mt.dir
+/mt.findOffset
+/mt.listSymbols
+/mt.saveTest
+/mt.updateHistory
+/myfxbook.syncAccounts
+/simpletrader.syncAccounts
