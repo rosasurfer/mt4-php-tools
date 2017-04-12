@@ -55,10 +55,10 @@ changed_files=$(git diff-tree -r --name-only --no-commit-id HEAD@{1} HEAD)
 
 # Check if composer.lock has changed and run Composer.
 check_and_run() {
-    [ -f "$1" ]                                     && \
-    echo "$changed_files" | grep --quiet -Fx "$1"   && \
-    echo " * changes detected in $1"                && \
-    echo " * running composer install"              && \
-    COMPOSER_ALLOW_SUPERUSER=1 $composer install
+    [ -f "$1" ]                                                         && \
+    echo "$changed_files" | grep --quiet -Fx "$1"                       && \
+    echo " * changes detected in $1"                                    && \
+    echo " * running composer install"                                  && \
+    COMPOSER_ALLOW_SUPERUSER=1 $composer install --ignore-platform-reqs
 }
 check_and_run 'composer.lock'
