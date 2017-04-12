@@ -105,7 +105,7 @@ namespace rosasurfer\xtrade\dukascopy\update_m1_bars {
     /**
      *
      */
-    function showBuffer() {}
+    function showBarBuffer() {}
 
     /**
      * @param  string $symbol

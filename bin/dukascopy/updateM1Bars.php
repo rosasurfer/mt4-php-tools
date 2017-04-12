@@ -39,7 +39,6 @@ use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 
 use rosasurfer\net\http\CurlHttpClient;
-use rosasurfer\net\http\HttpClient;
 use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
 
@@ -58,9 +57,9 @@ date_default_timezone_set('GMT');
 
 $verbose = 0;                                   // output verbosity
 
-$saveCompressedDukascopyFiles = false;          // ob heruntergeladene Dukascopy-Dateien zwischengespeichert werden sollen
-$saveRawDukascopyFiles        = false;          // ob entpackte Dukascopy-Dateien zwischengespeichert werden sollen
-$saveRawMyFXData              = true;           // ob unkomprimierte MyFX-Historydaten gespeichert werden sollen
+$saveCompressedDukaFiles   = false;             // ob heruntergeladene Dukascopy-Dateien zwischengespeichert werden sollen
+$saveDecompressedDukaFiles = false;             // ob entpackte Dukascopy-Dateien zwischengespeichert werden sollen
+$saveUncompressedMyFXFiles = true;              // ob unkomprimierte MyFX-Historydaten gespeichert werden sollen
 
 $barBuffer = [];
 
@@ -95,7 +94,7 @@ if (!WINDOWS) pcntl_signal(SIGINT, function($signo) { exit(); });       // in th
 
 // (3) Daten aktualisieren
 foreach ($args as $symbol) {
-    !updateSymbol($symbol) && exit(1);
+    updateSymbol($symbol) || exit(1);
 }
 exit(0);
 
@@ -117,11 +116,11 @@ function updateSymbol($symbol) {
     if (!is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
     $symbol = strToUpper($symbol);
 
-    $startTime  = Tools::$symbols[$symbol]['historyStart']['M1'];      // Beginns der Dukascopy-Daten dieses Symbols in GMT
-    $startTime -= $startTime % DAY;                                   // 00:00 GMT
+    $startTime  = Tools::$symbols[$symbol]['historyStart']['M1'];   // Beginns der Dukascopy-Daten dieses Symbols in GMT
+    $startTime -= $startTime % DAY;                                 // 00:00 GMT
 
     global $verbose, $barBuffer;
-    $barBuffer        = [];                                           // Barbuffer zuruecksetzen
+    $barBuffer        = [];                                         // Barbuffer zuruecksetzen
     $barBuffer['bid'] = [];
     $barBuffer['ask'] = [];
     $barBuffer['avg'] = [];
@@ -131,7 +130,7 @@ function updateSymbol($symbol) {
 
     // (1) Pruefen, ob sich der Startzeitpunkt der History des Symbols geaendert hat
     if (array_search($symbol, ['USDNOK', 'USDSEK', 'USDSGD', 'USDZAR', 'XAUUSD']) === false) {
-        $content = downloadData($symbol, $startTime-1*DAY, 'bid', true, false, false);   // Statusmeldungen unterdruecken, nichts speichern
+        $content = downloadData($symbol, $day=$startTime-1*DAY, $type='bid', $quiet=true, $saveData=false, $saveError=false);
         if (strLen($content)) {
             echoPre('[Notice]  '.$symbol.' M1 history was extended. Please update the history start time.');
             return false;
@@ -142,7 +141,7 @@ function updateSymbol($symbol) {
     // (2) Gesamte Zeitspanne inklusive Wochenenden tageweise durchlaufen, um von vorherigen Durchlaufen ggf. vorhandene
     //     Zwischendateien finden und loeschen zu koennen.
     static $lastMonth=-1;
-    $today = ($today=time()) - $today%DAY;                            // 00:00 GMT aktueller Tag
+    $today = ($today=time()) - $today%DAY;                  // 00:00 GMT aktueller Tag
 
     for ($day=$startTime; $day < $today; $day+=1*DAY) {
         $month = (int) gmDate('m', $day);
@@ -151,7 +150,7 @@ function updateSymbol($symbol) {
             $lastMonth = $month;
         }
         if (!checkHistory($symbol, $day)) return false;
-        if (!WINDOWS) pcntl_signal_dispatch();                         // Auf Ctrl-C pruefen, um bei Abbruch die Destruktoren auszufuehren.
+        if (!WINDOWS) pcntl_signal_dispatch();              // auf Ctrl-C pruefen
     }
 
     echoPre('[Ok]      '.$symbol);
@@ -171,7 +170,7 @@ function checkHistory($symbol, $day) {
     if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
     $shortDate = gmDate('D, d-M-Y', $day);
 
-    global $verbose, $saveCompressedDukascopyFiles, $saveRawDukascopyFiles, $saveRawMyFXData, $barBuffer;
+    global $verbose, $saveCompressedDukaFiles, $saveDecompressedDukaFiles, $saveUncompressedMyFXFiles, $barBuffer;
     $day -= $day%DAY;                                              // 00:00 GMT
 
     // (1) nur an Wochentagen: pruefen, ob die MyFX-History existiert und ggf. aktualisieren
@@ -181,7 +180,7 @@ function checkHistory($symbol, $day) {
             if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'   MyFX compressed history file: '.baseName($file));
         }
         // ...oder die unkomprimierte MyFX-Datei gespeichert wird und existiert
-        else if ($saveRawMyFXData && is_file($file=getVar('myfxFile.raw', $symbol, $day))) {
+        else if ($saveUncompressedMyFXFiles && is_file($file=getVar('myfxFile.raw', $symbol, $day))) {
             if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'   MyFX raw history file: '.baseName($file));
         }
         // andererseits History aktualisieren
@@ -196,12 +195,12 @@ function checkHistory($symbol, $day) {
     $shortDatePrev = gmDate('D, d-M-Y', $previousDay);
 
     // Dukascopy-Downloads (gepackt) des Vortages
-    if (!$saveCompressedDukascopyFiles) {
+    if (!$saveCompressedDukaFiles) {
         if (is_file($file=getVar('dukaFile.compressed', $symbol, $previousDay, 'bid'))) unlink($file);
         if (is_file($file=getVar('dukaFile.compressed', $symbol, $previousDay, 'ask'))) unlink($file);
     }
     // dekomprimierte Dukascopy-Daten des Vortages
-    if (!$saveRawDukascopyFiles) {
+    if (!$saveDecompressedDukaFiles) {
         if (is_file($file=getVar('dukaFile.raw', $symbol, $previousDay, 'bid'))) unlink($file);
         if (is_file($file=getVar('dukaFile.raw', $symbol, $previousDay, 'ask'))) unlink($file);
     }
@@ -214,6 +213,7 @@ function checkHistory($symbol, $day) {
     if (isForexWeekend($day, 'FXT')) {                                // um 00:00 GMT sind GMT- und FXT-Wochentag immer gleich
         if (is_dir($dir=getVar('myfxDir', $symbol, $day))) @rmDir($dir);
     }
+
     // Barbuffer-Daten des Vortages
     unset($barBuffer['bid'][$shortDatePrev]);
     unset($barBuffer['ask'][$shortDatePrev]);
@@ -271,7 +271,7 @@ function updateHistory($symbol, $day) {
 function loadHistory($symbol, $day, $type) {
     if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
     $shortDate = gmDate('D, d-M-Y', $day);
-    global $barBuffer, $saveCompressedDukascopyFiles; $barBuffer[$type];
+    global $barBuffer, $saveCompressedDukaFiles; $barBuffer[$type];
 
     // Fuer jeden Forex-Tag werden die GMT-Dukascopy-Daten des vorherigen und des aktuellen Tages benoetigt.
     // Die Daten werden jeweils in folgender Reihenfolge gesucht:
@@ -303,7 +303,7 @@ function loadHistory($symbol, $day, $type) {
     }
     // • ggf. Dukascopy-Datei herunterladen und verarbeiten
     if (!$previousDayData) {
-        $data = downloadData($symbol, $previousDay, $type, false, $saveCompressedDukascopyFiles);
+        $data = downloadData($symbol, $previousDay, $type, false, $saveCompressedDukaFiles);
         if (!$data)                                                                // bei HTTP status 404 (file not found) Abbruch
             return false;
         if (!processCompressedDukascopyBarData($data, $symbol, $previousDay, $type))
@@ -332,11 +332,11 @@ function loadHistory($symbol, $day, $type) {
     }
     // • ggf. Dukascopy-Datei herunterladen und verarbeiten
     if (!$currentDayData) {
-        static $yesterday; if (!$yesterday) $yesterday=($today=time()) - $today%DAY - 1*DAY;   // 00:00 GMT gestriger Tag
-        $saveFile = ($saveCompressedDukascopyFiles || $currentDay==$yesterday);                // beim letzten Durchlauf immer speichern
+        static $yesterday; if (!$yesterday) $yesterday=($today=time()) - $today%DAY - 1*DAY;    // 00:00 GMT gestriger Tag
+        $saveFile = ($saveCompressedDukaFiles || $currentDay==$yesterday);                      // beim letzten Durchlauf immer speichern
 
         $data = downloadData($symbol, $currentDay, $type, false, $saveFile);
-        if (!$data)                                                                            // HTTP status 404 (file not found) => Abbruch
+        if (!$data)                                                                             // HTTP status 404 (file not found) => Abbruch
             return false;
         if (!processCompressedDukascopyBarData($data, $symbol, $currentDay, $type))
             return false;
@@ -420,13 +420,10 @@ function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $save
     if (!is_bool($saveData))  throw new IllegalTypeException('Illegal type of parameter $saveData: '.getType($saveData));
     if (!is_bool($saveError)) throw new IllegalTypeException('Illegal type of parameter $saveError: '.getType($saveError));
 
+    $config    = Config::getDefault();
     $shortDate = gmDate('D, d-M-Y', $day);
     $url       = getVar('dukaUrl', $symbol, $day, $type);
     if (!$quiet) echoPre('[Info]    '.$shortDate.'   url: '.$url);
-
-    if (!$config=Config::getDefault())
-        throw new RuntimeException('Service locator returned invalid default config: '.getType($config));
-
 
     // (1) Standard-Browser simulieren
     $userAgent = $config->get('myfx.useragent'); if (!$userAgent) throw new InvalidArgumentException('Invalid user agent configuration: "'.$userAgent.'"');
@@ -439,15 +436,15 @@ function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $save
                           ->setHeader('Connection'     , 'keep-alive'                                                     )
                           ->setHeader('Cache-Control'  , 'max-age=0'                                                      )
                           ->setHeader('Referer'        , 'http://www.dukascopy.com/free/candelabrum/'                     );
-    $options[CURLOPT_SSL_VERIFYPEER] = false;                            // falls HTTPS verwendet wird
+    $options[CURLOPT_SSL_VERIFYPEER] = false;                           // falls HTTPS verwendet wird
     //$options[CURLOPT_VERBOSE     ] = true;
 
 
     // (2) HTTP-Request abschicken und auswerten
-    static $httpClient = null;
-    !$httpClient && $httpClient=CurlHttpClient::create($options);        // Instanz fuer KeepAlive-Connections wiederverwenden
+    static $client = null;
+    !$client && $client = CurlHttpClient::create($options);             // Instanz fuer KeepAlive-Connections wiederverwenden
 
-    $response = $httpClient->send($request);                             // TODO: CURL-Fehler wie bei SimpleTrader behandeln
+    $response = $client->send($request);                                // TODO: CURL-Fehler wie bei SimpleTrader behandeln
     $status   = $response->getStatus();
     if ($status!=200 && $status!=404) throw new RuntimeException('Unexpected HTTP status '.$status.' ('.HttpResponse::$sc[$status].') for url "'.$url.'"'.NL.printPretty($response, true));
 
@@ -509,8 +506,8 @@ function processCompressedDukascopyBarFile($file, $symbol, $day, $type) {
 function processCompressedDukascopyBarData($data, $symbol, $day, $type) {
     if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
 
-    global $saveRawDukascopyFiles;
-    $saveAs = $saveRawDukascopyFiles ? getVar('dukaFile.raw', $symbol, $day, $type) : null;
+    global $saveDecompressedDukaFiles;
+    $saveAs = $saveDecompressedDukaFiles ? getVar('dukaFile.raw', $symbol, $day, $type) : null;
 
     $rawData = Dukascopy::decompressHistoryData($data, $saveAs);
     return processRawDukascopyBarData($rawData, $symbol, $day, $type);
@@ -617,7 +614,7 @@ function processRawDukascopyBarData($data, $symbol, $day, $type) {
 function saveBars($symbol, $day) {
     if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
     $shortDate = gmDate('D, d-M-Y', $day);
-    global $barBuffer, $saveRawMyFXData;
+    global $barBuffer, $saveUncompressedMyFXFiles;
 
 
     // (1) gepufferte Datenreihe nochmal pruefen
@@ -628,7 +625,7 @@ function saveBars($symbol, $day) {
     if (!$errorMsg && $barBuffer['avg'][$shortDate][$size-1]['delta_fxt']!=23*HOURS+59*MINUTES) $errorMsg = 'No ending "avg" bars for '.$shortDate.' in buffer, last bar:'.NL.printPretty($barBuffer['avg'][$shortDate][$size-1], true);
     if (!$errorMsg && ($size=sizeOf(array_keys($barBuffer['avg']))) > 1)                        $errorMsg = 'Invalid bar buffer state: found more then one "avg" data series ('.$size.')';
     if ($errorMsg) {
-        showBuffer();
+        showBarBuffer();
         throw new RuntimeException($errorMsg);
     }
 
@@ -653,7 +650,7 @@ function saveBars($symbol, $day) {
 
 
     // (3) binaere Daten ggf. unkomprimiert speichern
-    if ($saveRawMyFXData) {
+    if ($saveUncompressedMyFXFiles) {
         if (is_file($file=getVar('myfxFile.raw', $symbol, $day))) {
             echoPre('[Error]   '.$symbol.' history for '.$shortDate.' already exists');
             return false;
@@ -678,7 +675,7 @@ function saveBars($symbol, $day) {
  *
  * Evaluiert und cacht staendig wiederbenutzte dynamische Variablen an einem zentralen Ort. Vereinfacht die Logik,
  * da die Variablen nicht global gespeichert oder ueber viele Funktionsaufrufe hinweg weitergereicht werden muessen,
- * aber trotzdem nicht bei jeder Verwendung neu ermittelt werden brauchen.
+ * aber trotzdem nicht bei jeder Verwendung neu ermittelt werden müssen.
  *
  * @param  string $id     - eindeutiger Bezeichner der Variable (ID)
  * @param  string $symbol - Symbol oder NULL
@@ -688,7 +685,6 @@ function saveBars($symbol, $day) {
  * @return string - Variable
  */
 function getVar($id, $symbol=null, $time=null, $type=null) {
-    //global $varCache;
     static $varCache = [];
     if (array_key_exists(($key=$id.'|'.$symbol.'|'.$time.'|'.$type), $varCache))
         return $varCache[$key];
@@ -705,11 +701,11 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
     }
     $self  = __FUNCTION__;
 
-    if ($id == 'myfxDirDate') {               // $yyyy/$mmL/$dd                                           // lokales Pfad-Datum
+    if ($id == 'myfxDirDate') {                 // $yyyy/$mmL/$dd                                       // lokales Pfad-Datum
         if (!$time)   throw new InvalidArgumentException('Invalid parameter $time: '.$time);
         $result = gmDate('Y/m/d', $time);
     }
-    else if ($id == 'myfxDir') {              // $dataDirectory/history/myfx/$type/$symbol/$dateL         // lokales Verzeichnis
+    else if ($id == 'myfxDir') {                // $dataDirectory/history/myfx/$type/$symbol/$dateL     // lokales Verzeichnis
         if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
         static $dataDirectory; if (!$dataDirectory)
         $dataDirectory = Config::getDefault()->get('app.dir.data');
@@ -717,42 +713,42 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
         $dateL         = $self('myfxDirDate', null, $time, null);
         $result        = $dataDirectory.'/history/myfx/'.$type.'/'.$symbol.'/'.$dateL;
     }
-    else if ($id == 'myfxFile.raw') {         // $myfxDir/M1.myfx                                         // lokale Datei ungepackt
+    else if ($id == 'myfxFile.raw') {           // $myfxDir/M1.myfx                                     // lokale Datei ungepackt
         $myfxDir = $self('myfxDir' , $symbol, $time, null);
         $result  = $myfxDir.'/M1.myfx';
     }
-    else if ($id == 'myfxFile.compressed') {  // $myfxDir/M1.rar                                          // lokale Datei gepackt
+    else if ($id == 'myfxFile.compressed') {    // $myfxDir/M1.rar                                      // lokale Datei gepackt
         $myfxDir = $self('myfxDir' , $symbol, $time, null);
         $result  = $myfxDir.'/M1.rar';
     }
-    else if ($id == 'dukaName') {             // BID_candles_min_1                                        // Dukascopy-Name
+    else if ($id == 'dukaName') {               // BID_candles_min_1                                    // Dukascopy-Name
         if (is_null($type)) throw new InvalidArgumentException('Invalid parameter $type: (null)');
         $result = ($type=='bid' ? 'BID':'ASK').'_candles_min_1';
     }
-    else if ($id == 'dukaFile.raw') {         // $myfxDir/$dukaName.bin                                   // Dukascopy-Datei ungepackt
+    else if ($id == 'dukaFile.raw') {           // $myfxDir/$dukaName.bin                               // Dukascopy-Datei ungepackt
         $myfxDir  = $self('myfxDir' , $symbol, $time, null);
         $dukaName = $self('dukaName', null, null, $type);
         $result   = $myfxDir.'/'.$dukaName.'.bin';
     }
-    else if ($id == 'dukaFile.compressed') {  // $myfxDir/$dukaName.bi5                                   // Dukascopy-Datei gepackt
+    else if ($id == 'dukaFile.compressed') {    // $myfxDir/$dukaName.bi5                               // Dukascopy-Datei gepackt
         $myfxDir  = $self('myfxDir' , $symbol, $time, null);
         $dukaName = $self('dukaName', null, null, $type);
         $result   = $myfxDir.'/'.$dukaName.'.bi5';
     }
-    else if ($id == 'dukaUrlDate') {          // $yyyy/$mmD/$dd                                           // Dukascopy-URL-Datum
+    else if ($id == 'dukaUrlDate') {            // $yyyy/$mmD/$dd                                       // Dukascopy-URL-Datum
         if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
         $yyyy   = gmDate('Y', $time);
         $mmD    = strRight((string)(gmDate('m', $time)+99), 2);  // Januar = 00
         $dd     = gmDate('d', $time);
         $result = $yyyy.'/'.$mmD.'/'.$dd;
     }
-    else if ($id == 'dukaUrl') {  // http://datafeed.dukascopy.com/datafeed/$symbol/$dateD/$dukaName.bi5       // Dukascopy-URL
-        if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
+    else if ($id == 'dukaUrl') {                // http://datafeed.dukascopy.com/datafeed/$symbol/$dateD/$dukaName.bi5
+        if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);        // Dukascopy-URL
         $dateD    = $self('dukaUrlDate', null, $time, null);
         $dukaName = $self('dukaName'   , null, null, $type);
         $result   = 'http://datafeed.dukascopy.com/datafeed/'.$symbol.'/'.$dateD.'/'.$dukaName.'.bi5';
     }
-    else if ($id == 'dukaFile.404') {         // $myfxDir/$dukaName.404                                   // Download-Fehlerdatei (404)
+    else if ($id == 'dukaFile.404') {           // $myfxDir/$dukaName.404                               // Download-Fehlerdatei (404)
         $myfxDir  = $self('myfxDir' , $symbol, $time, null);
         $dukaName = $self('dukaName', null, null, $type);
         $result   = $myfxDir.'/'.$dukaName.'.404';
@@ -762,8 +758,10 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
     }
 
     $varCache[$key] = $result;
-    (sizeof($varCache) > ($maxSize=128)) && array_shift($varCache) /*&& echoPre('cache size limit of '.$maxSize.' hit')*/;
 
+    if (sizeof($varCache) > ($maxSize=256)) {                       // 256: ausreichend für Daten ca. eines Monats
+        $varCache = array_slice($varCache, $offset=$maxSize/2);
+    }
     return $result;
 }
 
@@ -771,7 +769,7 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
 /**
  *
  */
-function showBuffer() {
+function showBarBuffer() {
     global $barBuffer;
 
     echoPre(NL);
@@ -806,7 +804,7 @@ function help($message=null) {
 
     $self = baseName($_SERVER['PHP_SELF']);
 
-echo <<<HELP_MESSAGE
+echo <<<USAGE
 
  Syntax:  $self [symbol ...]
 
@@ -816,5 +814,5 @@ echo <<<HELP_MESSAGE
            -h    This help screen.
 
 
-HELP_MESSAGE;
+USAGE;
 }
