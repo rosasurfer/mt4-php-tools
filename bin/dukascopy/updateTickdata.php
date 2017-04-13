@@ -428,7 +428,7 @@ function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=f
 
         // ist das Flag $saveData gesetzt, Content speichern
         if ($saveData) {
-            mkDirWritable(getVar('myfxDir', $symbol, $gmtHour), 0700);
+            mkDirWritable(getVar('myfxDir', $symbol, $gmtHour));
             $tmpFile = tempNam(dirName($file=getVar('dukaFile.compressed', $symbol, $gmtHour)), baseName($file));
             $hFile   = fOpen($tmpFile, 'wb');
             fWrite($hFile, $content);
@@ -443,7 +443,7 @@ function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=f
     else {
         if ($saveError) {                                                 // Fehlerdatei unter FXT-Namen speichern
             $file = getVar($status==404 ? 'dukaFile.404':'dukaFile.empty', $symbol, $fxtHour);
-            mkDirWritable(dirName($file), 0700);
+            mkDirWritable(dirName($file));
             fClose(fOpen($file, 'wb'));
         }
 

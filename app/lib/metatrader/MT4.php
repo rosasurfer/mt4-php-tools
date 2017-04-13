@@ -392,7 +392,7 @@ class MT4 extends StaticClass {
             $positions = $openPositionDao->listBySignal($signal);   // aufsteigend sortiert nach {OpenTime,Ticket}
 
             // Datei schreiben
-            mkDirWritable(dirName($openFileName), 0755);
+            mkDirWritable(dirName($openFileName));
             $hFile = $ex = null;
             try {
                 $hFile = fOpen($openFileName, 'wb');
@@ -448,7 +448,7 @@ class MT4 extends StaticClass {
                 $positions = $closedPositionDao->listBySignal($signal); // aufsteigend sortiert nach {CloseTime,OpenTime,Ticket}
 
                 // Datei schreiben
-                mkDirWritable(dirName($closedFileName), 0755);
+                mkDirWritable(dirName($closedFileName));
                 $hFile = $ex = null;
                 try {
                     $hFile = fOpen($closedFileName, 'wb');

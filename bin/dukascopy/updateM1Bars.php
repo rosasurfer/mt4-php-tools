@@ -461,7 +461,7 @@ function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $save
 
         // ist das Flag $saveData gesetzt, Content speichern
         if ($saveData) {
-            mkDirWritable(getVar('myfxDir', $symbol, $day, $type), 0700);
+            mkDirWritable(getVar('myfxDir', $symbol, $day, $type));
             $tmpFile = tempNam(dirName($file=getVar('dukaFile.compressed', $symbol, $day, $type)), baseName($file));
             $hFile   = fOpen($tmpFile, 'wb');
             fWrite($hFile, $response->getContent());
@@ -478,7 +478,7 @@ function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $save
             echoPre('[Error]   '.$shortDate.'   url not found (404): '.$url);
 
         if ($saveError) {
-            mkDirWritable(dirName($file=getVar('dukaFile.404', $symbol, $day, $type)), 0700);
+            mkDirWritable(dirName($file=getVar('dukaFile.404', $symbol, $day, $type)));
             fClose(fOpen($file, 'wb'));
         }
     }
