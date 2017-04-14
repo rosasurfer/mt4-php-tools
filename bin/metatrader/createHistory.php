@@ -76,7 +76,7 @@ function createHistory($symbol) {
     if (!is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
     if (!strLen($symbol))    throw new InvalidArgumentException('Invalid parameter $symbol: ""');
 
-    $startDay  = fxtTime(Tools::$symbols[$symbol]['historyStart']['M1']);             // FXT
+    $startDay  = fxtTime(Tools::$symbols[$symbol]['historyStart']['M1']);            // FXT
     $startDay -= $startDay%DAY;                                                      // 00:00 FXT Starttag
     $today     = ($today=fxtTime()) - $today%DAY;                                    // 00:00 FXT aktueller Tag
 
@@ -111,7 +111,7 @@ function createHistory($symbol) {
         }
 
         if (!WINDOWS) pcntl_signal_dispatch();                                        // Auf Ctrl-C pruefen, um bei Abbruch den
-    }                                                                                // Schreibbuffer der History leeren zu koennen.
+    }                                                                                 // Schreibbuffer der History leeren zu koennen.
     $history->close();
 
     echoPre('[Ok]      '.$symbol);

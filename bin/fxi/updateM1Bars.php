@@ -126,8 +126,8 @@ function updateIndex($index) {
     $startTime = 0;
     $pairs = array_flip($indexes[$index]);                                                 // ['AUDUSD', ...] => ['AUDUSD'=>null, ...]
     foreach($pairs as $pair => &$data) {
-        $data      = [];                                                                    // $data initialisieren: ['AUDUSD'=>[], ...]
-        $startTime = max($startTime, Tools::$symbols[$pair]['historyStart']['M1']);          // GMT-Timestamp
+        $data      = [];                                                                   // $data initialisieren: ['AUDUSD'=>[], ...]
+        $startTime = max($startTime, Tools::$symbols[$pair]['historyStart']['M1']);        // GMT-Timestamp
     } unset($data);
     $startTime = fxtTime($startTime);
     $startDay  = $startTime - $startTime%DAY;                                              // 00:00 Starttag FXT

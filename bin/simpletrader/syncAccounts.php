@@ -345,11 +345,11 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
                         }
                         $format = "%s:  %-6s %-4s %4.2F %s @ %-8s now: %s";
                         $date   = date('Y-m-d H:i:s', Tools::fxtStrToTime($row['time'  ]));
-                        $deal   =          ($row['trade']=='open') ? '': $row['trade' ];     // "open" wird nicht extra angezeigt
-                        $type   =                                ucFirst($row['type'  ]);
-                        $lots   =                                        $row['lots'  ];
-                        $symbol =                                        $row['symbol'];     // Consolen-Output fuer "[open|close] position...",
-                        $price  =                                        $row['price' ];     // "modify ..." in SimpleTrader::onPositionModify()
+                        $deal   =           ($row['trade']=='open') ? '': $row['trade' ];     // "open" wird nicht extra angezeigt
+                        $type   =                                 ucFirst($row['type'  ]);
+                        $lots   =                                         $row['lots'  ];
+                        $symbol =                                         $row['symbol'];     // Consolen-Output fuer "[open|close] position...",
+                        $price  =                                         $row['price' ];     // "modify ..." in SimpleTrader::onPositionModify()
                         echoPre(sprintf($format, $date, $deal, $type, $lots, $symbol, $price, $netPosition));
                     }
                     else $oldNetPosition = $netPosition;

@@ -98,7 +98,7 @@ class Order extends PersistableObject {
 
         $type = $properties['type'];
         if (!is_int($type))                                   throw new IllegalTypeException('Illegal type of property "type": '.getType($type));
-        if (!Tools::isOrderType($type))                        throw new InvalidArgumentException('Invalid property "type": '.$type.' (not an order type)');
+        if (!Tools::isOrderType($type))                       throw new InvalidArgumentException('Invalid property "type": '.$type.' (not an order type)');
         $order->type = Tools::orderTypeDescription($type);
 
         $lots = $properties['lots'];

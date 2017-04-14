@@ -124,12 +124,12 @@ function updateSymbol($symbol) {
     $startTimeGMT = Tools::$symbols[$symbol]['historyStart']['ticks'];    // Beginn der Tickdaten des Symbols GMT
     $prev = $next = null;
     $fxtOffset = Tools::fxtTimezoneOffset($startTimeGMT, $prev, $next);   // es gilt: FXT = GMT + Offset
-    $startTimeFXT = $startTimeGMT + $fxtOffset;                          // Beginn der Tickdaten FXT
+    $startTimeFXT = $startTimeGMT + $fxtOffset;                           // Beginn der Tickdaten FXT
 
-    if ($remainder=$startTimeFXT % DAY) {                                // Beginn auf den naechsten Forex-Tag 00:00 aufrunden, sodass
+    if ($remainder=$startTimeFXT % DAY) {                                 // Beginn auf den naechsten Forex-Tag 00:00 aufrunden, sodass
         $diff = 1*DAY - $remainder;                                       // wir nur vollstaendige Forex-Tage verarbeiten. Dabei
         if ($startTimeGMT + $diff >= $next['time']) {                     // beruecksichtigen, dass sich zu Beginn des naechsten Forex-Tages
-            $startTimeGMT = $next['time'];                                 // der DST-Offset der FXT geaendert haben kann.
+            $startTimeGMT = $next['time'];                                // der DST-Offset der FXT geaendert haben kann.
             $startTimeFXT = $startTimeGMT + $next['offset'];
             if ($remainder=$startTimeFXT % DAY) $diff = 1*DAY - $remainder;
             else                                $diff = 0;
