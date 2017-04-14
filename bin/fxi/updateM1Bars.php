@@ -1911,39 +1911,39 @@ function getVar($id, $symbol=null, $time=null) {
     static $dataDirectory;
     $self = __FUNCTION__;
 
-    if ($id == 'myfxDirDate') {                  // $yyyy/$mm/$dd                                                  // lokales Pfad-Datum
+    if ($id == 'myfxDirDate') {                  // $yyyy/$mm/$dd                                               // lokales Pfad-Datum
         if (!$time)   throw new InvalidArgumentException('Invalid parameter $time: '.$time);
         $result = gmDate('Y/m/d', $time);
     }
-    else if ($id == 'fxiSourceDir') {            // $dataDirectory/history/myfx/$type/$symbol/$myfxDirDate         // lokales Quell-Verzeichnis
+    else if ($id == 'fxiSourceDir') {            // $dataDirectory/history/myfx/$group/$symbol/$myfxDirDate     // lokales Quell-Verzeichnis
         if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
         if (!$dataDirectory)
         $dataDirectory = Config::getDefault()->get('app.dir.data');
-        $type          = Tools::$symbols[$symbol]['type'];
+        $group         = Tools::$symbols[$symbol]['group'];
         $myfxDirDate   = $self('myfxDirDate', null, $time);
-        $result        = $dataDirectory.'/history/myfx/'.$type.'/'.$symbol.'/'.$myfxDirDate;
+        $result        = $dataDirectory.'/history/myfx/'.$group.'/'.$symbol.'/'.$myfxDirDate;
     }
-    else if ($id == 'fxiTargetDir') {            // $dataDirectory/history/myfx/$type/$symbol/$myfxDirDate         // lokales Ziel-Verzeichnis
+    else if ($id == 'fxiTargetDir') {            // $dataDirectory/history/myfx/$type/$symbol/$myfxDirDate      // lokales Ziel-Verzeichnis
         if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
         if (!$dataDirectory)
         $dataDirectory = Config::getDefault()->get('app.dir.data');
-        $type          = Tools::$symbols[$symbol]['type'];
+        $group         = Tools::$symbols[$symbol]['group'];
         $myfxDirDate   = $self('myfxDirDate', null, $time);
-        $result        = $dataDirectory.'/history/myfx/'.$type.'/'.$symbol.'/'.$myfxDirDate;
+        $result        = $dataDirectory.'/history/myfx/'.$group.'/'.$symbol.'/'.$myfxDirDate;
     }
-    else if ($id == 'fxiSource.raw') {           // $fxiSourceDir/M1.myfx                                          // lokale Quell-Datei ungepackt
+    else if ($id == 'fxiSource.raw') {           // $fxiSourceDir/M1.myfx                                       // lokale Quell-Datei ungepackt
         $fxiSourceDir = $self('fxiSourceDir', $symbol, $time);
         $result       = $fxiSourceDir.'/M1.myfx';
     }
-    else if ($id == 'fxiSource.compressed') {    // $fxiSourceDir/M1.rar                                           // lokale Quell-Datei gepackt
+    else if ($id == 'fxiSource.compressed') {    // $fxiSourceDir/M1.rar                                        // lokale Quell-Datei gepackt
         $fxiSourceDir = $self('fxiSourceDir', $symbol, $time);
         $result       = $fxiSourceDir.'/M1.rar';
     }
-    else if ($id == 'fxiTarget.raw') {           // $fxiTargetDir/M1.myfx                                          // lokale Ziel-Datei ungepackt
+    else if ($id == 'fxiTarget.raw') {           // $fxiTargetDir/M1.myfx                                       // lokale Ziel-Datei ungepackt
         $fxiTargetDir = $self('fxiTargetDir' , $symbol, $time);
         $result       = $fxiTargetDir.'/M1.myfx';
     }
-    else if ($id == 'fxiTarget.compressed') {    // $fxiTargetDir/M1.rar                                           // lokale Ziel-Datei gepackt
+    else if ($id == 'fxiTarget.compressed') {    // $fxiTargetDir/M1.rar                                        // lokale Ziel-Datei gepackt
         $fxiTargetDir = $self('fxiTargetDir' , $symbol, $time);
         $result       = $fxiTargetDir.'/M1.rar';
     }
