@@ -148,13 +148,13 @@ function getVar($id, $symbol=null, $time=null) {
         if (!$time)   throw new InvalidArgumentException('Invalid parameter $time: '.$time);
         $result = gmDate('Y/m/d', $time);
     }
-    else if ($id == 'myfxDir') {              // $dataDirectory/history/myfx/$group/$symbol/$myfxDirDate        // lokales Verzeichnis
+    else if ($id == 'myfxDir') {              // $dataDirectory/history/xtrade/$group/$symbol/$myfxDirDate      // lokales Verzeichnis
         if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
         static $dataDirectory; if (!$dataDirectory)
         $dataDirectory = Config::getDefault()->get('app.dir.data');
         $group         = Tools::$symbols[$symbol]['group'];
         $myfxDirDate   = $self('myfxDirDate', null, $time);
-        $result        = $dataDirectory.'/history/myfx/'.$group.'/'.$symbol.'/'.$myfxDirDate;
+        $result        = $dataDirectory.'/history/xtrade/'.$group.'/'.$symbol.'/'.$myfxDirDate;
     }
     else if ($id == 'myfxFile.raw') {         // $myfxDir/M1.myfx                                               // lokale Datei ungepackt
         $myfxDir = $self('myfxDir' , $symbol, $time);

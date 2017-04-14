@@ -426,7 +426,7 @@ function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $save
     if (!$quiet) echoPre('[Info]    '.$shortDate.'   url: '.$url);
 
     // (1) Standard-Browser simulieren
-    $userAgent = $config->get('myfx.useragent'); if (!$userAgent) throw new InvalidArgumentException('Invalid user agent configuration: "'.$userAgent.'"');
+    $userAgent = $config->get('xtrade.useragent'); if (!$userAgent) throw new InvalidArgumentException('Invalid user agent configuration: "'.$userAgent.'"');
     $request = HttpRequest::create()
                           ->setUrl($url)
                           ->setHeader('User-Agent'     , $userAgent                                                       )
@@ -705,13 +705,13 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
         if (!$time)   throw new InvalidArgumentException('Invalid parameter $time: '.$time);
         $result = gmDate('Y/m/d', $time);
     }
-    else if ($id == 'myfxDir') {                // $dataDirectory/history/myfx/$group/$symbol/$dateL    // lokales Verzeichnis
+    else if ($id == 'myfxDir') {                // $dataDirectory/history/xtrade/$group/$symbol/$dateL  // lokales Verzeichnis
         if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
         static $dataDirectory; if (!$dataDirectory)
         $dataDirectory = Config::getDefault()->get('app.dir.data');
         $group         = Tools::$symbols[$symbol]['group'];
         $dateL         = $self('myfxDirDate', null, $time, null);
-        $result        = $dataDirectory.'/history/myfx/'.$group.'/'.$symbol.'/'.$dateL;
+        $result        = $dataDirectory.'/history/xtrade/'.$group.'/'.$symbol.'/'.$dateL;
     }
     else if ($id == 'myfxFile.raw') {           // $myfxDir/M1.myfx                                     // lokale Datei ungepackt
         $myfxDir = $self('myfxDir' , $symbol, $time, null);

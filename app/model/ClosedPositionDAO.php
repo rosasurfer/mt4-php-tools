@@ -24,7 +24,7 @@ class ClosedPositionDAO extends DAO {
 
     // Datenbankmapping
     protected $mapping = [
-        'connection' => 'myfx',
+        'connection' => 'xtrade',
         'table'      => 't_closedposition',
         'columns'    => [
             'id'          => ['id'         , PHP_TYPE_INT   , 0, ID_PRIMARY               ],      // db:int

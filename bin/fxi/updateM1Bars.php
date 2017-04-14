@@ -1915,21 +1915,21 @@ function getVar($id, $symbol=null, $time=null) {
         if (!$time)   throw new InvalidArgumentException('Invalid parameter $time: '.$time);
         $result = gmDate('Y/m/d', $time);
     }
-    else if ($id == 'fxiSourceDir') {            // $dataDirectory/history/myfx/$group/$symbol/$myfxDirDate     // lokales Quell-Verzeichnis
+    else if ($id == 'fxiSourceDir') {            // $dataDirectory/history/xtrade/$group/$symbol/$myfxDirDate   // lokales Quell-Verzeichnis
         if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
         if (!$dataDirectory)
         $dataDirectory = Config::getDefault()->get('app.dir.data');
         $group         = Tools::$symbols[$symbol]['group'];
         $myfxDirDate   = $self('myfxDirDate', null, $time);
-        $result        = $dataDirectory.'/history/myfx/'.$group.'/'.$symbol.'/'.$myfxDirDate;
+        $result        = $dataDirectory.'/history/xtrade/'.$group.'/'.$symbol.'/'.$myfxDirDate;
     }
-    else if ($id == 'fxiTargetDir') {            // $dataDirectory/history/myfx/$type/$symbol/$myfxDirDate      // lokales Ziel-Verzeichnis
+    else if ($id == 'fxiTargetDir') {            // $dataDirectory/history/xtrade/$type/$symbol/$myfxDirDate    // lokales Ziel-Verzeichnis
         if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
         if (!$dataDirectory)
         $dataDirectory = Config::getDefault()->get('app.dir.data');
         $group         = Tools::$symbols[$symbol]['group'];
         $myfxDirDate   = $self('myfxDirDate', null, $time);
-        $result        = $dataDirectory.'/history/myfx/'.$group.'/'.$symbol.'/'.$myfxDirDate;
+        $result        = $dataDirectory.'/history/xtrade/'.$group.'/'.$symbol.'/'.$myfxDirDate;
     }
     else if ($id == 'fxiSource.raw') {           // $fxiSourceDir/M1.myfx                                       // lokale Quell-Datei ungepackt
         $fxiSourceDir = $self('fxiSourceDir', $symbol, $time);
