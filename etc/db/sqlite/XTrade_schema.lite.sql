@@ -6,7 +6,7 @@ Model       XTrade Tests
 Author      Peter Walther
 Database    SQLite3
 */
-.open --new "MT4SQLite.db"
+.open --new "Xtrade.db"
 
 
 -- drop all database objects

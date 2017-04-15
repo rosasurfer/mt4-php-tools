@@ -2,7 +2,7 @@
 Created     16.01.2017
 Modified    15.04.2017
 Project     XTrade
-Model       XTrade Tests (SQLite)
+Model       XTrade Tests
 Company     
 Author      Peter Walther
 Version     0.1
