@@ -3,7 +3,7 @@ Created     16.01.2017
 Modified    15.04.2017
 Project     XTrade
 Model       XTrade Tests
-Company     
+Company
 Author      Peter Walther
 Version     0.1
 Database    MySQL 5
@@ -15,9 +15,9 @@ set collation_connection = 'utf8_unicode_ci';
 set autocommit           = 0;
 
 
-drop database if exists mt4sqlite;
-create database mt4sqlite default collate 'latin1_general_ci';
-use mt4sqlite;
+drop database if exists xtrade;
+create database xtrade default collate 'latin1_general_ci';
+use xtrade;
 
 
 create table t_test (

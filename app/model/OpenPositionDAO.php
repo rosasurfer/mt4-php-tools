@@ -24,7 +24,7 @@ class OpenPositionDAO extends DAO {
 
     // Datenbankmapping
     protected $mapping = [
-        'connection' => 'xtrade',
+        'connection' => 'mysql',
         'table'      => 't_openposition',
         'columns'    => [
             'id'          => ['id'         , PHP_TYPE_INT   , 0, ID_PRIMARY               ],      // db:int

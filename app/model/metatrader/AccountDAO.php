@@ -24,7 +24,7 @@ class AccountDAO extends DAO {
 
     // Datenbankmapping
     protected $mapping = [
-        'connection' => 'xtrade',
+        'connection' => 'mysql',
         'table'      => 't_account',
         'columns'    => [
             'id'                  => ['id'                 , PHP_TYPE_INT   , 0            , ID_PRIMARY               ],     // db:int
