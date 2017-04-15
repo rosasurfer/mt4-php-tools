@@ -1,0 +1,325 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"  "http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+      <meta name="keywords" content="CASE Studio 2, html, report">
+      <link rel="stylesheet" type="text/css" media="screen" href="simple.css" title="report">
+      <link rel="stylesheet" type="text/css" media="print" href="simple_print.css" title="report">
+      <title>CASE Studio 2 - HTML Report</title>
+   </head>
+
+<body class="rightPage">
+<a name = "Entity_1"></a>
+<div class="caption1">Entity 'Test'</div>
+<div class="caption2">General info</div>
+<table class="tabformat" border="0" cellpadding="2" cellspacing="1" width="100%">
+ 
+  <tr>
+    <td class="tabhead"  width="25%"> Entity type:    </td>    <td class="tabdata" > independent   </td>  </tr>
+</table>
+
+<div class="caption2">Attributes</div>
+<table class="tabformat" border="0" cellpadding="2" cellspacing="1" width="100%">
+ 
+  <tr>
+    <td class="tabhead"  width="5%"> Key    </td>    <td class="tabhead"  width="25%"> Attribute/role name    </td>    <td class="tabhead"  width="15%"> Data type    </td>    <td class="tabhead"  width="10%"> Not null    </td>    <td class="tabhead"  width="10%"> Unique    </td>    <td class="tabhead"  colspan="2"> Comments    </td>  </tr>
+  <tr>
+    <td class="tabdata" > PK    </td>    <td class="tabdata" > ID    </td>    <td class="tabdata" > Integer    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata"  colspan="3"> NO    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Created    </td>    <td class="tabdata" > Timestamp    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> GMT    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Version    </td>    <td class="tabdata" > Timestamp    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> GMT    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Strategy    </td>    <td class="tabdata" > Varchar (255)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> tested strategy    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > ReportingID    </td>    <td class="tabdata" > Integer    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> the test's reporting id    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > ReportingSymbol    </td>    <td class="tabdata" > Varchar (11)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata"  colspan="2"> the test's reporting symbol    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Symbol    </td>    <td class="tabdata" > Varchar (11)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> tested symbol    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Timeframe    </td>    <td class="tabdata" > Integer    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> tested timeframe    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > StartTime    </td>    <td class="tabdata" > Timestamp    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> FXT    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > EndTime    </td>    <td class="tabdata" > Timestamp    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> FXT    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > TickModel    </td>    <td class="tabdata" > Enum    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> EveryTick | ControlPoints | BarOpen    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Spread    </td>    <td class="tabdata" > Decimal (2,1)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata"  colspan="3"> NO    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Bars    </td>    <td class="tabdata" > Integer    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata"  colspan="3"> NO    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Ticks    </td>    <td class="tabdata" > Integer    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata"  colspan="3"> NO    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > TradeDirections    </td>    <td class="tabdata" > Enum    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> Long | Short | Both    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > VisualMode    </td>    <td class="tabdata" > Tinyint    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata"  colspan="3"> NO    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Duration    </td>    <td class="tabdata" > Integer    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> test duration in seconds   </td>  </tr>
+</table>
+
+<div class="caption2">Relationships</div>
+<table class="tabformat" border="0" cellpadding="2" cellspacing="1" width="100%">
+ 
+  <tr>
+    <td class="tabhead"  width="24%"> Relationship name    </td>    <td class="tabhead"  width="20%"> Type    </td>    <td class="tabhead"  width="23%"> Parent entity    </td>    <td class="tabhead"  width="23%"> Child entity    </td>    <td class="tabhead"  width="10%"> Card.    </td>  </tr>
+  <tr>
+    <td class="tabdata" > fk_order_test    </td>    <td class="tabdata" > Non-identifying    </td>    <td class="tabdata" > Test    </td>    <td class="tabdata" > Order    </td>    <td class="tabdata" > 1:N    </td>  </tr>
+  <tr>
+    <td class="tabdata" > fk_strategyparameter_test    </td>    <td class="tabdata" > Identifying    </td>    <td class="tabdata" > Test    </td>    <td class="tabdata" > StrategyParameter    </td>    <td class="tabdata" > 1:N    </td>  </tr>
+  <tr>
+    <td class="tabdata" > fk_result_test    </td>    <td class="tabdata" > Identifying    </td>    <td class="tabdata" > Test    </td>    <td class="tabdata" > Result    </td>    <td class="tabdata" > 1:N   </td>  </tr>
+</table>
+
+<div class="caption2">Alternative keys</div>
+<table class="tabformat" border="0" cellpadding="2" cellspacing="1" width="100%">
+ 
+  <tr>
+    <td class="tabhead"  width="40%"> Name    </td>    <td class="tabhead"  width="60%"> Attributes    </td>  </tr>
+  <tr>
+    <td class="tabdata" > Strategy,ReportingID    </td>    <td class="tabdata" > Strategy, ReportingID   </td>  </tr>
+</table>
+
+<div class="caption2">User-defined variables</div>
+<table class="tabformat" border="0" cellpadding="2" cellspacing="1" width="100%">
+ 
+  <tr>
+    <td class="tabhead"  width="50%"> Name    </td>    <td class="tabhead"  width="50%"> Value    </td>  </tr>
+  <tr>
+    <td class="tabdata" > Temporary table    </td>    <td class="tabdata" > No    </td>  </tr>
+  <tr>
+    <td class="tabdata" > If not exists    </td>    <td class="tabdata" > No    </td>  </tr>
+  <tr>
+    <td class="tabdata" > Table type    </td>    <td class="tabdata" > Default    </td>  </tr>
+  <tr>
+    <td class="tabdata" > Character Set    </td>    <td class="tabdata" >     </td>  </tr>
+  <tr>
+    <td class="tabdata" > Row Format    </td>    <td class="tabdata" > Default    </td>  </tr>
+  <tr>
+    <td class="tabdata" > Collation    </td>    <td class="tabdata" >     </td>  </tr>
+  <tr>
+    <td class="tabdata" > Database Name    </td>    <td class="tabdata" >     </td>  </tr>
+  <tr>
+    <td class="tabdata" > Initial AUTO_INCREMENT    </td>    <td class="tabdata" >    </td>  </tr>
+</table>
+
+ <br><br> 
+<a name = "Entity_7"></a>
+<div class="caption1">Entity 'StrategyParameter'</div>
+<div class="caption2">General info</div>
+<table class="tabformat" border="0" cellpadding="2" cellspacing="1" width="100%">
+ 
+  <tr>
+    <td class="tabhead"  width="25%"> Entity type:    </td>    <td class="tabdata" > dependent   </td>  </tr>
+</table>
+
+<div class="caption2">Attributes</div>
+<table class="tabformat" border="0" cellpadding="2" cellspacing="1" width="100%">
+ 
+  <tr>
+    <td class="tabhead"  width="5%"> Key    </td>    <td class="tabhead"  width="25%"> Attribute/role name    </td>    <td class="tabhead"  width="15%"> Data type    </td>    <td class="tabhead"  width="10%"> Not null    </td>    <td class="tabhead"  width="10%" colspan="3"> Unique    </td>  </tr>
+  <tr>
+    <td class="tabdata" > PFK    </td>    <td class="tabdata" > ID/Test    </td>    <td class="tabdata" > Integer    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata"  colspan="3"> NO    </td>  </tr>
+  <tr>
+    <td class="tabdata" > PK    </td>    <td class="tabdata" > Name    </td>    <td class="tabdata" > Varchar (32)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata"  colspan="3"> NO    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Value    </td>    <td class="tabdata" > Varchar (255)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata"  colspan="3"> NO   </td>  </tr>
+</table>
+
+<div class="caption2">Relationships</div>
+<table class="tabformat" border="0" cellpadding="2" cellspacing="1" width="100%">
+ 
+  <tr>
+    <td class="tabhead"  width="24%"> Relationship name    </td>    <td class="tabhead"  width="20%"> Type    </td>    <td class="tabhead"  width="23%"> Parent entity    </td>    <td class="tabhead"  width="23%"> Child entity    </td>    <td class="tabhead"  width="10%"> Card.    </td>  </tr>
+  <tr>
+    <td class="tabdata" > fk_strategyparameter_test    </td>    <td class="tabdata" > Identifying    </td>    <td class="tabdata" > Test    </td>    <td class="tabdata" > StrategyParameter    </td>    <td class="tabdata" > 1:N   </td>  </tr>
+</table>
+
+<div class="caption2">User-defined variables</div>
+<table class="tabformat" border="0" cellpadding="2" cellspacing="1" width="100%">
+ 
+  <tr>
+    <td class="tabhead"  width="50%"> Name    </td>    <td class="tabhead"  width="50%"> Value    </td>  </tr>
+  <tr>
+    <td class="tabdata" > Temporary table    </td>    <td class="tabdata" > No    </td>  </tr>
+  <tr>
+    <td class="tabdata" > If not exists    </td>    <td class="tabdata" > No    </td>  </tr>
+  <tr>
+    <td class="tabdata" > Table type    </td>    <td class="tabdata" > Default    </td>  </tr>
+  <tr>
+    <td class="tabdata" > Character Set    </td>    <td class="tabdata" >     </td>  </tr>
+  <tr>
+    <td class="tabdata" > Row Format    </td>    <td class="tabdata" > Default    </td>  </tr>
+  <tr>
+    <td class="tabdata" > Collation    </td>    <td class="tabdata" >     </td>  </tr>
+  <tr>
+    <td class="tabdata" > Database Name    </td>    <td class="tabdata" >     </td>  </tr>
+  <tr>
+    <td class="tabdata" > Initial AUTO_INCREMENT    </td>    <td class="tabdata" >    </td>  </tr>
+</table>
+
+ <br><br> 
+<a name = "Entity_5"></a>
+<div class="caption1">Entity 'Order'</div>
+<div class="caption2">General info</div>
+<table class="tabformat" border="0" cellpadding="2" cellspacing="1" width="100%">
+ 
+  <tr>
+    <td class="tabhead"  width="25%"> Entity type:    </td>    <td class="tabdata" > independent   </td>  </tr>
+</table>
+
+<div class="caption2">Attributes</div>
+<table class="tabformat" border="0" cellpadding="2" cellspacing="1" width="100%">
+ 
+  <tr>
+    <td class="tabhead"  width="5%"> Key    </td>    <td class="tabhead"  width="25%"> Attribute/role name    </td>    <td class="tabhead"  width="15%"> Data type    </td>    <td class="tabhead"  width="10%"> Not null    </td>    <td class="tabhead"  width="10%"> Unique    </td>    <td class="tabhead"  colspan="2"> Comments    </td>  </tr>
+  <tr>
+    <td class="tabdata" > PK    </td>    <td class="tabdata" > ID    </td>    <td class="tabdata" > Integer    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata"  colspan="3"> NO    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Created    </td>    <td class="tabdata" > Timestamp    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> GMT    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Version    </td>    <td class="tabdata" > Timestamp    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> GMT    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Ticket    </td>    <td class="tabdata" > Integer    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata"  colspan="3"> NO    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Type    </td>    <td class="tabdata" > Enum    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> Buy | Sell    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Lots    </td>    <td class="tabdata" > Decimal (10,2)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata"  colspan="3"> NO    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Symbol    </td>    <td class="tabdata" > Varchar (11)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata"  colspan="3"> NO    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > OpenPrice    </td>    <td class="tabdata" > Decimal (10,5)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata"  colspan="3"> NO    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > OpenTime    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> FXT    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > StopLoss    </td>    <td class="tabdata" > Decimal (10,5)    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="3"> NO    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > TakeProfit    </td>    <td class="tabdata" > Decimal (10,5)    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="3"> NO    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > ClosePrice    </td>    <td class="tabdata" > Decimal (10,5)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata"  colspan="3"> NO    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > CloseTime    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> FXT    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Commission    </td>    <td class="tabdata" > Decimal (10,2)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata"  colspan="3"> NO    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Swap    </td>    <td class="tabdata" > Decimal (10,2)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata"  colspan="3"> NO    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Profit    </td>    <td class="tabdata" > Decimal (10,2)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> gross profit    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > MagicNumber    </td>    <td class="tabdata" > Integer    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="3"> NO    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Comment    </td>    <td class="tabdata" > Varchar (27)    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="3"> NO    </td>  </tr>
+  <tr>
+    <td class="tabdata" > FK    </td>    <td class="tabdata" > ID/Test    </td>    <td class="tabdata" > Integer    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata"  colspan="3"> NO   </td>  </tr>
+</table>
+
+<div class="caption2">Relationships</div>
+<table class="tabformat" border="0" cellpadding="2" cellspacing="1" width="100%">
+ 
+  <tr>
+    <td class="tabhead"  width="24%"> Relationship name    </td>    <td class="tabhead"  width="20%"> Type    </td>    <td class="tabhead"  width="23%"> Parent entity    </td>    <td class="tabhead"  width="23%"> Child entity    </td>    <td class="tabhead"  width="10%"> Card.    </td>  </tr>
+  <tr>
+    <td class="tabdata" > fk_order_test    </td>    <td class="tabdata" > Non-identifying    </td>    <td class="tabdata" > Test    </td>    <td class="tabdata" > Order    </td>    <td class="tabdata" > 1:N   </td>  </tr>
+</table>
+
+<div class="caption2">Alternative keys</div>
+<table class="tabformat" border="0" cellpadding="2" cellspacing="1" width="100%">
+ 
+  <tr>
+    <td class="tabhead"  width="40%"> Name    </td>    <td class="tabhead"  width="60%"> Attributes    </td>  </tr>
+  <tr>
+    <td class="tabdata" > Signal,Ticket    </td>    <td class="tabdata" > ID, Ticket   </td>  </tr>
+</table>
+
+<div class="caption2">User-defined variables</div>
+<table class="tabformat" border="0" cellpadding="2" cellspacing="1" width="100%">
+ 
+  <tr>
+    <td class="tabhead"  width="50%"> Name    </td>    <td class="tabhead"  width="50%"> Value    </td>  </tr>
+  <tr>
+    <td class="tabdata" > Temporary table    </td>    <td class="tabdata" > No    </td>  </tr>
+  <tr>
+    <td class="tabdata" > If not exists    </td>    <td class="tabdata" > No    </td>  </tr>
+  <tr>
+    <td class="tabdata" > Table type    </td>    <td class="tabdata" > Default    </td>  </tr>
+  <tr>
+    <td class="tabdata" > Character Set    </td>    <td class="tabdata" >     </td>  </tr>
+  <tr>
+    <td class="tabdata" > Row Format    </td>    <td class="tabdata" > Default    </td>  </tr>
+  <tr>
+    <td class="tabdata" > Collation    </td>    <td class="tabdata" >     </td>  </tr>
+  <tr>
+    <td class="tabdata" > Database Name    </td>    <td class="tabdata" >     </td>  </tr>
+  <tr>
+    <td class="tabdata" > Initial AUTO_INCREMENT    </td>    <td class="tabdata" >    </td>  </tr>
+</table>
+
+ <br><br> 
+<a name = "Entity_8"></a>
+<div class="caption1">Entity 'Result'</div>
+<div class="caption2">General info</div>
+<table class="tabformat" border="0" cellpadding="2" cellspacing="1" width="100%">
+ 
+  <tr>
+    <td class="tabhead"  width="25%"> Entity type:    </td>    <td class="tabdata" > dependent   </td>  </tr>
+</table>
+
+<div class="caption2">Attributes</div>
+<table class="tabformat" border="0" cellpadding="2" cellspacing="1" width="100%">
+ 
+  <tr>
+    <td class="tabhead"  width="5%"> Key    </td>    <td class="tabhead"  width="25%"> Attribute/role name    </td>    <td class="tabhead"  width="15%"> Data type    </td>    <td class="tabhead"  width="10%"> Not null    </td>    <td class="tabhead"  width="10%"> Unique    </td>    <td class="tabhead"  colspan="2"> Comments    </td>  </tr>
+  <tr>
+    <td class="tabdata" > PFK    </td>    <td class="tabdata" > ID    </td>    <td class="tabdata" > Integer    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata"  colspan="3"> NO    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Trades    </td>    <td class="tabdata" > Integer    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata"  colspan="3"> NO    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Pips    </td>    <td class="tabdata" > Decimal (10,1)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata"  colspan="3"> NO    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > AvgPips    </td>    <td class="tabdata" > Decimal (10,1)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> average trade profit in pip    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > AvgDuration    </td>    <td class="tabdata" > Integer    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> average trade duration in seconds    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Profit    </td>    <td class="tabdata" > Decimal (10,2)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> test gross profit    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Commission    </td>    <td class="tabdata" > Decimal (10,2)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> test commission    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Swap    </td>    <td class="tabdata" > Decimal (10,2)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> test swap   </td>  </tr>
+</table>
+
+<div class="caption2">Relationships</div>
+<table class="tabformat" border="0" cellpadding="2" cellspacing="1" width="100%">
+ 
+  <tr>
+    <td class="tabhead"  width="24%"> Relationship name    </td>    <td class="tabhead"  width="20%"> Type    </td>    <td class="tabhead"  width="23%"> Parent entity    </td>    <td class="tabhead"  width="23%"> Child entity    </td>    <td class="tabhead"  width="10%"> Card.    </td>  </tr>
+  <tr>
+    <td class="tabdata" > fk_result_test    </td>    <td class="tabdata" > Identifying    </td>    <td class="tabdata" > Test    </td>    <td class="tabdata" > Result    </td>    <td class="tabdata" > 1:N   </td>  </tr>
+</table>
+
+<div class="caption2">User-defined variables</div>
+<table class="tabformat" border="0" cellpadding="2" cellspacing="1" width="100%">
+ 
+  <tr>
+    <td class="tabhead"  width="50%"> Name    </td>    <td class="tabhead"  width="50%"> Value    </td>  </tr>
+  <tr>
+    <td class="tabdata" > Temporary table    </td>    <td class="tabdata" > No    </td>  </tr>
+  <tr>
+    <td class="tabdata" > If not exists    </td>    <td class="tabdata" > No    </td>  </tr>
+  <tr>
+    <td class="tabdata" > Table type    </td>    <td class="tabdata" > Default    </td>  </tr>
+  <tr>
+    <td class="tabdata" > Character Set    </td>    <td class="tabdata" >     </td>  </tr>
+  <tr>
+    <td class="tabdata" > Row Format    </td>    <td class="tabdata" > Default    </td>  </tr>
+  <tr>
+    <td class="tabdata" > Collation    </td>    <td class="tabdata" >     </td>  </tr>
+  <tr>
+    <td class="tabdata" > Database Name    </td>    <td class="tabdata" >     </td>  </tr>
+  <tr>
+    <td class="tabdata" > Initial AUTO_INCREMENT    </td>    <td class="tabdata" >    </td>  </tr>
+</table>
+
+ <br><br> 
+</body></html>

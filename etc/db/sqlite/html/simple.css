@@ -1,0 +1,362 @@
+/* --------------------------------------- */
+/* --------------- GENERAL --------------- */
+/* --------------------------------------- */
+
+body {
+	color: #000000;
+	font-family : Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size : 10px ;
+	background : #FFFFFF;
+	visibility : visible;
+}
+
+.topPage {
+	margin: 0px;
+	padding: 0px;
+	background: url(Img/fBg.png) #000066;
+}
+
+.rightPage {
+	margin: 20px;
+}
+
+.leftPage {
+	background: #DCEBFF;
+}
+
+/* --------------------------------------- */
+/* -------------- TOP FRAME -------------- */
+/* --------------------------------------- */
+
+.title {
+	font-family : Verdana, Geneva, Arial, Helvetica, sans-serif;
+	margin: auto;
+	padding-bottom : 0px;
+	padding-left : 0pt;
+	padding-right : 0px;
+	padding-top : 0px ;
+	line-height: 52px;
+	height : 52px;
+	width : 100%;
+	background : #000066;
+	vertical-align : middle;
+	visibility : visible;
+}
+
+.title1  {
+	color: #FFFFFF;
+	font-family : Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size : 16pt;
+	font-weight : bold;
+	margin: auto;
+	padding-left : 10px;
+	padding-right : 0px;
+	line-height : 52px;
+	display : block;
+	float: left;
+	vertical-align : middle;
+	visibility : visible;
+}
+
+.separator1  {
+	color: #FFFFFF;
+	font-family : Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size : 5pt;
+	display : block;
+	line-height: 3px;
+	height: 3px;
+	float: left;
+	width: 10pt;
+	vertical-align : middle;
+	visibility : visible;
+	background: #FFFFFF;
+	position: relative;
+	top: 26px;
+	left: 6px;
+	margin-left: 6px;
+	margin-right: 6px;
+}
+
+.title2  {
+	color: #FFFFFF;
+	font-family : Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size : 16pt;
+	font-weight : normal;
+	padding-bottom : 0px;
+	padding-left : 10px;
+	padding-right : 0px;
+	padding-top : 0px;
+	line-height : 52px;
+	display : block;
+	float: left;
+	vertical-align : middle;
+	visibility : visible;
+}
+
+.separator2 {
+	color: #FFFFFF;
+	font-family : Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size : 20pt;
+	line-height : 52px;
+	display : none;
+	float: left;
+	width: 20pt;
+	vertical-align : middle;
+	visibility : visible;
+}
+
+.titleimage{
+	color: #FFFFFF;
+	text-align : right;
+	padding-right : 10px;
+	visibility : visible;
+	position: relative;
+	top: 6pt;
+	line-height: 20px;
+}
+
+
+.topMenu {
+margin: 0pt;
+padding: 0pt;
+display: block;
+width: 100%;
+line-height: 22px;
+background: url(Img/A04.png);
+border-top: 1px solid white;
+border-bottom: 1px solid black;
+}
+
+.topMenu a  {
+color: white;
+padding-left: 6pt;
+padding-right: 6pt;
+background: url(Img/A04.png);
+font-size: 8pt;
+text-decoration: none;
+display: block;
+line-height: 22px;
+white-space: nowrap;
+height: 22px;
+vertical-align: middle;
+}
+
+.topMenu a:hover {
+background: url(Img/A04.png);
+display: block;
+text-decoration: underline;
+line-height: 22px;
+height: 22px;
+}
+
+.selected {
+color: white;
+padding-left: 6pt;
+padding-right: 6pt;
+margin: 0pt;
+font-size: 8pt;
+display: block;
+line-height: 22px;
+background: url(Img/A02.png);
+white-space: nowrap;
+}
+
+/* --------------------------------------- */
+/* -------------- LEFT FRAME ------------- */
+/* --------------------------------------- */
+
+.bookmark {
+	font-family : Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size : 8pt;
+	font-weight : normal;
+	text-align : left;
+	padding-top : 14px;
+	width : 100%;
+	visibility : visible;
+}
+
+.bookmark a {
+	color: #333333;
+	font-family : Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size : 8pt;
+	font-weight : normal;
+	text-align : left;
+	text-decoration : none;
+	padding-left : 17px;
+	padding-right : 2px;
+	display : block;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	width: 100%;
+	line-height: 12px;
+	height: 12px;
+	visibility : visible;
+}
+
+
+.bookmark a:link {}
+.bookmark a:visited {}
+.bookmark a:active {}
+.bookmark a:hover {font-weight: bold; color: #000000;}
+
+
+/* --------------------------------------- */
+/* -------------- MAIN FRAME ------------- */
+/* --------------------------------------- */
+
+.caption1 {
+	color: #ffffff;
+	font-family : Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size : 10pt;
+	font-weight : bold;
+	text-align : center;
+	border-bottom : 1pt solid #333333;
+	margin-top : 14px;
+	padding-bottom : 1px;
+	padding-top : 1px;
+	line-height : 20px;
+	background : #000066;
+	visibility : visible;
+}
+
+.width770 {
+width: 770px;
+}
+
+.caption2 {
+	color: #FF6600;
+	font-family : Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size : 10pt;
+	font-weight : bold;
+	margin-bottom : 5px;
+	margin-left : 0px;
+	margin-right : 0px;
+	margin-top : 15px;
+	padding-bottom : 5px;
+	padding-left : 0px;
+	padding-right : 0px;
+	padding-top : 5px;
+	visibility : visible;
+
+}
+
+.tabformat {border:1px solid #CCCCCC;
+}
+
+.tabhead {
+	color: #333333;
+	font-family : Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size : 8pt;
+	font-weight : bold;
+	text-align : left;
+	border: 0pt solid #000000;
+	padding-bottom : 3px;
+	padding-left : 10px;
+	padding-right : 2px;
+	padding-top : 3px;
+	background : #DCEBFF;
+	visibility : visible;
+}
+
+.tabdata {
+	color: #333333;
+	font-family : Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size : 8pt;
+	font-weight : normal;
+	text-align : left;
+	border: 0pt solid #000000;
+	padding-bottom : 3px;
+	padding-left : 10px;
+	padding-right : 2px;
+	padding-top : 3px;
+	background :#EBEBEB;
+	visibility : visible;
+}
+
+/* --------------------------------------- */
+/* -------------- LEFT TOP FRAME --------- */
+/* --------------------------------------- */
+
+.titleLeft {
+	font-family : Verdana, Geneva, Arial, Helvetica, sans-serif;
+	margin: auto;
+	padding-bottom : 0px;
+	padding-left : 0pt;
+	padding-right : 0px;
+	padding-top : 0px ;
+	line-height: 32px;
+	width : 100%;
+	background : #000066;
+	vertical-align : middle;
+	visibility : visible;
+	color: white;
+}
+
+.titleLeft1 {
+color: white;
+font-size: 12pt;
+text-align: center;
+padding-top: 6px;
+height: 32px;
+}
+
+.titleLeft2 {
+color: white;
+font-size: 10pt;
+text-align: center;
+display: none;
+}
+
+.topLeft {
+background: #DCEBFF;;
+height: 100%;
+}
+
+.topMenuLeft {
+
+}
+
+
+
+.topMenuLeft a  {
+color: #000000;
+padding-left: 6pt;
+padding-right: 6pt;
+background :#EBEBEB;
+font-size: 8pt;
+text-decoration: none;
+display: block;
+border-top: 1px solid #ffffff;
+line-height: 20px;
+white-space: nowrap;
+height: 20px;
+vertical-align: middle;
+}
+
+.topMenuLeft a:hover {
+color: black;
+background : #FFFFFF left top;
+}
+
+.selectedLeft {
+color: #FF6600;
+padding-left: 6px;
+font-size: 8pt;
+line-height: 20px;
+width: 194px;
+font-weight: bold;
+background : white;
+display: block;
+vertical-align: middle;
+text-decoration: none;
+border-top: 1px solid #ffffff;
+}
+
+.leftPageLeft {
+	background: #DCEBFF;
+}
+
+
+
+
+
