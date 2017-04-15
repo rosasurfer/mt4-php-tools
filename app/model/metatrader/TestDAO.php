@@ -33,16 +33,16 @@ class TestDAO extends DAO {
         'table'      => 't_test',
         'columns'    => [
             'id'              => ['id'             , PHP_TYPE_INT   , 0               , ID_PRIMARY],      // db:int
-            'created'         => ['created_utc'    , PHP_TYPE_STRING, 0               , ID_CREATE ],      // db:text[datetime]
-            'modified'        => ['modified_utc'   , PHP_TYPE_STRING, 0               , ID_VERSION],      // db:text[datetime]
+            'created'         => ['created'        , PHP_TYPE_STRING, 0               , ID_CREATE ],      // db:text[datetime] GMT
+            'modified'        => ['modified'       , PHP_TYPE_STRING, 0               , ID_VERSION],      // db:text[datetime] GMT
 
             'strategy'        => ['strategy'       , PHP_TYPE_STRING, 0               , 0         ],      // db:text
             'reportingId'     => ['reportingid'    , PHP_TYPE_INT   , 0               , 0         ],      // db:int
             'reportingSymbol' => ['reportingsymbol', PHP_TYPE_STRING, 0               , 0         ],      // db:text
             'symbol'          => ['symbol'         , PHP_TYPE_STRING, 0               , 0         ],      // db:text
             'timeframe'       => ['timeframe'      , PHP_TYPE_INT   , 0               , 0         ],      // db:int
-            'startTime'       => ['starttime_fxt'  , PHP_TYPE_STRING, 0               , 0         ],      // db:text[datetime]
-            'endTime'         => ['endtime_fxt'    , PHP_TYPE_STRING, 0               , 0         ],      // db:text[datetime]
+            'startTime'       => ['starttime'      , PHP_TYPE_STRING, 0               , 0         ],      // db:text[datetime] FXT
+            'endTime'         => ['endtime'        , PHP_TYPE_STRING, 0               , 0         ],      // db:text[datetime] FXT
             'tickModel'       => ['tickmodel'      , PHP_TYPE_STRING, 0               , 0         ],      // db:text[enum] references enum_tickmodel(type)
             'spread'          => ['spread'         , PHP_TYPE_FLOAT , 0               , 0         ],      // db:float
             'bars'            => ['bars'           , PHP_TYPE_INT   , 0               , 0         ],      // db:int

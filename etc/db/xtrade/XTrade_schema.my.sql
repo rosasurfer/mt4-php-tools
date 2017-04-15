@@ -22,15 +22,15 @@ use xtrade;
 
 create table t_test (
    id int unsigned not null auto_increment,
-   created_utc timestamp not null default current_timestamp() comment 'GMT',
-   modified_utc timestamp null default null comment 'GMT',
+   created timestamp not null default current_timestamp() comment 'GMT',
+   modified timestamp null default null comment 'GMT',
    strategy varchar(255) not null comment 'tested strategy',
    reportingid int unsigned not null comment 'the test''s reporting id',
    reportingsymbol varchar(11) not null comment 'the test''s reporting symbol',
    symbol varchar(11) not null comment 'tested symbol',
    timeframe int unsigned not null comment 'tested timeframe',
-   starttime_fxt datetime not null comment 'FXT',
-   endtime_fxt datetime not null comment 'FXT',
+   starttime datetime not null comment 'FXT',
+   endtime datetime not null comment 'FXT',
    tickmodel enum('EveryTick','ControlPoints','BarOpen') not null comment 'EveryTick | ControlPoints | BarOpen',
    spread decimal(2,1) unsigned not null,
    bars int unsigned not null,
@@ -56,18 +56,18 @@ create table t_strategyparameter (
 
 create table t_order (
    id int unsigned not null auto_increment,
-   created_utc timestamp not null default current_timestamp() comment 'GMT',
-   modified_utc timestamp null default null comment 'GMT',
+   created timestamp not null default current_timestamp() comment 'GMT',
+   modified timestamp null default null comment 'GMT',
    ticket int unsigned not null,
    type enum('Buy','Sell') not null comment 'Buy | Sell',
    lots decimal(10,2) unsigned not null,
    symbol varchar(11) not null,
    openprice decimal(10,5) unsigned not null,
-   opentime_fxt datetime not null comment 'FXT',
+   opentime datetime not null comment 'FXT',
    stoploss decimal(10,5) unsigned,
    takeprofit decimal(10,5) unsigned,
    closeprice decimal(10,5) unsigned not null,
-   closetime_fxt datetime not null comment 'FXT',
+   closetime datetime not null comment 'FXT',
    commission decimal(10,2) not null,
    swap decimal(10,2) not null,
    profit decimal(10,2) not null comment 'gross profit',
@@ -101,8 +101,8 @@ delimiter //
 create trigger tr_test_before_update before update on t_test for each row
 begin
     -- update version timestamp if not yet done by the application layer
-    if (new.modified_utc = old.modified_utc || new.modified_utc is null) then
-        set new.modified_utc = current_timestamp();
+    if (new.modified = old.modified || new.modified is null) then
+        set new.modified = current_timestamp();
     end if;
 end;//
 
@@ -110,8 +110,8 @@ end;//
 create trigger tr_order_before_update before update on t_order for each row
 begin
     -- update version timestamp if not yet done by the application layer
-    if (new.modified_utc = old.modified_utc || new.modified_utc is null) then
-        set new.modified_utc = current_timestamp();
+    if (new.modified = old.modified || new.modified is null) then
+        set new.modified = current_timestamp();
     end if;
 end;//
 

@@ -6,7 +6,9 @@ Model       XTrade Tests
 Author      Peter Walther
 Database    SQLite3
 */
-.open --new "xtrade.db"
+
+
+.open --new "XTrade.db"
 
 
 -- drop all database objects
@@ -52,22 +54,22 @@ insert into enum_tradedirection (type) values
 -- Tests
 create table t_test (
    id              integer        not null,
-   created_utc     text[datetime] not null default (datetime('now')),
-   modified_utc    text[datetime],
+   created         text[datetime] not null default (datetime('now')),   -- GMT
+   modified        text[datetime],                                      -- GMT
    strategy        text(255)      not null collate nocase,
    reportingid     integer        not null,
    reportingsymbol text(11)       not null collate nocase,
-   symbol          text(11)       not null collate nocase,           -- tested symbol
-   timeframe       integer        not null,                          -- tested timeframe
-   starttime_fxt   text[datetime] not null,
-   endtime_fxt     text[datetime] not null,
+   symbol          text(11)       not null collate nocase,              -- tested symbol
+   timeframe       integer        not null,                             -- tested timeframe
+   starttime       text[datetime] not null,                             -- FXT
+   endtime         text[datetime] not null,                             -- FXT
    tickmodel       text[enum]     not null collate nocase,
-   spread          float(2,1)     not null,                          -- in pips
-   bars            integer        not null,                          -- number of tested bars
-   ticks           integer        not null,                          -- number of tested ticks
+   spread          float(2,1)     not null,                             -- in pips
+   bars            integer        not null,                             -- number of tested bars
+   ticks           integer        not null,                             -- number of tested ticks
    tradedirections text[enum]     not null collate nocase,
    visualmode      integer[bool]  not null,
-   duration        integer        not null,                          -- test duration in seconds
+   duration        integer        not null,                             -- test duration in seconds
    primary key (id),
    constraint u_reportingsymbol       unique (reportingsymbol),
    constraint u_strategy_reportingid  unique (strategy, reportingid),
@@ -75,9 +77,9 @@ create table t_test (
    constraint fk_test_tradedirections foreign key (tradedirections) references enum_tradedirection(type) on delete restrict on update cascade
 );
 create trigger tr_test_after_update after update on t_test
-when (new.modified_utc = old.modified_utc || new.modified_utc is null)
+when (new.modified = old.modified || new.modified is null)
 begin
-   update t_test set modified_utc = datetime('now') where id = new.id;
+   update t_test set modified = datetime('now') where id = new.id;
 end;
 
 
@@ -94,18 +96,18 @@ create table t_strategyparameter (
 -- Orders
 create table t_order (
    id            integer        not null,
-   created_utc   text[datetime] not null default (datetime('now')),
-   modified_utc  text[datetime],
+   created       text[datetime] not null default (datetime('now')),  -- GMT
+   modified      text[datetime],                                     -- GMT
    ticket        integer        not null,
    type          text[enum]     not null collate nocase,
    lots          float(10,2)    not null,
    symbol        text(11)       not null collate nocase,
    openprice     float(10,5)    not null,
-   opentime_fxt  text[datetime] not null,
+   opentime      text[datetime] not null,                            -- FXT
    stoploss      float(10,5),
    takeprofit    float(10,5),
    closeprice    float(10,5)    not null,
-   closetime_fxt text[datetime] not null,
+   closetime     text[datetime] not null,                            -- FXT
    commission    float(10,2)    not null,
    swap          float(10,2)    not null,
    profit        float(10,2)    not null,                            -- gross profit
@@ -118,7 +120,7 @@ create table t_order (
    constraint fk_order_test foreign key (test_id) references t_test(id)           on delete restrict on update cascade
 );
 create trigger tr_order_after_update after update on t_order
-when (new.modified_utc = old.modified_utc || new.modified_utc is null)
+when (new.modified = old.modified || new.modified is null)
 begin
-   update t_order set modified_utc = datetime('now') where id = new.id;
+   update t_order set modified = datetime('now') where id = new.id;
 end;
