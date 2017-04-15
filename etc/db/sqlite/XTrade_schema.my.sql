@@ -3,7 +3,7 @@ Created     16.01.2017
 Modified    15.04.2017
 Project     XTrade
 Model       XTrade Tests
-Company
+Company     
 Author      Peter Walther
 Version     0.1
 Database    MySQL 5
@@ -22,15 +22,15 @@ use xtrade;
 
 create table t_test (
    id int unsigned not null auto_increment,
-   created timestamp not null default current_timestamp() comment 'GMT',
-   version timestamp null default null comment 'GMT',
+   created_utc timestamp not null default current_timestamp() comment 'GMT',
+   modified_utc timestamp null default null comment 'GMT',
    strategy varchar(255) not null comment 'tested strategy',
    reportingid int unsigned not null comment 'the test''s reporting id',
    reportingsymbol varchar(11) not null comment 'the test''s reporting symbol',
    symbol varchar(11) not null comment 'tested symbol',
    timeframe int unsigned not null comment 'tested timeframe',
-   starttime_fxt timestamp not null comment 'FXT',
-   endtime_fxt timestamp not null comment 'FXT',
+   starttime_fxt datetime not null comment 'FXT',
+   endtime_fxt datetime not null comment 'FXT',
    tickmodel enum('EveryTick','ControlPoints','BarOpen') not null comment 'EveryTick | ControlPoints | BarOpen',
    spread decimal(2,1) unsigned not null,
    bars int unsigned not null,
@@ -56,8 +56,8 @@ create table t_strategyparameter (
 
 create table t_order (
    id int unsigned not null auto_increment,
-   created timestamp not null default current_timestamp() comment 'GMT',
-   version timestamp null default null comment 'GMT',
+   created_utc timestamp not null default current_timestamp() comment 'GMT',
+   modified_utc timestamp null default null comment 'GMT',
    ticket int unsigned not null,
    type enum('Buy','Sell') not null comment 'Buy | Sell',
    lots decimal(10,2) unsigned not null,
@@ -95,20 +95,14 @@ create table t_result (
 ) engine = InnoDB;
 
 
--- drop illegal timestamp default values auto-defined by MySQL
-alter table t_test
-    alter column starttime_fxt drop default,
-    alter column endtime_fxt   drop default;
-
-
 -- trigger definitions
 delimiter //
 
 create trigger tr_test_before_update before update on t_test for each row
 begin
     -- update version timestamp if not yet done by the application layer
-    if (new.version = old.version || new.version is null) then
-        set new.version = current_timestamp();
+    if (new.modified_utc = old.modified_utc || new.modified_utc is null) then
+        set new.modified_utc = current_timestamp();
     end if;
 end;//
 
@@ -116,8 +110,8 @@ end;//
 create trigger tr_order_before_update before update on t_order for each row
 begin
     -- update version timestamp if not yet done by the application layer
-    if (new.version = old.version || new.version is null) then
-        set new.version = current_timestamp();
+    if (new.modified_utc = old.modified_utc || new.modified_utc is null) then
+        set new.modified_utc = current_timestamp();
     end if;
 end;//
 

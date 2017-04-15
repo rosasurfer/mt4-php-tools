@@ -6,7 +6,7 @@ Model       XTrade Tests
 Author      Peter Walther
 Database    SQLite3
 */
-.open --new "Xtrade.db"
+.open --new "xtrade.db"
 
 
 -- drop all database objects
