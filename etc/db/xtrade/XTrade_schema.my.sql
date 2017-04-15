@@ -1,6 +1,6 @@
 /*
 Created     16.01.2017
-Modified    15.04.2017
+Modified    16.04.2017
 Project     XTrade
 Model       XTrade Tests
 Company     
@@ -32,7 +32,7 @@ create table t_test (
    starttime datetime not null comment 'FXT',
    endtime datetime not null comment 'FXT',
    tickmodel enum('EveryTick','ControlPoints','BarOpen') not null comment 'EveryTick | ControlPoints | BarOpen',
-   spread decimal(2,1) unsigned not null,
+   spread decimal(2,1) not null,
    bars int unsigned not null,
    ticks int unsigned not null,
    tradedirections enum('Long','Short','Both') not null comment 'Long | Short | Both',
@@ -60,13 +60,13 @@ create table t_order (
    modified timestamp null default null comment 'GMT',
    ticket int unsigned not null,
    type enum('Buy','Sell') not null comment 'Buy | Sell',
-   lots decimal(10,2) unsigned not null,
+   lots decimal(10,2) not null,
    symbol varchar(11) not null,
-   openprice decimal(10,5) unsigned not null,
+   openprice decimal(10,5) not null,
    opentime datetime not null comment 'FXT',
-   stoploss decimal(10,5) unsigned,
-   takeprofit decimal(10,5) unsigned,
-   closeprice decimal(10,5) unsigned not null,
+   stoploss decimal(10,5),
+   takeprofit decimal(10,5),
+   closeprice decimal(10,5) not null,
    closetime datetime not null comment 'FXT',
    commission decimal(10,2) not null,
    swap decimal(10,2) not null,
@@ -81,17 +81,24 @@ create table t_order (
 ) engine = InnoDB;
 
 
-create table t_result (
-   id int unsigned not null,
+create table t_statistic (
+   id int unsigned not null auto_increment,
    trades int unsigned not null,
-   pips decimal(10,1) not null,
-   avg_pips decimal(10,1) not null comment 'average trade profit in pip',
-   avg_duration int unsigned not null comment 'average trade duration in seconds',
-   profit decimal(10,2) not null comment 'test gross profit',
+   trades_day decimal(10,1) not null comment 'trades per day',
+   duration_min int unsigned not null comment 'minimum trade duration in seconds',
+   duration_avg int unsigned not null comment 'average trade duration in seconds',
+   duration_max int unsigned not null comment 'maximum trade duration in seconds',
+   pips_min decimal(10,1) not null comment 'minimum trade profit in pips',
+   pips_avg decimal(10,1) not null comment 'average trade profit in pips',
+   pips_max decimal(10,1) not null comment 'maximum trade profit in pips',
+   pips decimal(10,1) not null comment 'full test profit in pips',
+   profit decimal(10,2) not null comment 'test gross profit in money',
    commission decimal(10,2) not null comment 'test commission',
    swap decimal(10,2) not null comment 'test swap',
+   test_id int unsigned not null,
+   unique index u_test_id (test_id),
    primary key (id),
-   constraint fk_result_test foreign key (id) references t_test (id) on delete cascade on update cascade
+   constraint fk_statistic_test foreign key (test_id) references t_test (id) on delete cascade on update cascade
 ) engine = InnoDB;
 
 

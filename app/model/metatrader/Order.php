@@ -80,10 +80,13 @@ class Order extends PersistableObject {
     /**
      * Create a new Order.
      *
-     * @return static
+     * @param  Test  $test       - the test the order belongs to
+     * @param  array $properties - order properties as parsed from the test's log file
+     *
+     * @return self
      */
     public static function create(Test $test, array $properties) {
-        $order       = new static();
+        $order       = new self();
         $order->test = $test;
 
         $id = $properties['id'];
@@ -189,13 +192,62 @@ class Order extends PersistableObject {
     }
 
 
+    /** @return int - primary key */
+    public function getId() { return $this->id; }
+
+    /** @return int - ticket number */
+    public function getTicket() { return $this->ticket; }
+
+    /** @return string - order type: Buy|Sell */
+    public function getType() { return $this->type; }
+
+    /** @return float - lot size */
+    public function getLots() { return $this->lots; }
+
+    /** @return string - symbol */
+    public function getSymbol() { return $this->symbol; }
+
+    /** @return float - open price */
+    public function getOpenPrice() { return $this->openPrice; }
+
+    /** @return string - open time (server timezone) */
+    public function getOpenTime() { return $this->openTime; }
+
+    /** @return float - stoploss price */
+    public function getStopLoss() { return $this->stopLoss; }
+
+    /** @return float - takeprofit price */
+    public function getTakeProfit() { return $this->takeProfit; }
+
+    /** @return float - close price */
+    public function getClosePrice() { return $this->closePrice; }
+
+    /** @return string - close time (server timezone) */
+    public function getCloseTime() { return $this->closeTime; }
+
+    /** @return float - commission */
+    public function getCommission() { return $this->commission; }
+
+    /** @return float - swap */
+    public function getSwap() { return $this->swap; }
+
+    /** @return float - gross profit */
+    public function getProfit() { return $this->profit; }
+
+    /** @return int - magic number */
+    public function getMagicNumber() { return $this->magicNumber; }
+
+    /** @return string - order comment */
+    public function getComment() { return $this->comment; }
+
+
     /**
      * Whether or not this order ticket represents a position and not a pending order.
      *
      * @return bool
      */
     public function isPosition() {
-        return (($this->type==OP_BUY || $this->type==OP_SELL) && $this->openTime > 0);
+        return ((strCompareI($this->type, 'Buy') || strCompareI($this->type, 'Sell')) && $this->openTime > 0);
     }
 
 
@@ -215,7 +267,7 @@ class Order extends PersistableObject {
      * @return bool
      */
     public function isClosedPosition() {
-        return ($this->isPosition() &&  $this->isClosed());
+        return ($this->isPosition() && $this->isClosed());
     }
 
 

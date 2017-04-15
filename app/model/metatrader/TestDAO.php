@@ -64,9 +64,9 @@ class TestDAO extends DAO {
         if (!is_int($id)) throw new IllegalTypeException('Illegal type of parameter $id: '.getType($id));
         if ($id < 1)      throw new InvalidArgumentException('Invalid argument $id: '.$id);
 
-        $sql = "select *
+        $sql = 'select *
                    from :Test
-                   where id = $id";
+                   where id = '.$id;
         return $this->findOne($sql);
     }
 

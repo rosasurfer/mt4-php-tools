@@ -79,8 +79,33 @@ function processTestFiles() {
     $test = Test::create($testConfigFile, $testResultsFile);
     $test->save();
     echoPre('Test(id='.$test->getId().') of "'.$test->getStrategy().'" with '.$test->countTrades().' trades saved.');
-
     echoPre($test->getStrategyParameters());
+
+    // print statistics
+    $stats        = $test->getStats();
+    $tradesPerDay = $stats->getTradesPerDay();
+
+    $sec          = $stats->getMinDuration();
+    $sMinDuration = sprintf('%02d:%02d:%02d', $sec/DAYS, $sec%HOURS/MINUTES, $sec%MINUTES);
+    $sec          = $stats->getAvgDuration();
+    $sAvgDuration = sprintf('%02d:%02d:%02d', $sec/DAYS, $sec%HOURS/MINUTES, $sec%MINUTES);
+    $sec          = $stats->getMaxDuration();
+    $sMaxDuration = sprintf('%02d:%02d:%02d', $sec/DAYS, $sec%HOURS/MINUTES, $sec%MINUTES);
+
+    $pips         = $stats->getPips();
+    $minPips      = $stats->getMinPips();
+    $avgPips      = $stats->getAvgPips();
+    $maxPips      = $stats->getMaxPips();
+
+    $profit       = $stats->getProfit();
+    $commission   = $stats->getCommission();
+    $swap         = $stats->getSwap();
+
+    echoPre('trades:    '.$tradesPerDay.'/day');
+    echoPre('durations: min='.$sMinDuration.'  avg='.$sAvgDuration.'  max='.$sMaxDuration);
+    echoPre('pips:      '.$pips.'  min='.$minPips.'  avg='.$avgPips.'  max='.$maxPips);
+    echoPre('profit:    '.number_format($profit, 2).'  commission='.number_format($commission, 2).'  swap='.number_format($swap, 2));
+
     return true;
 }
 
@@ -95,7 +120,7 @@ function help($message = null) {
         $message = 'Save a test with its trade history in the database.';
     $self = baseName($_SERVER['PHP_SELF']);
 
-echo <<<HELP_MESSAGE
+echo <<<USAGE
 $message
 
   Syntax:  $self  [OPTIONS] FILE
@@ -106,5 +131,5 @@ $message
   FILE - test config file ".ini" or test result file ".log" as created by MT4Expander
 
 
-HELP_MESSAGE;
+USAGE;
 }

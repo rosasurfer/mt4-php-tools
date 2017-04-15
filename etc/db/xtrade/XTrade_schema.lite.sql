@@ -56,18 +56,18 @@ create table t_test (
    id              integer        not null,
    created         text[datetime] not null default (datetime('now')),   -- GMT
    modified        text[datetime],                                      -- GMT
-   strategy        text(255)      not null collate nocase,
-   reportingid     integer        not null,
-   reportingsymbol text(11)       not null collate nocase,
+   strategy        text(255)      not null collate nocase,              -- tested strategy
+   reportingid     integer        not null,                             -- the test's reporting id
+   reportingsymbol text(11)       not null collate nocase,              -- the test's reporting symbol
    symbol          text(11)       not null collate nocase,              -- tested symbol
    timeframe       integer        not null,                             -- tested timeframe
    starttime       text[datetime] not null,                             -- FXT
    endtime         text[datetime] not null,                             -- FXT
-   tickmodel       text[enum]     not null collate nocase,
+   tickmodel       text[enum]     not null collate nocase,              -- EveryTick|ControlPoints|BarOpen
    spread          float(2,1)     not null,                             -- in pips
    bars            integer        not null,                             -- number of tested bars
    ticks           integer        not null,                             -- number of tested ticks
-   tradedirections text[enum]     not null collate nocase,
+   tradedirections text[enum]     not null collate nocase,              -- Long|Short|Both
    visualmode      integer[bool]  not null,
    duration        integer        not null,                             -- test duration in seconds
    primary key (id),
@@ -99,7 +99,7 @@ create table t_order (
    created       text[datetime] not null default (datetime('now')),  -- GMT
    modified      text[datetime],                                     -- GMT
    ticket        integer        not null,
-   type          text[enum]     not null collate nocase,
+   type          text[enum]     not null collate nocase,             -- Buy|Sell
    lots          float(10,2)    not null,
    symbol        text(11)       not null collate nocase,
    openprice     float(10,5)    not null,
@@ -124,3 +124,25 @@ when (new.modified = old.modified || new.modified is null)
 begin
    update t_order set modified = datetime('now') where id = new.id;
 end;
+
+
+-- Test statistics
+create table t_statistic (
+   id           integer     not null,
+   trades       integer     not null,
+   trades_day   float(10,1) not null,                                -- trades per day
+   duration_min integer     not null,                                -- minimum trade duration in seconds
+   duration_avg integer     not null,                                -- average trade duration in seconds
+   duration_max integer     not null,                                -- maximum trade duration in seconds
+   pips_min     float(10,1) not null,                                -- minimum trade profit in pips
+   pips_avg     float(10,1) not null,                                -- average trade profit in pips
+   pips_max     float(10,1) not null,                                -- maximum trade profit in pips
+   pips         float(10,1) not null,                                -- full test profit in pips
+   profit       float(10,2) not null,                                -- test gross profit in currency
+   commission   float(10,2) not null,                                -- test commission
+   swap         float(10,2) not null,                                -- test swap
+   test_id      integer     not null,
+   primary key (id),
+   constraint u_test_id unique (test_id),
+   constraint fk_statistic_test foreign key (test_id) references t_test (id) on delete cascade on update cascade
+);

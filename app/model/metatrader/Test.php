@@ -77,30 +77,38 @@ class Test extends PersistableObject {
     /** @var bool - whether or not the test was run in visual mode */
     protected $visualMode;
 
-    /** @var int - test duration in milliseconds */
+    /** @var int - test duration in seconds */
     protected $duration;
 
     /** @var Order[] - trade history of the test */
     protected $trades;
 
+    /** @var Statistic - test statistics */
+    protected $stats;
 
-    // standard getters
-    public function getId                () { return $this->id;                       }
-    public function getStrategy          () { return $this->strategy;                 }
-    public function getReportingId       () { return $this->reportingId;              }
-    public function getReportingSymbol   () { return $this->reportingSymbol;          }
-    public function getSymbol            () { return $this->symbol;                   }
-    public function getTimeframe         () { return $this->timeframe;                }
-    public function getStartTime         () { return $this->startTime;                }
-    public function getEndTime           () { return $this->endTime;                  }
-    public function getTickModel         () { return $this->tickModel;                }
-    public function getSpread            () { return $this->spread;                   }
-    public function getBars              () { return $this->bars;                     }
-    public function getTicks             () { return $this->ticks;                    }
-    public function getTradeDirections   () { return $this->tradeDirections;          }
-    public function isVisualMode         () { return $this->visualMode;               }
-    public function getDuration          () { return $this->duration;                 }
-    public function getTrades            () { return $this->trades ?: [];             }
+
+    /** @return int - primary key  */
+    public function getId             () { return $this->id;              }
+
+    /** @return string - strategy name */
+    public function getStrategy       () { return $this->strategy;        }
+
+    public function getReportingId    () { return $this->reportingId;     }
+    public function getReportingSymbol() { return $this->reportingSymbol; }
+    public function getSymbol         () { return $this->symbol;          }
+    public function getTimeframe      () { return $this->timeframe;       }
+    public function getStartTime      () { return $this->startTime;       }
+    public function getEndTime        () { return $this->endTime;         }
+    public function getTickModel      () { return $this->tickModel;       }
+    public function getSpread         () { return $this->spread;          }
+    public function getBars           () { return $this->bars;            }
+    public function getTicks          () { return $this->ticks;           }
+    public function getTradeDirections() { return $this->tradeDirections; }
+    public function isVisualMode      () { return $this->visualMode;      }
+    public function getDuration       () { return $this->duration;        }
+
+    /** @return Order[] - trade history of the test */
+    public function getTrades         () { return $this->trades ?: [];    }
 
 
     /**
@@ -109,13 +117,13 @@ class Test extends PersistableObject {
      * @param  string $configFile  - name of the test configuration file
      * @param  string $resultsFile - name of the test results file
      *
-     * @return static
+     * @return self
      */
     public static function create($configFile, $resultsFile) {
         if (!is_string($configFile))  throw new IllegalTypeException('Illegal type of parameter $configFile: '.getType($configFile));
         if (!is_string($resultsFile)) throw new IllegalTypeException('Illegal type of parameter $resultsFile: '.getType($resultsFile));
 
-        $test = new static();
+        $test = new self();
 
         // (1) parse the test results file
         PHP::ini_set('auto_detect_line_endings', 1);
@@ -219,17 +227,19 @@ class Test extends PersistableObject {
             // all further lines: trades (order properties)
             if (!strStartsWith($line, 'order.')) throw new InvalidArgumentException('Unsupported file format in line '.$i.' of "'.$resultsFile.'"');
             $order = Order::create($test, self::parseOrderProperties($line));
-            if ($order->isClosedPosition())
+
+            if ($order->isClosedPosition()) {                           // open positions are skipped
                 $test->trades[] = $order;
+            }
         }
         fClose($hFile);
 
 
         // (2) parse the test config file
-        $content = file_get_contents($configFile);
-        $content = str_replace(["\r\n", "\r"], "\n", $content);        // increase RegExp limit if needed
-            static $pcreLimit = null; !$pcreLimit && $pcreLimit = PHP::ini_get_int('pcre.backtrack_limit');
-            if (strLen($content) > $pcreLimit) PHP::ini_set('pcre.backtrack_limit', $pcreLimit=strLen($content));
+        $content = normalizeEOL(file_get_contents($configFile));
+                                                                        // increase RegExp limit if needed
+        static $pcreLimit = null; !$pcreLimit && $pcreLimit = PHP::ini_get_int('pcre.backtrack_limit');
+        if (strLen($content) > $pcreLimit) PHP::ini_set('pcre.backtrack_limit', $pcreLimit = strLen($content));
 
         // tradeDirections
         $pattern = '|^\s*<common\s*>\s*\n(?:.*\n)*(\s*positions\s*=\s*(.+)\s*\n)(?:.*\n)*\s*</common>|imU';
@@ -290,7 +300,7 @@ class Test extends PersistableObject {
      * @return string[]
      */
     public function getStrategyParameters() {
-        if (is_null($this->strategyParameters)) {
+        if ($this->strategyParameters === null) {
             $this->strategyParameters = [];
             if ($this->isPersistent()) {
                 /** @var TestDAO $dao */
@@ -299,6 +309,26 @@ class Test extends PersistableObject {
             }
         }
         return $this->strategyParameters;
+    }
+
+
+    /**
+     * Return the statistics of the Test.
+     *
+     * @return Statistic
+     */
+    public function getStats() {
+        if ($this->stats === null) {
+            if ($this->isPersistent()) {
+                /** @var StatisticDAO $dao */
+                $dao = Statistic::dao();
+                $this->stats = $dao->findByTest($this);
+            }
+            else {
+                $this->stats = Statistic::create($this);
+            }
+        }
+        return $this->stats;
     }
 
 
@@ -438,7 +468,7 @@ class Test extends PersistableObject {
             $pattern = '/, *duration *= *([^ ]+) *s? *,/i';
             if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal test properties ("duration" invalid or not found): "'.$valuesOrig.'"');
             if (!strIsNumeric($duration = $matches[1][0]))                       throw new IllegalArgumentException('Illegal test property "duration": "'.$matches[1][0].'"');
-            $properties['duration'] = (int)round($duration * 1000);
+            $properties['duration'] = (int)round($duration);
             if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal test properties (multiple "duration" occurrences): "'.$valuesOrig.'"');
         }
         finally { date_default_timezone_set($oldTimezone); }
@@ -600,6 +630,8 @@ class Test extends PersistableObject {
     protected function insert() {
         $db = $this->db()->begin();
         try {
+            $statistic = $this->getStats();
+
             parent::insert();
 
             if ($this->strategyParameters) {
@@ -618,6 +650,9 @@ class Test extends PersistableObject {
             foreach ($this->getTrades() as $trade) {
                 $trade->save();
             }
+
+            $statistic->save();
+
             $db->commit();
         }
         catch (\Exception $ex) {
