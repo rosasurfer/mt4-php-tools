@@ -1,7 +1,8 @@
 /*
 Created     16.01.2017
-Project     MyFX
-Model       MetaTrader
+Modified    15.04.2017
+Project     XTrade
+Model       XTrade Tests
 Author      Peter Walther
 Database    SQLite3
 */
@@ -66,7 +67,7 @@ create table t_test (
    ticks           integer        not null,                          -- number of tested ticks
    tradedirections text[enum]     not null collate nocase,
    visualmode      integer[bool]  not null,
-   duration        integer        not null,                          -- test duration in milliseconds
+   duration        integer        not null,                          -- test duration in seconds
    primary key (id),
    constraint u_reportingsymbol       unique (reportingsymbol),
    constraint u_strategy_reportingid  unique (strategy, reportingid),
