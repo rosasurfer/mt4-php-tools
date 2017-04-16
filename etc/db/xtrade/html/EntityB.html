@@ -107,12 +107,12 @@
 
  <br><br> 
 <a name = "Entity_8"></a>
-<div class="caption1">Entity 'Result'</div>
+<div class="caption1">Entity 'Statistic'</div>
 <div class="caption2">General info</div>
 <table class="tabformat" border="0" cellpadding="2" cellspacing="1" width="100%">
  
   <tr>
-    <td class="tabhead"  width="25%"> Entity type:    </td>    <td class="tabdata" > dependent   </td>  </tr>
+    <td class="tabhead"  width="25%"> Entity type:    </td>    <td class="tabdata" > independent   </td>  </tr>
 </table>
 
 <div class="caption2">Attributes</div>
@@ -121,7 +121,7 @@
   <tr>
     <td class="tabhead"  width="5%"> Key    </td>    <td class="tabhead"  width="25%"> Attribute/role name    </td>    <td class="tabhead"  width="15%"> Data type    </td>    <td class="tabhead"  width="10%"> Not null    </td>    <td class="tabhead"  width="10%"> Unique    </td>    <td class="tabhead"  colspan="2"> Comments    </td>  </tr>
   <tr>
-    <td class="tabdata" > PFK    </td>    <td class="tabdata" > ID    </td>    <td class="tabdata" > Integer    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata"  colspan="3"> NO    </td>  </tr>
+    <td class="tabdata" > PK    </td>    <td class="tabdata" > ID    </td>    <td class="tabdata" > Integer    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata"  colspan="3"> NO    </td>  </tr>
   <tr>
     <td class="tabdata" >     </td>    <td class="tabdata" > Trades    </td>    <td class="tabdata" > Integer    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata"  colspan="3"> NO    </td>  </tr>
   <tr>
@@ -133,19 +133,21 @@
   <tr>
     <td class="tabdata" >     </td>    <td class="tabdata" > MaxDuration    </td>    <td class="tabdata" > Integer    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> maximum trade duration in seconds    </td>  </tr>
   <tr>
-    <td class="tabdata" >     </td>    <td class="tabdata" > Pips    </td>    <td class="tabdata" > Decimal (10,1)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> full test profit in pips    </td>  </tr>
-  <tr>
     <td class="tabdata" >     </td>    <td class="tabdata" > MinPips    </td>    <td class="tabdata" > Decimal (10,1)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> minimum trade profit in pips    </td>  </tr>
   <tr>
     <td class="tabdata" >     </td>    <td class="tabdata" > AvgPips    </td>    <td class="tabdata" > Decimal (10,1)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> average trade profit in pips    </td>  </tr>
   <tr>
     <td class="tabdata" >     </td>    <td class="tabdata" > MaxPips    </td>    <td class="tabdata" > Decimal (10,1)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> maximum trade profit in pips    </td>  </tr>
   <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Pips    </td>    <td class="tabdata" > Decimal (10,1)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> full test profit in pips    </td>  </tr>
+  <tr>
     <td class="tabdata" >     </td>    <td class="tabdata" > Profit    </td>    <td class="tabdata" > Decimal (10,2)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> test gross profit in money    </td>  </tr>
   <tr>
     <td class="tabdata" >     </td>    <td class="tabdata" > Commission    </td>    <td class="tabdata" > Decimal (10,2)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> test commission    </td>  </tr>
   <tr>
-    <td class="tabdata" >     </td>    <td class="tabdata" > Swap    </td>    <td class="tabdata" > Decimal (10,2)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> test swap   </td>  </tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Swap    </td>    <td class="tabdata" > Decimal (10,2)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> test swap    </td>  </tr>
+  <tr>
+    <td class="tabdata" > FK    </td>    <td class="tabdata" > ID/Test    </td>    <td class="tabdata" > Integer    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata"  colspan="3"> YES   </td>  </tr>
 </table>
 
 <div class="caption2">Relationships</div>
@@ -154,7 +156,7 @@
   <tr>
     <td class="tabhead"  width="24%"> Relationship name    </td>    <td class="tabhead"  width="20%"> Type    </td>    <td class="tabhead"  width="23%"> Parent entity    </td>    <td class="tabhead"  width="23%"> Child entity    </td>    <td class="tabhead"  width="10%"> Card.    </td>  </tr>
   <tr>
-    <td class="tabdata" > fk_result_test    </td>    <td class="tabdata" > Identifying    </td>    <td class="tabdata" > Test    </td>    <td class="tabdata" > Result    </td>    <td class="tabdata" > 1:N   </td>  </tr>
+    <td class="tabdata" > fk_statistic_test    </td>    <td class="tabdata" > Non-identifying    </td>    <td class="tabdata" > Test    </td>    <td class="tabdata" > Statistic    </td>    <td class="tabdata" > 1:N   </td>  </tr>
 </table>
 
 <div class="caption2">User-defined variables</div>
@@ -296,7 +298,7 @@
   <tr>
     <td class="tabdata" > fk_strategyparameter_test    </td>    <td class="tabdata" > Identifying    </td>    <td class="tabdata" > Test    </td>    <td class="tabdata" > StrategyParameter    </td>    <td class="tabdata" > 1:N    </td>  </tr>
   <tr>
-    <td class="tabdata" > fk_result_test    </td>    <td class="tabdata" > Identifying    </td>    <td class="tabdata" > Test    </td>    <td class="tabdata" > Result    </td>    <td class="tabdata" > 1:N   </td>  </tr>
+    <td class="tabdata" > fk_statistic_test    </td>    <td class="tabdata" > Non-identifying    </td>    <td class="tabdata" > Test    </td>    <td class="tabdata" > Statistic    </td>    <td class="tabdata" > 1:N   </td>  </tr>
 </table>
 
 <div class="caption2">Alternative keys</div>
