@@ -1,6 +1,8 @@
 <?php
 namespace rosasurfer\xtrade;
 
+use rosasurfer\xtrade\view\ViewHelper;
+
 
 /**
  * Validator

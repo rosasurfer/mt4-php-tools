@@ -1,8 +1,8 @@
 /*
 Created     16.01.2017
-Modified    16.04.2017
+Modified    17.04.2017
 Project     XTrade
-Model       XTrade Tests
+Model       Test Management
 Company     
 Author      Peter Walther
 Version     0.1
@@ -45,10 +45,12 @@ create table t_test (
 
 
 create table t_strategyparameter (
-   test_id int unsigned not null,
+   id int unsigned not null auto_increment,
    name varchar(32) not null,
    value varchar(255) not null,
-   primary key (test_id,name),
+   test_id int unsigned not null,
+   primary key (id),
+   unique key u_test_id_name (test_id,name),
    index i_test_id (test_id),
    constraint fk_strategyparameter_test foreign key (test_id) references t_test (id) on delete cascade on update cascade
 ) engine = InnoDB;
@@ -75,7 +77,7 @@ create table t_order (
    comment varchar(27),
    test_id int unsigned not null,
    primary key (id),
-   unique key u_signal_id_ticket (test_id,ticket),
+   unique key u_test_id_ticket (test_id,ticket),
    index i_test_id (test_id),
    constraint fk_order_test foreign key (test_id) references t_test (id) on delete restrict on update cascade
 ) engine = InnoDB;

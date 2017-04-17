@@ -1,8 +1,7 @@
 /*
 Created     16.01.2017
-Modified    15.04.2017
 Project     XTrade
-Model       XTrade Tests
+Model       Test Management
 Author      Peter Walther
 Database    SQLite3
 */
@@ -70,11 +69,11 @@ create table t_test (
    tradedirections text[enum]     not null collate nocase,              -- Long|Short|Both
    visualmode      integer[bool]  not null,
    duration        integer        not null,                             -- test duration in seconds
-   primary key (id),
-   constraint u_reportingsymbol       unique (reportingsymbol),
-   constraint u_strategy_reportingid  unique (strategy, reportingid),
+   constraint pk_test_id              primary key (id),
    constraint fk_test_tickmodel       foreign key (tickmodel)       references enum_tickmodel(type)      on delete restrict on update cascade,
-   constraint fk_test_tradedirections foreign key (tradedirections) references enum_tradedirection(type) on delete restrict on update cascade
+   constraint fk_test_tradedirections foreign key (tradedirections) references enum_tradedirection(type) on delete restrict on update cascade,
+   constraint u_reportingsymbol       unique (reportingsymbol),
+   constraint u_strategy_reportingid  unique (strategy, reportingid)
 );
 create trigger tr_test_after_update after update on t_test
 when (new.modified = old.modified || new.modified is null)
@@ -85,11 +84,13 @@ end;
 
 -- StrategyParameters
 create table t_strategyparameter (
-   test_id integer   not null,
+   id      integer   not null,
    name    text(32)  not null collate nocase,
    value   text(255) not null collate nocase,
-   primary key (test_id,name),
-   constraint fk_strategyparameter_test foreign key (test_id) references t_test(id) on delete cascade on update cascade
+   test_id integer   not null,
+   constraint pk_strategyparameter_id   primary key (id),
+   constraint fk_strategyparameter_test foreign key (test_id) references t_test(id) on delete cascade on update cascade,
+   constraint u_test_name               unique (test_id, name)
 );
 
 
@@ -114,10 +115,10 @@ create table t_order (
    magicnumber   integer,
    comment       text(27)                collate nocase,
    test_id       integer        not null,
-   primary key (id),
-   constraint u_order_test_ticket unique (test_id, ticket),
+   constraint pk_order_id   primary key (id),
    constraint fk_order_type foreign key (type)    references enum_ordertype(type) on delete restrict on update cascade,
-   constraint fk_order_test foreign key (test_id) references t_test(id)           on delete restrict on update cascade
+   constraint fk_order_test foreign key (test_id) references t_test(id)           on delete restrict on update cascade,
+   constraint u_test_ticket unique (test_id, ticket)
 );
 create trigger tr_order_after_update after update on t_order
 when (new.modified = old.modified || new.modified is null)
@@ -142,7 +143,7 @@ create table t_statistic (
    commission   float(10,2) not null,                                -- test commission
    swap         float(10,2) not null,                                -- test swap
    test_id      integer     not null,
-   primary key (id),
-   constraint u_test_id unique (test_id),
-   constraint fk_statistic_test foreign key (test_id) references t_test (id) on delete cascade on update cascade
+   constraint pk_statistic_id   primary key (id),
+   constraint fk_statistic_test foreign key (test_id) references t_test (id) on delete cascade on update cascade,
+   constraint u_test            unique (test_id)
 );

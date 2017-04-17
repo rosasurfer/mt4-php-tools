@@ -76,10 +76,19 @@ exit(0);
 function processTestFiles() {
     global $testConfigFile, $testResultsFile, $verbose;
 
+    //Test::db()->begin();
+
     $test = Test::create($testConfigFile, $testResultsFile);
     $test->save();
+
+    // confirm saving
     echoPre('Test(id='.$test->getId().') of "'.$test->getStrategy().'" with '.$test->countTrades().' trades saved.');
-    echoPre($test->getStrategyParameters());
+
+    // print strat parameters
+    echoPre(NL);
+    foreach ($test->getStrategyParameters() as $param) {
+        echoPre('input: '.$param->getName().'='.$param->getValue());
+    }
 
     // print statistics
     $stats        = $test->getStats();
@@ -101,6 +110,7 @@ function processTestFiles() {
     $commission   = $stats->getCommission();
     $swap         = $stats->getSwap();
 
+    echoPre(NL);
     echoPre('trades:    '.$tradesPerDay.'/day');
     echoPre('durations: min='.$sMinDuration.'  avg='.$sAvgDuration.'  max='.$sMaxDuration);
     echoPre('pips:      '.$pips.'  min='.$minPips.'  avg='.$avgPips.'  max='.$maxPips);

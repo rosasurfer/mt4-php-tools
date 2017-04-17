@@ -79,7 +79,7 @@
   <tr>
     <td class="tabhead"  width="40%"> Name    </td>    <td class="tabhead"  width="60%"> Attributes    </td>  </tr>
   <tr>
-    <td class="tabdata" > Signal,Ticket    </td>    <td class="tabdata" > ID, Ticket   </td>  </tr>
+    <td class="tabdata" > Test,Ticket    </td>    <td class="tabdata" > ID, Ticket   </td>  </tr>
 </table>
 
 <div class="caption2">User-defined variables</div>
@@ -189,7 +189,7 @@
 <table class="tabformat" border="0" cellpadding="2" cellspacing="1" width="100%">
  
   <tr>
-    <td class="tabhead"  width="25%"> Entity type:    </td>    <td class="tabdata" > dependent   </td>  </tr>
+    <td class="tabhead"  width="25%"> Entity type:    </td>    <td class="tabdata" > independent   </td>  </tr>
 </table>
 
 <div class="caption2">Attributes</div>
@@ -198,11 +198,13 @@
   <tr>
     <td class="tabhead"  width="5%"> Key    </td>    <td class="tabhead"  width="25%"> Attribute/role name    </td>    <td class="tabhead"  width="15%"> Data type    </td>    <td class="tabhead"  width="10%"> Not null    </td>    <td class="tabhead"  width="10%" colspan="3"> Unique    </td>  </tr>
   <tr>
-    <td class="tabdata" > PFK    </td>    <td class="tabdata" > ID/Test    </td>    <td class="tabdata" > Integer    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata"  colspan="3"> NO    </td>  </tr>
+    <td class="tabdata" > PK    </td>    <td class="tabdata" > ID    </td>    <td class="tabdata" > Integer    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata"  colspan="3"> NO    </td>  </tr>
   <tr>
-    <td class="tabdata" > PK    </td>    <td class="tabdata" > Name    </td>    <td class="tabdata" > Varchar (32)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata"  colspan="3"> NO    </td>  </tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Name    </td>    <td class="tabdata" > Varchar (32)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata"  colspan="3"> NO    </td>  </tr>
   <tr>
-    <td class="tabdata" >     </td>    <td class="tabdata" > Value    </td>    <td class="tabdata" > Varchar (255)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata"  colspan="3"> NO   </td>  </tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Value    </td>    <td class="tabdata" > Varchar (255)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata"  colspan="3"> NO    </td>  </tr>
+  <tr>
+    <td class="tabdata" > FK    </td>    <td class="tabdata" > ID/Test    </td>    <td class="tabdata" > Integer    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata"  colspan="3"> NO   </td>  </tr>
 </table>
 
 <div class="caption2">Relationships</div>
@@ -211,7 +213,16 @@
   <tr>
     <td class="tabhead"  width="24%"> Relationship name    </td>    <td class="tabhead"  width="20%"> Type    </td>    <td class="tabhead"  width="23%"> Parent entity    </td>    <td class="tabhead"  width="23%"> Child entity    </td>    <td class="tabhead"  width="10%"> Card.    </td>  </tr>
   <tr>
-    <td class="tabdata" > fk_strategyparameter_test    </td>    <td class="tabdata" > Identifying    </td>    <td class="tabdata" > Test    </td>    <td class="tabdata" > StrategyParameter    </td>    <td class="tabdata" > 1:N   </td>  </tr>
+    <td class="tabdata" > fk_strategyparameter_test    </td>    <td class="tabdata" > Non-identifying    </td>    <td class="tabdata" > Test    </td>    <td class="tabdata" > StrategyParameter    </td>    <td class="tabdata" > 1:N   </td>  </tr>
+</table>
+
+<div class="caption2">Alternative keys</div>
+<table class="tabformat" border="0" cellpadding="2" cellspacing="1" width="100%">
+ 
+  <tr>
+    <td class="tabhead"  width="40%"> Name    </td>    <td class="tabhead"  width="60%"> Attributes    </td>  </tr>
+  <tr>
+    <td class="tabdata" > Test,Name    </td>    <td class="tabdata" > ID, Name   </td>  </tr>
 </table>
 
 <div class="caption2">User-defined variables</div>
@@ -296,7 +307,7 @@
   <tr>
     <td class="tabdata" > fk_order_test    </td>    <td class="tabdata" > Non-identifying    </td>    <td class="tabdata" > Test    </td>    <td class="tabdata" > Order    </td>    <td class="tabdata" > 1:N    </td>  </tr>
   <tr>
-    <td class="tabdata" > fk_strategyparameter_test    </td>    <td class="tabdata" > Identifying    </td>    <td class="tabdata" > Test    </td>    <td class="tabdata" > StrategyParameter    </td>    <td class="tabdata" > 1:N    </td>  </tr>
+    <td class="tabdata" > fk_strategyparameter_test    </td>    <td class="tabdata" > Non-identifying    </td>    <td class="tabdata" > Test    </td>    <td class="tabdata" > StrategyParameter    </td>    <td class="tabdata" > 1:N    </td>  </tr>
   <tr>
     <td class="tabdata" > fk_statistic_test    </td>    <td class="tabdata" > Non-identifying    </td>    <td class="tabdata" > Test    </td>    <td class="tabdata" > Statistic    </td>    <td class="tabdata" > 1:N   </td>  </tr>
 </table>

@@ -14,8 +14,6 @@ use rosasurfer\util\Windows;
 use rosasurfer\xtrade\Tools;
 use rosasurfer\xtrade\metatrader\MT4;
 
-use function rosasurfer\strLeft;
-
 
 /**
  * Represents a test executed in the MetaTrader Strategy Tester.
@@ -38,7 +36,7 @@ class Test extends PersistableObject {
     /** @var string - strategy name */
     protected $strategy;
 
-    /** @var string[] - strategy input parameters */
+    /** @var StrategyParameter[] - strategy input parameters */
     protected $strategyParameters;
 
     /** @var int - reporting id (for composition of reportingSymbol) */
@@ -250,18 +248,17 @@ class Test extends PersistableObject {
         // input parameters
         $pattern = '|^\s*<inputs\s*>\s*\n(.*)^\s*</inputs>\s*$|ismU';
         if (!preg_match($pattern, $content, $matches)) throw new InvalidArgumentException('Unsupported file format in test config file "'.$configFile.'" ("/inputs" not found)');
-        $params = explode("\n", trim($matches[1]));
+        $params = explode(NL, trim($matches[1]));
+
         foreach ($params as $i => $line) {
             if (strLen($line = trim($line))) {
                 $values = explode('=', $line, 2);
                 if (sizeOf($values) < 2) throw new IllegalArgumentException('Illegal input parameter "'.$params[$i].'" in test config file "'.$configFile.'"');
-                if (!strContains($values[0], ','))
+                if (strContains($values[0], ','))
                     continue;
+                $test->strategyParameters[] = StrategyParameter::create($test, $values[0], $values[1]);
             }
-            unset($params[$i]);
         }
-        $test->strategyParameters = array_values($params);
-
         return $test;
     }
 
@@ -297,15 +294,14 @@ class Test extends PersistableObject {
     /**
      * Return the strategy parameters of the Test.
      *
-     * @return string[]
+     * @return StrategyParameter[]
      */
     public function getStrategyParameters() {
         if ($this->strategyParameters === null) {
-            $this->strategyParameters = [];
             if ($this->isPersistent()) {
-                /** @var TestDAO $dao */
-                $testDao = $this->dao();
-                $this->strategyParameters = $testDao->findStrategyParameters($this);
+                /** @var StrategyParameterDAO $dao */
+                $dao = StrategyParameter::dao();
+                $this->strategyParameters = $dao->findAllByTest($this);
             }
         }
         return $this->strategyParameters;
@@ -623,47 +619,6 @@ class Test extends PersistableObject {
 
 
     /**
-     * Insert this instance into the database.
-     *
-     * @return $this
-     */
-    protected function insert() {
-        $db = $this->db()->begin();
-        try {
-            $statistic = $this->getStats();
-
-            parent::insert();
-
-            if ($this->strategyParameters) {
-                $id  = $this->id;
-                $sql = 'insert into t_strategyparameter (test_id, name, value) values';
-                foreach ($this->strategyParameters as $parameter) {
-                    list($name, $value) = explode('=', $parameter, 2);
-                    $name  = $db->escapeLiteral($name);
-                    $value = $db->escapeLiteral($value);
-                    $sql  .= ' ('.$id.', '.$name.', '.$value.'),';
-                }
-                $sql = strLeft($sql, -1);
-                $db->execute($sql);
-            }
-
-            foreach ($this->getTrades() as $trade) {
-                $trade->save();
-            }
-
-            $statistic->save();
-
-            $db->commit();
-        }
-        catch (\Exception $ex) {
-            $db->rollback();
-            throw $ex;
-        }
-        return $this;
-    }
-
-
-    /**
      * Set the reporting id of the Test (used for composition of Test::reportingSymbol).
      *
      * @param  int $id - positive value
@@ -676,6 +631,34 @@ class Test extends PersistableObject {
 
         $this->reportingId = $id;
         $this->isPersistent() && $this->_modified=true;
+        return $this;
+    }
+
+
+    /**
+     * Insert pre-processing hook. Calculate the test statistics.
+     *
+     * @return $this
+     */
+    protected function beforeInsert() {
+        $this->getStats();
+        return $this;
+    }
+
+
+    /**
+     * Insert post-processing hook. Insert the related entities as this is not yet automated by the ORM.
+     *
+     * @return $this
+     */
+    protected function afterInsert() {
+        $objects = array_merge(
+            $this->getStrategyParameters(),
+            $this->getTrades(),
+            [$this->getStats()]
+        );
+        foreach ($objects as $object) $object->save();
+
         return $this;
     }
 }

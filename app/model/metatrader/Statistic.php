@@ -255,7 +255,7 @@ class Statistic extends PersistableObject {
 
 
     /**
-     * Insert pre-processing hook. Assigns a {@link Test} id as long as this is not yet done automatically by the ORM.
+     * Insert pre-processing hook. Assign the {@link Test} id as this is not yet automated by the ORM.
      *
      * @return $this
      */

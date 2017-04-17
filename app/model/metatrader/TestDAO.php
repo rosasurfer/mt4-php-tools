@@ -6,8 +6,6 @@ use rosasurfer\db\orm\DAO;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 
-use const rosasurfer\ARRAY_ASSOC;
-
 use const rosasurfer\PHP_TYPE_BOOL;
 use const rosasurfer\PHP_TYPE_FLOAT;
 use const rosasurfer\PHP_TYPE_INT;
@@ -68,32 +66,5 @@ class TestDAO extends DAO {
                    from :Test
                    where id = '.$id;
         return $this->findOne($sql);
-    }
-
-
-    /**
-     * Find and return all strategy parameters of the specified {@link Test}.
-     *
-     * @param  Test $test
-     *
-     * @return string[]
-     */
-    public function findStrategyParameters(Test $test) {
-        if (!$test->isPersistent()) throw new InvalidArgumentException('Cannot process non-persistent '.get_class($test));
-        $id = $test->getId();
-        $sql = 'select *
-                   from t_strategyparameter
-                   where test_id = '.$id.'
-                   order by rowid';
-        $result = $this->db()->query($sql);
-
-        $params = [];
-        while ($row = $result->fetchRow(ARRAY_ASSOC)) {
-            $row = array_change_key_case($row, CASE_LOWER);
-            $name  = $row['name'];
-            $value = $row['value'];
-            $params[] = $name.'='.$value;
-        }
-        return $params;
     }
 }
