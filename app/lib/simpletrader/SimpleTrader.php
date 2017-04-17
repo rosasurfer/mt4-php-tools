@@ -482,7 +482,10 @@ class SimpleTrader extends StaticClass {
         $openTime = Tools::fxtStrToTime($position->getOpenTime());
         if ($openTime >= $_SERVER['REQUEST_TIME']) {
             try {
-                $smsMsg = 'Opened '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice().(($tp=$position->getTakeProfit()) ? "\nTP: $tp":'').(($sl=$position->getStopLoss()) ? ($tp ? '  ':"\n")."SL: $sl":'')."\n\n#".$position->getTicket().'  ('.$position->getOpenTime('H:i:s').')';
+                $smsMsg = 'Opened '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol()
+                         .' @ '.$position->getOpenPrice().(($tp=$position->getTakeProfit()) ? NL.'TP: '.$tp:'')
+                                                         .(($sl=$position->getStopLoss()  ) ? ($tp ? '  ':NL).'SL: '.$sl:'').NL.NL
+                         .'#'.$position->getTicket().'  ('.$position->getOpenTime('H:i:s').')';
 
                 // Warnung, wenn das Ereignis aelter als 2 Minuten ist (also von SimpleTrader verzoegert publiziert wurde)
                 if (($now=time()) > $openTime+2*MINUTES) $smsMsg = 'WARN: '.$smsMsg.' detected at '.date($now); // Tools::fxtDate($now)
