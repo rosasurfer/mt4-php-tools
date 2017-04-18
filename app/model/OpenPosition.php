@@ -256,22 +256,4 @@ class OpenPosition extends PersistableObject {
         }
         return $this->signal;
     }
-
-
-    /**
-     * Loescht diese Instanz aus der Datenbank.
-     *
-     * @return NULL
-     */
-    public function delete() {
-        if (!$this->isPersistent()) throw new InvalidArgumentException('Cannot delete non-persistent '.__CLASS__);
-
-        $id  = $this->id;
-        $sql = "delete from :OpenPosition
-                      where id = $id";
-        self::dao()->execute($sql);
-
-        $this->id = null;
-        return null;
-    }
 }
