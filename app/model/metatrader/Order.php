@@ -274,11 +274,11 @@ class Order extends PersistableObject {
     /**
      * Insert pre-processing hook. Assigns a {@link Test} id as long as this is not yet done automatically by the ORM.
      *
-     * @return $this
+     * {@inheritDoc}
      */
     protected function beforeInsert() {
         if (!$this->test_id)
             $this->test_id = $this->test->getId();
-        return $this;
+        return true;
     }
 }

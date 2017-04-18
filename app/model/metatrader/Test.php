@@ -638,18 +638,18 @@ class Test extends PersistableObject {
     /**
      * Insert pre-processing hook. Calculate the test statistics.
      *
-     * @return $this
+     * {@inheritDoc}
      */
     protected function beforeInsert() {
         $this->getStats();
-        return $this;
+        return true;
     }
 
 
     /**
      * Insert post-processing hook. Insert the related entities as this is not yet automated by the ORM.
      *
-     * @return $this
+     * {@inheritDoc}
      */
     protected function afterInsert() {
         $objects = array_merge(
@@ -658,7 +658,5 @@ class Test extends PersistableObject {
             [$this->getStats()]
         );
         foreach ($objects as $object) $object->save();
-
-        return $this;
     }
 }
