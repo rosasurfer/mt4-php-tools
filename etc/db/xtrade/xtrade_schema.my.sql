@@ -1,8 +1,8 @@
 /*
 Created     16.01.2017
-Modified    17.04.2017
+Modified    20.04.2017
 Project     XTrade
-Model       Test Management
+Model       Main model
 Company     
 Author      Peter Walther
 Version     0.1
@@ -20,6 +20,23 @@ create database xtrade default collate 'latin1_general_ci';
 use xtrade;
 
 
+create table t_instrument (
+   id int unsigned not null auto_increment,
+   created timestamp not null default current_timestamp() comment 'GMT',
+   modified timestamp null default null comment 'GMT',
+   type enum('Forex','Metals','Synthetic') not null comment 'Forex | Metals | Synthetic',
+   symbol varchar(11) not null,
+   description varchar(63) not null comment 'long name',
+   digits tinyint unsigned not null,
+   historystart_ticks datetime comment 'FXT',
+   historystart_m1 datetime comment 'FXT',
+   historystart_d1 datetime comment 'FXT',
+   unique index u_symbol (symbol),
+   primary key (id),
+   index i_type (type)
+) engine = InnoDB;
+
+
 create table t_test (
    id int unsigned not null auto_increment,
    created timestamp not null default current_timestamp() comment 'GMT',
@@ -28,7 +45,7 @@ create table t_test (
    reportingid int unsigned not null comment 'the test''s reporting id',
    reportingsymbol varchar(11) not null comment 'the test''s reporting symbol',
    symbol varchar(11) not null comment 'tested symbol',
-   timeframe int unsigned not null comment 'tested timeframe',
+   timeframe int unsigned not null comment 'tested timeframe in minutes',
    starttime datetime not null comment 'FXT',
    endtime datetime not null comment 'FXT',
    tickmodel enum('EveryTick','ControlPoints','BarOpen') not null comment 'EveryTick | ControlPoints | BarOpen',
@@ -36,11 +53,14 @@ create table t_test (
    bars int unsigned not null,
    ticks int unsigned not null,
    tradedirections enum('Long','Short','Both') not null comment 'Long | Short | Both',
-   visualmode tinyint(1) unsigned not null,
+   visualmode bool not null,
    duration int unsigned not null comment 'test duration in seconds',
    unique index u_reportingsymbol (reportingsymbol),
    primary key (id),
-   unique key u_strategy_reportingid (strategy,reportingid)
+   unique key u_strategy_reportingid (strategy,reportingid),
+   index i_strategy (strategy),
+   index i_symbol (symbol),
+   index i_tickmodel (tickmodel)
 ) engine = InnoDB;
 
 
@@ -78,6 +98,7 @@ create table t_order (
    test_id int unsigned not null,
    primary key (id),
    unique key u_test_id_ticket (test_id,ticket),
+   index i_type (type),
    index i_test_id (test_id),
    constraint fk_order_test foreign key (test_id) references t_test (id) on delete restrict on update cascade
 ) engine = InnoDB;
@@ -107,6 +128,15 @@ create table t_statistic (
 -- trigger definitions
 delimiter //
 
+create trigger tr_instrument_before_update before update on t_instrument for each row
+begin
+    -- update version timestamp if not yet done by the application layer
+    if (new.modified = old.modified || new.modified is null) then
+        set new.modified = current_timestamp();
+    end if;
+end;//
+
+
 create trigger tr_test_before_update before update on t_test for each row
 begin
     -- update version timestamp if not yet done by the application layer
@@ -126,5 +156,11 @@ end;//
 
 
 delimiter ;
+
+
+-- seed the database
+source xtrade_seed.sql;
+
+commit;
 
 

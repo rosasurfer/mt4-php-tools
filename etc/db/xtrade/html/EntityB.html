@@ -10,6 +10,66 @@
    </head>
 
 <body class="rightPage">
+<a name = "Entity_9"></a>
+<div class="caption1">Entity 'Instrument'</div>
+<div class="caption2">General info</div>
+<table class="tabformat" border="0" cellpadding="2" cellspacing="1" width="100%">
+ 
+  <tr>
+    <td class="tabhead"  width="25%"> Entity type:    </td>    <td class="tabdata" > independent   </td>  </tr>
+</table>
+
+<div class="caption2">Attributes</div>
+<table class="tabformat" border="0" cellpadding="2" cellspacing="1" width="100%">
+ 
+  <tr>
+    <td class="tabhead"  width="5%"> Key    </td>    <td class="tabhead"  width="25%"> Attribute/role name    </td>    <td class="tabhead"  width="15%"> Data type    </td>    <td class="tabhead"  width="10%"> Not null    </td>    <td class="tabhead"  width="10%"> Unique    </td>    <td class="tabhead"  colspan="2"> Comments    </td>  </tr>
+  <tr>
+    <td class="tabdata" > PK    </td>    <td class="tabdata" > ID    </td>    <td class="tabdata" > Integer    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata"  colspan="3"> NO    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Created    </td>    <td class="tabdata" > Timestamp    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> GMT    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Modified    </td>    <td class="tabdata" > Timestamp    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> GMT    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Type    </td>    <td class="tabdata" > Enum    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> Forex | Metals | Synthetic    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Symbol    </td>    <td class="tabdata" > Varchar (11)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata"  colspan="3"> YES    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Description    </td>    <td class="tabdata" > Varchar (63)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> long name    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Digits    </td>    <td class="tabdata" > Tinyint    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata"  colspan="3"> NO    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryStartTicks    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> FXT    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryStartM1    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> FXT    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryStartD1    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> FXT   </td>  </tr>
+</table>
+
+<div class="caption2">User-defined variables</div>
+<table class="tabformat" border="0" cellpadding="2" cellspacing="1" width="100%">
+ 
+  <tr>
+    <td class="tabhead"  width="50%"> Name    </td>    <td class="tabhead"  width="50%"> Value    </td>  </tr>
+  <tr>
+    <td class="tabdata" > Temporary table    </td>    <td class="tabdata" > No    </td>  </tr>
+  <tr>
+    <td class="tabdata" > If not exists    </td>    <td class="tabdata" > No    </td>  </tr>
+  <tr>
+    <td class="tabdata" > Table type    </td>    <td class="tabdata" > Default    </td>  </tr>
+  <tr>
+    <td class="tabdata" > Character Set    </td>    <td class="tabdata" >     </td>  </tr>
+  <tr>
+    <td class="tabdata" > Row Format    </td>    <td class="tabdata" > Default    </td>  </tr>
+  <tr>
+    <td class="tabdata" > Collation    </td>    <td class="tabdata" >     </td>  </tr>
+  <tr>
+    <td class="tabdata" > Database Name    </td>    <td class="tabdata" >     </td>  </tr>
+  <tr>
+    <td class="tabdata" > Initial AUTO_INCREMENT    </td>    <td class="tabdata" >    </td>  </tr>
+</table>
+
+ <br><br> 
 <a name = "Entity_5"></a>
 <div class="caption1">Entity 'Order'</div>
 <div class="caption2">General info</div>
@@ -278,7 +338,7 @@
   <tr>
     <td class="tabdata" >     </td>    <td class="tabdata" > Symbol    </td>    <td class="tabdata" > Varchar (11)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> tested symbol    </td>  </tr>
   <tr>
-    <td class="tabdata" >     </td>    <td class="tabdata" > Timeframe    </td>    <td class="tabdata" > Integer    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> tested timeframe    </td>  </tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Timeframe    </td>    <td class="tabdata" > Integer    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> tested timeframe in minutes    </td>  </tr>
   <tr>
     <td class="tabdata" >     </td>    <td class="tabdata" > StartTime    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> FXT    </td>  </tr>
   <tr>
@@ -294,7 +354,7 @@
   <tr>
     <td class="tabdata" >     </td>    <td class="tabdata" > TradeDirections    </td>    <td class="tabdata" > Enum    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> Long | Short | Both    </td>  </tr>
   <tr>
-    <td class="tabdata" >     </td>    <td class="tabdata" > VisualMode    </td>    <td class="tabdata" > Tinyint    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata"  colspan="3"> NO    </td>  </tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > VisualMode    </td>    <td class="tabdata" > Bool    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata"  colspan="3"> NO    </td>  </tr>
   <tr>
     <td class="tabdata" >     </td>    <td class="tabdata" > Duration    </td>    <td class="tabdata" > Integer    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> test duration in seconds   </td>  </tr>
 </table>
