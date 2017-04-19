@@ -5,7 +5,6 @@ include(__DIR__.'/../vendor/rosasurfer/ministruts/src/globals.php');
 include(__DIR__.'/../vendor/rosasurfer/ministruts/etc/phpstan/DynamicReturnType.php');
 include(__DIR__.'/../vendor/rosasurfer/ministruts/etc/phpstan/DAO_FindAll_ReturnType.php');
 include(__DIR__.'/../vendor/rosasurfer/ministruts/etc/phpstan/DAO_FindOne_ReturnType.php');
-include(__DIR__.'/../vendor/rosasurfer/ministruts/etc/phpstan/DAO_Refresh_ReturnType.php');
-include(__DIR__.'/../vendor/rosasurfer/ministruts/etc/phpstan/PersistableObject_CreateInstance_ReturnType.php');
+include(__DIR__.'/../vendor/rosasurfer/ministruts/etc/phpstan/PersistableObject_PopulateNew_ReturnType.php');
 include(__DIR__.'/../vendor/rosasurfer/ministruts/etc/phpstan/PersistableObject_Dao_ReturnType.php');
 include(__DIR__.'/../vendor/rosasurfer/ministruts/etc/phpstan/Singleton_GetInstance_ReturnType.php');
