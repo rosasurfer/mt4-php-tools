@@ -177,7 +177,7 @@ function checkHistory($symbol, $gmtHour, $fxtHour) {
     static $lastDay=-1, $lastMonth=-1;
 
     // (1) nur an Handelstagen pruefen, ob die MyFX-History existiert und ggf. aktualisieren
-    if (!isForexWeekend($fxtHour, 'FXT')) {
+    if (!isFxtWeekend($fxtHour, 'FXT')) {
         $day = (int) gmDate('d', $fxtHour);
         if ($day != $lastDay) {
             if ($verbose > 1) echoPre('[Info]    '.gmDate('d-M-Y', $fxtHour));
@@ -223,7 +223,7 @@ function checkHistory($symbol, $gmtHour, $fxtHour) {
     // Dukascopy-Downloadverzeichnis der aktuellen Stunde, wenn es leer ist
     if (is_dir($dir=getVar('myfxDir', $symbol, $gmtHour))) @rmDir($dir);
     // lokales Historyverzeichnis der aktuellen Stunde, wenn Wochenende und es leer ist
-    if (isForexWeekend($fxtHour, 'FXT')) {
+    if (isFxtWeekend($fxtHour, 'FXT')) {
         if (is_dir($dir=getVar('myfxDir', $symbol, $fxtHour))) @rmDir($dir);
     }
 

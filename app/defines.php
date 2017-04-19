@@ -139,11 +139,11 @@ function fxtTime($timestamp=null, $timezone='GMT') {
  *                             (default: GMT)
  * @return bool
  */
-function isForexTradingDay($timestamp, $timezone='GMT') {
+function isFxtTradingDay($timestamp, $timezone='GMT') {
     if (!is_int($timestamp))   throw new IllegalTypeException('Illegal type of parameter $timestamp: '.getType($timestamp));
     if (!is_string($timezone)) throw new IllegalTypeException('Illegal type of parameter $timezone: '.getType($timezone));
 
-    return (!isForexWeekend($timestamp, $timezone) && !isForexHoliday($timestamp, $timezone));
+    return (!isFxtWeekend($timestamp, $timezone) && !isFxtHoliday($timestamp, $timezone));
 }
 
 
@@ -155,7 +155,7 @@ function isForexTradingDay($timestamp, $timezone='GMT') {
  *                             (default: GMT)
  * @return bool
  */
-function isForexWeekend($timestamp, $timezone='GMT') {
+function isFxtWeekend($timestamp, $timezone='GMT') {
     if (!is_int($timestamp))   throw new IllegalTypeException('Illegal type of parameter $timestamp: '.getType($timestamp));
     if (!is_string($timezone)) throw new IllegalTypeException('Illegal type of parameter $timezone: '.getType($timezone));
 
@@ -177,7 +177,7 @@ function isForexWeekend($timestamp, $timezone='GMT') {
  *                             (default: GMT)
  * @return bool
  */
-function isForexHoliday($timestamp, $timezone='GMT') {
+function isFxtHoliday($timestamp, $timezone='GMT') {
     if (!is_int($timestamp))   throw new IllegalTypeException('Illegal type of parameter $timestamp: '.getType($timestamp));
     if (!is_string($timezone)) throw new IllegalTypeException('Illegal type of parameter $timezone: '.getType($timezone));
 

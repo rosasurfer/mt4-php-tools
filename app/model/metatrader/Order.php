@@ -126,7 +126,7 @@ class Order extends PersistableObject {
         $openTime = $properties['openTime'];                  // FXT timestamp
         if (!is_int($openTime))                               throw new IllegalTypeException('Illegal type of property order['.$ticket.'].openTime: '.getType($openTime));
         if ($openTime <= 0)                                   throw new InvalidArgumentException('Invalid property order['.$ticket.'].openTime: '.$openTime.' (not positive)');
-        if (isForexWeekend($openTime, 'FXT'))                 throw new InvalidArgumentException('Invalid property order['.$ticket.'].openTime: '.$openTime.' (not a weekday)');
+        if (isFxtWeekend($openTime, 'FXT'))                   throw new InvalidArgumentException('Invalid property order['.$ticket.'].openTime: '.$openTime.' (not a weekday)');
         $order->openTime = gmDate('Y-m-d H:i:s', $openTime);
 
         $stopLoss = $properties['stopLoss'];
@@ -160,7 +160,7 @@ class Order extends PersistableObject {
         if      ($closeTime && !$closePrice)                  throw new InvalidArgumentException('Invalid properties order['.$ticket.'].closePrice|closeTime: '.$closePrice.'|'.$closeTime.' (mis-match)');
         else if (!$closeTime && $closePrice)                  throw new InvalidArgumentException('Invalid properties order['.$ticket.'].closePrice|closeTime: '.$closePrice.'|'.$closeTime.' (mis-match)');
         if ($closeTime) {
-            if (isForexWeekend($closeTime, 'FXT'))            throw new InvalidArgumentException('Invalid property order['.$ticket.'].closeTime: '.$closeTime.' (not a weekday)');
+            if (isFxtWeekend($closeTime, 'FXT'))              throw new InvalidArgumentException('Invalid property order['.$ticket.'].closeTime: '.$closeTime.' (not a weekday)');
             if ($closeTime < $openTime)                       throw new InvalidArgumentException('Invalid properties order['.$ticket.'].openTime|closeTime: '.$openTime.'|'.$closeTime.' (mis-match)');
         }
         $order->closeTime = !$closeTime ? null : gmDate('Y-m-d H:i:s', $closeTime);

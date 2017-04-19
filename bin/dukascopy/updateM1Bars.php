@@ -170,10 +170,10 @@ function checkHistory($symbol, $day) {
     $shortDate = gmDate('D, d-M-Y', $day);
 
     global $verbose, $storeCompressedDukaFiles, $storeDecompressedDukaFiles, $storeUncompressedMyFXFiles, $barBuffer;
-    $day -= $day%DAY;                                              // 00:00 GMT
+    $day -= $day%DAY;                                               // 00:00 GMT
 
     // (1) nur an Wochentagen: pruefen, ob die MyFX-History existiert und ggf. aktualisieren
-    if (!isForexWeekend($day, 'FXT')) {                            // um 00:00 GMT sind GMT- und FXT-Wochentag immer gleich
+    if (!isFxtWeekend($day, 'FXT')) {                               // um 00:00 GMT sind GMT- und FXT-Wochentag immer gleich
         // History ist ok, wenn entweder die komprimierte MyFX-Datei existiert...
         if (is_file($file=getVar('myfxFile.compressed', $symbol, $day))) {
             if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'   MyFX compressed history file: '.baseName($file));
@@ -205,11 +205,11 @@ function checkHistory($symbol, $day) {
     }
 
     // lokales Historyverzeichnis des Vortages, wenn Wochenende und es leer ist
-    if (isForexWeekend($previousDay, 'FXT')) {                        // um 00:00 GMT sind GMT- und FXT-Wochentag immer gleich
+    if (isFxtWeekend($previousDay, 'FXT')) {                            // um 00:00 GMT sind GMT- und FXT-Wochentag immer gleich
         if (is_dir($dir=getVar('myfxDir', $symbol, $previousDay))) @rmDir($dir);
     }
     // lokales Historyverzeichnis des aktuellen Tages, wenn Wochenende und es leer ist
-    if (isForexWeekend($day, 'FXT')) {                                // um 00:00 GMT sind GMT- und FXT-Wochentag immer gleich
+    if (isFxtWeekend($day, 'FXT')) {                                    // um 00:00 GMT sind GMT- und FXT-Wochentag immer gleich
         if (is_dir($dir=getVar('myfxDir', $symbol, $day))) @rmDir($dir);
     }
 

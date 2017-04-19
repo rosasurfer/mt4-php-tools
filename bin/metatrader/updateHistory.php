@@ -101,7 +101,7 @@ function updateHistory($symbol) {
             echoPre('[Info]    '.gmDate('M-Y', $day));
             $lastMonth = $month;
         }
-        if (!isForexWeekend($day, 'FXT')) {                                                     // nur an Handelstagen
+        if (!isFxtWeekend($day, 'FXT')) {                                                       // nur an Handelstagen
             if      (is_file($file=Tools::getVar('myfxFile.M1.compressed', $symbol, $day))) {}  // wenn komprimierte MyFX-Datei existiert
             else if (is_file($file=Tools::getVar('myfxFile.M1.raw'       , $symbol, $day))) {}  // wenn unkomprimierte MyFX-Datei existiert
             else {

@@ -98,7 +98,7 @@ function createHistory($symbol) {
         }
 
         // ausser an Wochenenden: MyFX-History verarbeiten
-        if (!isForexWeekend($day, 'FXT')) {
+        if (!isFxtWeekend($day, 'FXT')) {
             if      (is_file($file=getVar('myfxFile.compressed', $symbol, $day))) {}   // wenn komprimierte MyFX-Datei existiert
             else if (is_file($file=getVar('myfxFile.raw'       , $symbol, $day))) {}   // wenn unkomprimierte MyFX-Datei existiert
             else {
