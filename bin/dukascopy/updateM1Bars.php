@@ -41,7 +41,7 @@ use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
 
 use rosasurfer\xtrade\LZMA;
-use rosasurfer\xtrade\Tools;
+use rosasurfer\xtrade\XTrade;
 
 use rosasurfer\xtrade\dukascopy\Dukascopy;
 use rosasurfer\xtrade\simpletrader\SimpleTrader;
@@ -80,11 +80,11 @@ foreach ($args as $i => $arg) {
 // Symbole parsen
 foreach ($args as $i => $arg) {
     $arg = strToUpper($arg);
-    if (!isSet(Tools::$symbols[$arg]) || Tools::$symbols[$arg]['provider']!='dukascopy')
+    if (!isSet(XTrade::$symbols[$arg]) || XTrade::$symbols[$arg]['provider']!='dukascopy')
         exit(1|help('unknown or unsupported symbol "'.$args[$i].'"'));
     $args[$i] = $arg;
 }                                                                       // ohne Angabe werden alle Dukascopy-Instrumente aktualisiert
-$args = $args ? array_unique($args) : array_keys(Tools::filterSymbols(['provider'=>'dukascopy']));
+$args = $args ? array_unique($args) : array_keys(XTrade::filterSymbols(['provider'=>'dukascopy']));
 
 
 // (2) install SIGINT handler (catches Ctrl-C)                          // To execute destructors calling exit()
@@ -115,7 +115,7 @@ function updateSymbol($symbol) {
     if (!is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
     $symbol = strToUpper($symbol);
 
-    $startTime  = Tools::$symbols[$symbol]['historyStart']['M1'];   // Beginn der Dukascopy-Daten dieses Symbols in GMT
+    $startTime  = XTrade::$symbols[$symbol]['historyStart']['M1'];  // Beginn der Dukascopy-Daten dieses Symbols in GMT
     $startTime -= $startTime % DAY;                                 // 00:00 GMT
 
     global $verbose, $barBuffer;
@@ -544,15 +544,15 @@ function processRawDukascopyBarData($data, $symbol, $day, $type) {
 
 
     // (2) Timestamps und FXT-Daten zu den Bars hinzufuegen
-    $prev = $next = null;                                             // Die Daten der Datei koennen einen DST-Wechsel abdecken, wenn
-    $fxtOffset = Tools::fxtTimezoneOffset($day, $prev, $next);         // $day = "Sun, 00:00 GMT" ist. In diesem Fall muss innerhalb
-    foreach ($bars as &$bar) {                                        // der Datenreihe bei der Ermittlung von time_fxt und delta_fxt
-        $bar['time_gmt' ] = $day + $bar['timeDelta'];                  // auf den naechsten DST-Offset gewechselt werden.
+    $prev = $next = null;                                               // Die Daten der Datei koennen einen DST-Wechsel abdecken, wenn
+    $fxtOffset = XTrade::fxtTimezoneOffset($day, $prev, $next);         // $day = "Sun, 00:00 GMT" ist. In diesem Fall muss innerhalb
+    foreach ($bars as &$bar) {                                          // der Datenreihe bei der Ermittlung von time_fxt und delta_fxt
+        $bar['time_gmt' ] = $day + $bar['timeDelta'];                   // auf den naechsten DST-Offset gewechselt werden.
         $bar['delta_gmt'] =        $bar['timeDelta'];
         if ($bar['time_gmt'] >= $next['time'])
             $fxtOffset = $next['offset'];                               // $fxtOffset on-the-fly aktualisieren
-        $bar['time_fxt' ] = $bar['time_gmt'] + $fxtOffset;             // Es gilt: FXT = GMT + Offset
-        $bar['delta_fxt'] = $bar['time_fxt'] % DAY;                    //     bzw: GMT = FXT - Offset
+        $bar['time_fxt' ] = $bar['time_gmt'] + $fxtOffset;              // Es gilt: FXT = GMT + Offset
+        $bar['delta_fxt'] = $bar['time_fxt'] % DAY;                     //     bzw: GMT = FXT - Offset
         unset($bar['timeDelta']);
     }; unset($bar);
 
@@ -708,7 +708,7 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
         if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
         static $dataDirectory; if (!$dataDirectory)
         $dataDirectory = Config::getDefault()->get('app.dir.data');
-        $group         = Tools::$symbols[$symbol]['group'];
+        $group         = XTrade::$symbols[$symbol]['group'];
         $dateL         = $self('myfxDirDate', null, $time, null);
         $result        = $dataDirectory.'/history/xtrade/'.$group.'/'.$symbol.'/'.$dateL;
     }

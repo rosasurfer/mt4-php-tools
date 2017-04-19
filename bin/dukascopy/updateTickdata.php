@@ -44,7 +44,7 @@ use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
 
 use rosasurfer\xtrade\LZMA;
-use rosasurfer\xtrade\Tools;
+use rosasurfer\xtrade\XTrade;
 
 use rosasurfer\xtrade\dukascopy\Dukascopy;
 use rosasurfer\xtrade\dukascopy\DukascopyException;
@@ -82,11 +82,11 @@ foreach ($args as $i => $arg) {
 // Symbole parsen
 foreach ($args as $i => $arg) {
     $arg = strToUpper($arg);
-    if (!isSet(Tools::$symbols[$arg]) || Tools::$symbols[$arg]['provider']!='dukascopy')
+    if (!isSet(XTrade::$symbols[$arg]) || XTrade::$symbols[$arg]['provider']!='dukascopy')
         exit(1|help('unknown or unsupported symbol "'.$args[$i].'"'));
     $args[$i] = $arg;
 }                                                                       // ohne Angabe werden alle Dukascopy-Instrumente aktualisiert
-$args = $args ? array_unique($args) : array_keys(Tools::filterSymbols(['provider'=>'dukascopy']));
+$args = $args ? array_unique($args) : array_keys(XTrade::filterSymbols(['provider'=>'dukascopy']));
 
 
 // (2) install SIGINT handler (catches Ctrl-C)                          // To execute destructors calling exit()
@@ -121,37 +121,37 @@ function updateSymbol($symbol) {
 
 
     // (1) Beginn des naechsten Forex-Tages ermitteln
-    $startTimeGMT = Tools::$symbols[$symbol]['historyStart']['ticks'];    // Beginn der Tickdaten des Symbols GMT
+    $startTimeGMT = XTrade::$symbols[$symbol]['historyStart']['ticks'];     // Beginn der Tickdaten des Symbols GMT
     $prev = $next = null;
-    $fxtOffset = Tools::fxtTimezoneOffset($startTimeGMT, $prev, $next);   // es gilt: FXT = GMT + Offset
-    $startTimeFXT = $startTimeGMT + $fxtOffset;                           // Beginn der Tickdaten FXT
+    $fxtOffset = XTrade::fxtTimezoneOffset($startTimeGMT, $prev, $next);    // es gilt: FXT = GMT + Offset
+    $startTimeFXT = $startTimeGMT + $fxtOffset;                             // Beginn der Tickdaten FXT
 
-    if ($remainder=$startTimeFXT % DAY) {                                 // Beginn auf den naechsten Forex-Tag 00:00 aufrunden, sodass
-        $diff = 1*DAY - $remainder;                                       // wir nur vollstaendige Forex-Tage verarbeiten. Dabei
-        if ($startTimeGMT + $diff >= $next['time']) {                     // beruecksichtigen, dass sich zu Beginn des naechsten Forex-Tages
-            $startTimeGMT = $next['time'];                                // der DST-Offset der FXT geaendert haben kann.
+    if ($remainder=$startTimeFXT % DAY) {                                   // Beginn auf den naechsten Forex-Tag 00:00 aufrunden, sodass
+        $diff = 1*DAY - $remainder;                                         // wir nur vollstaendige Forex-Tage verarbeiten. Dabei
+        if ($startTimeGMT + $diff >= $next['time']) {                       // beruecksichtigen, dass sich zu Beginn des naechsten Forex-Tages
+            $startTimeGMT = $next['time'];                                  // der DST-Offset der FXT geaendert haben kann.
             $startTimeFXT = $startTimeGMT + $next['offset'];
             if ($remainder=$startTimeFXT % DAY) $diff = 1*DAY - $remainder;
             else                                $diff = 0;
-            $fxtOffset = Tools::fxtTimezoneOffset($startTimeGMT, $prev, $next);
+            $fxtOffset = XTrade::fxtTimezoneOffset($startTimeGMT, $prev, $next);
         }
-        $startTimeGMT += $diff;                                           // naechster Forex-Tag 00:00 in GMT
-        $startTimeFXT += $diff;                                           // naechster Forex-Tag 00:00 in FXT
+        $startTimeGMT += $diff;                                             // naechster Forex-Tag 00:00 in GMT
+        $startTimeFXT += $diff;                                             // naechster Forex-Tag 00:00 in FXT
     }
 
 
     // (2) Gesamte Zeitspanne inklusive Wochenenden stundenweise durchlaufen, um von vorherigen Durchlaufen ggf. vorhandene
     // Zwischendateien finden und loeschen zu koennen.
-    $thisHour = ($thisHour=time()) - $thisHour%HOUR;                     // Beginn der aktuellen Stunde GMT
-    $lastHour = $thisHour - 1*HOUR;                                      // Beginn der letzten Stunde GMT
+    $thisHour = ($thisHour=time()) - $thisHour%HOUR;                        // Beginn der aktuellen Stunde GMT
+    $lastHour = $thisHour - 1*HOUR;                                         // Beginn der letzten Stunde GMT
 
     for ($gmtHour=$startTimeGMT; $gmtHour < $lastHour; $gmtHour+=1*HOUR) {
         if ($gmtHour >= $next['time'])
-            $fxtOffset = Tools::fxtTimezoneOffset($gmtHour, $prev, $next);  // $fxtOffset on-the-fly aktualisieren
+            $fxtOffset = XTrade::fxtTimezoneOffset($gmtHour, $prev, $next); // $fxtOffset on-the-fly aktualisieren
         $fxtHour = $gmtHour + $fxtOffset;
 
         if (!checkHistory($symbol, $gmtHour, $fxtHour)) return false;
-        if (!WINDOWS) pcntl_signal_dispatch();                            // Auf Ctrl-C pruefen, um bei Abbruch die Destruktoren auszufuehren.
+        if (!WINDOWS) pcntl_signal_dispatch();                              // Auf Ctrl-C pruefen, um bei Abbruch die Destruktoren auszufuehren.
     }
 
     echoPre('[Ok]      '.$symbol);
@@ -567,7 +567,7 @@ function getVar($id, $symbol=null, $time=null) {
         if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
         if (!$dataDirectory)
         $dataDirectory = Config::getDefault()->get('app.dir.data');
-        $group         = Tools::$symbols[$symbol]['group'];
+        $group         = XTrade::$symbols[$symbol]['group'];
         $myfxDirDate   = $self('myfxDirDate', null, $time);
         $result        = $dataDirectory.'/history/xtrade/'.$group.'/'.$symbol.'/'.$myfxDirDate;
     }

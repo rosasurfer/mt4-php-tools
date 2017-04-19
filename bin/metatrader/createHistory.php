@@ -12,7 +12,7 @@ use rosasurfer\config\Config;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 
-use rosasurfer\xtrade\Tools;
+use rosasurfer\xtrade\XTrade;
 use rosasurfer\xtrade\dukascopy\Dukascopy;
 
 use rosasurfer\xtrade\metatrader\HistorySet;
@@ -45,10 +45,10 @@ foreach ($args as $i => $arg) {
 // Symbole parsen
 foreach ($args as $i => $arg) {
     $arg = strToUpper($arg);
-    if (!isSet(Tools::$symbols[$arg])) exit(1|help('error: unknown or unsupported symbol "'.$args[$i].'"'));
+    if (!isSet(XTrade::$symbols[$arg])) exit(1|help('error: unknown or unsupported symbol "'.$args[$i].'"'));
     $args[$i] = $arg;
 }                                                                       // ohne Symbol werden alle Instrumente verarbeitet
-$args = $args ? array_unique($args) : array_keys(Tools::$symbols);
+$args = $args ? array_unique($args) : array_keys(XTrade::$symbols);
 
 
 // (2) install SIGINT handler (catches Ctrl-C)                          // To execute destructors calling exit()
@@ -76,13 +76,13 @@ function createHistory($symbol) {
     if (!is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
     if (!strLen($symbol))    throw new InvalidArgumentException('Invalid parameter $symbol: ""');
 
-    $startDay  = fxtTime(Tools::$symbols[$symbol]['historyStart']['M1']);            // FXT
+    $startDay  = fxtTime(XTrade::$symbols[$symbol]['historyStart']['M1']);           // FXT
     $startDay -= $startDay%DAY;                                                      // 00:00 FXT Starttag
     $today     = ($today=fxtTime()) - $today%DAY;                                    // 00:00 FXT aktueller Tag
 
 
     // MT4-HistorySet erzeugen
-    $digits    = Tools::$symbols[$symbol]['digits'];
+    $digits    = XTrade::$symbols[$symbol]['digits'];
     $format    = 400;
     $directory = Config::getDefault()->get('app.dir.data').'/history/mt4/MyFX-Dukascopy';
     $history   = HistorySet::create($symbol, $digits, $format, $directory);
@@ -106,7 +106,7 @@ function createHistory($symbol) {
                 return false;
             }
             // Bars einlesen und der MT4-History hinzufuegen
-            $bars = Tools::readBarFile($file, $symbol);
+            $bars = XTrade::readBarFile($file, $symbol);
             $history->appendBars($bars);
         }
 
@@ -152,7 +152,7 @@ function getVar($id, $symbol=null, $time=null) {
         if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
         static $dataDirectory; if (!$dataDirectory)
         $dataDirectory = Config::getDefault()->get('app.dir.data');
-        $group         = Tools::$symbols[$symbol]['group'];
+        $group         = XTrade::$symbols[$symbol]['group'];
         $myfxDirDate   = $self('myfxDirDate', null, $time);
         $result        = $dataDirectory.'/history/xtrade/'.$group.'/'.$symbol.'/'.$myfxDirDate;
     }

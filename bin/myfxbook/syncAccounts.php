@@ -10,7 +10,7 @@ use rosasurfer\exception\InfrastructureException;
 use rosasurfer\exception\RuntimeException;
 
 use rosasurfer\xtrade\ReportHelper;
-use rosasurfer\xtrade\Tools;
+use rosasurfer\xtrade\XTrade;
 
 use rosasurfer\xtrade\metatrader\MT4;
 
@@ -272,7 +272,7 @@ function updateDatabase(Signal $signal, array $currentOpenPositions, &$openUpdat
             foreach ($positionChangeStartTimes as $symbol => $startTime) {
                 $n++;
                 if ($startTime < $lastKnownChangeTimes[$symbol])
-                    $startTime = Tools::fxtDate(Tools::fxtStrToTime($lastKnownChangeTimes[$symbol]) + 1);
+                    $startTime = XTrade::fxtDate(XTrade::fxtStrToTime($lastKnownChangeTimes[$symbol]) + 1);
 
                 $report = ReportHelper::getNetPositionHistory($signal, $symbol, $startTime);
                 $oldNetPosition     = 'Flat';
@@ -291,18 +291,18 @@ function updateDatabase(Signal $signal, array $currentOpenPositions, &$openUpdat
 
                     if ($row['time'] >= $startTime) {
                         if (!$oldNetPositionDone) {
-                            $iFirstNewRow       = $i;                                         // keine Anzeige von $oldNetPosition bei nur einem
-                            if (sizeOf($report) == $iFirstNewRow+1) echoPre("\n");            // neuen Trade
+                            $iFirstNewRow       = $i;                                           // keine Anzeige von $oldNetPosition bei nur einem
+                            if (sizeOf($report) == $iFirstNewRow+1) echoPre("\n");              // neuen Trade
                             else                                    echoPre(($n==1 && !$isFullHistory ? '' : str_pad("\n", $signalNamePadding+2, ' ', STR_PAD_RIGHT)).str_repeat(' ', $signalNamePadding+20).'was: '.$oldNetPosition);
                             $oldNetPositionDone = true;
                         }
                         $format = "%s:  %-6s %-4s %5.2F lots %s @ %-8s now: %s";
-                        $date   = date('Y-m-d H:i:s', Tools::fxtStrToTime($row['time'  ]));
-                        $deal   =                                         $row['trade' ];
-                        $type   =                                 ucFirst($row['type'  ]);
-                        $lots   =                                         $row['lots'  ];
-                        $symbol =                                         $row['symbol'];    // Consolen-Output fuer "[open|close] position...",
-                        $price  =                                         $row['price' ];    // "modify ..." in SimpleTrader::onPositionModify()
+                        $date   = date('Y-m-d H:i:s', XTrade::fxtStrToTime($row['time'  ]));
+                        $deal   =                                          $row['trade' ];
+                        $type   =                                  ucFirst($row['type'  ]);
+                        $lots   =                                          $row['lots'  ];
+                        $symbol =                                          $row['symbol'];      // Consolen-Output fuer "[open|close] position...",
+                        $price  =                                          $row['price' ];      // "modify ..." in SimpleTrader::onPositionModify()
                         echoPre(sprintf($format, $date, $deal, $type, $lots, $symbol, $price, $netPosition));
                     }
                     else $oldNetPosition = $netPosition;

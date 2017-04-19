@@ -23,7 +23,7 @@ use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 
-use rosasurfer\xtrade\Tools;
+use rosasurfer\xtrade\XTrade;
 use rosasurfer\xtrade\dukascopy\Dukascopy;
 
 require(__DIR__.'/../../app/init.php');
@@ -127,7 +127,7 @@ function updateIndex($index) {
     $pairs = array_flip($indexes[$index]);                                                  // ['AUDUSD', ...] => ['AUDUSD'=>null, ...]
     foreach($pairs as $pair => &$data) {
         $data      = [];                                                                    // $data initialisieren: ['AUDUSD'=>[], ...]
-        $startTime = max($startTime, Tools::$symbols[$pair]['historyStart']['M1']);         // GMT-Timestamp
+        $startTime = max($startTime, XTrade::$symbols[$pair]['historyStart']['M1']);        // GMT-Timestamp
     } unset($data);
     $startTime = fxtTime($startTime);
     $startDay  = $startTime - $startTime%DAY;                                               // 00:00 Starttag FXT
@@ -163,7 +163,7 @@ function updateIndex($index) {
                         return false;
                     }
                     // M1-Bars zwischenspeichern
-                    $pairs[$pair]['bars'] = Tools::readBarFile($file, $pair);                   // ['AUDUSD'=>array('bars'=>[]), ...]
+                    $pairs[$pair]['bars'] = XTrade::readBarFile($file, $pair);                 // ['AUDUSD'=>array('bars'=>[]), ...]
                 }
 
                 // Indexdaten fuer diesen Tag berechnen
@@ -1919,7 +1919,7 @@ function getVar($id, $symbol=null, $time=null) {
         if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
         if (!$dataDirectory)
         $dataDirectory = Config::getDefault()->get('app.dir.data');
-        $group         = Tools::$symbols[$symbol]['group'];
+        $group         = XTrade::$symbols[$symbol]['group'];
         $myfxDirDate   = $self('myfxDirDate', null, $time);
         $result        = $dataDirectory.'/history/xtrade/'.$group.'/'.$symbol.'/'.$myfxDirDate;
     }
@@ -1927,7 +1927,7 @@ function getVar($id, $symbol=null, $time=null) {
         if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
         if (!$dataDirectory)
         $dataDirectory = Config::getDefault()->get('app.dir.data');
-        $group         = Tools::$symbols[$symbol]['group'];
+        $group         = XTrade::$symbols[$symbol]['group'];
         $myfxDirDate   = $self('myfxDirDate', null, $time);
         $result        = $dataDirectory.'/history/xtrade/'.$group.'/'.$symbol.'/'.$myfxDirDate;
     }

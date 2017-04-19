@@ -6,7 +6,7 @@ use rosasurfer\db\orm\PersistableObject;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 
-use rosasurfer\xtrade\Tools;
+use rosasurfer\xtrade\XTrade;
 use rosasurfer\xtrade\metatrader\MT4;
 
 
@@ -101,8 +101,8 @@ class Order extends PersistableObject {
 
         $type = $properties['type'];
         if (!is_int($type))                                   throw new IllegalTypeException('Illegal type of property order['.$ticket.'].type: '.getType($type));
-        if (!Tools::isOrderType($type))                       throw new InvalidArgumentException('Invalid property order['.$ticket.'].type: '.$type.' (not an order type)');
-        $order->type = Tools::orderTypeDescription($type);
+        if (!XTrade::isOrderType($type))                      throw new InvalidArgumentException('Invalid property order['.$ticket.'].type: '.$type.' (not an order type)');
+        $order->type = XTrade::orderTypeDescription($type);
 
         $lots = $properties['lots'];
         if (!is_float($lots))                                 throw new IllegalTypeException('Illegal type of property order['.$ticket.'].lots: '.getType($lots));
@@ -142,7 +142,7 @@ class Order extends PersistableObject {
         $order->takeProfit = !$takeProfit ? null : $takeProfit;
 
         if ($stopLoss && $takeProfit) {
-            if (Tools::isLongOrderType(Tools::strToOrderType($order->type))) {
+            if (XTrade::isLongOrderType(XTrade::strToOrderType($order->type))) {
                 if ($stopLoss >= $takeProfit)                 throw new InvalidArgumentException('Invalid properties order['.$ticket.'].stopLoss|takeProfit for LONG order: '.$stopLoss.'|'.$takeProfit.' (mis-match)');
             }
             else if ($stopLoss <= $takeProfit)                throw new InvalidArgumentException('Invalid properties order['.$ticket.'].stopLoss|takeProfit for SHORT order: '.$stopLoss.'|'.$takeProfit.' (mis-match)');

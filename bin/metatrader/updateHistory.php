@@ -10,7 +10,7 @@ use rosasurfer\config\Config;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 
-use rosasurfer\xtrade\Tools;
+use rosasurfer\xtrade\XTrade;
 use rosasurfer\xtrade\dukascopy\Dukascopy;
 
 use rosasurfer\xtrade\metatrader\HistorySet;
@@ -43,10 +43,10 @@ foreach ($args as $i => $arg) {
 // Symbole parsen
 foreach ($args as $i => $arg) {
     $arg = strToUpper($arg);
-    if (!isSet(Tools::$symbols[$arg])) exit(1|help('error: unknown or unsupported symbol "'.$args[$i].'"'));
+    if (!isSet(XTrade::$symbols[$arg])) exit(1|help('error: unknown or unsupported symbol "'.$args[$i].'"'));
     $args[$i] = $arg;
 }
-$args = $args ? array_unique($args) : array_keys(Tools::$symbols);      // ohne Angabe werden alle Instrumente verarbeitet
+$args = $args ? array_unique($args) : array_keys(XTrade::$symbols);     // ohne Angabe werden alle Instrumente verarbeitet
 
 
 // (2) install SIGINT handler (catches Ctrl-C)                          // To execute destructors calling exit()
@@ -76,7 +76,7 @@ function updateHistory($symbol) {
     if (!strLen($symbol))    throw new InvalidArgumentException('Invalid parameter $symbol: ""');
 
     global $verbose;
-    $digits       = Tools::$symbols[$symbol]['digits'];
+    $digits       = XTrade::$symbols[$symbol]['digits'];
     $directory    = Config::getDefault()->get('app.dir.data').'/history/mt4/MyFX-Dukascopy';
     $lastSyncTime = null;
     echoPre('[Info]    '.$symbol);
@@ -88,7 +88,7 @@ function updateHistory($symbol) {
     !$history && $history=HistorySet::create($symbol, $digits, $format=400, $directory);
 
     // History beginnend mit dem letzten synchronisierten Tag aktualisieren
-    $startTime = $lastSyncTime ? $lastSyncTime : fxtTime(Tools::$symbols[$symbol]['historyStart']['M1']);
+    $startTime = $lastSyncTime ? $lastSyncTime : fxtTime(XTrade::$symbols[$symbol]['historyStart']['M1']);
     $startDay  = $startTime - $startTime%DAY;                                                  // 00:00 der Startzeit
     $today     = ($time=fxtTime()) - $time%DAY;                                                // 00:00 des aktuellen Tages
     $today     = $startDay + 5*DAYS;                                                           // zu Testzwecken nur x Tage
@@ -102,15 +102,15 @@ function updateHistory($symbol) {
             $lastMonth = $month;
         }
         if (!isFxtWeekend($day, 'FXT')) {                                                       // nur an Handelstagen
-            if      (is_file($file=Tools::getVar('myfxFile.M1.compressed', $symbol, $day))) {}  // wenn komprimierte MyFX-Datei existiert
-            else if (is_file($file=Tools::getVar('myfxFile.M1.raw'       , $symbol, $day))) {}  // wenn unkomprimierte MyFX-Datei existiert
+            if      (is_file($file=XTrade::getVar('myfxFile.M1.compressed', $symbol, $day))) {} // wenn komprimierte MyFX-Datei existiert
+            else if (is_file($file=XTrade::getVar('myfxFile.M1.raw'       , $symbol, $day))) {} // wenn unkomprimierte MyFX-Datei existiert
             else {
                 echoPre('[Error]   '.$symbol.' MyFX history for '.$shortDate.' not found');
                 return false;
             }
             if ($verbose > 0) echoPre('[Info]    synchronizing '.$shortDate);
 
-            $bars = Tools::readBarFile($file, $symbol);
+            $bars = XTrade::readBarFile($file, $symbol);
             $history->synchronize($bars);
         }
         if (!WINDOWS) pcntl_signal_dispatch();                                                  // Auf Ctrl-C pruefen, um bei Abbruch den

@@ -11,7 +11,7 @@ use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 use rosasurfer\exception\UnimplementedFeatureException;
 
-use rosasurfer\xtrade\Tools;
+use rosasurfer\xtrade\XTrade;
 
 
 /**
@@ -159,7 +159,7 @@ class HistoryFile extends Object {
         $this->hFile     = fOpen($fileName, 'r+b');               // FILE_READ|FILE_WRITE
         $this->hstHeader = new HistoryHeader(fRead($this->hFile, HistoryHeader::SIZE));
 
-        if (!strCompareI($this->fileName, $this->getSymbol().$this->getTimeframe().'.hst')) throw new MetaTraderException('filename.mis-match: File name/symbol mis-match of "'.$fileName.'": header="'.$this->getSymbol().','.Tools::periodDescription($this->getTimeframe()).'"');
+        if (!strCompareI($this->fileName, $this->getSymbol().$this->getTimeframe().'.hst')) throw new MetaTraderException('filename.mis-match: File name/symbol mis-match of "'.$fileName.'": header="'.$this->getSymbol().','.XTrade::periodDescription($this->getTimeframe()).'"');
         $barSize = $this->getVersion()==400 ? MT4::HISTORY_BAR_400_SIZE : MT4::HISTORY_BAR_401_SIZE;
         if ($trailing=($fileSize-HistoryHeader::SIZE) % $barSize)                           throw new MetaTraderException('filesize.trailing: Corrupted file "'.$fileName.'": '.$trailing.' trailing bytes');
 
@@ -191,11 +191,11 @@ class HistoryFile extends Object {
             }
             $from_offset    = 0;
             $from_openTime  = $barFrom['time'];
-            $from_closeTime = Tools::periodCloseTime($from_openTime, $this->period);
+            $from_closeTime = XTrade::periodCloseTime($from_openTime, $this->period);
 
             $to_offset      = $bars-1;
             $to_openTime    = $barTo['time'];
-            $to_closeTime   = Tools::periodCloseTime($to_openTime, $this->period);
+            $to_closeTime   = XTrade::periodCloseTime($to_openTime, $this->period);
 
             // Metadaten: gespeicherte Bars
             $this->stored_bars           = $bars;
@@ -380,7 +380,7 @@ class HistoryFile extends Object {
         $offset--;
 
         $bar       = $this->getBar($offset);
-        $closeTime = Tools::periodCloseTime($bar['time'], $this->period);
+        $closeTime = XTrade::periodCloseTime($bar['time'], $this->period);
 
         if ($time < $closeTime)                                         // Zeitpunkt liegt in der vorhergehenden Bar
             return $offset;
@@ -446,7 +446,7 @@ class HistoryFile extends Object {
         $offset--;                                                      // Zeitpunkt liegt in der vorherigen oder zwischen der
         $bar = $this->getBar($offset);                                  // vorherigen und der TimeOffset-Bar
 
-        $closeTime = Tools::periodCloseTime($bar['time'], $this->period);
+        $closeTime = XTrade::periodCloseTime($bar['time'], $this->period);
         if ($closeTime > $time)                                         // Zeitpunkt liegt innerhalb dieser vorherigen Bar
             return $offset;
         return ($offset+1 < $size) ? $offset+1 : -1;                    // Zeitpunkt liegt nach bar[closeTime], also Luecke...
@@ -678,7 +678,7 @@ class HistoryFile extends Object {
 
         // Offset der Bar, die den Zeitpunkt abdeckt, ermitteln
         $lastSyncTime = $this->full_lastSyncTime;
-        $offset       = Tools::findBarOffsetNext($bars, PERIOD_M1, $lastSyncTime);
+        $offset       = XTrade::findBarOffsetNext($bars, PERIOD_M1, $lastSyncTime);
 
         // Bars vor Offset verwerfen
         if ($offset == -1)                                                      // alle Bars liegen vor $lastSyncTime
@@ -1035,12 +1035,12 @@ class HistoryFile extends Object {
         if (!$this->stored_bars) {                                           // Datei war vorher leer
             $this->stored_from_offset    = 0;
             $this->stored_from_openTime  = $this->barBuffer[0]['time'];
-            $this->stored_from_closeTime = Tools::periodCloseTime($this->stored_from_openTime, $this->period);
+            $this->stored_from_closeTime = XTrade::periodCloseTime($this->stored_from_openTime, $this->period);
         }
         $this->stored_bars         = $this->stored_bars + $todo;
         $this->stored_to_offset    = $this->stored_bars - 1;
         $this->stored_to_openTime  = $this->barBuffer[$todo-1]['time'];
-        $this->stored_to_closeTime = Tools::periodCloseTime($this->stored_to_openTime, $this->period);
+        $this->stored_to_closeTime = XTrade::periodCloseTime($this->stored_to_openTime, $this->period);
 
         // lastSyncTime je nachdem setzen, ob noch weitere Daten im Buffer sind
         $this->stored_lastSyncTime = ($todo < $bufferSize) ? $this->stored_to_closeTime : $this->lastM1DataTime + 1*MINUTE;
@@ -1086,7 +1086,7 @@ class HistoryFile extends Object {
      * Nur zum Debuggen
      */
     public function showMetaData($showStored=true, $showFull=true, $showFile=true) {
-        $Pxx = Tools::periodDescription($this->period);
+        $Pxx = XTrade::periodDescription($this->period);
 
         ($showStored || $showFull || $showFile) && echoPre(NL);
         if ($showStored) {

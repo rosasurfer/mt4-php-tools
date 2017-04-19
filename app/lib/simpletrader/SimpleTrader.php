@@ -19,7 +19,7 @@ use rosasurfer\net\http\HttpResponse;
 use rosasurfer\util\Date;
 use rosasurfer\util\PHP;
 
-use rosasurfer\xtrade\Tools;
+use rosasurfer\xtrade\XTrade;
 
 use rosasurfer\xtrade\model\ClosedPosition;
 use rosasurfer\xtrade\model\OpenPosition;
@@ -471,7 +471,7 @@ class SimpleTrader extends StaticClass {
         // Benachrichtigung per E-Mail
         try {
             $mailMsg = $signal->getName().' Open '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice();
-            foreach (Tools::getMailSignalReceivers() as $receiver) {
+            foreach (XTrade::getMailSignalReceivers() as $receiver) {
                 mail($receiver, $subject=$mailMsg, $msg=$mailMsg);
             }
         }
@@ -479,7 +479,7 @@ class SimpleTrader extends StaticClass {
 
 
         // SMS-Benachrichtigung, wenn das Ereignis zur Laufzeit des Scriptes eintrat
-        $openTime = Tools::fxtStrToTime($position->getOpenTime());
+        $openTime = XTrade::fxtStrToTime($position->getOpenTime());
         if ($openTime >= $_SERVER['REQUEST_TIME']) {
             try {
                 $smsMsg = 'Opened '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol()
@@ -488,10 +488,10 @@ class SimpleTrader extends StaticClass {
                          .'#'.$position->getTicket().'  ('.$position->getOpenTime('H:i:s').')';
 
                 // Warnung, wenn das Ereignis aelter als 2 Minuten ist (also von SimpleTrader verzoegert publiziert wurde)
-                if (($now=time()) > $openTime+2*MINUTES) $smsMsg = 'WARN: '.$smsMsg.' detected at '.date($now); // Tools::fxtDate($now)
+                if (($now=time()) > $openTime+2*MINUTES) $smsMsg = 'WARN: '.$smsMsg.' detected at '.date($now); // XTrade::fxtDate($now)
 
-                foreach (Tools::getSmsSignalReceivers() as $receiver) {
-                    Tools::sendSms($receiver, $smsMsg);
+                foreach (XTrade::getSmsSignalReceivers() as $receiver) {
+                    XTrade::sendSms($receiver, $smsMsg);
                 }
             }
             catch (\Exception $ex) { Logger::log($ex, L_ERROR); }
@@ -529,7 +529,7 @@ class SimpleTrader extends StaticClass {
         // Benachrichtigung per E-Mail
         $mailMsg = $signal->getName().': modify '.$msg.$modification;
         try {
-            foreach (Tools::getMailSignalReceivers() as $receiver) {
+            foreach (XTrade::getMailSignalReceivers() as $receiver) {
                 mail($receiver, $subject=$mailMsg, $mailMsg);
             }
         }
@@ -537,13 +537,13 @@ class SimpleTrader extends StaticClass {
 
 
         // Benachrichtigung per SMS
-        if (false) {                                                   // fuer Limitaenderungen vorerst deaktiviert
+        if (false) {                                                        // fuer Limitaenderungen vorerst deaktiviert
             try {
                 $smsMsg = $signal->getName().': modified '.str_replace('  ', ' ', $msg)."\n"
                             .$modification                                                ."\n"
-                            .date('(H:i:s)', time());                       // Tools::fxtDate(time(), '(H:i:s)')
-                foreach (Tools::getSmsSignalReceivers() as $receiver) {
-                    Tools::sendSms($receiver, $smsMsg);
+                            .date('(H:i:s)', time());                       // XTrade::fxtDate(time(), '(H:i:s)')
+                foreach (XTrade::getSmsSignalReceivers() as $receiver) {
+                    XTrade::sendSms($receiver, $smsMsg);
                 }
             }
             catch (\Exception $ex) { Logger::log($ex, L_ERROR); }
@@ -567,7 +567,7 @@ class SimpleTrader extends StaticClass {
         // Benachrichtigung per E-Mail
         try {
             $mailMsg = $signal->getName().' Close '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getClosePrice();
-            foreach (Tools::getMailSignalReceivers() as $receiver) {
+            foreach (XTrade::getMailSignalReceivers() as $receiver) {
                 mail($receiver, $subject=$mailMsg, $msg=$mailMsg);
             }
         }
@@ -575,16 +575,16 @@ class SimpleTrader extends StaticClass {
 
 
         // SMS-Benachrichtigung, wenn das Ereignis zur Laufzeit des Scriptes eintrat
-        $closeTime = Tools::fxtStrToTime($position->getCloseTime());
+        $closeTime = XTrade::fxtStrToTime($position->getCloseTime());
         if ($closeTime >= $_SERVER['REQUEST_TIME']) {
             try {
                 $smsMsg = 'Closed '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getClosePrice()."\nOpen: ".$position->getOpenPrice()."\n\n#".$position->getTicket().'  ('.$position->getCloseTime('H:i:s').')';
 
                 // Warnung, wenn das Ereignis aelter als 2 Minuten ist (also von SimpleTrader verzoegert publiziert wurde)
-                if (($now=time()) > $closeTime+2*MINUTES) $smsMsg = 'WARN: '.$smsMsg.' detected at '.date($now);      // Tools::fxtDate($now)
+                if (($now=time()) > $closeTime+2*MINUTES) $smsMsg = 'WARN: '.$smsMsg.' detected at '.date($now);      // XTrade::fxtDate($now)
 
-                foreach (Tools::getSmsSignalReceivers() as $receiver) {
-                    Tools::sendSms($receiver, $smsMsg);
+                foreach (XTrade::getSmsSignalReceivers() as $receiver) {
+                    XTrade::sendSms($receiver, $smsMsg);
                 }
             }
             catch (\Exception $ex) { Logger::log($ex, L_ERROR); }
@@ -609,7 +609,7 @@ class SimpleTrader extends StaticClass {
         if (!is_string($newNetPosition)) throw new IllegalTypeException('Illegal type of parameter $newNetPosition: '.getType($newNetPosition));
         if (!strLen($newNetPosition))    throw new InvalidArgumentException('Invalid argument $newNetPosition: '.$newNetPosition);
 
-        $lastTradeTime = Tools::fxtStrToTime($report[$rows-1]['time']);
+        $lastTradeTime = XTrade::fxtStrToTime($report[$rows-1]['time']);
 
         $msg = $signal->getName().': ';
         if ($i < $rows-1) $msg .= ($rows-$i).' trades in '.$symbol;
@@ -618,12 +618,12 @@ class SimpleTrader extends StaticClass {
         $subject = $msg;
         $msg .= "\nwas: ".str_replace('  ', ' ', $oldNetPosition);
         $msg .= "\nnow: ".str_replace('  ', ' ', $newNetPosition);
-        $msg .= "\n".date('(H:i:s)', $lastTradeTime);               // Tools::fxtDate($lastTradeTime, '(H:i:s)')
+        $msg .= "\n".date('(H:i:s)', $lastTradeTime);               // XTrade::fxtDate($lastTradeTime, '(H:i:s)')
 
 
         // Benachrichtigung per E-Mail
         try {
-            foreach (Tools::getMailSignalReceivers() as $receiver) {
+            foreach (XTrade::getMailSignalReceivers() as $receiver) {
                 mail($receiver, $subject, $msg);
             }
         }
@@ -634,10 +634,10 @@ class SimpleTrader extends StaticClass {
         if ($lastTradeTime >= $_SERVER['REQUEST_TIME']) {
             try {
                 // Warnung, wenn der letzte Trade aelter als 2 Minuten ist (von SimpleTrader also verzoegert publiziert wurde)
-                if (($now=time()) > $lastTradeTime+2*MINUTES) $msg = 'WARN: '.$msg.', detected at '.date('H:i:s', $now);    // Tools::fxtDate($now, 'H:i:s')
+                if (($now=time()) > $lastTradeTime+2*MINUTES) $msg = 'WARN: '.$msg.', detected at '.date('H:i:s', $now);    // XTrade::fxtDate($now, 'H:i:s')
 
-                foreach (Tools::getSmsSignalReceivers() as $receiver) {
-                    Tools::sendSms($receiver, $msg);
+                foreach (XTrade::getSmsSignalReceivers() as $receiver) {
+                    XTrade::sendSms($receiver, $msg);
                 }
             }
             catch (\Exception $ex) { Logger::log($ex, L_ERROR); }

@@ -5,7 +5,7 @@ namespace rosasurfer\xtrade\metatrader\dir;
 /**
  * Verzeichnislisting fuer MetaTrader-Historydateien
  */
-use rosasurfer\xtrade\Tools;
+use rosasurfer\xtrade\XTrade;
 
 use rosasurfer\xtrade\metatrader\HistoryHeader;
 use rosasurfer\xtrade\metatrader\MetaTraderException;
@@ -146,7 +146,7 @@ foreach ($expandedArgs as $fileName) {
             $symbols [sizeOf($symbols )-1] = ($name=strLeftTo($baseName, '.hst'));
             $symbolsU[sizeOf($symbolsU)-1] = strToUpper($name);
             $periods [sizeOf($periods )-1] = null;
-            $error = 'file name/data mis-match: data='.$header->getSymbol().','.Tools::periodDescription($header->getPeriod());
+            $error = 'file name/data mis-match: data='.$header->getSymbol().','.XTrade::periodDescription($header->getPeriod());
         }
         else {
             $trailingBytes = ($fileSize-HistoryHeader::SIZE) % $barSize;
@@ -209,7 +209,7 @@ function showDirResults($dirName, array $files, array $formats, array $symbols, 
             echoPre($tableSeparator);
 
         if ($formats[$i]) {
-            $period = Tools::periodDescription($periods[$i]);
+            $period = XTrade::periodDescription($periods[$i]);
             echoPre(trim(sprintf($tableRowFormat, $symbols[$i].','.$period, $digits[$i], $syncMarkers[$i], $lastSyncTimes[$i], number_format($bars[$i]), $barsFrom[$i], $barsTo[$i], $formats[$i], $errors[$i])));
         }
         else {

@@ -36,7 +36,7 @@ use rosasurfer\xtrade\metatrader\MT4;
  *    uint ask;                           4            8        in points
  * };                                  = 12 byte
  */
-class Tools extends StaticClass {
+class XTrade extends StaticClass {
 
 
     /**
@@ -446,7 +446,7 @@ class Tools extends StaticClass {
     public static function readBarData($data, $symbol) {
         if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
 
-        $lenData = strLen($data); if ($lenData % self::BAR_SIZE) throw new RuntimeException('Odd length of passed '.$symbol.' data: '.$lenData.' (not an even Tools::BAR_SIZE)');
+        $lenData = strLen($data); if ($lenData % self::BAR_SIZE) throw new RuntimeException('Odd length of passed '.$symbol.' data: '.$lenData.' (not an even XTrade::BAR_SIZE)');
         $offset  = 0;
         $bars    = [];
         $i       = -1;
@@ -855,7 +855,7 @@ class Tools extends StaticClass {
 /**
  * Workaround for non-existing static initializers in PHP.
  */
-Tools::$symbols = [
+XTrade::$symbols = [
     'AUDUSD' => ['group'=>'forex'     , 'name'=>'AUDUSD', 'description'=>'Australian Dollar vs US Dollar'  , 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>['ticks'=>strToTime('2003-08-03 21:00:00 GMT'), 'M1'=>strToTime('2003-08-03 00:00:00 GMT')], 'provider'=>'dukascopy'],
     'EURUSD' => ['group'=>'forex'     , 'name'=>'EURUSD', 'description'=>'Euro vs US Dollar'               , 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>['ticks'=>strToTime('2003-05-04 21:00:00 GMT'), 'M1'=>strToTime('2003-05-04 00:00:00 GMT')], 'provider'=>'dukascopy'],
     'GBPUSD' => ['group'=>'forex'     , 'name'=>'GBPUSD', 'description'=>'Great Britain Pound vs US Dollar', 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>['ticks'=>strToTime('2003-05-04 21:00:00 GMT'), 'M1'=>strToTime('2003-05-04 00:00:00 GMT')], 'provider'=>'dukascopy'],
