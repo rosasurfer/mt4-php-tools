@@ -3,27 +3,25 @@
 namespace rosasurfer\xtrade\dukascopy\update_m1_bars;
 
 /**
- * Aktualisiert die lokal vorhandenen Dukascopy-M1-Daten. Bid und Ask werden zu Median gemerged, nach FXT konvertiert und im
- * MyFX-Format gespeichert. Die Dukascopy-Daten sind durchgehend, Feiertage werden, Wochenenden werden nicht gespeichert.
- * Die Daten des aktuellen Tags sind fruehestens am naechsten Tag verfuegbar.
+ * Updates the XTrade history of one or more symbols with M1 data from Dukascopy. Dukascopy provides continuous bid and ask
+ * prices covering weekends and holidays. Bid and ask are merged to median, converted from GMT to FXT and stored in XTrade
+ * format. Holiday data is stored (because holidays are irregular), weekend data is not. Data of the current day is available
+ * the earliest on the next day.
  *
- *
- * Webseite:      https://www.dukascopy.com/swiss/english/marketwatch/historical/
+ * Website:       https://www.dukascopy.com/swiss/english/marketwatch/historical/
  *                https://www.dukascopy.com/free/candelabrum/
  *
- * Instrumente:   https://www.dukascopy.com/free/candelabrum/data.json
+ * Instruments:   https://www.dukascopy.com/free/candelabrum/data.json
  *
- * History-Start: http://datafeed.dukascopy.com/datafeed/metadata/HistoryStart.bi5  (Format unbekannt)
+ * History start: http://datafeed.dukascopy.com/datafeed/metadata/HistoryStart.bi5  (format unknown)
  *
- * URL-Format:    Durchgehend eine Datei je Kalendertag ab History-Start,
- *                z.B.: (Januar = 00)
+ * URL format:    One file per calendar day since history start,
+ *                e.g.: (January = 00)
  *                • http://datafeed.dukascopy.com/datafeed/GBPUSD/2013/00/10/BID_candles_min_1.bi5
  *                • http://datafeed.dukascopy.com/datafeed/GBPUSD/2013/11/31/ASK_candles_min_1.bi5
  *
- * Dateiformat:   • Binaer, LZMA-gepackt, Zeiten in GMT (keine Sommerzeit).
- *                • In Handelspausen ist durchgehend der letzte Schlusskurs (OHLC) und V=0 (zero) angegeben.
- *
- * @see class Dukascopy
+ * File format:   • Binary, LZMA compressed, GMT (no DST).
+ *                • During trade breaks the last close price (OHLC) and a volume of zero (V=0) are indicated.
  *
  *      +------------------------+------------+------------+------------+------------------------+------------------------+
  * FXT: |   Sunday      Monday   |  Tuesday   | Wednesday  |  Thursday  |   Friday     Saturday  |   Sunday      Monday   |
@@ -49,6 +47,7 @@ use rosasurfer\xtrade\dukascopy\Dukascopy;
 use rosasurfer\xtrade\simpletrader\SimpleTrader;
 
 require(__DIR__.'/../../app/init.php');
+
 date_default_timezone_set('GMT');
 
 
@@ -57,9 +56,9 @@ date_default_timezone_set('GMT');
 
 $verbose = 0;                                   // output verbosity
 
-$saveCompressedDukaFiles   = false;             // ob heruntergeladene Dukascopy-Dateien zwischengespeichert werden sollen
-$saveDecompressedDukaFiles = false;             // ob entpackte Dukascopy-Dateien zwischengespeichert werden sollen
-$saveUncompressedMyFXFiles = true;              // ob unkomprimierte MyFX-Historydaten gespeichert werden sollen
+$storeCompressedDukaFiles   = false;            // ob heruntergeladene Dukascopy-Dateien zwischengespeichert werden sollen
+$storeDecompressedDukaFiles = false;            // ob entpackte Dukascopy-Dateien zwischengespeichert werden sollen
+$storeUncompressedMyFXFiles = true;             // ob unkomprimierte MyFX-Historydaten gespeichert werden sollen
 
 $barBuffer = [];
 
@@ -116,7 +115,7 @@ function updateSymbol($symbol) {
     if (!is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
     $symbol = strToUpper($symbol);
 
-    $startTime  = Tools::$symbols[$symbol]['historyStart']['M1'];   // Beginns der Dukascopy-Daten dieses Symbols in GMT
+    $startTime  = Tools::$symbols[$symbol]['historyStart']['M1'];   // Beginn der Dukascopy-Daten dieses Symbols in GMT
     $startTime -= $startTime % DAY;                                 // 00:00 GMT
 
     global $verbose, $barBuffer;
@@ -170,7 +169,7 @@ function checkHistory($symbol, $day) {
     if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
     $shortDate = gmDate('D, d-M-Y', $day);
 
-    global $verbose, $saveCompressedDukaFiles, $saveDecompressedDukaFiles, $saveUncompressedMyFXFiles, $barBuffer;
+    global $verbose, $storeCompressedDukaFiles, $storeDecompressedDukaFiles, $storeUncompressedMyFXFiles, $barBuffer;
     $day -= $day%DAY;                                              // 00:00 GMT
 
     // (1) nur an Wochentagen: pruefen, ob die MyFX-History existiert und ggf. aktualisieren
@@ -180,7 +179,7 @@ function checkHistory($symbol, $day) {
             if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'   MyFX compressed history file: '.baseName($file));
         }
         // ...oder die unkomprimierte MyFX-Datei gespeichert wird und existiert
-        else if ($saveUncompressedMyFXFiles && is_file($file=getVar('myfxFile.raw', $symbol, $day))) {
+        else if ($storeUncompressedMyFXFiles && is_file($file=getVar('myfxFile.raw', $symbol, $day))) {
             if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'   MyFX raw history file: '.baseName($file));
         }
         // andererseits History aktualisieren
@@ -195,12 +194,12 @@ function checkHistory($symbol, $day) {
     $shortDatePrev = gmDate('D, d-M-Y', $previousDay);
 
     // Dukascopy-Downloads (gepackt) des Vortages
-    if (!$saveCompressedDukaFiles) {
+    if (!$storeCompressedDukaFiles) {
         if (is_file($file=getVar('dukaFile.compressed', $symbol, $previousDay, 'bid'))) unlink($file);
         if (is_file($file=getVar('dukaFile.compressed', $symbol, $previousDay, 'ask'))) unlink($file);
     }
     // dekomprimierte Dukascopy-Daten des Vortages
-    if (!$saveDecompressedDukaFiles) {
+    if (!$storeDecompressedDukaFiles) {
         if (is_file($file=getVar('dukaFile.raw', $symbol, $previousDay, 'bid'))) unlink($file);
         if (is_file($file=getVar('dukaFile.raw', $symbol, $previousDay, 'ask'))) unlink($file);
     }
@@ -271,7 +270,7 @@ function updateHistory($symbol, $day) {
 function loadHistory($symbol, $day, $type) {
     if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
     $shortDate = gmDate('D, d-M-Y', $day);
-    global $barBuffer, $saveCompressedDukaFiles; $barBuffer[$type];
+    global $barBuffer, $storeCompressedDukaFiles; $barBuffer[$type];
 
     // Fuer jeden Forex-Tag werden die GMT-Dukascopy-Daten des vorherigen und des aktuellen Tages benoetigt.
     // Die Daten werden jeweils in folgender Reihenfolge gesucht:
@@ -303,7 +302,7 @@ function loadHistory($symbol, $day, $type) {
     }
     // • ggf. Dukascopy-Datei herunterladen und verarbeiten
     if (!$previousDayData) {
-        $data = downloadData($symbol, $previousDay, $type, false, $saveCompressedDukaFiles);
+        $data = downloadData($symbol, $previousDay, $type, false, $storeCompressedDukaFiles);
         if (!$data)                                                                // bei HTTP status 404 (file not found) Abbruch
             return false;
         if (!processCompressedDukascopyBarData($data, $symbol, $previousDay, $type))
@@ -333,7 +332,7 @@ function loadHistory($symbol, $day, $type) {
     // • ggf. Dukascopy-Datei herunterladen und verarbeiten
     if (!$currentDayData) {
         static $yesterday; if (!$yesterday) $yesterday=($today=time()) - $today%DAY - 1*DAY;    // 00:00 GMT gestriger Tag
-        $saveFile = ($saveCompressedDukaFiles || $currentDay==$yesterday);                      // beim letzten Durchlauf immer speichern
+        $saveFile = ($storeCompressedDukaFiles || $currentDay==$yesterday);                     // beim letzten Durchlauf immer speichern
 
         $data = downloadData($symbol, $currentDay, $type, false, $saveFile);
         if (!$data)                                                                             // HTTP status 404 (file not found) => Abbruch
@@ -506,8 +505,8 @@ function processCompressedDukascopyBarFile($file, $symbol, $day, $type) {
 function processCompressedDukascopyBarData($data, $symbol, $day, $type) {
     if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
 
-    global $saveDecompressedDukaFiles;
-    $saveAs = $saveDecompressedDukaFiles ? getVar('dukaFile.raw', $symbol, $day, $type) : null;
+    global $storeDecompressedDukaFiles;
+    $saveAs = $storeDecompressedDukaFiles ? getVar('dukaFile.raw', $symbol, $day, $type) : null;
 
     $rawData = Dukascopy::decompressHistoryData($data, $saveAs);
     return processRawDukascopyBarData($rawData, $symbol, $day, $type);
@@ -614,7 +613,7 @@ function processRawDukascopyBarData($data, $symbol, $day, $type) {
 function saveBars($symbol, $day) {
     if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
     $shortDate = gmDate('D, d-M-Y', $day);
-    global $barBuffer, $saveUncompressedMyFXFiles;
+    global $barBuffer, $storeUncompressedMyFXFiles;
 
 
     // (1) gepufferte Datenreihe nochmal pruefen
@@ -650,7 +649,7 @@ function saveBars($symbol, $day) {
 
 
     // (3) binaere Daten ggf. unkomprimiert speichern
-    if ($saveUncompressedMyFXFiles) {
+    if ($storeUncompressedMyFXFiles) {
         if (is_file($file=getVar('myfxFile.raw', $symbol, $day))) {
             echoPre('[Error]   '.$symbol.' history for '.$shortDate.' already exists');
             return false;
