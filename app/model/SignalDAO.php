@@ -108,7 +108,7 @@ class SignalDAO extends DAO {
                                where c.signal_id = $signal_id
                                  and c.symbol    = $symbol
                    ) as r";
-        return $this->query($sql)->fetchField(null, null, null, $onNoRows=null);
+        return $this->query($sql)->fetchColumn(null, null, null, $onNoRows=null);
     }
 
 
