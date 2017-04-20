@@ -51,6 +51,8 @@ use rosasurfer\xtrade\dukascopy\DukascopyException;
 
 use rosasurfer\xtrade\simpletrader\SimpleTrader;
 
+use function rosasurfer\xtrade\isFxtWeekend;
+
 require(__DIR__.'/../../app/init.php');
 date_default_timezone_set('GMT');
 

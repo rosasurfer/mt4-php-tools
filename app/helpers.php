@@ -1,21 +1,23 @@
 <?php
+namespace rosasurfer\xtrade;
+
 use rosasurfer\exception\IllegalTypeException;
 
 
 /**
- * Timezones und Timezone-IDs
+ * Timezones and timezone ids
  *
- * @see  Definition in MT4Expander::defines.h
+ * @see  definition in MT4Expander::defines.h
  */
-const TIMEZONE_ALPARI              = 'Alpari';              // bis 03/2012 "Europe/Berlin", ab 04/2012 "Europe/Kiev"
+const TIMEZONE_ALPARI              = 'Alpari';              // until 03/2012 "Europe/Berlin", since 04/2012 "Europe/Kiev"
 const TIMEZONE_AMERICA_NEW_YORK    = 'America/New_York';
 const TIMEZONE_EUROPE_BERLIN       = 'Europe/Berlin';
 const TIMEZONE_EUROPE_KIEV         = 'Europe/Kiev';
 const TIMEZONE_EUROPE_LONDON       = 'Europe/London';
 const TIMEZONE_EUROPE_MINSK        = 'Europe/Minsk';
-const TIMEZONE_FXT                 = 'FXT';                 // "Europe/Kiev"   mit DST-Wechseln von "America/New_York"
-const TIMEZONE_FXT_MINUS_0200      = 'FXT-0200';            // "Europe/London" mit DST-Wechseln von "America/New_York"
-const TIMEZONE_GLOBALPRIME         = 'GlobalPrime';         // bis 24.10.2015 "FXT", dann durch Fehler "Europe/Kiev" (einmalig?)
+const TIMEZONE_FXT                 = 'FXT';                 // "Europe/Kiev"   with DST transitions of "America/New_York"
+const TIMEZONE_FXT_MINUS_0200      = 'FXT-0200';            // "Europe/London" with DST transitions of "America/New_York"
+const TIMEZONE_GLOBALPRIME         = 'GlobalPrime';         // "FXT" with one-time transition error of "Europe/Kiev" on 24.10.2015
 const TIMEZONE_GMT                 = 'GMT';
 
 const TIMEZONE_ID_ALPARI           =  1;
@@ -30,7 +32,7 @@ const TIMEZONE_ID_GLOBALPRIME      =  9;
 const TIMEZONE_ID_GMT              = 10;
 
 
-// Timeframe-Identifier
+// Timeframe identifier
 const PERIOD_M1  =      1;                   // 1 minute
 const PERIOD_M5  =      5;                   // 5 minutes
 const PERIOD_M15 =     15;                   // 15 minutes
@@ -43,7 +45,7 @@ const PERIOD_MN1 =  43200;                   // monthly
 const PERIOD_Q1  = 129600;                   // a quarter (3 months)
 
 
-// Operation-Types
+// Operation types
 const OP_BUY       = 0;                       //    MT4: long position
 const OP_SELL      = 1;                       //         short position
 const OP_BUYLIMIT  = 2;                       //         buy limit order
@@ -52,8 +54,8 @@ const OP_BUYSTOP   = 4;                       //         stop buy order
 const OP_SELLSTOP  = 5;                       //         stop sell order
 const OP_BALANCE   = 6;                       //         account credit or withdrawal transaction
 const OP_CREDIT    = 7;                       //         credit facility, no transaction
-const OP_TRANSFER  = 8;                       // custom: Balance-Aenderung durch Kunden (Deposit/Withdrawal)
-const OP_VENDOR    = 9;                       //         Balance-Aenderung durch Criminal (Dividende, Swap, Ausgleich etc.)
+const OP_TRANSFER  = 8;                       // custom: balance update by client (deposit or withdrawal)
+const OP_VENDOR    = 9;                       //         balance update by criminal (dividends, swap, manual etc.)
 
 
 // Strategy Tester tick models
@@ -68,9 +70,9 @@ const TRADEDIRECTION_SHORT = 1;
 const TRADEDIRECTION_BOTH  = 2;
 
 
-// Struct-Sizes
-define('DUKASCOPY_BAR_SIZE' , 24);
-define('DUKASCOPY_TICK_SIZE', 20);
+// Struct sizes
+const DUKASCOPY_BAR_SIZE  = 24;
+const DUKASCOPY_TICK_SIZE = 20;
 
 
 /**

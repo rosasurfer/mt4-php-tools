@@ -14,6 +14,10 @@ use rosasurfer\util\Windows;
 use rosasurfer\xtrade\XTrade;
 use rosasurfer\xtrade\metatrader\MT4;
 
+use const rosasurfer\xtrade\OP_SELL;
+use const rosasurfer\xtrade\PERIOD_M1;
+use const rosasurfer\xtrade\TICKMODEL_BAROPEN;
+
 
 /**
  * Represents a test executed in the MetaTrader Strategy Tester.

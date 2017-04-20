@@ -14,6 +14,16 @@ use rosasurfer\log\Logger;
 use rosasurfer\xtrade\XTrade;
 use rosasurfer\xtrade\metatrader\MT4;
 
+use const rosasurfer\xtrade\PERIOD_M1;
+use const rosasurfer\xtrade\PERIOD_M5;
+use const rosasurfer\xtrade\PERIOD_M15;
+use const rosasurfer\xtrade\PERIOD_M30;
+use const rosasurfer\xtrade\PERIOD_H1;
+use const rosasurfer\xtrade\PERIOD_H4;
+use const rosasurfer\xtrade\PERIOD_D1;
+use const rosasurfer\xtrade\PERIOD_W1;
+use const rosasurfer\xtrade\PERIOD_MN1;
+
 
 /**
  * Ein HistorySet zur Verwaltung der MetaTrader-History eines Instruments. Die Formate der einzelnen Dateien

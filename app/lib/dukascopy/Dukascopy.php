@@ -12,6 +12,9 @@ use rosasurfer\log\Logger;
 use rosasurfer\xtrade\LZMA;
 use rosasurfer\xtrade\XTrade;
 
+use const rosasurfer\xtrade\DUKASCOPY_BAR_SIZE;
+use const rosasurfer\xtrade\DUKASCOPY_TICK_SIZE;
+
 
 /**
  * Dukascopy related functionality

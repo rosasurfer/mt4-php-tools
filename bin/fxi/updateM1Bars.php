@@ -26,6 +26,9 @@ use rosasurfer\exception\RuntimeException;
 use rosasurfer\xtrade\XTrade;
 use rosasurfer\xtrade\dukascopy\Dukascopy;
 
+use function rosasurfer\xtrade\fxtTime;
+use function rosasurfer\xtrade\isFxtWeekend;
+
 require(__DIR__.'/../../app/init.php');
 date_default_timezone_set('GMT');
 
