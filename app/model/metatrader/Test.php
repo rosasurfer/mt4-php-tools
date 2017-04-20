@@ -634,7 +634,7 @@ class Test extends PersistableObject {
         if ($id <= 0)     throw new InvalidArgumentException('Invalid parameter $id: '.$id.' (not positive)');
 
         $this->reportingId = $id;
-        $this->isPersistent() && $this->_modified=true;
+        $this->isPersistent() && $this->modified();
         return $this;
     }
 

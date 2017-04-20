@@ -214,7 +214,7 @@ class OpenPosition extends PersistableObject {
         if ($value !== $this->stopLoss) {
             $this->stopLoss = $value;
 
-            $this->isPersistent() && $this->_modified=true;
+            $this->isPersistent() && $this->modified();
         }
         return $this;
     }
@@ -237,7 +237,7 @@ class OpenPosition extends PersistableObject {
         if ($value !== $this->takeProfit) {
             $this->takeProfit = $value;
 
-            $this->isPersistent() && $this->_modified=true;
+            $this->isPersistent() && $this->modified();
         }
         return $this;
     }
