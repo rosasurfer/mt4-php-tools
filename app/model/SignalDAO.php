@@ -9,11 +9,6 @@ use rosasurfer\exception\InvalidArgumentException;
 use const rosasurfer\PHP_TYPE_INT;
 use const rosasurfer\PHP_TYPE_STRING;
 
-use const rosasurfer\db\orm\F_NOT_NULLABLE;
-use const rosasurfer\db\orm\ID_CREATE;
-use const rosasurfer\db\orm\ID_PRIMARY;
-use const rosasurfer\db\orm\ID_VERSION;
-
 
 /**
  * DAO zum Zugriff auf Signal-Instanzen.
@@ -26,15 +21,15 @@ class SignalDAO extends DAO {
         'connection' => 'mysql',
         'table'      => 't_signal',
         'columns'    => [
-            'id'         => ['id'         , PHP_TYPE_INT   , 0, ID_PRIMARY               ],     // db:int
-            'created'    => ['created'    , PHP_TYPE_STRING, 0, ID_CREATE                ],     // db:datetime
-            'version'    => ['version'    , PHP_TYPE_STRING, 0, ID_VERSION|F_NOT_NULLABLE],     // db:timestamp
+            'id'         => ['column'=>'id'         , 'type'=>PHP_TYPE_INT   , 'primary'=>true],     // db:int
+            'created'    => ['column'=>'created'    , 'type'=>PHP_TYPE_STRING,                ],     // db:datetime
+            'version'    => ['column'=>'version'    , 'type'=>PHP_TYPE_STRING, 'version'=>true],     // db:timestamp
 
-            'provider'   => ['provider'   , PHP_TYPE_STRING, 0, 0                        ],     // db:enum
-            'providerId' => ['provider_id', PHP_TYPE_STRING, 0, 0                        ],     // db:string
-            'name'       => ['name'       , PHP_TYPE_STRING, 0, 0                        ],     // db:string
-            'alias'      => ['alias'      , PHP_TYPE_STRING, 0, 0                        ],     // db:string
-            'currency'   => ['currency'   , PHP_TYPE_STRING, 0, 0                        ],     // db:enum
+            'provider'   => ['column'=>'provider'   , 'type'=>PHP_TYPE_STRING,                ],     // db:enum
+            'providerId' => ['column'=>'provider_id', 'type'=>PHP_TYPE_STRING,                ],     // db:string
+            'name'       => ['column'=>'name'       , 'type'=>PHP_TYPE_STRING,                ],     // db:string
+            'alias'      => ['column'=>'alias'      , 'type'=>PHP_TYPE_STRING,                ],     // db:string
+            'currency'   => ['column'=>'currency'   , 'type'=>PHP_TYPE_STRING,                ],     // db:enum
     ]];
 
 

@@ -2,10 +2,9 @@
 namespace rosasurfer\xtrade\model\metatrader;
 
 use rosasurfer\db\orm\DAO;
+use rosasurfer\exception\InvalidArgumentException;
 
 use const rosasurfer\PHP_TYPE_INT;
-use const rosasurfer\db\orm\ID_PRIMARY;
-use rosasurfer\exception\InvalidArgumentException;
 
 
 /**
@@ -21,10 +20,10 @@ class StrategyParameterDAO extends DAO {
         'connection' => 'sqlite',
         'table'      => 't_strategyparameter',
         'columns'    => [
-            'id'      => ['id'     , PHP_TYPE_INT   , 0, ID_PRIMARY],      // db:int
-            'name'    => ['name'   , PHP_TYPE_STRING, 0, 0         ],      // db:text
-            'value'   => ['value'  , PHP_TYPE_STRING, 0, 0         ],      // db:text
-            'test_id' => ['test_id', PHP_TYPE_INT   , 0, 0         ],      // db:int
+            'id'      => ['column'=>'id'     , 'type'=>PHP_TYPE_INT   , 'primary'=>true],      // db:int
+            'name'    => ['column'=>'name'   , 'type'=>PHP_TYPE_STRING,                ],      // db:text
+            'value'   => ['column'=>'value'  , 'type'=>PHP_TYPE_STRING,                ],      // db:text
+            'test_id' => ['column'=>'test_id', 'type'=>PHP_TYPE_INT   ,                ],      // db:int
      ]];
 
 

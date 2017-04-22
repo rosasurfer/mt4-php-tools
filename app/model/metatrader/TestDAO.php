@@ -11,11 +11,6 @@ use const rosasurfer\PHP_TYPE_FLOAT;
 use const rosasurfer\PHP_TYPE_INT;
 use const rosasurfer\PHP_TYPE_STRING;
 
-use const rosasurfer\db\orm\BIND_TYPE_INT;
-use const rosasurfer\db\orm\ID_CREATE;
-use const rosasurfer\db\orm\ID_PRIMARY;
-use const rosasurfer\db\orm\ID_VERSION;
-
 
 /**
  * DAO for accessing {@link Test} instances.
@@ -30,24 +25,24 @@ class TestDAO extends DAO {
         'connection' => 'sqlite',
         'table'      => 't_test',
         'columns'    => [
-            'id'              => ['id'             , PHP_TYPE_INT   , 0            , ID_PRIMARY],      // db:int
-            'created'         => ['created'        , PHP_TYPE_STRING, 0            , ID_CREATE ],      // db:text[datetime] GMT
-            'modified'        => ['modified'       , PHP_TYPE_STRING, 0            , ID_VERSION],      // db:text[datetime] GMT
+            'id'              => ['column'=>'id'             , 'type'=>PHP_TYPE_INT   , 'primary'=>true],    // db:int
+            'created'         => ['column'=>'created'        , 'type'=>PHP_TYPE_STRING,                ],    // db:text[datetime] GMT
+            'modified'        => ['column'=>'modified'       , 'type'=>PHP_TYPE_STRING, 'version'=>true],    // db:text[datetime] GMT
 
-            'strategy'        => ['strategy'       , PHP_TYPE_STRING, 0            , 0         ],      // db:text
-            'reportingId'     => ['reportingid'    , PHP_TYPE_INT   , 0            , 0         ],      // db:int
-            'reportingSymbol' => ['reportingsymbol', PHP_TYPE_STRING, 0            , 0         ],      // db:text
-            'symbol'          => ['symbol'         , PHP_TYPE_STRING, 0            , 0         ],      // db:text
-            'timeframe'       => ['timeframe'      , PHP_TYPE_INT   , 0            , 0         ],      // db:int
-            'startTime'       => ['starttime'      , PHP_TYPE_STRING, 0            , 0         ],      // db:text[datetime] FXT
-            'endTime'         => ['endtime'        , PHP_TYPE_STRING, 0            , 0         ],      // db:text[datetime] FXT
-            'tickModel'       => ['tickmodel'      , PHP_TYPE_STRING, 0            , 0         ],      // db:text[enum] references enum_tickmodel(type)
-            'spread'          => ['spread'         , PHP_TYPE_FLOAT , 0            , 0         ],      // db:float
-            'bars'            => ['bars'           , PHP_TYPE_INT   , 0            , 0         ],      // db:int
-            'ticks'           => ['ticks'          , PHP_TYPE_INT   , 0            , 0         ],      // db:int
-            'tradeDirections' => ['tradedirections', PHP_TYPE_STRING, 0            , 0         ],      // db:text[enum] references enum_tradedirection(type)
-            'visualMode'      => ['visualmode'     , PHP_TYPE_BOOL  , BIND_TYPE_INT, 0         ],      // db:int[bool]
-            'duration'        => ['duration'       , PHP_TYPE_INT   , 0            , 0         ],      // db:int
+            'strategy'        => ['column'=>'strategy'       , 'type'=>PHP_TYPE_STRING,                ],    // db:text
+            'reportingId'     => ['column'=>'reportingid'    , 'type'=>PHP_TYPE_INT   ,                ],    // db:int
+            'reportingSymbol' => ['column'=>'reportingsymbol', 'type'=>PHP_TYPE_STRING,                ],    // db:text
+            'symbol'          => ['column'=>'symbol'         , 'type'=>PHP_TYPE_STRING,                ],    // db:text
+            'timeframe'       => ['column'=>'timeframe'      , 'type'=>PHP_TYPE_INT   ,                ],    // db:int
+            'startTime'       => ['column'=>'starttime'      , 'type'=>PHP_TYPE_STRING,                ],    // db:text[datetime] FXT
+            'endTime'         => ['column'=>'endtime'        , 'type'=>PHP_TYPE_STRING,                ],    // db:text[datetime] FXT
+            'tickModel'       => ['column'=>'tickmodel'      , 'type'=>PHP_TYPE_STRING,                ],    // db:text[enum] references enum_tickmodel(type)
+            'spread'          => ['column'=>'spread'         , 'type'=>PHP_TYPE_FLOAT ,                ],    // db:float
+            'bars'            => ['column'=>'bars'           , 'type'=>PHP_TYPE_INT   ,                ],    // db:int
+            'ticks'           => ['column'=>'ticks'          , 'type'=>PHP_TYPE_INT   ,                ],    // db:int
+            'tradeDirections' => ['column'=>'tradedirections', 'type'=>PHP_TYPE_STRING,                ],    // db:text[enum] references enum_tradedirection(type)
+            'visualMode'      => ['column'=>'visualmode'     , 'type'=>PHP_TYPE_BOOL  ,                ],    // db:int[bool]
+            'duration'        => ['column'=>'duration'       , 'type'=>PHP_TYPE_INT   ,                ],    // db:int
     ]];
 
 

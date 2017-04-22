@@ -274,13 +274,34 @@ class Order extends PersistableObject {
 
 
     /**
-     * Insert pre-processing hook. Assigns a {@link Test} id as long as this is not yet done automatically by the ORM.
+     * Creation post-processing hook (application-side ORM trigger).
+     */
+    protected function afterCreate() {
+        $this->created = date('Y-m-d H:i:s');
+    }
+
+
+    /**
+     * Insert pre-processing hook (application-side ORM trigger).
      *
-     * {@inheritDoc}
+     * Assigns a {@link Test} id as long as this is not yet done automatically by the ORM.
+     *
+     * {@inheritdoc}
      */
     protected function beforeInsert() {
         if (!$this->test_id)
             $this->test_id = $this->test->getId();
+        return true;
+    }
+
+
+    /**
+     * Update pre-processing hook (application-side ORM trigger).
+     *
+     * {@inheritdoc}
+     */
+    protected function beforeUpdate() {
+        $this->modified = date('Y-m-d H:i:s');
         return true;
     }
 }

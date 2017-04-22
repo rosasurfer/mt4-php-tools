@@ -71,4 +71,23 @@ class Signal extends PersistableObject {
             return $this->version;
         return Date::format($this->version, $format);
     }
+
+
+    /**
+     * Creation post-processing hook (application-side ORM trigger).
+     */
+    protected function afterCreate() {
+        $this->created = $this->version = date('Y-m-d H:i:s');
+    }
+
+
+    /**
+     * Update pre-processing hook (application-side ORM trigger).
+     *
+     * {@inheritdoc}
+     */
+    protected function beforeUpdate() {
+        $this->version = date('Y-m-d H:i:s');
+        return true;
+    }
 }

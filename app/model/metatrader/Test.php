@@ -640,9 +640,19 @@ class Test extends PersistableObject {
 
 
     /**
-     * Insert pre-processing hook. Calculate the test statistics.
+     * Creation post-processing hook (application-side ORM trigger).
+     */
+    protected function afterCreate() {
+        $this->created = date('Y-m-d H:i:s');
+    }
+
+
+    /**
+     * Insert pre-processing hook (application-side ORM trigger).
      *
-     * {@inheritDoc}
+     * Make sure the test statistics are calculated.
+     *
+     * {@inheritdoc}
      */
     protected function beforeInsert() {
         $this->getStats();
@@ -651,9 +661,22 @@ class Test extends PersistableObject {
 
 
     /**
-     * Insert post-processing hook. Insert the related entities as this is not yet automated by the ORM.
+     * Update pre-processing hook (application-side ORM trigger).
      *
-     * {@inheritDoc}
+     * {@inheritdoc}
+     */
+    protected function beforeUpdate() {
+        $this->modified = date('Y-m-d H:i:s');
+        return true;
+    }
+
+
+    /**
+     * Insert post-processing hook (application-side ORM trigger).
+     *
+     * Insert the related entities as this is not yet automated by the ORM.
+     *
+     * {@inheritdoc}
      */
     protected function afterInsert() {
         $objects = array_merge(

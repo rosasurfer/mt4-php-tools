@@ -2,12 +2,10 @@
 namespace rosasurfer\xtrade\model\metatrader;
 
 use rosasurfer\db\orm\DAO;
+use rosasurfer\exception\InvalidArgumentException;
 
 use const rosasurfer\PHP_TYPE_FLOAT;
 use const rosasurfer\PHP_TYPE_INT;
-
-use const rosasurfer\db\orm\ID_PRIMARY;
-use rosasurfer\exception\InvalidArgumentException;
 
 
 /**
@@ -23,20 +21,20 @@ class StatisticDAO extends DAO {
         'connection' => 'sqlite',
         'table'      => 't_statistic',
         'columns'    => [
-            'id'           => ['id'          , PHP_TYPE_INT  , 0, ID_PRIMARY],      // db:int
-            'trades'       => ['trades'      , PHP_TYPE_INT  , 0, 0         ],      // db:int
-            'tradesPerDay' => ['trades_day'  , PHP_TYPE_FLOAT, 0, 0         ],      // db:float
-            'minDuration'  => ['duration_min', PHP_TYPE_INT  , 0, 0         ],      // db:int
-            'avgDuration'  => ['duration_avg', PHP_TYPE_INT  , 0, 0         ],      // db:int
-            'maxDuration'  => ['duration_max', PHP_TYPE_INT  , 0, 0         ],      // db:int
-            'minPips'      => ['pips_min'    , PHP_TYPE_FLOAT, 0, 0         ],      // db:float
-            'avgPips'      => ['pips_avg'    , PHP_TYPE_FLOAT, 0, 0         ],      // db:float
-            'maxPips'      => ['pips_max'    , PHP_TYPE_FLOAT, 0, 0         ],      // db:float
-            'pips'         => ['pips'        , PHP_TYPE_FLOAT, 0, 0         ],      // db:float
-            'profit'       => ['profit'      , PHP_TYPE_FLOAT, 0, 0         ],      // db:float
-            'commission'   => ['commission'  , PHP_TYPE_FLOAT, 0, 0         ],      // db:float
-            'swap'         => ['swap'        , PHP_TYPE_FLOAT, 0, 0         ],      // db:float
-            'test_id'      => ['test_id'     , PHP_TYPE_INT  , 0, 0         ],      // db:int
+            'id'           => ['column'=>'id'          , 'type'=>PHP_TYPE_INT  , 'primary'=>true],      // db:int
+            'trades'       => ['column'=>'trades'      , 'type'=>PHP_TYPE_INT  ,                ],      // db:int
+            'tradesPerDay' => ['column'=>'trades_day'  , 'type'=>PHP_TYPE_FLOAT,                ],      // db:float
+            'minDuration'  => ['column'=>'duration_min', 'type'=>PHP_TYPE_INT  ,                ],      // db:int
+            'avgDuration'  => ['column'=>'duration_avg', 'type'=>PHP_TYPE_INT  ,                ],      // db:int
+            'maxDuration'  => ['column'=>'duration_max', 'type'=>PHP_TYPE_INT  ,                ],      // db:int
+            'minPips'      => ['column'=>'pips_min'    , 'type'=>PHP_TYPE_FLOAT,                ],      // db:float
+            'avgPips'      => ['column'=>'pips_avg'    , 'type'=>PHP_TYPE_FLOAT,                ],      // db:float
+            'maxPips'      => ['column'=>'pips_max'    , 'type'=>PHP_TYPE_FLOAT,                ],      // db:float
+            'pips'         => ['column'=>'pips'        , 'type'=>PHP_TYPE_FLOAT,                ],      // db:float
+            'profit'       => ['column'=>'profit'      , 'type'=>PHP_TYPE_FLOAT,                ],      // db:float
+            'commission'   => ['column'=>'commission'  , 'type'=>PHP_TYPE_FLOAT,                ],      // db:float
+            'swap'         => ['column'=>'swap'        , 'type'=>PHP_TYPE_FLOAT,                ],      // db:float
+            'test_id'      => ['column'=>'test_id'     , 'type'=>PHP_TYPE_INT  ,                ],      // db:int
      ]];
 
 

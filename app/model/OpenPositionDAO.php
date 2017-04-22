@@ -10,11 +10,6 @@ use const rosasurfer\PHP_TYPE_FLOAT;
 use const rosasurfer\PHP_TYPE_INT;
 use const rosasurfer\PHP_TYPE_STRING;
 
-use const rosasurfer\db\orm\F_NOT_NULLABLE;
-use const rosasurfer\db\orm\ID_CREATE;
-use const rosasurfer\db\orm\ID_PRIMARY;
-use const rosasurfer\db\orm\ID_VERSION;
-
 
 /**
  * DAO zum Zugriff auf OpenPosition-Instanzen.
@@ -27,23 +22,23 @@ class OpenPositionDAO extends DAO {
         'connection' => 'mysql',
         'table'      => 't_openposition',
         'columns'    => [
-            'id'          => ['id'         , PHP_TYPE_INT   , 0, ID_PRIMARY               ],      // db:int
-            'created'     => ['created'    , PHP_TYPE_STRING, 0, ID_CREATE                ],      // db:datetime
-            'version'     => ['version'    , PHP_TYPE_STRING, 0, ID_VERSION|F_NOT_NULLABLE],      // db:datetime
+            'id'          => ['column'=>'id'         , 'type'=>PHP_TYPE_INT   , 'primary'=>true],      // db:int
+            'created'     => ['column'=>'created'    , 'type'=>PHP_TYPE_STRING,                ],      // db:datetime
+            'version'     => ['column'=>'version'    , 'type'=>PHP_TYPE_STRING, 'version'=>true],      // db:datetime
 
-            'ticket'      => ['ticket'     , PHP_TYPE_INT   , 0, 0                        ],      // db:int
-            'type'        => ['type'       , PHP_TYPE_STRING, 0, 0                        ],      // db:string
-            'lots'        => ['lots'       , PHP_TYPE_FLOAT , 0, 0                        ],      // db:decimal
-            'symbol'      => ['symbol'     , PHP_TYPE_STRING, 0, 0                        ],      // db:string
-            'openTime'    => ['opentime'   , PHP_TYPE_STRING, 0, 0                        ],      // db:datetime
-            'openPrice'   => ['openprice'  , PHP_TYPE_FLOAT , 0, 0                        ],      // db:decimal
-            'stopLoss'    => ['stoploss'   , PHP_TYPE_FLOAT , 0, 0                        ],      // db:decimal
-            'takeProfit'  => ['takeprofit' , PHP_TYPE_FLOAT , 0, 0                        ],      // db:decimal
-            'commission'  => ['commission' , PHP_TYPE_FLOAT , 0, 0                        ],      // db:decimal
-            'swap'        => ['swap'       , PHP_TYPE_FLOAT , 0, 0                        ],      // db:decimal
-            'magicNumber' => ['magicnumber', PHP_TYPE_INT   , 0, 0                        ],      // db:int
-            'comment'     => ['comment'    , PHP_TYPE_STRING, 0, 0                        ],      // db:string
-            'signal_id'   => ['signal_id'  , PHP_TYPE_INT   , 0, 0                        ],      // db:int
+            'ticket'      => ['column'=>'ticket'     , 'type'=>PHP_TYPE_INT   ,                ],      // db:int
+            'type'        => ['column'=>'type'       , 'type'=>PHP_TYPE_STRING,                ],      // db:string
+            'lots'        => ['column'=>'lots'       , 'type'=>PHP_TYPE_FLOAT ,                ],      // db:decimal
+            'symbol'      => ['column'=>'symbol'     , 'type'=>PHP_TYPE_STRING,                ],      // db:string
+            'openTime'    => ['column'=>'opentime'   , 'type'=>PHP_TYPE_STRING,                ],      // db:datetime
+            'openPrice'   => ['column'=>'openprice'  , 'type'=>PHP_TYPE_FLOAT ,                ],      // db:decimal
+            'stopLoss'    => ['column'=>'stoploss'   , 'type'=>PHP_TYPE_FLOAT ,                ],      // db:decimal
+            'takeProfit'  => ['column'=>'takeprofit' , 'type'=>PHP_TYPE_FLOAT ,                ],      // db:decimal
+            'commission'  => ['column'=>'commission' , 'type'=>PHP_TYPE_FLOAT ,                ],      // db:decimal
+            'swap'        => ['column'=>'swap'       , 'type'=>PHP_TYPE_FLOAT ,                ],      // db:decimal
+            'magicNumber' => ['column'=>'magicnumber', 'type'=>PHP_TYPE_INT   ,                ],      // db:int
+            'comment'     => ['column'=>'comment'    , 'type'=>PHP_TYPE_STRING,                ],      // db:string
+            'signal_id'   => ['column'=>'signal_id'  , 'type'=>PHP_TYPE_INT   ,                ],      // db:int
     ]];
 
 

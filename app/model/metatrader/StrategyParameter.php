@@ -102,9 +102,11 @@ class StrategyParameter extends PersistableObject {
 
 
     /**
-     * Insert pre-processing hook. Assign the {@link Test} id as this is not yet automated by the ORM.
+     * Insert pre-processing hook (application-side ORM trigger).
      *
-     * {@inheritDoc}
+     * Assign the {@link Test} id as this is not yet automated by the ORM.
+     *
+     * {@inheritdoc}
      */
     protected function beforeInsert() {
         if (!$this->test_id)
