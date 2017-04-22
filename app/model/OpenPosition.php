@@ -250,9 +250,9 @@ class OpenPosition extends PersistableObject {
      */
     public function getSignal() {
         if ($this->signal === null) {
-            /** @var SignalDAO $signalDao */
-            $signalDao = Signal::dao();
-            $this->signal = $signalDao->getById($this->signal_id);
+            /** @var SignalDAO $dao */
+            $dao = Signal::dao();
+            $this->signal = $dao->getById($this->signal_id);
         }
         return $this->signal;
     }
