@@ -41,5 +41,9 @@ class OrderDAO extends DAO {
             'magicNumber' => ['column'=>'magicnumber', 'type'=>PHP_TYPE_INT   ,                ],      // db:int
             'comment'     => ['column'=>'comment'    , 'type'=>PHP_TYPE_STRING,                ],      // db:text
             'test_id'     => ['column'=>'test_id'    , 'type'=>PHP_TYPE_INT   ,                ],      // db:int
-     ]];
+        ],
+        'relations' => [
+            'test' => ['relation'=>'many-to-one', 'name'=>'test', 'column'=>'test_id', 'type'=>Test::class],
+        ],
+    ];
 }

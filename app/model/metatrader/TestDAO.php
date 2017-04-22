@@ -43,7 +43,11 @@ class TestDAO extends DAO {
             'tradeDirections' => ['column'=>'tradedirections', 'type'=>PHP_TYPE_STRING,                ],    // db:text[enum] references enum_tradedirection(type)
             'visualMode'      => ['column'=>'visualmode'     , 'type'=>PHP_TYPE_BOOL  ,                ],    // db:int[bool]
             'duration'        => ['column'=>'duration'       , 'type'=>PHP_TYPE_INT   ,                ],    // db:int
-    ]];
+        ],
+        'relations' => [
+            'trades' => ['relation'=>'one-to-many', 'name'=>'trades', 'type'=>Order::class, 'column'=>'test_id'],
+        ],
+    ];
 
 
     /**
