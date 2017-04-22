@@ -53,6 +53,6 @@ class StatisticDAO extends DAO {
         $sql = 'select *
                    from :Statistic
                    where test_id = '.$test_id;
-        return $this->findOne($sql);
+        return $this->find($sql);
     }
 }

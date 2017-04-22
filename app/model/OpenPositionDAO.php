@@ -105,6 +105,6 @@ class OpenPositionDAO extends DAO {
                       from :OpenPosition o
                       where o.signal_id = $signal_id
                          and o.ticket    = $ticket";
-        return $this->findOne($sql);
+        return $this->find($sql);
     }
 }

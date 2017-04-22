@@ -6,11 +6,11 @@
 
 services:                                                           # loaded before auto-loading in "parameters" 
     -
-        class: rosasurfer\db\orm\phpstan\DAO_FindAll_ReturnType
+        class: rosasurfer\db\orm\phpstan\DAO_Find_ReturnType
         tags:
             - phpstan.broker.dynamicMethodReturnTypeExtension
     -
-        class: rosasurfer\db\orm\phpstan\DAO_FindOne_ReturnType
+        class: rosasurfer\db\orm\phpstan\DAO_FindAll_ReturnType
         tags:
             - phpstan.broker.dynamicMethodReturnTypeExtension
     -

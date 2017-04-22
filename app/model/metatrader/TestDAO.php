@@ -60,6 +60,6 @@ class TestDAO extends DAO {
         $sql = 'select *
                    from :Test
                    where id = '.$id;
-        return $this->findOne($sql);
+        return $this->find($sql);
     }
 }

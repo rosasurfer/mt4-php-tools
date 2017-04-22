@@ -22,7 +22,7 @@ use const rosasurfer\xtrade\TICKMODEL_BAROPEN;
 /**
  * Represents a test executed in the MetaTrader Strategy Tester.
  *
- * @method static Test   findOneById(int $id)            Find the test with the specified id.
+ * @method static Test   findById(int $id)               Find the test with the specified id.
  * @method static Test[] findAllBySymbol(string $symbol) Find all tests for the specified symbol.
  */
 class Test extends PersistableObject {

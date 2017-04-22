@@ -47,7 +47,7 @@ class SignalDAO extends DAO {
         $sql = "select *
                    from :Signal
                    where id = $id";
-        return $this->findOne($sql);
+        return $this->find($sql);
     }
 
 
@@ -72,7 +72,7 @@ class SignalDAO extends DAO {
                    from :Signal
                    where provider = $provider
                      and alias    = $alias";
-        return $this->findOne($sql);
+        return $this->find($sql);
     }
 
 
