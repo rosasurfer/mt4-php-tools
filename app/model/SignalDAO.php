@@ -16,21 +16,31 @@ use const rosasurfer\PHP_TYPE_STRING;
 class SignalDAO extends DAO {
 
 
-    // Datenbankmapping
-    protected $mapping = [
-        'connection' => 'mysql',
-        'table'      => 't_signal',
-        'columns'    => [
-            'id'         => ['column'=>'id'         , 'type'=>PHP_TYPE_INT   , 'primary'=>true],     // db:int
-            'created'    => ['column'=>'created'    , 'type'=>PHP_TYPE_STRING,                ],     // db:datetime
-            'version'    => ['column'=>'version'    , 'type'=>PHP_TYPE_STRING, 'version'=>true],     // db:timestamp
+    /**
+     * {@inheritdoc}
+     */
+    public function getMapping() {
+        static $mapping; return $mapping ?: ($mapping=$this->parseMapping([
+            'class'      => Signal::class,
+            'table'      => 't_signal',
+            'connection' => 'mysql',
+            'properties' => [
+                ['name'=>'id'        , 'type'=>PHP_TYPE_INT   , 'primary'=>true        ],     // db:int
+                ['name'=>'created'   , 'type'=>PHP_TYPE_STRING,                        ],     // db:datetime
+                ['name'=>'version'   , 'type'=>PHP_TYPE_STRING, 'version'=>true        ],     // db:timestamp
 
-            'provider'   => ['column'=>'provider'   , 'type'=>PHP_TYPE_STRING,                ],     // db:enum
-            'providerId' => ['column'=>'provider_id', 'type'=>PHP_TYPE_STRING,                ],     // db:string
-            'name'       => ['column'=>'name'       , 'type'=>PHP_TYPE_STRING,                ],     // db:string
-            'alias'      => ['column'=>'alias'      , 'type'=>PHP_TYPE_STRING,                ],     // db:string
-            'currency'   => ['column'=>'currency'   , 'type'=>PHP_TYPE_STRING,                ],     // db:enum
-    ]];
+                ['name'=>'provider'  , 'type'=>PHP_TYPE_STRING,                        ],     // db:enum
+                ['name'=>'providerId', 'type'=>PHP_TYPE_STRING, 'column'=>'provider_id'],     // db:string
+                ['name'=>'name'      , 'type'=>PHP_TYPE_STRING,                        ],     // db:string
+                ['name'=>'alias'     , 'type'=>PHP_TYPE_STRING,                        ],     // db:string
+                ['name'=>'currency'  , 'type'=>PHP_TYPE_STRING,                        ],     // db:enum
+            ],
+            'relations' => [
+                ['name'=>'openPositions'  , 'relation'=>'one-to-many', 'type'=>OpenPosition::class  , 'ref-column'=>'signal_id'],
+                ['name'=>'closedPositions', 'relation'=>'one-to-many', 'type'=>ClosedPosition::class, 'ref-column'=>'signal_id'],
+            ],
+        ]));
+    }
 
 
     /**

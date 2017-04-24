@@ -76,10 +76,10 @@ exit(0);
 function processTestFiles() {
     global $testConfigFile, $testResultsFile, $verbose;
 
-    //Test::db()->begin();
-
-    $test = Test::create($testConfigFile, $testResultsFile);
-    $test->save();
+    Test::db()->begin();
+        $test = Test::create($testConfigFile, $testResultsFile);
+        $test->save();
+    Test::db()->commit();
 
     // confirm saving
     echoPre('Test(id='.$test->getId().') of "'.$test->getStrategy().'" with '.$test->countTrades().' trades saved.');

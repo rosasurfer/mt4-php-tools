@@ -48,6 +48,7 @@ parameters:
     ignoreErrors:
         - '/Call to ((static )?method|function) [^ ]+ with incorrect case:/'                            # seriously?
         - '/(Array \([^ ]+\[\]\)|(Static )?property [^ ]+ \(([^ ]+)\)) does not accept (\3\|)?null\b/i' # everything is nullable
+        - '/Parameter #[0-9]+ [^ ]+ of (static )?method [^ ]+ expects ([^ ]+), \2\|null given\b/'       # everything accepts NULL
         - "/Casting to (bool|int|float|string) something that's already (bool|int|float|string)./"      # simply wrong
 
         # fixed but not yet released PHPStan bugs 

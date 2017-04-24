@@ -14,17 +14,24 @@ class StrategyParameterDAO extends DAO {
 
 
     /**
-     * @var array - database mapping
+     * {@inheritdoc}
      */
-    protected $mapping = [
-        'connection' => 'sqlite',
-        'table'      => 't_strategyparameter',
-        'columns'    => [
-            'id'      => ['column'=>'id'     , 'type'=>PHP_TYPE_INT   , 'primary'=>true],      // db:int
-            'name'    => ['column'=>'name'   , 'type'=>PHP_TYPE_STRING,                ],      // db:text
-            'value'   => ['column'=>'value'  , 'type'=>PHP_TYPE_STRING,                ],      // db:text
-            'test_id' => ['column'=>'test_id', 'type'=>PHP_TYPE_INT   ,                ],      // db:int
-     ]];
+    public function getMapping() {
+        static $mapping; return $mapping ?: ($mapping=$this->parseMapping([
+            'class'      => StrategyParameter::class,
+            'table'      => 't_strategyparameter',
+            'connection' => 'sqlite',
+            'properties' => [
+                ['name'=>'id'     , 'type'=>PHP_TYPE_INT   , 'primary'=>true],      // db:int
+                ['name'=>'name'   , 'type'=>PHP_TYPE_STRING,                ],      // db:text
+                ['name'=>'value'  , 'type'=>PHP_TYPE_STRING,                ],      // db:text
+                ['name'=>'test_id', 'type'=>PHP_TYPE_INT   ,                ],      // db:int
+            ],
+            'relations' => [
+                ['name'=>'test', 'relation'=>'many-to-one', 'type'=>Test::class, 'column'=>'test_id'],
+            ],
+        ]));
+    }
 
 
     /**

@@ -17,33 +17,42 @@ use const rosasurfer\PHP_TYPE_STRING;
 class ClosedPositionDAO extends DAO {
 
 
-    // Datenbankmapping
-    protected $mapping = [
-        'connection' => 'mysql',
-        'table'      => 't_closedposition',
-        'columns'    => [
-            'id'          => ['column'=>'id'         , 'type'=>PHP_TYPE_INT   , 'primary'=>true],      // db:int
-            'created'     => ['column'=>'created'    , 'type'=>PHP_TYPE_STRING,                ],      // db:datetime
-            'version'     => ['column'=>'version'    , 'type'=>PHP_TYPE_STRING, 'version'=>true],      // db:datetime
+    /**
+     * {@inheritdoc}
+     */
+    public function getMapping() {
+        static $mapping; return $mapping ?: ($mapping=$this->parseMapping([
+            'class'      => ClosedPosition::class,
+            'table'      => 't_closedposition',
+            'connection' => 'mysql',
+            'properties' => [
+                ['name'=>'id'         , 'type'=>PHP_TYPE_INT   , 'primary'=>true   ],      // db:int
+                ['name'=>'created'    , 'type'=>PHP_TYPE_STRING,                   ],      // db:datetime
+                ['name'=>'version'    , 'type'=>PHP_TYPE_STRING, 'version'=>true   ],      // db:datetime
 
-            'ticket'      => ['column'=>'ticket'     , 'type'=>PHP_TYPE_INT   ,                ],      // db:int
-            'type'        => ['column'=>'type'       , 'type'=>PHP_TYPE_STRING,                ],      // db:string
-            'lots'        => ['column'=>'lots'       , 'type'=>PHP_TYPE_FLOAT ,                ],      // db:decimal
-            'symbol'      => ['column'=>'symbol'     , 'type'=>PHP_TYPE_STRING,                ],      // db:string
-            'openTime'    => ['column'=>'opentime'   , 'type'=>PHP_TYPE_STRING,                ],      // db:datetime
-            'openPrice'   => ['column'=>'openprice'  , 'type'=>PHP_TYPE_FLOAT ,                ],      // db:decimal
-            'closeTime'   => ['column'=>'closetime'  , 'type'=>PHP_TYPE_STRING,                ],      // db:datetime
-            'closePrice'  => ['column'=>'closeprice' , 'type'=>PHP_TYPE_FLOAT ,                ],      // db:decimal
-            'stopLoss'    => ['column'=>'stoploss'   , 'type'=>PHP_TYPE_FLOAT ,                ],      // db:decimal
-            'takeProfit'  => ['column'=>'takeprofit' , 'type'=>PHP_TYPE_FLOAT ,                ],      // db:decimal
-            'commission'  => ['column'=>'commission' , 'type'=>PHP_TYPE_FLOAT ,                ],      // db:decimal
-            'swap'        => ['column'=>'swap'       , 'type'=>PHP_TYPE_FLOAT ,                ],      // db:decimal
-            'grossProfit' => ['column'=>'profit'     , 'type'=>PHP_TYPE_FLOAT ,                ],      // db:decimal
-            'netProfit'   => ['column'=>'netprofit'  , 'type'=>PHP_TYPE_FLOAT ,                ],      // db:decimal
-            'magicNumber' => ['column'=>'magicnumber', 'type'=>PHP_TYPE_INT   ,                ],      // db:int
-            'comment'     => ['column'=>'comment'    , 'type'=>PHP_TYPE_STRING,                ],      // db:string
-            'signal_id'   => ['column'=>'signal_id'  , 'type'=>PHP_TYPE_INT   ,                ],      // db:int
-    ]];
+                ['name'=>'ticket'     , 'type'=>PHP_TYPE_INT   ,                   ],      // db:int
+                ['name'=>'type'       , 'type'=>PHP_TYPE_STRING,                   ],      // db:string
+                ['name'=>'lots'       , 'type'=>PHP_TYPE_FLOAT ,                   ],      // db:decimal
+                ['name'=>'symbol'     , 'type'=>PHP_TYPE_STRING,                   ],      // db:string
+                ['name'=>'openTime'   , 'type'=>PHP_TYPE_STRING,                   ],      // db:datetime
+                ['name'=>'openPrice'  , 'type'=>PHP_TYPE_FLOAT ,                   ],      // db:decimal
+                ['name'=>'closeTime'  , 'type'=>PHP_TYPE_STRING,                   ],      // db:datetime
+                ['name'=>'closePrice' , 'type'=>PHP_TYPE_FLOAT ,                   ],      // db:decimal
+                ['name'=>'stopLoss'   , 'type'=>PHP_TYPE_FLOAT ,                   ],      // db:decimal
+                ['name'=>'takeProfit' , 'type'=>PHP_TYPE_FLOAT ,                   ],      // db:decimal
+                ['name'=>'commission' , 'type'=>PHP_TYPE_FLOAT ,                   ],      // db:decimal
+                ['name'=>'swap'       , 'type'=>PHP_TYPE_FLOAT ,                   ],      // db:decimal
+                ['name'=>'grossProfit', 'type'=>PHP_TYPE_FLOAT , 'column'=>'profit'],      // db:decimal
+                ['name'=>'netProfit'  , 'type'=>PHP_TYPE_FLOAT ,                   ],      // db:decimal
+                ['name'=>'magicNumber', 'type'=>PHP_TYPE_INT   ,                   ],      // db:int
+                ['name'=>'comment'    , 'type'=>PHP_TYPE_STRING,                   ],      // db:string
+                ['name'=>'signal_id'  , 'type'=>PHP_TYPE_INT   ,                   ],      // db:int
+            ],
+            'relations' => [
+                ['name'=>'signal', 'relation'=>'many-to-one', 'type'=>Signal::class, 'column'=>'signal_id'],
+            ],
+        ]));
+    }
 
 
     /**

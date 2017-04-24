@@ -94,7 +94,6 @@ class Test extends PersistableObject {
 
     /** @return string - strategy name */
     public function getStrategy       () { return $this->strategy;        }
-
     public function getReportingId    () { return $this->reportingId;     }
     public function getReportingSymbol() { return $this->reportingSymbol; }
     public function getSymbol         () { return $this->symbol;          }
@@ -117,32 +116,6 @@ class Test extends PersistableObject {
      */
     public function getTrades() {
         return $this->trades ?: [];
-    }
-
-
-    /**
-     * Magic method. Catches other-wise fatal errors triggered by calls to non-existing instance methods.
-     *
-     * @param  string $method - name of the non-existing method
-     * @param  array  $args   - arguments passed to the method call
-     *
-     * @throws RuntimeException
-     */
-    public function __call($method, array $args) {
-        echoPre(__METHOD__.'($method="'.$method.'")');
-
-        if (strStartsWithI($method, ['get','set'])) {
-            $name = subStr($method, 3);
-
-            if (0 && is_property($name)) {
-                echoPre('name: '.$name.' => property found');
-            }
-            else {
-                echoPre('name: '.$name.' => property not found');
-            }
-        }
-
-        //parent::__call($method, $args);
     }
 
 

@@ -19,35 +19,40 @@ class TestDAO extends DAO {
 
 
     /**
-     * @var array - database mapping
+     * {@inheritdoc}
      */
-    protected $mapping = [
-        'connection' => 'sqlite',
-        'table'      => 't_test',
-        'columns'    => [
-            'id'              => ['column'=>'id'             , 'type'=>PHP_TYPE_INT   , 'primary'=>true],    // db:int
-            'created'         => ['column'=>'created'        , 'type'=>PHP_TYPE_STRING,                ],    // db:text[datetime] GMT
-            'modified'        => ['column'=>'modified'       , 'type'=>PHP_TYPE_STRING, 'version'=>true],    // db:text[datetime] GMT
+    public function getMapping() {
+        static $mapping; return $mapping ?: ($mapping=$this->parseMapping([
+            'class'      => Test::class,
+            'table'      => 't_test',
+            'connection' => 'sqlite',
+            'properties' => [
+                ['name'=>'id'             , 'type'=>PHP_TYPE_INT   , 'primary'=>true],    // db:int
+                ['name'=>'created'        , 'type'=>PHP_TYPE_STRING,                ],    // db:text[datetime] GMT
+                ['name'=>'modified'       , 'type'=>PHP_TYPE_STRING, 'version'=>true],    // db:text[datetime] GMT
 
-            'strategy'        => ['column'=>'strategy'       , 'type'=>PHP_TYPE_STRING,                ],    // db:text
-            'reportingId'     => ['column'=>'reportingid'    , 'type'=>PHP_TYPE_INT   ,                ],    // db:int
-            'reportingSymbol' => ['column'=>'reportingsymbol', 'type'=>PHP_TYPE_STRING,                ],    // db:text
-            'symbol'          => ['column'=>'symbol'         , 'type'=>PHP_TYPE_STRING,                ],    // db:text
-            'timeframe'       => ['column'=>'timeframe'      , 'type'=>PHP_TYPE_INT   ,                ],    // db:int
-            'startTime'       => ['column'=>'starttime'      , 'type'=>PHP_TYPE_STRING,                ],    // db:text[datetime] FXT
-            'endTime'         => ['column'=>'endtime'        , 'type'=>PHP_TYPE_STRING,                ],    // db:text[datetime] FXT
-            'tickModel'       => ['column'=>'tickmodel'      , 'type'=>PHP_TYPE_STRING,                ],    // db:text[enum] references enum_tickmodel(type)
-            'spread'          => ['column'=>'spread'         , 'type'=>PHP_TYPE_FLOAT ,                ],    // db:float
-            'bars'            => ['column'=>'bars'           , 'type'=>PHP_TYPE_INT   ,                ],    // db:int
-            'ticks'           => ['column'=>'ticks'          , 'type'=>PHP_TYPE_INT   ,                ],    // db:int
-            'tradeDirections' => ['column'=>'tradedirections', 'type'=>PHP_TYPE_STRING,                ],    // db:text[enum] references enum_tradedirection(type)
-            'visualMode'      => ['column'=>'visualmode'     , 'type'=>PHP_TYPE_BOOL  ,                ],    // db:int[bool]
-            'duration'        => ['column'=>'duration'       , 'type'=>PHP_TYPE_INT   ,                ],    // db:int
-        ],
-        'relations' => [
-            'trades' => ['relation'=>'one-to-many', 'name'=>'trades', 'type'=>Order::class, 'column'=>'test_id'],
-        ],
-    ];
+                ['name'=>'strategy'       , 'type'=>PHP_TYPE_STRING,                ],    // db:text
+                ['name'=>'reportingId'    , 'type'=>PHP_TYPE_INT   ,                ],    // db:int
+                ['name'=>'reportingSymbol', 'type'=>PHP_TYPE_STRING,                ],    // db:text
+                ['name'=>'symbol'         , 'type'=>PHP_TYPE_STRING,                ],    // db:text
+                ['name'=>'timeframe'      , 'type'=>PHP_TYPE_INT   ,                ],    // db:int
+                ['name'=>'startTime'      , 'type'=>PHP_TYPE_STRING,                ],    // db:text[datetime] FXT
+                ['name'=>'endTime'        , 'type'=>PHP_TYPE_STRING,                ],    // db:text[datetime] FXT
+                ['name'=>'tickModel'      , 'type'=>PHP_TYPE_STRING,                ],    // db:text[enum] references enum_tickmodel(type)
+                ['name'=>'spread'         , 'type'=>PHP_TYPE_FLOAT ,                ],    // db:float
+                ['name'=>'bars'           , 'type'=>PHP_TYPE_INT   ,                ],    // db:int
+                ['name'=>'ticks'          , 'type'=>PHP_TYPE_INT   ,                ],    // db:int
+                ['name'=>'tradeDirections', 'type'=>PHP_TYPE_STRING,                ],    // db:text[enum] references enum_tradedirection(type)
+                ['name'=>'visualMode'     , 'type'=>PHP_TYPE_BOOL  ,                ],    // db:int[bool]
+                ['name'=>'duration'       , 'type'=>PHP_TYPE_INT   ,                ],    // db:int
+            ],
+            'relations' => [
+                ['name'=>'strategyParameters', 'relation'=>'one-to-many', 'type'=>StrategyParameter::class, 'ref-column'=>'test_id'],
+                ['name'=>'trades'            , 'relation'=>'one-to-many', 'type'=>Order::class            , 'ref-column'=>'test_id'],
+                ['name'=>'stats'             , 'relation'=>'one-to-one' , 'type'=>Statistic::class        , 'ref-column'=>'test_id'],
+            ],
+        ]));
+    }
 
 
     /**
