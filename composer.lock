@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "347bffbc7b26204a6e0dde7754dc5f36",
+    "content-hash": "491893341d3f1787b3126d4257b1d895",
     "packages": [
         {
             "name": "rosasurfer/ministruts",
-            "version": "dev-master",
+            "version": "dev-iss-5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rosasurfer/ministruts.git",
-                "reference": "0b60f8d43e9a306321535d8a744de75b24ccbafe"
+                "reference": "443ca51b06e1211c29551661fed93816ebde9680"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/0b60f8d43e9a306321535d8a744de75b24ccbafe",
-                "reference": "0b60f8d43e9a306321535d8a744de75b24ccbafe",
+                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/443ca51b06e1211c29551661fed93816ebde9680",
+                "reference": "443ca51b06e1211c29551661fed93816ebde9680",
                 "shasum": ""
             },
             "require": {
@@ -49,10 +49,10 @@
             "description": "Struts 1.2 inspired MVC web framework for PHP",
             "homepage": "http://ministruts.rosasurfer.com/",
             "support": {
-                "source": "https://github.com/rosasurfer/ministruts/tree/master",
+                "source": "https://github.com/rosasurfer/ministruts/tree/iss-5",
                 "issues": "https://github.com/rosasurfer/ministruts/issues"
             },
-            "time": "2017-04-22 15:57:42"
+            "time": "2017-04-27 14:01:49"
         }
     ],
     "packages-dev": [],
