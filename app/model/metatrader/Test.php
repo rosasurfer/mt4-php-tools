@@ -1,6 +1,7 @@
 <?php
 namespace rosasurfer\xtrade\model\metatrader;
 
+use rosasurfer\db\orm\DAO;
 use rosasurfer\db\orm\PersistableObject;
 
 use rosasurfer\exception\IllegalArgumentException;
@@ -22,8 +23,23 @@ use const rosasurfer\xtrade\TICKMODEL_BAROPEN;
 /**
  * Represents a test executed in the MetaTrader Strategy Tester.
  *
- * @method static Test   findById(int $id)               Find the test with the specified id.
- * @method static Test[] findAllBySymbol(string $symbol) Find all tests for the specified symbol.
+ * @method int                 getId()                 Return the id (primary key) of the test.
+ * @method string              getStrategy()           Return the name of the tested strategy.
+ * @method StrategyParameter[] getStrategyParameters() Return the strategy parameters of the test.
+ * @method int                 getReportingId()        Return the reporting id of the test (for composition of the reporting symbol).
+ * @method string              getReportingSymbol()    Return the reporting symbol of the test (for charted reports).
+ * @method string              getSymbol()             Return the symbol of the tested instrument.
+ * @method int                 getTimeframe()          Return the tested timeframe.
+ * @method string              getStartTime()          Return the time of the first tested tick (FXT).
+ * @method string              getEndTime()            Return the time of the last tested tick (FXT).
+ * @method string              getTickModel()          Return the tick model used for the test.
+ * @method float               getSpread()             Return the spread used for the test.
+ * @method int                 getBars()               Return the number of tested bars.
+ * @method int                 getTicks()              Return the number of tested ticks.
+ * @method string              getTradeDirections()    Return the enabled trade directions of the test.
+ * @method bool                isVisualMode()          Return the visual mode status of the test.
+ * @method int                 getDuration()           Return the test duration (in seconds).
+ * @method Order[]             getTrades()             Return the trade history of the test.
  */
 class Test extends PersistableObject {
 
@@ -55,10 +71,10 @@ class Test extends PersistableObject {
     /** @var int - tested timeframe */
     protected $timeframe;
 
-    /** @var int - time of the first tick of testing (server timezone) */
+    /** @var string - time of the first tick of testing (FXT) */
     protected $startTime;
 
-    /** @var int - time of the last tick of testing (server timezone) */
+    /** @var string - time of the last tick of testing (FXT) */
     protected $endTime;
 
     /** @var string - used tick model: EveryTick|ControlPoints|BarOpen */
@@ -87,36 +103,6 @@ class Test extends PersistableObject {
 
     /** @var Statistic - test statistics */
     protected $stats;
-
-
-    /** @return int - primary key  */
-    public function getId             () { return $this->id;              }
-
-    /** @return string - strategy name */
-    public function getStrategy       () { return $this->strategy;        }
-    public function getReportingId    () { return $this->reportingId;     }
-    public function getReportingSymbol() { return $this->reportingSymbol; }
-    public function getSymbol         () { return $this->symbol;          }
-    public function getTimeframe      () { return $this->timeframe;       }
-    public function getStartTime      () { return $this->startTime;       }
-    public function getEndTime        () { return $this->endTime;         }
-    public function getTickModel      () { return $this->tickModel;       }
-    public function getSpread         () { return $this->spread;          }
-    public function getBars           () { return $this->bars;            }
-    public function getTicks          () { return $this->ticks;           }
-    public function getTradeDirections() { return $this->tradeDirections; }
-    public function isVisualMode      () { return $this->visualMode;      }
-    public function getDuration       () { return $this->duration;        }
-
-
-    /**
-     * Return the trade history of the test.
-     *
-     * @return Order[] - trade history
-     */
-    public function getTrades() {
-        return $this->trades ?: [];
-    }
 
 
     /**
@@ -302,23 +288,6 @@ class Test extends PersistableObject {
 
 
     /**
-     * Return the strategy parameters of the Test.
-     *
-     * @return StrategyParameter[]
-     */
-    public function getStrategyParameters() {
-        if ($this->strategyParameters === null) {
-            if ($this->isPersistent()) {
-                /** @var StrategyParameterDAO $dao */
-                $dao = StrategyParameter::dao();
-                $this->strategyParameters = $dao->findAllByTest($this);
-            }
-        }
-        return $this->strategyParameters;
-    }
-
-
-    /**
      * Return the statistics of the Test.
      *
      * @return Statistic
@@ -344,7 +313,7 @@ class Test extends PersistableObject {
      * @return int
      */
     public function countTrades() {
-        return sizeOf($this->trades);
+        return sizeOf($this->getTrades());
     }
 
 
@@ -662,7 +631,6 @@ class Test extends PersistableObject {
      */
     protected function beforeInsert() {
         $this->getStats();
-        return true;
     }
 
 
@@ -673,7 +641,6 @@ class Test extends PersistableObject {
      */
     protected function beforeUpdate() {
         $this->modified = date('Y-m-d H:i:s');
-        return true;
     }
 
 

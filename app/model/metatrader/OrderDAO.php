@@ -3,9 +3,9 @@ namespace rosasurfer\xtrade\model\metatrader;
 
 use rosasurfer\db\orm\DAO;
 
-use const rosasurfer\PHP_TYPE_FLOAT;
-use const rosasurfer\PHP_TYPE_INT;
-use const rosasurfer\PHP_TYPE_STRING;
+use const rosasurfer\db\orm\meta\FLOAT;
+use const rosasurfer\db\orm\meta\INT;
+use const rosasurfer\db\orm\meta\STRING;
 
 
 /**
@@ -23,29 +23,28 @@ class OrderDAO extends DAO {
             'table'      => 't_order',
             'connection' => 'sqlite',
             'properties' => [
-                ['name'=>'id'         , 'type'=>PHP_TYPE_INT   , 'primary'=>true],      // db:int
-                ['name'=>'created'    , 'type'=>PHP_TYPE_STRING,                ],      // db:text[datetime] GMT
-                ['name'=>'modified'   , 'type'=>PHP_TYPE_STRING, 'version'=>true],      // db:text[datetime] GMT
+                ['name'=>'id'         , 'type'=>INT   , 'primary'=>true],                           // db:int
+                ['name'=>'created'    , 'type'=>STRING,                ],                           // db:text[datetime] GMT
+                ['name'=>'modified'   , 'type'=>STRING, 'version'=>true],                           // db:text[datetime] GMT
 
-                ['name'=>'ticket'     , 'type'=>PHP_TYPE_INT   ,                ],      // db:int
-                ['name'=>'type'       , 'type'=>PHP_TYPE_STRING,                ],      // db:string[enum] references enum_ordertype(type)
-                ['name'=>'lots'       , 'type'=>PHP_TYPE_FLOAT ,                ],      // db:float
-                ['name'=>'symbol'     , 'type'=>PHP_TYPE_STRING,                ],      // db:text
-                ['name'=>'openPrice'  , 'type'=>PHP_TYPE_FLOAT ,                ],      // db:float
-                ['name'=>'openTime'   , 'type'=>PHP_TYPE_STRING,                ],      // db:text[datetime] FXT
-                ['name'=>'stopLoss'   , 'type'=>PHP_TYPE_FLOAT ,                ],      // db:float
-                ['name'=>'takeProfit' , 'type'=>PHP_TYPE_FLOAT ,                ],      // db:float
-                ['name'=>'closePrice' , 'type'=>PHP_TYPE_FLOAT ,                ],      // db:float
-                ['name'=>'closeTime'  , 'type'=>PHP_TYPE_STRING,                ],      // db:text[datetime] FXT
-                ['name'=>'commission' , 'type'=>PHP_TYPE_FLOAT ,                ],      // db:float
-                ['name'=>'swap'       , 'type'=>PHP_TYPE_FLOAT ,                ],      // db:float
-                ['name'=>'profit'     , 'type'=>PHP_TYPE_FLOAT ,                ],      // db:float
-                ['name'=>'magicNumber', 'type'=>PHP_TYPE_INT   ,                ],      // db:int
-                ['name'=>'comment'    , 'type'=>PHP_TYPE_STRING,                ],      // db:text
-                ['name'=>'test_id'    , 'type'=>PHP_TYPE_INT   ,                ],      // db:int
+                ['name'=>'ticket'     , 'type'=>INT   ,                ],                           // db:int
+                ['name'=>'type'       , 'type'=>STRING,                ],                           // db:string[enum] references enum_ordertype(type)
+                ['name'=>'lots'       , 'type'=>FLOAT ,                ],                           // db:float
+                ['name'=>'symbol'     , 'type'=>STRING,                ],                           // db:text
+                ['name'=>'openPrice'  , 'type'=>FLOAT ,                ],                           // db:float
+                ['name'=>'openTime'   , 'type'=>STRING,                ],                           // db:text[datetime] FXT
+                ['name'=>'stopLoss'   , 'type'=>FLOAT ,                ],                           // db:float
+                ['name'=>'takeProfit' , 'type'=>FLOAT ,                ],                           // db:float
+                ['name'=>'closePrice' , 'type'=>FLOAT ,                ],                           // db:float
+                ['name'=>'closeTime'  , 'type'=>STRING,                ],                           // db:text[datetime] FXT
+                ['name'=>'commission' , 'type'=>FLOAT ,                ],                           // db:float
+                ['name'=>'swap'       , 'type'=>FLOAT ,                ],                           // db:float
+                ['name'=>'profit'     , 'type'=>FLOAT ,                ],                           // db:float
+                ['name'=>'magicNumber', 'type'=>INT   ,                ],                           // db:int
+                ['name'=>'comment'    , 'type'=>STRING,                ],                           // db:text
             ],
             'relations' => [
-                ['name'=>'test', 'relation'=>'many-to-one', 'type'=>Test::class, 'column'=>'test_id'],
+                ['name'=>'test', 'assoc'=>'many-to-one', 'type'=>Test::class, 'column'=>'test_id'], // db:int
             ],
         ]));
     }

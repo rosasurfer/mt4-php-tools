@@ -6,8 +6,8 @@ use rosasurfer\db\orm\DAO;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 
-use const rosasurfer\PHP_TYPE_INT;
-use const rosasurfer\PHP_TYPE_STRING;
+use const rosasurfer\db\orm\meta\INT;
+use const rosasurfer\db\orm\meta\STRING;
 
 
 /**
@@ -25,15 +25,15 @@ class SignalDAO extends DAO {
             'table'      => 't_signal',
             'connection' => 'mysql',
             'properties' => [
-                ['name'=>'id'        , 'type'=>PHP_TYPE_INT   , 'primary'=>true        ],     // db:int
-                ['name'=>'created'   , 'type'=>PHP_TYPE_STRING,                        ],     // db:datetime
-                ['name'=>'version'   , 'type'=>PHP_TYPE_STRING, 'version'=>true        ],     // db:timestamp
+                ['name'=>'id'             , 'type'=>INT   , 'primary'=>true        ],     // db:int
+                ['name'=>'created'        , 'type'=>STRING,                        ],     // db:datetime
+                ['name'=>'version'        , 'type'=>STRING, 'version'=>true        ],     // db:timestamp
 
-                ['name'=>'provider'  , 'type'=>PHP_TYPE_STRING,                        ],     // db:enum
-                ['name'=>'providerId', 'type'=>PHP_TYPE_STRING, 'column'=>'provider_id'],     // db:string
-                ['name'=>'name'      , 'type'=>PHP_TYPE_STRING,                        ],     // db:string
-                ['name'=>'alias'     , 'type'=>PHP_TYPE_STRING,                        ],     // db:string
-                ['name'=>'currency'  , 'type'=>PHP_TYPE_STRING,                        ],     // db:enum
+                ['name'=>'provider'       , 'type'=>STRING,                        ],     // db:enum
+                ['name'=>'providerId'     , 'type'=>STRING, 'column'=>'provider_id'],     // db:string
+                ['name'=>'name'           , 'type'=>STRING,                        ],     // db:string
+                ['name'=>'alias'          , 'type'=>STRING,                        ],     // db:string
+                ['name'=>'accountCurrency', 'type'=>STRING, 'column'=>'currency'   ],     // db:enum
             ],
             'relations' => [
                 ['name'=>'openPositions'  , 'relation'=>'one-to-many', 'type'=>OpenPosition::class  , 'ref-column'=>'signal_id'],

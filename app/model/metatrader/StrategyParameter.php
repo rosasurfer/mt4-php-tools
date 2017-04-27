@@ -9,6 +9,11 @@ use rosasurfer\exception\IllegalTypeException;
 
 /**
  * Represents a single input parameter of a tested strategy.
+ *
+ * @method int    getId()    Return the id (primary key) of the strategy parameter.
+ * @method string getName()  Return the name of the input parameter.
+ * @method string getValue() Return the value of the input parameter.
+ * @method Test   getTest()  Return the test this input parameter belongs to.
  */
 class StrategyParameter extends PersistableObject {
 
@@ -21,9 +26,6 @@ class StrategyParameter extends PersistableObject {
 
     /** @var string */
     protected $value;
-
-    /** @var int */
-    protected $test_id;
 
     /** @var Test */
     protected $test;
@@ -50,67 +52,5 @@ class StrategyParameter extends PersistableObject {
         $param->value = $value;
 
         return $param;
-    }
-
-
-    /**
-     * @return int
-     */
-    public function getId() {
-        return $this->id;
-    }
-
-
-    /**
-     * @return string
-     */
-    public function getName() {
-        return $this->name;
-    }
-
-
-    /**
-     * @return string
-     */
-    public function getValue() {
-        return $this->value;
-    }
-
-
-    /**
-     * @return int
-     */
-    public function getTest_id() {
-        if ($this->test_id === null) {
-            if (is_object($this->test))
-                $this->test_id = $this->test->getId();
-        }
-        return $this->test_id;
-    }
-
-
-    /**
-     * @return Test
-     */
-    public function getTest() {
-        if ($this->test === null) {
-            if ($this->test_id)
-                $this->test = Test::dao()->findById($this->test_id);
-        }
-        return $this->test;
-    }
-
-
-    /**
-     * Insert pre-processing hook (application-side ORM trigger).
-     *
-     * Assign the {@link Test} id as this is not yet automated by the ORM.
-     *
-     * {@inheritdoc}
-     */
-    protected function beforeInsert() {
-        if (!$this->test_id)
-            $this->test_id = $this->test->getId();
-        return true;
     }
 }

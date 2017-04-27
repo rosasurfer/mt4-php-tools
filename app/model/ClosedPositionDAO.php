@@ -6,9 +6,9 @@ use rosasurfer\db\orm\DAO;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 
-use const rosasurfer\PHP_TYPE_FLOAT;
-use const rosasurfer\PHP_TYPE_INT;
-use const rosasurfer\PHP_TYPE_STRING;
+use const rosasurfer\db\orm\meta\FLOAT;
+use const rosasurfer\db\orm\meta\INT;
+use const rosasurfer\db\orm\meta\STRING;
 
 
 /**
@@ -26,27 +26,26 @@ class ClosedPositionDAO extends DAO {
             'table'      => 't_closedposition',
             'connection' => 'mysql',
             'properties' => [
-                ['name'=>'id'         , 'type'=>PHP_TYPE_INT   , 'primary'=>true   ],      // db:int
-                ['name'=>'created'    , 'type'=>PHP_TYPE_STRING,                   ],      // db:datetime
-                ['name'=>'version'    , 'type'=>PHP_TYPE_STRING, 'version'=>true   ],      // db:datetime
+                ['name'=>'id'         , 'type'=>INT   , 'primary'=>true   ],      // db:int
+                ['name'=>'created'    , 'type'=>STRING,                   ],      // db:datetime
+                ['name'=>'version'    , 'type'=>STRING, 'version'=>true   ],      // db:datetime
 
-                ['name'=>'ticket'     , 'type'=>PHP_TYPE_INT   ,                   ],      // db:int
-                ['name'=>'type'       , 'type'=>PHP_TYPE_STRING,                   ],      // db:string
-                ['name'=>'lots'       , 'type'=>PHP_TYPE_FLOAT ,                   ],      // db:decimal
-                ['name'=>'symbol'     , 'type'=>PHP_TYPE_STRING,                   ],      // db:string
-                ['name'=>'openTime'   , 'type'=>PHP_TYPE_STRING,                   ],      // db:datetime
-                ['name'=>'openPrice'  , 'type'=>PHP_TYPE_FLOAT ,                   ],      // db:decimal
-                ['name'=>'closeTime'  , 'type'=>PHP_TYPE_STRING,                   ],      // db:datetime
-                ['name'=>'closePrice' , 'type'=>PHP_TYPE_FLOAT ,                   ],      // db:decimal
-                ['name'=>'stopLoss'   , 'type'=>PHP_TYPE_FLOAT ,                   ],      // db:decimal
-                ['name'=>'takeProfit' , 'type'=>PHP_TYPE_FLOAT ,                   ],      // db:decimal
-                ['name'=>'commission' , 'type'=>PHP_TYPE_FLOAT ,                   ],      // db:decimal
-                ['name'=>'swap'       , 'type'=>PHP_TYPE_FLOAT ,                   ],      // db:decimal
-                ['name'=>'grossProfit', 'type'=>PHP_TYPE_FLOAT , 'column'=>'profit'],      // db:decimal
-                ['name'=>'netProfit'  , 'type'=>PHP_TYPE_FLOAT ,                   ],      // db:decimal
-                ['name'=>'magicNumber', 'type'=>PHP_TYPE_INT   ,                   ],      // db:int
-                ['name'=>'comment'    , 'type'=>PHP_TYPE_STRING,                   ],      // db:string
-                ['name'=>'signal_id'  , 'type'=>PHP_TYPE_INT   ,                   ],      // db:int
+                ['name'=>'ticket'     , 'type'=>INT   ,                   ],      // db:int
+                ['name'=>'type'       , 'type'=>STRING,                   ],      // db:string
+                ['name'=>'lots'       , 'type'=>FLOAT ,                   ],      // db:decimal
+                ['name'=>'symbol'     , 'type'=>STRING,                   ],      // db:string
+                ['name'=>'openTime'   , 'type'=>STRING,                   ],      // db:datetime
+                ['name'=>'openPrice'  , 'type'=>FLOAT ,                   ],      // db:decimal
+                ['name'=>'closeTime'  , 'type'=>STRING,                   ],      // db:datetime
+                ['name'=>'closePrice' , 'type'=>FLOAT ,                   ],      // db:decimal
+                ['name'=>'stopLoss'   , 'type'=>FLOAT ,                   ],      // db:decimal
+                ['name'=>'takeProfit' , 'type'=>FLOAT ,                   ],      // db:decimal
+                ['name'=>'commission' , 'type'=>FLOAT ,                   ],      // db:decimal
+                ['name'=>'swap'       , 'type'=>FLOAT ,                   ],      // db:decimal
+                ['name'=>'grossProfit', 'type'=>FLOAT , 'column'=>'profit'],      // db:decimal
+                ['name'=>'netProfit'  , 'type'=>FLOAT ,                   ],      // db:decimal
+                ['name'=>'magicNumber', 'type'=>INT   ,                   ],      // db:int
+                ['name'=>'comment'    , 'type'=>STRING,                   ],      // db:string
             ],
             'relations' => [
                 ['name'=>'signal', 'relation'=>'many-to-one', 'type'=>Signal::class, 'column'=>'signal_id'],

@@ -511,7 +511,7 @@ class SimpleTrader extends StaticClass {
         if (!is_null($prevSL) && !is_float($prevSL)) throw new IllegalTypeException('Illegal type of parameter $prevSL: '.getType($prevSL));
 
         $modification = $tpMsg = $slMsg = null;
-        if (($current=$position->getTakeprofit()) != $prevTP) $modification .= ($tpMsg=' TP: '.($prevTP ? $prevTP.' => ':'').($current ? $current:'-'));
+        if (($current=$position->getTakeProfit()) != $prevTP) $modification .= ($tpMsg=' TP: '.($prevTP ? $prevTP.' => ':'').($current ? $current:'-'));
         if (($current=$position->getStopLoss())   != $prevSL) $modification .= ($slMsg=' SL: '.($prevSL ? $prevSL.' => ':'').($current ? $current:'-'));
         if (!$modification) throw new RuntimeException('No modification found in OpenPosition '.$position);
 

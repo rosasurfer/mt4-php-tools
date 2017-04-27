@@ -846,7 +846,7 @@ class HistoryFile extends Object {
         $currentBar = null;
         $bufferSize = sizeOf($this->barBuffer);
         if ($bufferSize)
-            $currentBar =& $this->barBuffer[$bufferSize-1];
+            $currentBar = &$this->barBuffer[$bufferSize-1];
 
         foreach ($bars as $bar) {
             if ($bar['time'] < $this->full_to_closeTime) {                       // Wechsel zur naechsten M5-Bar erkennen
@@ -860,7 +860,7 @@ class HistoryFile extends Object {
                 // neue Bar beginnen
                 $openTime           =  $bar['time'] - $bar['time'] % $this->period*MINUTES;
                 $this->barBuffer[]  =  $bar;
-                $currentBar         =& $this->barBuffer[$bufferSize++];
+                $currentBar         = &$this->barBuffer[$bufferSize++];
                 $currentBar['time'] =  $openTime;
                 $closeTime          =  $openTime + $this->period*MINUTES;
 
@@ -898,7 +898,7 @@ class HistoryFile extends Object {
         $currentBar = null;
         $bufferSize =  sizeOf($this->barBuffer);
         if ($bufferSize)
-            $currentBar =& $this->barBuffer[$bufferSize-1];
+            $currentBar = &$this->barBuffer[$bufferSize-1];
 
         foreach ($bars as $i => $bar) {
             if ($bar['time'] < $this->full_to_closeTime) {                       // Wechsel zur naechsten W1-Bar erkennen
@@ -913,7 +913,7 @@ class HistoryFile extends Object {
                 $dow                = (int) gmDate('w', $bar['time']);            // 00:00, Montag
                 $openTime           =  $bar['time'] - $bar['time']%DAY - (($dow+6)%7)*DAYS;
                 $this->barBuffer[]  =  $bar;
-                $currentBar         =& $this->barBuffer[$bufferSize++];
+                $currentBar         = &$this->barBuffer[$bufferSize++];
                 $currentBar['time'] =  $openTime;
                 $closeTime          =  $openTime + 1*WEEK;
 
@@ -951,7 +951,7 @@ class HistoryFile extends Object {
         $currentBar = null;
         $bufferSize =  sizeOf($this->barBuffer);
         if ($bufferSize)
-            $currentBar =& $this->barBuffer[$bufferSize-1];
+            $currentBar = &$this->barBuffer[$bufferSize-1];
 
         foreach ($bars as $bar) {
             if ($bar['time'] < $this->full_to_closeTime) {                       // Wechsel zur naechsten MN1-Bar erkennen
@@ -966,9 +966,9 @@ class HistoryFile extends Object {
                 $dom = (int) gmDate('d', $bar['time']);
                 $m   = (int) gmDate('m', $bar['time']);
                 $y   = (int) gmDate('Y', $bar['time']);                           // 00:00, 1. des Monats
-                $openTime           = $bar['time'] - $bar['time']%DAYS - ($dom-1)*DAYS;
+                $openTime           =  $bar['time'] - $bar['time']%DAYS - ($dom-1)*DAYS;
                 $this->barBuffer[]  =  $bar;
-                $currentBar         =& $this->barBuffer[$bufferSize++];
+                $currentBar         = &$this->barBuffer[$bufferSize++];
                 $currentBar['time'] =  $openTime;
                 $closeTime          =  gmMkTime(0, 0, 0, $m+1, 1, $y);            // 00:00, 1. des naechsten Monats
 

@@ -5,7 +5,22 @@ use rosasurfer\db\orm\PersistableObject;
 
 
 /**
- * Represents statistics of a {@link Test}.
+ * Represents the statistics record of a {@link Test}.
+ *
+ * @method int   getId()           Return the id (primary key) of the statistics record.
+ * @method int   getTrades()       Return the number of trades of the statistics record.
+ * @method float getTradesPerDay() Return the trades per day number of the statistics record.
+ * @method int   getMinDuration()  Return the minimum trade duration of the statistics record.
+ * @method int   getAvgDuration()  Return the average trade duration of the statistics record.
+ * @method int   getMaxDuration()  Return the maximum trade duration of the statistics record.
+ * @method float getMinPips()      Return the minimum amount of won/lost pips of the statistics record.
+ * @method float getAvgPips()      Return the average amount of won/lost pips of the statistics record.
+ * @method float getMaxPips()      Return the maximum amount of won/loast of the statistics record.
+ * @method float getPips()         Return the sum of all won/lost pips of the statistics record.
+ * @method float getProfit()       Return the full gross profit of the statistics record.
+ * @method float getCommission()   Return the full commission amount of the statistics record.
+ * @method float getSwap()         Return the full swap amount of the statistics record.
+ * @method Test  getTest()         Return the test the statistics record belongs to.
  */
 class Statistic extends PersistableObject {
 
@@ -48,9 +63,6 @@ class Statistic extends PersistableObject {
 
     /** @var float */
     protected $swap;
-
-    /** @var int */
-    protected $test_id;
 
     /** @var Test */
     protected $test;
@@ -124,146 +136,5 @@ class Statistic extends PersistableObject {
         $stats->swap         = round($swap, 2);
 
         return $stats;
-    }
-
-
-    /**
-     * @return int
-     */
-    public function getId() {
-        return $this->id;
-    }
-
-    /**
-     * @return int
-     */
-    public function getTrades() {
-        return $this->trades;
-    }
-
-
-    /**
-     * @return float
-     */
-    public function getTradesPerDay() {
-        return $this->tradesPerDay;
-    }
-
-
-    /**
-     * @return int
-     */
-    public function getMinDuration() {
-        return $this->minDuration;
-    }
-
-
-    /**
-     * @return int
-     */
-    public function getAvgDuration() {
-        return $this->avgDuration;
-    }
-
-
-    /**
-     * @return int
-     */
-    public function getMaxDuration() {
-        return $this->maxDuration;
-    }
-
-
-    /**
-     * @return float
-     */
-    public function getMinPips() {
-        return $this->minPips;
-    }
-
-
-    /**
-     * @return float
-     */
-    public function getAvgPips() {
-        return $this->avgPips;
-    }
-
-
-    /**
-     * @return float
-     */
-    public function getMaxPips() {
-        return $this->maxPips;
-    }
-
-
-    /**
-     * @return float
-     */
-    public function getPips() {
-        return $this->pips;
-    }
-
-
-    /**
-     * @return float
-     */
-    public function getProfit() {
-        return $this->profit;
-    }
-
-
-    /**
-     * @return float
-     */
-    public function getCommission() {
-        return $this->commission;
-    }
-
-
-    /**
-     * @return float
-     */
-    public function getSwap() {
-        return $this->swap;
-    }
-
-
-    /**
-     * @return int
-     */
-    public function getTest_id() {
-        if ($this->test_id === null) {
-            if (is_object($this->test))
-                $this->test_id = $this->test->getId();
-        }
-        return $this->test_id;
-    }
-
-
-    /**
-     * @return Test
-     */
-    public function getTest() {
-        if ($this->test === null) {
-            if ($this->test_id)
-                $this->test = Test::dao()->findById($this->test_id);
-        }
-        return $this->test;
-    }
-
-
-    /**
-     * Insert pre-processing hook (application-side ORM trigger).
-     *
-     * Assign the {@link Test} id as this is not yet automated by the ORM.
-     *
-     * {@inheritdoc}
-     */
-    protected function beforeInsert() {
-        if (!$this->test_id)
-            $this->test_id = $this->test->getId();
-        return true;
     }
 }

@@ -4,7 +4,8 @@ namespace rosasurfer\xtrade\model\metatrader;
 use rosasurfer\db\orm\DAO;
 use rosasurfer\exception\InvalidArgumentException;
 
-use const rosasurfer\PHP_TYPE_INT;
+use const rosasurfer\db\orm\meta\INT;
+use const rosasurfer\db\orm\meta\STRING;
 
 
 /**
@@ -22,20 +23,19 @@ class StrategyParameterDAO extends DAO {
             'table'      => 't_strategyparameter',
             'connection' => 'sqlite',
             'properties' => [
-                ['name'=>'id'     , 'type'=>PHP_TYPE_INT   , 'primary'=>true],      // db:int
-                ['name'=>'name'   , 'type'=>PHP_TYPE_STRING,                ],      // db:text
-                ['name'=>'value'  , 'type'=>PHP_TYPE_STRING,                ],      // db:text
-                ['name'=>'test_id', 'type'=>PHP_TYPE_INT   ,                ],      // db:int
+                ['name'=>'id'   , 'type'=>INT   , 'primary'=>true],                                 // db:int
+                ['name'=>'name' , 'type'=>STRING,                ],                                 // db:text
+                ['name'=>'value', 'type'=>STRING,                ],                                 // db:text
             ],
             'relations' => [
-                ['name'=>'test', 'relation'=>'many-to-one', 'type'=>Test::class, 'column'=>'test_id'],
+                ['name'=>'test', 'assoc'=>'many-to-one', 'type'=>Test::class, 'column'=>'test_id'], // db:int
             ],
         ]));
     }
 
 
     /**
-     * Return the strategy parameters of the specified {@link Test}.
+     * Return the {@link StrategyParameter}s of the specified {@link Test}.
      *
      * @param  Test $test
      *
