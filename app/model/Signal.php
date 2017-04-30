@@ -80,14 +80,6 @@ class Signal extends PersistableObject {
 
 
     /**
-     * Creation post-processing hook (application-side ORM trigger).
-     */
-    protected function afterCreate() {
-        $this->created = $this->version = date('Y-m-d H:i:s');
-    }
-
-
-    /**
      * Update pre-processing hook (application-side ORM trigger).
      *
      * {@inheritdoc}

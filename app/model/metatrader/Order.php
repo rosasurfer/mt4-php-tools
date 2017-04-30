@@ -103,8 +103,10 @@ class Order extends PersistableObject {
      * @return self
      */
     public static function create(Test $test, array $properties) {
-        $order       = new self();
-        $order->test = $test;
+        $order          = new self();
+        $order->created = date('Y-m-d H:i:s');
+        $order->test    = $test;
+
 
         $id = $properties['id'];
         if (!is_int($id))                                     throw new IllegalTypeException('Illegal type of property order.id: '.getType($id));
@@ -236,14 +238,6 @@ class Order extends PersistableObject {
      */
     public function isClosedPosition() {
         return ($this->isPosition() && $this->isClosed());
-    }
-
-
-    /**
-     * Creation post-processing hook (application-side ORM trigger).
-     */
-    protected function afterCreate() {
-        $this->created = date('Y-m-d H:i:s');
     }
 
 

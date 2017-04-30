@@ -90,8 +90,11 @@ class OpenPosition extends PersistableObject {
     public static function create(Signal $signal, array $data) {
         if (!$signal->isPersistent()) throw new InvalidArgumentException('Cannot process '.__CLASS__.' for non-persistent '.get_class($signal));
 
-        $position = new static();
+        $position          = new self();
+        $position->created = date('Y-m-d H:i:s');
+        $position->version = $position->created;
 
+        $position->signal      = $signal;
         $position->ticket      =                 $data['ticket'     ];
         $position->type        =                 $data['type'       ];
         $position->lots        =                 $data['lots'       ];
@@ -234,14 +237,6 @@ class OpenPosition extends PersistableObject {
             $this->isPersistent() && $this->modified();
         }
         return $this;
-    }
-
-
-    /**
-     * Creation post-processing hook (application-side ORM trigger).
-     */
-    protected function afterCreate() {
-        $this->created = $this->version = date('Y-m-d H:i:s');
     }
 
 

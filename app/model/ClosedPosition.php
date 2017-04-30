@@ -117,8 +117,11 @@ class ClosedPosition extends PersistableObject {
      * @return static
      */
     private static function create_1(OpenPosition $openPosition, array $data) {
-        $position = new static();
+        $position          = new self();
+        $position->created = date('Y-m-d H:i:s');
+        $position->version = $position->created;
 
+        $position->signal      = $openPosition->getSignal();
         $position->ticket      =                 $data['ticket'     ];
         $position->type        =                 $data['type'       ];
         $position->lots        =                 $data['lots'       ];
@@ -135,7 +138,6 @@ class ClosedPosition extends PersistableObject {
         $position->netProfit   =                 $data['netprofit'  ];
         $position->magicNumber =           isSet($data['magicnumber']) ? $data['magicnumber'] : $openPosition->getMagicNumber();
         $position->comment     =           isSet($data['comment'    ]) ? $data['comment'    ] : $openPosition->getComment();
-        $position->signal      = $openPosition->getSignal();
 
         return $position;
     }
@@ -152,8 +154,11 @@ class ClosedPosition extends PersistableObject {
     private static function create_2(Signal $signal, array $data) {
         if (!$signal->isPersistent()) throw new InvalidArgumentException('Cannot process '.__CLASS__.' for non-persistent '.get_class($signal));
 
-        $position = new static();
+        $position          = new self();
+        $position->created = date('Y-m-d H:i:s');
+        $position->version = $position->created;
 
+        $position->signal      = $signal;
         $position->ticket      =                 $data['ticket'     ];
         $position->type        =                 $data['type'       ];
         $position->lots        =                 $data['lots'       ];
@@ -170,7 +175,6 @@ class ClosedPosition extends PersistableObject {
         $position->netProfit   =                 $data['netprofit'  ];
         $position->magicNumber =           isSet($data['magicnumber']) ? $data['magicnumber'] : null;
         $position->comment     =           isSet($data['comment'    ]) ? $data['comment'    ] : null;
-        $position->signal      = $signal;
 
         return $position;
     }
@@ -299,14 +303,6 @@ class ClosedPosition extends PersistableObject {
         if (!func_num_args())
             return $this->netProfit;
         return Number::formatMoney($this->netProfit, $decimals, $separator);
-    }
-
-
-    /**
-     * Creation post-processing hook (application-side ORM trigger).
-     */
-    protected function afterCreate() {
-        $this->created = $this->version = date('Y-m-d H:i:s');
     }
 
 

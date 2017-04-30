@@ -117,7 +117,9 @@ class Test extends PersistableObject {
         if (!is_string($configFile))  throw new IllegalTypeException('Illegal type of parameter $configFile: '.getType($configFile));
         if (!is_string($resultsFile)) throw new IllegalTypeException('Illegal type of parameter $resultsFile: '.getType($resultsFile));
 
-        $test = new self();
+        $test          = new self();
+        $test->created = date('Y-m-d H:i:s');
+
 
         // (1) parse the test results file
         PHP::ini_set('auto_detect_line_endings', 1);
@@ -611,14 +613,6 @@ class Test extends PersistableObject {
         $this->reportingId = $id;
         $this->isPersistent() && $this->modified();
         return $this;
-    }
-
-
-    /**
-     * Creation post-processing hook (application-side ORM trigger).
-     */
-    protected function afterCreate() {
-        $this->created = date('Y-m-d H:i:s');
     }
 
 
