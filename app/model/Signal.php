@@ -7,6 +7,15 @@ use rosasurfer\util\Date;
 
 /**
  * Signal
+ *
+ * @method int              getId()              Return the signal's id (primary key).
+ * @method string           getProvider()        Return the signal's provider type (enum).
+ * @method string           getProviderId()      Return the signal's provider id.
+ * @method string           getName()            Return the signal's name.
+ * @method string           getAlias()           Return the signal's alias.
+ * @method string           getAccountCurrency() Return the signal's account currency.
+ * @method OpenPosition[]   getOpenPositions()   Return the signal's open positions.
+ * @method ClosedPosition[] getClosedPositions() Return the signal's closed positions.
  */
 class Signal extends PersistableObject {
 
@@ -33,16 +42,13 @@ class Signal extends PersistableObject {
     protected $alias;
 
     /** @var string */
-    protected $currency;
+    protected $accountCurrency;
 
+    /** @var OpenPosition[] */
+    protected $openPositions;
 
-    // Simple getters
-    public function getId()         { return $this->id;         }
-    public function getProvider()   { return $this->provider;   }
-    public function getProviderId() { return $this->providerId; }
-    public function getName()       { return $this->name;       }
-    public function getAlias()      { return $this->alias;      }
-    public function getCurrency()   { return $this->currency;   }
+    /** @var ClosedPosition[] */
+    protected $closedPositions;
 
 
     /**

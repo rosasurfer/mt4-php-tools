@@ -4,7 +4,8 @@ namespace rosasurfer\xtrade\model\metatrader;
 use rosasurfer\db\orm\DAO;
 use rosasurfer\exception\InvalidArgumentException;
 
-use const rosasurfer\PHP_TYPE_INT;
+use const rosasurfer\db\orm\meta\INT;
+use const rosasurfer\db\orm\meta\STRING;
 
 
 /**
@@ -14,21 +15,27 @@ class StrategyParameterDAO extends DAO {
 
 
     /**
-     * @var array - database mapping
+     * {@inheritdoc}
      */
-    protected $mapping = [
-        'connection' => 'sqlite',
-        'table'      => 't_strategyparameter',
-        'columns'    => [
-            'id'      => ['column'=>'id'     , 'type'=>PHP_TYPE_INT   , 'primary'=>true],      // db:int
-            'name'    => ['column'=>'name'   , 'type'=>PHP_TYPE_STRING,                ],      // db:text
-            'value'   => ['column'=>'value'  , 'type'=>PHP_TYPE_STRING,                ],      // db:text
-            'test_id' => ['column'=>'test_id', 'type'=>PHP_TYPE_INT   ,                ],      // db:int
-     ]];
+    public function getMapping() {
+        static $mapping; return $mapping ?: ($mapping=$this->parseMapping([
+            'class'      => StrategyParameter::class,
+            'table'      => 't_strategyparameter',
+            'connection' => 'sqlite',
+            'properties' => [
+                ['name'=>'id'   , 'type'=>INT   , 'primary'=>true],                                 // db:int
+                ['name'=>'name' , 'type'=>STRING,                ],                                 // db:text
+                ['name'=>'value', 'type'=>STRING,                ],                                 // db:text
+            ],
+            'relations' => [
+                ['name'=>'test', 'assoc'=>'many-to-one', 'type'=>Test::class, 'column'=>'test_id'], // db:int
+            ],
+        ]));
+    }
 
 
     /**
-     * Return the strategy parameters of the specified {@link Test}.
+     * Return the {@link StrategyParameter}s of the specified {@link Test}.
      *
      * @param  Test $test
      *

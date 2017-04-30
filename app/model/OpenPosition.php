@@ -14,6 +14,18 @@ use rosasurfer\xtrade\XTrade;
 
 /**
  * OpenPosition
+ *
+ * @method int    getId()          Return the open position's id (primary key).
+ * @method int    getTicket()      Return the open position's ticket number.
+ * @method string getType()        Return the open position's ticket type.
+ * @method float  getLots()        Return the open position's lot size.
+ * @method string getSymbol()      Return the open position's symbol.
+ * @method float  getOpenPrice()   Return the open position's open price.
+ * @method float  getStopLoss()    Return the open position's stop loss price.
+ * @method float  getTakeProfit()  Return the open position's take profit price.
+ * @method int    getMagicNumber() Return the open position's magic number (if any).
+ * @method string getComment()     Return the open position's order comment.
+ * @method Signal getSignal()      Return the Signal the open position belongs to.
  */
 class OpenPosition extends PersistableObject {
 
@@ -63,25 +75,8 @@ class OpenPosition extends PersistableObject {
     /** @var string */
     protected $comment;
 
-    /** @var int */
-    protected $signal_id;
-
     /** @var Signal */
     protected $signal;
-
-
-    // Getter
-    public function getId()          { return $this->id;          }
-    public function getTicket()      { return $this->ticket;      }
-    public function getType()        { return $this->type;        }
-    public function getLots()        { return $this->lots;        }
-    public function getSymbol()      { return $this->symbol;      }
-    public function getOpenPrice()   { return $this->openPrice;   }
-    public function getStopLoss()    { return $this->stopLoss;    }
-    public function getTakeProfit()  { return $this->takeProfit;  }
-    public function getMagicNumber() { return $this->magicNumber; }
-    public function getComment()     { return $this->comment;     }
-    public function getSignal_id()   { return $this->signal_id;   }
 
 
     /**
@@ -109,7 +104,6 @@ class OpenPosition extends PersistableObject {
         $position->swap        =           isSet($data['swap'       ]) ? $data['swap'       ] : null;
         $position->magicNumber =           isSet($data['magicnumber']) ? $data['magicnumber'] : null;
         $position->comment     =           isSet($data['comment'    ]) ? $data['comment'    ] : null;
-        $position->signal_id   = $signal->getId();
 
         return $position;
     }
@@ -240,21 +234,6 @@ class OpenPosition extends PersistableObject {
             $this->isPersistent() && $this->modified();
         }
         return $this;
-    }
-
-
-    /**
-     * Gibt das Signal, zu dem diese Position gehoert, zurueck.
-     *
-     * @return Signal
-     */
-    public function getSignal() {
-        if ($this->signal === null) {
-            /** @var SignalDAO $signalDao */
-            $signalDao = Signal::dao();
-            $this->signal = $signalDao->getById($this->signal_id);
-        }
-        return $this->signal;
     }
 
 

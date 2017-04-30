@@ -4,8 +4,8 @@ namespace rosasurfer\xtrade\model\metatrader;
 use rosasurfer\db\orm\DAO;
 use rosasurfer\exception\InvalidArgumentException;
 
-use const rosasurfer\PHP_TYPE_FLOAT;
-use const rosasurfer\PHP_TYPE_INT;
+use const rosasurfer\db\orm\meta\FLOAT;
+use const rosasurfer\db\orm\meta\INT;
 
 
 /**
@@ -15,27 +15,33 @@ class StatisticDAO extends DAO {
 
 
     /**
-     * @var array - database mapping
+     * {@inheritdoc}
      */
-    protected $mapping = [
-        'connection' => 'sqlite',
-        'table'      => 't_statistic',
-        'columns'    => [
-            'id'           => ['column'=>'id'          , 'type'=>PHP_TYPE_INT  , 'primary'=>true],      // db:int
-            'trades'       => ['column'=>'trades'      , 'type'=>PHP_TYPE_INT  ,                ],      // db:int
-            'tradesPerDay' => ['column'=>'trades_day'  , 'type'=>PHP_TYPE_FLOAT,                ],      // db:float
-            'minDuration'  => ['column'=>'duration_min', 'type'=>PHP_TYPE_INT  ,                ],      // db:int
-            'avgDuration'  => ['column'=>'duration_avg', 'type'=>PHP_TYPE_INT  ,                ],      // db:int
-            'maxDuration'  => ['column'=>'duration_max', 'type'=>PHP_TYPE_INT  ,                ],      // db:int
-            'minPips'      => ['column'=>'pips_min'    , 'type'=>PHP_TYPE_FLOAT,                ],      // db:float
-            'avgPips'      => ['column'=>'pips_avg'    , 'type'=>PHP_TYPE_FLOAT,                ],      // db:float
-            'maxPips'      => ['column'=>'pips_max'    , 'type'=>PHP_TYPE_FLOAT,                ],      // db:float
-            'pips'         => ['column'=>'pips'        , 'type'=>PHP_TYPE_FLOAT,                ],      // db:float
-            'profit'       => ['column'=>'profit'      , 'type'=>PHP_TYPE_FLOAT,                ],      // db:float
-            'commission'   => ['column'=>'commission'  , 'type'=>PHP_TYPE_FLOAT,                ],      // db:float
-            'swap'         => ['column'=>'swap'        , 'type'=>PHP_TYPE_FLOAT,                ],      // db:float
-            'test_id'      => ['column'=>'test_id'     , 'type'=>PHP_TYPE_INT  ,                ],      // db:int
-     ]];
+    public function getMapping() {
+        static $mapping; return $mapping ?: ($mapping=$this->parseMapping([
+            'class'      => Statistic::class,
+            'table'      => 't_statistic',
+            'connection' => 'sqlite',
+            'properties' => [
+                ['name'=>'id'          , 'type'=>INT  , 'primary'=>true         ],                  // db:int
+                ['name'=>'trades'      , 'type'=>INT  ,                         ],                  // db:int
+                ['name'=>'tradesPerDay', 'type'=>FLOAT, 'column'=>'trades_day'  ],                  // db:float
+                ['name'=>'minDuration' , 'type'=>INT  , 'column'=>'duration_min'],                  // db:int
+                ['name'=>'avgDuration' , 'type'=>INT  , 'column'=>'duration_avg'],                  // db:int
+                ['name'=>'maxDuration' , 'type'=>INT  , 'column'=>'duration_max'],                  // db:int
+                ['name'=>'minPips'     , 'type'=>FLOAT, 'column'=>'pips_min'    ],                  // db:float
+                ['name'=>'avgPips'     , 'type'=>FLOAT, 'column'=>'pips_avg'    ],                  // db:float
+                ['name'=>'maxPips'     , 'type'=>FLOAT, 'column'=>'pips_max'    ],                  // db:float
+                ['name'=>'pips'        , 'type'=>FLOAT,                         ],                  // db:float
+                ['name'=>'profit'      , 'type'=>FLOAT,                         ],                  // db:float
+                ['name'=>'commission'  , 'type'=>FLOAT,                         ],                  // db:float
+                ['name'=>'swap'        , 'type'=>FLOAT,                         ],                  // db:float
+            ],
+            'relations' => [
+                ['name'=>'test', 'assoc'=>'one-to-one', 'type'=>Test::class, 'column'=>'test_id'],  // db:int
+            ],
+        ]));
+    }
 
 
     /**

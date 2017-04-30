@@ -14,6 +14,19 @@ use rosasurfer\xtrade\XTrade;
 
 /**
  * ClosedPosition
+ *
+ * @method int     getId()          Return the closed position's id (primary key).
+ * @method int     getTicket()      Return the closed position's ticket number.
+ * @method string  getType()        Return the closed position's order type.
+ * @method float   getLots()        Return the closed position's lot size.
+ * @method string  getSymbol()      Return the closed position's symbol.
+ * @method float   getOpenPrice()   Return the closed position's open price.
+ * @method float   getClosePrice()  Return the closed position's close price.
+ * @method float   getStopLoss()    Return the closed position's sbtop loss price.
+ * @method float   getTakeProfit()  Return the closed position's take profit price.
+ * @method int     getMagicNumber() Return the closed position's magic number (if any).
+ * @method string  getComment()     Return the closed position's order comment.
+ * @method Signal  getSignal()      Return the Signal the closed position belongs to.
  */
 class ClosedPosition extends PersistableObject {
 
@@ -75,26 +88,8 @@ class ClosedPosition extends PersistableObject {
     /** @var string */
     protected $comment;
 
-    /** @var int */
-    protected $signal_id;
-
     /** @var Signal */
-    private $signal;
-
-
-    // Getter
-    public function getId()          { return $this->id;          }
-    public function getTicket()      { return $this->ticket;      }
-    public function getType()        { return $this->type;        }
-    public function getLots()        { return $this->lots;        }
-    public function getSymbol()      { return $this->symbol;      }
-    public function getOpenPrice()   { return $this->openPrice;   }
-    public function getClosePrice()  { return $this->closePrice;  }
-    public function getStopLoss()    { return $this->stopLoss;    }
-    public function getTakeProfit()  { return $this->takeProfit;  }
-    public function getMagicNumber() { return $this->magicNumber; }
-    public function getComment()     { return $this->comment;     }
-    public function getSignal_id()   { return $this->signal_id;   }
+    protected $signal;
 
 
     /**
@@ -108,8 +103,8 @@ class ClosedPosition extends PersistableObject {
         $arg2 = func_get_arg(1);
 
         if ($arg1 instanceof OpenPosition)
-            return self::create_1($arg1, $arg2);      // (OpenPosition $position, array $data)
-        return self::create_2($arg1, $arg2);         // (Signal $signal, array $data)
+            return self::create_1($arg1, $arg2);        // (OpenPosition $position, array $data)
+        return self::create_2($arg1, $arg2);            // (Signal $signal, array $data)
     }
 
 
@@ -140,8 +135,7 @@ class ClosedPosition extends PersistableObject {
         $position->netProfit   =                 $data['netprofit'  ];
         $position->magicNumber =           isSet($data['magicnumber']) ? $data['magicnumber'] : $openPosition->getMagicNumber();
         $position->comment     =           isSet($data['comment'    ]) ? $data['comment'    ] : $openPosition->getComment();
-
-        $position->signal_id = $openPosition->getSignal_id();
+        $position->signal      = $openPosition->getSignal();
 
         return $position;
     }
@@ -176,7 +170,7 @@ class ClosedPosition extends PersistableObject {
         $position->netProfit   =                 $data['netprofit'  ];
         $position->magicNumber =           isSet($data['magicnumber']) ? $data['magicnumber'] : null;
         $position->comment     =           isSet($data['comment'    ]) ? $data['comment'    ] : null;
-        $position->signal_id   = $signal->getId();
+        $position->signal      = $signal;
 
         return $position;
     }
@@ -305,21 +299,6 @@ class ClosedPosition extends PersistableObject {
         if (!func_num_args())
             return $this->netProfit;
         return Number::formatMoney($this->netProfit, $decimals, $separator);
-    }
-
-
-    /**
-     * Gibt das Signal, zu dem diese Position gehoert, zurueck.
-     *
-     * @return Signal
-     */
-    public function getSignal() {
-        if ($this->signal === null) {
-            /** @var SignalDAO $signalDao */
-            $signalDao = Signal::dao();
-            $this->signal = $signalDao->getById($this->signal_id);
-        }
-        return $this->signal;
     }
 
 

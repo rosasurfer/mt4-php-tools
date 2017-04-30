@@ -6,8 +6,8 @@ use rosasurfer\db\orm\DAO;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 
-use const rosasurfer\PHP_TYPE_INT;
-use const rosasurfer\PHP_TYPE_STRING;
+use const rosasurfer\db\orm\meta\INT;
+use const rosasurfer\db\orm\meta\STRING;
 
 
 /**
@@ -16,21 +16,31 @@ use const rosasurfer\PHP_TYPE_STRING;
 class SignalDAO extends DAO {
 
 
-    // Datenbankmapping
-    protected $mapping = [
-        'connection' => 'mysql',
-        'table'      => 't_signal',
-        'columns'    => [
-            'id'         => ['column'=>'id'         , 'type'=>PHP_TYPE_INT   , 'primary'=>true],     // db:int
-            'created'    => ['column'=>'created'    , 'type'=>PHP_TYPE_STRING,                ],     // db:datetime
-            'version'    => ['column'=>'version'    , 'type'=>PHP_TYPE_STRING, 'version'=>true],     // db:timestamp
+    /**
+     * {@inheritdoc}
+     */
+    public function getMapping() {
+        static $mapping; return $mapping ?: ($mapping=$this->parseMapping([
+            'class'      => Signal::class,
+            'table'      => 't_signal',
+            'connection' => 'mysql',
+            'properties' => [
+                ['name'=>'id'             , 'type'=>INT   , 'primary'=>true        ],     // db:int
+                ['name'=>'created'        , 'type'=>STRING,                        ],     // db:datetime
+                ['name'=>'version'        , 'type'=>STRING, 'version'=>true        ],     // db:timestamp
 
-            'provider'   => ['column'=>'provider'   , 'type'=>PHP_TYPE_STRING,                ],     // db:enum
-            'providerId' => ['column'=>'provider_id', 'type'=>PHP_TYPE_STRING,                ],     // db:string
-            'name'       => ['column'=>'name'       , 'type'=>PHP_TYPE_STRING,                ],     // db:string
-            'alias'      => ['column'=>'alias'      , 'type'=>PHP_TYPE_STRING,                ],     // db:string
-            'currency'   => ['column'=>'currency'   , 'type'=>PHP_TYPE_STRING,                ],     // db:enum
-    ]];
+                ['name'=>'provider'       , 'type'=>STRING,                        ],     // db:enum
+                ['name'=>'providerId'     , 'type'=>STRING, 'column'=>'provider_id'],     // db:string
+                ['name'=>'name'           , 'type'=>STRING,                        ],     // db:string
+                ['name'=>'alias'          , 'type'=>STRING,                        ],     // db:string
+                ['name'=>'accountCurrency', 'type'=>STRING, 'column'=>'currency'   ],     // db:enum
+            ],
+            'relations' => [
+                ['name'=>'openPositions'  , 'relation'=>'one-to-many', 'type'=>OpenPosition::class  , 'ref-column'=>'signal_id'],
+                ['name'=>'closedPositions', 'relation'=>'one-to-many', 'type'=>ClosedPosition::class, 'ref-column'=>'signal_id'],
+            ],
+        ]));
+    }
 
 
     /**

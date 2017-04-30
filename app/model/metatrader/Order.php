@@ -14,6 +14,24 @@ use function rosasurfer\xtrade\isFxtWeekend;
 
 /**
  * Represents a MetaTrader order ticket.
+ *
+ * @method int    getId()          Return the id (primary key) of the ticket.
+ * @method int    getTicket()      Return the ticket number.
+ * @method string getType()        Return the ticket order type.
+ * @method float  getLots()        Return the ticket lot size.
+ * @method string getSymbol()      Return the ticket symbol.
+ * @method float  getOpenPrice()   Return the ticket open price.
+ * @method string getOpenTime()    Return the ticket open time (FXT).
+ * @method float  getStopLoss()    Return the ticket stop loss price.
+ * @method float  getTakeProfit()  Return the ticket take profit price.
+ * @method float  getClosePrice()  Return the ticket close price.
+ * @method string getCloseTime()   Return the ticket close time (FXT).
+ * @method float  getCommission()  Return the ticket commission amount.
+ * @method float  getSwap()        Return the ticket swap amount.
+ * @method float  getProfit()      Return the ticket gross profit amount.
+ * @method int    getMagicNumber() Return the magic number of the ticket.
+ * @method string getComment()     Return the ticket comment.
+ * @method Test   getTest()        Return the test the ticket belongs to.
  */
 class Order extends PersistableObject {
 
@@ -71,9 +89,6 @@ class Order extends PersistableObject {
 
     /** @var string - order comment */
     protected $comment;
-
-    /** @var int - the Test's id */
-    protected $test_id;
 
     /** @var Test - the test the order belongs to */
     protected $test;
@@ -194,55 +209,6 @@ class Order extends PersistableObject {
     }
 
 
-    /** @return int - primary key */
-    public function getId() { return $this->id; }
-
-    /** @return int - ticket number */
-    public function getTicket() { return $this->ticket; }
-
-    /** @return string - order type: Buy|Sell */
-    public function getType() { return $this->type; }
-
-    /** @return float - lot size */
-    public function getLots() { return $this->lots; }
-
-    /** @return string - symbol */
-    public function getSymbol() { return $this->symbol; }
-
-    /** @return float - open price */
-    public function getOpenPrice() { return $this->openPrice; }
-
-    /** @return string - open time (server timezone) */
-    public function getOpenTime() { return $this->openTime; }
-
-    /** @return float - stoploss price */
-    public function getStopLoss() { return $this->stopLoss; }
-
-    /** @return float - takeprofit price */
-    public function getTakeProfit() { return $this->takeProfit; }
-
-    /** @return float - close price */
-    public function getClosePrice() { return $this->closePrice; }
-
-    /** @return string - close time (server timezone) */
-    public function getCloseTime() { return $this->closeTime; }
-
-    /** @return float - commission */
-    public function getCommission() { return $this->commission; }
-
-    /** @return float - swap */
-    public function getSwap() { return $this->swap; }
-
-    /** @return float - gross profit */
-    public function getProfit() { return $this->profit; }
-
-    /** @return int - magic number */
-    public function getMagicNumber() { return $this->magicNumber; }
-
-    /** @return string - order comment */
-    public function getComment() { return $this->comment; }
-
-
     /**
      * Whether or not this order ticket represents a position and not a pending order.
      *
@@ -278,20 +244,6 @@ class Order extends PersistableObject {
      */
     protected function afterCreate() {
         $this->created = date('Y-m-d H:i:s');
-    }
-
-
-    /**
-     * Insert pre-processing hook (application-side ORM trigger).
-     *
-     * Assigns a {@link Test} id as long as this is not yet done automatically by the ORM.
-     *
-     * {@inheritdoc}
-     */
-    protected function beforeInsert() {
-        if (!$this->test_id)
-            $this->test_id = $this->test->getId();
-        return true;
     }
 
 
