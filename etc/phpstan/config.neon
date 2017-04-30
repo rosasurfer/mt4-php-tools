@@ -49,13 +49,14 @@ parameters:
         - '/Call to ((static )?method|function) [^ ]+ with incorrect case:/'                            # seriously?
         - '/(Array \([^ ]+\[\]\)|(Static )?property [^ ]+ \(([^ ]+)\)) does not accept (\3\|)?null\b/i' # everything is nullable
         - '/Parameter #[0-9]+ [^ ]+ of (static )?method [^ ]+ expects ([^ ]+), \2\|null given\b/'       # everything accepts NULL
-        - "/Casting to (bool|int|float|string) something that's already (bool|int|float|string)./"      # simply wrong
+        - "/Casting to (bool|int|float|string) something that's already (bool|int|float|string)./"      # wrongly implemented
 
-        # fixed but not yet released PHPStan bugs 
+        # fixed but not yet released PHPStan bugs (last release 0.6.4) 
         - '/Parameter [^ ]+ of method [^ ]+ has invalid typehint type ([^ ]+)?\bscalar\b/'
         - '/Parameter #[0-9]+ [^ ]+ of method [^ ]+ expects ([^ ]+)?\bscalar(\|[^|]+)*, (bool|int|float|string|null|([^ ]+)?scalar)(\|(bool|int|float|string|null|([^ ]+)?scalar))* given\b/'
         - '/Property rosasurfer\\xtrade\\model\\metatrader\\Test::\$strategyParameters \(null\) does not accept mixed\[\]./'
         - '/Property rosasurfer\\xtrade\\model\\metatrader\\Test::\$strategyParameters \(null\) does not accept string\[\]./'
+        - '/--- Release 0.6.4 does not recognize virtual methods declared in class doc-blocks using the @method tag. ---/'
 
         # unfixed PHPStan bugs 
         - '/Function rosasurfer\\xtrade\\fxtTime\(\) should return int but returns int\|mixed\|null./'
