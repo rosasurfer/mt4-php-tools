@@ -44,24 +44,6 @@ class SignalDAO extends DAO {
 
 
     /**
-     * Gibt das Signal mit der angegebenen ID zurueck.
-     *
-     * @param  int $id - Signal-ID (PK)
-     *
-     * @return Signal
-     */
-    public function getById($id) {
-        if (!is_int($id)) throw new IllegalTypeException('Illegal type of parameter $id: '.getType($id));
-        if ($id < 1)      throw new InvalidArgumentException('Invalid argument $id: '.$id);
-
-        $sql = "select *
-                   from :Signal
-                   where id = $id";
-        return $this->find($sql);
-    }
-
-
-    /**
      * Return the Signal of the specified provider and alias.
      *
      * @param  string $provider - provider

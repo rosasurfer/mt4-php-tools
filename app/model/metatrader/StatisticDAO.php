@@ -2,7 +2,6 @@
 namespace rosasurfer\xtrade\model\metatrader;
 
 use rosasurfer\db\orm\DAO;
-use rosasurfer\exception\InvalidArgumentException;
 
 use const rosasurfer\db\orm\meta\FLOAT;
 use const rosasurfer\db\orm\meta\INT;
@@ -41,24 +40,5 @@ class StatisticDAO extends DAO {
                 ['name'=>'test', 'assoc'=>'one-to-one', 'type'=>Test::class, 'column'=>'test_id'],  // db:int
             ],
         ]));
-    }
-
-
-    /**
-     * Find and return the {@link Statistic} instance of the specified {@link Test}.
-     *
-     * @param  Test $test
-     *
-     * @return Statistic
-     */
-    public function findByTest(Test $test) {
-        if (!$test->isPersistent()) throw new InvalidArgumentException('Cannot process non-persistent '.get_class($test));
-
-        $test_id = $test->getId();
-
-        $sql = 'select *
-                   from :Statistic
-                   where test_id = '.$test_id;
-        return $this->find($sql);
     }
 }

@@ -3,9 +3,6 @@ namespace rosasurfer\xtrade\model\metatrader;
 
 use rosasurfer\db\orm\DAO;
 
-use rosasurfer\exception\IllegalTypeException;
-use rosasurfer\exception\InvalidArgumentException;
-
 use const rosasurfer\db\orm\meta\BOOL;
 use const rosasurfer\db\orm\meta\FLOAT;
 use const rosasurfer\db\orm\meta\INT;
@@ -52,23 +49,5 @@ class TestDAO extends DAO {
                 ['name'=>'stats'             , 'assoc'=>'one-to-one' , 'type'=>Statistic::class        , 'ref-column'=>'test_id'],
             ],
         ]));
-    }
-
-
-    /**
-     * Find and return the {@link Test} with the specified id.
-     *
-     * @param  int $id - test id (PK)
-     *
-     * @return Test
-     */
-    public function findById($id) {
-        if (!is_int($id)) throw new IllegalTypeException('Illegal type of parameter $id: '.getType($id));
-        if ($id < 1)      throw new InvalidArgumentException('Invalid argument $id: '.$id);
-
-        $sql = 'select *
-                   from :Test
-                   where id = '.$id;
-        return $this->find($sql);
     }
 }

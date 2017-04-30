@@ -1,7 +1,6 @@
 <?php
 namespace rosasurfer\xtrade\model\metatrader;
 
-use rosasurfer\db\orm\DAO;
 use rosasurfer\db\orm\PersistableObject;
 
 use rosasurfer\exception\IllegalArgumentException;
@@ -297,9 +296,7 @@ class Test extends PersistableObject {
     public function getStats() {
         if ($this->stats === null) {
             if ($this->isPersistent()) {
-                /** @var StatisticDAO $dao */
-                $dao = Statistic::dao();
-                $this->stats = $dao->findByTest($this);
+                $this->stats = $this->get('stats');
             }
             else {
                 $this->stats = Statistic::create($this);
