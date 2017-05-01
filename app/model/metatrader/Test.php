@@ -294,14 +294,9 @@ class Test extends PersistableObject {
      * @return Statistic
      */
     public function getStats() {
-        if ($this->stats === null) {
-            if ($this->isPersistent()) {
-                $this->stats = $this->get('stats');
-            }
-            else {
-                $this->stats = Statistic::create($this);
-            }
-        }
+        $stats = $this->get('stats');
+        if (!$stats)
+            $this->stats = Statistic::create($this);
         return $this->stats;
     }
 
