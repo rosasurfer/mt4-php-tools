@@ -46,20 +46,16 @@ parameters:
     polluteCatchScopeWithTryAssignments:    true
     
     ignoreErrors:
-        - '/Call to ((static )?method|function) [^ ]+ with incorrect case:/'                            # seriously?
-        - '/(Array \([^ ]+\[\]\)|(Static )?property [^ ]+ \(([^ ]+)\)) does not accept (\3\|)?null\b/i' # everything is nullable
-        - '/Parameter #[0-9]+ [^ ]+ of (static )?method [^ ]+ expects ([^ ]+), \2\|null given\b/'       # everything accepts NULL
-        - "/Casting to (bool|int|float|string) something that's already (bool|int|float|string)./"      # wrongly implemented
+        - '/Call to ((static )?method|function) [^ ]+ with incorrect case:/'                                    # seriously?
+        - '/Array \(([^ ]+)\[\]\) does not accept (\1\|)?null\b/'                                               # NULL should be considered a value, not a type
+        - '/(Static )?property [^ ]+ \(([^ ]+)\) does not accept (\2\|)?null\b/i'                               # - dito -
+        - '/Parameter #[0-9]+ [^ ]+ of class [^ ]+ constructor expects ([^ ]+), (\1\|)?null given\b/'           # - dito -
+        - '/Parameter #[0-9]+ [^ ]+ of (static )?(function|method) [^ ]+ expects ([^ ]+), (\3\|)?null given\b/' # - dito -
+        - '/Calling method [^ ]+ on possibly nullable type [^ ]+\|null\b/'
+        - "/Casting to (bool|int|float|string) something that's already (bool|int|float|string)\b/"             # too simplified implementation
+        - '/Strict comparison using [=!]== between (int|string) and null will always evaluate to (true|false)\b/'
 
-        # fixed but not yet released PHPStan bugs (last release 0.6.4) 
-        - '/Parameter [^ ]+ of method [^ ]+ has invalid typehint type ([^ ]+)?\bscalar\b/'
-        - '/Parameter #[0-9]+ [^ ]+ of method [^ ]+ expects ([^ ]+)?\bscalar(\|[^|]+)*, (bool|int|float|string|null|([^ ]+)?scalar)(\|(bool|int|float|string|null|([^ ]+)?scalar))* given\b/'
-        - '/Property rosasurfer\\xtrade\\model\\metatrader\\Test::\$strategyParameters \(null\) does not accept mixed\[\]./'
-        - '/Property rosasurfer\\xtrade\\model\\metatrader\\Test::\$strategyParameters \(null\) does not accept string\[\]./'
-        - '/--- Release 0.6.4 does not recognize virtual methods declared in class doc-blocks using the @method tag. ---/'
-
-        # unfixed PHPStan bugs 
-        - '/Function rosasurfer\\xtrade\\fxtTime\(\) should return int but returns int\|mixed\|null./'
-        - '/Method DateTimeZone::getTransitions\(\) invoked with 0 parameters, 2 required./'
-        - '/Parameter #3 \$closedUpdates of static method rosasurfer\\xtrade\\metatrader\\MT4::updateAccountHistory\(\) expects bool, false\|mixed given./'
-        - '/Property rosasurfer\\xtrade\\model\\metatrader\\Test::\$visualMode \(bool\) does not accept bool\|mixed./'
+        # PHPStan bugs 
+        - '/Method DateTimeZone::getTransitions\(\) invoked with 0 parameters, 2 required/'
+        - '/Method rosasurfer\\xtrade\\simpletrader\\SimpleTrader::loadSignalPage\(\) should return string but returns string\|null\b/'
+        - '/Parameter (#2 \$sort_order|#4 \.\.\.\$arr2) of function array_multisort is passed by reference, so it expects variables only/'

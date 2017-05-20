@@ -13,6 +13,16 @@ use rosasurfer\exception\UnimplementedFeatureException;
 
 use rosasurfer\xtrade\XTrade;
 
+use const rosasurfer\xtrade\PERIOD_D1;
+use const rosasurfer\xtrade\PERIOD_H1;
+use const rosasurfer\xtrade\PERIOD_H4;
+use const rosasurfer\xtrade\PERIOD_M1;
+use const rosasurfer\xtrade\PERIOD_M15;
+use const rosasurfer\xtrade\PERIOD_M30;
+use const rosasurfer\xtrade\PERIOD_M5;
+use const rosasurfer\xtrade\PERIOD_MN1;
+use const rosasurfer\xtrade\PERIOD_W1;
+
 
 /**
  * Object-Wrapper fuer eine MT4-History-Datei ("*.hst")

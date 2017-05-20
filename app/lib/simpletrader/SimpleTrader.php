@@ -24,6 +24,7 @@ use rosasurfer\xtrade\XTrade;
 use rosasurfer\xtrade\model\ClosedPosition;
 use rosasurfer\xtrade\model\OpenPosition;
 use rosasurfer\xtrade\model\Signal;
+use rosasurfer\net\http\CurlHttpResponse;
 
 
 /**
