@@ -27,7 +27,7 @@ class StrategyParameter extends PersistableObject {
     /** @var string */
     protected $value;
 
-    /** @var Test */
+    /** @var Test [transient] */
     protected $test;
 
 

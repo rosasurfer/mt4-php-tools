@@ -90,7 +90,7 @@ class Order extends PersistableObject {
     /** @var string - order comment */
     protected $comment;
 
-    /** @var Test - the test the order belongs to */
+    /** @var Test [transient] - the test the order belongs to */
     protected $test;
 
 

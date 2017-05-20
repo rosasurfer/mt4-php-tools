@@ -64,7 +64,7 @@ class Statistic extends PersistableObject {
     /** @var float */
     protected $swap;
 
-    /** @var Test */
+    /** @var Test [transient] */
     protected $test;
 
 

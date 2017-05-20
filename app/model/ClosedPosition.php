@@ -88,7 +88,7 @@ class ClosedPosition extends PersistableObject {
     /** @var string */
     protected $comment;
 
-    /** @var Signal */
+    /** @var Signal [transient] */
     protected $signal;
 
 

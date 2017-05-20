@@ -44,10 +44,10 @@ class Signal extends PersistableObject {
     /** @var string */
     protected $accountCurrency;
 
-    /** @var OpenPosition[] */
+    /** @var OpenPosition[] [transient] */
     protected $openPositions;
 
-    /** @var ClosedPosition[] */
+    /** @var ClosedPosition[] [transient] */
     protected $closedPositions;
 
 

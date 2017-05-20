@@ -55,7 +55,7 @@ class Test extends PersistableObject {
     /** @var string - strategy name */
     protected $strategy;
 
-    /** @var StrategyParameter[] - strategy input parameters */
+    /** @var StrategyParameter[] [transient] - strategy input parameters */
     protected $strategyParameters;
 
     /** @var int - reporting id (for composition of reportingSymbol) */
@@ -97,10 +97,10 @@ class Test extends PersistableObject {
     /** @var int - test duration in seconds */
     protected $duration;
 
-    /** @var Order[] - trade history of the test */
+    /** @var Order[] [transient] - trade history of the test */
     protected $trades;
 
-    /** @var Statistic - test statistics */
+    /** @var Statistic [transient] - test statistics */
     protected $stats;
 
 
