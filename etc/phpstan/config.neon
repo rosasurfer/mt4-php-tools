@@ -46,16 +46,15 @@ parameters:
     polluteCatchScopeWithTryAssignments:    true
     
     ignoreErrors:
-        - '/Call to ((static )?method|function) [^ ]+ with incorrect case:/'                                    # seriously?
-        - '/Array \(([^ ]+)\[\]\) does not accept (\1\|)?null\b/'                                               # NULL should be considered a value, not a type
-        - '/(Static )?property [^ ]+ \(([^ ]+)\) does not accept (\2\|)?null\b/i'                               # - dito -
-        - '/Parameter #[0-9]+ [^ ]+ of class [^ ]+ constructor expects ([^ ]+), (\1\|)?null given\b/'           # - dito -
-        - '/Parameter #[0-9]+ [^ ]+ of (static )?(function|method) [^ ]+ expects ([^ ]+), (\3\|)?null given\b/' # - dito -
+        - '/Call to ((static )?method|function) [^ ]+ with incorrect case:/'                                        # seriously?
+        - '/Array \(([^ ]+)\[\]\) does not accept (\1\|)?null\b/'                                                   # NULL should be considered a value, not a type
+        - '/(Static )?property [^ ]+ \(([^ ]+)\) does not accept (\2\|)?null\b/i'                                   # - dito -
+        - '/Parameter #[0-9]+ [^ ]+ of class [^ ]+ constructor expects ([^ ]+), (\1\|)?null given\b/'               # - dito -
+        - '/Parameter #[0-9]+ [^ ]+ of (static )?(function|method) [^ ]+ expects ([^ ]+), (\3\|)?null given\b/'     # - dito -
         - '/Calling method [^ ]+ on possibly nullable type [^ ]+\|null\b/'
-        - "/Casting to (bool|int|float|string) something that's already (bool|int|float|string)\b/"             # too simplified implementation
+        - "/Casting to (bool|int|float|string) something that's already (bool|int|float|string)\b/"                 # too simple implementation
         - '/Strict comparison using [=!]== between (int|string) and null will always evaluate to (true|false)\b/'
 
         # PHPStan bugs 
-        - '/Method DateTimeZone::getTransitions\(\) invoked with 0 parameters, 2 required/'
         - '/Method rosasurfer\\xtrade\\simpletrader\\SimpleTrader::loadSignalPage\(\) should return string but returns string\|null\b/'
         - '/Parameter (#2 \$sort_order|#4 \.\.\.\$arr2) of function array_multisort is passed by reference, so it expects variables only/'
