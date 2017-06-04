@@ -218,13 +218,11 @@ class MT4 extends StaticClass {
      * @return string[] - Array mit SYMBOL-Feldern
      */
     public static function SYMBOL_getFields() {
-        static $fields = null;
-
-        if (is_null($fields)) {
-            $lines = explode("\n", self::$SYMBOL_formatStr);
+        static $fields = null; if (!$fields) {
+            $lines = explode(NL, self::$SYMBOL_formatStr);
             foreach ($lines as $i => &$line) {
                 $line = strLeftTo($line, '//');                             // Kommentare entfernen
-                $line = trim(strRightFrom(trim($line), ' '));               // Format-Code entfernen
+                $line = strRightFrom(trim($line), ' ', -1);                 // Format-Code entfernen
                 if (!strLen($line) || strStartsWith($line, '_alignment'))   // Leerzeilen und Alignment-Felder loeschen
                     unset($lines[$i]);
             }; unset($line);

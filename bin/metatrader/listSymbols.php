@@ -39,18 +39,18 @@ foreach ($args as $i => $arg) {
         $value = $arg = strRight($arg, -3);
         strIsQuoted($value) && ($value=strLeft(strRight($value, -1), 1));
 
-        if (file_exists($value)) {             // existierende Datei oder Verzeichnis
+        if (file_exists($value)) {              // existierende Datei oder Verzeichnis
             is_dir($value) && !is_file(($value.=(strEndsWith($value, '/') ? '':'/').'symbols.raw')) && exit(1|help('file not found: '.$value));
             $files[] = $value;
         }
-        else {                                 // Argument existiert nicht, Wildcards expandieren und Ergebnisse pruefen (z.B. unter Windows)
+        else {                                  // Argument existiert nicht, Wildcards expandieren und Ergebnisse pruefen (z.B. unter Windows)
             strEndsWith($value, ['/', '\\']) && ($value.='symbols.raw');
             $entries    = glob($value, GLOB_NOESCAPE|GLOB_BRACE|GLOB_ERR);
             $matchesDir = false;
             foreach ($entries as $entry) {
                 if (is_dir($entry) && ($matchesDir=true))
                     continue;
-                $files[] = $entry;               // nur Dateien uebernehmen
+                $files[] = $entry;              // nur Dateien uebernehmen
             }
             !$files && exit(1|help('file(s) not found: '.$arg.($matchesDir ? ' (enter a trailing slash "/" to search directories)':'')));
             uSort($files, 'compareFileNames');  // Datei-/Verzeichnisnamen lassen sich mit den existierenden Funktionen nicht natuerlich sortieren
@@ -64,7 +64,7 @@ foreach ($args as $i => $arg) {
         continue;
     }
 
-    // list available fields
+    // list fields
     if ($arg == '-l') {
         $options['listFields'] = true;
         break;
@@ -102,13 +102,14 @@ foreach ($args as $i => $arg) {
 
 
 // (2) ggf. verfuegbare Felder anzeigen und danach abbrechen
-$allFields = MT4::SYMBOL_getFields();                 // TODO: Feld 'leverage' dynamisch hinzufuegen
-                                                                        // array_splice($fields, array_search('marginDivider', $fields)+1, 0, ['leverage']);
+$allFields = MT4::SYMBOL_getFields();               // TODO: Feld 'leverage' dynamisch hinzufuegen
+                                                    //       array_splice($fields, array_search('marginDivider', $fields)+1, 0, ['leverage']);
 if (isSet($options['listFields'])) {
-    echoPre($s='Available symbol fields:');
+    echoPre($s='Symbol fields:');
     echoPre(str_repeat('-', strLen($s)));
-    foreach ($allFields as $field)
+    foreach ($allFields as $field) {
         echoPre(ucFirst($field));
+    }
     exit(0);
 }
 
@@ -353,7 +354,7 @@ function compareFileNames($fileA, $fileB) {
  */
 function help($message=null) {
     if (is_null($message))
-        $message = 'List symbol information of MetaTrader "symbols.raw" files.';
+        $message = 'List symbol metadata contained in MetaTrader "symbols.raw" files.';
     $self = baseName($_SERVER['PHP_SELF']);
 
 echo <<<HELP_MESSAGE
@@ -362,14 +363,14 @@ $message
   Syntax:  $self [-f=FILE] [OPTIONS]
 
           -f=FILE  File(s) to analyze (default: "symbols.raw").
-                   If FILE contains wildcards symbols of all matching files will be analyzed.
+                   If FILE contains wildcards all matching files will be analyzed.
                    If FILE is a directory the file "symbols.raw" in that directory will be analyzed.
 
-  Options:  -c     Count symbols of the specified file(s).
-            -l     List available SYMBOL fields.
+  Options:  -c     Count symbols in the specified file(s).
+            -l     List available symbol fields.
             +NAME  Include the named field in the output.
-            ++     Include all fields in the output.
             -NAME  Exclude the named field from the output.
+            ++     Include all fields in the output.
             -h     This help screen.
 
 
