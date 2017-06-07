@@ -7,11 +7,13 @@
     <!-- ================================================ Action Mappings =============================================== -->
     <action-mappings>
         <mapping name="home"     path="/"         include=".home"/>
+        <mapping name="analyse"  path="/analyse"  include=".home"/>
         <mapping name="symbols"  path="/symbols"  include=".home"/>
         <mapping name="history"  path="/history"  include=".home"/>
-        <mapping name="tests"    path="/tests"    include=".home"/>
         
-        <mapping name="settings" path="/settings" include=".home"/>
+        <mapping name="login"    path="/login"    include=".home"/>
+        <mapping name="contact"  path="/contact"  include=".home"/>
+        <mapping name="about"    path="/about"    include=".home"/>
     </action-mappings>
     
     
