@@ -1,0 +1,23 @@
+<?php
+namespace rosasurfer\xtrade\view;
+?>
+
+<nav class="navbar navbar-default navbar-custom">
+   <div class="container-fluid">
+      <div class="navbar-header">
+         <a class="navbar-brand" href="<?=route('home')?>">Xtrade</a>
+      </div>
+
+      <div class="nav-collapse">
+         <ul class="nav navbar-nav navbar-left">
+            <li><a href="<?=route('symbols')?>">Symbols</a></li>
+            <li><a href="<?=route('history')?>">History</a></li>
+            <li><a href="<?=route('tests')?>">Tests</a></li>
+         </ul>
+
+         <ul class="nav navbar-nav navbar-right">
+            <li><a href="<?=route('settings')?>">Settings</a></li>
+         </ul>
+      </div>
+   </div>
+</nav>

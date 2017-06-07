@@ -1,18 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE struts-config SYSTEM "struts-config.dtd">
 
-<struts-config file-base="app/view">
+<struts-config>
 
 
     <!-- ================================================ Action Mappings =============================================== -->
     <action-mappings>
-        <mapping path="/"  include=".home"/>
+        <mapping name="home"     path="/"         include=".home"/>
+        <mapping name="symbols"  path="/symbols"  include=".home"/>
+        <mapping name="history"  path="/history"  include=".home"/>
+        <mapping name="tests"    path="/tests"    include=".home"/>
+        
+        <mapping name="settings" path="/settings" include=".home"/>
     </action-mappings>
     
     
     <!-- ===================================================== Tiles ==================================================== -->
-    <tiles>
-        <tile name=".home"  file="tiles/default.phtml"/>
+    <tiles namespace="rosasurfer/xtrade/view">
+    
+        <!-- default layout -->
+        <tile name=".default.layout" file="layouts/default.phtml">
+            <include name="navigation"  value="tiles/header.phtml"/>                                  
+            <include name="content"/>
+        </tile>
+
+        
+        <!-- views -->
+        <tile name=".home"  extends=".default.layout">
+           <include name="content"  value="tiles/home.phtml"/>
+        </tile>
     </tiles>
 
 </struts-config>

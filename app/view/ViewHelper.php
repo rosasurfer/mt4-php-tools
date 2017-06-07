@@ -21,8 +21,8 @@ use const rosasurfer\xtrade\OP_VENDOR;
 class ViewHelper extends StaticClass {
 
 
-    // operation types
-    public static /*string[]*/ $operationTypes = [
+    /** @var string[] - operation types */
+    public static $operationTypes = [
         OP_BUY       => 'buy'       ,   // 0
         OP_SELL      => 'sell'      ,   // 1
         OP_BUYLIMIT  => 'buy limit' ,   // 2
@@ -35,8 +35,8 @@ class ViewHelper extends StaticClass {
         OP_VENDOR    => 'vendor'    ,   // 9
     ];
 
-    // instruments and their names
-    public static /*string[]*/ $instruments = [
+    /** @var string[] - instruments and their names */
+    public static $instruments = [
         'AUDCAD' => 'AUD/CAD',
         'AUDCHF' => 'AUD/CHF',
         'AUDJPY' => 'AUD/JPY',

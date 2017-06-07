@@ -146,16 +146,16 @@ var rosasurfer = {
      * @param string   url      - url to load
      * @param function callback - callback function
      */
-    getUrl: function getUrl(url, callback) {                    // request.readyState = returns the status of the XMLHttpRequest
-        var request = new XMLHttpRequest();                      //  0: request not initialized
-        request.url = url;                                       //  1: server connection established
-        request.onreadystatechange = function() {                //  2: request received
-            if (request.readyState == 4) {                        //  3: processing request
-                callback(request);                                 //  4: request finished and response is ready
-            }                                                     //
-        };                                                       // request.status = returns the HTTP status-code
-        request.open('GET', url , true);                         //  200: "OK"
-        request.send(null);                                      //  404: "Not Found" etc.
+    getUrl: function getUrl(url, callback) {                 	// request.readyState = returns the status of the XMLHttpRequest
+        var request = new XMLHttpRequest();                     //  0: request not initialized
+        request.url = url;                                      //  1: server connection established
+        request.onreadystatechange = function() {               //  2: request received
+            if (request.readyState == 4) {                      //  3: processing request
+                callback(request);                              //  4: request finished and response is ready
+            }                                                   //
+        };                                                      // request.status = returns the HTTP status-code
+        request.open('GET', url , true);                        //  200: "OK"
+        request.send(null);                                     //  404: "Not Found" etc.
     },
 
 

@@ -1,0 +1,24 @@
+<?php
+namespace rosasurfer\xtrade\view;
+?>
+<!DOCTYPE html>
+<html>
+<head>
+   <meta charset="utf-8">
+   <title>Xtrade</title>
+   <meta name="description" content="Xtrade">
+   <link rel="stylesheet" type="text/css" href="<?=asset('css/bootstrap.min.css')?>"/>
+   <link rel="stylesheet" type="text/css" href="<?=asset('css/xtrade.css')?>"/>
+   <script type="text/javascript" src="<?=asset('js/jquery.min.js')?>"></script>
+   <script type="text/javascript" src="<?=asset('js/bootstrap.min.js')?>"></script>
+   <script type="text/javascript" src="<?=asset('js/rosasurfer.js')?>"></script>
+</head>
+
+<body>
+<div id="page">
+   <div id="header"><?$navigation->render();?></div>
+
+   <div id="content"><?$content->render();?></div>
+</div>
+</body>
+</html>
