@@ -4,7 +4,7 @@
 SELF=$(readlink -e "$0")
 DB_FILE=$(dirname "$SELF")"/../../data/xtrade.db"
 SOURCE=$(readlink -e "$DB_FILE")
-[ ! -f "$SOURCE" ] && { echo "error: database file not found: $DB_FILE"; exit 1; }
+[ ! -f "$SOURCE" ] && { echo "source database file not found: $DB_FILE"; exit 1; }
 
 
 # determine rsync target directory 
@@ -24,5 +24,5 @@ command -v rsync >/dev/null || { echo "error: rsync binary not found"; exit 1; }
 command -v ssh   >/dev/null || { echo "error: ssh binary not found";   exit 1; }
 
 
-# run rsync (TODO: externalize ownership)
+# run rsync (TODO: externalize ownership settings)
 rsync -ahzPv --no-r --chown=apache:apache -e ssh "$SOURCE" "xtrade:$TARGET"
