@@ -1,0 +1,5 @@
+
+2017-06-08
+
+   - shell script for synchronizing the SQLite database (local => server)
+
