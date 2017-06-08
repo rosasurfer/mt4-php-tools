@@ -7,7 +7,7 @@ Database    SQLite3
 */
 
 
-.open --new "XTrade.db"
+.open --new "xtrade.db"
 
 
 -- drop all database objects
