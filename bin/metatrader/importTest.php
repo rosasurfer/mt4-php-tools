@@ -77,8 +77,17 @@ function processTestFiles() {
     global $testConfigFile, $testResultsFile, $verbose;
 
     Test::db()->begin();
-        $test = Test::create($testConfigFile, $testResultsFile);
-        $test->save();
+    $test = Test::create($testConfigFile, $testResultsFile);
+
+    $symbol = $test->getReportingSymbol();
+
+    if (Test::dao()->find("select * from :Test t where t.reportingSymbol = '$symbol'")) {
+        Test::db()->rollback();
+        echoPre('error: a test for reporting symbol '.$symbol.' already exists');
+        return false;
+    }
+
+    $test->save();
     Test::db()->commit();
 
     // confirm saving
