@@ -5,7 +5,7 @@ namespace rosasurfer\xtrade\metatrader\save_test;
 use rosasurfer\xtrade\model\metatrader\Test;
 
 /**
- * Import a {@link Test} log into the database.
+ * Import {@link Test} results into the database.
  */
 require(__DIR__.'/../../app/init.php');
 date_default_timezone_set('GMT');
@@ -127,7 +127,7 @@ function processTestFiles() {
  */
 function help($message = null) {
     if (is_null($message))
-        $message = 'Save a test with its trade history in the database.';
+        $message = 'Import test logs into the database.';
     $self = baseName($_SERVER['PHP_SELF']);
 
 echo <<<HELP
@@ -138,7 +138,7 @@ $message
   Options:  -v  Verbose output.
             -h  This help screen.
 
-  FILE - test config file ".ini" or test result file ".log" as created by MT4Expander
+  FILE - One (or multiple with wildcards) test result files as created by MT4Expander.
 
 
 HELP;

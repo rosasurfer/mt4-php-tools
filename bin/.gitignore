@@ -5,15 +5,15 @@
 /mt.createTickfile
 /mt.dir
 /mt.findOffset
+/mt.importTest
 /mt.listSymbols
-/mt.saveTest
 /mt.updateHistory
 /mt4.createHistory
 /mt4.createTickfile
 /mt4.dir
 /mt4.findOffset
+/mt4.importTest
 /mt4.listSymbols
-/mt4.saveTest
 /mt4.updateHistory
 /myfxbook.syncAccounts
 /rsync.xtrade
