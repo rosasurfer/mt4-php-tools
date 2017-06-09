@@ -704,7 +704,7 @@ namespace rosasurfer\xtrade\metatrader\list_symbols {
 }
 
 
-namespace rosasurfer\xtrade\metatrader\save_test {
+namespace rosasurfer\xtrade\metatrader\import_test {
 
     /**
      * @param  string $message [optional]
@@ -712,9 +712,11 @@ namespace rosasurfer\xtrade\metatrader\save_test {
     function help($message = null) {}
 
     /**
+     * @param  string[] $files
+     *
      * @return bool
      */
-    function processTestFiles() {
+    function processTestFiles(array $files) {
         return false;
     }
 }

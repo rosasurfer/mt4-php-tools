@@ -1,13 +1,14 @@
 #!/usr/bin/env php
 <?php
-namespace rosasurfer\xtrade\metatrader\save_test;
-
-use rosasurfer\xtrade\model\metatrader\Test;
+namespace rosasurfer\xtrade\metatrader\import_test;
 
 /**
- * Import {@link Test} results into the database.
+ * Import test results into the database.
  */
-require(__DIR__.'/../../app/init.php');
+use rosasurfer\xtrade\model\metatrader\Test;
+
+require(dirName(realPath(__FILE__)).'/../../app/init.php');
+ini_set('memory_limit', '64M');
 date_default_timezone_set('GMT');
 
 
@@ -30,37 +31,56 @@ foreach ($args as $i => $arg) {
     if ($arg == '-h')   exit(1|help());                                              // help
     if ($arg == '-v') { $verbose = max($verbose, 1); unset($args[$i]); continue; }   // verbose output
 }
+!sizeOf($args) && exit(1|help());
 
-// (1.1) the remaining argument must be a file
-sizeOf($args)!=1 && exit(1|help());
-$fileName = array_shift($args);
-!is_file($fileName) && exit(1|echoPre('file not found: "'.$fileName.'"'));
+// (1.1) remaining arguments must be files
+$files = [];
+foreach ($args as $arg) {
+    $value = $arg;
+    strIsQuoted($value) && ($value=strLeft(strRight($value, -1), -1));      // remove surrounding quotes
 
-// (1.2) fileName must be a test configuration or a test result file
-$ext = (new \SplFileInfo($fileName))->getExtension();
-if ($ext == 'ini') {
-    $testConfigFile  = $fileName;
-    $testResultsFile = strLeft($fileName, -strLen($ext)).'log';
-    !is_file($testResultsFile) && exit(1|echoPre('test results file not found: "'.$testResultsFile.'"'));
+    if (file_exists($value)) {                                              // explicite or shell expanded argument
+        if (!is_file($value))
+            continue;
+        $file = pathInfo(realPath($value));
+        if ($file['extension']=='ini' || $file['extension']=='log') {
+            $files[$file['filename']] = $file['dirname'];
+        }
+        else echoPre('skipping non-test file "'.$value.'"');
+    }
+    else {                                                                  // not an existing file, try to expand wildcards
+        $entries = glob($value, GLOB_NOESCAPE|GLOB_BRACE|GLOB_ERR);
+        foreach ($entries as $entry) {
+            if (is_file($entry)) {
+                $file = pathInfo(realPath($entries));
+                if ($file['extension']=='ini' || $file['extension']=='log') {
+                    $files[$file['filename']] = $file['dirname'];
+                }
+                else echoPre('skipping non-test file "'.$entries.'"');
+            }
+        }
+    }
 }
-elseif ($ext == 'log') {
-    $testConfigFile  = strLeft($fileName, -strLen($ext)).'ini';
-    $testResultsFile = $fileName;
-    !is_file($testConfigFile) && exit(1|echoPre('test config file not found: "'.$testConfigFile.'"'));
-}
-else exit(1|echoPre('unsupported file: "'.$fileName.'" (see -h for help)'));
 
-// (1.3) check read access
-!is_readable($testConfigFile ) && exit(1|echoPre('file not readable: "'.$testConfigFile .'"'));
-!is_readable($testResultsFile) && exit(1|echoPre('file not readable: "'.$testResultsFile.'"'));
+// (1.1) check existence of both a test's .ini and .log file
+foreach ($files as $name => &$path) {
+    if (is_file($file=$path.DIRECTORY_SEPARATOR.$name.'.ini') && is_file($file=$path.DIRECTORY_SEPARATOR.$name.'.log')) {
+        $path .= DIRECTORY_SEPARATOR.$name;
+    }
+    else {
+        echoPre('missing file "'.$file.'" (skipping test)');
+        unset($files[$name]);
+    }
+}; unset($path);
+!$files && exit(1|echoPre('error: no test result files found'));
 
 
-// (2) install SIGINT handler (catches Ctrl-C)                          // To execute destructors calling exit()
-if (!WINDOWS) pcntl_signal(SIGINT, function($signo) { exit(); });       // in the handler is sufficient.
+// (2) install SIGINT handler (catches Ctrl-C)                          // To execute destructors it's sufficient to call
+if (!WINDOWS) pcntl_signal(SIGINT, function($signo) { exit(); });       // exit() in the handler.
 
 
 // (3) process the files
-processTestFiles() || exit(1);
+processTestFiles($files) || exit(1);
 
 exit(0);
 
@@ -71,60 +91,66 @@ exit(0);
 /**
  * Process the test files.
  *
+ * @param string[] $files
+ *
  * @return bool - success status
  */
-function processTestFiles() {
-    global $testConfigFile, $testResultsFile, $verbose;
+function processTestFiles(array $files) {
+    global $verbose;
 
-    Test::db()->begin();
-    $test = Test::create($testConfigFile, $testResultsFile);
+    foreach ($files as $file) {
+        $testConfigFile  = $file.'.ini';
+        $testResultsFile = $file.'.log';
 
-    $symbol = $test->getReportingSymbol();
+        Test::db()->begin();
+        $test = Test::create($testConfigFile, $testResultsFile);
 
-    if (Test::dao()->find("select * from :Test t where t.reportingSymbol = '$symbol'")) {
-        Test::db()->rollback();
-        echoPre('error: a test for reporting symbol '.$symbol.' already exists');
-        return false;
+        $symbol = $test->getReportingSymbol();
+
+        if (Test::dao()->find("select * from :Test t where t.reportingSymbol = '$symbol'")) {
+            Test::db()->rollback();
+            echoPre('error: a test for reporting symbol '.$symbol.' already exists');
+            return false;
+        }
+
+        $test->save();
+        Test::db()->commit();
+
+        // confirm saving
+        echoPre('Test(id='.$test->getId().') of "'.$test->getStrategy().'" with '.$test->countTrades().' trades saved.');
+
+        // print strat parameters
+        echoPre(NL);
+        foreach ($test->getStrategyParameters() as $param) {
+            echoPre('input: '.$param->getName().'='.$param->getValue());
+        }
+
+        // print statistics
+        $stats        = $test->getStats();
+        $tradesPerDay = $stats->getTradesPerDay();
+
+        $sec          = $stats->getMinDuration();
+        $sMinDuration = sprintf('%02d:%02d:%02d', $sec/DAYS, $sec%HOURS/MINUTES, $sec%MINUTES);
+        $sec          = $stats->getAvgDuration();
+        $sAvgDuration = sprintf('%02d:%02d:%02d', $sec/DAYS, $sec%HOURS/MINUTES, $sec%MINUTES);
+        $sec          = $stats->getMaxDuration();
+        $sMaxDuration = sprintf('%02d:%02d:%02d', $sec/DAYS, $sec%HOURS/MINUTES, $sec%MINUTES);
+
+        $pips         = $stats->getPips();
+        $minPips      = $stats->getMinPips();
+        $avgPips      = $stats->getAvgPips();
+        $maxPips      = $stats->getMaxPips();
+
+        $profit       = $stats->getGrossProfit();
+        $commission   = $stats->getCommission();
+        $swap         = $stats->getSwap();
+
+        echoPre(NL);
+        echoPre('trades:    '.$tradesPerDay.'/day');
+        echoPre('durations: min='.$sMinDuration.'  avg='.$sAvgDuration.'  max='.$sMaxDuration);
+        echoPre('pips:      '.$pips.'  min='.$minPips.'  avg='.$avgPips.'  max='.$maxPips);
+        echoPre('profit:    '.number_format($profit, 2).'  commission='.number_format($commission, 2).'  swap='.number_format($swap, 2));
     }
-
-    $test->save();
-    Test::db()->commit();
-
-    // confirm saving
-    echoPre('Test(id='.$test->getId().') of "'.$test->getStrategy().'" with '.$test->countTrades().' trades saved.');
-
-    // print strat parameters
-    echoPre(NL);
-    foreach ($test->getStrategyParameters() as $param) {
-        echoPre('input: '.$param->getName().'='.$param->getValue());
-    }
-
-    // print statistics
-    $stats        = $test->getStats();
-    $tradesPerDay = $stats->getTradesPerDay();
-
-    $sec          = $stats->getMinDuration();
-    $sMinDuration = sprintf('%02d:%02d:%02d', $sec/DAYS, $sec%HOURS/MINUTES, $sec%MINUTES);
-    $sec          = $stats->getAvgDuration();
-    $sAvgDuration = sprintf('%02d:%02d:%02d', $sec/DAYS, $sec%HOURS/MINUTES, $sec%MINUTES);
-    $sec          = $stats->getMaxDuration();
-    $sMaxDuration = sprintf('%02d:%02d:%02d', $sec/DAYS, $sec%HOURS/MINUTES, $sec%MINUTES);
-
-    $pips         = $stats->getPips();
-    $minPips      = $stats->getMinPips();
-    $avgPips      = $stats->getAvgPips();
-    $maxPips      = $stats->getMaxPips();
-
-    $profit       = $stats->getProfit();
-    $commission   = $stats->getCommission();
-    $swap         = $stats->getSwap();
-
-    echoPre(NL);
-    echoPre('trades:    '.$tradesPerDay.'/day');
-    echoPre('durations: min='.$sMinDuration.'  avg='.$sAvgDuration.'  max='.$sMaxDuration);
-    echoPre('pips:      '.$pips.'  min='.$minPips.'  avg='.$avgPips.'  max='.$maxPips);
-    echoPre('profit:    '.number_format($profit, 2).'  commission='.number_format($commission, 2).'  swap='.number_format($swap, 2));
-
     return true;
 }
 
@@ -142,12 +168,12 @@ function help($message = null) {
 echo <<<HELP
 $message
 
-  Syntax:  $self  [OPTIONS] FILE
+  Syntax:  $self  [OPTIONS] FILE[PATTERN]...
 
   Options:  -v  Verbose output.
             -h  This help screen.
 
-  FILE - One (or multiple with wildcards) test result files as created by MT4Expander.
+  FILE - One or more test result file(s) as created by MT4Expander (may contain wildcards).
 
 
 HELP;
