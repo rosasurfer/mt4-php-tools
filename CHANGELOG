@@ -1,4 +1,9 @@
 
+2017-06-09
+
+   - batch importing of test logs
+
+
 2017-06-08
 
    - shell script for synchronizing the SQLite database (local => server)
