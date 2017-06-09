@@ -361,15 +361,15 @@ function updateDatabase(Signal $signal, array $currentOpenPositions, &$openUpdat
 /**
  * Syntax and help screen.
  *
- * @param  string $message - additional message to display (default: none)
+ * @param  string $message [optional] - additional message to display (default: none)
  */
-function help($message=null) {
+function help($message = null) {
     if (!is_null($message))
         echo($message."\n");
 
     $self = baseName($_SERVER['PHP_SELF']);
 
-echo <<<HELP_MESSAGE
+echo <<<HELP
 
  Syntax:  $self [-f] [signal_name ...]
 
@@ -377,5 +377,5 @@ echo <<<HELP_MESSAGE
            -h  This help screen.
 
 
-HELP_MESSAGE;
+HELP;
 }

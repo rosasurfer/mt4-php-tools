@@ -350,14 +350,14 @@ function compareFileNames($fileA, $fileB) {
 /**
  * Hilfefunktion
  *
- * @param  string $message - zusaetzlich zur Syntax anzuzeigende Message (default: keine)
+ * @param  string $message [optional] - zusaetzlich zur Syntax anzuzeigende Message (default: keine)
  */
-function help($message=null) {
+function help($message = null) {
     if (is_null($message))
         $message = 'List symbol metadata contained in MetaTrader "symbols.raw" files.';
     $self = baseName($_SERVER['PHP_SELF']);
 
-echo <<<HELP_MESSAGE
+echo <<<HELP
 $message
 
   Syntax:  $self [-f=FILE] [OPTIONS]
@@ -374,5 +374,5 @@ $message
             -h     This help screen.
 
 
-HELP_MESSAGE;
+HELP;
 }

@@ -164,7 +164,7 @@ function help($message = null) {
 
     $self = baseName($_SERVER['PHP_SELF']);
 
-    echo <<<HELP_SYNTAX
+echo <<<HELP
 
  Syntax:  $self [options]
 
@@ -172,5 +172,5 @@ function help($message = null) {
            -h   This help screen.
 
 
-HELP_SYNTAX;
+HELP;
 }

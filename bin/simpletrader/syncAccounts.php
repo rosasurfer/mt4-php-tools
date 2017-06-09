@@ -408,15 +408,15 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
 /**
  * Hilfefunktion: Zeigt die Syntax des Aufrufs an.
  *
- * @param  string $message - zusaetzlich zur Syntax anzuzeigende Message (default: keine)
+ * @param  string $message [optional] - zusaetzlich zur Syntax anzuzeigende Message (default: keine)
  */
-function help($message=null) {
+function help($message = null) {
     if (!is_null($message))
         echo($message."\n");
 
     $self = baseName($_SERVER['PHP_SELF']);
 
-echo <<<HELP_MESSAGE
+echo <<<HELP
 
  Syntax:  $self [-l] [-f] [signal_name ...]
 
@@ -425,5 +425,5 @@ echo <<<HELP_MESSAGE
            -h  This help screen.
 
 
-HELP_MESSAGE;
+HELP;
 }

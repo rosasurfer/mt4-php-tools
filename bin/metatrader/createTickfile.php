@@ -138,14 +138,14 @@ exit(0);
 /**
  * Hilfefunktion
  *
- * @param  string $message - zusaetzlich zur Syntax anzuzeigende Message (default: keine)
+ * @param  string $message [optional] - zusaetzlich zur Syntax anzuzeigende Message (default: keine)
  */
-function help($message=null) {
+function help($message = null) {
     if (is_null($message))
         $message = 'Generates a MetaTrader Strategy Tester tick file for the specified symbol and timeframe.';
     $self = baseName($_SERVER['PHP_SELF']);
 
-echo <<<HELP_MESSAGE
+echo <<<HELP
 $message
 
   Syntax:  $self -s=SYMBOL -p=PERIOD [-from=DATE] [-to=DATE] [-model=TYPE] [-spread=PIPS] [...]
@@ -162,5 +162,5 @@ $message
             -h              This help screen.
 
 
-HELP_MESSAGE;
+HELP;
 }

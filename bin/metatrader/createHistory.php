@@ -181,18 +181,18 @@ function getVar($id, $symbol=null, $time=null) {
 /**
  * Hilfefunktion: Zeigt die Syntax des Aufrufs an.
  *
- * @param  string $message - zusaetzlich zur Syntax anzuzeigende Message (default: keine)
+ * @param  string $message [optional] - zusaetzlich zur Syntax anzuzeigende Message (default: keine)
  */
-function help($message=null) {
+function help($message = null) {
     if (!is_null($message))
         echo($message.NL.NL);
 
     $self = baseName($_SERVER['PHP_SELF']);
 
-echo <<<HELP_MESSAGE
+echo <<<HELP
 
   Syntax:  $self [symbol ...]
 
 
-HELP_MESSAGE;
+HELP;
 }

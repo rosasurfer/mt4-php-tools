@@ -130,15 +130,15 @@ exit(0);
 /**
  * Hilfefunktion: Zeigt die Syntax des Aufrufs an.
  *
- * @param  string $message - zusaetzlich zur Syntax anzuzeigende Message (default: keine)
+ * @param  string $message [optional] - zusaetzlich zur Syntax anzuzeigende Message (default: keine)
  */
-function help($message=null) {
+function help($message = null) {
     if (!is_null($message))
         echo($message.NL.NL);
 
     $self = baseName($_SERVER['PHP_SELF']);
 
-echo <<<HELP_MESSAGE
+echo <<<HELP
 Returns the offset of the first bar in a MetaTrader history file at or after a specified time or -1 if no such bar is found.
 
   Syntax:  $self  [OPTION]... TIME FILE
@@ -148,5 +148,5 @@ Returns the offset of the first bar in a MetaTrader history file at or after a s
             -h  This help screen.
 
 
-HELP_MESSAGE;
+HELP;
 }
