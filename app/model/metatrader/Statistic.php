@@ -17,9 +17,9 @@ use rosasurfer\db\orm\PersistableObject;
  * @method float getAvgPips()      Return the average amount of won/lost pips of the statistics record.
  * @method float getMaxPips()      Return the maximum amount of won/loast of the statistics record.
  * @method float getPips()         Return the sum of all won/lost pips of the statistics record.
- * @method float getProfit()       Return the full gross profit of the statistics record.
- * @method float getCommission()   Return the full commission amount of the statistics record.
- * @method float getSwap()         Return the full swap amount of the statistics record.
+ * @method float getGrossProfit()  Return the total gross gross profit of the statistics record.
+ * @method float getCommission()   Return the total commission amount of the statistics record.
+ * @method float getSwap()         Return the total swap amount of the statistics record.
  * @method Test  getTest()         Return the test the statistics record belongs to.
  */
 class Statistic extends PersistableObject {
@@ -56,7 +56,7 @@ class Statistic extends PersistableObject {
     protected $pips;
 
     /** @var float */
-    protected $profit;
+    protected $grossProfit;
 
     /** @var float */
     protected $commission;
@@ -131,7 +131,7 @@ class Statistic extends PersistableObject {
         $stats->maxPips      = round($maxPips, 1);
         $stats->pips         = round($sumPips, 1);
 
-        $stats->profit       = round($profit, 2);
+        $stats->grossProfit  = round($profit, 2);
         $stats->commission   = round($commission, 2);
         $stats->swap         = round($swap, 2);
 

@@ -1,6 +1,6 @@
 /*
 Created     16.01.2017
-Modified    20.04.2017
+Modified    09.06.2017
 Project     XTrade
 Model       Main model
 Company     
@@ -53,8 +53,6 @@ create table t_test (
    bars int unsigned not null,
    ticks int unsigned not null,
    tradedirections enum('Long','Short','Both') not null comment 'Long | Short | Both',
-   visualmode bool not null,
-   duration int unsigned not null comment 'test duration in seconds',
    unique index u_reportingsymbol (reportingsymbol),
    primary key (id),
    unique key u_strategy_reportingid (strategy,reportingid),
@@ -114,10 +112,10 @@ create table t_statistic (
    pips_min decimal(10,1) not null comment 'minimum trade profit in pips',
    pips_avg decimal(10,1) not null comment 'average trade profit in pips',
    pips_max decimal(10,1) not null comment 'maximum trade profit in pips',
-   pips decimal(10,1) not null comment 'full test profit in pips',
-   profit decimal(10,2) not null comment 'test gross profit in money',
-   commission decimal(10,2) not null comment 'test commission',
-   swap decimal(10,2) not null comment 'test swap',
+   pips decimal(10,1) not null comment 'total profit in pips',
+   gross_profit decimal(10,2) not null comment 'total gross profit in money',
+   commission decimal(10,2) not null comment 'total commission',
+   swap decimal(10,2) not null comment 'total swap',
    test_id int unsigned not null,
    unique index u_test_id (test_id),
    primary key (id),

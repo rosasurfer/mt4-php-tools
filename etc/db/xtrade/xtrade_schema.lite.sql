@@ -104,8 +104,6 @@ create table t_test (
    bars            integer        not null,                                -- number of tested bars
    ticks           integer        not null,                                -- number of tested ticks
    tradedirections text[enum]     not null collate nocase,                 -- Long|Short|Both
-   visualmode      integer[bool]  not null,
-   duration        integer        not null,                                -- test duration in seconds
    primary key (id),
    constraint fk_test_tickmodel       foreign key (tickmodel)       references enum_tickmodel(type)      on delete restrict on update cascade,
    constraint fk_test_tradedirections foreign key (tradedirections) references enum_tradedirection(type) on delete restrict on update cascade,
@@ -182,10 +180,10 @@ create table t_statistic (
    pips_min     float(10,1) not null,                                      -- minimum trade profit in pips
    pips_avg     float(10,1) not null,                                      -- average trade profit in pips
    pips_max     float(10,1) not null,                                      -- maximum trade profit in pips
-   pips         float(10,1) not null,                                      -- full test profit in pips
-   profit       float(10,2) not null,                                      -- test gross profit in currency
-   commission   float(10,2) not null,                                      -- test commission
-   swap         float(10,2) not null,                                      -- test swap
+   pips         float(10,1) not null,                                      -- total profit in pips
+   gross_profit float(10,2) not null,                                      -- test gross profit in money
+   commission   float(10,2) not null,                                      -- total commission
+   swap         float(10,2) not null,                                      -- total swap
    test_id      integer     not null,
    primary key (id),
    constraint fk_statistic_test foreign key (test_id) references t_test (id) on delete cascade on update cascade,

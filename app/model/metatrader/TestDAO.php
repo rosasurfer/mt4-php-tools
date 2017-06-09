@@ -3,7 +3,6 @@ namespace rosasurfer\xtrade\model\metatrader;
 
 use rosasurfer\db\orm\DAO;
 
-use const rosasurfer\db\orm\meta\BOOL;
 use const rosasurfer\db\orm\meta\FLOAT;
 use const rosasurfer\db\orm\meta\INT;
 use const rosasurfer\db\orm\meta\STRING;
@@ -40,8 +39,6 @@ class TestDAO extends DAO {
                 ['name'=>'bars'           , 'type'=>INT   ,                ],    // db:int
                 ['name'=>'ticks'          , 'type'=>INT   ,                ],    // db:int
                 ['name'=>'tradeDirections', 'type'=>STRING,                ],    // db:text[enum] references enum_tradedirection(type)
-                ['name'=>'visualMode'     , 'type'=>BOOL  ,                ],    // db:int[bool]
-                ['name'=>'duration'       , 'type'=>INT   ,                ],    // db:int
             ],
             'relations' => [
                 ['name'=>'strategyParameters', 'assoc'=>'one-to-many', 'type'=>StrategyParameter::class, 'ref-column'=>'test_id'],

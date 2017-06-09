@@ -32,7 +32,7 @@ class StatisticDAO extends DAO {
                 ['name'=>'avgPips'     , 'type'=>FLOAT, 'column'=>'pips_avg'    ],                  // db:float
                 ['name'=>'maxPips'     , 'type'=>FLOAT, 'column'=>'pips_max'    ],                  // db:float
                 ['name'=>'pips'        , 'type'=>FLOAT,                         ],                  // db:float
-                ['name'=>'profit'      , 'type'=>FLOAT,                         ],                  // db:float
+                ['name'=>'grossProfit' , 'type'=>FLOAT, 'column'=>'gross_profit'],                  // db:float
                 ['name'=>'commission'  , 'type'=>FLOAT,                         ],                  // db:float
                 ['name'=>'swap'        , 'type'=>FLOAT,                         ],                  // db:float
             ],

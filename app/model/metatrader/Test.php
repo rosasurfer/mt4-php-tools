@@ -36,8 +36,6 @@ use const rosasurfer\xtrade\TICKMODEL_BAROPEN;
  * @method int                 getBars()               Return the number of tested bars.
  * @method int                 getTicks()              Return the number of tested ticks.
  * @method string              getTradeDirections()    Return the enabled trade directions of the test.
- * @method bool                isVisualMode()          Return the visual mode status of the test.
- * @method int                 getDuration()           Return the test duration (in seconds).
  * @method Order[]             getTrades()             Return the trade history of the test.
  */
 class Test extends PersistableObject {
@@ -90,12 +88,6 @@ class Test extends PersistableObject {
 
     /** @var string - enabled trade directions: Long|Short|Both */
     protected $tradeDirections;
-
-    /** @var bool - whether or not the test was run in visual mode */
-    protected $visualMode;
-
-    /** @var int - test duration in seconds */
-    protected $duration;
 
     /** @var Order[] [transient] - trade history of the test */
     protected $trades;
@@ -200,19 +192,6 @@ class Test extends PersistableObject {
                 if (!is_int($ticks))                          throw new IllegalTypeException('Illegal type of property "ticks": '.getType($ticks));
                 if ($ticks <= 0)                              throw new InvalidArgumentException('Invalid property "ticks": '.$ticks.' (not positive)');
                 $test->ticks = $ticks;
-
-                $visualMode = $properties['visualMode'];
-                if (is_int($visualMode)) {
-                    if ($visualMode != (int)(bool)$visualMode) throw new InvalidArgumentException('Invalid property "visualMode": '.$visualMode.' (non-standard)');
-                    $visualMode = (bool)$visualMode;
-                }
-                else if (!is_bool($visualMode))               throw new IllegalTypeException('Illegal type of property "visualMode": '.getType($visualMode));
-                $test->visualMode = $visualMode;
-
-                $duration = $properties['duration'];
-                if (!is_int($duration))                       throw new IllegalTypeException('Illegal type of property "duration": '.getType($duration));
-                if ($duration <= 0)                           throw new InvalidArgumentException('Invalid property "duration": '.$duration.' (not positive)');
-                $test->duration = $duration;
 
                 if ($ticks == $bars+1)
                     $test->tickModel = MT4::tickModelDescription(TICKMODEL_BAROPEN);
@@ -344,7 +323,7 @@ class Test extends PersistableObject {
             $properties['id'] = (int)$matches[1][0];
             if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal test properties (multiple "id" occurrences): "'.$valuesOrig.'"');
 
-            // time (local time)
+            // time (local)
             $pattern = '/, *time *= *"([^"]+)" *,/i';
             if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal test properties ("time" invalid or not found): "'.$valuesOrig.'"');
 
@@ -425,20 +404,6 @@ class Test extends PersistableObject {
             if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal test properties ("ticks" invalid or not found): "'.$valuesOrig.'"');
             $properties['ticks'] = (int)$matches[1][0];
             if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal test properties (multiple "ticks" occurrences): "'.$valuesOrig.'"');
-
-            // visualMode
-            $pattern = '/, *visualMode *= *([^ ]+) *,/i';
-            if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal test properties ("visualMode" invalid or not found): "'.$valuesOrig.'"');
-            if (is_null($mode = strToBool($matches[1][0])))                      throw new IllegalArgumentException('Illegal test property "visualMode": "'.$matches[1][0].'"');
-            $properties['visualMode'] = (int)$mode;
-            if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal test properties (multiple "visualMode" occurrences): "'.$valuesOrig.'"');
-
-            // duration
-            $pattern = '/, *duration *= *([^ ]+) *s? *,/i';
-            if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal test properties ("duration" invalid or not found): "'.$valuesOrig.'"');
-            if (!strIsNumeric($duration = $matches[1][0]))                       throw new IllegalArgumentException('Illegal test property "duration": "'.$matches[1][0].'"');
-            $properties['duration'] = (int)round($duration);
-            if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal test properties (multiple "duration" occurrences): "'.$valuesOrig.'"');
         }
         finally { date_default_timezone_set($oldTimezone); }
 
