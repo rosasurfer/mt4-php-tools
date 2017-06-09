@@ -14,7 +14,7 @@ use rosasurfer\config\Config;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\util\PHP;
 
-require(__DIR__.'/../../app/init.php');
+require(dirName(realPath(__FILE__)).'/../../app/init.php');
 set_time_limit(0);                                       // no time limit for CLI
 
 

@@ -9,7 +9,7 @@ namespace rosasurfer\xtrade\metatrader\list_symbols;
  */
 use rosasurfer\xtrade\metatrader\MT4;
 
-require(__DIR__.'/../../app/init.php');
+require(dirName(realPath(__FILE__)).'/../../app/init.php');
 
 
 // -- Konfiguration ---------------------------------------------------------------------------------------------------------
@@ -308,26 +308,15 @@ function printData(array $files, array $fields, array $data, array $options) {
  *               0, wenn beide Dateinamen gleich sind
  */
 function compareFileNames($fileA, $fileB) {
-    if ($fileA === $fileB) {
-        echoPre(__FUNCTION__.'(1)  $fileA = $fileB:  '.$fileA.'  '.$fileB);
+    if ($fileA === $fileB)
         return 0;
-    }
     $lenA = strLen($fileA);
     $lenB = strLen($fileB);
-
-    if (!$lenA) {
-        echoPre(__FUNCTION__.'(2)  $fileA = "":  '.$fileA);
-        return $lenB ? -1 : 0;
-    }
-    if (!$lenB) {
-        echoPre(__FUNCTION__.'(3)  $fileB = "":  '.$fileB);
-        return $lenA ? +1 : 0;
-    }
 
     // beide Strings haben eine Laenge > 0
     $fileALower = strToLower(str_replace('\\', '/', $fileA));
     $fileBLower = strToLower(str_replace('\\', '/', $fileB));
-    $len   = min($lenA, $lenB);
+    $len = min($lenA, $lenB);
 
     for ($i=0; $i < $len; $i++) {
         $charA = $fileALower[$i];
@@ -342,7 +331,7 @@ function compareFileNames($fileA, $fileB) {
 
     // Kleinschreibung ist soweit identisch, Laengen vergleichen
     if ($lenA == $lenB)
-        return ($fileA > $fileB)        ? +1 : -1;   // gleiche Laenge, Originalnamen vergleichen
+        return ($fileA > $fileB)       ? +1 : -1;   // gleiche Laenge, Originalnamen vergleichen
     return ($fileALower > $fileBLower) ? +1 : -1;   // unterschiedliche Laenge, Lower-Names vergleichen
 }
 

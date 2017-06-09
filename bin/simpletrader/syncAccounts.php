@@ -30,7 +30,7 @@ use rosasurfer\xtrade\model\metatrader\Account;
 use rosasurfer\xtrade\simpletrader\DataNotFoundException;
 use rosasurfer\xtrade\simpletrader\SimpleTrader;
 
-require(__DIR__.'/../../app/init.php');
+require(dirName(realPath(__FILE__)).'/../../app/init.php');
 
 
 $sleepSeconds      = 30;         // Laenge der Pause zwischen zwei Updates

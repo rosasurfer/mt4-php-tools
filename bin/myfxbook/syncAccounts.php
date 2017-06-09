@@ -28,7 +28,7 @@ use rosasurfer\xtrade\myfxbook\MyfxBook;
 use rosasurfer\xtrade\simpletrader\DataNotFoundException;
 use rosasurfer\xtrade\simpletrader\SimpleTrader;
 
-require(__DIR__.'/../../app/init.php');
+require(dirName(realPath(__FILE__)).'/../../app/init.php');
 
 $signalNamePadding = 21;                              // configuration of output formatting
 

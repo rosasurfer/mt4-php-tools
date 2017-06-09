@@ -13,7 +13,7 @@ use rosasurfer\xtrade\metatrader\MT4;
 
 use rosasurfer\xtrade\model\metatrader\Order;
 
-require(__DIR__.'/../../app/init.php');
+require(dirName(realPath(__FILE__)).'/../../app/init.php');
 
 
 // -- Start -----------------------------------------------------------------------------------------------------------------

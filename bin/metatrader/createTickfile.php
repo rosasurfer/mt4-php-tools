@@ -7,7 +7,7 @@ namespace rosasurfer\xtrade\metatrader\create_tickfile;
  */
 use rosasurfer\xtrade\metatrader\MT4;
 
-require(__DIR__.'/../../app/init.php');
+require(dirName(realPath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');
 
 

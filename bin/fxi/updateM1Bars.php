@@ -29,7 +29,7 @@ use rosasurfer\xtrade\dukascopy\Dukascopy;
 use function rosasurfer\xtrade\fxtTime;
 use function rosasurfer\xtrade\isFxtWeekend;
 
-require(__DIR__.'/../../app/init.php');
+require(dirName(realPath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');
 
 
