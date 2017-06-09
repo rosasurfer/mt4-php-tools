@@ -1,0 +1,43 @@
+<?php
+namespace rosasurfer\xtrade\view;
+use rosasurfer\xtrade\model\metatrader\Test;
+
+$tests = Test::dao()->findAll('select * from :Test where id');
+?>
+
+<div class="panel panel-default">
+   <div class="panel-heading">Found <?=$size=sizeOf($tests)?> test<?=pluralize($size)?>.</div>
+
+   <table class="table table-striped table-hover table-bordered">
+   <thead>
+   <tr>
+      <th style="vertical-align:middle; text-align:center">#</th>
+      <th style="vertical-align:middle; text-align:left">Strategy</th>
+      <th style="vertical-align:middle; text-align:center">Symbol</th>
+      <th style="vertical-align:middle; text-align:center">Trades</th>
+      <th style="vertical-align:middle; text-align:center">AvgPips/Trade</th>
+   </tr>
+   </thead>
+
+   <tbody>
+   <?
+   /** @var Test $test */
+   foreach ($tests as $i => $test) {
+   ?>
+   <tr style="text-align:center">
+      <th style="vertical-align:middle; text-align:center" scope="row"><?=($i+1)?></th>
+      <td style="vertical-align:middle; text-align:left"><?=$test->getStrategy()?></td>
+      <td style="vertical-align:middle"><?=$test->getSymbol().', M'.$test->getTimeframe()?></td>
+      <td style="vertical-align:middle"><?=number_format($test->getStats()->getTrades())?></td>
+      <td style="vertical-align:middle"><?=sprintf('%+.1f', $test->getStats()->getAvgPips())?></td>
+   </tr>
+   <?}?>
+   </tbody>
+   </table>
+</div>
+
+<?foreach ($request->getActionErrors() as $value) {?>
+   <div class="alert alert-danger textcenter">
+      <p><?=$value?></p>
+   </div>
+<?}?>

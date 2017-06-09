@@ -7,9 +7,10 @@
     <!-- ================================================ Action Mappings =============================================== -->
     <action-mappings>
         <mapping name="home"     path="/"         include=".home"/>
-        <mapping name="analyse"  path="/analyse"  include=".home"/>
         <mapping name="symbols"  path="/symbols"  include=".home"/>
         <mapping name="history"  path="/history"  include=".home"/>
+
+        <mapping name="tests"    path="/tests"    include=".test.list"/>
         
         <mapping name="login"    path="/login"    include=".home"/>
         <mapping name="contact"  path="/contact"  include=".home"/>
@@ -28,8 +29,11 @@
 
         
         <!-- views -->
-        <tile name=".home"  extends=".default.layout">
-           <include name="content"  value="tiles/home.phtml"/>
+        <tile name=".home"       extends=".default.layout">
+           <include name="content"   value="tiles/home.phtml"/>
+        </tile>
+        <tile name=".test.list"  extends=".default.layout">
+            <include name="content"  value="tiles/test.list.phtml"/>
         </tile>
     </tiles>
 
