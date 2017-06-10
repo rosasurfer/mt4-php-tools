@@ -197,3 +197,35 @@ function isFxtHoliday($timestamp, $timezone='GMT') {
         return true;
     return false;
 }
+
+
+/**
+ * Return a nicely formatted time range description.
+ *
+ * @param  string $startTime
+ * @param  string $endTime
+ *
+ * @return string
+ */
+function prettyTimeRange($startTime, $endTime) {
+    $startDate = new \DateTime($startTime);
+    $endDate   = new \DateTime($endTime);
+
+    $startTimestamp = $startDate->getTimestamp();
+    $endTimestamp   = $endDate->getTimestamp();
+
+    $range = null;
+
+    if (iDate('Y', $startTimestamp) == iDate('Y', $endTimestamp)) {
+        if (iDate('m', $startTimestamp) == iDate('m', $endTimestamp)) {
+            if (iDate('d', $startTimestamp) == iDate('d', $endTimestamp)) {
+                 $range = $startDate->format('d.m.Y H:i').'-'.$endDate->format('H:i');
+            }
+            else $range = $startDate->format('d.').'-'.$endDate->format('d.m.Y');
+        }
+        else $range = $startDate->format('d.m.').'-'.$endDate->format('d.m.Y');
+    }
+    else $range = $startDate->format('d.m.Y').'-'.$endDate->format('d.m.Y');
+
+    return $range;
+}
