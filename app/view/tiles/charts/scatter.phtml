@@ -1,0 +1,61 @@
+<?php
+namespace rosasurfer\xtrade\view;
+use rosasurfer\xtrade\model\metatrader\Test;
+use const rosasurfer\NL;
+
+/** @var Test $test */
+$test = $form->getTest();
+$trades = $test->getTrades(['order' => 'closeTime, openTime']);
+?>
+
+<canvas id="canvas" width="700" height="500" style="margin:auto"></canvas>
+
+<script>
+Chart.defaults.global.responsive          = false;
+Chart.defaults.global.maintainAspectRatio = false;
+
+var Colors = {
+    black:  'rgb(  0,   0,   0)',
+    white:  'rgb(255, 255, 255)',
+    red:    'rgb(255,  99, 132)',
+    orange: 'rgb(255, 159,  64)',
+    yellow: 'rgb(255, 205,  86)',
+    green:  'rgb( 75, 192, 192)',
+    blue:   'rgb( 54, 162, 235)',
+    purple: 'rgb(153, 102, 255)',
+    grey:   'rgb(201, 203, 207)'
+};
+
+var color = Chart.helpers.color;
+var chart = new Chart('canvas', {
+    type: 'scatter',
+    data: {
+        datasets: [{
+            label:               'Profit/Loss distribution',
+            borderColor:          color(Colors.red).alpha(0).rgbString(),
+            backgroundColor:      color(Colors.red).alpha(0.6).rgbString(),
+            showLine:             false,
+            fill:                 false,
+            pointRadius:          2,
+            pointBorderColor:     Colors.red,
+            pointBackgroundColor: Colors.red,
+            data: [
+                <?
+                foreach ($trades as $i => $trade) {
+                    $profit = $trade->getProfit();
+                    if ($i++) echo ','.NL;
+                    echo '{x: '.$i.', y: '.$profit.'}';
+                }?>
+            ]
+        }]
+    },
+    options: {
+        scales: {
+            xAxes: [{
+                type:     'linear',
+                position: 'bottom'
+            }]
+        }
+    }
+});
+</script>

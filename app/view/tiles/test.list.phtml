@@ -1,8 +1,9 @@
 <?php
 namespace rosasurfer\xtrade\view;
+use rosasurfer\xtrade\XTrade;
 use rosasurfer\xtrade\model\metatrader\Test;
 
-$tests = Test::dao()->findAll('select * from :Test where id');
+$tests = Test::dao()->findAll('select * from :Test order by strategy, created');
 ?>
 
 <div class="panel panel-default">
@@ -12,10 +13,12 @@ $tests = Test::dao()->findAll('select * from :Test where id');
    <thead>
    <tr>
       <th style="vertical-align:middle; text-align:center">#</th>
+      <th style="vertical-align:middle; text-align:center; width:1%">Created</th>
       <th style="vertical-align:middle; text-align:left">Strategy</th>
       <th style="vertical-align:middle; text-align:center">Symbol</th>
+      <th style="vertical-align:middle; text-align:center">Period</th>
       <th style="vertical-align:middle; text-align:center">Trades</th>
-      <th style="vertical-align:middle; text-align:center">AvgPips/Trade</th>
+      <th style="vertical-align:middle; text-align:center">AvgPips/Lot</th>
    </tr>
    </thead>
 
@@ -23,13 +26,25 @@ $tests = Test::dao()->findAll('select * from :Test where id');
    <?
    /** @var Test $test */
    foreach ($tests as $i => $test) {
+      $created   = date('d.m.Y H:i:s', strToTime($test->getCreated()));
+      $strategy  = $test->getStrategy().' ('.$test->getReportingSymbol().')';
+      $symbol    = $test->getSymbol();
+      $period    = Xtrade::periodDescription($test->getTimeframe());
+      $startTime = date('d.m.Y', strToTime($test->getStartTime()));
+      $endTime   = date('d.m.Y', strToTime($test->getEndTime()));
+      $numTrades = $test->getStats()->getTrades();
+      $avgPips   = $test->getStats()->getAvgPips();
    ?>
    <tr style="text-align:center">
       <th style="vertical-align:middle; text-align:center" scope="row"><?=($i+1)?></th>
-      <td style="vertical-align:middle; text-align:left"><?=$test->getStrategy()?></td>
-      <td style="vertical-align:middle"><?=$test->getSymbol().', M'.$test->getTimeframe()?></td>
-      <td style="vertical-align:middle"><?=number_format($test->getStats()->getTrades())?></td>
-      <td style="vertical-align:middle"><?=sprintf('%+.1f', $test->getStats()->getAvgPips())?></td>
+      <td style="vertical-align:middle" nowrap><?=$created?></td>
+      <td style="vertical-align:middle; text-align:left">
+         <a href="<?=route('test.detail').'?id='.$test->getId()?>"><?=$strategy?></a>
+      </td>
+      <td style="vertical-align:middle"><?=$symbol.', '.$period?></td>
+      <td style="vertical-align:middle"><?=$startTime.'-'.$endTime?></td>
+      <td style="vertical-align:middle"><?=numf($numTrades, 0)?></td>
+      <td style="vertical-align:middle"><?=sprintf('%+.1f', $avgPips)?></td>
    </tr>
    <?}?>
    </tbody>

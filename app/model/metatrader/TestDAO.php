@@ -6,6 +6,8 @@ use rosasurfer\db\orm\DAO;
 use const rosasurfer\db\orm\meta\FLOAT;
 use const rosasurfer\db\orm\meta\INT;
 use const rosasurfer\db\orm\meta\STRING;
+use rosasurfer\exception\IllegalTypeException;
+use rosasurfer\exception\InvalidArgumentException;
 
 
 /**
@@ -46,5 +48,23 @@ class TestDAO extends DAO {
                 ['name'=>'stats'             , 'assoc'=>'one-to-one' , 'type'=>Statistic::class        , 'ref-column'=>'test_id'],
             ],
         ]));
+    }
+
+
+    /**
+     * Return the {@link Test} with the given id.
+     *
+     * @param  int $id - primary key
+     *
+     * @return Test|null - Test instance or NULL if no such instance exists
+     */
+    public function getById($id) {
+        if (!is_int($id)) throw new IllegalTypeException('Illegal type of parameter $id: '.getType($id));
+        if ($id < 1)      throw new InvalidArgumentException('Invalid argument $id: '.$id);
+
+        $sql = 'select *
+                   from :Test
+                   where id = '.$id;
+        return $this->find($sql);
     }
 }
