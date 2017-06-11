@@ -227,7 +227,7 @@ function collectData($file, array &$fields, array &$data, array $options) {
                 $decimals = strLeftTo(strRightFrom($s, '.'), 'E');
                 $decimals = ($decimals=='0' ? 0 : strLen($decimals)) + $e;
                 if ($decimals <= 14)                                                    // ab 15 Dezimalstellen wissenschaftliche Anzeige
-                    $value = number_format($value, $decimals);
+                    $value = numf($value, $decimals);
             }
             $values[$name][]         = $value;                                         // real-name[n]      => value
             $fields[$name]['length'] = max(strLen($value), $fields[$name]['length']);  // real-name[length] => (int)

@@ -328,11 +328,11 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
                 $iFirstNewRow       = 0;
 
                 foreach ($report as $i => $row) {
-                    if      ($row['total' ] > 0) $netPosition  = 'Long  '.number_format( $row['total'], 2);
-                    else if ($row['total' ] < 0) $netPosition  = 'Short '.number_format(-$row['total'], 2);
-                    else if ($row['hedged'])     $netPosition  = 'Hedge '.str_repeat(' ', strLen(number_format(abs($report[$i-1]['total']), 2)));
+                    if      ($row['total' ] > 0) $netPosition  = 'Long  '.numf( $row['total'], 2);
+                    else if ($row['total' ] < 0) $netPosition  = 'Short '.numf(-$row['total'], 2);
+                    else if ($row['hedged'])     $netPosition  = 'Hedge '.str_repeat(' ', strLen(numf(abs($report[$i-1]['total']), 2)));
 
-                    if      ($row['hedged'])     $netPosition .= ' +-'.number_format($row['hedged'], 2).' lot';
+                    if      ($row['hedged'])     $netPosition .= ' +-'.numf($row['hedged'], 2).' lot';
                     else if ($row['total' ])     $netPosition .= ' lot';
                     else                         $netPosition  = 'Flat';
 

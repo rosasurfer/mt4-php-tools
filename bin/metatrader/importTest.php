@@ -120,10 +120,10 @@ function processTestFiles(array $files) {
         echoPre('Test(id='.$test->getId().') of "'.$test->getStrategy().'" with '.$test->countTrades().' trades saved.');
 
         // print strat parameters
-        echoPre(NL);
-        foreach ($test->getStrategyParameters() as $param) {
-            echoPre('input: '.$param->getName().'='.$param->getValue());
-        }
+        //foreach ($test->getStrategyParameters() as $param) {
+        //    echoPre('input: '.$param->getName().'='.$param->getValue());
+        //}
+        //echoPre(NL);
 
         // print statistics
         $stats        = $test->getStats();
@@ -145,11 +145,11 @@ function processTestFiles(array $files) {
         $commission   = $stats->getCommission();
         $swap         = $stats->getSwap();
 
-        echoPre(NL);
         echoPre('trades:    '.$tradesPerDay.'/day');
         echoPre('durations: min='.$sMinDuration.'  avg='.$sAvgDuration.'  max='.$sMaxDuration);
         echoPre('pips:      '.$pips.'  min='.$minPips.'  avg='.$avgPips.'  max='.$maxPips);
-        echoPre('profit:    '.number_format($profit, 2).'  commission='.number_format($commission, 2).'  swap='.number_format($swap, 2));
+        echoPre('profit:    '.numf($profit, 2).'  commission='.numf($commission, 2).'  swap='.numf($swap, 2));
+        echoPre(NL);
     }
     return true;
 }

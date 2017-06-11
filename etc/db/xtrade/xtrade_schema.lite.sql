@@ -171,20 +171,22 @@ end;
 
 -- Test statistics
 create table t_statistic (
-   id           integer     not null,
-   trades       integer     not null,
-   trades_day   float(10,1) not null,                                      -- trades per day
-   duration_min integer     not null,                                      -- minimum trade duration in seconds
-   duration_avg integer     not null,                                      -- average trade duration in seconds
-   duration_max integer     not null,                                      -- maximum trade duration in seconds
-   pips_min     float(10,1) not null,                                      -- minimum trade profit in pips
-   pips_avg     float(10,1) not null,                                      -- average trade profit in pips
-   pips_max     float(10,1) not null,                                      -- maximum trade profit in pips
-   pips         float(10,1) not null,                                      -- total profit in pips
-   gross_profit float(10,2) not null,                                      -- test gross profit in money
-   commission   float(10,2) not null,                                      -- total commission
-   swap         float(10,2) not null,                                      -- total swap
-   test_id      integer     not null,
+   id            integer     not null,
+   trades        integer     not null,
+   trades_day    float(10,1) not null,                                     -- trades per day
+   duration_min  integer     not null,                                     -- minimum trade duration in seconds
+   duration_avg  integer     not null,                                     -- average trade duration in seconds
+   duration_max  integer     not null,                                     -- maximum trade duration in seconds
+   pips_min      float(10,1) not null,                                     -- minimum trade profit in pips
+   pips_avg      float(10,1) not null,                                     -- average trade profit in pips
+   pips_max      float(10,1) not null,                                     -- maximum trade profit in pips
+   pips          float(10,1) not null,                                     -- total profit in pips
+   gross_profit  float(10,2) not null,                                     -- test gross profit in money
+   commission    float(10,2) not null,                                     -- total commission
+   swap          float(10,2) not null,                                     -- total swap
+   sharpe_ratio  float(10,3) not null,                                     -- non-normalized Sharpe ratio
+   sortino_ratio float(10,3) not null,                                     -- non-normalized Sortino ratio
+   test_id       integer     not null,
    primary key (id),
    constraint fk_statistic_test foreign key (test_id) references t_test (id) on delete cascade on update cascade,
    constraint u_test            unique (test_id)

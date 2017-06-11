@@ -25,6 +25,8 @@ foreach ($request->getActionErrors() as $value) {?>
       <th style="vertical-align:middle; text-align:center">Time Range</th>
       <th style="vertical-align:middle; text-align:center">Trades</th>
       <th style="vertical-align:middle; text-align:center">Avg Pips/Lot</th>
+      <th style="vertical-align:middle; text-align:center">Sharpe</th>
+      <th style="vertical-align:middle; text-align:center">Sortino</th>
    </tr>
    </thead>
 
@@ -39,6 +41,8 @@ foreach ($request->getActionErrors() as $value) {?>
       $timeRange = prettyTimeRange($test->getStartTime(), $test->getEndTime());
       $numTrades = $test->getStats()->getTrades();
       $avgPips   = $test->getStats()->getAvgPips();
+      $sharpe    = $test->getStats()->getSharpeRatio();
+      $sortino   = $test->getStats()->getSortinoRatio();
    ?>
    <tr style="text-align:center">
       <th style="vertical-align:middle; text-align:center" scope="row"><?=($i+1)?></th>
@@ -50,6 +54,8 @@ foreach ($request->getActionErrors() as $value) {?>
       <td style="vertical-align:middle"><?=$timeRange?></td>
       <td style="vertical-align:middle"><?=numf($numTrades, 0)?></td>
       <td style="vertical-align:middle"><?=sprintf('%+.1f', $avgPips)?></td>
+      <td style="vertical-align:middle"><?=rtrim(sprintf('%.4f', $sharpe), '.0')?></td>
+      <td style="vertical-align:middle"><?=rtrim(sprintf('%.4f', $sortino), '.0')?></td>
    </tr>
    <?}?>
    </tbody>

@@ -116,6 +116,8 @@ create table t_statistic (
    gross_profit decimal(10,2) not null comment 'total gross profit in money',
    commission decimal(10,2) not null comment 'total commission',
    swap decimal(10,2) not null comment 'total swap',
+   sharpe_ratio decimal(10,3) not null comment 'non-normalized Sharpe ratio',
+   sortino_ratio decimal(10,3) not null comment 'non-normalized Sortino ratio',
    test_id int unsigned not null,
    unique index u_test_id (test_id),
    primary key (id),

@@ -3,6 +3,8 @@ namespace rosasurfer\xtrade\model\metatrader;
 
 use rosasurfer\db\orm\PersistableObject;
 
+use function rosasurfer\xtrade\stats_sharpe_ratio;
+
 
 /**
  * Represents the statistics record of a {@link Test}.
@@ -20,6 +22,8 @@ use rosasurfer\db\orm\PersistableObject;
  * @method float getGrossProfit()  Return the total gross gross profit of the statistics record.
  * @method float getCommission()   Return the total commission amount of the statistics record.
  * @method float getSwap()         Return the total swap amount of the statistics record.
+ * @method float getSharpeRatio()  Return the non-normalized Sharpe ratio of the statistics record.
+ * @method float getSortinoRatio() Return the non-normalized Sortino ratio of the statistics record.
  * @method Test  getTest()         Return the test the statistics record belongs to.
  */
 class Statistic extends PersistableObject {
@@ -64,6 +68,12 @@ class Statistic extends PersistableObject {
     /** @var float */
     protected $swap;
 
+    /** @var float */
+    protected $sharpeRatio;
+
+    /** @var float */
+    protected $sortinoRatio = 0;
+
     /** @var Test [transient] */
     protected $test;
 
@@ -93,7 +103,8 @@ class Statistic extends PersistableObject {
         $maxPips = 0;
         $sumPips = 0;
 
-        $profit = $commission = $swap = 0;
+        $profit  = $commission = $swap = 0;
+        $returns = [];
 
         /** @var Order $trade */
         foreach ($trades as $trade) {
@@ -117,6 +128,8 @@ class Statistic extends PersistableObject {
             $profit     += $trade->getProfit();
             $commission += $trade->getCommission();
             $swap       += $trade->getSwap();
+
+            $returns[] = $pips;
         }
 
         $stats->trades       = $numTrades;
@@ -134,6 +147,8 @@ class Statistic extends PersistableObject {
         $stats->grossProfit  = round($profit, 2);
         $stats->commission   = round($commission, 2);
         $stats->swap         = round($swap, 2);
+
+        $stats->sharpeRatio  = stats_sharpe_ratio($returns);
 
         return $stats;
     }

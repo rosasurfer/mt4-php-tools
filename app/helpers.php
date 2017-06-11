@@ -2,6 +2,7 @@
 namespace rosasurfer\xtrade;
 
 use rosasurfer\exception\IllegalTypeException;
+use rosasurfer\exception\IllegalArgumentException;
 
 
 /**
@@ -228,4 +229,49 @@ function prettyTimeRange($startTime, $endTime) {
     else $range = $startDate->format('d.m.Y').'-'.$endDate->format('d.m.Y');
 
     return $range;
+}
+
+
+/**
+ * User-land implementation of PECL::stats_standard_deviation()
+ *
+ * @param  array $values
+ * @param  bool  $sample [optional] - whether or not the values represent only a sample of the total population
+ *                                    (default: no)
+ * @return float - standard deviation
+ */
+function stats_standard_deviation(array $values, $sample = false) {
+    if (function_exists('stats_standard_deviation'))
+        return \stats_standard_deviation($values, $sample);
+
+    $n = sizeof($values);
+    if (           $n==0) throw new IllegalArgumentException('Illegal number of values (zero)');
+    if ($sample && $n==1) throw new IllegalArgumentException('Illegal number of values (one)');
+
+    $mean = array_sum($values) / $n;
+    $carry = 0.0;
+
+    foreach ($values as $value) {
+        $d = ((double) $value) - $mean;
+        $carry += $d * $d;
+    };
+    if ($sample) $n--;
+
+    return sqrt($carry / $n);
+}
+
+
+/**
+ * Calculate the Sharpe Ratio of the given returns.
+ *
+ * @param  array $returns
+ *
+ * @return float - non-normalized Sharpe ratio
+ */
+function stats_sharpe_ratio(array $returns) {
+    $n = sizeof($returns);
+    if (!$n) throw new IllegalArgumentException('Illegal number of returns (zero)');
+
+    $mean = array_sum($returns) / $n;
+    return $mean / stats_standard_deviation($returns);
 }

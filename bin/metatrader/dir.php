@@ -210,7 +210,7 @@ function showDirResults($dirName, array $files, array $formats, array $symbols, 
 
         if ($formats[$i]) {
             $period = XTrade::periodDescription($periods[$i]);
-            echoPre(trim(sprintf($tableRowFormat, $symbols[$i].','.$period, $digits[$i], $syncMarkers[$i], $lastSyncTimes[$i], number_format($bars[$i]), $barsFrom[$i], $barsTo[$i], $formats[$i], $errors[$i])));
+            echoPre(trim(sprintf($tableRowFormat, $symbols[$i].','.$period, $digits[$i], $syncMarkers[$i], $lastSyncTimes[$i], numf($bars[$i]), $barsFrom[$i], $barsTo[$i], $formats[$i], $errors[$i])));
         }
         else {
             echoPre(str_pad($fileName, 18).' '.$errors[$i]);

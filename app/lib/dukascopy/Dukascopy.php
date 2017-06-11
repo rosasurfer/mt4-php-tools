@@ -120,10 +120,10 @@ class Dukascopy extends StaticClass {
             $offset += DUKASCOPY_BAR_SIZE;
 
             // Bar validieren
-            if ($bars[$i]['open' ] > $bars[$i]['high'] ||      // aus (H >= O && O >= L) folgt (H >= L)
-                 $bars[$i]['open' ] < $bars[$i]['low' ] ||      // nicht mit min()/max(), da nicht performant
-                 $bars[$i]['close'] > $bars[$i]['high'] ||
-                 $bars[$i]['close'] < $bars[$i]['low' ]) {
+            if ($bars[$i]['open' ] > $bars[$i]['high'] ||       // aus (H >= O && O >= L) folgt (H >= L)
+                $bars[$i]['open' ] < $bars[$i]['low' ] ||       // nicht mit min()/max(), da nicht performant
+                $bars[$i]['close'] > $bars[$i]['high'] ||
+                $bars[$i]['close'] < $bars[$i]['low' ]) {
 
                 $digits  = XTrade::$symbols[$symbol]['digits'];
                 $divider = pow(10, $digits);

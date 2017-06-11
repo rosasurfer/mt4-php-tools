@@ -613,7 +613,7 @@ class SimpleTrader extends StaticClass {
 
         $msg = $signal->getName().': ';
         if ($i < $rows-1) $msg .= ($rows-$i).' trades in '.$symbol;
-        else              $msg .= ($report[$i]['trade']=='open' ? '' : $report[$i]['trade'].' ').ucFirst($report[$i]['type']).' '.number_format($report[$i]['lots'], 2).' '.$symbol.' @ '.$report[$i]['price'];
+        else              $msg .= ($report[$i]['trade']=='open' ? '' : $report[$i]['trade'].' ').ucFirst($report[$i]['type']).' '.numf($report[$i]['lots'], 2).' '.$symbol.' @ '.$report[$i]['price'];
 
         $subject = $msg;
         $msg .= "\nwas: ".str_replace('  ', ' ', $oldNetPosition);
