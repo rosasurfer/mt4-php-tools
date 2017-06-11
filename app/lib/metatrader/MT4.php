@@ -26,9 +26,9 @@ use const rosasurfer\xtrade\PERIOD_W1;
 use const rosasurfer\xtrade\PERIOD_MN1;
 use const rosasurfer\xtrade\PERIOD_Q1;
 
-use const rosasurfer\xtrade\TICKMODEL_BAROPEN;
-use const rosasurfer\xtrade\TICKMODEL_CONTROLPOINTS;
-use const rosasurfer\xtrade\TICKMODEL_EVERYTICK;
+use const rosasurfer\xtrade\BARMODEL_BAROPEN;
+use const rosasurfer\xtrade\BARMODEL_CONTROLPOINTS;
+use const rosasurfer\xtrade\BARMODEL_EVERYTICK;
 
 use const rosasurfer\xtrade\TRADEDIRECTION_BOTH;
 use const rosasurfer\xtrade\TRADEDIRECTION_LONG;
@@ -550,18 +550,18 @@ class MT4 extends StaticClass {
 
 
     /**
-     * Whether or not the specified value is a Strategy Tester tick model id.
+     * Whether or not the specified value is a Strategy Tester bar model identifier.
      *
      * @param  mixed $value
      *
      * @return bool
      */
-    public static function isTickModel($value) {
+    public static function isBarModel($value) {
         if (is_int($value)) {
             switch ($value) {
-                case TICKMODEL_EVERYTICK    :
-                case TICKMODEL_CONTROLPOINTS:
-                case TICKMODEL_BAROPEN      : return true;
+                case BARMODEL_EVERYTICK    :
+                case BARMODEL_CONTROLPOINTS:
+                case BARMODEL_BAROPEN      : return true;
             }
         }
         return false;
@@ -658,22 +658,22 @@ class MT4 extends StaticClass {
 
 
     /**
-     * Convert a tick model representation to a tick model id.
+     * Convert a bar model representation to a bar model id.
      *
-     * @param  mixed $value - tick model representation
+     * @param  mixed $value - bar model representation
      *
-     * @return int - tick model id or -1 if the value doesn't represent a tick model
+     * @return int - bar model id or -1 if the value doesn't represent a bar model
      */
-    public static function strToTickModel($value) {
+    public static function strToBarModel($value) {
         if (is_string($value)) {
             if (!strIsNumeric($value)) {
                 $value = strToUpper($value);
-                if (strStartsWith($value, 'TICKMODEL_'))
+                if (strStartsWith($value, 'BARMODEL_'))
                     $value = strRight($value, -10);
                 switch ($value) {
-                    case 'EVERYTICK'    : return TICKMODEL_EVERYTICK;
-                    case 'CONTROLPOINTS': return TICKMODEL_CONTROLPOINTS;
-                    case 'BAROPEN'      : return TICKMODEL_BAROPEN;
+                    case 'EVERYTICK'    : return BARMODEL_EVERYTICK;
+                    case 'CONTROLPOINTS': return BARMODEL_CONTROLPOINTS;
+                    case 'BAROPEN'      : return BARMODEL_BAROPEN;
                 }
                 return -1;
             }
@@ -682,9 +682,9 @@ class MT4 extends StaticClass {
 
         if (is_int($value) || is_float($value)) {
             switch ((float)$value) {
-                case TICKMODEL_EVERYTICK    : return TICKMODEL_EVERYTICK;
-                case TICKMODEL_CONTROLPOINTS: return TICKMODEL_CONTROLPOINTS;
-                case TICKMODEL_BAROPEN      : return TICKMODEL_BAROPEN;
+                case BARMODEL_EVERYTICK    : return BARMODEL_EVERYTICK;
+                case BARMODEL_CONTROLPOINTS: return BARMODEL_CONTROLPOINTS;
+                case BARMODEL_BAROPEN      : return BARMODEL_BAROPEN;
             }
             return -1;
         }
@@ -728,19 +728,19 @@ class MT4 extends StaticClass {
 
 
     /**
-     * Return a tick model description.
+     * Return a bar model description.
      *
-     * @param  int - tick model id
+     * @param  int - bar model id
      *
-     * @return string|null - description or NULL if the parameter is not a valid tick model id
+     * @return string|null - description or NULL if the parameter is not a valid bar model id
      */
-    public static function tickModelDescription($id) {
-        $id = self::strToTickModel($id);
+    public static function barModelDescription($id) {
+        $id = self::strToBarModel($id);
         if ($id >= 0) {
             switch ($id) {
-                case TICKMODEL_EVERYTICK:     return 'EveryTick';
-                case TICKMODEL_CONTROLPOINTS: return 'ControlPoints';
-                case TICKMODEL_BAROPEN:       return 'BarOpen';
+                case BARMODEL_EVERYTICK:     return 'EveryTick';
+                case BARMODEL_CONTROLPOINTS: return 'ControlPoints';
+                case BARMODEL_BAROPEN:       return 'BarOpen';
             }
         }
         return null;

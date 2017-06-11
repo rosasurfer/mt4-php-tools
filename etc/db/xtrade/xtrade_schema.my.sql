@@ -1,7 +1,7 @@
 /*
 Created     16.01.2017
-Modified    09.06.2017
-Project     XTrade
+Modified    11.06.2017
+Project     Xtrade
 Model       Main model
 Company     
 Author      Peter Walther
@@ -48,7 +48,7 @@ create table t_test (
    timeframe int unsigned not null comment 'tested timeframe in minutes',
    starttime datetime not null comment 'FXT',
    endtime datetime not null comment 'FXT',
-   tickmodel enum('EveryTick','ControlPoints','BarOpen') not null comment 'EveryTick | ControlPoints | BarOpen',
+   barmodel enum('EveryTick','ControlPoints','BarOpen') not null comment 'EveryTick | ControlPoints | BarOpen',
    spread decimal(2,1) not null,
    bars int unsigned not null,
    ticks int unsigned not null,
@@ -58,7 +58,7 @@ create table t_test (
    unique key u_strategy_reportingid (strategy,reportingid),
    index i_strategy (strategy),
    index i_symbol (symbol),
-   index i_tickmodel (tickmodel)
+   index i_barmodel (barmodel)
 ) engine = InnoDB;
 
 

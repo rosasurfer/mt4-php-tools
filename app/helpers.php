@@ -58,10 +58,10 @@ const OP_TRANSFER  = 8;                       // custom: balance update by clien
 const OP_VENDOR    = 9;                       //         balance update by criminal (dividends, swap, manual etc.)
 
 
-// Strategy Tester tick models
-const TICKMODEL_EVERYTICK     = 0;
-const TICKMODEL_CONTROLPOINTS = 1;
-const TICKMODEL_BAROPEN       = 2;
+// Strategy Tester bar models
+const BARMODEL_EVERYTICK     = 0;
+const BARMODEL_CONTROLPOINTS = 1;
+const BARMODEL_BAROPEN       = 2;
 
 
 // Strategy Tester trade directions

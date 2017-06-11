@@ -36,7 +36,7 @@ class TestDAO extends DAO {
                 ['name'=>'timeframe'      , 'type'=>INT   ,                ],    // db:int
                 ['name'=>'startTime'      , 'type'=>STRING,                ],    // db:text[datetime] FXT
                 ['name'=>'endTime'        , 'type'=>STRING,                ],    // db:text[datetime] FXT
-                ['name'=>'tickModel'      , 'type'=>STRING,                ],    // db:text[enum] references enum_tickmodel(type)
+                ['name'=>'barModel'       , 'type'=>STRING,                ],    // db:text[enum] references enum_barmodel(type)
                 ['name'=>'spread'         , 'type'=>FLOAT ,                ],    // db:float
                 ['name'=>'bars'           , 'type'=>INT   ,                ],    // db:int
                 ['name'=>'ticks'          , 'type'=>INT   ,                ],    // db:int

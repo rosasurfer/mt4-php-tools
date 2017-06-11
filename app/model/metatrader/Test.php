@@ -16,7 +16,7 @@ use rosasurfer\xtrade\metatrader\MT4;
 
 use const rosasurfer\xtrade\OP_SELL;
 use const rosasurfer\xtrade\PERIOD_M1;
-use const rosasurfer\xtrade\TICKMODEL_BAROPEN;
+use const rosasurfer\xtrade\BARMODEL_BAROPEN;
 
 
 /**
@@ -31,7 +31,7 @@ use const rosasurfer\xtrade\TICKMODEL_BAROPEN;
  * @method int                 getTimeframe()          Return the tested timeframe.
  * @method string              getStartTime()          Return the time of the first tested tick (FXT).
  * @method string              getEndTime()            Return the time of the last tested tick (FXT).
- * @method string              getTickModel()          Return the tick model used for the test.
+ * @method string              getBarModel()           Return the bar model used for the test.
  * @method float               getSpread()             Return the spread used for the test.
  * @method int                 getBars()               Return the number of tested bars.
  * @method int                 getTicks()              Return the number of tested ticks.
@@ -74,8 +74,8 @@ class Test extends PersistableObject {
     /** @var string - time of the last tick of testing (FXT) */
     protected $endTime;
 
-    /** @var string - used tick model: EveryTick|ControlPoints|BarOpen */
-    protected $tickModel;
+    /** @var string - used bar model: EveryTick|ControlPoints|BarOpen */
+    protected $barModel;
 
     /** @var float - spread in pips */
     protected $spread;
@@ -172,10 +172,10 @@ class Test extends PersistableObject {
                 if ($startTime > $endTime)                    throw new InvalidArgumentException('Invalid properties "startTime|endTime": '.$startTime.'|'.$endTime.' (mis-match)');
                 $test->endTime = gmDate('Y-m-d H:i:s', $endTime);
 
-                $tickModel = $properties['tickModel'];
-                if (!is_int($tickModel))                      throw new IllegalTypeException('Illegal type of property "tickModel": '.getType($tickModel));
-                if (!MT4::isTickModel($tickModel))            throw new InvalidArgumentException('Invalid property "tickModel": '.$tickModel.' (not a tick model)');
-                $test->tickModel = MT4::tickModelDescription($tickModel);
+                $barModel = $properties['barModel'];
+                if (!is_int($barModel))                       throw new IllegalTypeException('Illegal type of property "barModel": '.getType($barModel));
+                if (!MT4::isBarModel($barModel))              throw new InvalidArgumentException('Invalid property "barModel": '.$barModel.' (not a bar model)');
+                $test->barModel = MT4::barModelDescription($barModel);
 
                 $spread = $properties['spread'];
                 if (!is_float($spread))                       throw new IllegalTypeException('Illegal type of property "spread": '.getType($spread));
@@ -194,7 +194,7 @@ class Test extends PersistableObject {
                 $test->ticks = $ticks;
 
                 if ($ticks == $bars+1)
-                    $test->tickModel = MT4::tickModelDescription(TICKMODEL_BAROPEN);
+                    $test->barModel = MT4::barModelDescription(BARMODEL_BAROPEN);
                 continue;
             }
 
@@ -308,14 +308,14 @@ class Test extends PersistableObject {
             static $pcreLimit = null; !$pcreLimit && $pcreLimit = PHP::ini_get_int('pcre.backtrack_limit');
             if (strLen($values) > $pcreLimit) PHP::ini_set('pcre.backtrack_limit', $pcreLimit=strLen($values));
 
-            // test={id=0, time="Tue, 10-Jan-2017 23:36:38", strategy="MyFX Example MA", reportingId=2, reportingSymbol="MyFXExa.002", symbol="EURUSD", timeframe=PERIOD_M1, startTime="Tue, 01-Dec-2015 00:03:00", endTime="Thu, 31-Dec-2015 23:58:59", tickModel=0, spread=0.1, bars=31535, ticks=31536, accountDeposit=100000.00, accountCurrency="USD", tradeDirections=0, visualMode=FALSE, duration=1.544 s, orders=1451}
+            // test={id=0, time="Tue, 10-Jan-2017 23:36:38", strategy="MyFX Example MA", reportingId=2, reportingSymbol="MyFXExa.002", symbol="EURUSD", timeframe=PERIOD_M1, startTime="Tue, 01-Dec-2015 00:03:00", endTime="Thu, 31-Dec-2015 23:58:59", barModel=0, spread=0.1, bars=31535, ticks=31536, accountDeposit=100000.00, accountCurrency="USD", tradeDirections=0, visualMode=FALSE, duration=1.544 s, orders=1451}
             if (!strStartsWith($values, 'test=')) throw new InvalidArgumentException('Unsupported test properties format: "'.$valuesOrig.'"');
             $values = trim(strRight($values, -5));
 
-            // {id=0, time="Tue, 10-Jan-2017 23:36:38", strategy="MyFX Example MA", reportingId=2, reportingSymbol="MyFXExa.002", symbol="EURUSD", timeframe=PERIOD_M1, startTime="Tue, 01-Dec-2015 00:03:00", endTime="Thu, 31-Dec-2015 23:58:59", tickModel=0, spread=0.1, bars=31535, ticks=31536, accountDeposit=100000.00, accountCurrency="USD", tradeDirections=0, visualMode=FALSE, duration=1.544 s, orders=1451}
+            // {id=0, time="Tue, 10-Jan-2017 23:36:38", strategy="MyFX Example MA", reportingId=2, reportingSymbol="MyFXExa.002", symbol="EURUSD", timeframe=PERIOD_M1, startTime="Tue, 01-Dec-2015 00:03:00", endTime="Thu, 31-Dec-2015 23:58:59", barModel=0, spread=0.1, bars=31535, ticks=31536, accountDeposit=100000.00, accountCurrency="USD", tradeDirections=0, visualMode=FALSE, duration=1.544 s, orders=1451}
             if (!strStartsWith($values, '{') || !strEndsWith($values, '}')) throw new InvalidArgumentException('Unsupported test properties format: "'.$valuesOrig.'"');
             $values = ', '.trim(subStr($values, 1, strLen($values)-2)).', ';
-            // ', id=0, time="Tue, 10-Jan-2017 23:36:38", strategy="MyFX Example MA", reportingId=2, reportingSymbol="MyFXExa.002", symbol="EURUSD", timeframe=PERIOD_M1, startTime="Tue, 01-Dec-2015 00:03:00", endTime="Thu, 31-Dec-2015 23:58:59", tickModel=0, spread=0.1, bars=31535, ticks=31536, accountDeposit=100000.00, accountCurrency="USD", tradeDirections=0, visualMode=FALSE, duration=1.544 s, orders=1451, '
+            // ', id=0, time="Tue, 10-Jan-2017 23:36:38", strategy="MyFX Example MA", reportingId=2, reportingSymbol="MyFXExa.002", symbol="EURUSD", timeframe=PERIOD_M1, startTime="Tue, 01-Dec-2015 00:03:00", endTime="Thu, 31-Dec-2015 23:58:59", barModel=0, spread=0.1, bars=31535, ticks=31536, accountDeposit=100000.00, accountCurrency="USD", tradeDirections=0, visualMode=FALSE, duration=1.544 s, orders=1451, '
 
             // id
             $pattern = '/, *id *= *([0-9]+) *,/i';
@@ -379,12 +379,12 @@ class Test extends PersistableObject {
             $properties['endTime'] = $time;
             if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal test properties (multiple "endTime" occurrences): "'.$valuesOrig.'"');
 
-            // tickModel
-            $pattern = '/, *tickModel *= *([0-9]+) *,/i';
-            if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal test properties ("tickModel" invalid or not found): "'.$valuesOrig.'"');
-            if (($id = MT4::strToTickModel($matches[1][0])) < 0)                 throw new IllegalArgumentException('Illegal test property "tickModel": "'.$matches[1][0].'"');
-            $properties['tickModel'] = $id;
-            if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal test properties (multiple "tickModel" occurrences): "'.$valuesOrig.'"');
+            // barModel
+            $pattern = '/, *barModel *= *([0-9]+) *,/i';
+            if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal test properties ("barModel" invalid or not found): "'.$valuesOrig.'"');
+            if (($id = MT4::strToBarModel($matches[1][0])) < 0)                  throw new IllegalArgumentException('Illegal test property "barModel": "'.$matches[1][0].'"');
+            $properties['barModel'] = $id;
+            if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal test properties (multiple "barModel" occurrences): "'.$valuesOrig.'"');
 
             // spread
             $pattern = '/, *spread *= *([^ ]+) *,/i';
