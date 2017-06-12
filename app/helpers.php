@@ -3,6 +3,8 @@ namespace rosasurfer\xtrade;
 
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\IllegalArgumentException;
+use rosasurfer\exception\UnimplementedFeatureException;
+use rosasurfer\exception\RuntimeException;
 
 
 /**
@@ -236,42 +238,76 @@ function prettyTimeRange($startTime, $endTime) {
  * User-land implementation of PECL::stats_standard_deviation()
  *
  * @param  array $values
- * @param  bool  $sample [optional] - whether or not the values represent only a sample of the total population
+ * @param  bool  $sample [optional] - whether or not the values represent a sample and not the total population
  *                                    (default: no)
  * @return float - standard deviation
  */
 function stats_standard_deviation(array $values, $sample = false) {
-    if (function_exists('stats_standard_deviation'))
-        return \stats_standard_deviation($values, $sample);
+    if (function_exists('stats_standard_deviation')) {
+        $result = \stats_standard_deviation($values, $sample);
+        if (!is_float($result)) throw new RuntimeException('stats_standard_deviation returned an error: '.$result.' ('.getType($result).')');
+        return $result;
+    }
 
     $n = sizeof($values);
     if (           $n==0) throw new IllegalArgumentException('Illegal number of values (zero)');
     if ($sample && $n==1) throw new IllegalArgumentException('Illegal number of values (one)');
 
-    $mean = array_sum($values) / $n;
-    $carry = 0.0;
+    $avg   = array_sum($values) / $n;           // arythmetic mean
+    $sqSum = 0;
 
     foreach ($values as $value) {
-        $d = ((double) $value) - $mean;
-        $carry += $d * $d;
+        $diff   = $value - $avg;
+        $sqSum += $diff * $diff;
     };
     if ($sample) $n--;
 
-    return sqrt($carry / $n);
+    return sqrt($sqSum / $n);
 }
 
 
 /**
- * Calculate the Sharpe Ratio of the given returns.
+ * Calculate the Sharpe ratio of the given returns.
  *
  * @param  array $returns
- *
+ * @param  bool  $compound [optional] - whether or not the returns are compounding returns
+ *                                      (default: no)
+ * @param  bool  $sample   [optional] - whether or not the returns represent only a sample of the total population
+ *                                      (default: no)
  * @return float - non-normalized Sharpe ratio
  */
-function stats_sharpe_ratio(array $returns) {
+function stats_sharpe_ratio(array $returns, $compound=false, $sample=false) {
     $n = sizeof($returns);
-    if (!$n) throw new IllegalArgumentException('Illegal number of returns (zero)');
+    if (           $n==0) throw new IllegalArgumentException('Illegal number of returns (zero)');
+    if ($sample && $n==1) throw new IllegalArgumentException('Illegal number of returns (one)');
+    if ($compound)        throw new UnimplementedFeatureException('Processing of compounding returns not yet implemented');
 
-    $mean = array_sum($returns) / $n;
-    return $mean / stats_standard_deviation($returns);
+    $avgReturn = array_sum($returns) / $n;      // arythmetic mean
+    return $avgReturn / stats_standard_deviation($returns, $sample);
+}
+
+
+/**
+ * Calculate the Sortino ratio of the given returns.
+ *
+ * @param  array $returns
+ * @param  bool  $compound [optional] - whether or not the returns are compounding returns
+ *                                      (default: no)
+ * @param  bool  $sample   [optional] - whether or not the returns represent only a sample of the total population
+ *                                      (default: no)
+ * @return float - non-normalized Sortino ratio
+ */
+function stats_sortino_ratio(array $returns, $compound=false, $sample=false) {
+    $n = sizeof($returns);
+    if (           $n==0) throw new IllegalArgumentException('Illegal number of returns (zero)');
+    if ($sample && $n==1) throw new IllegalArgumentException('Illegal number of returns (one)');
+    if ($compound)        throw new UnimplementedFeatureException('Processing of compounding returns not yet implemented');
+
+    $avgReturn = array_sum($returns) / $n;      // arythmetic mean
+
+    foreach ($returns as $i => $return) {
+        if ($return > 0)
+            $returns[$i] = 0;
+    }
+    return $avgReturn / stats_standard_deviation($returns, $sample);
 }

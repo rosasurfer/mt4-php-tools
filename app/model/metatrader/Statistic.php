@@ -4,6 +4,7 @@ namespace rosasurfer\xtrade\model\metatrader;
 use rosasurfer\db\orm\PersistableObject;
 
 use function rosasurfer\xtrade\stats_sharpe_ratio;
+use function rosasurfer\xtrade\stats_sortino_ratio;
 
 
 /**
@@ -22,8 +23,8 @@ use function rosasurfer\xtrade\stats_sharpe_ratio;
  * @method float getGrossProfit()  Return the total gross gross profit of the statistics record.
  * @method float getCommission()   Return the total commission amount of the statistics record.
  * @method float getSwap()         Return the total swap amount of the statistics record.
- * @method float getSharpeRatio()  Return the non-normalized Sharpe ratio of the statistics record.
- * @method float getSortinoRatio() Return the non-normalized Sortino ratio of the statistics record.
+ * @method float getSharpeRatio()  Return the Sharpe ratio of the statistics record.
+ * @method float getSortinoRatio() Return the Sortino ratio of the statistics record.
  * @method Test  getTest()         Return the test the statistics record belongs to.
  */
 class Statistic extends PersistableObject {
@@ -72,7 +73,7 @@ class Statistic extends PersistableObject {
     protected $sharpeRatio;
 
     /** @var float */
-    protected $sortinoRatio = 0;
+    protected $sortinoRatio;
 
     /** @var Test [transient] */
     protected $test;
@@ -149,6 +150,7 @@ class Statistic extends PersistableObject {
         $stats->swap         = round($swap, 2);
 
         $stats->sharpeRatio  = stats_sharpe_ratio($returns);
+        $stats->sortinoRatio = stats_sortino_ratio($returns);
 
         return $stats;
     }

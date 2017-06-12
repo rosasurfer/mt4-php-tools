@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "347bffbc7b26204a6e0dde7754dc5f36",
+    "content-hash": "ae977ccda9a20083d4e9afe09f41f922",
     "packages": [
         {
             "name": "rosasurfer/ministruts",
@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/rosasurfer/ministruts.git",
-                "reference": "fdd36c53c8e18b21fd9e51813a15ead1903d376c"
+                "reference": "b1068bf5ab8f2f5e1ed98a1a067c12bf17eed8b8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/fdd36c53c8e18b21fd9e51813a15ead1903d376c",
-                "reference": "fdd36c53c8e18b21fd9e51813a15ead1903d376c",
+                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/b1068bf5ab8f2f5e1ed98a1a067c12bf17eed8b8",
+                "reference": "b1068bf5ab8f2f5e1ed98a1a067c12bf17eed8b8",
                 "shasum": ""
             },
             "require": {
@@ -52,7 +52,7 @@
                 "source": "https://github.com/rosasurfer/ministruts/tree/master",
                 "issues": "https://github.com/rosasurfer/ministruts/issues"
             },
-            "time": "2017-06-10 14:16:02"
+            "time": "2017-06-12 08:23:26"
         }
     ],
     "packages-dev": [],
@@ -64,7 +64,8 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=5.6"
+        "php": ">=5.6",
+        "ext-stats": "*"
     },
     "platform-dev": []
 }
