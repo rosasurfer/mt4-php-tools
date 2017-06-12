@@ -100,7 +100,7 @@ create table t_test (
    starttime       text[datetime] not null,                                -- FXT
    endtime         text[datetime] not null,                                -- FXT
    barmodel        text[enum]     not null collate nocase,                 -- EveryTick|ControlPoints|BarOpen
-   spread          float(2,1)     not null,                                -- in pips
+   spread          float          not null,                                -- in pips
    bars            integer        not null,                                -- number of tested bars
    ticks           integer        not null,                                -- number of tested ticks
    tradedirections text[enum]     not null collate nocase,                 -- Long|Short|Both
@@ -141,17 +141,17 @@ create table t_order (
    modified      text[datetime],                                           -- GMT
    ticket        integer        not null,
    type          text[enum]     not null collate nocase,                   -- Buy|Sell
-   lots          float(10,2)    not null,
+   lots          float          not null,
    symbol        text(11)       not null collate nocase,
-   openprice     float(10,5)    not null,
+   openprice     float          not null,
    opentime      text[datetime] not null,                                  -- FXT
-   stoploss      float(10,5),
-   takeprofit    float(10,5),
-   closeprice    float(10,5)    not null,
+   stoploss      float,
+   takeprofit    float,
+   closeprice    float          not null,
    closetime     text[datetime] not null,                                  -- FXT
-   commission    float(10,2)    not null,
-   swap          float(10,2)    not null,
-   profit        float(10,2)    not null,                                  -- gross profit
+   commission    float          not null,
+   swap          float          not null,
+   profit        float          not null,                                  -- gross profit
    magicnumber   integer,
    comment       text(27)                collate nocase,
    test_id       integer        not null,
@@ -171,22 +171,23 @@ end;
 
 -- Test statistics
 create table t_statistic (
-   id            integer     not null,
-   trades        integer     not null,
-   trades_day    float(10,1) not null,                                     -- trades per day
-   duration_min  integer     not null,                                     -- minimum trade duration in seconds
-   duration_avg  integer     not null,                                     -- average trade duration in seconds
-   duration_max  integer     not null,                                     -- maximum trade duration in seconds
-   pips_min      float(10,1) not null,                                     -- minimum trade profit in pips
-   pips_avg      float(10,1) not null,                                     -- average trade profit in pips
-   pips_max      float(10,1) not null,                                     -- maximum trade profit in pips
-   pips          float(10,1) not null,                                     -- total profit in pips
-   gross_profit  float(10,2) not null,                                     -- test gross profit in money
-   commission    float(10,2) not null,                                     -- total commission
-   swap          float(10,2) not null,                                     -- total swap
-   sharpe_ratio  float(10,3) not null,                                     -- non-normalized Sharpe ratio
-   sortino_ratio float(10,3) not null,                                     -- non-normalized Sortino ratio
-   test_id       integer     not null,
+   id            integer not null,
+   trades        integer not null,
+   trades_day    float   not null,                                          -- trades per day
+   duration_min  integer not null,                                          -- minimum trade duration in seconds
+   duration_avg  integer not null,                                          -- average trade duration in seconds
+   duration_max  integer not null,                                          -- maximum trade duration in seconds
+   pips_min      float   not null,                                          -- minimum trade profit in pips
+   pips_avg      float   not null,                                          -- average trade profit in pips
+   pips_max      float   not null,                                          -- maximum trade profit in pips
+   pips          float   not null,                                          -- total profit in pips
+   gross_profit  float   not null,                                          -- test gross profit in money
+   commission    float   not null,                                          -- total commission
+   swap          float   not null,                                          -- total swap
+   sharpe_ratio  float   not null,                                          -- simplified non-normalized Sharpe ratio
+   sortino_ratio float   not null,                                          -- simplified non-normalized Sortino ratio
+   calmar_ratio  float   not null,                                          -- simplified monthly Calmar ratio
+   test_id       integer not null,
    primary key (id),
    constraint fk_statistic_test foreign key (test_id) references t_test (id) on delete cascade on update cascade,
    constraint u_test            unique (test_id)

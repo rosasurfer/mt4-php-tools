@@ -1,6 +1,6 @@
 /*
 Created     16.01.2017
-Modified    11.06.2017
+Modified    12.06.2017
 Project     Xtrade
 Model       Main model
 Company     
@@ -116,8 +116,9 @@ create table t_statistic (
    gross_profit decimal(10,2) not null comment 'total gross profit in money',
    commission decimal(10,2) not null comment 'total commission',
    swap decimal(10,2) not null comment 'total swap',
-   sharpe_ratio decimal(10,3) not null comment 'non-normalized Sharpe ratio',
-   sortino_ratio decimal(10,3) not null comment 'non-normalized Sortino ratio',
+   sharpe_ratio decimal(10,4) not null comment 'simplified non-normalized Sharpe ratio',
+   sortino_ratio decimal(10,4) not null comment 'simplified non-normalized Sortino ratio',
+   calmar_ratio decimal(10,4) not null comment 'simplified monthly Calmar ratio',
    test_id int unsigned not null,
    unique index u_test_id (test_id),
    primary key (id),

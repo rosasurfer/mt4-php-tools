@@ -5,6 +5,7 @@ use rosasurfer\db\orm\PersistableObject;
 
 use function rosasurfer\xtrade\stats_sharpe_ratio;
 use function rosasurfer\xtrade\stats_sortino_ratio;
+use function rosasurfer\xtrade\stats_calmar_ratio;
 
 
 /**
@@ -77,7 +78,7 @@ class Statistic extends PersistableObject {
     protected $sortinoRatio;
 
     /** @var float */
-    protected $calmarRatio = 0;
+    protected $calmarRatio;
 
     /** @var Test [transient] */
     protected $test;
@@ -155,6 +156,7 @@ class Statistic extends PersistableObject {
 
         $stats->sharpeRatio  = stats_sharpe_ratio($returns);
         $stats->sortinoRatio = stats_sortino_ratio($returns);
+        $stats->calmarRatio  = stats_calmar_ratio($test->getStartTime(), $test->getEndTime(), $returns);
 
         return $stats;
     }

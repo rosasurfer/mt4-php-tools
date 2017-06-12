@@ -5,6 +5,7 @@ use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\IllegalArgumentException;
 use rosasurfer\exception\UnimplementedFeatureException;
 use rosasurfer\exception\RuntimeException;
+use const rosasurfer\MONTHS;
 
 
 /**
@@ -274,7 +275,8 @@ function stats_standard_deviation(array $values, $sample = false) {
  *                                      (default: no)
  * @param  bool  $sample   [optional] - whether or not the returns represent only a sample of the total population
  *                                      (default: no)
- * @return float - non-normalized Sharpe ratio
+ *
+ * @return float - over-simplified and non-normalized Sharpe ratio
  */
 function stats_sharpe_ratio(array $returns, $compound=false, $sample=false) {
     $n = sizeof($returns);
@@ -295,7 +297,8 @@ function stats_sharpe_ratio(array $returns, $compound=false, $sample=false) {
  *                                      (default: no)
  * @param  bool  $sample   [optional] - whether or not the returns represent only a sample of the total population
  *                                      (default: no)
- * @return float - non-normalized Sortino ratio
+ *
+ * @return float - over-simplified and non-normalized Sortino ratio
  */
 function stats_sortino_ratio(array $returns, $compound=false, $sample=false) {
     $n = sizeof($returns);
@@ -310,4 +313,35 @@ function stats_sortino_ratio(array $returns, $compound=false, $sample=false) {
             $returns[$i] = 0;
     }
     return $avgReturn / stats_standard_deviation($returns, $sample);
+}
+
+
+/**
+ * Calculate the Calmar ratio of the given profits.
+ *
+ * @param  string $from   - start date of the data series
+ * @param  string $to     - end date of the data series
+ * @param  array  $values - absolute profit/loss values (not percentage returns)
+ *
+ * @return float - over-simplified monthly Calmar ratio
+ */
+function stats_calmar_ratio($from, $to, array $values) {
+    $total = $high = $maxDrawdown = 0;
+
+    foreach ($values as $value) {
+        $total += $value;
+        if ($total > $high)
+            $high = $total;
+
+        $drawdown = $high - $total;                                     // absolute value
+        if ($drawdown > $maxDrawdown)
+            $maxDrawdown = $drawdown;
+    }
+
+    $period           = (strToTime($to) - strToTime($from))/MONTHS;
+    $normalizedReturn = $total / $period;                               // arythmetic mean (no compounding)
+
+    if ($maxDrawdown == 0)
+        return INF;
+    return $normalizedReturn / $maxDrawdown;
 }
