@@ -37,6 +37,7 @@ class StatisticDAO extends DAO {
                 ['name'=>'swap'        , 'type'=>FLOAT,                          ],                 // db:float
                 ['name'=>'sharpeRatio' , 'type'=>FLOAT, 'column'=>'sharpe_ratio' ],                 // db:float
                 ['name'=>'sortinoRatio', 'type'=>FLOAT, 'column'=>'sortino_ratio'],                 // db:float
+              //['name'=>'calmarRatio' , 'type'=>FLOAT, 'column'=>'calmar_ratio' ],                 // db:float
             ],
             'relations' => [
                 ['name'=>'test', 'assoc'=>'one-to-one', 'type'=>Test::class, 'column'=>'test_id'],  // db:int

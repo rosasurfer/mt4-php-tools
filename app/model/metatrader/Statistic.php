@@ -25,6 +25,7 @@ use function rosasurfer\xtrade\stats_sortino_ratio;
  * @method float getSwap()         Return the total swap amount of the statistics record.
  * @method float getSharpeRatio()  Return the Sharpe ratio of the statistics record.
  * @method float getSortinoRatio() Return the Sortino ratio of the statistics record.
+ * @method float getCalmarRatio()  Return the Calmar ratio of the statistics record.
  * @method Test  getTest()         Return the test the statistics record belongs to.
  */
 class Statistic extends PersistableObject {
@@ -74,6 +75,9 @@ class Statistic extends PersistableObject {
 
     /** @var float */
     protected $sortinoRatio;
+
+    /** @var float */
+    protected $calmarRatio = 0;
 
     /** @var Test [transient] */
     protected $test;

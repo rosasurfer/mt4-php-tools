@@ -27,6 +27,7 @@ foreach ($request->getActionErrors() as $value) {?>
       <th style="vertical-align:middle; text-align:center">Avg Pips/Lot</th>
       <th style="vertical-align:middle; text-align:center">Sharpe</th>
       <th style="vertical-align:middle; text-align:center">Sortino</th>
+      <th style="vertical-align:middle; text-align:center">Calmar</th>
    </tr>
    </thead>
 
@@ -43,6 +44,7 @@ foreach ($request->getActionErrors() as $value) {?>
       $avgPips   = $test->getStats()->getAvgPips();
       $sharpe    = $test->getStats()->getSharpeRatio();
       $sortino   = $test->getStats()->getSortinoRatio();
+      $calmar    = 0;
    ?>
    <tr style="text-align:center">
       <th style="vertical-align:middle; text-align:center" scope="row"><?=($i+1)?></th>
@@ -56,6 +58,7 @@ foreach ($request->getActionErrors() as $value) {?>
       <td style="vertical-align:middle"><?=sprintf('%+.1f', $avgPips)?></td>
       <td style="vertical-align:middle"><?=rtrim(sprintf('%.4f', $sharpe), '.0')?></td>
       <td style="vertical-align:middle"><?=rtrim(sprintf('%.4f', $sortino), '.0')?></td>
+      <td style="vertical-align:middle"><?=rtrim(sprintf('%.4f', $calmar), '.0')?></td>
    </tr>
    <?}?>
    </tbody>
