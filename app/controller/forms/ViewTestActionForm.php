@@ -61,7 +61,7 @@ class ViewTestActionForm extends ActionForm {
         elseif (!strIsDigits($id)) $request->setActionError('id', 'Invalid test id.');
         else {
             $this->id   = (int) $id;
-            $this->test = Test::dao()->getById($this->id);
+            $this->test = Test::dao()->findById($this->id);
             if (!$this->test)      $request->setActionError('id', 'Unknown test id.');
         }
         return !$request->isActionError();

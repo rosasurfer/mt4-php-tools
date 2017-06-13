@@ -6,6 +6,7 @@ use rosasurfer\exception\IllegalArgumentException;
 use rosasurfer\exception\UnimplementedFeatureException;
 use rosasurfer\exception\RuntimeException;
 use const rosasurfer\MONTHS;
+use const rosasurfer\WEEKS;
 
 
 /**
@@ -236,6 +237,41 @@ function prettyTimeRange($startTime, $endTime) {
 
 
 /**
+ * Return a nicely formatted recovery time description.
+ *
+ * @param  int $duration - recovery duration in seconds
+ *
+ * @return string
+ */
+function prettyRecoveryTime($duration) {
+    if ($duration < 10*HOURS) {             // H:i
+        $duration = round($duration/MINUTES)*MINUTES;
+        $ii = $duration % HOURS;
+        $hh = ($duration-$ii) / HOURS;
+        $result = $hh.'h '.round($ii/MINUTES)."'";
+    }
+    else if ($duration < 3*DAYS) {          // d, H
+        $duration = round($duration/HOURS)*HOURS;
+        $hh = $duration % DAYS;
+        $dd = ($duration-$hh) / DAYS;
+        $result = $dd.'d '.round($hh/HOURS).'h';
+    }
+    else if ($duration < 5*WEEKS) {         // w, d
+        $duration = round($duration/DAYS)*DAYS;
+        $dd = $duration % WEEKS;
+        $ww = ($duration-$dd) / WEEKS;
+        $result = $ww.'w '.round($dd/DAYS).'d';
+    }
+    else {                                  // w
+        $ww = round($duration / WEEKS);
+        $result = $ww.'w';
+    }
+    return $result;
+    return '&infin;';
+}
+
+
+/**
  * User-land implementation of PECL::stats_standard_deviation()
  *
  * @param  array $values
@@ -326,7 +362,8 @@ function stats_sortino_ratio(array $returns, $compound=false, $sample=false) {
  * @return float - over-simplified monthly Calmar ratio
  */
 function stats_calmar_ratio($from, $to, array $values) {
-    $total = $high = $maxDrawdown = 0;
+    $total = $maxDrawdown = 0;
+    $high  = PHP_INT_MIN;
 
     foreach ($values as $value) {
         $total += $value;

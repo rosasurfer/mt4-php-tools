@@ -58,13 +58,32 @@ class TestDAO extends DAO {
      *
      * @return Test|null - Test instance or NULL if no such instance exists
      */
-    public function getById($id) {
+    public function findById($id) {
         if (!is_int($id)) throw new IllegalTypeException('Illegal type of parameter $id: '.getType($id));
         if ($id < 1)      throw new InvalidArgumentException('Invalid argument $id: '.$id);
 
         $sql = 'select *
                    from :Test
                    where id = '.$id;
+        return $this->find($sql);
+    }
+
+
+    /**
+     * Find the {@link Test} with the specified reporting symbol.
+     *
+     * @param  string $symbol - reporting symbol
+     *
+     * @return Test|null - Test instance or NULL if no such instance exists
+     */
+    public function findByReportingSymbol($symbol) {
+        if (!is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
+
+        $symbol = $this->escapeLiteral($symbol);
+
+        $sql = 'select *
+                   from :Test
+                   where reportingSymbol = '.$symbol;
         return $this->find($sql);
     }
 }

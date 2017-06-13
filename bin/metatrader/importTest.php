@@ -107,23 +107,16 @@ function processTestFiles(array $files) {
 
         $symbol = $test->getReportingSymbol();
 
-        if (Test::dao()->find("select * from :Test t where t.reportingSymbol = '$symbol'")) {
+        if (Test::dao()->findByReportingSymbol($symbol)) {
             Test::db()->rollback();
             echoPre('error: a test for reporting symbol '.$symbol.' already exists');
             return false;
         }
-
         $test->save();
         Test::db()->commit();
 
         // confirm saving
         echoPre('Test(id='.$test->getId().') of "'.$test->getStrategy().'" with '.$test->countTrades().' trades saved.');
-
-        // print strat parameters
-        //foreach ($test->getStrategyParameters() as $param) {
-        //    echoPre('input: '.$param->getName().'='.$param->getValue());
-        //}
-        //echoPre(NL);
 
         // print statistics
         $stats        = $test->getStats();

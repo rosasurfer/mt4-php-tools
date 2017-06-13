@@ -11,23 +11,24 @@ use function rosasurfer\xtrade\stats_calmar_ratio;
 /**
  * Represents the statistics record of a {@link Test}.
  *
- * @method int   getId()           Return the id (primary key) of the statistics record.
- * @method int   getTrades()       Return the number of trades of the statistics record.
- * @method float getTradesPerDay() Return the trades per day number of the statistics record.
- * @method int   getMinDuration()  Return the minimum trade duration of the statistics record.
- * @method int   getAvgDuration()  Return the average trade duration of the statistics record.
- * @method int   getMaxDuration()  Return the maximum trade duration of the statistics record.
- * @method float getMinPips()      Return the minimum amount of won/lost pips of the statistics record.
- * @method float getAvgPips()      Return the average amount of won/lost pips of the statistics record.
- * @method float getMaxPips()      Return the maximum amount of won/loast of the statistics record.
- * @method float getPips()         Return the sum of all won/lost pips of the statistics record.
- * @method float getGrossProfit()  Return the total gross gross profit of the statistics record.
- * @method float getCommission()   Return the total commission amount of the statistics record.
- * @method float getSwap()         Return the total swap amount of the statistics record.
- * @method float getSharpeRatio()  Return the Sharpe ratio of the statistics record.
- * @method float getSortinoRatio() Return the Sortino ratio of the statistics record.
- * @method float getCalmarRatio()  Return the Calmar ratio of the statistics record.
- * @method Test  getTest()         Return the test the statistics record belongs to.
+ * @method int   getId()              Return the id (primary key) of the statistics record.
+ * @method int   getTrades()          Return the number of trades of the test.
+ * @method float getTradesPerDay()    Return the number of trades per day of the test.
+ * @method int   getMinDuration()     Return the minimum trade duration in seconds.
+ * @method int   getAvgDuration()     Return the average trade duration in seconds.
+ * @method int   getMaxDuration()     Return the maximum trade duration in seconds.
+ * @method float getMinPips()         Return the minimum amount of won/lost pips of the test.
+ * @method float getAvgPips()         Return the average amount of won/lost pips of the test.
+ * @method float getMaxPips()         Return the maximum amount of won/lost pips of the test.
+ * @method float getPips()            Return the sum of won/lost pips of the test.
+ * @method float getSharpeRatio()     Return the Sharpe ratio of the test.
+ * @method float getSortinoRatio()    Return the Sortino ratio of the test.
+ * @method float getCalmarRatio()     Return the Calmar ratio of the test.
+ * @method int   getMaxRecoveryTime() Return the maximum drawdown recovery time in seconds.
+ * @method float getGrossProfit()     Return the total gross profit of the test.
+ * @method float getCommission()      Return the total commission amount of the test.
+ * @method float getSwap()            Return the total swap amount of the test.
+ * @method Test  getTest()            Return the test the statistics record belongs to.
  */
 class Statistic extends PersistableObject {
 
@@ -63,15 +64,6 @@ class Statistic extends PersistableObject {
     protected $pips;
 
     /** @var float */
-    protected $grossProfit;
-
-    /** @var float */
-    protected $commission;
-
-    /** @var float */
-    protected $swap;
-
-    /** @var float */
     protected $sharpeRatio;
 
     /** @var float */
@@ -79,6 +71,18 @@ class Statistic extends PersistableObject {
 
     /** @var float */
     protected $calmarRatio;
+
+    /** @var int */
+    protected $maxRecoveryTime;
+
+    /** @var float */
+    protected $grossProfit;
+
+    /** @var float */
+    protected $commission;
+
+    /** @var float */
+    protected $swap;
 
     /** @var Test [transient] */
     protected $test;
@@ -96,7 +100,7 @@ class Statistic extends PersistableObject {
         $stats->test = $test;
 
         // calculate statistics
-        $trades       = $test->getTrades();
+        $trades       = $test->getTrades();                 // TODO: order by closeTime
         $numTrades    = sizeOf($trades);
         $testDuration = (strToTime($test->getEndTime().' GMT') - strToTime($test->getStartTime().' GMT'))/DAYS;
         $tradesPerDay = $testDuration ? round($numTrades/($testDuration * 5/7), 1) : 0;
@@ -107,7 +111,8 @@ class Statistic extends PersistableObject {
 
         $minPips = PHP_INT_MAX;
         $maxPips = 0;
-        $sumPips = 0;
+        $sumPips = $lastHigh = 0;
+        $ddStart = $maxRecoveryTime = 0;
 
         $profit  = $commission = $swap = 0;
         $returns = [];
@@ -136,27 +141,45 @@ class Statistic extends PersistableObject {
             $swap       += $trade->getSwap();
 
             $returns[] = $pips;
+
+            if ($pips < 0) {                                                            // a loss
+                if (!$ddStart) {
+                    $ddStart  = $tsClose;                                               // start of drawdown
+                    $lastHigh = $sumPips - $pips;
+                }
+            }
+            else if ($pips > 0) {                                                       // a profit
+                if ($ddStart) {                                                         // during drawdown
+                    if ($sumPips > $lastHigh) {                                         // causing a new high
+                        $maxRecoveryTime = max($tsClose-$ddStart, $maxRecoveryTime);
+                        $ddStart = 0;                                                   // the drawdown is recovered
+                    }
+                }
+            }
         }
+        if ($ddStart) $maxRecoveryTime = max($tsClose-$ddStart, $maxRecoveryTime);
 
-        $stats->trades       = $numTrades;
-        $stats->tradesPerDay = $tradesPerDay;
 
-        $stats->minDuration  = ($minDuration==PHP_INT_MAX) ? 0 : $minDuration;
-        $stats->avgDuration  = $numTrades ? round($sumDuration/$numTrades) : 0;
-        $stats->maxDuration  = $maxDuration;
+        $stats->trades          = $numTrades;
+        $stats->tradesPerDay    = $tradesPerDay;
 
-        $stats->minPips      = round($minPips==PHP_INT_MAX ? 0 : $minPips, 1);
-        $stats->avgPips      = round($numTrades ? $sumPips/$numTrades : 0, 1);
-        $stats->maxPips      = round($maxPips, 1);
-        $stats->pips         = round($sumPips, 1);
+        $stats->minDuration     = ($minDuration==PHP_INT_MAX) ? 0 : $minDuration;
+        $stats->avgDuration     = $numTrades ? round($sumDuration/$numTrades) : 0;
+        $stats->maxDuration     = $maxDuration;
 
-        $stats->grossProfit  = round($profit, 2);
-        $stats->commission   = round($commission, 2);
-        $stats->swap         = round($swap, 2);
+        $stats->minPips         = round($minPips==PHP_INT_MAX ? 0 : $minPips, 1);
+        $stats->avgPips         = round($numTrades ? $sumPips/$numTrades : 0, 1);
+        $stats->maxPips         = round($maxPips, 1);
+        $stats->pips            = round($sumPips, 1);
 
-        $stats->sharpeRatio  = stats_sharpe_ratio($returns);
-        $stats->sortinoRatio = stats_sortino_ratio($returns);
-        $stats->calmarRatio  = stats_calmar_ratio($test->getStartTime(), $test->getEndTime(), $returns);
+        $stats->sharpeRatio     = stats_sharpe_ratio($returns);
+        $stats->sortinoRatio    = stats_sortino_ratio($returns);
+        $stats->calmarRatio     = stats_calmar_ratio($test->getStartTime(), $test->getEndTime(), $returns);
+        $stats->maxRecoveryTime = $maxRecoveryTime;
+
+        $stats->grossProfit     = round($profit, 2);
+        $stats->commission      = round($commission, 2);
+        $stats->swap            = round($swap, 2);
 
         return $stats;
     }
