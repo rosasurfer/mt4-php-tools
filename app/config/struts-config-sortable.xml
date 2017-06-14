@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE struts-config SYSTEM "struts-config.dtd">
+
+<struts-config  file-base="app/view/sortable">
+
+    <!-- ==================================================== Imports =================================================== -->
+    <imports>
+        <import value="rosasurfer/xtrade/controller/*"/>
+        <import value="rosasurfer/xtrade/controller/actions/*"/>
+        <import value="rosasurfer/xtrade/controller/forms/*"/>
+    </imports>
+
+
+    <!-- ================================================ Action Mappings =============================================== -->
+    <action-mappings>
+        <mapping name="home"           path="/"         include=".home"/>
+        
+        <mapping name="test.list"      path="/tests"    include=".test.list"/>
+        
+        <mapping name="login"          path="/login"    include=".home"/>
+        <mapping name="contact"        path="/contact"  include=".home"/>
+        <mapping name="about"          path="/about"    include=".home"/>
+    </action-mappings>
+    
+    
+    <!-- ===================================================== Tiles ==================================================== -->
+    <tiles>
+    
+        <!-- default layout -->
+        <tile name=".default.layout" file="layouts/default.phtml">
+            <include name="navigation"  value="tiles/header.phtml"/>                                  
+            <include name="content"/>
+        </tile>
+
+        
+        <!-- views -->
+        <tile name=".home"           extends=".default.layout">
+           <include name="content"   value="tiles/home.phtml"/>
+        </tile>
+
+        <tile name=".test.list"      extends=".default.layout">
+            <include name="content"  value="tiles/test.list.phtml"/>
+        </tile>
+    </tiles>
+
+</struts-config>

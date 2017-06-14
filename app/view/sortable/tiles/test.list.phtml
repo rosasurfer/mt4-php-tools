@@ -1,0 +1,68 @@
+<?php
+use rosasurfer\xtrade\XTrade;
+use rosasurfer\xtrade\model\metatrader\Test;
+use function rosasurfer\xtrade\prettyRecoveryTime;
+use function rosasurfer\xtrade\prettyTimeRange;
+
+$tests = Test::dao()->findAll('select * from :Test order by strategy, created');
+
+foreach ($request->getActionErrors() as $value) {?>
+   <div class="alert alert-danger textcenter">
+      <p><?=$value?></p>
+   </div>
+<?}
+
+?>
+<div class="panel panel-default">
+   <div class="panel-heading">Found <?=$size=sizeOf($tests)?> test<?=pluralize($size)?>.</div>
+
+   <table class="table table-striped table-hover table-bordered">
+   <thead>
+   <tr>
+      <th style="vertical-align:middle; text-align:center">#</th>
+      <th style="vertical-align:middle; text-align:left" title="Tested strategy.">Strategy</th>
+      <th style="vertical-align:middle; text-align:center" title="If an equity chart was recorded the chart symbol.">Test</th>
+      <th style="vertical-align:middle; text-align:center" title="Tested symbol and timeframe.">Symbol</th>
+      <th style="vertical-align:middle; text-align:center" title="Time range of the test.">Time Range</th>
+      <th style="vertical-align:middle; text-align:center" title="Number of trades.">Trades</th>
+      <th style="vertical-align:middle; text-align:center" title="Average amount of pips per trade for a non-compounding strategy with fixed lotsize.">Pips/Trade</th>
+      <th style="vertical-align:middle; text-align:center" title="Overly simplified non-normalized Sharpe ratio.">Sharpe</th>
+      <th style="vertical-align:middle; text-align:center" title="Overly simplified non-normalized Sortino ratio.">Sortino</th>
+      <th style="vertical-align:middle; text-align:center" title="Overly simplified monthly Calmar ratio.">Calmar</th>
+      <th style="vertical-align:middle; text-align:center" title="">max. Recovery Time</th>
+   </tr>
+   </thead>
+
+   <tbody>
+   <?
+   /** @var Test $test */
+   foreach ($tests as $i => $test) {
+      $strategy        = $test->getStrategy();
+      $report          = $test->getReportingSymbol();
+      $symbol          = $test->getSymbol();
+      $period          = Xtrade::periodDescription($test->getTimeframe());
+      $timeRange       = prettyTimeRange($test->getStartTime(), $test->getEndTime());
+      $numTrades       = $test->getStats()->getTrades();
+      $avgPips         = $test->getStats()->getAvgPips();
+      $sharpe          = $test->getStats()->getSharpeRatio();
+      $sortino         = $test->getStats()->getSortinoRatio();
+      $calmar          = $test->getStats()->getCalmarRatio();
+      $maxRecoveryTime = prettyRecoveryTime($test->getStats()->getMaxRecoveryTime());
+   ?>
+   <tr style="text-align:center">
+      <th style="vertical-align:middle; text-align:center" scope="row"><?=($i+1)?></th>
+      <td style="vertical-align:middle; text-align:left"><?=$strategy?></td>
+      <td style="vertical-align:middle" nowrap><?=$report?></td>
+      <td style="vertical-align:middle"><?=$symbol.', '.$period?></td>
+      <td style="vertical-align:middle"><?=$timeRange?></td>
+      <td style="vertical-align:middle"><?=numf($numTrades, 0)?></td>
+      <td style="vertical-align:middle"><?=sprintf('%+.1f', $avgPips)?></td>
+      <td style="vertical-align:middle"><?=rtrim(sprintf('%.4f', $sharpe), '.0')?></td>
+      <td style="vertical-align:middle"><?=rtrim(sprintf('%.4f', $sortino), '.0')?></td>
+      <td style="vertical-align:middle"><?=rtrim(sprintf('%.4f', $calmar), '.0')?></td>
+      <td style="vertical-align:middle"><?=$maxRecoveryTime?></td>
+   </tr>
+   <?}?>
+   </tbody>
+   </table>
+</div>
