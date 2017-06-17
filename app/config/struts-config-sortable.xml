@@ -13,13 +13,12 @@
 
     <!-- ================================================ Action Mappings =============================================== -->
     <action-mappings>
-        <mapping name="home"           path="/"         include=".home"/>
+        <mapping name="home"         path="/"             include=".home"/>
+        <mapping name="login"        path="/login"        include=".home"/>
+        <mapping name="contact"      path="/contact"      include=".home"/>
+        <mapping name="about"        path="/about"        include=".home"/>
         
-        <mapping name="test.list"      path="/tests"    include=".test.list"/>
-        
-        <mapping name="login"          path="/login"    include=".home"/>
-        <mapping name="contact"        path="/contact"  include=".home"/>
-        <mapping name="about"          path="/about"    include=".home"/>
+        <mapping name="tablesorter"  path="/tablesorter"  include=".tablesorter"/>
     </action-mappings>
     
     
@@ -34,12 +33,13 @@
 
         
         <!-- views -->
-        <tile name=".home"           extends=".default.layout">
-           <include name="content"   value="tiles/home.phtml"/>
-        </tile>
-
+        <tile name=".home"           alias=".test.list"/>
+        
         <tile name=".test.list"      extends=".default.layout">
             <include name="content"  value="tiles/test.list.phtml"/>
+        </tile>
+        <tile name=".tablesorter"    extends=".default.layout">
+            <include name="content"  value="tiles/tablesorter.phtml"/>
         </tile>
     </tiles>
 
