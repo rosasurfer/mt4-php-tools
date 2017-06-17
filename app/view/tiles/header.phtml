@@ -5,28 +5,27 @@ namespace rosasurfer\xtrade\view;
 <nav class="navbar navbar-default navbar-custom">
    <div class="container-fluid">
       <div class="navbar-header">
-         <a class="navbar-brand" href="<?=route('home')?>">Xtrade</a>
+         <a class="navbar-brand" href="<?=route('home')?>">XTrade</a>
       </div>
 
       <div class="nav-collapse">
          <ul class="nav navbar-nav navbar-left">
             <li class="dropdown">
-               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Analyse <span class="caret"></span></a>
+               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Tests <span class="caret"></span></a>
                <ul class="dropdown-menu">
-                  <li><a href="<?=route('test.list')?>">Tests</a></li>
+                  <li><a href="<?=route('test.list')?>">List</a></li>
+                  <li><a href="<?=route('test.tablesorter')?>">Sortable</a></li>
                </ul>
             </li>
-
-            <li><a href="<?=route('symbols')?>">Symbols</a></li>
-            <li><a href="<?=route('history')?>">History</a></li>
 
             <li class="dropdown">
                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Charts <span class="caret"></span></a>
                <ul class="dropdown-menu">
                   <li><a href="<?=route('chart.bar')?>">Bar Chart</a></li>
-                  <li><a href="<?=route('chart.scatter')?>">Scatter Chart</a></li>
                </ul>
             </li>
+            <li><a href="<?=route('history')?>">History</a></li>
+            <li><a href="<?=route('symbols')?>">Symbols</a></li>
          </ul>
 
          <ul class="nav navbar-nav navbar-right">

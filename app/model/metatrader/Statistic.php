@@ -112,7 +112,7 @@ class Statistic extends PersistableObject {
         $minPips = PHP_INT_MAX;
         $maxPips = 0;
         $sumPips = $lastHigh = 0;
-        $ddStart = $maxRecoveryTime = 0;
+        $ddStart = $maxRecoveryTime = $tsClose = 0;
 
         $profit  = $commission = $swap = 0;
         $returns = [];

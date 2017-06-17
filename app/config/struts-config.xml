@@ -13,12 +13,14 @@
 
     <!-- ================================================ Action Mappings =============================================== -->
     <action-mappings>
-        <mapping name="home"           path="/"         include=".home"/>
-        <mapping name="symbols"        path="/symbols"  include=".home"/>
-        <mapping name="history"        path="/history"  include=".home"/>
-                                       
-        <mapping name="test.list"      path="/tests"    include=".test.list"/>
-        <mapping name="test.detail"    path="/test"  form="ViewTestActionForm">
+        <mapping name="home"              path="/"          include=".home"/>
+        <mapping name="symbols"           path="/symbols"   include=".home"/>
+        <mapping name="history"           path="/history"   include=".home"/>
+                                                            
+        <mapping name="test.list"         path="/tests"     include=".test.list"/>
+        <mapping name="test.tablesorter"  path="/sortable"  include=".test.tablesorter"/>
+
+        <mapping name="test.detail"  path="/test"  form="ViewTestActionForm">
             <forward name="success"  include=".test.detail"/>
             <forward name="error"    include=".test.list"/>
         </mapping>
@@ -28,7 +30,6 @@
         <mapping name="about"          path="/about"    include=".home"/>
         
         <mapping name="chart.bar"      path="/chart/bar"      include=".chart.bar"/>
-        <mapping name="chart.scatter"  path="/chart/scatter"  include=".chart.scatter"/>
     </action-mappings>
     
     
@@ -43,23 +44,23 @@
 
         
         <!-- views -->
-        <tile name=".home"           extends=".default.layout">
-           <include name="content"   value="tiles/home.phtml"/>
+        <tile name=".home"              extends=".default.layout">
+           <include name="content"      value="tiles/home.phtml"/>
+        </tile>                         
+                                        
+        <tile name=".test.list"         extends=".default.layout">
+            <include name="content"     value="tiles/test.list.phtml"/>
         </tile>
-
-        <tile name=".test.list"      extends=".default.layout">
-            <include name="content"  value="tiles/test.list.phtml"/>
+        <tile name=".test.tablesorter"  extends=".default.layout">
+            <include name="content"     value="tiles/test.tablesorter.phtml"/>
         </tile>
-        <tile name=".test.detail"    extends=".default.layout">
-            <include name="content"  value="tiles/charts/scatter.phtml"/>
-        </tile>
-
-        <tile name=".chart.bar"      extends=".default.layout">
-            <include name="content"  value="tiles/charts/bar.phtml"/>
-        </tile>
-        <tile name=".chart.scatter"  extends=".default.layout">
-            <include name="content"  value="tiles/charts/scatter.phtml"/>
-        </tile>
+        <tile name=".test.detail"       extends=".default.layout">
+            <include name="content"     value="tiles/charts/scatter.phtml"/>
+        </tile>                         
+                                        
+        <tile name=".chart.bar"         extends=".default.layout">
+            <include name="content"     value="tiles/charts/bar.phtml"/>
+        </tile>                         
     </tiles>
 
 </struts-config>

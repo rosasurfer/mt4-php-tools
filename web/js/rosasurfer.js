@@ -168,15 +168,15 @@ var rosasurfer = {
      * @param function callback - callback function
      */
     postUrl: function postUrl(url, data, headers, callback) {   // request.readyState = returns the status of the XMLHttpRequest
-        var request = new XMLHttpRequest();                      //  0: request not initialized
-        request.url = url;                                       //  1: server connection established
-        request.onreadystatechange = function() {                //  2: request received
-            if (request.readyState == 4) {                        //  3: processing request
-                callback(request);                                 //  4: request finished and response is ready
-            }                                                     //
-        };                                                       // request.status = returns the HTTP status-code
-        request.open('POST', url , true);                        //  200: "OK"
-        for (var name in headers) {                              //  404: "Not Found" etc.
+        var request = new XMLHttpRequest();                     //  0: request not initialized
+        request.url = url;                                      //  1: server connection established
+        request.onreadystatechange = function() {               //  2: request received
+            if (request.readyState == 4) {                      //  3: processing request
+                callback(request);                              //  4: request finished and response is ready
+            }                                                   //
+        };                                                      // request.status = returns the HTTP status-code
+        request.open('POST', url , true);                       //  200: "OK"
+        for (var name in headers) {                             //  404: "Not Found" etc.
             request.setRequestHeader(name, headers[name]);
         }
         request.send(data);
@@ -193,9 +193,15 @@ var rosasurfer = {
     getType: function getType(arg) {
         var type = typeof(arg);
         if (type == 'object') {
-            if      (arg === null)         type = 'null';
-            else if (arg.constructor.name) type = arg.constructor.name;
-            else                           type = arg.constructor.toString().slice(8, -1);
+            if (arg === null) {
+                type = 'null';
+            }         
+            else {
+                type = arg.constructor.name || arg.constructor.toString();  
+                if (type.startsWith('[object ')) {
+                    type = type.slice(8, -1);
+                } 
+            }
         }
         return type;
     },
@@ -207,8 +213,8 @@ var rosasurfer = {
      * @param  mixed arg
      */
     showProperties: function showProperties(arg) {
-        if (arg === undefined) return alert('rosasurfer.showProperties()\n\nUndefined parameter "arg"');
-        if (arg === null)      return alert('rosasurfer.showProperties()\n\nIllegal parameter "arg": null');
+        if (arg === undefined) return alert('rosasurfer.showProperties()\n\nPassed parameter: undefined');
+        if (arg === null)      return alert('rosasurfer.showProperties()\n\nPassed parameter: null');
 
         var property='', properties=[], type=this.getType(arg);
 
@@ -232,11 +238,11 @@ var rosasurfer = {
 
 
     /**
-     * Log a message. It is sufficient to provide the 'target' argument only once
-     * for every log target change.
+     * Log a message. 
      *
      * @param  mixed  msg
-     * @param  string target - whether to log to the top (default) or the bottom of the page
+     * @param  string target - Whether to log to the top (default) or the bottom of the page. 
+     *                         The method will remember the last used 'target' parameter.
      */
     log: function log(msg, target/*='top'*/) {
         if (this.log.console)
@@ -261,10 +267,11 @@ var rosasurfer = {
         }
         if      (target=='top'   ) div.style.position = 'absolute';
         else if (target=='bottom') div.style.position = 'relative';
-
-        msg = msg.toString().replace(/ {2,}/g, function(match) {
+        
+        msg = typeof(msg)=='undefined' ? 'undefined' : msg.toString().replace(/ {2,}/g, function(match) {
             return '&nbsp;'.repeat(match.length);
         });
+
         div.innerHTML += msg +'<br>\n';
     },
 

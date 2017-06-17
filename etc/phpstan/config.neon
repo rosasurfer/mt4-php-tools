@@ -4,7 +4,7 @@
 # phpstan analyse -a autoload.php -c config.neon --level=0 [--] <directory>
 #
 
-services:                                                           # loaded before auto-loading in "parameters" 
+services:                                                           # loaded before auto-loading in block "parameters" 
     -
         class: rosasurfer\db\orm\phpstan\DAO_Find_ReturnType
         tags:
@@ -13,6 +13,7 @@ services:                                                           # loaded bef
         class: rosasurfer\db\orm\phpstan\DAO_FindAll_ReturnType
         tags:
             - phpstan.broker.dynamicMethodReturnTypeExtension
+            - phpstan.broker.dynamicStaticMethodReturnTypeExtension
     -
         class: rosasurfer\db\orm\phpstan\PersistableObject_Dao_ReturnType
         tags:
@@ -28,7 +29,7 @@ services:                                                           # loaded bef
         tags:
             - phpstan.broker.dynamicMethodReturnTypeExtension
             - phpstan.broker.dynamicStaticMethodReturnTypeExtension
-            
+
 parameters:
     autoload_files:
         - etc/phpstan/function-stubs.php                            # stubs for PHP extensions and procedural code
@@ -36,7 +37,7 @@ parameters:
 
     fileExtensions:                                                 # additional files to analyse
        #- html
-       #- phtml                                                     # TODO: Tiles default variables trigger errors 
+       #- phtml                                                     # TODO: Tile default vars trigger errors
 
     excludes_analyse:
         - etc/vendor/
@@ -52,7 +53,7 @@ parameters:
         - '/Parameter #[0-9]+ [^ ]+ of class [^ ]+ constructor expects ([^ ]+), (\1\|)?null given\b/'               # - dito -
         - '/Parameter #[0-9]+ [^ ]+ of (static )?(function|method) [^ ]+ expects ([^ ]+), (\3\|)?null given\b/'     # - dito -
         - '/Calling method [^ ]+ on possibly nullable type [^ ]+\|null\b/'
-        - "/Casting to (bool|int|float|string) something that's already (bool|int|float|string)\b/"                 # too simple implementation
+        - "/Casting to (bool|int|float|string) something that's already (bool|int|float|string)/"                   # too simple implementation
         - '/Strict comparison using [=!]== between (int|string) and null will always evaluate to (true|false)\b/'
 
         # PHPStan bugs 

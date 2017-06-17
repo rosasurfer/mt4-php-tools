@@ -3,19 +3,16 @@ namespace rosasurfer\xtrade\view;
 
 use rosasurfer\xtrade\XTrade;
 use rosasurfer\xtrade\model\metatrader\Test;
-
 use function rosasurfer\xtrade\prettyRecoveryTime;
 use function rosasurfer\xtrade\prettyTimeRange;
 
 $tests = Test::dao()->findAll('select * from :Test order by strategy, created');
 
 foreach ($request->getActionErrors() as $value) {?>
-   <div class="alert alert-danger textcenter">
-      <p><?=$value?></p>
-   </div>
-<?}
+   <div class="alert alert-danger textcenter"><p><?=hsc($value)?></p></div>
+<?}?>
 
-?>
+
 <div class="panel panel-default">
    <div class="panel-heading">Found <?=$size=sizeOf($tests)?> test<?=pluralize($size)?>.</div>
 
@@ -43,7 +40,7 @@ foreach ($request->getActionErrors() as $value) {?>
       $strategy        = $test->getStrategy();
       $report          = $test->getReportingSymbol();
       $symbol          = $test->getSymbol();
-      $period          = Xtrade::periodDescription($test->getTimeframe());
+      $period          = XTrade::periodDescription($test->getTimeframe());
       $timeRange       = prettyTimeRange($test->getStartTime(), $test->getEndTime());
       $numTrades       = $test->getStats()->getTrades();
       $avgPips         = $test->getStats()->getAvgPips();
@@ -54,9 +51,9 @@ foreach ($request->getActionErrors() as $value) {?>
    ?>
    <tr style="text-align:center">
       <th style="vertical-align:middle; text-align:center" scope="row"><?=($i+1)?></th>
-      <td style="vertical-align:middle; text-align:left"><?=$strategy?></td>
+      <td style="vertical-align:middle; text-align:left"><?=hsc($strategy)?></td>
       <td style="vertical-align:middle" nowrap>
-         <a href="<?=route('test.detail').'?id='.$test->getId()?>"><?=$report?></a>
+         <a href="<?=route('test.detail').'?id='.$test->getId()?>"><?=hsc($report)?></a>
       </td>
       <td style="vertical-align:middle"><?=$symbol.', '.$period?></td>
       <td style="vertical-align:middle"><?=$timeRange?></td>

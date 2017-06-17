@@ -12,7 +12,7 @@ html, body {
 }
 
 .navbar { 
-  _margin-bottom: 0
+  margin-bottom:10px;
 }
 .navbar-custom {
   background-color: #0088cc;    /* #DDE1EB #F5F5F5*/
