@@ -17,16 +17,16 @@ $tests = Test::dao()->findAll('select * from :Test order by strategy, created');
    <thead>
    <tr>
       <th style="vertical-align:middle; text-align:center">#</th>
-      <th style="vertical-align:middle; text-align:left" title="Tested strategy.">Strategy</th>
-      <th style="vertical-align:middle; text-align:center" title="If an equity chart was recorded the chart symbol.">Test</th>
-      <th style="vertical-align:middle; text-align:center" title="Tested symbol and timeframe.">Symbol</th>
-      <th style="vertical-align:middle; text-align:center" title="Time range of the test.">Time Range</th>
-      <th style="vertical-align:middle; text-align:center" title="Number of trades.">Trades</th>
-      <th style="vertical-align:middle; text-align:center" title="Average amount of pips per trade for a non-compounding strategy with fixed lotsize.">Pips/Trade</th>
-      <th style="vertical-align:middle; text-align:center" title="Overly simplified non-normalized Sharpe ratio.">Sharpe</th>
-      <th style="vertical-align:middle; text-align:center" title="Overly simplified non-normalized Sortino ratio.">Sortino</th>
-      <th style="vertical-align:middle; text-align:center" title="Overly simplified monthly Calmar ratio.">Calmar</th>
-      <th style="vertical-align:middle; text-align:center" title="">max. Recovery Time</th>
+      <th style="vertical-align:middle; text-align:left" title="tested strategy">Strategy</th>
+      <th style="vertical-align:middle; text-align:center" title="test report id">Test</th>
+      <th style="vertical-align:middle; text-align:center" title="tested symbol and timeframe">Symbol</th>
+      <th style="vertical-align:middle; text-align:center" title="time range of the test">Time Range</th>
+      <th style="vertical-align:middle; text-align:center" title="number of trades">Trades</th>
+      <th style="vertical-align:middle; text-align:center" title="average amount of pips per trade for a non-compounding strategy with fixed lotsize">Pips/Trade</th>
+      <th style="vertical-align:middle; text-align:center" title="simplified non-normalized Sharpe ratio">Sharpe</th>
+      <th style="vertical-align:middle; text-align:center" title="simplified non-normalized Sortino ratio">Sortino</th>
+      <th style="vertical-align:middle; text-align:center" title="simplified monthly Calmar ratio">Calmar</th>
+      <th style="vertical-align:middle; text-align:center" title="maximum drawdown recovery time in days">max. Recovery Time</th>
    </tr>
    </thead>
 
