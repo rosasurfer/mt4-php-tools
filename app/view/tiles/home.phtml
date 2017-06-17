@@ -1,6 +1,2 @@
-<?php
-namespace rosasurfer\xtrade\view;
-?>
 
-<div>
-</div>
+<?foreach ($request->getActionErrors() as $value) {?><div class="alert alert-danger textcenter"><p><?=hsc($value)?></p></div><?}?>

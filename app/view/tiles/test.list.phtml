@@ -1,16 +1,13 @@
 <?php
-namespace rosasurfer\xtrade\view;
-
 use rosasurfer\xtrade\XTrade;
 use rosasurfer\xtrade\model\metatrader\Test;
 use function rosasurfer\xtrade\prettyRecoveryTime;
 use function rosasurfer\xtrade\prettyTimeRange;
 
 $tests = Test::dao()->findAll('select * from :Test order by strategy, created');
+?>
 
-foreach ($request->getActionErrors() as $value) {?>
-   <div class="alert alert-danger textcenter"><p><?=hsc($value)?></p></div>
-<?}?>
+<?foreach ($request->getActionErrors() as $value) {?><div class="alert alert-danger textcenter"><p><?=hsc($value)?></p></div><?}?>
 
 
 <div class="panel panel-default">

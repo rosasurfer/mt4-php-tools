@@ -34,7 +34,7 @@
     
     
     <!-- ===================================================== Tiles ==================================================== -->
-    <tiles namespace="rosasurfer/xtrade/view">
+    <tiles>
     
         <!-- default layout -->
         <tile name=".default.layout" file="layouts/default.phtml">
