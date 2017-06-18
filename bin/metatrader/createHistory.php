@@ -4,8 +4,8 @@ namespace rosasurfer\xtrade\metatrader\create_history;
 
 /**
  * Liest die MyFX-M1-History der angegebenen Instrumente ein und erzeugt daraus jeweils eine neue MetaTrader-History.
- * Speichert diese MetaTrader-History im globalen MT4-Serververzeichnis "MyFX-Dukascopy". Vorhandene Historydateien
- * werden ueberschrieben. Um vorhandene Historydateien zu aktualisieren, ist "updateHistory.php" zu benutzen.
+ * Speichert diese MetaTrader-History im globalen MT4-Serververzeichnis. Vorhandene Historydateien werden ueberschrieben.
+ * Um vorhandene Historydateien zu aktualisieren, ist "updateHistory.php" zu benutzen.
  */
 use rosasurfer\config\Config;
 
@@ -13,8 +13,6 @@ use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 
 use rosasurfer\xtrade\XTrade;
-use rosasurfer\xtrade\dukascopy\Dukascopy;
-
 use rosasurfer\xtrade\metatrader\HistorySet;
 use rosasurfer\xtrade\metatrader\MT4;
 
@@ -87,7 +85,7 @@ function createHistory($symbol) {
     // MT4-HistorySet erzeugen
     $digits    = XTrade::$symbols[$symbol]['digits'];
     $format    = 400;
-    $directory = Config::getDefault()->get('app.dir.data').'/history/mt4/MyFX-Dukascopy';
+    $directory = Config::getDefault()->get('app.dir.data').'/history/mt4/XTrade-Testhistory';
     $history   = HistorySet::create($symbol, $digits, $format, $directory);
 
 

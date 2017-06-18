@@ -3,7 +3,7 @@
 namespace rosasurfer\xtrade\metatrader\update_history;
 
 /**
- * Aktualisiert die MetaTrader-History der angegebenen Instrumente im globalen MT4-Serververzeichnis "MyFX-Dukascopy".
+ * Aktualisiert die MetaTrader-History der angegebenen Instrumente im globalen MT4-Serververzeichnis.
  */
 use rosasurfer\config\Config;
 
@@ -11,8 +11,6 @@ use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 
 use rosasurfer\xtrade\XTrade;
-use rosasurfer\xtrade\dukascopy\Dukascopy;
-
 use rosasurfer\xtrade\metatrader\HistorySet;
 use rosasurfer\xtrade\metatrader\MT4;
 
@@ -80,7 +78,7 @@ function updateHistory($symbol) {
 
     global $verbose;
     $digits       = XTrade::$symbols[$symbol]['digits'];
-    $directory    = Config::getDefault()->get('app.dir.data').'/history/mt4/MyFX-Dukascopy';
+    $directory    = Config::getDefault()->get('app.dir.data').'/history/mt4/XTrade-Testhistory';
     $lastSyncTime = null;
     echoPre('[Info]    '.$symbol);
 
