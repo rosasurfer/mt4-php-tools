@@ -21,6 +21,7 @@ use function rosasurfer\xtrade\isFxtWeekend;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');
+ini_set('memory_limit', '128M');
 
 
 // -- Konfiguration ---------------------------------------------------------------------------------------------------------
