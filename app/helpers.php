@@ -275,8 +275,8 @@ function prettyRecoveryTime($duration) {
  * User-land implementation of PECL::stats_standard_deviation()
  *
  * @param  array $values
- * @param  bool  $sample [optional] - whether or not the values represent a sample and not the total population
- *                                    (default: no)
+ * @param  bool  $sample [optional] - whether the values represent a sample or the total population
+ *                                    (default: total population)
  * @return float - standard deviation
  */
 function stats_standard_deviation(array $values, $sample = false) {
@@ -287,77 +287,97 @@ function stats_standard_deviation(array $values, $sample = false) {
     }
 
     $n = sizeof($values);
-    if (           $n==0) throw new IllegalArgumentException('Illegal number of values (zero)');
-    if ($sample && $n==1) throw new IllegalArgumentException('Illegal number of values (one)');
+    if ($n==0           ) throw new IllegalArgumentException('Illegal number of values: 0 (not a population)');
+    if ($n==1 && $sample) throw new IllegalArgumentException('Illegal number of values: 1 (not a sample)');
 
-    $avg   = array_sum($values) / $n;           // arythmetic mean
-    $sqSum = 0;
+    $mean = array_sum($values) / $n;        // arythmetic mean (aka simple average)
+    $sqrSum = 0;
 
-    foreach ($values as $value) {
-        $diff   = $value - $avg;
-        $sqSum += $diff * $diff;
-    };
-    if ($sample) $n--;
-
-    return sqrt($sqSum / $n);
+    foreach ($values as $value) {           // The denominator's reduction by 1 for calculating the variance of a sample
+        $diff = $value - $mean;             // tries to correct the "mean error" caused by unknown out-of-sample values.
+        $sqrSum += $diff * $diff;           // Think of it as a "correction" when your data is only a sample.
+    };                                      //
+                                            // standard deviation:
+    if ($sample) $n--;                      // @see http://www.mathsisfun.com/data/standard-deviation.html
+    $variance = $sqrSum / $n;               //
+                                            // Bessel's correction:
+    return sqrt($variance);                 // @see https://en.wikipedia.org/wiki/Bessel%27s_correction
 }
 
 
 /**
- * Calculate the Sharpe ratio of the given returns.
+ * Calculate the Sharpe ratio of the given returns (the average return divided by the standard deviation).
  *
  * @param  array $returns
- * @param  bool  $compound [optional] - whether or not the returns are compounding returns
- *                                      (default: no)
- * @param  bool  $sample   [optional] - whether or not the returns represent only a sample of the total population
- *                                      (default: no)
+ * @param  bool  $growth  [optional] - whether the returns are growth rates or absolute values
+ *                                     (default: absolute values)
+ * @param  bool  $sample  [optional] - whether the values represent a sample or the total population
+ *                                     (default: total population)
  *
  * @return float - over-simplified and non-normalized Sharpe ratio
  */
-function stats_sharpe_ratio(array $returns, $compound=false, $sample=false) {
+function stats_sharpe_ratio(array $returns, $growth=false, $sample=false) {
     $n = sizeof($returns);
-    if (           $n==0) throw new IllegalArgumentException('Illegal number of returns (zero)');
-    if ($sample && $n==1) throw new IllegalArgumentException('Illegal number of returns (one)');
-    if ($compound)        throw new UnimplementedFeatureException('Processing of compounding returns not yet implemented');
+    if ($n==0           ) throw new IllegalArgumentException('Illegal number of returns: 0 (not a population)');
+    if ($n==1 && $sample) throw new IllegalArgumentException('Illegal number of returns: 1 (not a sample)');
 
-    $avgReturn = array_sum($returns) / $n;      // arythmetic mean
-    return $avgReturn / stats_standard_deviation($returns, $sample);
+    if ($growth) {
+        throw new UnimplementedFeatureException('Validation of growth rates not yet implemented');
+        // all values must be non-negative and non-zero (no return = zero growth = 1)
+
+        $mean = array_product($returns) ** 1/$n;        // geometric mean (aka geometric average)
+    }
+    else {
+        $mean = array_sum($returns) / $n;               // arythmetic mean (aka simple average)
+    }
+
+    return $mean / stats_standard_deviation($returns, $sample);
 }
 
 
 /**
- * Calculate the Sortino ratio of the given returns.
+ * Calculate the Sortino ratio of the given returns (the Sharpe ratio of the negative returns = risk).
  *
  * @param  array $returns
- * @param  bool  $compound [optional] - whether or not the returns are compounding returns
- *                                      (default: no)
- * @param  bool  $sample   [optional] - whether or not the returns represent only a sample of the total population
- *                                      (default: no)
+ * @param  bool  $growth [optional] - whether the returns are growth rates or absolute values
+ *                                    (default: absolute values)
+ * @param  bool  $sample [optional] - whether the values represent a sample or the total population
+ *                                    (default: total population)
  *
  * @return float - over-simplified and non-normalized Sortino ratio
  */
-function stats_sortino_ratio(array $returns, $compound=false, $sample=false) {
+function stats_sortino_ratio(array $returns, $growth=false, $sample=false) {
     $n = sizeof($returns);
-    if (           $n==0) throw new IllegalArgumentException('Illegal number of returns (zero)');
-    if ($sample && $n==1) throw new IllegalArgumentException('Illegal number of returns (one)');
-    if ($compound)        throw new UnimplementedFeatureException('Processing of compounding returns not yet implemented');
+    if ($n==0           ) throw new IllegalArgumentException('Illegal number of returns: 0 (not a population)');
+    if ($n==1 && $sample) throw new IllegalArgumentException('Illegal number of returns: 1 (not a sample)');
 
-    $avgReturn = array_sum($returns) / $n;      // arythmetic mean
+    if ($growth) {
+        throw new UnimplementedFeatureException('Validation of growth rates not yet implemented');
+        // all values must be above zero (no return = zero growth = 1)
+
+        $mean = array_product($returns) ** 1/$n;        // geometric mean (aka geometric average)
+        $zeroReturn = 1;
+    }
+    else {
+        $mean = array_sum($returns) / $n;               // arythmetic mean (aka simple average)
+        $zeroReturn = 0;
+    }
 
     foreach ($returns as $i => $return) {
-        if ($return > 0)
-            $returns[$i] = 0;
+        if ($return > $zeroReturn)                      // set positive returns to 0
+            $returns[$i] = $zeroReturn;
     }
-    return $avgReturn / stats_standard_deviation($returns, $sample);
+
+    return $mean / stats_standard_deviation($returns, $sample);
 }
 
 
 /**
- * Calculate the Calmar ratio of the given profits.
+ * Calculate the Calmar ratio of the given profits (the average return divided by the maximum drawdown)
  *
  * @param  string $from   - start date of the data series
  * @param  string $to     - end date of the data series
- * @param  array  $values - absolute profit/loss values (not percentage returns)
+ * @param  array  $values - absolute profit values (not growth rates)
  *
  * @return float - over-simplified monthly Calmar ratio
  */
@@ -370,15 +390,18 @@ function stats_calmar_ratio($from, $to, array $values) {
         if ($total > $high)
             $high = $total;
 
-        $drawdown = $high - $total;                                     // absolute value
+        $drawdown = $high - $total;
         if ($drawdown > $maxDrawdown)
-            $maxDrawdown = $drawdown;
+            $maxDrawdown = $drawdown;                   // TODO: that's maxDD of balance, not of equity
     }
 
-    $period           = (strToTime($to) - strToTime($from))/MONTHS;
-    $normalizedReturn = $total / $period;                               // arythmetic mean (no compounding)
+    $months = (strToTime($to) - strToTime($from))/MONTHS;
+    $normalizedProfit = $total / $months;               // average profit per month (absolute)
 
     if ($maxDrawdown == 0)
         return INF;
-    return $normalizedReturn / $maxDrawdown;
+    return $normalizedProfit / $maxDrawdown;
 }
+
+// standard deviation vs. standard error:
+// @see https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3148365/
