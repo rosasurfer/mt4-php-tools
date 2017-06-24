@@ -3,17 +3,15 @@ namespace rosasurfer\xtrade;
 
 use rosasurfer\config\Config;
 use rosasurfer\core\StaticClass;
-
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 use rosasurfer\exception\UnimplementedFeatureException;
-
 use rosasurfer\net\http\CurlHttpClient;
 use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
-
 use rosasurfer\xtrade\metatrader\MT4;
+
 
 /**
  * MyFX related functionality

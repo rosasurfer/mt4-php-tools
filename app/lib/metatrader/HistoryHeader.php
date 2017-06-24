@@ -2,7 +2,6 @@
 namespace rosasurfer\xtrade\metatrader;
 
 use rosasurfer\core\Object;
-
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 

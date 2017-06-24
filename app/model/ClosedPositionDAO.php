@@ -2,7 +2,6 @@
 namespace rosasurfer\xtrade\model;
 
 use rosasurfer\db\orm\DAO;
-
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 

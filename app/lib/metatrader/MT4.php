@@ -3,10 +3,8 @@ namespace rosasurfer\xtrade\metatrader;
 
 use rosasurfer\config\Config;
 use rosasurfer\core\StaticClass;
-
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\RuntimeException;
-
 use rosasurfer\xtrade\model\ClosedPosition;
 use rosasurfer\xtrade\model\ClosedPositionDAO;
 use rosasurfer\xtrade\model\OpenPosition;
@@ -14,6 +12,10 @@ use rosasurfer\xtrade\model\OpenPositionDAO;
 use rosasurfer\xtrade\model\Signal;
 
 use function rosasurfer\strIsNumeric;
+
+use const rosasurfer\xtrade\BARMODEL_BAROPEN;
+use const rosasurfer\xtrade\BARMODEL_CONTROLPOINTS;
+use const rosasurfer\xtrade\BARMODEL_EVERYTICK;
 
 use const rosasurfer\xtrade\PERIOD_M1;
 use const rosasurfer\xtrade\PERIOD_M5;
@@ -25,10 +27,6 @@ use const rosasurfer\xtrade\PERIOD_D1;
 use const rosasurfer\xtrade\PERIOD_W1;
 use const rosasurfer\xtrade\PERIOD_MN1;
 use const rosasurfer\xtrade\PERIOD_Q1;
-
-use const rosasurfer\xtrade\BARMODEL_BAROPEN;
-use const rosasurfer\xtrade\BARMODEL_CONTROLPOINTS;
-use const rosasurfer\xtrade\BARMODEL_EVERYTICK;
 
 use const rosasurfer\xtrade\TRADEDIRECTION_BOTH;
 use const rosasurfer\xtrade\TRADEDIRECTION_LONG;

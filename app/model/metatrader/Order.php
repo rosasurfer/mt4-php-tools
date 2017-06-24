@@ -2,10 +2,8 @@
 namespace rosasurfer\xtrade\model\metatrader;
 
 use rosasurfer\db\orm\PersistableObject;
-
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
-
 use rosasurfer\xtrade\XTrade;
 use rosasurfer\xtrade\metatrader\MT4;
 

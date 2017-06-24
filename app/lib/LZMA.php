@@ -1,16 +1,14 @@
 <?php
 namespace rosasurfer\xtrade;
 
+use rosasurfer\config\Config;
 use rosasurfer\core\StaticClass;
-
 use rosasurfer\exception\FileNotFoundException;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InfrastructureException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
-
 use rosasurfer\util\PHP;
-use rosasurfer\config\Config;
 
 
 /**

@@ -3,15 +3,12 @@ namespace rosasurfer\xtrade\myfxbook;
 
 use rosasurfer\config\Config;
 use rosasurfer\core\StaticClass;
-
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\IOException;
 use rosasurfer\exception\RuntimeException;
-
 use rosasurfer\net\http\CurlHttpClient;
 use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
-
 use rosasurfer\xtrade\model\Signal;
 
 

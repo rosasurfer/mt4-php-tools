@@ -3,24 +3,18 @@ namespace rosasurfer\xtrade\simpletrader;
 
 use rosasurfer\config\Config;
 use rosasurfer\core\StaticClass;
-
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\IOException;
 use rosasurfer\exception\RuntimeException;
-
 use rosasurfer\log\Logger;
-
 use rosasurfer\net\http\CurlHttpClient;
 use rosasurfer\net\http\HttpClient;
 use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
-
 use rosasurfer\util\Date;
 use rosasurfer\util\PHP;
-
 use rosasurfer\xtrade\XTrade;
-
 use rosasurfer\xtrade\model\ClosedPosition;
 use rosasurfer\xtrade\model\OpenPosition;
 use rosasurfer\xtrade\model\Signal;

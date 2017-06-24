@@ -3,14 +3,12 @@ namespace rosasurfer\xtrade\metatrader;
 
 use rosasurfer\core\Object;
 use rosasurfer\debug\ErrorHandler;
-
 use rosasurfer\exception\FileNotFoundException;
 use rosasurfer\exception\IllegalStateException;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 use rosasurfer\exception\UnimplementedFeatureException;
-
 use rosasurfer\xtrade\XTrade;
 
 use const rosasurfer\xtrade\PERIOD_D1;

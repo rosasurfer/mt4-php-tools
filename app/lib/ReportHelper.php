@@ -2,10 +2,8 @@
 namespace rosasurfer\xtrade;
 
 use rosasurfer\core\Object;
-
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
-
 use rosasurfer\xtrade\model\Signal;
 
 

@@ -2,13 +2,10 @@
 namespace rosasurfer\xtrade\model;
 
 use rosasurfer\db\orm\PersistableObject;
-
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
-
 use rosasurfer\util\Date;
 use rosasurfer\util\Number;
-
 use rosasurfer\xtrade\XTrade;
 
 
