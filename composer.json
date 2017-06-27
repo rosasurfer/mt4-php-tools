@@ -1,12 +1,12 @@
 {
     "name":        "rosasurfer/mt4-tools",
-    "description": "MT4 Trading Framework Command Line Tools",
+    "description": "MetaTrader 4 Framework Web and Command Line Tools",
     "type":        "project",
-    "homepage":    "http://mt4.rosasurfer.com/",
+    "homepage":    "http://xtrade.rosasurfer.com/",
     "license":     "WTFPL",
     "authors": [{ 
         "name":  "Peter Walther", 
-        "email": "mt4-tools@rosasurfer.com" 
+        "email": "xtrade@rosasurfer.com" 
     }],
     "config": {
         "vendor-dir":         "etc/vendor",
