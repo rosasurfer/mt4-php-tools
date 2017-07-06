@@ -1,10 +1,44 @@
 #
-# alias phpstan='php7 -d memory_limit=128M ~/.composer/vendor/phpstan/phpstan/bin/phpstan --ansi'
+# alias phpstan='php7 -d memory_limit=128M /path/to/phpstan/bin/phpstan --ansi'
 #
-# phpstan analyse -a autoload.php -c config.neon --level=0 [--] <directory>
+# phpstan analyse -a etc/phpstan/autoload.php -c etc/phpstan/config.neon --level=0 [--] <directory>
 #
 
-services:                                                           # loaded before auto-loading in block "parameters" 
+parameters:
+    autoload_files:
+        - etc/phpstan/function-stubs.php                            # stubs for PHP extensions and procedural code
+        - etc/vendor/rosasurfer/ministruts/etc/phpstan/function-stubs.php
+
+    fileExtensions:                                                 # additional files to analyse
+       #- html
+       #- phtml                                                     # TODO: Tile default vars trigger errors
+
+    excludes_analyse:
+        - etc/vendor/
+
+    reportUnmatchedIgnoredErrors:           false
+    polluteScopeWithLoopInitialAssignments: true
+    polluteCatchScopeWithTryAssignments:    true
+
+    ignoreErrors:
+        # intentionally ignore these
+        - '/Call to ((static )?method|function) [^ ]+\(\) with incorrect case:/'                                    # seriously?
+        - '/Array \(([^ ]+)\[\]\) does not accept (\1\|)?null\b/'                                                   # NULL should be considered a value, not a type
+        - '/(Static )?property [^ ]+ \(([^ ]+)\) does not accept (\2\|)?null\b/i'                                   # - dito -
+        - '/Parameter #[0-9]+ [^ ]+ of class [^ ]+ constructor expects ([^ ]+), (\1\|)?null given\b/'               # - dito -
+        - '/Parameter #[0-9]+ [^ ]+ of (static )?(function|method) [^ ]+ expects ([^ ]+), (\3\|)?null given\b/'     # - dito -
+        - '/Calling method [^ ]+\(\) on possibly null value of type [^ ]+\|null\b/'
+        - "/Casting to (bool|int|float|string) something that's already (bool|int|float|string)/"                   # current implementation ignores not initialized vars
+        - '/Strict comparison using [=!]== between (int|string) and null will always evaluate to (true|false)\b/'
+
+        # unsolved issues
+        - '/Method rosasurfer\\xtrade\\simpletrader\\SimpleTrader::loadSignalPage\(\) should return string but returns string\|null\b/'
+        - '/Parameter (#2 \$sort_order|#4 \.\.\.\$arr2) of function array_multisort is passed by reference, so it expects variables only/'
+
+
+services:
+        # These classes must be loaded via etc/phpstan/autoload.php (services are initialized
+        # before execution of block "parameters/autoload_files").
     -
         class: rosasurfer\db\orm\phpstan\DAO_Find_ReturnType
         tags:
@@ -29,33 +63,3 @@ services:                                                           # loaded bef
         tags:
             - phpstan.broker.dynamicMethodReturnTypeExtension
             - phpstan.broker.dynamicStaticMethodReturnTypeExtension
-
-parameters:
-    autoload_files:
-        - etc/phpstan/function-stubs.php                            # stubs for PHP extensions and procedural code
-        - etc/vendor/rosasurfer/ministruts/etc/phpstan/function-stubs.php
-
-    fileExtensions:                                                 # additional files to analyse
-       #- html
-       #- phtml                                                     # TODO: Tile default vars trigger errors
-
-    excludes_analyse:
-        - etc/vendor/
-
-    reportUnmatchedIgnoredErrors:           false
-    polluteScopeWithLoopInitialAssignments: true
-    polluteCatchScopeWithTryAssignments:    true
-    
-    ignoreErrors:
-        - '/Call to ((static )?method|function) [^ ]+ with incorrect case:/'                                        # seriously?
-        - '/Array \(([^ ]+)\[\]\) does not accept (\1\|)?null\b/'                                                   # NULL should be considered a value, not a type
-        - '/(Static )?property [^ ]+ \(([^ ]+)\) does not accept (\2\|)?null\b/i'                                   # - dito -
-        - '/Parameter #[0-9]+ [^ ]+ of class [^ ]+ constructor expects ([^ ]+), (\1\|)?null given\b/'               # - dito -
-        - '/Parameter #[0-9]+ [^ ]+ of (static )?(function|method) [^ ]+ expects ([^ ]+), (\3\|)?null given\b/'     # - dito -
-        - '/Calling method [^ ]+ on possibly nullable type [^ ]+\|null\b/'
-        - "/Casting to (bool|int|float|string) something that's already (bool|int|float|string)/"                   # too simple implementation
-        - '/Strict comparison using [=!]== between (int|string) and null will always evaluate to (true|false)\b/'
-
-        # PHPStan bugs 
-        - '/Method rosasurfer\\xtrade\\simpletrader\\SimpleTrader::loadSignalPage\(\) should return string but returns string\|null\b/'
-        - '/Parameter (#2 \$sort_order|#4 \.\.\.\$arr2) of function array_multisort is passed by reference, so it expects variables only/'
