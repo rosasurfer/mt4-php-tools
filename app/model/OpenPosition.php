@@ -202,8 +202,7 @@ class OpenPosition extends PersistableObject {
         if (!is_null($value) && !is_int($value) && !is_float($value)) throw new IllegalTypeException('Illegal type of parameter $value: '.getType($value));
         if ($value < 0)                                               throw new InvalidArgumentException('Invalid StopLoss value '.$value);
 
-        if (!$value)
-            $value = null;
+        $value = $value ? (float) $value : null;
 
         if ($value !== $this->stopLoss) {
             $this->stopLoss = $value;
@@ -225,8 +224,7 @@ class OpenPosition extends PersistableObject {
         if (!is_null($value) && !is_int($value) && !is_float($value)) throw new IllegalTypeException('Illegal type of parameter $value: '.getType($value));
         if ($value < 0)                                               throw new InvalidArgumentException('Invalid TakeProfit value '.$value);
 
-        if (!$value)
-            $value = null;
+        $value = $value ? (float) $value : null;
 
         if ($value !== $this->takeProfit) {
             $this->takeProfit = $value;
