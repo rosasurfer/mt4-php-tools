@@ -32,6 +32,6 @@
         ]
     },
     "scripts": {
-        "post-install-cmd": "bash bin/git-hooks/check-setup.sh post-checkout post-merge"
+        "post-install-cmd": "bash bin/admin/git/check-setup.sh post-checkout post-merge"
     }    
 }
