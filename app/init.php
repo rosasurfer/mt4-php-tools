@@ -1,5 +1,6 @@
 <?php
 use rosasurfer\Application;
+use rosasurfer\util\PHP;
 
 // class loader
 require(__DIR__.'/../etc/vendor/autoload.php');
@@ -7,9 +8,10 @@ require(__DIR__.'/../etc/vendor/autoload.php');
 
 // php.ini settings
 error_reporting(E_ALL & ~E_DEPRECATED);
-ini_set('error_log',         __DIR__.'/../etc/log/php-error.log');
-ini_set('session.save_path', __DIR__.'/../etc/tmp'              );
-ini_set('default_charset',  'UTF-8'                             );
+PHP::ini_set('error_log',         __DIR__.'/../etc/log/php-error.log');
+PHP::ini_set('session.save_path', __DIR__.'/../etc/tmp'              );
+PHP::ini_set('default_charset',  'UTF-8'                             );
+PHP::ini_set('memory_limit',     '256M'                              );
 
 
 // create a new application

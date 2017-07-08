@@ -6,9 +6,9 @@ namespace rosasurfer\xtrade\metatrader\import_test;
  * Import test results into the database.
  */
 use rosasurfer\xtrade\model\metatrader\Test;
+use rosasurfer\util\PHP;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');
-ini_set('memory_limit', '64M');
 date_default_timezone_set('GMT');
 
 

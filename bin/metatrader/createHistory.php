@@ -8,9 +8,9 @@ namespace rosasurfer\xtrade\metatrader\create_history;
  * Um vorhandene Historydateien zu aktualisieren, ist "updateHistory.php" zu benutzen.
  */
 use rosasurfer\config\Config;
-
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
+use rosasurfer\util\PHP;
 
 use rosasurfer\xtrade\XTrade;
 use rosasurfer\xtrade\metatrader\HistorySet;
@@ -21,7 +21,6 @@ use function rosasurfer\xtrade\isFxtWeekend;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');
-ini_set('memory_limit', '128M');
 
 
 // -- Konfiguration ---------------------------------------------------------------------------------------------------------
