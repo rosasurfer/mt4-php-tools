@@ -1,5 +1,14 @@
 <?php declare(strict_types=1);
 
+namespace rosasurfer\xtrade\generate_pl_series {
+
+    /**
+     * @param  string $message [optional]
+     */
+    function help($message = null) {}
+}
+
+
 namespace rosasurfer\xtrade\dukascopy\update_m1_bars {
 
     /**
