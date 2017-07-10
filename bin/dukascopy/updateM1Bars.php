@@ -57,9 +57,9 @@ date_default_timezone_set('GMT');
 
 $verbose = 0;                                   // output verbosity
 
-$storeCompressedDukaFiles   = false;            // ob heruntergeladene Dukascopy-Dateien zwischengespeichert werden sollen
-$storeDecompressedDukaFiles = false;            // ob entpackte Dukascopy-Dateien zwischengespeichert werden sollen
-$storeUncompressedMyFXFiles = true;             // ob unkomprimierte MyFX-Historydaten gespeichert werden sollen
+$storeCompressedDukaFiles     = false;          // ob heruntergeladene Dukascopy-Dateien zwischengespeichert werden sollen
+$storeDecompressedDukaFiles   = false;          // ob entpackte Dukascopy-Dateien zwischengespeichert werden sollen
+$storeUncompressedXTradeFiles = true;           // ob unkomprimierte XTrade-Historydaten gespeichert werden sollen
 
 $barBuffer = [];
 
@@ -159,7 +159,7 @@ function updateSymbol($symbol) {
 
 
 /**
- * Prueft den Stand der MyFX-History eines einzelnen Forex-Tages und stoesst ggf. das Update an.
+ * Prueft den Stand der XTrade-History eines einzelnen Forex-Tages und stoesst ggf. das Update an.
  *
  * @param  string $symbol - Symbol
  * @param  int    $day    - GMT-Timestamp des zu pruefenden Tages
@@ -170,18 +170,18 @@ function checkHistory($symbol, $day) {
     if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
     $shortDate = gmDate('D, d-M-Y', $day);
 
-    global $verbose, $storeCompressedDukaFiles, $storeDecompressedDukaFiles, $storeUncompressedMyFXFiles, $barBuffer;
+    global $verbose, $storeCompressedDukaFiles, $storeDecompressedDukaFiles, $storeUncompressedXTradeFiles, $barBuffer;
     $day -= $day%DAY;                                               // 00:00 GMT
 
-    // (1) nur an Wochentagen: pruefen, ob die MyFX-History existiert und ggf. aktualisieren
+    // (1) nur an Wochentagen: pruefen, ob die XTrade-History existiert und ggf. aktualisieren
     if (!isFxtWeekend($day, 'FXT')) {                               // um 00:00 GMT sind GMT- und FXT-Wochentag immer gleich
-        // History ist ok, wenn entweder die komprimierte MyFX-Datei existiert...
-        if (is_file($file=getVar('myfxFile.compressed', $symbol, $day))) {
-            if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'   MyFX compressed history file: '.baseName($file));
+        // History ist ok, wenn entweder die komprimierte XTrade-Datei existiert...
+        if (is_file($file=getVar('xtradeFile.compressed', $symbol, $day))) {
+            if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'   XTrade compressed history file: '.baseName($file));
         }
-        // ...oder die unkomprimierte MyFX-Datei gespeichert wird und existiert
-        else if ($storeUncompressedMyFXFiles && is_file($file=getVar('myfxFile.raw', $symbol, $day))) {
-            if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'   MyFX raw history file: '.baseName($file));
+        // ...oder die unkomprimierte XTrade-Datei gespeichert wird und existiert
+        else if ($storeUncompressedXTradeFiles && is_file($file=getVar('xtradeFile.raw', $symbol, $day))) {
+            if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'   XTrade raw history file: '.baseName($file));
         }
         // andererseits History aktualisieren
         else if (!updateHistory($symbol, $day)) {                   // da 00:00, kann der GMT- als FXT-Timestamp uebergeben werden
@@ -207,11 +207,11 @@ function checkHistory($symbol, $day) {
 
     // lokales Historyverzeichnis des Vortages, wenn Wochenende und es leer ist
     if (isFxtWeekend($previousDay, 'FXT')) {                            // um 00:00 GMT sind GMT- und FXT-Wochentag immer gleich
-        if (is_dir($dir=getVar('myfxDir', $symbol, $previousDay))) @rmDir($dir);
+        if (is_dir($dir=getVar('xtradeDir', $symbol, $previousDay))) @rmDir($dir);
     }
     // lokales Historyverzeichnis des aktuellen Tages, wenn Wochenende und es leer ist
     if (isFxtWeekend($day, 'FXT')) {                                    // um 00:00 GMT sind GMT- und FXT-Wochentag immer gleich
-        if (is_dir($dir=getVar('myfxDir', $symbol, $day))) @rmDir($dir);
+        if (is_dir($dir=getVar('xtradeDir', $symbol, $day))) @rmDir($dir);
     }
 
     // Barbuffer-Daten des Vortages
@@ -230,7 +230,7 @@ function checkHistory($symbol, $day) {
 
 /**
  * Aktualisiert die Daten eines einzelnen Forex-Tages. Wird aufgerufen, wenn fuer einen Wochentag keine lokalen
- * MyFX-Historydateien existieren.
+ * XTrade-Historydateien existieren.
  *
  * @param  string $symbol - Symbol
  * @param  int    $day    - FXT-Timestamp des zu aktualisierenden Forex-Tages
@@ -364,7 +364,7 @@ function mergeHistory($symbol, $day) {
     $types = ['bid', 'ask'];
     foreach ($types as $type) {
         if (!isSet($barBuffer[$type][$shortDate]) || ($size=sizeOf($barBuffer[$type][$shortDate]))!=1*DAY/MINUTES)
-            throw new RuntimeException('Unexpected number of MyFX '.$type.' bars for '.$shortDate.' in bar buffer: '.$size.' ('.($size > 1*DAY/MINUTES ? 'more':'less').' then a day)');
+            throw new RuntimeException('Unexpected number of XTrade '.$type.' bars for '.$shortDate.' in bar buffer: '.$size.' ('.($size > 1*DAY/MINUTES ? 'more':'less').' then a day)');
     }
 
 
@@ -461,7 +461,7 @@ function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $save
 
         // ist das Flag $saveData gesetzt, Content speichern
         if ($saveData) {
-            mkDirWritable(getVar('myfxDir', $symbol, $day, $type));
+            mkDirWritable(getVar('xtradeDir', $symbol, $day, $type));
             $tmpFile = tempNam(dirName($file=getVar('dukaFile.compressed', $symbol, $day, $type)), baseName($file));
             $hFile   = fOpen($tmpFile, 'wb');
             fWrite($hFile, $response->getContent());
@@ -604,7 +604,7 @@ function processRawDukascopyBarData($data, $symbol, $day, $type) {
 
 
 /**
- * Schreibt die gemergten Bardaten eines FXT-Tages aus dem Barbuffer in die lokale MyFX-Historydatei.
+ * Schreibt die gemergten Bardaten eines FXT-Tages aus dem Barbuffer in die lokale XTrade-Historydatei.
  *
  * @param  string $symbol - Symbol
  * @param  int    $day    - Timestamp des FXT-Tages
@@ -614,7 +614,7 @@ function processRawDukascopyBarData($data, $symbol, $day, $type) {
 function saveBars($symbol, $day) {
     if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
     $shortDate = gmDate('D, d-M-Y', $day);
-    global $barBuffer, $storeUncompressedMyFXFiles;
+    global $barBuffer, $storeUncompressedXTradeFiles;
 
 
     // (1) gepufferte Datenreihe nochmal pruefen
@@ -638,7 +638,7 @@ function saveBars($symbol, $day) {
             $bar['open' ] < $bar['low' ] ||          // aus (H >= O && O >= L) folgt (H >= L)
             $bar['close'] > $bar['high'] ||          // nicht mit min()/max(), da nicht performant
             $bar['close'] < $bar['low' ] ||
-           !$bar['ticks']) throw new RuntimeException('Illegal data for MYFX_BAR of '.gmDate('D, d-M-Y H:i:s', $bar['time_fxt']).": O=$bar[open] H=$bar[high] L=$bar[low] C=$bar[close] V=$bar[ticks]");
+           !$bar['ticks']) throw new RuntimeException('Illegal data for XTRADE_BAR of '.gmDate('D, d-M-Y H:i:s', $bar['time_fxt']).": O=$bar[open] H=$bar[high] L=$bar[low] C=$bar[close] V=$bar[ticks]");
 
         $data .= pack('VVVVVV', $bar['time_fxt'],
                                 $bar['open'    ],
@@ -650,8 +650,8 @@ function saveBars($symbol, $day) {
 
 
     // (3) binaere Daten ggf. unkomprimiert speichern
-    if ($storeUncompressedMyFXFiles) {
-        if (is_file($file=getVar('myfxFile.raw', $symbol, $day))) {
+    if ($storeUncompressedXTradeFiles) {
+        if (is_file($file=getVar('xtradeFile.raw', $symbol, $day))) {
             echoPre('[Error]   '.$symbol.' history for '.$shortDate.' already exists');
             return false;
         }
@@ -701,39 +701,39 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
     }
     $self  = __FUNCTION__;
 
-    if ($id == 'myfxDirDate') {                 // $yyyy/$mmL/$dd                                       // lokales Pfad-Datum
+    if ($id == 'xtradeDirDate') {               // $yyyy/$mmL/$dd                                       // lokales Pfad-Datum
         if (!$time)   throw new InvalidArgumentException('Invalid parameter $time: '.$time);
         $result = gmDate('Y/m/d', $time);
     }
-    else if ($id == 'myfxDir') {                // $dataDirectory/history/xtrade/$group/$symbol/$dateL  // lokales Verzeichnis
+    else if ($id == 'xtradeDir') {              // $dataDirectory/history/xtrade/$group/$symbol/$dateL  // lokales Verzeichnis
         if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
         static $dataDirectory; if (!$dataDirectory)
         $dataDirectory = Config::getDefault()->get('app.dir.data');
         $group         = XTrade::$symbols[$symbol]['group'];
-        $dateL         = $self('myfxDirDate', null, $time, null);
+        $dateL         = $self('xtradeDirDate', null, $time, null);
         $result        = $dataDirectory.'/history/xtrade/'.$group.'/'.$symbol.'/'.$dateL;
     }
-    else if ($id == 'myfxFile.raw') {           // $myfxDir/M1.myfx                                     // lokale Datei ungepackt
-        $myfxDir = $self('myfxDir' , $symbol, $time, null);
-        $result  = $myfxDir.'/M1.myfx';
+    else if ($id == 'xtradeFile.raw') {         // $xtradeDir/M1.myfx                                   // lokale Datei ungepackt
+        $xtradeDir = $self('xtradeDir', $symbol, $time, null);
+        $result    = $xtradeDir.'/M1.myfx';
     }
-    else if ($id == 'myfxFile.compressed') {    // $myfxDir/M1.rar                                      // lokale Datei gepackt
-        $myfxDir = $self('myfxDir' , $symbol, $time, null);
-        $result  = $myfxDir.'/M1.rar';
+    else if ($id == 'xtradeFile.compressed') {  // $xtradeDir/M1.rar                                    // lokale Datei gepackt
+        $xtradeDir = $self('xtradeDir', $symbol, $time, null);
+        $result    = $xtradeDir.'/M1.rar';
     }
     else if ($id == 'dukaName') {               // BID_candles_min_1                                    // Dukascopy-Name
         if (is_null($type)) throw new InvalidArgumentException('Invalid parameter $type: (null)');
         $result = ($type=='bid' ? 'BID':'ASK').'_candles_min_1';
     }
-    else if ($id == 'dukaFile.raw') {           // $myfxDir/$dukaName.bin                               // Dukascopy-Datei ungepackt
-        $myfxDir  = $self('myfxDir' , $symbol, $time, null);
-        $dukaName = $self('dukaName', null, null, $type);
-        $result   = $myfxDir.'/'.$dukaName.'.bin';
+    else if ($id == 'dukaFile.raw') {           // $xtradeDir/$dukaName.bin                             // Dukascopy-Datei ungepackt
+        $xtradeDir = $self('xtradeDir', $symbol, $time, null);
+        $dukaName  = $self('dukaName', null, null, $type);
+        $result    = $xtradeDir.'/'.$dukaName.'.bin';
     }
-    else if ($id == 'dukaFile.compressed') {    // $myfxDir/$dukaName.bi5                               // Dukascopy-Datei gepackt
-        $myfxDir  = $self('myfxDir' , $symbol, $time, null);
-        $dukaName = $self('dukaName', null, null, $type);
-        $result   = $myfxDir.'/'.$dukaName.'.bi5';
+    else if ($id == 'dukaFile.compressed') {    // $xtradeDir/$dukaName.bi5                             // Dukascopy-Datei gepackt
+        $xtradeDir = $self('xtradeDir', $symbol, $time, null);
+        $dukaName  = $self('dukaName', null, null, $type);
+        $result    = $xtradeDir.'/'.$dukaName.'.bi5';
     }
     else if ($id == 'dukaUrlDate') {            // $yyyy/$mmD/$dd                                       // Dukascopy-URL-Datum
         if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
@@ -748,10 +748,10 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
         $dukaName = $self('dukaName'   , null, null, $type);
         $result   = 'http://datafeed.dukascopy.com/datafeed/'.$symbol.'/'.$dateD.'/'.$dukaName.'.bi5';
     }
-    else if ($id == 'dukaFile.404') {           // $myfxDir/$dukaName.404                               // Download-Fehlerdatei (404)
-        $myfxDir  = $self('myfxDir' , $symbol, $time, null);
-        $dukaName = $self('dukaName', null, null, $type);
-        $result   = $myfxDir.'/'.$dukaName.'.404';
+    else if ($id == 'dukaFile.404') {           // $xtradeDir/$dukaName.404                             // Download-Fehlerdatei (404)
+        $xtradeDir = $self('xtradeDir', $symbol, $time, null);
+        $dukaName  = $self('dukaName', null, null, $type);
+        $result    = $xtradeDir.'/'.$dukaName.'.404';
     }
     else {
       throw new InvalidArgumentException('Unknown parameter $id: "'.$id.'"');

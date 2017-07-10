@@ -3,7 +3,7 @@
 namespace rosasurfer\xtrade\metatrader\create_history;
 
 /**
- * Liest die MyFX-M1-History der angegebenen Instrumente ein und erzeugt daraus jeweils eine neue MetaTrader-History.
+ * Liest die XTrade-M1-History der angegebenen Instrumente ein und erzeugt daraus jeweils eine neue MetaTrader-History.
  * Speichert diese MetaTrader-History im globalen MT4-Serververzeichnis. Vorhandene Historydateien werden ueberschrieben.
  * Um vorhandene Historydateien zu aktualisieren, ist "updateHistory.php" zu benutzen.
  */
@@ -98,12 +98,12 @@ function createHistory($symbol) {
             $lastMonth = $month;
         }
 
-        // ausser an Wochenenden: MyFX-History verarbeiten
+        // ausser an Wochenenden: XTrade-History verarbeiten
         if (!isFxtWeekend($day, 'FXT')) {
-            if      (is_file($file=getVar('myfxFile.compressed', $symbol, $day))) {}   // wenn komprimierte MyFX-Datei existiert
-            else if (is_file($file=getVar('myfxFile.raw'       , $symbol, $day))) {}   // wenn unkomprimierte MyFX-Datei existiert
+            if      (is_file($file=getVar('xtradeFile.compressed', $symbol, $day))) {}  // wenn komprimierte XTrade-Datei existiert
+            else if (is_file($file=getVar('xtradeFile.raw'       , $symbol, $day))) {}  // wenn unkomprimierte XTrade-Datei existiert
             else {
-                echoPre('[Error]   '.$symbol.' MyFX history for '.$shortDate.' not found');
+                echoPre('[Error]   '.$symbol.' XTrade history for '.$shortDate.' not found');
                 return false;
             }
             // Bars einlesen und der MT4-History hinzufuegen
@@ -111,8 +111,8 @@ function createHistory($symbol) {
             $history->appendBars($bars);
         }
 
-        if (!WINDOWS) pcntl_signal_dispatch();                                        // Auf Ctrl-C pruefen, um bei Abbruch den
-    }                                                                                 // Schreibbuffer der History leeren zu koennen.
+        if (!WINDOWS) pcntl_signal_dispatch();                                          // Auf Ctrl-C pruefen, um bei Abbruch den
+    }                                                                                   // Schreibbuffer der History leeren zu koennen.
     $history->close();
 
     echoPre('[Ok]      '.$symbol);
@@ -145,25 +145,25 @@ function getVar($id, $symbol=null, $time=null) {
 
     $self = __FUNCTION__;
 
-    if ($id == 'myfxDirDate') {               // $yyyy/$mm/$dd                                                  // lokales Pfad-Datum
+    if ($id == 'xtradeDirDate') {               // $yyyy/$mm/$dd                                                // lokales Pfad-Datum
         if (!$time)   throw new InvalidArgumentException('Invalid parameter $time: '.$time);
         $result = gmDate('Y/m/d', $time);
     }
-    else if ($id == 'myfxDir') {              // $dataDirectory/history/xtrade/$group/$symbol/$myfxDirDate      // lokales Verzeichnis
+    else if ($id == 'xtradeDir') {              // $dataDirectory/history/xtrade/$group/$symbol/$xtradeDirDate  // lokales Verzeichnis
         if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
         static $dataDirectory; if (!$dataDirectory)
         $dataDirectory = Config::getDefault()->get('app.dir.data');
         $group         = XTrade::$symbols[$symbol]['group'];
-        $myfxDirDate   = $self('myfxDirDate', null, $time);
-        $result        = $dataDirectory.'/history/xtrade/'.$group.'/'.$symbol.'/'.$myfxDirDate;
+        $xtradeDirDate = $self('xtradeDirDate', null, $time);
+        $result        = $dataDirectory.'/history/xtrade/'.$group.'/'.$symbol.'/'.$xtradeDirDate;
     }
-    else if ($id == 'myfxFile.raw') {         // $myfxDir/M1.myfx                                               // lokale Datei ungepackt
-        $myfxDir = $self('myfxDir' , $symbol, $time);
-        $result  = $myfxDir.'/M1.myfx';
+    else if ($id == 'xtradeFile.raw') {         // $xtradeDir/M1.myfx                                           // lokale Datei ungepackt
+        $xtradeDir = $self('xtradeDir' , $symbol, $time);
+        $result    = $xtradeDir.'/M1.myfx';
     }
-    else if ($id == 'myfxFile.compressed') {  // $myfxDir/M1.rar                                                // lokale Datei gepackt
-        $myfxDir = $self('myfxDir' , $symbol, $time);
-        $result  = $myfxDir.'/M1.rar';
+    else if ($id == 'xtradeFile.compressed') {  // $xtradeDir/M1.rar                                            // lokale Datei gepackt
+        $xtradeDir = $self('xtradeDir' , $symbol, $time);
+        $result    = $xtradeDir.'/M1.rar';
     }
     else {
       throw new InvalidArgumentException('Unknown parameter $id: "'.$id.'"');

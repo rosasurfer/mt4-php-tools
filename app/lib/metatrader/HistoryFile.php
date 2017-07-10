@@ -41,7 +41,7 @@ class HistoryFile extends Object {
     protected /*string       */ $barPackFormat;                    // Formatstring fuer pack()
     protected /*string       */ $barUnpackFormat;                  // Formatstring fuer unpack()
     protected /*int          */ $barSize       = 0;                // Groesse einer Bar entsprechend dem Datenformat
-    protected /*MYFX_BAR[]   */ $barBuffer     = [];               // Schreibbuffer
+    protected /*XTRADE_BAR[] */ $barBuffer     = [];               // Schreibbuffer
     protected /*int          */ $barBufferSize = 10000;            // Default-Groesse des Schreibbuffers
 
     // Metadaten: gespeichert
@@ -289,11 +289,11 @@ class HistoryFile extends Object {
      *
      * @param  int $offset
      *
-     * @return array|null - MYFX_BAR,    wenn die Bar im Schreibbuffer liegt
+     * @return array|null - XTRADE_BAR,  wenn die Bar im Schreibbuffer liegt
      *                      HISTORY_BAR, wenn die Bar aus der Datei gelesen wurde
      *                      NULL,        wenn keine solche Bar existiert (Offset ist groesser als die Anzahl der Bars der Datei)
      *
-     * @see  HistoryFile::getMyfxBar()
+     * @see  HistoryFile::getXTradeBar()
      * @see  HistoryFile::getHistoryBar()
      */
     public function getBar($offset) {
@@ -303,7 +303,7 @@ class HistoryFile extends Object {
         if ($offset >= $this->full_bars)                                           // bar[$offset] existiert nicht
             return null;
 
-        if ($offset > $this->stored_to_offset)                                     // bar[$offset] liegt in buffered Bars (MYFX_BAR)
+        if ($offset > $this->stored_to_offset)                                     // bar[$offset] liegt in buffered Bars (XTRADE_BAR)
             return $this->barBuffer[$offset-$this->stored_to_offset-1];
 
         fFlush($this->hFile);
@@ -473,7 +473,7 @@ class HistoryFile extends Object {
      *                         specified and is positive then that many bars will be removed. If length is specified and is
      *                         negative then length bars at the end of the history  will be left.
      *
-     * @param  array $bars   - MYFX_BAR data. If replacement bars are specified then the removed bars are replaced with bars
+     * @param  array $bars   - XTRADE_BAR data. If replacement bars are specified then the removed bars are replaced with bars
      *                         from this array. If offset and length are such that nothing is removed then the bars from the
      *                         replacement array are inserted at the specified offset. If offset is one greater than the
      *                         greatest existing offset the replacement array is appended.
@@ -592,7 +592,7 @@ class HistoryFile extends Object {
      *                         beginning of the history. If offset is negative then the insertion point is that far from the
      *                         end of the history.
      *
-     * @param  array $bars   - einzufuegende MYFX_BARS[]-Daten
+     * @param  array $bars   - einzufuegende XTRADE_BARS[]-Daten
      */
     public function insertBars($offset, array $bars) {
         if (!is_int($offset)) throw new IllegalTypeException('Illegal type of parameter $offset: '.getType($offset));
@@ -645,7 +645,7 @@ class HistoryFile extends Object {
      *                         is negative then the end of the removed part will be that many bars from the end of the
      *                         history.
      *
-     * @param  array $bars   - die ersetzenden MYFX_BARS-Daten
+     * @param  array $bars   - die ersetzenden XTRADE_BAR-Daten
      */
     public function replaceBars($offset, $length=null, array $bars) {
     }
@@ -656,7 +656,7 @@ class HistoryFile extends Object {
      * Synchronisationszeitpunkt der Datei hinzugefuegt wurden und sich mit den uebergebenen Daten ueberschneiden, werden
      * ersetzt. Vorhandene Bars, die sich mit den uebergebenen Daten nicht ueberschneiden, bleiben unveraendert.
      *
-     * @param  array $bars - MYFX_BAR-Daten der Periode M1 (werden automatisch in die Periode der Historydatei konvertiert)
+     * @param  array $bars - XTRADE_BAR-Daten der Periode M1 (werden automatisch in die Periode der Historydatei konvertiert)
      */
     public function synchronize(array $bars) {
         switch ($this->period) {
@@ -678,7 +678,7 @@ class HistoryFile extends Object {
     /**
      * Synchronisiert die M1-History dieser Instanz.
      *
-     * @param  array $bars - MYFX_BAR-Daten der Periode M1
+     * @param  array $bars - XTRADE_BAR-Daten der Periode M1
      */
     private function synchronizeM1(array $bars) {
         if ($this->closed) throw new IllegalStateException('Cannot process a closed '.__CLASS__);
@@ -711,7 +711,7 @@ class HistoryFile extends Object {
     /**
      * Synchronisiert die M5-History dieser Instanz.
      *
-     * @param  array $bars - MYFX_BAR-Daten der Periode M5
+     * @param  array $bars - XTRADE_BAR-Daten der Periode M5
      */
     private function synchronizeM5(array $bars) {
         throw new UnimplementedFeatureException(__METHOD__.'() not yet implemented');
@@ -721,7 +721,7 @@ class HistoryFile extends Object {
     /**
      * Synchronisiert die M15-History dieser Instanz.
      *
-     * @param  array $bars - MYFX_BAR-Daten der Periode M15
+     * @param  array $bars - XTRADE_BAR-Daten der Periode M15
      */
     private function synchronizeM15(array $bars) {
         throw new UnimplementedFeatureException(__METHOD__.'() not yet implemented');
@@ -731,7 +731,7 @@ class HistoryFile extends Object {
     /**
      * Synchronisiert die M30-History dieser Instanz.
      *
-     * @param  array $bars - MYFX_BAR-Daten der Periode M30
+     * @param  array $bars - XTRADE_BAR-Daten der Periode M30
      */
     private function synchronizeM30(array $bars) {
         throw new UnimplementedFeatureException(__METHOD__.'() not yet implemented');
@@ -741,7 +741,7 @@ class HistoryFile extends Object {
     /**
      * Synchronisiert die H1-History dieser Instanz.
      *
-     * @param  array $bars - MYFX_BAR-Daten der Periode H1
+     * @param  array $bars - XTRADE_BAR-Daten der Periode H1
      */
     private function synchronizeH1(array $bars) {
         throw new UnimplementedFeatureException(__METHOD__.'() not yet implemented');
@@ -751,7 +751,7 @@ class HistoryFile extends Object {
     /**
      * Synchronisiert die H4-History dieser Instanz.
      *
-     * @param  array $bars - MYFX_BAR-Daten der Periode H4
+     * @param  array $bars - XTRADE_BAR-Daten der Periode H4
      */
     private function synchronizeH4(array $bars) {
         throw new UnimplementedFeatureException(__METHOD__.'() not yet implemented');
@@ -761,7 +761,7 @@ class HistoryFile extends Object {
     /**
      * Synchronisiert die D1-History dieser Instanz.
      *
-     * @param  array $bars - MYFX_BAR-Daten der Periode D1
+     * @param  array $bars - XTRADE_BAR-Daten der Periode D1
      */
     private function synchronizeD1(array $bars) {
         throw new UnimplementedFeatureException(__METHOD__.'() not yet implemented');
@@ -771,7 +771,7 @@ class HistoryFile extends Object {
     /**
      * Synchronisiert die W1-History dieser Instanz.
      *
-     * @param  array $bars - MYFX_BAR-Daten der Periode W1
+     * @param  array $bars - XTRADE_BAR-Daten der Periode W1
      */
     private function synchronizeW1(array $bars) {
         throw new UnimplementedFeatureException(__METHOD__.'() not yet implemented');
@@ -781,7 +781,7 @@ class HistoryFile extends Object {
     /**
      * Synchronisiert die MN1-History dieser Instanz.
      *
-     * @param  array $bars - MYFX_BAR-Daten der Periode MN1
+     * @param  array $bars - XTRADE_BAR-Daten der Periode MN1
      */
     private function synchronizeMN1(array $bars) {
         throw new UnimplementedFeatureException(__METHOD__.'() not yet implemented');
@@ -791,7 +791,7 @@ class HistoryFile extends Object {
     /**
      * Fuegt der Historydatei dieser Instanz Bardaten hinzu. Die Daten werden ans Ende der Zeitreihe angefuegt.
      *
-     * @param  array $bars - MYFX_BAR-Daten der Periode M1
+     * @param  array $bars - XTRADE_BAR-Daten der Periode M1
      */
     public function appendBars(array $bars) {
         switch ($this->period) {
@@ -813,7 +813,7 @@ class HistoryFile extends Object {
     /**
      * Fuegt der M1-History dieser Instanz weitere Daten hinzu.
      *
-     * @param  array $bars - MYFX_BAR-Daten der Periode M1
+     * @param  array $bars - XTRADE_BAR-Daten der Periode M1
      */
     private function appendToM1(array $bars) {
         if ($this->closed)                             throw new IllegalStateException('Cannot process a closed '.__CLASS__);
@@ -844,7 +844,7 @@ class HistoryFile extends Object {
     /**
      * Fuegt der History dieser Instanz weitere Daten hinzu.
      *
-     * @param  array $bars - MYFX_BAR-Daten der Periode M1
+     * @param  array $bars - XTRADE_BAR-Daten der Periode M1
      */
     private function appendToTimeframe(array $bars) {
         if ($this->closed)                             throw new IllegalStateException('Cannot process a closed '.__CLASS__);
@@ -896,7 +896,7 @@ class HistoryFile extends Object {
     /**
      * Fuegt der W1-History dieser Instanz weitere Daten hinzu.
      *
-     * @param  array $bars - MYFX_BAR-Daten der Periode M1
+     * @param  array $bars - XTRADE_BAR-Daten der Periode M1
      */
     private function appendToW1(array $bars) {
         if ($this->closed)                             throw new IllegalStateException('Cannot process a closed '.__CLASS__);
@@ -949,7 +949,7 @@ class HistoryFile extends Object {
     /**
      * Fuegt der MN1-History dieser Instanz weitere Daten hinzu.
      *
-     * @param  array $bars - MYFX_BAR-Daten der Periode M1
+     * @param  array $bars - XTRADE_BAR-Daten der Periode M1
      */
     private function appendToMN1(array $bars) {
         if ($this->closed)                             throw new IllegalStateException('Cannot process a closed '.__CLASS__);
@@ -1002,7 +1002,7 @@ class HistoryFile extends Object {
 
 
     /**
-     * Schreibt eine Anzahl MyFXBars aus dem Barbuffer in die History-Datei.
+     * Schreibt eine Anzahl XTRADE_BARs aus dem Barbuffer in die History-Datei.
      *
      * @param  int $count - Anzahl zu schreibender Bars (default: alle Bars)
      *

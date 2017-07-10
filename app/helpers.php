@@ -39,29 +39,31 @@ const TIMEZONE_ID_GMT              = 10;
 
 
 // Timeframe identifier
-const PERIOD_M1  =      1;                   // 1 minute
-const PERIOD_M5  =      5;                   // 5 minutes
-const PERIOD_M15 =     15;                   // 15 minutes
-const PERIOD_M30 =     30;                   // 30 minutes
-const PERIOD_H1  =     60;                   // 1 hour
-const PERIOD_H4  =    240;                   // 4 hours
-const PERIOD_D1  =   1440;                   // daily
-const PERIOD_W1  =  10080;                   // weekly
-const PERIOD_MN1 =  43200;                   // monthly
-const PERIOD_Q1  = 129600;                   // a quarter (3 months)
+const PERIOD_M1  =      1;                  // 1 minute
+const PERIOD_M5  =      5;                  // 5 minutes
+const PERIOD_M15 =     15;                  // 15 minutes
+const PERIOD_M30 =     30;                  // 30 minutes
+const PERIOD_H1  =     60;                  // 1 hour
+const PERIOD_H4  =    240;                  // 4 hours
+const PERIOD_D1  =   1440;                  // daily
+const PERIOD_W1  =  10080;                  // weekly
+const PERIOD_MN1 =  43200;                  // monthly
+const PERIOD_Q1  = 129600;                  // a quarter (3 months)
 
 
 // Operation types
-const OP_BUY       = 0;                       //    MT4: long position
-const OP_SELL      = 1;                       //         short position
-const OP_BUYLIMIT  = 2;                       //         buy limit order
-const OP_SELLLIMIT = 3;                       //         sell limit order
-const OP_BUYSTOP   = 4;                       //         stop buy order
-const OP_SELLSTOP  = 5;                       //         stop sell order
-const OP_BALANCE   = 6;                       //         account credit or withdrawal transaction
-const OP_CREDIT    = 7;                       //         credit facility, no transaction
-const OP_TRANSFER  = 8;                       // custom: balance update by client (deposit or withdrawal)
-const OP_VENDOR    = 9;                       //         balance update by criminal (dividends, swap, manual etc.)
+const OP_BUY       =       0;               //    MT4: long position
+const OP_LONG      =  OP_BUY;               //
+const OP_SELL      =       1;               //         short position
+const OP_SHORT     = OP_SELL;               //
+const OP_BUYLIMIT  =       2;               //         buy limit order
+const OP_SELLLIMIT =       3;               //         sell limit order
+const OP_BUYSTOP   =       4;               //         stop buy order
+const OP_SELLSTOP  =       5;               //         stop sell order
+const OP_BALANCE   =       6;               //         account credit or withdrawal transaction
+const OP_CREDIT    =       7;               //         credit facility, no transaction
+const OP_TRANSFER  =       8;               // custom: balance update by client (deposit or withdrawal)
+const OP_VENDOR    =       9;               //         balance update by criminal (dividends, swap, manual etc.)
 
 
 // Strategy Tester bar models
