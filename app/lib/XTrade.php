@@ -840,7 +840,7 @@ class XTrade extends StaticClass {
             $xtradeDir = self::$me('xtradeDir', $symbol, $time);
             $result    = $xtradeDir.'/M1.rar';
         }
-        else throw new InvalidArgumentException('Unknown parameter $id: "'.$id.'"');
+        else throw new InvalidArgumentException('Unknown variable identifier "'.$id.'"');
 
         $varCache[$key] = $result;
         (sizeof($varCache) > ($maxSize=256)) && array_shift($varCache)/* && echoPre('var cache size limit of '.$maxSize.' hit')*/;

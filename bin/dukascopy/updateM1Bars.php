@@ -754,7 +754,7 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
         $result    = $xtradeDir.'/'.$dukaName.'.404';
     }
     else {
-      throw new InvalidArgumentException('Unknown parameter $id: "'.$id.'"');
+      throw new InvalidArgumentException('Unknown variable identifier "'.$id.'"');
     }
 
     $varCache[$key] = $result;

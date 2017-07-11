@@ -3,6 +3,17 @@
 namespace rosasurfer\xtrade\generate_pl_series {
 
     /**
+     * @param  string $id
+     * @param  string $symbol [optional]
+     * @param  int    $time   [optional]
+     *
+     * @return string
+     */
+    function getVar($id, $symbol=null, $time=null) {
+        return '';
+    }
+
+    /**
      * @param  string $message [optional]
      */
     function help($message = null) {}

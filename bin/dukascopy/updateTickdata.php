@@ -617,7 +617,7 @@ function getVar($id, $symbol=null, $time=null) {
         $result    = $xtradeDir.'/'.$hour.'h_ticks.na';
     }
     else {
-      throw new InvalidArgumentException('Unknown parameter $id: "'.$id.'"');
+      throw new InvalidArgumentException('Unknown variable identifier "'.$id.'"');
     }
 
     $varCache[$key] = $result;

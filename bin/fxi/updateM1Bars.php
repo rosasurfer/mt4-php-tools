@@ -1951,7 +1951,7 @@ function getVar($id, $symbol=null, $time=null) {
         $result       = $fxiTargetDir.'/M1.rar';
     }
     else {
-      throw new InvalidArgumentException('Unknown parameter $id: "'.$id.'"');
+      throw new InvalidArgumentException('Unknown variable identifier "'.$id.'"');
     }
 
     $varCache[$key] = $result;

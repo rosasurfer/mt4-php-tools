@@ -131,9 +131,9 @@ class Statistic extends PersistableObject {
             $openPrice  = $trade->getOpenPrice();
             $closePrice = $trade->getClosePrice();
 
-            $pips    = round(($type==='buy' ? $closePrice-$openPrice : $openPrice-$closePrice)/0.0001, 1);
-            $minPips = min($minPips, $pips);
-            $maxPips = max($maxPips, $pips);
+            $pips     = round(($type==='buy' ? $closePrice-$openPrice : $openPrice-$closePrice)/0.0001, 1);
+            $minPips  = min($minPips, $pips);
+            $maxPips  = max($maxPips, $pips);
             $sumPips += $pips;
 
             $profit     += $trade->getProfit();
