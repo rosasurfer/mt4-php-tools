@@ -90,9 +90,9 @@ function updateHistory($symbol) {
 
     // History beginnend mit dem letzten synchronisierten Tag aktualisieren
     $startTime = $lastSyncTime ? $lastSyncTime : fxtTime(XTrade::$symbols[$symbol]['historyStart']['M1']);
-    $startDay  = $startTime - $startTime%DAY;                                                  // 00:00 der Startzeit
-    $today     = ($time=fxtTime()) - $time%DAY;                                                // 00:00 des aktuellen Tages
-    $today     = $startDay + 5*DAYS;                                                           // zu Testzwecken nur x Tage
+    $startDay  = $startTime - $startTime%DAY;                                                       // 00:00 der Startzeit
+    $today     = ($time=fxtTime()) - $time%DAY;                                                     // 00:00 des aktuellen Tages
+    $today     = $startDay + 5*DAYS;                                                                // zu Testzwecken nur x Tage
     $lastMonth = -1;
 
     for ($day=$startDay; $day < $today; $day+=1*DAY) {
@@ -102,11 +102,11 @@ function updateHistory($symbol) {
             echoPre('[Info]    '.gmDate('M-Y', $day));
             $lastMonth = $month;
         }
-        if (!isFxtWeekend($day, 'FXT')) {                                                       // nur an Handelstagen
-            if      (is_file($file=XTrade::getVar('myfxFile.M1.compressed', $symbol, $day))) {} // wenn komprimierte MyFX-Datei existiert
-            else if (is_file($file=XTrade::getVar('myfxFile.M1.raw'       , $symbol, $day))) {} // wenn unkomprimierte MyFX-Datei existiert
+        if (!isFxtWeekend($day, 'FXT')) {                                                           // nur an Handelstagen
+            if      (is_file($file=XTrade::getVar('xtradeFile.M1.compressed', $symbol, $day))) {}   // wenn komprimierte XTrade-Datei existiert
+            else if (is_file($file=XTrade::getVar('xtradeFile.M1.raw'       , $symbol, $day))) {}   // wenn unkomprimierte XTrade-Datei existiert
             else {
-                echoPre('[Error]   '.$symbol.' MyFX history for '.$shortDate.' not found');
+                echoPre('[Error]   '.$symbol.' XTrade history for '.$shortDate.' not found');
                 return false;
             }
             if ($verbose > 0) echoPre('[Info]    synchronizing '.$shortDate);
@@ -114,8 +114,8 @@ function updateHistory($symbol) {
             $bars = XTrade::readBarFile($file, $symbol);
             $history->synchronize($bars);
         }
-        if (!WINDOWS) pcntl_signal_dispatch();                                                  // Auf Ctrl-C pruefen, um bei Abbruch den
-    }                                                                                           // Schreibbuffer der History leeren zu koennen.
+        if (!WINDOWS) pcntl_signal_dispatch();                                                      // Auf Ctrl-C pruefen, um bei Abbruch den
+    }                                                                                               // Schreibbuffer der History leeren zu koennen.
     $history->close();
 
     echoPre('[Ok]      '.$symbol);

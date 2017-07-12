@@ -1,5 +1,40 @@
 <?php declare(strict_types=1);
 
+namespace rosasurfer\xtrade\generate_pl_series {
+
+    const PIP   = 0; const PIPS   = PIP;
+    const POINT = 0; const POINTS = POINT;
+
+    /**
+     * @param  string $id
+     * @param  string $symbol [optional]
+     * @param  int    $time   [optional]
+     *
+     * @return string
+     */
+    function getVar($id, $symbol=null, $time=null) {
+        return '';
+    }
+
+    /**
+     * @param  string $message [optional]
+     */
+    function help($message = null) {}
+
+    /**
+     * @param  string $symbol
+     * @param  int    $day
+     * @param  array  $bars
+     * @param  bool   $partial [optional]
+     *
+     * @return bool
+     */
+    function saveBars($symbol, $day, array $bars, $partial = false) {
+        return(true);
+    }
+}
+
+
 namespace rosasurfer\xtrade\dukascopy\update_m1_bars {
 
     /**

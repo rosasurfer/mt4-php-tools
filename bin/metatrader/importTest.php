@@ -1,10 +1,10 @@
 #!/usr/bin/env php
 <?php
-namespace rosasurfer\xtrade\metatrader\import_test;
-
 /**
  * Import test results into the database.
  */
+namespace rosasurfer\xtrade\metatrader\import_test;
+
 use rosasurfer\xtrade\model\metatrader\Test;
 use rosasurfer\util\PHP;
 

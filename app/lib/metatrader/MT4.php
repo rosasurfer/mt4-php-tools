@@ -345,10 +345,10 @@ class MT4 extends StaticClass {
 
         // ...vorm Schreiben nochmals pruefen (nicht mit min()/max(), da nicht performant)
         if ($open  > $high ||
-             $open  < $low  ||                  // aus (H >= O && O >= L) folgt (H >= L)
-             $close > $high ||
-             $close < $low  ||
-            !$ticks) throw new RuntimeException('Illegal history bar of '.gmDate('D, d-M-Y', $time).": O=$open H=$high L=$low C=$close V=$ticks");
+            $open  < $low  ||                  // aus (H >= O && O >= L) folgt (H >= L)
+            $close > $high ||
+            $close < $low  ||
+           !$ticks) throw new RuntimeException('Illegal history bar of '.gmDate('D, d-M-Y', $time).": O=$open H=$high L=$low C=$close V=$ticks");
 
         // Bardaten in Binaerstring umwandeln
         $data = pack('Vddddd', $time,    // V

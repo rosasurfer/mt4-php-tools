@@ -14,41 +14,49 @@ use rosasurfer\xtrade\metatrader\MT4;
 
 
 /**
- * MyFX related functionality
+ * XTrade related functionality
  *
- *                                      size        offset      description
- * struct little-endian MYFX_BAR {      ----        ------      ------------------------------------------------
- *    uint time;                          4            0        FXT timestamp (seconds since 01.01.1970 FXT)
- *    uint open;                          4            4        in points
- *    uint high;                          4            8        in points
- *    uint low;                           4           12        in points
- *    uint close;                         4           16        in points
- *    uint ticks;                         4           20
- * };                                  = 24 byte
+ *                                             size        offset      description
+ * struct little-endian XTRADE_PRICE_BAR {     ----        ------      ------------------------------------------------
+ *    uint time;                                 4            0        FXT timestamp (seconds since 01.01.1970 FXT)
+ *    uint open;                                 4            4        in points
+ *    uint high;                                 4            8        in points
+ *    uint low;                                  4           12        in points
+ *    uint close;                                4           16        in points
+ *    uint ticks;                                4           20
+ * };                                    = 24 byte
  *
+ *                                             size        offset      description
+ * struct little-endian XTRADE_PIP_BAR {       ----        ------      ------------------------------------------------
+ *    uint   time;                               4            0        FXT timestamp (seconds since 01.01.1970 FXT)
+ *    double open;                               8            4        in pips
+ *    double high;                               8           12        in pips
+ *    double low;                                8           20        in pips
+ *    double close;                              8           28        in pips
+ * };                                    = 36 byte
  *
- *                                      size        offset      description
- * struct little-endian MYFX_TICK {     ----        ------      ------------------------------------------------
- *    uint timeDelta;                     4            0        milliseconds since beginning of the hour
- *    uint bid;                           4            4        in points
- *    uint ask;                           4            8        in points
- * };                                  = 12 byte
+ *                                             size        offset      description
+ * struct little-endian XTRADE_TICK {          ----        ------      ------------------------------------------------
+ *    uint timeDelta;                            4            0        milliseconds since beginning of the hour
+ *    uint bid;                                  4            4        in points
+ *    uint ask;                                  4            8        in points
+ * };                                    = 12 byte
  */
 class XTrade extends StaticClass {
 
 
     /**
-     * struct size in bytes of a MyFX bar (format of MyFX history files "M{PERIOD}.myfx")
+     * struct size in bytes of a XTRADE_PRICE_BAR (format of XTrade history files "M{PERIOD}.myfx")
      */
     const BAR_SIZE = 24;
 
     /**
-     * struct size in bytes of a MyFX tick (format of MyFX tick files "{HOUR}h_ticks.myfx")
+     * struct size in bytes of a XTrade tick (format of XTrade tick files "{HOUR}h_ticks.myfx")
      */
     const TICK_SIZE = 12;
 
 
-    /** @var array $symbols - symbols meta data, @see static initializer at the end of file */
+    /** @var array $symbols - symbols meta data, see static initializer at the end of file */
     public static $symbols = [];
 
 
@@ -433,13 +441,13 @@ class XTrade extends StaticClass {
 
 
     /**
-     * Interpretiert die MyFX-Bardaten eines Strings und liest sie in ein Array ein. Die resultierenden Bars werden
+     * Interpretiert die XTRADE_PRICE_BAR-Daten eines Strings und liest sie in ein Array ein. Die resultierenden Bars werden
      * beim Lesen validiert.
      *
-     * @param  string $data   - String mit MyFX-Bardaten
+     * @param  string $data   - String mit XTRADE_PRICE_BAR-Daten
      * @param  string $symbol - Meta-Information fuer eine evt. Fehlermeldung (falls die Daten fehlerhaft sind)
      *
-     * @return array - MYFX_BAR-Daten
+     * @return array - XTRADE_PRICE_BAR-Daten
      */
     public static function readBarData($data, $symbol) {
         if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
@@ -466,12 +474,12 @@ class XTrade extends StaticClass {
 
 
     /**
-     * Interpretiert die Bardaten einer MyFX-Datei und liest sie in ein Array ein.
+     * Interpretiert die Bardaten einer XTrade-Datei und liest sie in ein Array ein.
      *
-     * @param  string $fileName - Name der Datei mit MyFX-Bardaten
+     * @param  string $fileName - Name der Datei mit XTRADE_PRICE_BAR-Daten
      * @param  string $symbol   - Meta-Information fuer eine evt. Fehlermeldung (falls die Daten fehlerhaft sind)
      *
-     * @return array - MYFX_BAR-Daten
+     * @return array - XTRADE_PRICE_BAR-Daten
      */
     public static function readBarFile($fileName, $symbol) {
         if (!is_string($fileName)) throw new IllegalTypeException('Illegal type of parameter $fileName: '.getType($fileName));
@@ -480,11 +488,11 @@ class XTrade extends StaticClass {
 
 
     /**
-     * Interpretiert die Bardaten einer komprimierten MyFX-Datei und liest sie in ein Array ein.
+     * Interpretiert die Bardaten einer komprimierten XTrade-Datei und liest sie in ein Array ein.
      *
-     * @param  string $fileName - Name der Datei mit MyFX-Bardaten
+     * @param  string $fileName - Name der Datei mit XTRADE_PRICE_BAR-Daten
      *
-     * @return array - MYFX_BAR-Daten
+     * @return array - XTRADE_PRICE_BAR-Daten
      */
     public static function readCompressedBarFile($fileName) {
         throw new UnimplementedFeatureException(__METHOD__);
@@ -581,7 +589,7 @@ class XTrade extends StaticClass {
     /**
      * Gibt den Offset der Bar zurueck, die den angegebenen Zeitpunkt exakt abdeckt.
      *
-     * @param  array $bars   - zu durchsuchende Bars: MYFX_BARs oder HISTORY_BARs
+     * @param  array $bars   - zu durchsuchende Bars: XTRADE_PRICE_BARs oder HISTORY_BARs
      * @param  int   $period - Barperiode
      * @param  int   $time   - Zeitpunkt
      *
@@ -623,7 +631,7 @@ class XTrade extends StaticClass {
      * Gibt den Offset der Bar zurueck, die den angegebenen Zeitpunkt abdeckt. Existiert keine solche Bar, wird der Offset
      * der letzten vorhergehenden Bar zurueckgegeben.
      *
-     * @param  array $bars   - zu durchsuchende Bars: MYFX_BARs oder HISTORY_BARs
+     * @param  array $bars   - zu durchsuchende Bars: XTRADE_PRICE_BARs oder HISTORY_BARs
      * @param  int   $period - Barperiode
      * @param  int   $time   - Zeitpunkt
      *
@@ -653,7 +661,7 @@ class XTrade extends StaticClass {
      * Gibt den Offset der Bar zurueck, die den angegebenen Zeitpunkt abdeckt. Existiert keine solche Bar, wird der Offset
      * der naechstfolgenden Bar zurueckgegeben.
      *
-     * @param  array $bars   - zu durchsuchende Bars: MYFX_BARs oder HISTORY_BARs
+     * @param  array $bars   - zu durchsuchende Bars: XTRADE_PRICE_BARs oder HISTORY_BARs
      * @param  int   $period - Barperiode
      * @param  int   $time   - Zeitpunkt
      *
@@ -820,27 +828,27 @@ class XTrade extends StaticClass {
 
         $me = __FUNCTION__;
 
-        if ($id == 'myfxDirDate') {                  // $yyyy/$mm/$dd                                            // lokales Pfad-Datum
+        if ($id == 'xtradeDirDate') {                   // $yyyy/$mm/$dd                                                // lokales Pfad-Datum
             if (!$time)   throw new InvalidArgumentException('Invalid parameter $time: '.$time);
             $result = gmDate('Y/m/d', $time);
         }
-        else if ($id == 'myfxDir') {                 // $dataDirectory/history/xtrade/$type/$symbol/$myfxDirDate // lokales Verzeichnis
+        else if ($id == 'xtradeDir') {                  // $dataDirectory/history/xtrade/$type/$symbol/$xtradeDirDate   // lokales Verzeichnis
             if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
             static $dataDirectory; if (!$dataDirectory)
             $dataDirectory = Config::getDefault()->get('app.dir.data');
             $type          = self::$symbols[$symbol]['type'];
-            $myfxDirDate   = self::$me('myfxDirDate', null, $time);
-            $result        = $dataDirectory.'/history/xtrade/'.$type.'/'.$symbol.'/'.$myfxDirDate;
+            $xtradeDirDate = self::$me('xtradeDirDate', null, $time);
+            $result        = $dataDirectory.'/history/xtrade/'.$type.'/'.$symbol.'/'.$xtradeDirDate;
         }
-        else if ($id == 'myfxFile.M1.raw') {         // $myfxDir/M1.myfx                                         // MyFX-M1-Datei ungepackt
-            $myfxDir = self::$me('myfxDir' , $symbol, $time);
-            $result  = $myfxDir.'/M1.myfx';
+        else if ($id == 'xtradeFile.M1.raw') {          // $xtradeDir/M1.myfx                                           // XTrade-M1-Datei ungepackt
+            $xtradeDir = self::$me('xtradeDir' , $symbol, $time);
+            $result    = $xtradeDir.'/M1.myfx';
         }
-        else if ($id == 'myfxFile.M1.compressed') {  // $myfxDir/M1.rar                                          // MyFX-M1-Datei gepackt
-            $myfxDir = self::$me('myfxDir' , $symbol, $time);
-            $result  = $myfxDir.'/M1.rar';
+        else if ($id == 'xtradeFile.M1.compressed') {   // $xtradeDir/M1.rar                                            // XTrade-M1-Datei gepackt
+            $xtradeDir = self::$me('xtradeDir', $symbol, $time);
+            $result    = $xtradeDir.'/M1.rar';
         }
-        else throw new InvalidArgumentException('Unknown parameter $id: "'.$id.'"');
+        else throw new InvalidArgumentException('Unknown variable identifier "'.$id.'"');
 
         $varCache[$key] = $result;
         (sizeof($varCache) > ($maxSize=256)) && array_shift($varCache)/* && echoPre('var cache size limit of '.$maxSize.' hit')*/;
