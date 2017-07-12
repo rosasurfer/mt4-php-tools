@@ -2,6 +2,9 @@
 
 namespace rosasurfer\xtrade\generate_pl_series {
 
+    const PIP   = 0; const PIPS   = PIP;
+    const POINT = 0; const POINTS = POINT;
+
     /**
      * @param  string $id
      * @param  string $symbol [optional]
@@ -17,6 +20,18 @@ namespace rosasurfer\xtrade\generate_pl_series {
      * @param  string $message [optional]
      */
     function help($message = null) {}
+
+    /**
+     * @param  string $symbol
+     * @param  int    $day
+     * @param  array  $bars
+     * @param  bool   $partial [optional]
+     *
+     * @return bool
+     */
+    function saveBars($symbol, $day, array $bars, $partial = false) {
+        return(true);
+    }
 }
 
 

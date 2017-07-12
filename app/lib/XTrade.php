@@ -16,29 +16,37 @@ use rosasurfer\xtrade\metatrader\MT4;
 /**
  * XTrade related functionality
  *
- *                                      size        offset      description
- * struct little-endian XTRADE_BAR {    ----        ------      ------------------------------------------------
- *    uint time;                          4            0        FXT timestamp (seconds since 01.01.1970 FXT)
- *    uint open;                          4            4        in points
- *    uint high;                          4            8        in points
- *    uint low;                           4           12        in points
- *    uint close;                         4           16        in points
- *    uint ticks;                         4           20
- * };                                  = 24 byte
+ *                                             size        offset      description
+ * struct little-endian XTRADE_PRICE_BAR {     ----        ------      ------------------------------------------------
+ *    uint time;                                 4            0        FXT timestamp (seconds since 01.01.1970 FXT)
+ *    uint open;                                 4            4        in points
+ *    uint high;                                 4            8        in points
+ *    uint low;                                  4           12        in points
+ *    uint close;                                4           16        in points
+ *    uint ticks;                                4           20
+ * };                                    = 24 byte
  *
+ *                                             size        offset      description
+ * struct little-endian XTRADE_PIP_BAR {       ----        ------      ------------------------------------------------
+ *    uint   time;                               4            0        FXT timestamp (seconds since 01.01.1970 FXT)
+ *    double open;                               8            4        in pips
+ *    double high;                               8           12        in pips
+ *    double low;                                8           20        in pips
+ *    double close;                              8           28        in pips
+ * };                                    = 36 byte
  *
- *                                      size        offset      description
- * struct little-endian XTRADE_TICK {   ----        ------      ------------------------------------------------
- *    uint timeDelta;                     4            0        milliseconds since beginning of the hour
- *    uint bid;                           4            4        in points
- *    uint ask;                           4            8        in points
- * };                                  = 12 byte
+ *                                             size        offset      description
+ * struct little-endian XTRADE_TICK {          ----        ------      ------------------------------------------------
+ *    uint timeDelta;                            4            0        milliseconds since beginning of the hour
+ *    uint bid;                                  4            4        in points
+ *    uint ask;                                  4            8        in points
+ * };                                    = 12 byte
  */
 class XTrade extends StaticClass {
 
 
     /**
-     * struct size in bytes of a XTrade bar (format of XTrade history files "M{PERIOD}.myfx")
+     * struct size in bytes of a XTRADE_PRICE_BAR (format of XTrade history files "M{PERIOD}.myfx")
      */
     const BAR_SIZE = 24;
 
@@ -48,7 +56,7 @@ class XTrade extends StaticClass {
     const TICK_SIZE = 12;
 
 
-    /** @var array $symbols - symbols meta data, @see static initializer at the end of file */
+    /** @var array $symbols - symbols meta data, see static initializer at the end of file */
     public static $symbols = [];
 
 
@@ -433,13 +441,13 @@ class XTrade extends StaticClass {
 
 
     /**
-     * Interpretiert die XTrade-Bardaten eines Strings und liest sie in ein Array ein. Die resultierenden Bars werden
+     * Interpretiert die XTRADE_PRICE_BAR-Daten eines Strings und liest sie in ein Array ein. Die resultierenden Bars werden
      * beim Lesen validiert.
      *
-     * @param  string $data   - String mit XTrade-Bardaten
+     * @param  string $data   - String mit XTRADE_PRICE_BAR-Daten
      * @param  string $symbol - Meta-Information fuer eine evt. Fehlermeldung (falls die Daten fehlerhaft sind)
      *
-     * @return array - XTRADE_BAR-Daten
+     * @return array - XTRADE_PRICE_BAR-Daten
      */
     public static function readBarData($data, $symbol) {
         if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
@@ -468,10 +476,10 @@ class XTrade extends StaticClass {
     /**
      * Interpretiert die Bardaten einer XTrade-Datei und liest sie in ein Array ein.
      *
-     * @param  string $fileName - Name der Datei mit XTrade-Bardaten
+     * @param  string $fileName - Name der Datei mit XTRADE_PRICE_BAR-Daten
      * @param  string $symbol   - Meta-Information fuer eine evt. Fehlermeldung (falls die Daten fehlerhaft sind)
      *
-     * @return array - XTRADE_BAR-Daten
+     * @return array - XTRADE_PRICE_BAR-Daten
      */
     public static function readBarFile($fileName, $symbol) {
         if (!is_string($fileName)) throw new IllegalTypeException('Illegal type of parameter $fileName: '.getType($fileName));
@@ -482,9 +490,9 @@ class XTrade extends StaticClass {
     /**
      * Interpretiert die Bardaten einer komprimierten XTrade-Datei und liest sie in ein Array ein.
      *
-     * @param  string $fileName - Name der Datei mit XTrade-Bardaten
+     * @param  string $fileName - Name der Datei mit XTRADE_PRICE_BAR-Daten
      *
-     * @return array - XTRADE_BAR-Daten
+     * @return array - XTRADE_PRICE_BAR-Daten
      */
     public static function readCompressedBarFile($fileName) {
         throw new UnimplementedFeatureException(__METHOD__);
@@ -581,7 +589,7 @@ class XTrade extends StaticClass {
     /**
      * Gibt den Offset der Bar zurueck, die den angegebenen Zeitpunkt exakt abdeckt.
      *
-     * @param  array $bars   - zu durchsuchende Bars: XTRADE_BARs oder HISTORY_BARs
+     * @param  array $bars   - zu durchsuchende Bars: XTRADE_PRICE_BARs oder HISTORY_BARs
      * @param  int   $period - Barperiode
      * @param  int   $time   - Zeitpunkt
      *
@@ -623,7 +631,7 @@ class XTrade extends StaticClass {
      * Gibt den Offset der Bar zurueck, die den angegebenen Zeitpunkt abdeckt. Existiert keine solche Bar, wird der Offset
      * der letzten vorhergehenden Bar zurueckgegeben.
      *
-     * @param  array $bars   - zu durchsuchende Bars: XTRADE_BARs oder HISTORY_BARs
+     * @param  array $bars   - zu durchsuchende Bars: XTRADE_PRICE_BARs oder HISTORY_BARs
      * @param  int   $period - Barperiode
      * @param  int   $time   - Zeitpunkt
      *
@@ -653,7 +661,7 @@ class XTrade extends StaticClass {
      * Gibt den Offset der Bar zurueck, die den angegebenen Zeitpunkt abdeckt. Existiert keine solche Bar, wird der Offset
      * der naechstfolgenden Bar zurueckgegeben.
      *
-     * @param  array $bars   - zu durchsuchende Bars: XTRADE_BARs oder HISTORY_BARs
+     * @param  array $bars   - zu durchsuchende Bars: XTRADE_PRICE_BARs oder HISTORY_BARs
      * @param  int   $period - Barperiode
      * @param  int   $time   - Zeitpunkt
      *

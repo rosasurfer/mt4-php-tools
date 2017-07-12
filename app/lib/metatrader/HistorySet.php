@@ -314,7 +314,7 @@ class HistorySet extends Object {
     /**
      * Fuegt dem Ende der Zeitreihen des Sets weitere Bardaten hinzu. Vorhandene Daten werden nicht geaendert.
      *
-     * @param  array - XTRADE_BAR-Daten der Periode M1
+     * @param  XTRADE_PRICE_BAR[] - Daten der Periode M1
      *
      * @return bool - Erfolgsstatus
      */
@@ -335,7 +335,7 @@ class HistorySet extends Object {
      * Synchronisationszeitpunkt der Zeitreihe geschrieben wurden und die sich mit den uebergebenen Bars ueberschneiden,
      * werden ersetzt. Vorhandene Bars, die sich mit den uebergebenen Bars nicht ueberschneiden, bleiben unveraendert.
      *
-     * @param  array - XTRADE_BAR-Daten der Periode M1
+     * @param  XTRADE_PRICE_BAR[] - Daten der Periode M1
      */
     public function synchronize(array $bars) {
         if ($this->closed) throw new IllegalStateException('Cannot process a closed '.__CLASS__);
