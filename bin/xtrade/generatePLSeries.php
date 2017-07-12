@@ -8,11 +8,7 @@
  * -------------
  *    ...
  *
- *  - generate the PL series
- *
  *  - link the PL series to the originating trade history
- *
- *
  *
  *
  *  TODO: - check and confirm over/rewriting an existing PL series
@@ -42,11 +38,7 @@ $saveRawXTradeData = true;                                              // wheth
 // --- Start ----------------------------------------------------------------------------------------------------------------
 
 
-// (1) install SIGINT handler (catches Ctrl-C)                          // To execute destructors it's sufficient to just
-if (!WINDOWS) pcntl_signal(SIGINT, function($signo) { exit(); });       // call exit() in the handler.
-
-
-// (2) parse/validate command line arguments
+// (1) parse/validate command line arguments
 $args = array_slice($_SERVER['argv'], 1);
 foreach ($args as $i => $arg) {
     if ($arg == '-h') exit(1|help());           // help
@@ -60,7 +52,7 @@ $test  = Test::dao()->findByReportingSymbol($value);
 !$test && exit(1|help('unknown test report symbol "'.$value.'"'));
 
 
-// (3) load trades and order trade events chronologically
+// (2) load trades and order trade events chronologically
 $trades = $test->getTrades();
 $deals  = [];
 $symbol = null;
@@ -86,7 +78,7 @@ kSort($deals);
 $deals = array_values($deals);
 
 
-// (4) cross-check availability of price history
+// (3) cross-check availability of price history
 $firstDeal = reset($deals);
 if      (is_file(getVar('xtradeFile.compressed', $symbol, $firstDeal->time))) {}
 else if (is_file(getVar('xtradeFile.raw'       , $symbol, $firstDeal->time))) {}
@@ -99,7 +91,7 @@ else     exit(1|echoPre('[Error]   '.$symbol.' XTrade history for '.gmDate('D, d
 echoPre('[Info]    Processing '.sizeof($trades).' trades of test '.$test->getReportingSymbol().' ('.gmDate('d.m.Y', $firstDeal->time).' - '.gmDate('d.m.Y', $lastDeal->time).')');
 
 
-// (5) calculate total position and price at each deal time
+// (4) calculate total position and price at each deal time
 $sum = $position = $prevPosition = 0;
 foreach ($deals as $deal) {
     $prevPosition = $position;
@@ -119,13 +111,13 @@ foreach ($deals as $deal) {
 if (end($deals)->position) throw new RuntimeException('Unexpected total position after last deal: '.end($deals)->position.' (not flat)');
 
 
-// (6) generate a reporting symbol for the new PL series
+// (5) generate a reporting symbol for the new PL series
 $reportSymbol = $test->getReportingSymbol();
 define('PIP',   XTrade::$symbols[$symbol]['pip'   ]); define('PIPS',   PIP);
 define('POINT', XTrade::$symbols[$symbol]['point' ]); define('POINTS', POINT);
 
 
-// (7) generate the PL series
+// (6) generate the PL series
 $firstDealDay   = $firstDeal->time - $firstDeal->time % DAY;        // 00:00
 $lastDealDay    = $lastDeal->time - $lastDeal->time % DAY;          // 00:00
 $currentDeal    = reset($deals);
@@ -200,16 +192,6 @@ for ($day=$firstDealDay; $day <= $lastDealDay; $day+=1*DAY) {
             'low'   => null,
             'close' => round($totalPL + $pl, 3),
         ];
-
-        //if ($i >= 0 && $i < 200) {
-        //    //if ($bar['time'] == $currentDeal->time - $currentDeal->time % MINUTE) {
-        //    //    echoPre('currentDeal: '.gmDate('d-M-Y H:i:s ', $currentDeal->time).print_r($currentDeal, true));
-        //    //    echoPre('nextDeal:    '.gmDate('d-M-Y H:i:s ', $nextDeal->time).print_r($nextDeal, true));
-        //    //}
-        //    //echoPre('M1['.$i.']: '.gmDate('d-M-Y H:i:s ', $bar['time']).print_r($bar, true));
-        //    echoPre('PL['.$i.']: '.end($pipSeries)['close']);
-        //}
-        //$i>=200 && exit();
     }
 
     // save PL bars of each single day
@@ -219,7 +201,7 @@ for ($day=$firstDealDay; $day <= $lastDealDay; $day+=1*DAY) {
 echoPre('[Info]    total pips: '.round($totalPL + $pl, 3));
 
 
-// (8) the ugly end
+// (7) the ugly end
 exit(0);
 
 
@@ -250,7 +232,6 @@ function saveBars($symbol, $day, array $bars, $partial = false) {
     // convert bars into a binary string
     $data = null;
     foreach ($bars as $bar) {
-        //echoPre('bar[close]='.$bar['close']);
         $data .= pack('Vdddd', $bar['time' ],   // V                // TODO: validate bar data (@see fxi.updateM1Bars)
                                $bar['open' ],   // d
                                $bar['high' ],   // d
