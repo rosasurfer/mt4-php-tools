@@ -1,6 +1,5 @@
 #!/usr/bin/env php
 <?php
-namespace rosasurfer\xtrade\logwatch;
 
 /**
  * Scans the application's PHP error log file for entries and notifies by email. Mail is sent to the configured log message
@@ -10,6 +9,8 @@ namespace rosasurfer\xtrade\logwatch;
  * TODO: Error messages must not be printed to STDOUT but to STDERR.
  * TODO: Add parameter for not suppressing regular output to get status messages when not executed by CRON.
  */
+namespace rosasurfer\xtrade\logwatch;
+
 use rosasurfer\config\Config;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\util\PHP;

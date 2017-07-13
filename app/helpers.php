@@ -247,25 +247,25 @@ function prettyTimeRange($startTime, $endTime) {
  * @return string
  */
 function prettyRecoveryTime($duration) {
-    if ($duration < 10*HOURS) {             // H:i
+    if ($duration < 10*HOURS) {                         // H:i
         $duration = round($duration/MINUTES)*MINUTES;
         $ii = $duration % HOURS;
         $hh = ($duration-$ii) / HOURS;
         $result = $hh.'h '.round($ii/MINUTES)."'";
     }
-    else if ($duration < 3*DAYS) {          // d, H
+    else if ($duration < 3*DAYS) {                      // d, H
         $duration = round($duration/HOURS)*HOURS;
         $hh = $duration % DAYS;
         $dd = ($duration-$hh) / DAYS;
         $result = $dd.'d '.round($hh/HOURS).'h';
     }
-    else if ($duration < 5*WEEKS) {         // w, d
+    else if ($duration < 5*WEEKS) {                     // w, d
         $duration = round($duration/DAYS)*DAYS;
         $dd = $duration % WEEKS;
         $ww = ($duration-$dd) / WEEKS;
         $result = $ww.'w '.round($dd/DAYS).'d';
     }
-    else {                                  // w
+    else {                                              // w
         $ww = round($duration / WEEKS);
         $result = $ww.'w';
     }
@@ -278,7 +278,7 @@ function prettyRecoveryTime($duration) {
  * User-land implementation of PECL::stats_standard_deviation()
  *
  * @param  array $values
- * @param  bool  $sample [optional] - whether the values represent a sample or the total population
+ * @param  bool  $sample [optional] - whether or not the values represent just a sample
  *                                    (default: total population)
  * @return float - standard deviation
  */
@@ -314,7 +314,7 @@ function stats_standard_deviation(array $values, $sample = false) {
  * @param  array $returns
  * @param  bool  $growth  [optional] - whether the returns are growth rates or absolute values
  *                                     (default: absolute values)
- * @param  bool  $sample  [optional] - whether the values represent a sample or the total population
+ * @param  bool  $sample  [optional] - whether or not the values represent just a sample
  *                                     (default: total population)
  *
  * @return float - over-simplified and non-normalized Sharpe ratio
@@ -344,7 +344,7 @@ function stats_sharpe_ratio(array $returns, $growth=false, $sample=false) {
  * @param  array $returns
  * @param  bool  $growth [optional] - whether the returns are growth rates or absolute values
  *                                    (default: absolute values)
- * @param  bool  $sample [optional] - whether the values represent a sample or the total population
+ * @param  bool  $sample [optional] - whether or not the values represent just a sample
  *                                    (default: total population)
  *
  * @return float - over-simplified and non-normalized Sortino ratio
@@ -405,6 +405,3 @@ function stats_calmar_ratio($from, $to, array $values) {
         return INF;
     return $normalizedProfit / $maxDrawdown;
 }
-
-// standard deviation vs. standard error:
-// @see https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3148365/
