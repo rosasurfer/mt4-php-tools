@@ -1,17 +1,11 @@
 #!/usr/bin/env php
 <?php
 /**
- * Generate a profit/loss time series for a trade history (at the moment M1 only).
+ * Generate a profit/loss timeseries for a trade history (at the moment M1 only).
  *
  *
- * program flow:
- * -------------
- *    ...
- *
- *  - link the PL series to the originating trade history
- *
- *
- *  TODO: - check and confirm over/rewriting an existing PL series
+ * TODO: link the PL series to the originating trade history
+ * TODO: check and confirm over/rewriting an existing PL series
  */
 namespace rosasurfer\xtrade\generate_pl_series;
 
@@ -239,7 +233,7 @@ function saveBars($symbol, $day, array $bars, $partial = false) {
                                $bar['close']);  // d
     }
 
-    // pack() doesn't support an explicit little-endian double, on big-endian machines the byte order
+    // pack/unpack don't support explicit little-endian doubles, on big-endian machines the byte order
     // has to be reversed manually
     static $isLittleEndian = null; is_null($isLittleEndian) && $isLittleEndian=isLittleEndian();
     if (!$isLittleEndian) {

@@ -7,7 +7,7 @@ use rosasurfer\exception\RuntimeException;
 /**
  * DukascopyException
  *
- * Exception zur Markierung von Dukascopy-Fehlern
+ * Exception marking Dukascopy related errors.
  */
 class DukascopyException extends RuntimeException {
 }

@@ -7,7 +7,7 @@ use rosasurfer\exception\RuntimeException;
 /**
  * MetaTraderException
  *
- * Exception zur Markierung von MetaTrader-Fehlern
+ * Exception marking MetaTrader related errors.
  */
 class MetaTraderException extends RuntimeException {
 }

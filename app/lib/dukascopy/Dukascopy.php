@@ -6,6 +6,7 @@ use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 use rosasurfer\log\Logger;
+
 use rosasurfer\xtrade\LZMA;
 use rosasurfer\xtrade\XTrade;
 
@@ -17,39 +18,38 @@ use const rosasurfer\xtrade\DUKASCOPY_TICK_SIZE;
  * Dukascopy related functionality
  *
  *                                      size        offset      description
- * struct big-endian DUKASCOPY_BAR {    ----        ------      --------------------------------------------------
- *    uint  timeDelta;                    4            0        Zeitdifferenz in Sekunden seit 00:00 GMT
- *    uint  open;                         4            4        in Points
- *    uint  close;                        4            8        in Points
- *    uint  low;                          4           12        in Points
- *    uint  high;                         4           16        in Points
- *    float lots;                         4           20        kumulierte Angebotsseite in Lots (siehe DUKASCOPY_TICK)
- * };                                  = 24 byte
- *
+ * struct big-endian DUKASCOPY_BAR {    ----        ------      -------------------------------------------------------
+ *    uint  timeDelta;                    4            0        time difference in seconds since 00:00 GMT
+ *    uint  open;                         4            4        in points
+ *    uint  close;                        4            8        in points
+ *    uint  low;                          4           12        in points
+ *    uint  high;                         4           16        in points
+ *    float lots;                         4           20        cumulated bid/ask offers in lots
+ * };                             = 24 byte
  *
  *                                      size        offset      description
- * struct big-endian DUKASCOPY_TICK {   ----        ------      -------------------------------------------------
- *    uint  timeDelta;                    4            0        Zeitdifferenz in Millisekunden seit Stundenbeginn
- *    uint  ask;                          4            4        in Points
- *    uint  bid;                          4            8        in Points
- *    float askSize;                      4           12        Angebotsgroesse in Lots. Da Dukascopy als MarketMaker
- *    float bidSize;                      4           16        auftritt, ist der Mindestwert immer 1 Lot.
- * };                                  = 20 byte
+ * struct big-endian DUKASCOPY_TICK {   ----        ------      -------------------------------------------------------
+ *    uint  timeDelta;                    4            0        time difference in milliseconds since start of the hour
+ *    uint  ask;                          4            4        in points
+ *    uint  bid;                          4            8        in points
+ *    float askSize;                      4           12        cumulated ask size in lots; min. 1 lot (Dukascopy is market maker)
+ *    float bidSize;                      4           16        cumulated bid size in lots; min. 1 lot (Dukascopy is market maker)
+ * };                             = 20 byte
  */
 class Dukascopy extends StaticClass {
 
 
     /**
-     * Dekomprimiert einen komprimierten String mit Dukascopy-Historydaten und gibt ihn zurueck. Wird ein Dateiname angegeben,
-     * wird der dekomprimierte Inhalt zusaetzlich in dieser Datei gespeichert.
+     * Decompress a compressed Dukascopy data string and return it.
      *
-     * @param  string $data   - String mit komprimierten Historydaten (Bars oder Ticks)
-     * @param  string $saveAs - Name der Datei, in der der dekomprimierte Inhalt zusaetzlich gespeichert wird
+     * @param  string $data              - compressed string with bars or ticks
+     * @param  string $saveAs [optional] - if specified the decompressed string is additionally stored in the given file
+     *                                     (default: no storage)
      *
-     * @return string - dekomprimierter String
+     * @return string - decompressed data string
      */
-    public static function decompressHistoryData($data, $saveAs=null) {
-        if (!is_string($data))      throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
+    public static function decompressHistoryData($data, $saveAs = null) {
+        if (!is_string($data))       throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
         if (!is_null($saveAs)) {
             if (!is_string($saveAs)) throw new IllegalTypeException('Illegal type of parameter $saveAs: '.getType($saveAs));
             if (!strLen($saveAs))    throw new InvalidArgumentException('Invalid parameter $saveAs: ""');
@@ -64,38 +64,36 @@ class Dukascopy extends StaticClass {
             fWrite($hFile, $rawData);
             fClose($hFile);
             if (is_file($saveAs)) unlink($saveAs);
-            rename($tmpFile, $saveAs);                               // So kann eine existierende Datei niemals korrupt sein.
+            rename($tmpFile, $saveAs);
         }
         return $rawData;
     }
 
 
     /**
-     * Dekomprimiert eine komprimierte Dukascopy-Historydatei und gibt ihren Inhalt zurueck. Wird ein zusaetzlicher Dateiname
-     * angegeben, wird der dekomprimierte Inhalt zusaetzlich in dieser Datei gespeichert.
+     * Decompress a compressed Dukascopy data file and return its content.
      *
-     * @param  string $compressedFile - Name der komprimierten Dukascopy-Datei
-     * @param  string $saveAsFile     - Name der Datei, in der der dekomprimierte Inhalt zusaetzlich gespeichert wird
+     * @param  string $compressedFile    - name of the compressed data file
+     * @param  string $saveAs [optional] - if specified the decompressed content is additionally stored in the given file
+     *                                     (default: no storage)
      *
-     * @return string - dekomprimierter Inhalt der Datei
+     * @return string - decompressed file content
      */
-    public static function decompressHistoryFile($compressedFile, $saveAsFile=null) {
+    public static function decompressHistoryFile($compressedFile, $saveAsFile = null) {
         if (!is_string($compressedFile)) throw new IllegalTypeException('Illegal type of parameter $compressedFile: '.getType($compressedFile));
-
         return self::decompressHistoryData(file_get_contents($compressedFile), $saveAsFile);
     }
 
 
     /**
-     * Interpretiert die in einem String enthaltenen Dukascopy-Bardaten und liest sie in ein Array ein.
+     * Parse a string with Dukascopy bar data and convert it to a data array.
      *
-     * @param  string $data   - String mit Dukascopy-Bardaten
-     *
-     * @param  string $symbol - Meta-Informationen fuer eine evt. Fehlermeldung (die Dukascopy-Daten sind nicht einwandfrei)
+     * @param  string $data   - string with Dukascopy bar data
+     * @param  string $symbol - meta infos for generating a more readable error message (the Dukascopy data can contain errors)
      * @param  string $type   - ...
      * @param  int    $time   - ...
      *
-     * @return array - DUKASCOPY_BAR-Daten
+     * @return array - DUKASCOPY_BAR[] data
      */
     public static function readBarData($data, $symbol, $type, $time) {
         if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
@@ -107,18 +105,19 @@ class Dukascopy extends StaticClass {
 
         static $isLittleEndian = null; is_null($isLittleEndian) && $isLittleEndian=isLittleEndian();
 
-        // unpack() unterstuetzt keinen expliziten Big-Endian-Float, die Byte-Order von 'lots' muss ggf. manuell reversed werden.
+        // pack/unpack don't support explicit big-endian floats, on little-endian machines the byte order
+        // of field "lots" has to be reversed manually
         while ($offset < $lenData) {
             $i++;
             $bars[] = unpack("@$offset/NtimeDelta/Nopen/Nclose/Nlow/Nhigh", $data);
             $s      = subStr($data, $offset+20, 4);
-            $lots   = unpack('f', $isLittleEndian ? strRev($s) : $s);
+            $lots   = unpack('f', $isLittleEndian ? strRev($s) : $s);   // manually reverse on little-endian machines
             $bars[$i]['lots'] = round($lots[1], 2);
             $offset += DUKASCOPY_BAR_SIZE;
 
-            // Bar validieren
-            if ($bars[$i]['open' ] > $bars[$i]['high'] ||       // aus (H >= O && O >= L) folgt (H >= L)
-                $bars[$i]['open' ] < $bars[$i]['low' ] ||       // nicht mit min()/max(), da nicht performant
+            // validate bar data
+            if ($bars[$i]['open' ] > $bars[$i]['high'] ||               // from (H >= O && O >= L) follws (H >= L)
+                $bars[$i]['open' ] < $bars[$i]['low' ] ||               // don't use min()/max() as it's slow
                 $bars[$i]['close'] > $bars[$i]['high'] ||
                 $bars[$i]['close'] < $bars[$i]['low' ]) {
 
@@ -130,7 +129,6 @@ class Dukascopy extends StaticClass {
                 $L = number_format($bars[$i]['low'  ]/$divider, $digits);
                 $C = number_format($bars[$i]['close']/$divider, $digits);
 
-                //throw new RuntimeException("Illegal $symbol $type data for bar[$i] of ".gmDate('D, d-M-Y H:i:s', $time).": O=$O H=$H L=$L C=$C");
                 Logger::log("Illegal $symbol $type data for bar[$i] of ".gmDate('D, d-M-Y H:i:s', $time).": O=$O H=$H L=$L C=$C, adjusting high/low...", L_WARN);
 
                 $bars[$i]['high'] = max($bars[$i]['open'], $bars[$i]['high'], $bars[$i]['low'], $bars[$i]['close']);
@@ -142,29 +140,27 @@ class Dukascopy extends StaticClass {
 
 
     /**
-     * Interpretiert die Dukascopy-Bardaten einer Datei und liest sie in ein Array ein.
+     * Parse a file with Dukascopy bar data and convert it to a data array.
      *
-     * @param  string $fileName - Name der Datei mit Dukascopy-Bardaten
-     *
-     * @param  string $symbol   - Meta-Informationen fuer eine evt. Fehlermeldung (die Dukascopy-Daten sind nicht einwandfrei)
+     * @param  string $fileName - name of file with Dukascopy bar data
+     * @param  string $symbol   - meta infos for generating a more readable error message (the Dukascopy data can contain errors)
      * @param  string $type     - ...
      * @param  int    $time     - ...
      *
-     * @return array - DUKASCOPY_BAR-Daten
+     * @return array - DUKASCOPY_BAR[] data
      */
     public static function readBarFile($fileName, $symbol, $type, $time) {
         if (!is_string($fileName)) throw new IllegalTypeException('Illegal type of parameter $fileName: '.getType($fileName));
-
         return self::readBarData(file_get_contents($fileName), $symbol, $type, $time);
     }
 
 
     /**
-     * Interpretiert die in einem String enthaltenen Dukascopy-Tickdaten und liest sie in ein Array ein.
+     * Parse a string with Dukascopy tick data and convert it to a data array.
      *
-     * @param  string $data - String mit Dukascopy-Tickdaten
+     * @param  string $data - string with Dukascopy tick data
      *
-     * @return array - DUKASCOPY_TICK-Daten
+     * @return array - DUKASCOPY_TICK[] data
      */
     public static function readTickData($data) {
         if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
@@ -176,15 +172,15 @@ class Dukascopy extends StaticClass {
 
         static $isLittleEndian = null; is_null($isLittleEndian) && $isLittleEndian=isLittleEndian();
 
-        // unpack() unterstuetzt keinen expliziten Big-Endian-Float, die Byte-Order von 'bidSize' und 'askSize' muss ggf. manuell
-        // reversed werden.
+        // pack/unpack don't support explicit big-endian floats, on little-endian machines the byte order
+        // of fields "bidSize" and "askSize" has to be reversed manually
         while ($offset < $lenData) {
             $i++;
             $ticks[] = unpack("@$offset/NtimeDelta/Nask/Nbid", $data);
             $s1      = subStr($data, $offset+12, 4);
             $s2      = subStr($data, $offset+16, 4);
-            $size    = unpack('fask/fbid', $isLittleEndian ? strRev($s1).strRev($s2) : $s1.$s2);
-            $ticks[$i]['askSize'] = round($size['ask'], 2);
+            $size    = unpack('fask/fbid', $isLittleEndian ? strRev($s1).strRev($s2) : $s1.$s2);    // manually reverse
+            $ticks[$i]['askSize'] = round($size['ask'], 2);                                         // on little-endian machines
             $ticks[$i]['bidSize'] = round($size['bid'], 2);
             $offset += DUKASCOPY_TICK_SIZE;
         }
@@ -193,15 +189,14 @@ class Dukascopy extends StaticClass {
 
 
     /**
-     * Interpretiert die Dukascopy-Tickdaten einer Datei und liest sie in ein Array ein.
+     * Parse a file with Dukascopy tick data and convert it to a data array.
      *
-     * @param  string $fileName - Name der Datei mit Dukascopy-Tickdaten
+     * @param  string $fileName - name of file with Dukascopy tick data
      *
-     * @return array - DUKASCOPY_TICK-Daten
+     * @return array - DUKASCOPY_TICK[] data
      */
     public static function readTickFile($fileName) {
         if (!is_string($fileName)) throw new IllegalTypeException('Illegal type of parameter $fileName: '.getType($fileName));
-
         return self::readTickData(file_get_contents($fileName));
     }
 }
