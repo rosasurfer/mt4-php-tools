@@ -21,26 +21,12 @@ use rosasurfer\xtrade\model\Signal;
 
 
 /**
- * www.simpletrader.net related functionality
+ * SimpleTrader related functionality.
  */
 class SimpleTrader extends StaticClass {
 
 
-    /**
-     * Die TTL der DNS-Eintraege ist aeusserst kurz:  60 Sekunden (03.09.2016)
-     *
-     *  $ dig cp.forexsignals.com a
-     *  cp.forexsignals.com.    59      IN      CNAME   simpletrader.net.
-     *  simpletrader.net.       59      IN      A       89.238.139.23
-     *
-     *
-     *  $ dig www.simpletrader.net a
-     *  www.simpletrader.net.   59      IN      CNAME   simpletrader.net.
-     *  simpletrader.net.       59      IN      A       89.238.139.23
-     */
-
-
-    // URLs und Referers zum Download der letzten 500 Trades und der kompletten History
+    /** @var string[][] $urls - URLs and referers for downloading a signal's last 500 trades and its full history */
     private static $urls = [
         ['currentHistory' => 'http://cp.forexsignals.com/signal/{provider_signal_id}/signal.html',
          'fullHistory'    => 'http://cp.forexsignals.com/signals.php?do=view&id={provider_signal_id}&showAllClosedTrades=1',
@@ -53,13 +39,12 @@ class SimpleTrader extends StaticClass {
 
 
     /**
-     * Laedt die HTML-Seite mit den Tradedaten des angegebenen Signals. Schlaegt der Download fehl, wird zwei mal versucht,
-     * die Seite von alternativen URL's zu laden, bevor der Download mit einem Fehler abbricht.
+     * Download a HTML page with the trade history of the specified signal. In case of errors retry with alternating URLs.
      *
      * @param  Signal $signal
-     * @param  bool   $fullHistory - ob die komplette History oder nur die letzten Trades geladen werden sollen
+     * @param  bool   $fullHistory - whether to load the full history or just the last 500 trades
      *
-     * @return string - Inhalt der HTML-Seite
+     * @return string - HTML content
      */
     public static function loadSignalPage(Signal $signal, $fullHistory) {
         if (!is_bool($fullHistory)) throw new IllegalTypeException('Illegal type of parameter $fullHistory: '.getType($fullHistory));
@@ -72,51 +57,51 @@ class SimpleTrader extends StaticClass {
         $userAgent = $config->get('xtrade.useragent');
         if (!strLen($userAgent))           throw new InvalidArgumentException('Invalid user agent configuration: "'.$userAgent.'"');
         $request = HttpRequest::create()
-                                     ->setHeader('User-Agent'     ,  $userAgent                                                      )
-                                     ->setHeader('Accept'         , 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
-                                     ->setHeader('Accept-Language', 'en-us'                                                          )
-                                     ->setHeader('Accept-Charset' , 'ISO-8859-1,utf-8;q=0.7,*;q=0.7'                                 )
-                                     ->setHeader('Connection'     , 'keep-alive'                                                     )
-                                     ->setHeader('Cache-Control'  , 'max-age=0'                                                      );
+                              ->setHeader('User-Agent'     ,  $userAgent                                                      )
+                              ->setHeader('Accept'         , 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
+                              ->setHeader('Accept-Language', 'en-us'                                                          )
+                              ->setHeader('Accept-Charset' , 'ISO-8859-1,utf-8;q=0.7,*;q=0.7'                                 )
+                              ->setHeader('Connection'     , 'keep-alive'                                                     )
+                              ->setHeader('Cache-Control'  , 'max-age=0'                                                      );
 
-        // Cookies in der angegebenen Datei verwenden
-        $cookieFile = dirName(realPath($_SERVER['PHP_SELF'])).DIRECTORY_SEPARATOR.'cookies.txt';
+        // use the specified file for cookies
+        $cookieFile = dirName(realPath($_SERVER['PHP_SELF'])).'/cookies.txt';
         $options = [];
-        $options[CURLOPT_COOKIEFILE    ] = $cookieFile;                   // read cookies from
-        $options[CURLOPT_COOKIEJAR     ] = $cookieFile;                   // write cookies to
-        $options[CURLOPT_SSL_VERIFYPEER] = false;                         // das SimpleTrader-SSL-Zertifikat ist evt. ungueltig
+        $options[CURLOPT_COOKIEFILE    ] = $cookieFile;                     // read cookies from
+        $options[CURLOPT_COOKIEJAR     ] = $cookieFile;                     // write cookies to
+        $options[CURLOPT_SSL_VERIFYPEER] = false;                           // an invalid SSL certificate might cause errors
 
-        // TODO: Bei einem Netzwerkausfall am Server muss das Script weiterlaufen und seine Arbeit bei Rueckkehr des Netzwerkes fortsetzen.
+        // TODO: In case of network glitches the script needs to retry until the network is back.
 
 
-        // (2) HTTP-Request ausfuehren
+        // (2) execute HTTP request
         $key     = $fullHistory ? 'fullHistory':'currentHistory';
         $counter = 0;
         while (true) {
-            $i       = $counter % sizeof(self::$urls);                     // bei Neuversuchen abwechselnd alle URL's durchprobieren
+            $i       = $counter % sizeof(self::$urls);                      // on retries cycle through all urls
             $url     = str_replace('{provider_signal_id}', $providerSignalId, self::$urls[$i][$key]);
             $referer = self::$urls[$i]['referer'];
             $request->setUrl($url)->setHeader('Referer', $referer);
 
-            static $httpClient = null;                                     // Instanz wiederverwenden, um Keep-Alive-Connections zu ermoeglichen
+            static $httpClient = null;                                      // only a single instance to use "keep alive"
             !$httpClient && $httpClient=CurlHttpClient::create($options);
 
             try {
                 $counter++;
                 $response = $httpClient->send($request);
-                                                                                                // Serverfehler, entspricht CURLE_GOT_NOTHING
+                                                                            // server error equal to CURLE_GOT_NOTHING
                 if (is_null($response->getContent())) throw new IOException('Empty reply from server, url: '.$request->getUrl());
             }
             catch (IOException $ex) {
                 $msg = $ex->getMessage();
                 if (strStartsWith($msg, 'CURL error CURLE_COULDNT_RESOLVE_HOST') ||
-                     strStartsWith($msg, 'CURL error CURLE_COULDNT_CONNECT'     ) ||
-                     strStartsWith($msg, 'CURL error CURLE_OPERATION_TIMEDOUT'  ) ||
-                     strStartsWith($msg, 'CURL error CURLE_GOT_NOTHING'         ) ||
-                     strStartsWith($msg, 'Empty reply from server'              )) {
-                    if ($counter < 10) {                                     // bis zu 10 Versuche, eine URL zu laden
+                    strStartsWith($msg, 'CURL error CURLE_COULDNT_CONNECT'     ) ||
+                    strStartsWith($msg, 'CURL error CURLE_OPERATION_TIMEDOUT'  ) ||
+                    strStartsWith($msg, 'CURL error CURLE_GOT_NOTHING'         ) ||
+                    strStartsWith($msg, 'Empty reply from server'              )) {
+                    if ($counter < 10) {                                    // up to 10 tries to load a url
                         Logger::log($msg."\nretrying ... ($counter)", L_WARN);
-                        sleep(10);                                            // vor jedem weiteren Versuch einige Sekunden warten
+                        sleep(10);                                          // wait a few seconds before retry
                         continue;
                     }
                 }
@@ -130,38 +115,38 @@ class SimpleTrader extends StaticClass {
 
 
     /**
-     * Parst eine simpletrader.net HTML-Seite mit Signaldaten.
+     * Parse a SimpleTrader HTML page and store the signal data in the passed vars.
      *
-     * @param  Signal  $signal     - Signal
-     * @param  string  $html       - Inhalt der HTML-Seite
-     * @param  array  &$openTrades - Array zur Aufnahme der offenen Positionen
-     * @param  array  &$history    - Array zur Aufnahme der Signalhistory
+     * @param  Signal  $signal     [in]  - signal
+     * @param  string  $html       [in]  - HTML content
+     * @param  array  &$openTrades [out] - target array to store open positions in
+     * @param  array  &$history    [out] - target array to store closed positions in (trade history)
      *
-     * @return string|null - NULL oder Fehlermeldung, falls ein Fehler auftrat
+     * @return string|null - NULL or an error message in case of errors
      */
-    public static function parseSignalData(Signal $signal, &$html, array &$openTrades, array &$history) {      // der zusaetzliche Zeiger minimiert den benoetigten Speicher
+    public static function parseSignalData(Signal $signal, $html, array &$openTrades, array &$history) {
         if (!is_string($html)) throw new IllegalTypeException('Illegal type of parameter $html: '.getType($html));
 
         $signalAlias = $signal->getAlias();
 
-        // HTML-Entities konvertieren
+        // convert HTML entities
         $html = str_replace('&nbsp;', ' ', $html);
 
-        // ggf. RegExp-Stringlimit erhoehen
+        // increase RegExp string limit
         if (strLen($html) > (int)ini_get('pcre.backtrack_limit'))
             PHP::ini_set('pcre.backtrack_limit', strLen($html));
 
         $matchedTables = $openTradeRows = $historyRows = $matchedOpenTrades = $matchedHistoryEntries = 0;
         $tables = [];
 
-        // Tabellen <table id="openTrades"> und <table id="history"> extrahieren
+        // extract tables <table id="openTrades"> and <table id="history">
         $matchedTables = preg_match_all('/<table\b.*\bid="(opentrades|history)".*>.*<tbody\b.*>(.*)<\/tbody>.*<\/table>/isU', $html, $tables, PREG_SET_ORDER);
         if ($matchedTables != 2) {
-            // Login ungueltig (falls Cookies ungueltig oder korrupt sind)
+            // invalid login (in case of missing or corrupt cookies)
             if (preg_match('/Please read the following information<\/h4>\s*(You do not have access to view this page\.)/isU', $html, $matches)) throw new RuntimeException($signal->getName().': '.$matches[1]);
             if (preg_match('/Please read the following information<\/h4>\s*(This signal does not exist\.)/isU'              , $html, $matches)) throw new RuntimeException($signal->getName().': '.$matches[1]);
 
-            // diverse PHP-Fehler in der SimpleTrader-Website
+            // various public PHP error messages contained in the transmitted HTML (hello???)
             if (preg_match('/(Parse error: .+ in .+ on line [0-9]+)/iU', $html, $matches)) return $matches[1];    // Parse error: ... in /home/simpletrader/public_html/signals.php on line ...
             if (trim($html) == 'Database error...')                                        return trim($html);    // Database error...
 
@@ -172,28 +157,28 @@ class SimpleTrader extends StaticClass {
             $table[0] = 'table '.($i+1);
             $table[1] = strToLower($table[1]);
 
-            // offene Positionen extrahieren und parsen: Timezone = GMT
+            // extract and parse open positions: timezone = GMT
             if ($table[1] == 'opentrades') {                                        // [ 0:          ] => {matched html}
-                /*                                                                   // [ 1:TakeProfit] => 1.319590
-                <tr class="red topDir" title="Take Profit: 1.730990 Stop Loss: -">   // [ 2:StopLoss  ] => -                   // falls angegeben
-                    <td class="center">2014/09/08 13:25:42</td>                       // [ 3:OpenTime  ] => 2014/09/04 08:15:12
-                    <td class="center">1.294130</td>                                  // [ 4:OpenPrice ] => 1.314590
-                    <td class="center">1.24</td>                                      // [ 5:Lots      ] => 0.16
-                    <td class="center">Sell</td>                                      // [ 6:Type      ] => Buy
-                    <td class="center">EURUSD</td>                                    // [ 7:Symbol    ] => EURUSD
-                    <td class="center">-32.57</td>                                    // [ 8:Profit    ] => -281.42             // NetProfit
-                    <td class="center">-1.8</td>                                      // [ 9:Pips      ] => -226.9
-                    <td class="center">1999552</td>                                   // [10:Comment   ] => 2000641             // Ticket
+                /*                                                                  // [ 1:TakeProfit] => 1.319590
+                <tr class="red topDir" title="Take Profit: 1.730990 Stop Loss: -">  // [ 2:StopLoss  ] => -                     // if specified
+                    <td class="center">2014/09/08 13:25:42</td>                     // [ 3:OpenTime  ] => 2014/09/04 08:15:12
+                    <td class="center">1.294130</td>                                // [ 4:OpenPrice ] => 1.314590
+                    <td class="center">1.24</td>                                    // [ 5:Lots      ] => 0.16
+                    <td class="center">Sell</td>                                    // [ 6:Type      ] => Buy
+                    <td class="center">EURUSD</td>                                  // [ 7:Symbol    ] => EURUSD
+                    <td class="center">-32.57</td>                                  // [ 8:Profit    ] => -281.42               // NetProfit
+                    <td class="center">-1.8</td>                                    // [ 9:Pips      ] => -226.9
+                    <td class="center">1999552</td>                                 // [10:Comment   ] => 2000641               // Ticket
                 </tr>
                 */
                 $openTradeRows     = preg_match_all('/<tr\b/is', $table[2], $openTrades);
                 $matchedOpenTrades = preg_match_all('/<tr\b[^>]*?(?:"\s*Take\s*Profit:\s*([0-9.-]+)\s*Stop\s*Loss:\s*([0-9.-]+)\s*")?\s*>(?U)\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>\s*<td\b.*>(.*)<\/td>/is', $table[2], $openTrades, PREG_SET_ORDER);
                 if (!$openTradeRows) {
                     if (preg_match('/"sEmptyTable": "No trades currently open/', $html)) {
-                        // keine OpenTrades vorhanden
+                        // no open positions
                     }
                     else if (preg_match('/"sEmptyTable": "(There are currently trades open[^"]*)"/', $html, $matches)) {
-                        // OpenTrades sind gesperrt und koennen durch begonne, aber nicht abgeschlossene Subscription freigeschaltet werden.
+                        // open positions are locked
                         throw new RuntimeException($signal->getName().': '.$matches[1]);
                     }
                     else throw new RuntimeException($signal->getName().': no open trade rows found, HTML:'.NL.NL.$html);
@@ -219,7 +204,7 @@ class SimpleTrader extends StaticClass {
 
                     // 3:OpenTime
                     $sOpenTime = trim($row[I_OPEN_OPENTIME]);
-                    if (strEndsWith($sOpenTime, '*'))                     // seit 06.02.2015 von Fall zu Fall, Bedeutung ist noch unklar
+                    if (strEndsWith($sOpenTime, '*'))                               // seen since 06.02.2015 (unknown meaning)
                         $sOpenTime = subStr($sOpenTime, 0, -1);
                     if (!($iTime=strToTime($sOpenTime.' GMT'))) throw new RuntimeException('Invalid OpenTime found in open position row '.($i+1).': "'.$row[I_OPEN_OPENTIME].'", HTML:'.NL.NL.$row[0]);
                     $row['opentime' ] = $iTime;
@@ -238,10 +223,10 @@ class SimpleTrader extends StaticClass {
 
                     // 6:Type
                     $sValue = trim(strToLower($row[I_OPEN_TYPE]));
-                    // Bekannte Tickets mit fehlerhaften OperationType ueberspringen
+                    // skip tickets with known errors
                     if ($sValue!='buy' && $sValue!='sell') {
                         $sTicket = trim($row[I_OPEN_COMMENT]);
-                        if ($signalAlias=='novolr' && $sTicket=='3488580')          // permanente Fehler nicht jedesmal anzeigen
+                        if ($signalAlias=='novolr' && $sTicket=='3488580')          // don't permanently display those errors
                             continue;
                         throw new RuntimeException('Invalid OperationType found in open position row '.($i+1).': "'.$row[I_OPEN_TYPE].'", HTML:'.NL.NL.$row[0]);
                     }
@@ -270,25 +255,25 @@ class SimpleTrader extends StaticClass {
                     unset($row[0], $row[1], $row[2], $row[3], $row[4], $row[5], $row[6], $row[7], $row[8], $row[9], $row[10]);
                 }; unset($row);
 
-                // offene Positionen sortieren: ORDER BY OpenTime asc, Ticket asc
+                // sort open positions: ORDER BY OpenTime asc, Ticket asc
                 uSort($openTrades, __CLASS__.'::compareTradesByOpenTimeTicket');
             }
 
-            // History extrahieren und parsen: Timezone = GMT
-            if ($table[1] == 'history') {                                        // [ 0:          ] => {matched html}
-                /*                                                                // [ 1:TakeProfit] =>                        // falls angegeben
-                <tr class="green even">                                           // [ 2:StopLoss  ] =>                        // falls angegeben
-                    <td class="center">2015/01/14 14:07:06</td>                    // [ 3:OpenTime  ] => 2014/09/09 13:05:58
-                    <td class="center">2015/01/14 14:12:00</td>                    // [ 4:CloseTime ] => 2014/09/09 13:08:15
-                    <td class="center">1.183290</td>                               // [ 5:OpenPrice ] => 1.742870
-                    <td class="center">1.182420</td>                               // [ 6:ClosePrice] => 1.743470
-                    <td class="center">1.60</td>                                   // [ 7:Lots      ] => 0.12
-                    <td class="center">Sell</td>                                   // [ 8:Type      ] => Sell
-                    <td class="center">EURUSD</td>                                 // [ 9:Symbol    ] => GBPAUD
-                    <td class="center">126.40</td>                                 // [10:Profit    ] => -7.84                  // NetProfit
-                    <td class="center">8.7</td>                                    // [11:Pips      ] => -6
-                    <td class="center">0.07%</td>                                  // [12:Gain      ] => -0.07%
-                    <td class="center">2289768</td>                                // [13:Comment   ] => 2002156                // Ticket
+            // extract and parse trade history: timezone = GMT
+            if ($table[1] == 'history') {                                           // [ 0:          ] => {matched html}
+                /*                                                                  // [ 1:TakeProfit] =>                       // if specified
+                <tr class="green even">                                             // [ 2:StopLoss  ] =>                       // if specified
+                    <td class="center">2015/01/14 14:07:06</td>                     // [ 3:OpenTime  ] => 2014/09/09 13:05:58
+                    <td class="center">2015/01/14 14:12:00</td>                     // [ 4:CloseTime ] => 2014/09/09 13:08:15
+                    <td class="center">1.183290</td>                                // [ 5:OpenPrice ] => 1.742870
+                    <td class="center">1.182420</td>                                // [ 6:ClosePrice] => 1.743470
+                    <td class="center">1.60</td>                                    // [ 7:Lots      ] => 0.12
+                    <td class="center">Sell</td>                                    // [ 8:Type      ] => Sell
+                    <td class="center">EURUSD</td>                                  // [ 9:Symbol    ] => GBPAUD
+                    <td class="center">126.40</td>                                  // [10:Profit    ] => -7.84                 // NetProfit
+                    <td class="center">8.7</td>                                     // [11:Pips      ] => -6
+                    <td class="center">0.07%</td>                                   // [12:Gain      ] => -0.07%
+                    <td class="center">2289768</td>                                 // [13:Comment   ] => 2002156               // Ticket
                 </tr>
                 */
                 $historyRows           = preg_match_all('/<tr\b/is', $table[2], $history);
@@ -317,7 +302,7 @@ class SimpleTrader extends StaticClass {
 
                     // 3:OpenTime
                     $sOpenTime = trim($row[I_HISTORY_OPENTIME]);
-                    if (strEndsWith($sOpenTime, '*'))                              // seit 06.02.2015 von Fall zu Fall, Bedeutung noch unklar
+                    if (strEndsWith($sOpenTime, '*'))                               // seen since 06.02.2015 (unknown meaning)
                         $sOpenTime = subStr($sOpenTime, 0, -1);
                     if (!($iTime=strToTime($sOpenTime.' GMT'))) throw new RuntimeException('Invalid OpenTime found in history row '.($i+1).': "'.$row[I_HISTORY_OPENTIME].'", HTML:'.NL.NL.$row[0]);
                     $row['opentime'] = $iTime;
@@ -325,11 +310,11 @@ class SimpleTrader extends StaticClass {
                     // 4:CloseTime
                     $sCloseTime = trim($row[I_HISTORY_CLOSETIME]);
                     if (!($iTime=strToTime($sCloseTime.' GMT'))) throw new RuntimeException('Invalid CloseTime found in history row '.($i+1).': "'.$row[I_HISTORY_CLOSETIME].'", HTML:'.NL.NL.$row[0]);
-                    // Tickets mit fehlerhaften Open-/CloseTimes ueberspringen
+                    // skip tickets with known errors
                     if ($row['opentime'] > $iTime) {
                         $sTicket = trim($row[I_HISTORY_COMMENT]);
                         $row     = [];
-                        if ($signalAlias=='smarttrader' && $sTicket=='1175928') {}  // permanente Fehler nicht jedesmal anzeigen
+                        if ($signalAlias=='smarttrader' && $sTicket=='1175928') {}  // don't permanently display those errors
                         else echoPre('Skipping invalid ticket #'.$sTicket.': OpenTime='.$sOpenTime.'  CloseTime='.$sCloseTime);
                         continue;
                     }
@@ -352,7 +337,7 @@ class SimpleTrader extends StaticClass {
 
                     // 8:Type
                     $sValue = trim(strToLower($row[I_HISTORY_TYPE]));
-                    // Tickets mit fehlerhaften OperationType reparieren
+                    // fix tickets with known OperationType errors
                     if ($sValue!='buy' && $sValue!='sell') {
                         if (is_numeric($sProfit=trim($row[I_HISTORY_PROFIT])) && $row['openprice'] != $row['closeprice']) {
                             $sTicket = trim($row[I_HISTORY_COMMENT]);
@@ -391,7 +376,7 @@ class SimpleTrader extends StaticClass {
                     unset($row[0], $row[1], $row[2], $row[3], $row[4], $row[5], $row[6], $row[7], $row[8], $row[9], $row[10], $row[11], $row[12], $row[13]);
                 }; unset($row);
 
-                // History sortieren: ORDER BY CloseTime asc, OpenTime asc, Ticket asc
+                // sort trade history: ORDER BY CloseTime asc, OpenTime asc, Ticket asc
                 uSort($history, __CLASS__.'::compareTradesByCloseTimeOpenTimeTicket');
             }
         }; unset($table);
@@ -404,15 +389,14 @@ class SimpleTrader extends StaticClass {
 
 
     /**
-     * Comparator, der zwei Trades zunaechst anhand ihrer OpenTime vergleicht. Ist die OpenTime gleich,
-     * werden die Trades anhand ihres Tickets verglichen.
+     * Comparator function comparing two trades. First compare by open time. If considered equal compare by ticket.
      *
      * @param  array $tradeA
      * @param  array $tradeB
      *
-     * @return int - positiver Wert, wenn $tradeA nach $tradeB geoeffnet wurde;
-     *               negativer Wert, wenn $tradeA vor $tradeB geoeffnet wurde;
-     *               0, wenn beide Trades zum selben Zeitpunkt geoeffnet wurden
+     * @return int - positive value if $tradeA was opened after $tradeB;
+     *               negative value if $tradeA was opened before $tradeB;
+     *               0 (zero) if both trades were opened at the same time
      */
     private static function compareTradesByOpenTimeTicket(array $tradeA, array $tradeB) {
         if (!$tradeA) return $tradeB ? -1 : 0;
@@ -429,15 +413,15 @@ class SimpleTrader extends StaticClass {
 
 
     /**
-     * Comparator, der zwei Trades zunaechst anhand ihrer CloseTime vergleicht. Ist die CloseTime gleich, werden die Trades
-     * anhand ihrer OpenTime verglichen. Ist auch die OpenTime gleich, werden die Trades anhand ihres Tickets verglichen.
+     * Comparator function comparing two trades. First compare by close time. If considered equal compare by open time.
+     * If still considered equal compare by ticket.
      *
      * @param  array $tradeA
      * @param  array $tradeB
      *
-     * @return int - positiver Wert, wenn $tradeA nach $tradeB geschlossen wurde;
-     *               negativer Wert, wenn $tradeA vor $tradeB geschlossen wurde;
-     *               0, wenn beide Trades zum selben Zeitpunkt geoeffnet und geschlossen wurden
+     * @return int - positive value if $tradeA was closed after $tradeB;
+     *               negative value if $tradeA was closed before $tradeB;
+     *               0 (zero) if both trades were opened and closed at the same times
      */
     private static function compareTradesByCloseTimeOpenTimeTicket(array $tradeA, array $tradeB) {
         if (!$tradeA) return $tradeB ? -1 : 0;
@@ -450,19 +434,18 @@ class SimpleTrader extends StaticClass {
 
 
     /**
-     * Handler fuer PositionOpen-Events eines SimpleTrader-Signals.
+     * Handle "PositionOpen" events.
      *
-     * @param  OpenPosition $position - die geoeffnete Position
+     * @param  OpenPosition $position - the opened position
      */
     public static function onPositionOpen(OpenPosition $position) {
         $signal = $position->getSignal();
 
-        // Ausgabe in Console
+        // console message
         $consoleMsg = $signal->getName().' opened '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice().'  TP: '.ifNull($position->getTakeProfit(),'-').'  SL: '.ifNull($position->getStopLoss(), '-').'  ('.$position->getOpenTime('H:i:s').')';
         echoPre($consoleMsg);
 
-
-        // Benachrichtigung per E-Mail
+        // notify by e-mail
         try {
             $mailMsg = $signal->getName().' Open '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice();
             foreach (XTrade::getMailSignalReceivers() as $receiver) {
@@ -471,8 +454,7 @@ class SimpleTrader extends StaticClass {
         }
         catch (\Exception $ex) { Logger::log($ex, L_ERROR); }
 
-
-        // SMS-Benachrichtigung, wenn das Ereignis zur Laufzeit des Scriptes eintrat
+        // motify by text message if the event occurred at script runtime
         $openTime = XTrade::fxtStrToTime($position->getOpenTime());
         if ($openTime >= $_SERVER['REQUEST_TIME']) {
             try {
@@ -481,7 +463,7 @@ class SimpleTrader extends StaticClass {
                                                          .(($sl=$position->getStopLoss()  ) ? ($tp ? '  ':NL).'SL: '.$sl:'').NL.NL
                          .'#'.$position->getTicket().'  ('.$position->getOpenTime('H:i:s').')';
 
-                // Warnung, wenn das Ereignis aelter als 2 Minuten ist (also von SimpleTrader verzoegert publiziert wurde)
+                // warn if the event is older than 2 minutes (trade was published with delay)
                 if (($now=time()) > $openTime+2*MINUTES) $smsMsg = 'WARN: '.$smsMsg.' detected at '.date($now); // XTrade::fxtDate($now)
 
                 foreach (XTrade::getSmsSignalReceivers() as $receiver) {
@@ -494,11 +476,11 @@ class SimpleTrader extends StaticClass {
 
 
     /**
-     * Handler fuer PositionModify-Events eines SimpleTrader-Signals.
+     * Handle "PositionModify" events.
      *
-     * @param  OpenPosition $position - die modifizierte Position (nach der Aenderung)
-     * @param  float        $prevTP   - der vorherige TakeProfit-Wert
-     * @param  float        $prevSL   - der vorherige StopLoss-Wert
+     * @param  OpenPosition $position - modified position
+     * @param  float        $prevTP   - old TakeProfit value
+     * @param  float        $prevSL   - old StopLoss value
      */
     public static function onPositionModify(OpenPosition $position, $prevTP, $prevSL) {
         if (!is_null($prevTP) && !is_float($prevTP)) throw new IllegalTypeException('Illegal type of parameter $prevTP: '.getType($prevSL));
@@ -511,7 +493,7 @@ class SimpleTrader extends StaticClass {
 
         $signal = $position->getSignal();
 
-        // Ausgabe in Console
+        // console message
         $format = "%-4s %4.2F %s @ %-8s";
         $type   = $position->getType();
         $lots   = $position->getLots();
@@ -520,7 +502,7 @@ class SimpleTrader extends StaticClass {
         $msg    = sprintf($format, ucFirst($type), $lots, $symbol, $price);
         echoPre(date('Y-m-d H:i:s', time()).':  modify '.$msg.$modification);
 
-        // Benachrichtigung per E-Mail
+        // notify by e-mail
         $mailMsg = $signal->getName().': modify '.$msg.$modification;
         try {
             foreach (XTrade::getMailSignalReceivers() as $receiver) {
@@ -529,9 +511,8 @@ class SimpleTrader extends StaticClass {
         }
         catch (\Exception $ex) { Logger::log($ex, L_ERROR); }
 
-
-        // Benachrichtigung per SMS
-        if (false) {                                                        // fuer Limitaenderungen vorerst deaktiviert
+        // notify by text message
+        if (false) {                                                        // atm disabled
             try {
                 $smsMsg = $signal->getName().': modified '.str_replace('  ', ' ', $msg)."\n"
                             .$modification                                                ."\n"
@@ -546,19 +527,18 @@ class SimpleTrader extends StaticClass {
 
 
     /**
-     * Handler fuer PositionClose-Events eines SimpleTrader-Signals.
+     * Handle "PositionClose" events.
      *
-     * @param  ClosedPosition $position - die geschlossene Position
+     * @param  ClosedPosition $position - closed position
      */
     public static function onPositionClose(ClosedPosition $position) {
         $signal = $position->getSignal();
 
-        // Ausgabe in Console
+        // console message
         $consoleMsg = $signal->getName().' closed '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().'  Open: '.$position->getOpenPrice().'  Close: '.$position->getClosePrice().'  Profit: '.$position->getNetProfit(2).'  ('.$position->getCloseTime('H:i:s').')';
         echoPre($consoleMsg);
 
-
-        // Benachrichtigung per E-Mail
+        // notify by e-mail
         try {
             $mailMsg = $signal->getName().' Close '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getClosePrice();
             foreach (XTrade::getMailSignalReceivers() as $receiver) {
@@ -567,15 +547,14 @@ class SimpleTrader extends StaticClass {
         }
         catch (\Exception $ex) { Logger::log($ex, L_ERROR); }
 
-
-        // SMS-Benachrichtigung, wenn das Ereignis zur Laufzeit des Scriptes eintrat
+        // notify by text message if the event occurred at script runtime
         $closeTime = XTrade::fxtStrToTime($position->getCloseTime());
         if ($closeTime >= $_SERVER['REQUEST_TIME']) {
             try {
                 $smsMsg = 'Closed '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getClosePrice()."\nOpen: ".$position->getOpenPrice()."\n\n#".$position->getTicket().'  ('.$position->getCloseTime('H:i:s').')';
 
-                // Warnung, wenn das Ereignis aelter als 2 Minuten ist (also von SimpleTrader verzoegert publiziert wurde)
-                if (($now=time()) > $closeTime+2*MINUTES) $smsMsg = 'WARN: '.$smsMsg.' detected at '.date($now);      // XTrade::fxtDate($now)
+                // warn if the event is older than 2 minutes (trade was published with delay)
+                if (($now=time()) > $closeTime+2*MINUTES) $smsMsg = 'WARN: '.$smsMsg.' detected at '.date($now); // XTrade::fxtDate($now)
 
                 foreach (XTrade::getSmsSignalReceivers() as $receiver) {
                     XTrade::sendSms($receiver, $smsMsg);
@@ -587,7 +566,14 @@ class SimpleTrader extends StaticClass {
 
 
     /**
-     * Handler fuer PositionChange-Events eines SimpleTrader-Signals.
+     * Handle "PositionChange" events.
+     *
+     * @param  Signal $signal
+     * @param  string $symbol
+     * @param  array  $report
+     * @param  int    $iFirstNewRow
+     * @param  string $oldNetPosition
+     * @param  string $newNetPosition
      */
     public static function onPositionChange(Signal $signal, $symbol, array $report, $iFirstNewRow, $oldNetPosition, $newNetPosition) {
         if (!$signal->isPersistent())    throw new InvalidArgumentException('Cannot process non-persistent '.get_class($signal));
@@ -614,8 +600,7 @@ class SimpleTrader extends StaticClass {
         $msg .= "\nnow: ".str_replace('  ', ' ', $newNetPosition);
         $msg .= "\n".date('(H:i:s)', $lastTradeTime);               // XTrade::fxtDate($lastTradeTime, '(H:i:s)')
 
-
-        // Benachrichtigung per E-Mail
+        // notify by e-mail
         try {
             foreach (XTrade::getMailSignalReceivers() as $receiver) {
                 mail($receiver, $subject, $msg);
@@ -623,12 +608,11 @@ class SimpleTrader extends StaticClass {
         }
         catch (\Exception $ex) { Logger::log($ex, L_ERROR); }
 
-
-        // Benachrichtigung per SMS, wenn das Event zur Laufzeit des Scriptes eintrat
+        // notify by text message if the event occurred at script runtime
         if ($lastTradeTime >= $_SERVER['REQUEST_TIME']) {
             try {
-                // Warnung, wenn der letzte Trade aelter als 2 Minuten ist (von SimpleTrader also verzoegert publiziert wurde)
-                if (($now=time()) > $lastTradeTime+2*MINUTES) $msg = 'WARN: '.$msg.', detected at '.date('H:i:s', $now);    // XTrade::fxtDate($now, 'H:i:s')
+                // warn if the last trade is older than 2 minutes (trade was published with delay)
+                if (($now=time()) > $lastTradeTime+2*MINUTES) $msg = 'WARN: '.$msg.', detected at '.date('H:i:s', $now); // XTrade::fxtDate($now, 'H:i:s')
 
                 foreach (XTrade::getSmsSignalReceivers() as $receiver) {
                     XTrade::sendSms($receiver, $msg);

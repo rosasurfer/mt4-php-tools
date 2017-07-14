@@ -28,7 +28,7 @@ class MyfxBook extends StaticClass {
 
 
     /**
-     * Load the CSV account statement for the specified Signal.
+     * Load the CSV account statement for the specified {@link Signal}.
      *
      * @param  Signal $signal
      *
@@ -48,17 +48,17 @@ class MyfxBook extends StaticClass {
         // simulate standard web browser
         if (!$config=Config::getDefault()) throw new RuntimeException('Service locator returned invalid default config: '.getType($config));
         $request = HttpRequest::create()
-                                     ->setUrl($url)
-                                     ->setHeader('User-Agent'     ,  $config->get('xtrade.useragent')                                )
-                                     ->setHeader('Accept'         , 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
-                                     ->setHeader('Accept-Language', 'en-us'                                                          )
-                                     ->setHeader('Accept-Charset' , 'ISO-8859-1,utf-8;q=0.7,*;q=0.7'                                 )
-                                     ->setHeader('Connection'     , 'keep-alive'                                                     )
-                                     ->setHeader('Cache-Control'  , 'max-age=0'                                                      )
-                                     ->setHeader('Referer'        ,  $referer                                                        );
+                              ->setUrl($url)
+                              ->setHeader('User-Agent'     ,  $config->get('xtrade.useragent')                                )
+                              ->setHeader('Accept'         , 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
+                              ->setHeader('Accept-Language', 'en-us'                                                          )
+                              ->setHeader('Accept-Charset' , 'ISO-8859-1,utf-8;q=0.7,*;q=0.7'                                 )
+                              ->setHeader('Connection'     , 'keep-alive'                                                     )
+                              ->setHeader('Cache-Control'  , 'max-age=0'                                                      )
+                              ->setHeader('Referer'        ,  $referer                                                        );
 
         // use cookies from the specified file
-        $cookieFile = dirName(realPath($_SERVER['PHP_SELF'])).DIRECTORY_SEPARATOR.'cookies.txt';
+        $cookieFile = dirName(realPath($_SERVER['PHP_SELF'])).'/cookies.txt';
         $options[CURLOPT_COOKIEFILE] = $cookieFile;                    // read cookies from
         $options[CURLOPT_COOKIEJAR ] = $cookieFile;                    // write cookies to
       //$options[CURLOPT_VERBOSE   ] = true;                           // enable debugging
@@ -84,9 +84,9 @@ class MyfxBook extends StaticClass {
      * Parse a MyfxBook CSV account statement.
      *
      * @param  Signal $signal
-     * @param  string $csv       - content of account statement
-     * @param  array  $positions - target array to store open positions in
-     * @param  array  $history   - target array to store the account history in
+     * @param  string $csv       [in]  - content of account statement
+     * @param  array  $positions [out] - target array to store open positions in
+     * @param  array  $history   [out] - target array to store the account history in
      *
      * @return string - NULL or error message if an error occurred
      */
@@ -105,7 +105,7 @@ class MyfxBook extends StaticClass {
         $csvDateFormat = '!m/d/Y H:i';
 
         // validate values of each line
-        for ($i=0; ($line=strTok($separator))!==false; $i++) {         // strTok() skips empty lines
+        for ($i=0; ($line=strTok($separator))!==false; $i++) {          // strTok() skips empty lines
             $values = explode(',', $line);
             if (sizeOf($values) != 27) throw new RuntimeException('Unexpected number of values in line '.($i+2).' of CSV statement: '.sizeOf($values));
 
@@ -188,13 +188,13 @@ class MyfxBook extends StaticClass {
 
 
     /**
-     * Comparator function comparing trades by open time.
+     * Comparator function comparing two trades by open time.
      *
      * @param  array $tradeA
      * @param  array $tradeB
      *
-     * @return int - value greater than zero if $tradeA was opened after $tradeB;
-     *               value lower than zero if $tradeA was opened before $tradeB;
+     * @return int - positive value if $tradeA was opened after $tradeB;
+     *               negative value if $tradeA was opened before $tradeB;
      *               0 (zero) if both trades were opened at the same time
      */
     private static function compareTradesByOpenTime(array $tradeA, array $tradeB) {
@@ -208,14 +208,14 @@ class MyfxBook extends StaticClass {
 
 
     /**
-     * Comparator function comparing trades first by close time. If close times are equal trades are compared by open time.
+     * Comparator function comparing two trades. First compare by close time. If considered equal compare by open time.
      *
      * @param  array $tradeA
      * @param  array $tradeB
      *
-     * @return int - value greater than zero if $tradeA was closed after $tradeB;
-     *               value lower than zero if $tradeA was closed before $tradeB;
-     *               0 (zero) if both trades werde opened and closed at the same times
+     * @return int - positive value if $tradeA was closed after $tradeB;
+     *               negative value if $tradeA was closed before $tradeB;
+     *               0 (zero) if both trades were opened and closed at the same times
      */
     private static function compareTradesByCloseTimeOpenTime(array $tradeA, array $tradeB) {
         if (!$tradeA) return $tradeB ? -1 : 0;
