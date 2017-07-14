@@ -27,8 +27,8 @@ use rosasurfer\xtrade\model\SignalDAO;
 
 use rosasurfer\xtrade\model\metatrader\Account;
 
-use rosasurfer\xtrade\simpletrader\DataNotFoundException;
 use rosasurfer\xtrade\simpletrader\SimpleTrader;
+use rosasurfer\xtrade\simpletrader\SimpleTraderException;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');
 
@@ -148,7 +148,7 @@ function processSignal($alias, $fileSyncOnly) {
                     return false;
                 break;
             }
-            catch (DataNotFoundException $ex) {
+            catch (SimpleTraderException $ex) {
                 if ($fullHistory) throw $ex;              // Fehler weiterreichen, wenn er mit kompletter History auftrat
 
                 // Zaehler zuruecksetzen und komplette History laden
@@ -182,7 +182,7 @@ function processSignal($alias, $fileSyncOnly) {
  *
  * @return bool - Erfolgsstatus
  *
- * @throws DataNotFoundException - wenn die aelteste geschlossene Position lokal nicht vorhanden ist (auch beim ersten Synchronisieren)
+ * @throws SimpleTraderException - wenn die aelteste geschlossene Position lokal nicht vorhanden ist (auch beim ersten Synchronisieren)
  *                               - wenn eine beim letzten Synchronisieren offene Position weder als offen noch als geschlossen angezeigt wird
  */
 function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpdates, array &$currentHistory, &$closedUpdates, $fullHistory) {   // die zusaetzlichen Zeiger minimieren den Speicherverbrauch
@@ -211,7 +211,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
                 if (!$data) continue;                                    // Datensaetze uebersprungener Zeilen koennen leer sein.
                 $ticket = $data['ticket'];
                 if (!$closedPositionDao->isTicket($signal, $ticket))
-                    throw new DataNotFoundException('Closed position #'.$ticket.' not found locally');
+                    throw new SimpleTraderException('Closed position #'.$ticket.' not found locally');
                 break;
             }
         }
@@ -386,7 +386,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
                 $errorMsg = 'Found '.sizeOf($formerOpenPositions).' former open position'.pluralize(sizeOf($formerOpenPositions))
                              ." now neither in \"openTrades\" nor in \"history\":\n".printPretty($formerOpenPositions, true);
             }
-            throw new DataNotFoundException($errorMsg);
+            throw new SimpleTraderException($errorMsg);
         }
 
 
