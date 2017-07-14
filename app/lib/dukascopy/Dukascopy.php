@@ -79,9 +79,9 @@ class Dukascopy extends StaticClass {
      *
      * @return string - decompressed file content
      */
-    public static function decompressHistoryFile($compressedFile, $saveAsFile = null) {
+    public static function decompressHistoryFile($compressedFile, $saveAs = null) {
         if (!is_string($compressedFile)) throw new IllegalTypeException('Illegal type of parameter $compressedFile: '.getType($compressedFile));
-        return self::decompressHistoryData(file_get_contents($compressedFile), $saveAsFile);
+        return self::decompressHistoryData(file_get_contents($compressedFile), $saveAs);
     }
 
 
