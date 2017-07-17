@@ -23,51 +23,112 @@ use const rosasurfer\xtrade\PERIOD_W1;
 
 
 /**
- * Object-Wrapper fuer eine MT4-History-Datei ("*.hst")
+ * Object wrapping a single MT4 history file ("*.hst").
  */
 class HistoryFile extends Object {
 
-    protected /*int               */ $hFile;                        // File-Handle einer geoeffneten Datei
-    protected /*string            */ $fileName;                     // einfacher Dateiname
-    protected /*string            */ $serverName;                   // einfacher Servername
-    protected /*string            */ $serverDirectory;              // vollstaendiger Name des Serververzeichnisses
-    protected /*bool              */ $closed = false;               // ob die Instanz geschlossen und seine Resourcen freigegeben sind
 
-    protected /*HistoryHeader     */ $hstHeader;
-    protected /*int               */ $period;                       // Timeframe der Datei
-    protected /*int               */ $pointsPerUnit;                // Preisumrechnung, z.B.: Digits=2 => pointsPerUnit=100
-    protected /*float             */ $pointSize;                    // Preisumrechnung, z.B.: Digits=2 => pointSize=0.01
+    /** @var int - handle of an open history file */
+    protected $hFile;
 
-    protected /*string            */ $barPackFormat;                // Formatstring fuer pack()
-    protected /*string            */ $barUnpackFormat;              // Formatstring fuer unpack()
-    protected /*int               */ $barSize       = 0;            // Groesse einer Bar entsprechend dem Datenformat
-    protected /*XTRADE_PRICE_BAR[]*/ $barBuffer     = [];           // Schreibbuffer
-    protected /*int               */ $barBufferSize = 10000;        // Default-Groesse des Schreibbuffers
+    /** @var string - simple history file name */
+    protected $fileName;
 
-    // Metadaten: gespeichert
-    protected /*int               */ $stored_bars           =  0;   // Anzahl der gespeicherten Bars der Datei
-    protected /*int               */ $stored_from_offset    = -1;   // Offset der ersten gespeicherten Bar der Datei
-    protected /*int               */ $stored_from_openTime  =  0;   // OpenTime der ersten gespeicherten Bar der Datei
-    protected /*int               */ $stored_from_closeTime =  0;   // CloseTime der ersten gespeicherten Bar der Datei
-    protected /*int               */ $stored_to_offset      = -1;   // Offset der letzten gespeicherten Bar der Datei
-    protected /*int               */ $stored_to_openTime    =  0;   // OpenTime der letzten gespeicherten Bar der Datei
-    protected /*int               */ $stored_to_closeTime   =  0;   // CloseTime der letzten gespeicherten Bar der Datei
-    protected /*int               */ $stored_lastSyncTime   =  0;   // Zeitpunkt, bis zu dem die gespeicherten Daten der Datei synchronisiert wurden
+    /** @var string - simple server name */
+    protected $serverName;
 
-    // Metadaten: gespeichert + ungespeichert
-    protected /*int               */ $full_bars             =  0;   // Anzahl der Bars der Datei inkl. ungespeicherter Daten im Schreibpuffer
-    protected /*int               */ $full_from_offset      = -1;   // Offset der ersten Bar der Datei inkl. ungespeicherter Daten im Schreibpuffer
-    protected /*int               */ $full_from_openTime    =  0;   // OpenTime der ersten Bar der Datei inkl. ungespeicherter Daten im Schreibpuffer
-    protected /*int               */ $full_from_closeTime   =  0;   // CloseTime der ersten Bar der Datei inkl. ungespeicherter Daten im Schreibpuffer
-    protected /*int               */ $full_to_offset        = -1;   // Offset der letzten Bar der Datei inkl. ungespeicherter Daten im Schreibpuffer
-    protected /*int               */ $full_to_openTime      =  0;   // OpenTime der letzten Bar der Datei inkl. ungespeicherter Daten im Schreibpuffer
-    protected /*int               */ $full_to_closeTime     =  0;   // CloseTime der letzten Bar der Datei inkl. ungespeicherter Daten im Schreibpuffer
-    protected /*int               */ $full_lastSyncTime     =  0;   // Zeitpunkt, bis zu dem die kompletten Daten der Datei synchronisiert wurden
+    /** @var string - full server directory name */
+    protected $serverDirectory;
 
-    /**
-     * OpenTime der letzten angefuegten M1-Daten zur Validierung in $this->append*()
-     */
-    protected /*int*/ $lastM1DataTime = 0;
+    /** @var bool - whether or not the history file is closed and all instance resources are released */
+    protected $closed = false;
+
+
+    /** @var HistoryHeader */
+    protected $hstHeader;
+
+    /** @var int - history file timeframe */
+    protected $period;
+
+    /** @var int - e.g. if Digits=2 then pointsPerUnit=100 */
+    protected $pointsPerUnit;
+
+    /** @var float - e.g. if Digits=2 then pointSize=0.01 */
+    protected $pointSize;
+
+
+    /** @var string - pack() format string */
+    protected $barPackFormat;
+
+    /** @var string - unpack() format string */
+    protected $barUnpackFormat;
+
+    /** @var int - bar size in bytes according to the data format */
+    protected $barSize = 0;
+
+    /** @var array[] - XTRADE_PRICE_BAR[]: internal write buffer */
+    protected $barBuffer = [];
+
+    /** @var int - internal write buffer default size */
+    protected $barBufferSize = 10000;
+
+
+    // metadata of stored bars
+
+    /** @var int - number of stored bars */
+    protected $stored_bars = 0;
+
+    /** @var int - offset of the first stored bar */
+    protected $stored_from_offset = -1;
+
+    /** @var int - open time of the first stored bar */
+    protected $stored_from_openTime = 0;
+
+    /** @var int - close time of the first stored bar */
+    protected $stored_from_closeTime = 0;
+
+    /** @var int - offset of the last stored bar */
+    protected $stored_to_offset = -1;
+
+    /** @var int - open time of the last stored bar */
+    protected $stored_to_openTime = 0;
+
+    /** @var int - close time of the last stored bar */
+    protected $stored_to_closeTime = 0;
+
+    /** @var int - time until stored bar data is synchronized (last synchronization time) */
+    protected $stored_lastSyncTime = 0;
+
+
+    // metadata of stored and unstored (buffered) bars
+
+    /** @var int - number of stored and unstored (buffered) bars */
+    protected $full_bars = 0;
+
+    /** @var int - offset of the first bar (incl. buffered bars) */
+    protected $full_from_offset = -1;
+
+    /** @var int - open time of the first bar (incl. buffered bars) */
+    protected $full_from_openTime = 0;
+
+    /** @var int - close time of the first bar (incl. buffered bars) */
+    protected $full_from_closeTime = 0;
+
+    /** @var int - offset of the last bar (incl. buffered bars) */
+    protected $full_to_offset = -1;
+
+    /** @var int - open time of the last bar (incl. buffered bars) */
+    protected $full_to_openTime = 0;
+
+    /** @var int - close time of the last bar (incl. buffered bars) */
+    protected $full_to_closeTime = 0;
+
+    /** @var int - time until all bar data is synchronized (last synchronization time incl. buffered bars) */
+    protected $full_lastSyncTime = 0;
+
+
+    /** @var int - open time of the lats added M1 data; used for validation in $this->append*() */
+    protected $lastM1DataTime = 0;
 
 
     // Getter
