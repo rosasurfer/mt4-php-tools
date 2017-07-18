@@ -1,5 +1,5 @@
 #
-# alias phpstan='php7 -d memory_limit=128M /path/to/phpstan/bin/phpstan --ansi'
+# alias phpstan='php7 -d memory_limit=256M -d short_open_tag=On /path/to/phpstan/bin/phpstan --ansi'
 #
 # phpstan analyse -a etc/phpstan/autoload.php -c etc/phpstan/config.neon --level=0 [--] <path>
 #
