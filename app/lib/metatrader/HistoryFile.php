@@ -66,7 +66,7 @@ class HistoryFile extends Object {
     /** @var int - bar size in bytes according to the data format */
     protected $barSize = 0;
 
-    /** @var array[] - XTRADE_PRICE_BAR[]: internal write buffer */
+    /** @var array[] - internal write buffer (XTRADE_PRICE_BAR[]) */
     protected $barBuffer = [];
 
     /** @var int - internal write buffer default size */
@@ -278,6 +278,8 @@ class HistoryFile extends Object {
      *
      *  new HistoryFile($fileName)                                               <br>
      *  new HistoryFile($symbol, $timeframe, $digits, $format, $serverDirectory) <br>
+     *
+     * @param  array $args
      */
     public function __construct(...$args) {
         $argc = sizeof($args);
@@ -316,7 +318,7 @@ class HistoryFile extends Object {
         $barSize = $this->getVersion()==400 ? MT4::HISTORY_BAR_400_SIZE : MT4::HISTORY_BAR_401_SIZE;
         if ($trailing=($fileSize-HistoryHeader::SIZE) % $barSize)                           throw new MetaTraderException('filesize.trailing: Corrupted file "'.$fileName.'": '.$trailing.' trailing bytes');
 
-        // read/initalize metadata
+        // read and initialize the file's metadata
         $this->initMetaData();
     }
 
@@ -326,13 +328,11 @@ class HistoryFile extends Object {
      *
      * Create a new instance and reset an existing MT4 history file. Existing data is dismissed.
      *
-     * @param  string $symbol          - Symbol
-     * @param  int    $timeframe       - Timeframe
-     * @param  int    $digits          - Digits
-     * @param  int    $format          - Speicherformat der Datenreihe:
-     *                                   - 400 - MetaTrader <= Build 509
-     *                                   - 401 - MetaTrader  > Build 509
-     * @param  string $serverDirectory - Speicherort der Datei
+     * @param  string $symbol          - symbol
+     * @param  int    $timeframe       - timeframe
+     * @param  int    $digits          - digits
+     * @param  int    $format          - file format: 400=MT4 <= build 509; 401=MT4 > build 509
+     * @param  string $serverDirectory - full server directory (storage location)
      */
     private function __construct2($symbol, $timeframe, $digits, $format, $serverDirectory) {
         if (!is_string($symbol))                      throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
@@ -348,19 +348,19 @@ class HistoryFile extends Object {
         $this->serverName      = baseName($this->serverDirectory);
         $this->fileName        = $symbol.$timeframe.'.hst';
 
-        // HistoryFile erzeugen bzw. zuruecksetzen und Header neuschreiben
+        // rewrite history file and header
         mkDirWritable($this->serverDirectory);
         $fileName    = $this->serverDirectory.'/'.$this->fileName;
         $this->hFile = fOpen($fileName, 'wb');                      // FILE_WRITE
         $this->writeHistoryHeader();
 
-        // Metadaten einlesen und initialisieren
+        // read and initialize the file's metadata
         $this->initMetaData();
     }
 
 
     /**
-     * Liest die Metadaten der Datei aus und initialisiert die lokalen Variablen. Aufruf nur aus einem Constructor.
+     * Read the file's metadata and initialize local vars. Called only by a constructor.
      */
     private function initMetaData() {
         $this->period          = $this->hstHeader->getPeriod();
@@ -388,7 +388,7 @@ class HistoryFile extends Object {
             $to_openTime    = $barTo['time'];
             $to_closeTime   = XTrade::periodCloseTime($to_openTime, $this->period);
 
-            // Metadaten: gespeicherte Bars
+            // metadata: stored bars
             $this->stored_bars           = $bars;
             $this->stored_from_offset    = $from_offset;
             $this->stored_from_openTime  = $from_openTime;
@@ -398,7 +398,7 @@ class HistoryFile extends Object {
             $this->stored_to_closeTime   = $to_closeTime;
             $this->stored_lastSyncTime   = $this->hstHeader->getLastSyncTime();
 
-            // Metadaten: gespeicherte + gepufferte Bars
+            // metadata: stored and unstored (buffered) bars
             $this->full_bars             = $this->stored_bars;
             $this->full_from_offset      = $this->stored_from_offset;
             $this->full_from_openTime    = $this->stored_from_openTime;
@@ -408,7 +408,7 @@ class HistoryFile extends Object {
             $this->full_to_closeTime     = $this->stored_to_closeTime;
             $this->full_lastSyncTime     = $this->stored_lastSyncTime;
 
-            $this->lastM1DataTime = max($to_closeTime, $this->stored_lastSyncTime) - 1*MINUTE;    // die letzte Bar kann noch offen sein
+            $this->lastM1DataTime = max($to_closeTime, $this->stored_lastSyncTime) - 1*MINUTE;  // the last bar might not yet be finished
         }
     }
 
@@ -416,11 +416,9 @@ class HistoryFile extends Object {
     /**
      * Destructor
      *
-     * Sorgt bei Zerstoerung des Objekts dafuer, dass der Schreibbuffer einer offenen Historydatei geleert und die Datei geschlossen wird.
+     * Make sure the write buffer is emptied and the file is closed.
      */
     public function __destruct() {
-        // Attempting to throw an exception from a destructor during script shutdown causes a fatal error.
-        // @see http://php.net/manual/en/language.oop5.decon.php
         try {
             !$this->isClosed() && $this->close();
         }
@@ -431,20 +429,20 @@ class HistoryFile extends Object {
 
 
     /**
-     * Schliesst dieses HistoryFile. Gibt die Resourcen dieser Instanz frei. Nach dem Aufruf kann die Instanz nicht mehr verwendet werden.
+     * Close the HistoryFile and release allocated resources. Afterwards the instance cannot be used anymore.
      *
-     * @return bool - Erfolgsstatus; FALSE, wenn die Instanz bereits geschlossen war
+     * @return bool - success status; FALSE if the instance was already closed
      */
     public function close() {
         if ($this->isClosed())
             return false;
 
-        // Barbuffer leeren
+        // empty the bar buffer
         if ($this->barBuffer) {
             $this->flush();
         }
 
-        // Datei schliessen
+        // close the file
         if (is_resource($this->hFile)) {
             $hTmp=$this->hFile; $this->hFile=null;
             fClose($hTmp);
@@ -454,9 +452,9 @@ class HistoryFile extends Object {
 
 
     /**
-     * Setzt die Buffergroesse fuer vor dem Schreiben zwischenzuspeichernde Bars dieser Instanz.
+     * Set the size of the write buffer.
      *
-     * @param  int $size - Buffergroesse
+     * @param  int $size - buffer size
      */
     public function setBarBufferSize($size) {
         if ($this->closed)  throw new IllegalStateException('Cannot process a closed '.__CLASS__);
@@ -468,13 +466,13 @@ class HistoryFile extends Object {
 
 
     /**
-     * Gibt die Bar am angegebenen Offset der Historydatei zurueck.
+     * Return the bar at the specified bar offset.
      *
      * @param  int $offset
      *
-     * @return array|null - XTRADE_PRICE_BAR, wenn die Bar im Schreibbuffer liegt
-     *                      HISTORY_BAR,      wenn die Bar aus der Datei gelesen wurde
-     *                      NULL,             wenn keine solche Bar existiert (Offset ist groesser als die Anzahl der Bars der Datei)
+     * @return array|null - XTRADE_PRICE_BAR if the bar was not yet stored and is returned from the write buffer
+     *                      HISTORY_BAR      if the bar was stored and is returned from the history file
+     *                      NULL             if no such bar exists (offset is larger than the file's number of bars)
      *
      * @see  HistoryFile::getXTradeBar()
      * @see  HistoryFile::getHistoryBar()
@@ -483,26 +481,25 @@ class HistoryFile extends Object {
         if (!is_int($offset)) throw new IllegalTypeException('Illegal type of parameter $offset: '.getType($offset));
         if ($offset < 0)      throw new InvalidArgumentException('Invalid parameter $offset: '.$offset);
 
-        if ($offset >= $this->full_bars)                                           // bar[$offset] existiert nicht
+        if ($offset >= $this->full_bars)                                        // bar[$offset] does not exist
             return null;
 
-        if ($offset > $this->stored_to_offset)                                     // bar[$offset] liegt in buffered Bars (XTRADE_PRICE_BAR)
+        if ($offset > $this->stored_to_offset)                                  // bar[$offset] is a buffered bar (XTRADE_PRICE_BAR)
             return $this->barBuffer[$offset-$this->stored_to_offset-1];
 
         fFlush($this->hFile);
-        fSeek($this->hFile, HistoryHeader::SIZE + $offset*$this->barSize);         // bar[$offset] liegt in stored Bars (HISTORY_BAR)
+        fSeek($this->hFile, HistoryHeader::SIZE + $offset*$this->barSize);      // bar[$offset] is a stored bar (HISTORY_BAR)
         return unpack($this->barUnpackFormat, fRead($this->hFile, $this->barSize));
     }
 
 
     /**
-     * Gibt den Offset eines Zeitpunktes innerhalb dieser Historydatei zurueck. Dies ist die Position (Index), an der eine Bar
-     * mit der angegebenen OpenTime in dieser Historydatei einsortiert werden wuerde.
+     * Return the bar offset of a time. This is the bar position a bar with the specified open time would be inserted.
      *
-     * @param  int $time - Zeitpunkt
+     * @param  int $time - time
      *
-     * @return int - Offset oder -1, wenn der Zeitpunkt juenger als die juengste Bar ist. Zum Schreiben einer Bar mit dieser
-     *               Zeit muss die Datei vergroessert werden.
+     * @return int - Offset or -1 if $time is younger than the youngest bar. To write a bar at offset -1 the history file
+     *               has to be expanded.
      */
     public function findTimeOffset($time) {
         if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
@@ -514,8 +511,8 @@ class HistoryFile extends Object {
         $barTo   = ['time' => $this->full_to_openTime  ];
         $i       = -1;
 
-        while (true) {                                                       // Zeitfenster von Beginn- und Endbar rekursiv bis zum
-            if ($barFrom['time'] >= $time) {                                  // gesuchten Zeitpunkt verkleinern
+        while (true) {                                              // walk through the bar range and recursively reduce the
+            if ($barFrom['time'] >= $time) {                        // bar range
                 $i = $iFrom;
                 break;
             }
@@ -524,7 +521,7 @@ class HistoryFile extends Object {
                 break;
             }
 
-            $midSize = (int) ceil($size/2);                                   // Fenster halbieren
+            $midSize = (int) ceil($size/2);                         // cut remaining range into halves
             $iMid    = $iFrom + $midSize - 1;
             $barMid  = $this->getBar($iMid);
 
