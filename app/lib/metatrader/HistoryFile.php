@@ -494,11 +494,12 @@ class HistoryFile extends Object {
 
 
     /**
-     * Return the bar offset of a time. This is the bar position a bar with the specified open time would be inserted.
+     * Return the offset of the bar matching the specified open time. This is the bar position a bar with the specified open
+     * time would be inserted.
      *
      * @param  int $time - time
      *
-     * @return int - Offset or -1 if $time is younger than the youngest bar. To write a bar at offset -1 the history file
+     * @return int - Offset or -1 if the time is younger than the youngest bar. To write a bar at offset -1 the history file
      *               has to be expanded.
      */
     public function findTimeOffset($time) {
@@ -534,11 +535,11 @@ class HistoryFile extends Object {
 
 
     /**
-     * Gibt den Offset der Bar dieser Historydatei zurueck, die den angegebenen Zeitpunkt exakt abdeckt.
+     * Return the offset of the bar covering the specified time.
      *
-     * @param  int $time - Zeitpunkt
+     * @param  int $time - time
      *
-     * @return int - Offset oder -1, wenn keine solche Bar existiert
+     * @return int - offset or -1 if no such bar exists
      */
     public function findBarOffset($time) {
         if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
@@ -549,40 +550,40 @@ class HistoryFile extends Object {
 
         $offset = $this->findTimeOffset($time);
 
-        if ($offset < 0) {                                              // Zeitpunkt liegt nach der juengsten bar[openTime]
+        if ($offset < 0) {                                          // time is younger than the youngest [openTime]
             $closeTime = $this->full_to_closeTime;
-            if ($time < $closeTime)                                     // Zeitpunkt liegt innerhalb der juengsten Bar
+            if ($time < $closeTime)                                 // time is covered by the youngest bar
                 return $size-1;
             return -1;
         }
 
         if ($offset == 0) {
-            if ($this->full_from_openTime == $time)                     // Zeitpunkt liegt exakt auf der aeltesten Bar
+            if ($this->full_from_openTime == $time)                 // time exactly matches the oldest bar
                 return 0;
-            return -1;                                                  // Zeitpunkt ist aelter die aelteste Bar
+            return -1;                                              // time is older than the oldest bar
         }
 
         $bar = $this->getBar($offset);
-        if ($bar['time'] == $time)                                      // Zeitpunkt liegt exakt auf der jeweiligen Bar
+        if ($bar['time'] == $time)                                  // time exactly matches the resolved bar
             return $offset;
         $offset--;
 
         $bar       = $this->getBar($offset);
         $closeTime = XTrade::periodCloseTime($bar['time'], $this->period);
 
-        if ($time < $closeTime)                                         // Zeitpunkt liegt in der vorhergehenden Bar
+        if ($time < $closeTime)                                     // time is covered by the previous bar
             return $offset;
-        return -1;                                                      // Zeitpunkt liegt nicht in der vorhergehenden Bar,
-    }                                                                   // also Luecke zwischen der vorhergehenden und der
-                                                                        // folgenden Bar
+        return -1;                                                  // time isn't covered by the previous bar meaning there's
+    }                                                               // a gap between the previous and the following bar
+
 
     /**
-     * Gibt den Offset der Bar dieser Historydatei zurueck, die den angegebenen Zeitpunkt abdeckt. Existiert keine solche Bar,
-     * wird der Offset der letzten vorhergehenden Bar zurueckgegeben.
+     * Return the offset of the bar covering the specified time. If no such bar exists return the offset of the last
+     * existing previous bar.
      *
-     * @param  int $time - Zeitpunkt
+     * @param  int $time - time
      *
-     * @return int - Offset oder -1, wenn keine solche Bar existiert (der Zeitpunkt ist aelter als die aelteste Bar)
+     * @return int - offset oder -1 if no such bar exists (i.e. time is older than the oldest bar)
      */
     public function findBarOffsetPrevious($time) {
         if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
@@ -592,24 +593,24 @@ class HistoryFile extends Object {
             return -1;
 
         $offset = $this->findTimeOffset($time);
-        if ($offset < 0)                                                           // Zeitpunkt liegt nach der juengsten bar[openTime]
+        if ($offset < 0)                                            // time is younger than the youngest bar[openTime]
             return $size-1;
 
         $bar = $this->getBar($offset);
 
-        if ($bar['time'] == $time)                                                 // Zeitpunkt liegt exakt auf der jeweiligen Bar
+        if ($bar['time'] == $time)                                  // time exactly matches the resolved bar
             return $offset;
-        return $offset - 1;                                                        // Zeitpunkt ist aelter als die Bar desselben Offsets
+        return $offset - 1;                                         // time is older than the resolved bar
     }
 
 
     /**
-     * Gibt den Offset der Bar dieser Historydatei zurueck, die den angegebenen Zeitpunkt abdeckt. Existiert keine solche Bar,
-     * wird der Offset der naechstfolgenden Bar zurueckgegeben.
+     * Return the offset of the bar covering the specified time. If no such bar exists return the offset of the next
+     * existing bar.
      *
-     * @param  int $time - Zeitpunkt
+     * @param  int $time - time
      *
-     * @return int - Offset oder -1, wenn keine solche Bar existiert (der Zeitpunkt ist juenger als das Ende der juengsten Bar)
+     * @return int - offset or -1 if no such bar exists (i.e. time is younger than the youngest bar)
      */
     public function findBarOffsetNext($time) {
         if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
@@ -620,25 +621,25 @@ class HistoryFile extends Object {
 
         $offset = $this->findTimeOffset($time);
 
-        if ($offset < 0) {                                              // Zeitpunkt liegt nach der juengsten bar[openTime]
+        if ($offset < 0) {                                          // time is younger than the youngest bar[openTime]
             $closeTime = $this->full_to_closeTime;
             return ($closeTime > $time) ? $size-1 : -1;
         }
-        if ($offset == 0)                                               // Zeitpunkt liegt vor oder exakt auf der ersten Bar
+        if ($offset == 0)                                           // time is older than or exactly matches the first bar
             return 0;
 
         $bar = $this->getBar($offset);
-        if ($bar['time'] == $time)                                      // Zeitpunkt stimmt mit bar[openTime] ueberein
+        if ($bar['time'] == $time)                                  // time exactly matches bar[openTime]
             return $offset;
 
-        $offset--;                                                      // Zeitpunkt liegt in der vorherigen oder zwischen der
-        $bar = $this->getBar($offset);                                  // vorherigen und der TimeOffset-Bar
+        $offset--;                                                  // time is within the previous bar or between the
+        $bar = $this->getBar($offset);                              // previous and the findTimeOffset() bar
 
         $closeTime = XTrade::periodCloseTime($bar['time'], $this->period);
-        if ($closeTime > $time)                                         // Zeitpunkt liegt innerhalb dieser vorherigen Bar
+        if ($closeTime > $time)                                     // time is within the previous bar
             return $offset;
-        return ($offset+1 < $size) ? $offset+1 : -1;                    // Zeitpunkt liegt nach bar[closeTime], also Luecke...
-    }                                                                   // zwischen der vorherigen und der folgenden Bar
+        return ($offset+1 < $size) ? $offset+1 : -1;                // time is younger than bar[closeTime] which means there
+    }                                                               // is a gap between the previous and the following bar
 
 
     /**
@@ -647,16 +648,16 @@ class HistoryFile extends Object {
      *
      * @param  int   $offset - If offset is zero or positive then the start of the removed bars is at that bar offset from
      *                         the beginning of the history. If offset is negative then removing starts that far from the end
-     *                         of the history.
+     *                         of the history. <br>
      *
      * @param  int   $length - If length is omitted everything from offset to the end of the history is removed. If length is
      *                         specified and is positive then that many bars will be removed. If length is specified and is
-     *                         negative then length bars at the end of the history  will be left.
+     *                         negative then length bars at the end of the history  will be left. <br>
      *
      * @param  array $bars   - XTRADE_PRICE_BAR data. If replacement bars are specified then the removed bars are replaced with
      *                         bars from this array. If offset and length are such that nothing is removed then the bars from
      *                         the replacement array are inserted at the specified offset. If offset is one greater than the
-     *                         greatest existing offset the replacement array is appended.
+     *                         greatest existing offset the replacement array is appended. <br>
      *
      * Examples: - HistoryFile->spliceBars(0, 1)  removes the first bar
      *           - HistoryFile->spliceBars(-1)    removes the last bar (to be exact: everything from the last bar to the end)
