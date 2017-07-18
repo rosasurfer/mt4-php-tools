@@ -31,10 +31,10 @@ class HistoryFile extends Object {
     /** @var int - handle of an open history file */
     protected $hFile;
 
-    /** @var string - simple history file name */
+    /** @var string - simple history file name (basename + extension) */
     protected $fileName;
 
-    /** @var string - simple server name */
+    /** @var string - server name */
     protected $serverName;
 
     /** @var string - full server directory name */
@@ -73,7 +73,7 @@ class HistoryFile extends Object {
     protected $barBufferSize = 10000;
 
 
-    // metadata of stored bars
+    // Metadata of stored bars
 
     /** @var int - number of stored bars */
     protected $stored_bars = 0;
@@ -100,7 +100,7 @@ class HistoryFile extends Object {
     protected $stored_lastSyncTime = 0;
 
 
-    // metadata of stored and unstored (buffered) bars
+    // Metadata of stored and unstored (buffered) bars
 
     /** @var int - number of stored and unstored (buffered) bars */
     protected $full_bars = 0;
@@ -131,44 +131,200 @@ class HistoryFile extends Object {
     protected $lastM1DataTime = 0;
 
 
-    // Getter
-    public function getFileName()        { return $this->fileName;                   }
-    public function getServerName()      { return $this->serverName;                 }
-    public function getServerDirectory() { return $this->serverDirectory;            }
-    public function isClosed()           { return (bool)$this->closed;               }
-
-    public function getVersion()         { return $this->hstHeader->getFormat();     }
-    public function getSymbol()          { return $this->hstHeader->getSymbol();     }
-    public function getPeriod()          { return $this->hstHeader->getPeriod();     }
-    public function getTimeframe()       { return $this->hstHeader->getPeriod();     }  // Alias
-    public function getDigits()          { return $this->hstHeader->getDigits();     }
-    public function getSyncMarker()      { return $this->hstHeader->getSyncMarker(); }
-    public function getLastSyncTime()    { return $this->full_lastSyncTime;          }
-
-    public function getPointSize()       { return $this->pointSize;                  }
-    public function getPointsPerUnit()   { return $this->pointsPerUnit;              }
+    /**
+     * Return the simple history file name (basename + extension).
+     *
+     * @return string
+     */
+    public function getFileName() {
+        return $this->fileName;
+    }
 
 
     /**
-     * Ueberladener Constructor.
+     * Return the history file's server name.
      *
-     * Signaturen:
-     * -----------
-     * new HistoryFile($symbol, $timeframe, $digits, $format, $serverDirectory)
-     * new HistoryFile($fileName)
+     * @return string
      */
-    public function __construct($arg1=null, $arg2=null, $arg3=null, $arg4=null, $arg5=null) {
-        $argc = func_num_args();
-        if      ($argc == 5) $this->__construct_1($arg1, $arg2, $arg3, $arg4, $arg5);
-        else if ($argc == 1) $this->__construct_2($arg1);
+    public function getServerName() {
+        return $this->serverName;
+    }
+
+
+    /**
+     * Return the history file's full server directory name.
+     *
+     * @return string
+     */
+    public function getServerDirectory() {
+        return $this->serverDirectory;
+    }
+
+
+    /**
+     * Whether or not the history file is closed and all instance resources are released.
+     *
+     * @return bool
+     */
+    public function isClosed() {
+        return (bool)$this->closed;
+    }
+
+
+    /**
+     * Return the history file's last synchronization time (stored and unstored bars).
+     *
+     * @return int
+     */
+    public function getLastSyncTime() {
+        return $this->full_lastSyncTime;
+    }
+
+
+    /**
+     * Return the history file's point size (e.g. if dgits=2 then pointSize=0.01).
+     *
+     * @return float
+     */
+    public function getPointSize() {
+        return $this->pointSize;
+    }
+
+
+    /**
+     * Return the history file's points per unit (e.g. if digits=2 then pointsPerUnit=100).
+     *
+     * @return int
+     */
+    public function getPointsPerUnit() {
+        return $this->pointsPerUnit;
+    }
+
+
+    /**
+     * Return the history file's header.
+     *
+     * @return HistoryHeader
+     */
+    public function getHistoryHeader() {
+        return $this->hstHeader;
+    }
+
+
+    /**
+     * Return the history file's format identifier as stored in the {@link HistoryHeader}.
+     *
+     * @return int
+     */
+    public function getVersion() {
+        return $this->hstHeader->getFormat();
+    }
+
+
+    /**
+     * Return the history file's symbol as stored in the {@link HistoryHeader}.
+     *
+     * @return string
+     */
+    public function getSymbol() {
+        return $this->hstHeader->getSymbol();
+    }
+
+
+    /**
+     * Return the history file's timeframe as stored in the {@link HistoryHeader}.
+     *
+     * @return int
+     */
+    public function getPeriod() {
+        return $this->hstHeader->getPeriod();
+    }
+
+
+    /**
+     * Alias of HistoryFile::getPeriod().
+     *
+     * Return the history file's timeframe as stored in the {@link HistoryHeader}.
+     *
+     * @return int
+     */
+    public function getTimeframe() {
+        return $this->hstHeader->getPeriod();
+    }
+
+
+    /**
+     * Return the history file's digits value as stored in the {@link HistoryHeader}.
+     *
+     * @return int
+     */
+    public function getDigits() {
+        return $this->hstHeader->getDigits();
+    }
+
+
+    /**
+     * Return the history file's synchronization marker as stored in the {@link HistoryHeader}.
+     *
+     * @return int
+     */
+    public function getSyncMarker() {
+        return $this->hstHeader->getSyncMarker();
+    }
+
+
+    /**
+     * Overloaded constructor with the following method signatures:
+     *
+     *  new HistoryFile($fileName)                                               <br>
+     *  new HistoryFile($symbol, $timeframe, $digits, $format, $serverDirectory) <br>
+     */
+    public function __construct(...$args) {
+        $argc = sizeof($args);
+        if      ($argc == 1) $this->__construct1(...$args);
+        else if ($argc == 5) $this->__construct2(...$args);
         else throw new InvalidArgumentException('Invalid number of arguments: '.$argc);
     }
 
 
     /**
-     * Constructor 1
+     * Overloaded constructor.
      *
-     * Erzeugt eine neue Instanz und setzt eine existierende Datei zurueck. Vorhandene Daten werden dabei geloescht.
+     * Create a new instance from an existing MT4 history file. Existing data is kept.
+     *
+     * @param  string $fileName - MT4 history file name
+     */
+    private function __construct1($fileName) {
+        if (!is_string($fileName)) throw new IllegalTypeException('Illegal type of parameter $fileName: '.getType($fileName));
+        if (!is_file($fileName))   throw new FileNotFoundException('Invalid parameter $fileName: "'.$fileName.'" (file not found)');
+
+        // resolve directory, file and server name
+        $realName              = realPath($fileName);
+        $this->fileName        = baseName($realName);
+        $this->serverDirectory = dirname ($realName);
+        $this->serverName      = baseName($this->serverDirectory);
+
+        // validate the file size
+        $fileSize = fileSize($fileName);
+        if ($fileSize < HistoryHeader::SIZE) throw new MetaTraderException('filesize.insufficient: Invalid or unsupported format of "'.$fileName.'": fileSize='.$fileSize.' (minFileSize='.HistoryHeader::SIZE.')');
+
+        // open file and read/validate the header
+        $this->hFile     = fOpen($fileName, 'r+b');               // FILE_READ|FILE_WRITE
+        $this->hstHeader = new HistoryHeader(fRead($this->hFile, HistoryHeader::SIZE));
+
+        if (!strCompareI($this->fileName, $this->getSymbol().$this->getTimeframe().'.hst')) throw new MetaTraderException('filename.mis-match: File name/symbol mis-match of "'.$fileName.'": header="'.$this->getSymbol().','.XTrade::periodDescription($this->getTimeframe()).'"');
+        $barSize = $this->getVersion()==400 ? MT4::HISTORY_BAR_400_SIZE : MT4::HISTORY_BAR_401_SIZE;
+        if ($trailing=($fileSize-HistoryHeader::SIZE) % $barSize)                           throw new MetaTraderException('filesize.trailing: Corrupted file "'.$fileName.'": '.$trailing.' trailing bytes');
+
+        // read/initalize metadata
+        $this->initMetaData();
+    }
+
+
+    /**
+     * Overloaded constructor.
+     *
+     * Create a new instance and reset an existing MT4 history file. Existing data is dismissed.
      *
      * @param  string $symbol          - Symbol
      * @param  int    $timeframe       - Timeframe
@@ -178,7 +334,7 @@ class HistoryFile extends Object {
      *                                   - 401 - MetaTrader  > Build 509
      * @param  string $serverDirectory - Speicherort der Datei
      */
-    private function __construct_1($symbol, $timeframe, $digits, $format, $serverDirectory) {
+    private function __construct2($symbol, $timeframe, $digits, $format, $serverDirectory) {
         if (!is_string($symbol))                      throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
         if (!strLen($symbol))                         throw new InvalidArgumentException('Invalid parameter $symbol: ""');
         if (strLen($symbol) > MT4::MAX_SYMBOL_LENGTH) throw new InvalidArgumentException('Invalid parameter $symbol: "'.$symbol.'" (max '.MT4::MAX_SYMBOL_LENGTH.' characters)');
@@ -197,40 +353,6 @@ class HistoryFile extends Object {
         $fileName    = $this->serverDirectory.'/'.$this->fileName;
         $this->hFile = fOpen($fileName, 'wb');                      // FILE_WRITE
         $this->writeHistoryHeader();
-
-        // Metadaten einlesen und initialisieren
-        $this->initMetaData();
-    }
-
-
-    /**
-     * Constructor 2
-     *
-     * Erzeugt eine neue Instanz anhand einer existierenden Datei. Vorhandene Daten werden nicht geloescht.
-     *
-     * @param  string $fileName - Name einer History-Datei
-     */
-    private function __construct_2($fileName) {
-        if (!is_string($fileName)) throw new IllegalTypeException('Illegal type of parameter $fileName: '.getType($fileName));
-        if (!is_file($fileName))   throw new FileNotFoundException('Invalid parameter $fileName: "'.$fileName.'" (file not found)');
-
-        // Verzeichnis- und Dateinamen speichern
-        $realName              = realPath($fileName);
-        $this->fileName        = baseName($realName);
-        $this->serverDirectory = dirname ($realName);
-        $this->serverName      = baseName($this->serverDirectory);
-
-        // Dateigroesse validieren
-        $fileSize = fileSize($fileName);
-        if ($fileSize < HistoryHeader::SIZE) throw new MetaTraderException('filesize.insufficient: Invalid or unsupported format of "'.$fileName.'": fileSize='.$fileSize.' (minFileSize='.HistoryHeader::SIZE.')');
-
-        // Datei oeffnen, Header einlesen und validieren
-        $this->hFile     = fOpen($fileName, 'r+b');               // FILE_READ|FILE_WRITE
-        $this->hstHeader = new HistoryHeader(fRead($this->hFile, HistoryHeader::SIZE));
-
-        if (!strCompareI($this->fileName, $this->getSymbol().$this->getTimeframe().'.hst')) throw new MetaTraderException('filename.mis-match: File name/symbol mis-match of "'.$fileName.'": header="'.$this->getSymbol().','.XTrade::periodDescription($this->getTimeframe()).'"');
-        $barSize = $this->getVersion()==400 ? MT4::HISTORY_BAR_400_SIZE : MT4::HISTORY_BAR_401_SIZE;
-        if ($trailing=($fileSize-HistoryHeader::SIZE) % $barSize)                           throw new MetaTraderException('filesize.trailing: Corrupted file "'.$fileName.'": '.$trailing.' trailing bytes');
 
         // Metadaten einlesen und initialisieren
         $this->initMetaData();
