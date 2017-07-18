@@ -9,7 +9,6 @@
         "email": "xtrade@rosasurfer.com" 
     }],
     "config": {
-        "vendor-dir":         "etc/vendor",
         "optimize-autoloader": true
     },
     "repositories": [

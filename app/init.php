@@ -3,7 +3,7 @@ use rosasurfer\Application;
 use rosasurfer\util\PHP;
 
 // class loader
-require(__DIR__.'/../etc/vendor/autoload.php');
+require(__DIR__.'/../vendor/autoload.php');
 
 
 // php.ini settings

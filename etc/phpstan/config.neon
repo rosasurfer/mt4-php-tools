@@ -7,14 +7,14 @@
 parameters:
     autoload_files:
         - etc/phpstan/function-stubs.php                            # stubs for PHP extensions and procedural code
-        - etc/vendor/rosasurfer/ministruts/etc/phpstan/function-stubs.php
+        - vendor/rosasurfer/ministruts/etc/phpstan/function-stubs.php
 
     fileExtensions:                                                 # additional files to analyse
        #- html
        #- phtml                                                     # TODO: Tile default vars trigger errors
 
     excludes_analyse:
-        - etc/vendor/
+        - vendor/
 
     reportUnmatchedIgnoredErrors:           false
     polluteScopeWithLoopInitialAssignments: true
