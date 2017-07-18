@@ -250,7 +250,7 @@ function saveBars($symbol, $day, array $bars, $partial = false) {
     // write binary data
     if ($saveRawXTradeData) {
         if (is_file($file=getVar('xtradeFile.pl.raw', $symbol, $day)))
-            return _false(echoPre('[Error]   PL series '.$symbol.' for '.gmDate('D, d-M-Y', $day).' already exists'));
+            return false(echoPre('[Error]   PL series '.$symbol.' for '.gmDate('D, d-M-Y', $day).' already exists'));
         mkDirWritable(dirName($file));
         $tmpFile = tempNam(dirName($file), baseName($file));
         $hFile   = fOpen($tmpFile, 'wb');

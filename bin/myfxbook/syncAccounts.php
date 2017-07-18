@@ -94,7 +94,7 @@ function processAccounts($alias) {
     }
 
     $signal = $signalDao->getByProviderAndAlias($provider='myfxbook', $alias);
-    if (!$signal) return _false(echoPre('Invalid or unknown signal: "'.$provider.':'.$alias.'"'));
+    if (!$signal) return false(echoPre('Invalid or unknown signal: "'.$provider.':'.$alias.'"'));
 
     global $signalNamePadding;                               // output formatting: whether or not the last function call
     static $positionsChanged=false, $historyChanged=false;   //                    detected open position/history changes

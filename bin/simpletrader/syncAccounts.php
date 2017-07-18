@@ -113,7 +113,7 @@ function processSignal($alias, $fileSyncOnly) {
     }
 
     $signal = $signalDao->getByProviderAndAlias($provider='simpletrader', $alias);
-    if (!$signal) return _false(echoPre('Invalid or unknown signal: "'.$provider.':'.$alias.'"'));
+    if (!$signal) return false(echoPre('Invalid or unknown signal: "'.$provider.':'.$alias.'"'));
 
     global $signalNamePadding;                               // output formatting: whether or not the last function call
     static $openUpdates=false, $closedUpdates=false;         //                    detected open trade/history changes
