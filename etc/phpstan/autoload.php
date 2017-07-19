@@ -11,6 +11,6 @@ include(__DIR__.'/../../vendor/rosasurfer/ministruts/etc/phpstan/Singleton_GetIn
 
 
 if (!\rosasurfer\util\PHP::ini_get_bool('short_open_tag')) {
-    echo 'Error: The PHP configuration value "short_open_tag" must be enabled (security).';
+    echo 'Error: The PHP configuration value "short_open_tag" must be enabled (security).'.PHP_EOL;
     exit(1);
 }
