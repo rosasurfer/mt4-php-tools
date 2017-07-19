@@ -195,12 +195,12 @@ var rosasurfer = {
         if (type == 'object') {
             if (arg === null) {
                 type = 'null';
-            }         
+            }
             else {
-                type = arg.constructor.name || arg.constructor.toString();  
+                type = arg.constructor.name || arg.constructor.toString();
                 if (type.startsWith('[object ')) {
                     type = type.slice(8, -1);
-                } 
+                }
             }
         }
         return type;
@@ -238,10 +238,10 @@ var rosasurfer = {
 
 
     /**
-     * Log a message. 
+     * Log a message.
      *
      * @param  mixed  msg
-     * @param  string target - Whether to log to the top (default) or the bottom of the page. 
+     * @param  string target - Whether to log to the top (default) or the bottom of the page.
      *                         The method will remember the last used 'target' parameter.
      */
     log: function log(msg, target/*='top'*/) {
@@ -267,7 +267,7 @@ var rosasurfer = {
         }
         if      (target=='top'   ) div.style.position = 'absolute';
         else if (target=='bottom') div.style.position = 'relative';
-        
+
         msg = typeof(msg)=='undefined' ? 'undefined' : msg.toString().replace(/ {2,}/g, function(match) {
             return '&nbsp;'.repeat(match.length);
         });
