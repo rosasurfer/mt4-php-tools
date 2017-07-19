@@ -8,3 +8,9 @@ include(__DIR__.'/../../vendor/rosasurfer/ministruts/etc/phpstan/DAO_FindAll_Ret
 include(__DIR__.'/../../vendor/rosasurfer/ministruts/etc/phpstan/PersistableObject_Dao_ReturnType.php');
 include(__DIR__.'/../../vendor/rosasurfer/ministruts/etc/phpstan/PersistableObject_PopulateNew_ReturnType.php');
 include(__DIR__.'/../../vendor/rosasurfer/ministruts/etc/phpstan/Singleton_GetInstance_ReturnType.php');
+
+
+if (!\rosasurfer\util\PHP::ini_get_bool('short_open_tag')) {
+    echo 'Error: The PHP configuration value "short_open_tag" must be enabled (security).';
+    exit(1);
+}
