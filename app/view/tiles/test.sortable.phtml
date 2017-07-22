@@ -12,7 +12,7 @@ $tests = Test::dao()->findAll('select * from :Test order by strategy, created, r
 <?foreach ($request->getActionErrors() as $value) {?><div class="alert alert-danger textcenter"><p><?=hsc($value)?></p></div><?}?>
 
 
-Found <?=$size=sizeOf($tests)?> test<?=pluralize($size)?>.
+Found <?=$size=sizeOf($tests)?> test<?=pluralize($size)?>
 
 <table id="testTable" class="tablesorter">
 <thead>

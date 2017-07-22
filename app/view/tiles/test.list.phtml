@@ -11,7 +11,7 @@ $tests = Test::dao()->findAll('select * from :Test order by strategy, created');
 
 
 <div class="panel panel-default">
-   <div class="panel-heading">Found <?=$size=sizeOf($tests)?> test<?=pluralize($size)?>.</div>
+   <div class="panel-heading">Found <?=$size=sizeOf($tests)?> test<?=pluralize($size)?></div>
 
    <table class="table table-striped table-hover table-bordered">
    <thead>
