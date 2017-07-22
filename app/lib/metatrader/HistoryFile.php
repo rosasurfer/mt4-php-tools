@@ -663,16 +663,16 @@ class HistoryFile extends Object {
      *
      * @example
      * <pre>
-     * HistoryFile->spliceBars(0, 1)        // remove the first bar
-     * HistoryFile->spliceBars(-1)          // remove the last bar
-     * HistoryFile->spliceBars(0, -2)       // remove all except the last two bars
+     * HistoryFile::spliceBars(0, 1)        // remove the first bar
+     * HistoryFile::spliceBars(-1)          // remove the last bar
+     * HistoryFile::spliceBars(0, -2)       // remove all except the last two bars
      * </pre>
      */
     public function spliceBars($offset, $length=0, array $replace=[]) {
         if (!is_int($offset)) throw new IllegalTypeException('Illegal type of parameter $offset: '.getType($offset));
         if (!is_int($length)) throw new IllegalTypeException('Illegal type of parameter $length: '.getType($length));
 
-        // determine absolute start offset: max. valid value for appending is one position after history end
+        // determine absolute start offset: max. value for appending is one position after history end
         if ($offset >= 0) {
             if ($offset > $this->full_bars)   throw new InvalidArgumentException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
             $fromOffset = $offset;
@@ -721,43 +721,46 @@ class HistoryFile extends Object {
 
 
     /**
-     * Entfernt einen Teil der Historydatei. Die Groesse der Datei wird entsprechend gekuerzt.
+     * Remove a part of the HistoryFile and shorten its file size.
      *
-     * @param  int $offset - If offset is zero or positive then the start of the removed bars is at that bar offset from the beginning
-     *                       of the history. If offset is negative then removing starts that far from the end of the history.
+     * @param  int $offset            - Start offset of the bars to remove with 0 (zero) pointing to the first bar from the
+     *                                  beginning (the oldest bar). If offset is negative then removing starts that far from
+     *                                  the end (the youngest bar). <br>
      *
-     * @param  int $length - If length is omitted everything from offset to the end of the history is removed. If length is specified
-     *                       and is positive then that many bars will be removed. If length is specified and is negative then length bars
-     *                       at the end of the history  will be left.
+     * @param  int $length [optional] - Number of bars to remove. If length is omitted everything from offset to the end of
+     *                                  the history (the youngest bar) is removed. If length is specified and is positive
+     *                                  then that many bars starting from offset will be removed. If length is specified and
+     *                                  is negative then all bars starting from offset will be removed except length bars at
+     *                                  the end of the history. <br>
      */
     public function removeBars($offset, $length=0) {
         if (!is_int($offset)) throw new IllegalTypeException('Illegal type of parameter $offset: '.getType($offset));
         if (!is_int($length)) throw new IllegalTypeException('Illegal type of parameter $length: '.getType($length));
 
-        // absoluten Startoffset ermitteln
+        // determine absolute start offset: max. value for appending is one position after history end
         if ($offset >= 0) {
-            if ($offset >= $this->full_bars)   throw new InvalidArgumentException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
+            if ($offset >= $this->full_bars)  throw new InvalidArgumentException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
             $fromOffset = $offset;
         }
         else if ($offset < -$this->full_bars) throw new InvalidArgumentException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
         else $fromOffset = $this->full_bars + $offset;
 
-        // Endoffset ermitteln
+        // determine absolute end offset
         $argc = func_num_args();
         if ($argc <= 1) {
             $toOffset = $this->full_to_offset;
         }
         else if ($length >= 0) {
             $toOffset = $fromOffset + $length - 1;
-            if ($toOffset > $this->full_to_offset)  throw new InvalidArgumentException('Invalid parameter $length='.$length.' at $offset='.$offset.' ('.$this->full_bars.' bars in history)');
+            if ($toOffset > $this->full_to_offset) throw new InvalidArgumentException('Invalid parameter $length='.$length.' at $offset='.$offset.' ('.$this->full_bars.' bars in history)');
         }
         else if ($length < $offset && $offset < 0) throw new InvalidArgumentException('Invalid parameter $length='.$length.' at $offset='.$offset.' ('.$this->full_bars.' bars in history)');
         else {
             $toOffset = $this->full_to_offset + $length;
-            if ($toOffset+1 < $fromOffset)          throw new InvalidArgumentException('Invalid parameter $length='.$length.' at $offset='.$offset.' ('.$this->full_bars.' bars in history)');
+            if ($toOffset+1 < $fromOffset)         throw new InvalidArgumentException('Invalid parameter $length='.$length.' at $offset='.$offset.' ('.$this->full_bars.' bars in history)');
         }
 
-        // absolute Laenge ermitteln
+        // determine absolute length
         $length = $toOffset - $fromOffset + 1;
         if (!$length) {                                         // nothing to do
             echoPre(__METHOD__.'()  $fromOffset='.$fromOffset.'  $toOffset='.$toOffset.'  $length='.$length.'  (nothing to do)');
@@ -771,18 +774,18 @@ class HistoryFile extends Object {
 
 
     /**
-     * Fuegt Bardaten am angebenen Offset einer Historydatei ein. Die Datei wird entsprechend vergroessert.
+     * Insert bars at the specified offset of the HistoryFile and increase its file size.
      *
-     * @param  int   $offset - If offset is zero or positive then the insertion point is at that bar offset from the
-     *                         beginning of the history. If offset is negative then the insertion point is that far from the
-     *                         end of the history.
+     * @param  int $offset - Bar offset to insert bars at with with 0 (zero) pointing to the first bar from the beginning
+     *                       (the oldest bar). If offset is negative then the bars are inserted that far from the end
+     *                       (the youngest bar). <br>
      *
-     * @param  array $bars   - einzufuegende XTRADE_PRICE_BAR[]-Daten
+     * @param  array $bars - bars to insert (XTRADE_PRICE_BAR[])
      */
     public function insertBars($offset, array $bars) {
         if (!is_int($offset)) throw new IllegalTypeException('Illegal type of parameter $offset: '.getType($offset));
 
-        // absoluten Offset ermitteln
+        // determine absolute start offset: max. value for appending is one position after history end
         if ($offset >= 0) {
             if ($offset > $this->full_bars)   throw new InvalidArgumentException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
             $fromOffset = $offset;
@@ -819,29 +822,32 @@ class HistoryFile extends Object {
 
 
     /**
-     * Ersetzt einen Teil der Historydatei durch andere Bardaten. Die Groesse der Datei wird entsprechend angepasst.
+     * Replace a part of the HistoryFile by the specified bars and adjust its file size.
      *
-     * @param  int   $offset - If offset is zero or positive then the start of the removed bars is at that bar offset from
-     *                         the beginning of the history. If offset is negative then removing starts that far from the
-     *                         end of the history.
+     * @param  int   $offset            - Start offset of the bars to replace with 0 (zero) pointing to the first bar from
+     *                                    the beginning (the oldest bar). If offset is negative then replacing starts that
+     *                                    far from the end (the youngest bar). <br>
      *
-     * @param  int   $length - If length is omitted everything from offset to the end of the history is removed. If length
-     *                         is specified and is positive then that many bars will be removed. If length is specified and
-     *                         is negative then the end of the removed part will be that many bars from the end of the
-     *                         history.
+     * @param  int   $length [optional] - Number of bars to replace. If length is omitted everything from offset to the end
+     *                                    of the history (the youngest bar) is replaced. If length is specified and is
+     *                                    positive then that many bars starting from offset will be replaced. If length is
+     *                                    specified and is negative then all bars starting from offset will be replaced
+     *                                    except length bars at the end of the history. <br>
      *
-     * @param  array $bars   - die ersetzenden XTRADE_PRICE_BAR-Daten
+     * @param  array $bars              - replacement bars (XTRADE_PRICE_BAR[])
      */
     public function replaceBars($offset, $length=null, array $bars) {
+        throw new UnimplementedFeatureException(__METHOD__.'not yet implemented');
     }
 
 
     /**
-     * Synchronisiert die Historydatei dieser Instanz mit den uebergebenen Daten. Vorhandene Bars, die nach dem letzten
-     * Synchronisationszeitpunkt der Datei hinzugefuegt wurden und sich mit den uebergebenen Daten ueberschneiden, werden
-     * ersetzt. Vorhandene Bars, die sich mit den uebergebenen Daten nicht ueberschneiden, bleiben unveraendert.
+     * Merge the passed bars into the HistoryFile. Existing bars after the last synchronization time overlapping passed bars
+     * are replaced. Existing bars not overlapping passed bars are kept.
      *
-     * @param  array $bars - XTRADE_PRICE_BAR-Daten der Periode M1 (werden automatisch in die Periode der Historydatei konvertiert)
+     * @param  array $bars - M1 bars, will be converted to the HistoryFile's timeframe (XTRADE_PRICE_BAR[])
+     *
+     * @todo   rename to mergeBars...()
      */
     public function synchronize(array $bars) {
         switch ($this->period) {

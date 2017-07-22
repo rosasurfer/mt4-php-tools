@@ -105,7 +105,7 @@ foreach ($deals as $deal) {
 if (end($deals)->position) throw new RuntimeException('Unexpected total position after last deal: '.end($deals)->position.' (not flat)');
 
 
-// (5) generate a reporting symbol for the new PL series
+// (5) generate a reporting symbol for the PL series
 $reportSymbol = $test->getReportingSymbol();
 define('PIP',   XTrade::$symbols[$symbol]['pip'   ]); define('PIPS',   PIP);
 define('POINT', XTrade::$symbols[$symbol]['point' ]); define('POINTS', POINT);
