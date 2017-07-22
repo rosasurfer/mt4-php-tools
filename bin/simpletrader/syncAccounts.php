@@ -11,7 +11,6 @@ use rosasurfer\exception\InfrastructureException;
 use rosasurfer\exception\RuntimeException;
 
 use rosasurfer\log\Logger;
-use rosasurfer\util\Date;
 
 use rosasurfer\xtrade\ReportHelper;
 use rosasurfer\xtrade\XTrade;

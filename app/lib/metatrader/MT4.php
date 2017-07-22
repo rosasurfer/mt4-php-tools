@@ -427,7 +427,7 @@ class MT4 extends StaticClass {
                     $key         = $position->getSymbol().'.'.$position->getTicket();
                     $type        = $position->getTypeDescription();
                     $lots        = $position->getLots();
-                    $openTime    = $position->getOpenTime('Y.m.d H:i:s');
+                    $openTime    = $position->getOpenTime();
                     $openPrice   = $position->getOpenPrice();
                     $takeProfit  = $position->getTakeProfit();
                     $stopLoss    = $position->getStopLoss();
@@ -483,9 +483,9 @@ class MT4 extends StaticClass {
                         $key         = $position->getSymbol().'.'.$position->getTicket();
                         $type        = $position->getTypeDescription();
                         $lots        = $position->getLots();
-                        $openTime    = $position->getOpenTime('Y.m.d H:i:s');
+                        $openTime    = $position->getOpenTime();
                         $openPrice   = $position->getOpenPrice();
-                        $closeTime   = $position->getCloseTime('Y.m.d H:i:s');
+                        $closeTime   = $position->getCloseTime();
                         $closePrice  = $position->getClosePrice();
                         $takeProfit  = $position->getTakeProfit();
                         $stopLoss    = $position->getStopLoss();

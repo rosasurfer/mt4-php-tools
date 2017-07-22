@@ -4,7 +4,6 @@ namespace rosasurfer\xtrade\model;
 use rosasurfer\db\orm\PersistableObject;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
-use rosasurfer\util\Date;
 use rosasurfer\util\Number;
 use rosasurfer\xtrade\XTrade;
 
@@ -112,28 +111,30 @@ class OpenPosition extends PersistableObject {
     /**
      * Return the creation time of the instance.
      *
-     * @param  string $format - format as used by date($format, $timestamp)
+     * @param  string $format [optional] - format as used by date($format, $timestamp)
      *
-     * @return string - creation time
+     * @return string - formatted creation time
      */
     public function getCreated($format = 'Y-m-d H:i:s')  {
+        if (!is_string($format)) throw new IllegalTypeException('Illegal type of parameter $format: '.getType($format));
         if ($format == 'Y-m-d H:i:s')
             return $this->created;
-        return Date::format($this->created, $format);
+        return date($format, strToTime($this->created));
     }
 
 
     /**
-     * Return the version string of the instance.
+     * Return the version of the instance (last modification time).
      *
-     * @param  string $format - format as used by date($format, $timestamp)
+     * @param  string $format [optional] - format as used by date($format, $timestamp)
      *
-     * @return string - version (last modification time)
+     * @return string - formatted last modification time
      */
     public function getVersion($format = 'Y-m-d H:i:s')  {
+        if (!is_string($format)) throw new IllegalTypeException('Illegal type of parameter $format: '.getType($format));
         if ($format == 'Y-m-d H:i:s')
             return $this->version;
-        return Date::format($this->version, $format);
+        return date($format, strToTime($this->version));
     }
 
 
@@ -150,14 +151,15 @@ class OpenPosition extends PersistableObject {
     /**
      * Gibt die OpenTime dieser Position zurueck.
      *
-     * @param  string $format - Zeitformat (default: 'Y-m-d H:i:s')
+     * @param  string $format [optional] - Zeitformat (default: 'Y-m-d H:i:s')
      *
      * @return string - Zeitpunkt
      */
     public function getOpenTime($format='Y-m-d H:i:s') {
+        if (!is_string($format)) throw new IllegalTypeException('Illegal type of parameter $format: '.getType($format));
         if ($format == 'Y-m-d H:i:s')
-            return $this->openTime;
-        return Date::format($this->openTime, $format);
+            return $this->created;
+        return date($format, strToTime($this->created));
     }
 
 

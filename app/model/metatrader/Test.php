@@ -5,7 +5,6 @@ use rosasurfer\db\orm\PersistableObject;
 use rosasurfer\exception\IllegalArgumentException;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
-use rosasurfer\util\Date;
 use rosasurfer\util\PHP;
 use rosasurfer\util\Windows;
 use rosasurfer\xtrade\XTrade;
@@ -239,28 +238,31 @@ class Test extends PersistableObject {
     /**
      * Return the creation time of the instance.
      *
-     * @param  string $format - format as used by date($format, $timestamp)
+     * @param  string $format [optional] - format as used by date($format, $timestamp)
      *
-     * @return string - creation time
+     * @return string - formatted creation time
      */
     public function getCreated($format = 'Y-m-d H:i:s')  {
+        if (!is_string($format)) throw new IllegalTypeException('Illegal type of parameter $format: '.getType($format));
         if ($format == 'Y-m-d H:i:s')
             return $this->created;
-        return Date::format($this->created, $format);
+        return date($format, strToTime($this->created));
     }
 
 
     /**
      * Return the last modification time of the instance.
      *
-     * @param  string $format - format as used by date($format, $timestamp)
+     * @param  string $format [optional] - format as used by date($format, $timestamp)
      *
-     * @return string - last modification time
+     * @return string|null - formatted last modification time or NULL if the instance has never been modified
      */
     public function getModified($format = 'Y-m-d H:i:s')  {
-        if ($format == 'Y-m-d H:i:s')
-            return $this->modified;
-        return Date::format($this->modified, $format);
+        if (!is_string($format)) throw new IllegalTypeException('Illegal type of parameter $format: '.getType($format));
+
+        if (is_null($this->modified)) return null;
+        if ($format == 'Y-m-d H:i:s') return $this->modified;
+        return date($format, strToTime($this->modified));
     }
 
 
