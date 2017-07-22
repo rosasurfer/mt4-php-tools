@@ -28,7 +28,7 @@ use const rosasurfer\xtrade\PERIOD_W1;
 class HistoryFile extends Object {
 
 
-    /** @var int - handle of an open history file */
+    /** @var resource - handle of an open history file */
     protected $hFile;
 
     /** @var string - simple history file name (basename + extension) */
