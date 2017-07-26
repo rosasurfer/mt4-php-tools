@@ -15,6 +15,9 @@ parameters:
 
     excludes_analyse:
         - vendor/
+        
+    universalObjectCratesClasses:
+        - rosasurfer\ministruts\Page
 
     reportUnmatchedIgnoredErrors:           false
     polluteScopeWithLoopInitialAssignments: true
