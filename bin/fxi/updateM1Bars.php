@@ -1,7 +1,5 @@
 #!/usr/bin/env php
 <?php
-namespace rosasurfer\xtrade\fxi\update_m1_bars;
-
 /**
  * Aktualisiert anhand existierender Dukascopy-Daten die M1-History der angegebenen FX-Indizes und speichert sie
  * im XTrade-Historyverzeichnis.
@@ -17,12 +15,12 @@ namespace rosasurfer\xtrade\fxi\update_m1_bars;
  *
  * @see  MetaTrader::indicators\LFX-Monitor.mq4
  */
-use rosasurfer\config\Config;
+namespace rosasurfer\xtrade\fxi\update_m1_bars;
 
+use rosasurfer\config\Config;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
-
 use rosasurfer\xtrade\XTrade;
 use rosasurfer\xtrade\dukascopy\Dukascopy;
 

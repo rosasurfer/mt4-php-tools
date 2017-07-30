@@ -1,31 +1,25 @@
 #!/usr/bin/env php
 <?php
-namespace rosasurfer\xtrade\simpletrader\sync_accounts;
-
 /**
  * Synchronisiert die Daten ein oder mehrerer Signale mit den lokal gespeicherten Daten (Datenbank und MT4-Datenfiles).
  * Bei Datenaenderung kann eine Mail oder eine SMS verschickt werden.
  */
+namespace rosasurfer\xtrade\simpletrader\sync_accounts;
+
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InfrastructureException;
 use rosasurfer\exception\RuntimeException;
-
 use rosasurfer\log\Logger;
-
 use rosasurfer\xtrade\ReportHelper;
 use rosasurfer\xtrade\XTrade;
-
 use rosasurfer\xtrade\metatrader\MT4;
-
 use rosasurfer\xtrade\model\ClosedPosition;
 use rosasurfer\xtrade\model\ClosedPositionDAO;
 use rosasurfer\xtrade\model\OpenPosition;
 use rosasurfer\xtrade\model\OpenPositionDAO;
 use rosasurfer\xtrade\model\Signal;
 use rosasurfer\xtrade\model\SignalDAO;
-
 use rosasurfer\xtrade\model\metatrader\Account;
-
 use rosasurfer\xtrade\simpletrader\SimpleTrader;
 use rosasurfer\xtrade\simpletrader\SimpleTraderException;
 

@@ -1,12 +1,12 @@
 #!/usr/bin/env php
 <?php
-namespace rosasurfer\xtrade\metatrader\list_symbols;
-
 /**
  * Listet die Symbol-Informationen einer MetaTrader-Datei "symbols.raw" auf.
  *
  * @see Struct-Formate in MT4Expander.dll::Expander.h
  */
+namespace rosasurfer\xtrade\metatrader\list_symbols;
+
 use rosasurfer\xtrade\metatrader\MT4;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');

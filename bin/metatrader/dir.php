@@ -1,16 +1,14 @@
 #!/usr/bin/env php
 <?php
-namespace rosasurfer\xtrade\metatrader\dir;
-
 /**
  * Verzeichnislisting fuer MetaTrader-Historydateien
  */
-use rosasurfer\xtrade\XTrade;
+namespace rosasurfer\xtrade\metatrader\dir;
 
+use rosasurfer\xtrade\XTrade;
 use rosasurfer\xtrade\metatrader\HistoryHeader;
 use rosasurfer\xtrade\metatrader\MetaTraderException;
 use rosasurfer\xtrade\metatrader\MT4;
-
 use rosasurfer\xtrade\model\metatrader\Order;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');

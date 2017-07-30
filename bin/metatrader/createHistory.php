@@ -1,17 +1,16 @@
 #!/usr/bin/env php
 <?php
-namespace rosasurfer\xtrade\metatrader\create_history;
-
 /**
  * Liest die XTrade-M1-History der angegebenen Instrumente ein und erzeugt daraus jeweils eine neue MetaTrader-History.
  * Speichert diese MetaTrader-History im globalen MT4-Serververzeichnis. Vorhandene Historydateien werden ueberschrieben.
  * Um vorhandene Historydateien zu aktualisieren, ist "updateHistory.php" zu benutzen.
  */
+namespace rosasurfer\xtrade\metatrader\create_history;
+
 use rosasurfer\config\Config;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\util\PHP;
-
 use rosasurfer\xtrade\XTrade;
 use rosasurfer\xtrade\metatrader\HistorySet;
 use rosasurfer\xtrade\metatrader\MT4;

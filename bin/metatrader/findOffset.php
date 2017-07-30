@@ -1,11 +1,11 @@
 #!/usr/bin/env php
 <?php
-namespace rosasurfer\xtrade\metatrader\find_offset;
-
 /**
  * Gibt den Offset der ersten Bar einer MetaTrader-Historydatei zurueck, die am oder nach dem angegebenen Zeitpunkt beginnt
  * oder -1, wenn keine solche Bar existiert.
  */
+namespace rosasurfer\xtrade\metatrader\find_offset;
+
 use rosasurfer\xtrade\metatrader\HistoryHeader;
 use rosasurfer\xtrade\metatrader\MT4;
 use rosasurfer\xtrade\metatrader\MetaTraderException;

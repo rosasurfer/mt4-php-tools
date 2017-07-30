@@ -1,7 +1,5 @@
 #!/usr/bin/env php
 <?php
-namespace rosasurfer\xtrade\dukascopy\update_tickdata;
-
 /**
  * Aktualisiert die lokal vorhandenen Dukascopy-Tickdaten. Die Daten werden nach FXT konvertiert und im XTrade-Format
  * gespeichert. Am Wochenende, an Feiertagen und wenn keine Tickdaten verfuegbar sind, sind die Dukascopy-Dateien leer.
@@ -32,23 +30,20 @@ namespace rosasurfer\xtrade\dukascopy\update_tickdata;
  * GMT:     |   Sunday      Monday   |  Tuesday   | Wednesday  |  Thursday  |   Friday     Saturday  |   Sunday      Monday   |
  *          +------------------------+------------+------------+------------+------------------------+------------------------+
  */
-use rosasurfer\config\Config;
+namespace rosasurfer\xtrade\dukascopy\update_tickdata;
 
+use rosasurfer\config\Config;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
-
 use rosasurfer\net\http\CurlHttpClient;
 use rosasurfer\net\http\HttpClient;
 use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
-
 use rosasurfer\xtrade\LZMA;
 use rosasurfer\xtrade\XTrade;
-
 use rosasurfer\xtrade\dukascopy\Dukascopy;
 use rosasurfer\xtrade\dukascopy\DukascopyException;
-
 use rosasurfer\xtrade\simpletrader\SimpleTrader;
 
 use function rosasurfer\xtrade\isFxtWeekend;

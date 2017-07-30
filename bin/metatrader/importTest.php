@@ -5,8 +5,8 @@
  */
 namespace rosasurfer\xtrade\metatrader\import_test;
 
-use rosasurfer\xtrade\model\metatrader\Test;
 use rosasurfer\util\PHP;
+use rosasurfer\xtrade\model\metatrader\Test;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');

@@ -13,7 +13,6 @@ use rosasurfer\config\Config;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
-
 use rosasurfer\xtrade\XTrade;
 use rosasurfer\xtrade\model\metatrader\Test;
 

@@ -16,7 +16,6 @@ use function rosasurfer\strIsNumeric;
 use const rosasurfer\xtrade\BARMODEL_BAROPEN;
 use const rosasurfer\xtrade\BARMODEL_CONTROLPOINTS;
 use const rosasurfer\xtrade\BARMODEL_EVERYTICK;
-
 use const rosasurfer\xtrade\PERIOD_M1;
 use const rosasurfer\xtrade\PERIOD_M5;
 use const rosasurfer\xtrade\PERIOD_M15;
@@ -27,10 +26,9 @@ use const rosasurfer\xtrade\PERIOD_D1;
 use const rosasurfer\xtrade\PERIOD_W1;
 use const rosasurfer\xtrade\PERIOD_MN1;
 use const rosasurfer\xtrade\PERIOD_Q1;
-
-use const rosasurfer\xtrade\TRADEDIRECTION_BOTH;
-use const rosasurfer\xtrade\TRADEDIRECTION_LONG;
-use const rosasurfer\xtrade\TRADEDIRECTION_SHORT;
+use const rosasurfer\xtrade\TRADE_DIRECTIONS_BOTH;
+use const rosasurfer\xtrade\TRADE_DIRECTIONS_LONG_ONLY;
+use const rosasurfer\xtrade\TRADE_DIRECTIONS_SHORT_ONLY;
 
 
 /**
@@ -701,12 +699,12 @@ class MT4 extends StaticClass {
         if (is_string($value)) {
             if (!strIsNumeric($value)) {
                 $value = strToUpper($value);
-                if (strStartsWith($value, 'TRADEDIRECTION_'))
-                    $value = strRight($value, -15);
+                if (strStartsWith($value, 'TRADE_DIRECTIONS_'))
+                    $value = strRight($value, -17);
                 switch ($value) {
-                    case 'LONG' : return TRADEDIRECTION_LONG;
-                    case 'SHORT': return TRADEDIRECTION_SHORT;
-                    case 'BOTH' : return TRADEDIRECTION_BOTH;
+                    case 'LONG_ONLY' : return TRADE_DIRECTIONS_LONG_ONLY;
+                    case 'SHORT_ONLY': return TRADE_DIRECTIONS_SHORT_ONLY;
+                    case 'BOTH'      : return TRADE_DIRECTIONS_BOTH;
                 }
                 return -1;
             }
@@ -715,9 +713,9 @@ class MT4 extends StaticClass {
 
         if (is_int($value) || is_float($value)) {
             switch ((float)$value) {
-                case TRADEDIRECTION_LONG : return TRADEDIRECTION_LONG;
-                case TRADEDIRECTION_SHORT: return TRADEDIRECTION_SHORT;
-                case TRADEDIRECTION_BOTH : return TRADEDIRECTION_BOTH;
+                case TRADE_DIRECTIONS_LONG_ONLY : return TRADE_DIRECTIONS_LONG_ONLY;
+                case TRADE_DIRECTIONS_SHORT_ONLY: return TRADE_DIRECTIONS_SHORT_ONLY;
+                case TRADE_DIRECTIONS_BOTH      : return TRADE_DIRECTIONS_BOTH;
             }
             return -1;
         }
@@ -756,9 +754,9 @@ class MT4 extends StaticClass {
         $id = self::strToTradeDirection($id);
         if ($id >= 0) {
             switch ($id) {
-                case TRADEDIRECTION_LONG:  return 'Long';
-                case TRADEDIRECTION_SHORT: return 'Short';
-                case TRADEDIRECTION_BOTH:  return 'Both';
+                case TRADE_DIRECTIONS_LONG_ONLY:  return 'Long';
+                case TRADE_DIRECTIONS_SHORT_ONLY: return 'Short';
+                case TRADE_DIRECTIONS_BOTH:       return 'Both';
             }
         }
         return null;

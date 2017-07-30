@@ -72,10 +72,10 @@ const BARMODEL_CONTROLPOINTS = 1;
 const BARMODEL_BAROPEN       = 2;
 
 
-// Strategy Tester trade directions
-const TRADEDIRECTION_LONG  = 0;
-const TRADEDIRECTION_SHORT = 1;
-const TRADEDIRECTION_BOTH  = 2;
+// Enabled trade directions
+const TRADE_DIRECTIONS_LONG_ONLY  = 1;
+const TRADE_DIRECTIONS_SHORT_ONLY = 2;
+const TRADE_DIRECTIONS_BOTH       = 3;
 
 
 // Struct sizes

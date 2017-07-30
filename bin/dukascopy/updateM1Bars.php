@@ -1,7 +1,5 @@
 #!/usr/bin/env php
 <?php
-namespace rosasurfer\xtrade\dukascopy\update_m1_bars;
-
 /**
  * Updates the XTrade history of one or more symbols with M1 data from Dukascopy. Dukascopy provides continuous bid and ask
  * prices covering weekends and holidays. Bid and ask are merged to median, converted from GMT to FXT and stored in XTrade
@@ -30,19 +28,17 @@ namespace rosasurfer\xtrade\dukascopy\update_m1_bars;
  * GMT:     |   Sunday      Monday   |  Tuesday   | Wednesday  |  Thursday  |   Friday     Saturday  |   Sunday      Monday   |
  *          +------------------------+------------+------------+------------+------------------------+------------------------+
  */
-use rosasurfer\config\Config;
+namespace rosasurfer\xtrade\dukascopy\update_m1_bars;
 
+use rosasurfer\config\Config;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
-
 use rosasurfer\net\http\CurlHttpClient;
 use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
-
 use rosasurfer\xtrade\LZMA;
 use rosasurfer\xtrade\XTrade;
-
 use rosasurfer\xtrade\dukascopy\Dukascopy;
 use rosasurfer\xtrade\simpletrader\SimpleTrader;
 

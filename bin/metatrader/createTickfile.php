@@ -1,10 +1,10 @@
 #!/usr/bin/env php
 <?php
-namespace rosasurfer\xtrade\metatrader\create_tickfile;
-
 /**
  * Erzeugt eine FXT-Tickdatei fuer den Strategy Tester.
  */
+namespace rosasurfer\xtrade\metatrader\create_tickfile;
+
 use rosasurfer\xtrade\metatrader\MT4;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');

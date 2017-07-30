@@ -1,12 +1,11 @@
 #!/usr/bin/env php
 <?php
-namespace rosasurfer\xtrade\metatrader\update_history;
-
 /**
  * Aktualisiert die MetaTrader-History der angegebenen Instrumente im globalen MT4-Serververzeichnis.
  */
-use rosasurfer\config\Config;
+namespace rosasurfer\xtrade\metatrader\update_history;
 
+use rosasurfer\config\Config;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 

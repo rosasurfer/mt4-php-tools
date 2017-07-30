@@ -6,7 +6,6 @@ use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 use rosasurfer\log\Logger;
-
 use rosasurfer\xtrade\LZMA;
 use rosasurfer\xtrade\XTrade;
 
