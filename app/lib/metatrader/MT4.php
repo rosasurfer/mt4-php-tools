@@ -27,8 +27,8 @@ use const rosasurfer\xtrade\PERIOD_W1;
 use const rosasurfer\xtrade\PERIOD_MN1;
 use const rosasurfer\xtrade\PERIOD_Q1;
 use const rosasurfer\xtrade\TRADE_DIRECTIONS_BOTH;
-use const rosasurfer\xtrade\TRADE_DIRECTIONS_LONG_ONLY;
-use const rosasurfer\xtrade\TRADE_DIRECTIONS_SHORT_ONLY;
+use const rosasurfer\xtrade\TRADE_DIRECTIONS_LONG;
+use const rosasurfer\xtrade\TRADE_DIRECTIONS_SHORT;
 
 
 /**
@@ -702,9 +702,9 @@ class MT4 extends StaticClass {
                 if (strStartsWith($value, 'TRADE_DIRECTIONS_'))
                     $value = strRight($value, -17);
                 switch ($value) {
-                    case 'LONG_ONLY' : return TRADE_DIRECTIONS_LONG_ONLY;
-                    case 'SHORT_ONLY': return TRADE_DIRECTIONS_SHORT_ONLY;
-                    case 'BOTH'      : return TRADE_DIRECTIONS_BOTH;
+                    case 'LONG' : return TRADE_DIRECTIONS_LONG;
+                    case 'SHORT': return TRADE_DIRECTIONS_SHORT;
+                    case 'BOTH' : return TRADE_DIRECTIONS_BOTH;
                 }
                 return -1;
             }
@@ -713,9 +713,9 @@ class MT4 extends StaticClass {
 
         if (is_int($value) || is_float($value)) {
             switch ((float)$value) {
-                case TRADE_DIRECTIONS_LONG_ONLY : return TRADE_DIRECTIONS_LONG_ONLY;
-                case TRADE_DIRECTIONS_SHORT_ONLY: return TRADE_DIRECTIONS_SHORT_ONLY;
-                case TRADE_DIRECTIONS_BOTH      : return TRADE_DIRECTIONS_BOTH;
+                case TRADE_DIRECTIONS_LONG:  return TRADE_DIRECTIONS_LONG;
+                case TRADE_DIRECTIONS_SHORT: return TRADE_DIRECTIONS_SHORT;
+                case TRADE_DIRECTIONS_BOTH:  return TRADE_DIRECTIONS_BOTH;
             }
             return -1;
         }
@@ -754,9 +754,9 @@ class MT4 extends StaticClass {
         $id = self::strToTradeDirection($id);
         if ($id >= 0) {
             switch ($id) {
-                case TRADE_DIRECTIONS_LONG_ONLY:  return 'Long';
-                case TRADE_DIRECTIONS_SHORT_ONLY: return 'Short';
-                case TRADE_DIRECTIONS_BOTH:       return 'Both';
+                case TRADE_DIRECTIONS_LONG:  return 'Long';
+                case TRADE_DIRECTIONS_SHORT: return 'Short';
+                case TRADE_DIRECTIONS_BOTH:  return 'Both';
             }
         }
         return null;

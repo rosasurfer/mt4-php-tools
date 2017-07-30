@@ -72,10 +72,10 @@ const BARMODEL_CONTROLPOINTS = 1;
 const BARMODEL_BAROPEN       = 2;
 
 
-// Enabled trade directions
-const TRADE_DIRECTIONS_LONG_ONLY  = 1;
-const TRADE_DIRECTIONS_SHORT_ONLY = 2;
-const TRADE_DIRECTIONS_BOTH       = 3;
+// Trade directions, can be used as flags
+const TRADE_DIRECTIONS_LONG  = 1;
+const TRADE_DIRECTIONS_SHORT = 2;
+const TRADE_DIRECTIONS_BOTH  = 3;
 
 
 // Struct sizes
