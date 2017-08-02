@@ -2,17 +2,15 @@
 use rosasurfer\xtrade\XTrade;
 use rosasurfer\xtrade\model\metatrader\Test;
 use function rosasurfer\xtrade\prettyTimeRange;
-use rosasurfer\facade\Request;
 
+/** @var Test[] $tests */
 $tests = Test::dao()->findAll('select * from :Test order by strategy, created, reportingsymbol');
-
-echoPre(Request::getMethod());
 ?>
 
 <link rel="stylesheet" href="<?=asset('/css/tablesorter/theme.blue.min.css')?>" id="tablesorter-theme">
 <script src="<?=asset('/js/tablesorter/jquery.tablesorter.combined.js')?>"></script>
 
-<?foreach (Request::getActionErrors() as $value) {?><div class="alert alert-danger textcenter"><p><?=hsc($value)?></p></div><?}?>
+<?foreach ($request->getActionErrors() as $value) {?><div class="alert alert-danger textcenter"><p><?=hsc($value)?></p></div><?}?>
 
 
 Found <?=$size=sizeOf($tests)?> test<?=pluralize($size)?>
@@ -23,19 +21,18 @@ Found <?=$size=sizeOf($tests)?> test<?=pluralize($size)?>
     <th style="vertical-align:middle; text-align:left" title="tested strategy">Strategy</th>
     <th style="vertical-align:middle; text-align:center" title="test report id">Test</th>
     <th style="vertical-align:middle; text-align:center" title="tested symbol and timeframe">Symbol</th>
-    <th style="vertical-align:middle; text-align:center" title="tested time range">Time</th>
+    <th style="vertical-align:middle; text-align:center" title="tested time period">Test Period</th>
     <th style="vertical-align:middle; text-align:center" title="number of trades">Trades</th>
-    <th style="vertical-align:middle; text-align:center" title="average amount of pips per trade for a non-compounding strategy with fixed lotsize">Pips/Trade</th>
+    <th style="vertical-align:middle; text-align:center" title="average amount of pips per trade">Pips/Trade</th>
     <th style="vertical-align:middle; text-align:center" title="simplified non-normalized Sharpe ratio">Sharpe</th>
     <th style="vertical-align:middle; text-align:center" title="simplified non-normalized Sortino ratio">Sortino</th>
     <th style="vertical-align:middle; text-align:center" title="simplified monthly Calmar ratio">Calmar</th>
-    <th style="vertical-align:middle; text-align:center" title="maximum drawdown recovery time in days">max. Recovery Time</th>
+    <th style="vertical-align:middle; text-align:center" title="maximum drawdown recovery time">Recovery Time</th>
 </tr>
 </thead>
 
 <tbody>
 <?
-/** @var Test $test */
 foreach ($tests as $test) {
     $strategy        = $test->getStrategy();
     $report          = $test->getReportingSymbol();

@@ -10,7 +10,6 @@ parameters:
         - vendor/rosasurfer/ministruts/etc/phpstan/function-stubs.php
 
     fileExtensions:                                                 # additional files to analyse
-       #- html
        #- phtml                                                     # TODO: Tile default vars trigger errors
 
     excludes_analyse:
