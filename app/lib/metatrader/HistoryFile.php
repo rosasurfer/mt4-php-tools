@@ -836,7 +836,7 @@ class HistoryFile extends Object {
      *                                    specified and is negative then all bars starting from offset will be replaced
      *                                    except length bars at the end of the history. <br>
      */
-    public function replaceBars(array $bars, $offset, $length=null) {
+    public function replaceBars(array $bars, $offset, $length = null) {
         throw new UnimplementedFeatureException(__METHOD__.'not yet implemented');
     }
 
