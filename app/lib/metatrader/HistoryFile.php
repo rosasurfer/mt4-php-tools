@@ -822,7 +822,9 @@ class HistoryFile extends Object {
 
 
     /**
-     * Replace a part of the HistoryFile by the specified bars and adjust its file size.
+     * Replace a part of the HistoryFile with the specified bars and adjust its file size.
+     *
+     * @param  array $bars              - replacement bars (XTRADE_PRICE_BAR[])
      *
      * @param  int   $offset            - Start offset of the bars to replace with 0 (zero) pointing to the first bar from
      *                                    the beginning (the oldest bar). If offset is negative then replacing starts that
@@ -833,10 +835,8 @@ class HistoryFile extends Object {
      *                                    positive then that many bars starting from offset will be replaced. If length is
      *                                    specified and is negative then all bars starting from offset will be replaced
      *                                    except length bars at the end of the history. <br>
-     *
-     * @param  array $bars              - replacement bars (XTRADE_PRICE_BAR[])
      */
-    public function replaceBars($offset, $length=null, array $bars) {
+    public function replaceBars(array $bars, $offset, $length=null) {
         throw new UnimplementedFeatureException(__METHOD__.'not yet implemented');
     }
 
