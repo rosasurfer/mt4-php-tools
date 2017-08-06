@@ -55,19 +55,28 @@ foreach ($trades as $trade) {                                           // atm: 
 
     // separate trades into deals
     $openDeal         = new \StdClass();
+    $openDeal->type   = 'open';
+    $openDeal->ticket = $trade->getTicket();
     $openDeal->time   = strToTime($trade->getOpenTime().' GMT');        // FXT timestamp
     $openDeal->lots   = $trade->getLots() * (strCompareI($trade->getType(), 'buy') ? 1 : -1);
     $openDeal->price  = $trade->getOpenPrice();
 
-    $closeDeal        = new \StdClass();
-    $closeDeal->time  = strToTime($trade->getCloseTime().' GMT');       // FXT timestamp
-    $closeDeal->lots  = -$openDeal->lots;
-    $closeDeal->price = $trade->getClosePrice();
+    $closeDeal         = new \StdClass();
+    $closeDeal->type   = 'close';
+    $closeDeal->ticket = $trade->getTicket();
+    $closeDeal->time   = strToTime($trade->getCloseTime().' GMT');      // FXT timestamp
+    $closeDeal->lots   = -$openDeal->lots;
+    $closeDeal->price  = $trade->getClosePrice();
 
-    $deals[$openDeal->time ] = $openDeal;                               // TODO: handle multiple deals per minute or second
-    $deals[$closeDeal->time] = $closeDeal;
+    $deals[] = $openDeal;
+    $deals[] = $closeDeal;
 }
-kSort($deals);
+uSort($deals, function(\StdClass $a, \StdClass $b) {
+    if ($a->time < $b->time)  return -1;
+    if ($a->time > $b->time)  return +1;
+    if ($a->type != $b->type) return strCmp($a->type, $b->type);        // strCmp('open', 'close') = 1
+    return $a->ticket > $b->ticket ? +1 : -1;
+});
 $deals = array_values($deals);
 
 
@@ -75,12 +84,12 @@ $deals = array_values($deals);
 $firstDeal = reset($deals);
 if      (is_file(getVar('xtradeFile.compressed', $symbol, $firstDeal->time))) {}
 else if (is_file(getVar('xtradeFile.raw'       , $symbol, $firstDeal->time))) {}
-else     exit(1|echoPre('[Error]   '.$symbol.' XTrade history for '.gmDate('D, d-M-Y', $firstDeal->time).' not found'));
+else     exit(1|echoPre('[Error]   '.$symbol.' XTrade price history for '.gmDate('D, d-M-Y', $firstDeal->time).' not found'));
 
 $lastDeal = end($deals);
 if      (is_file(getVar('xtradeFile.compressed', $symbol, $lastDeal->time))) {}
 else if (is_file(getVar('xtradeFile.raw'       , $symbol, $lastDeal->time))) {}
-else     exit(1|echoPre('[Error]   '.$symbol.' XTrade history for '.gmDate('D, d-M-Y', $lastDeal->time).' not found'));
+else     exit(1|echoPre('[Error]   '.$symbol.' XTrade price history for '.gmDate('D, d-M-Y', $lastDeal->time).' not found'));
 echoPre('[Info]    Processing '.sizeof($trades).' trades of test '.$test->getReportingSymbol().' ('.gmDate('d.m.Y', $firstDeal->time).' - '.gmDate('d.m.Y', $lastDeal->time).')');
 
 
@@ -88,7 +97,7 @@ echoPre('[Info]    Processing '.sizeof($trades).' trades of test '.$test->getRep
 $sum = $position = $prevPosition = 0;
 foreach ($deals as $deal) {
     $prevPosition = $position;
-    $position += $deal->lots;
+    $position = round($position + $deal->lots, 2);
 
     if ($position) {
         $sum                += $deal->lots * $deal->price;
@@ -131,7 +140,7 @@ for ($day=$firstDealDay; $day <= $lastDealDay; $day+=1*DAY) {
 
     if      (is_file($file=getVar('xtradeFile.compressed', $symbol, $day))) {}
     else if (is_file($file=getVar('xtradeFile.raw'       , $symbol, $day))) {}
-    else exit(1|echoPre('[Error]   '.$symbol.' XTrade history for '.$shortDate.' not found'));
+    else exit(1|echoPre('[Error]   '.$symbol.' XTrade price history for '.$shortDate.' not found'));
 
     $bars    = XTrade::readBarFile($file, $symbol);
     $partial = false;
