@@ -13,22 +13,21 @@
 
     <!-- ================================================ Action Mappings =============================================== -->
     <action-mappings>
-        <mapping name="home"              path="/"          include=".home"/>
-        <mapping name="symbols"           path="/symbols"   include=".home"/>
-        <mapping name="history"           path="/history"   include=".home"/>
+        <mapping name="home"               path="/"         include=".home"/>
+        <mapping name="symbols"            path="/symbols"  include=".home"/>
+        <mapping name="history"            path="/history"  include=".home"/>
+        <mapping name="login"              path="/login"    include=".home"/>
+        <mapping name="contact"            path="/contact"  include=".home"/>
+        <mapping name="about"              path="/about"    include=".home"/>
                                                             
-        <mapping name="test.tablesorter"  path="/sortable"  include=".test.sortable"/>
+        <mapping name="tests.sorted"       path="/sorted"   include=".tests.sorted"/>
 
-        <mapping name="test.detail"  path="/test"  form="ViewTestActionForm">
-            <forward name="success"  include=".test.detail"/>
-            <forward name="error"    include=".test.sortable"/>
+        <mapping name="test.distribution"  path="/distribution"  form="ViewTestActionForm">
+            <forward name="success"  include=".test.distribution"/>
+            <forward name="error"    include=".tests.sorted"/>
         </mapping>
         
-        <mapping name="login"          path="/login"    include=".home"/>
-        <mapping name="contact"        path="/contact"  include=".home"/>
-        <mapping name="about"          path="/about"    include=".home"/>
-        
-        <mapping name="chart.bar"      path="/chart/bar"      include=".chart.bar"/>
+        <mapping name="chart.bar"          path="/chart/bar"  include=".chart.bar"/>
     </action-mappings>
     
     
@@ -47,10 +46,10 @@
            <include name="content"   value="tiles/home.phtml"/>
         </tile>                      
                                      
-        <tile name=".test.sortable"  extends=".default.layout">
-            <include name="content"  value="tiles/test.sortable.phtml"/>
+        <tile name=".tests.sorted"   extends=".default.layout">
+            <include name="content"  value="tiles/tests.sorted.phtml"/>
         </tile>
-        <tile name=".test.detail"    extends=".default.layout">
+        <tile name=".test.distribution"  extends=".default.layout">
             <include name="content"  value="tiles/charts/scatter.phtml"/>
         </tile>                      
                                      

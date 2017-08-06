@@ -2,9 +2,9 @@
 
 
 /**
- * Resolve the name of the specified jquery-tableSorter theme.
+ * Resolve the name of a specified jquery-tableSorter theme.
  *
- * @param  mixed element - object or object id identifying the theme stylesheet
+ * @param  mixed element - object or object id identifying a theme stylesheet
  * 
  * @return string - theme name
  */

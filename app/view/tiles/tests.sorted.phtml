@@ -7,10 +7,12 @@ use function rosasurfer\xtrade\prettyTimeRange;
 $tests = Test::dao()->findAll('select * from :Test order by strategy, created, reportingsymbol');
 ?>
 
-<link rel="stylesheet" href="<?=asset('/css/tablesorter/theme.blue.min.css')?>" id="tablesorter-theme">
+<link  href="<?=asset('/css/tablesorter/theme.blue.min.css')?>" rel="stylesheet" id="tablesorter-theme">
 <script src="<?=asset('/js/tablesorter/jquery.tablesorter.combined.js')?>"></script>
 
-<?foreach ($request->getActionErrors() as $value) {?><div class="alert alert-danger textcenter"><p><?=hsc($value)?></p></div><?}?>
+<?foreach ($request->getActionErrors() as $error) {?>
+    <div class="alert alert-danger textcenter"><p><?=hsc($error)?></p></div>
+<?}?>
 
 
 Found <?=$size=sizeOf($tests)?> test<?=pluralize($size)?>
@@ -49,7 +51,7 @@ foreach ($tests as $test) {
 <tr style="text-align:center">
     <td style="vertical-align:middle; text-align:left"><?=hsc($strategy)?></td>
     <td style="vertical-align:middle" nowrap>
-        <a href="<?=route('test.detail').'?id='.$test->getId()?>"><?=hsc($report)?></a>
+        <a href="<?=route('test.distribution').'?id='.$test->getId()?>"><?=hsc($report)?></a>
     </td>
     <td style="vertical-align:middle"><?=$symbol.', '.$period?></td>
     <td style="vertical-align:middle"><?=$timeRange?></td>
