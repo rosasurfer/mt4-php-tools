@@ -24,33 +24,35 @@ var Color = {
     grey:   'rgb(201, 203, 207)'
 };
 
-var color = Chart.helpers.color;
 var chart = new Chart('canvas', {
-    type: 'scatter',
+    type: 'line',
     data: {
         datasets: [{
-            label:               'Profit/Loss Distribution',
-            borderColor:          color(Color.red).alpha(0.0).rgbString(),
-            backgroundColor:      color(Color.red).alpha(0.6).rgbString(),
-            showLine:             false,
-            fill:                 false,
-            pointRadius:          2,
-            pointBorderColor:     Color.red,
-            pointBackgroundColor: Color.red,
+            label: 'Equity',
+            backgroundColor: Color.red,
+            borderColor:     Color.red,
+            fill:            false,
+            borderWidth:     1,
+            lineTension:     0,
+            pointRadius:     0,
             data: [
                 <?foreach ($trades as $i => $trade) {
+                    $time   = gmDate(DATE_ISO8601, strToTime($trade->getCloseTime().' GMT'));   // '2014-09-08T08:02:17-05:00' (ISO 8601)
+                    $profit = $trade->getProfit();
                     if ($i++) echo ','.NL;
-                    echo '{x: '.$i.', y: '.$trade->getProfit().'}';
+                    echo '{x: "'.$time.'", y: '.$profit.'}';
+                    if ($i > 100) {
+                        break;
+                    }
                 }?>
-            ]
+            ],
         }]
     },
     options: {
         scales: {
             xAxes: [{
-                type:     'linear',
-                position: 'bottom'
-            }]
+                type: 'time',
+            }],
         }
     }
 });

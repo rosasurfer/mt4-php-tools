@@ -51,9 +51,9 @@ foreach ($tests as $test) {
 <tr style="text-align:center">
     <td style="vertical-align:middle; text-align:left"><?=hsc($strategy)?></td>
     <td style="vertical-align:middle" nowrap>
-        <a href="<?=route('test.distribution').'?id='.$test->getId()?>"><?=hsc($report)?></a>
-    </td>
-    <td style="vertical-align:middle"><?=$symbol.', '.$period?></td>
+        <a href="<?=route('chart.distribution').'?id='.$test->getId()?>"><?=hsc($report)?></a></td>
+    <td style="vertical-align:middle">
+        <a href="<?=route('chart.equity').'?id='.$test->getId()?>"><?=$symbol.', '.$period?></a></td>
     <td style="vertical-align:middle"><?=$timeRange?></td>
     <td style="vertical-align:middle"><?=numf($numTrades, 0)?></td>
     <td style="vertical-align:middle"><?=sprintf('%+.1f', $avgPips)?></td>
@@ -71,7 +71,7 @@ foreach ($tests as $test) {
 $(document).ready(function() {
     $('#testTable').tablesorter({
         theme: getTableSorterTheme('tablesorter-theme') || 'default',
-        debug: true
+        //debug: true,
     });
 });
 </script>

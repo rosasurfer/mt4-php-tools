@@ -22,12 +22,17 @@
                                                             
         <mapping name="tests.sorted"       path="/sorted"   include=".tests.sorted"/>
 
-        <mapping name="test.distribution"  path="/distribution"  form="ViewTestActionForm">
-            <forward name="success"  include=".test.distribution"/>
+        <mapping name="chart.equity"       path="/equity"  form="ViewTestActionForm">
+            <forward name="success"  include=".chart.equity"/>
+            <forward name="error"    include=".tests.sorted"/>
+        </mapping>
+
+        <mapping name="chart.distribution"  path="/distribution"  form="ViewTestActionForm">
+            <forward name="success"  include=".chart.distribution"/>
             <forward name="error"    include=".tests.sorted"/>
         </mapping>
         
-        <mapping name="chart.bar"          path="/chart/bar"  include=".chart.bar"/>
+        <mapping name="chart.bars"          path="/chart/bar"  include=".chart.bars"/>
     </action-mappings>
     
     
@@ -49,11 +54,14 @@
         <tile name=".tests.sorted"   extends=".default.layout">
             <include name="content"  value="tiles/tests.sorted.phtml"/>
         </tile>
-        <tile name=".test.distribution"  extends=".default.layout">
+        <tile name=".chart.equity"    extends=".default.layout">
+            <include name="content"  value="tiles/charts/line.phtml"/>
+        </tile>                      
+        <tile name=".chart.distribution"  extends=".default.layout">
             <include name="content"  value="tiles/charts/scatter.phtml"/>
         </tile>                      
                                      
-        <tile name=".chart.bar"      extends=".default.layout">
+        <tile name=".chart.bars"     extends=".default.layout">
             <include name="content"  value="tiles/charts/bar.phtml"/>
         </tile>                         
     </tiles>
