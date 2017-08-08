@@ -25,16 +25,16 @@
 
 
 # Gitgub Linguist overrides
-etc/db/xtrade/html/*      linguist-documentation
+etc/db/xtrade/html/*  linguist-documentation
 
-web/web/css/tablesorter/* linguist-vendored
-web/web/css/bootstrap*    linguist-vendored
+web/css/tablesorter/* linguist-vendored
+web/css/bootstrap*    linguist-vendored
 
-web/fonts/*               linguist-vendored
+web/fonts/*           linguist-vendored
 
-web/web/js/chartjs/*      linguist-vendored
-web/web/js/highstock/*    linguist-vendored
-web/web/js/tablesorter/*  linguist-vendored
-web/web/js/bootstrap*     linguist-vendored
-web/web/js/jquery*        linguist-vendored
-web/web/js/moment*        linguist-vendored
+web/js/chartjs/*      linguist-vendored
+web/js/highstock/*    linguist-vendored
+web/js/tablesorter/*  linguist-vendored
+web/js/bootstrap*     linguist-vendored
+web/js/jquery*        linguist-vendored
+web/js/moment*        linguist-vendored
