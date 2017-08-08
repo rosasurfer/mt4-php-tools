@@ -22,17 +22,20 @@
                                                             
         <mapping name="tests.sorted"       path="/sorted"   include=".tests.sorted"/>
 
-        <mapping name="chartjs.line"       path="/equity"  form="ViewTestActionForm">
+        <mapping name="chartjs.bar"        path="/chartjs/bar"  include=".chartjs.bar"/>
+        <mapping name="chartjs.line"       path="/chartjs/equity"      form="ViewTestActionForm">
             <forward name="success"  include=".chartjs.line"/>
             <forward name="error"    include=".tests.sorted"/>
         </mapping>
-
-        <mapping name="chartjs.scatter"  path="/distribution"  form="ViewTestActionForm">
+        <mapping name="chartjs.scatter"  path="/chartjs/distribution"  form="ViewTestActionForm">
             <forward name="success"  include=".chartjs.scatter"/>
             <forward name="error"    include=".tests.sorted"/>
         </mapping>
         
-        <mapping name="chartjs.bar"        path="/chart/bar"  include=".chartjs.bar"/>
+        <mapping name="highcharts.line"    path="/highcharts/equity"   form="ViewTestActionForm">
+            <forward name="success"  include=".highcharts.line"/>
+            <forward name="error"    include=".tests.sorted"/>
+        </mapping>
     </action-mappings>
     
     
@@ -64,6 +67,11 @@
         </tile>                      
         <tile name=".chartjs.scatter"  extends=".default.layout">
             <include name="content"  value="tiles/chartjs/scatter.phtml"/>
+        </tile>
+                              
+        <!-- Highcharts -->
+        <tile name=".highcharts.line"  extends=".default.layout">
+            <include name="content"  value="tiles/highcharts/line.phtml"/>
         </tile>                      
     </tiles>
 
