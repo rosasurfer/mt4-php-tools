@@ -22,17 +22,17 @@
                                                             
         <mapping name="tests.sorted"       path="/sorted"   include=".tests.sorted"/>
 
-        <mapping name="chart.equity"       path="/equity"  form="ViewTestActionForm">
-            <forward name="success"  include=".chart.equity"/>
+        <mapping name="chartjs.line"       path="/equity"  form="ViewTestActionForm">
+            <forward name="success"  include=".chartjs.line"/>
             <forward name="error"    include=".tests.sorted"/>
         </mapping>
 
-        <mapping name="chart.distribution"  path="/distribution"  form="ViewTestActionForm">
-            <forward name="success"  include=".chart.distribution"/>
+        <mapping name="chartjs.scatter"  path="/distribution"  form="ViewTestActionForm">
+            <forward name="success"  include=".chartjs.scatter"/>
             <forward name="error"    include=".tests.sorted"/>
         </mapping>
         
-        <mapping name="chart.bars"          path="/chart/bar"  include=".chart.bars"/>
+        <mapping name="chartjs.bar"        path="/chart/bar"  include=".chartjs.bar"/>
     </action-mappings>
     
     
@@ -54,16 +54,17 @@
         <tile name=".tests.sorted"   extends=".default.layout">
             <include name="content"  value="tiles/tests.sorted.phtml"/>
         </tile>
-        <tile name=".chart.equity"    extends=".default.layout">
-            <include name="content"  value="tiles/charts/line.phtml"/>
-        </tile>                      
-        <tile name=".chart.distribution"  extends=".default.layout">
-            <include name="content"  value="tiles/charts/scatter.phtml"/>
-        </tile>                      
-                                     
-        <tile name=".chart.bars"     extends=".default.layout">
-            <include name="content"  value="tiles/charts/bar.phtml"/>
+
+        <!-- Chart.js -->
+        <tile name=".chartjs.bar"    extends=".default.layout">
+            <include name="content"  value="tiles/chartjs/bar.phtml"/>
         </tile>                         
+        <tile name=".chartjs.line"   extends=".default.layout">
+            <include name="content"  value="tiles/chartjs/line.phtml"/>
+        </tile>                      
+        <tile name=".chartjs.scatter"  extends=".default.layout">
+            <include name="content"  value="tiles/chartjs/scatter.phtml"/>
+        </tile>                      
     </tiles>
 
 </struts-config>
