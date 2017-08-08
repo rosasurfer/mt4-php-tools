@@ -22,3 +22,17 @@
 .gitattributes text eol=lf
 .gitignore     text eol=lf
 .ht*           text eol=lf
+
+
+# Gitgub Linguist overrides
+web/web/css/tablesorter/* linguist-vendored
+web/web/css/bootstrap*    linguist-vendored
+
+web/fonts/*               linguist-vendored
+
+web/web/js/chartjs/*      linguist-vendored
+web/web/js/highstock/*    linguist-vendored
+web/web/js/tablesorter/*  linguist-vendored
+web/web/js/bootstrap*     linguist-vendored
+web/web/js/jquery*        linguist-vendored
+web/web/js/moment*        linguist-vendored
