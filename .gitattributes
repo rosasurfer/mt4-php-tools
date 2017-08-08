@@ -25,6 +25,8 @@
 
 
 # Gitgub Linguist overrides
+etc/db/xtrade/html/*      linguist-documentation
+
 web/web/css/tablesorter/* linguist-vendored
 web/web/css/bootstrap*    linguist-vendored
 
