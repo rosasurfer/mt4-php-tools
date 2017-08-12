@@ -25,7 +25,11 @@
 /app/
 /data/
 /data
-/Todo*
-/TODO*
+vendor/
+/composer
+/composer.phar
+/composer-dev.*
 /config.properties
 config-custom.properties
+desktop.ini
+thumbs.db
