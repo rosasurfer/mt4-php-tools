@@ -59,7 +59,7 @@ class LZMA extends StaticClass {
         $cmd     = self::getDecompressFileCmd();
         $file    = str_replace('/', DIRECTORY_SEPARATOR, str_replace('\\', '/', $file));
         $cmdLine = sprintf($cmd, $file);
-        $stdout  = PHP::shellExec($cmdLine);
+        $stdout  = PHP::execProcess($cmdLine);
 
         if (!strLen($stdout)) throw new RuntimeException('Decoding of file "'.$file.'" failed (decoded size=0)');
 
