@@ -618,11 +618,6 @@ namespace rosasurfer\xtrade\fxi\update_m1_bars {
 namespace rosasurfer\xtrade\logwatch {
 
     /**
-     * @param  string $message
-     */
-    function error($message) {}
-
-    /**
      * @param  string $message [optional]
      */
     function help($message = null) {}

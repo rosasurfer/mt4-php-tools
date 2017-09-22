@@ -80,7 +80,7 @@ foreach ($args as $i => $arg) {
 foreach ($args as $i => $arg) {
     $arg = strToUpper($arg);
     if (!isSet(XTrade::$symbols[$arg]) || XTrade::$symbols[$arg]['provider']!='dukascopy')
-        exit(1|help('unknown or unsupported symbol "'.$args[$i].'"'));
+        exit(1|stderror('unknown or unsupported symbol "'.$args[$i].'"'));
     $args[$i] = $arg;
 }                                                                       // ohne Angabe werden alle Dukascopy-Instrumente aktualisiert
 $args = $args ? array_unique($args) : array_keys(XTrade::filterSymbols(['provider'=>'dukascopy']));

@@ -34,7 +34,7 @@ foreach ($args as $i => $arg) {
     if ($arg == '-h') { help(); exit(0);                           }     // help
     if ($arg == '-q') { $quiet = true; unset($args[$i]); continue; }     // quiet mode
 
-    error('invalid argument: '.$arg);
+    stderror('invalid argument: '.$arg);
     !$quiet && help();
     exit(1);
 }
@@ -77,13 +77,13 @@ if (empty($errorLog) || $errorLog=='syslog') {           // errors are logged el
 
 // (3) check log file for existence and process it
 if (!is_file    ($errorLog)) { $quiet || echoPre('error log does not exist: '.$errorLog); exit(0); }
-if (!is_writable($errorLog)) {             error('cannot access log file: '  .$errorLog); exit(1); }
+if (!is_writable($errorLog)) {          stderror('cannot access log file: '  .$errorLog); exit(1); }
 $errorLog = realPath($errorLog);
 
 // rename the file; we don't want to lock it cause doing so could block the main app
 $tempName = tempNam(dirName($errorLog), baseName($errorLog).'.');
 if (!rename($errorLog, $tempName)) {
-    error('cannot rename log file: '  .$errorLog);
+    stderror('cannot rename log file: '  .$errorLog);
     exit(1);
 }
 
@@ -141,16 +141,6 @@ function processEntry($entry) {
         // Windows: mail() fails if "sendmail_from" is not set and "From:" header is missing
         mail($receiver, $subject, $message, $headers='From: '.$sender);
     }
-}
-
-
-/**
- * Print a message to STDERR.
- *
- * @param  string $message
- */
-function error($message) {
-    fWrite(STDERR, $message.NL);
 }
 
 

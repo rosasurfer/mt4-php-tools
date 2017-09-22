@@ -45,7 +45,7 @@ foreach ($args as $i => $arg) {
 // Symbole parsen
 foreach ($args as $i => $arg) {
     $arg = strToUpper($arg);
-    if (!isSet(XTrade::$symbols[$arg])) exit(1|help('error: unknown or unsupported symbol "'.$args[$i].'"'));
+    if (!isSet(XTrade::$symbols[$arg])) exit(1|stderror('error: unknown or unsupported symbol "'.$args[$i].'"'));
     $args[$i] = $arg;
 }                                                                       // ohne Symbol werden alle Instrumente verarbeitet
 $args = $args ? array_unique($args) : array_keys(XTrade::$symbols);

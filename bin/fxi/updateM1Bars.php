@@ -90,7 +90,7 @@ foreach ($args as $i => $arg) {
 // Symbole parsen
 foreach ($args as $i => $arg) {
     $arg = strToUpper($arg);
-    if (!array_key_exists($arg, $indexes)) exit(1|help('error: unknown or unsupported index "'.$args[$i].'"'));
+    if (!array_key_exists($arg, $indexes)) exit(1|stderror('error: unknown or unsupported index "'.$args[$i].'"'));
     $args[$i] = $arg;
 }
 $args = $args ? array_unique($args) : array_keys($indexes);             // ohne Angabe werden alle Indizes aktualisiert
