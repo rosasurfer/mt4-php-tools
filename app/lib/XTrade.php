@@ -859,10 +859,11 @@ class XTrade extends StaticClass {
 
 
 /**
- * Workaround for non-existing static initializers in PHP.
+ * Workaround for PHP's missing static initializers.
  */
 XTrade::$symbols = [
     'AUDUSD' => ['group'=>'forex'    , 'name'=>'AUDUSD', 'description'=>'Australian Dollar vs US Dollar'  , 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>['ticks'=>strToTime('2003-08-03 21:00:00 GMT'), 'M1'=>strToTime('2003-08-03 00:00:00 GMT')], 'provider'=>'dukascopy'],
+    'EURCHF' => ['group'=>'forex'    , 'name'=>'EURCHF', 'description'=>'Euro vs Swiss Franc'             , 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>['ticks'=>null                                , 'M1'=>strToTime('2003-05-04 00:00:00 GMT')], 'provider'=>'dukascopy'],
     'EURUSD' => ['group'=>'forex'    , 'name'=>'EURUSD', 'description'=>'Euro vs US Dollar'               , 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>['ticks'=>strToTime('2003-05-04 21:00:00 GMT'), 'M1'=>strToTime('2003-05-04 00:00:00 GMT')], 'provider'=>'dukascopy'],
     'GBPUSD' => ['group'=>'forex'    , 'name'=>'GBPUSD', 'description'=>'Great Britain Pound vs US Dollar', 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>['ticks'=>strToTime('2003-05-04 21:00:00 GMT'), 'M1'=>strToTime('2003-05-04 00:00:00 GMT')], 'provider'=>'dukascopy'],
     'NZDUSD' => ['group'=>'forex'    , 'name'=>'NZDUSD', 'description'=>'New Zealand Dollar vs US Dollar' , 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>['ticks'=>strToTime('2003-08-03 21:00:00 GMT'), 'M1'=>strToTime('2003-08-03 00:00:00 GMT')], 'provider'=>'dukascopy'],
