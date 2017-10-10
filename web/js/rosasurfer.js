@@ -146,7 +146,7 @@ var rosasurfer = {
      * @param string   url      - url to load
      * @param function callback - callback function
      */
-    getUrl: function getUrl(url, callback) {                 	// request.readyState = returns the status of the XMLHttpRequest
+    getUrl: function getUrl(url, callback) {                    // request.readyState = returns the status of the XMLHttpRequest
         var request = new XMLHttpRequest();                     //  0: request not initialized
         request.url = url;                                      //  1: server connection established
         request.onreadystatechange = function() {               //  2: request received
@@ -262,7 +262,7 @@ var rosasurfer = {
             div.style.color           = 'black';
             div.style.backgroundColor = 'lightgray';
             var bodies = document.getElementsByTagName('body');
-            if (!bodies || !bodies.length) return alert('rosasurfer.log()\n\nError: You cannot log from outside the <body> tag!');
+            if (!bodies || !bodies.length) return alert('rosasurfer.log()\n\nFailed attaching the output DIV to the page body (BODY tag not found).\nWait for document.onLoad() or use console.log() if you want to log from the page header?');
             bodies[0].appendChild(div);
         }
         if      (target=='top'   ) div.style.position = 'absolute';
