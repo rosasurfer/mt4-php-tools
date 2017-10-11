@@ -26,7 +26,9 @@ vendor/
 /composer
 /composer.phar
 /composer-dev.*
-config.properties
+
+config.*properties
+!config.dist.properties
 
 /data/
 /data
