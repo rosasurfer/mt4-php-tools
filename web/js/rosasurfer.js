@@ -91,22 +91,45 @@ var rosasurfer = {
 
 
     /**
-     * Get an array with all query parameters.
+     * Get an object holding all query parameters. Array parameters are supported for the first dimension.
      *
-     * @param  string url - static URL to get query parameters from (if not given, the current page's url is used)
+     * @param  string url [optional] - URL to get query parameters from (default: the current page location)
      *
-     * @return array - [key1=>value1, key2=>value2, ..., keyN=>valueN]
+     * @return array - {key1: value1, key2: value2, ..., keyN: valueN}
      */
-    getQueryParameters: function getQueryParameters(url/*=location.search*/) {
-        var pos, search;
-        if (url===undefined) search = location.search;
-        else                 search = ((pos=url.indexOf('?'))==-1) ? '' : url.substr(pos);
+    getQueryParameters: function getQueryParameters(url) {
+        var pos, query;
+        if (url===undefined) query = location.search;
+        else                 query = ((pos=url.indexOf('?'))==-1) ? '' : url.substr(pos);
 
-        var result={}, values, pairs=search.slice(1).split('&');
-        pairs.forEach(function(/*string*/pair) {
-            values = pair.split('=');                          // Unlike PHP the JavaScript function split(str, limit) discards
-            if (values.length > 1)                             // additional occurrences.
-                result[values.shift()] = values.join('=');
+        var result={}, pairs=query.slice(1).replace(/\+/g, ' ').split('&'), reArray=/^([^[]+)\[(.*)\]$/, matches, lengths={};
+
+        pairs.forEach(function(pair) {
+            var name, value, values=pair.split('=');                       // Unlike PHP the JavaScript function split(str, limit)
+                                                                           // discards additional occurrences.
+            if (values.length > 1) {
+                name  = decodeURIComponent(values.shift());
+                value = decodeURIComponent(values.join('='));
+
+                if (name.contains('[') && (matches = name.match(reArray))) {
+                    var array = matches[1];
+                    var key = matches[2];
+                    if (typeof(result[array]) != 'object')
+                        result[array] = {};
+                    if (!key.length)        Array.prototype.push.call(result[array], value);
+                    else if (key=='length') lengths[array] = value;        // backup length parameter to not confuse Array.push()
+                    else                    result[array][key] = value;
+                }
+                else result[name] = value;
+            }
+        });
+
+        Object.keys(result).forEach(function(key) {
+            if (typeof(result[key]) == 'object') {
+               delete result[key].length;                                  // delete length property defined by Array.push()
+               if (lengths[key] !== undefined)
+                  result[key].length = lengths[key];                       // restore a backed-up length parameter
+            }
         });
         return result;
     },
@@ -115,10 +138,10 @@ var rosasurfer = {
     /**
      * Get a single query parameter value.
      *
-     * @param  string name - parameter name
-     * @param  string url  - static URL to get a query parameter from (if not given, the current page's url is used)
+     * @param  string name           - parameter name
+     * @param  string url [optional] - URL to get a query parameter from (default: the current page location)
      *
-     * @return string - value or null if the parameter doesn't exist in the query string
+     * @return string - value or undefined if the parameter doesn't exist in the query string
      */
     getQueryParameter: function getQueryParameter(name, url) {
         if (name===undefined) return alert('rosasurfer.getQueryParameter()\n\nUndefined parameter "name"');
@@ -129,8 +152,8 @@ var rosasurfer = {
     /**
      * Whether or not a parameter exists in the query string.
      *
-     * @param  string name - parameter name
-     * @param  string url  - static URL to check for the query parameter (if not given, the current page's url is used)
+     * @param  string name           - parameter name
+     * @param  string url [optional] - URL to check for the query parameter (default: the current page location)
      *
      * @return bool
      */
@@ -146,16 +169,16 @@ var rosasurfer = {
      * @param string   url      - url to load
      * @param function callback - callback function
      */
-    getUrl: function getUrl(url, callback) {                    // request.readyState = returns the status of the XMLHttpRequest
-        var request = new XMLHttpRequest();                     //  0: request not initialized
-        request.url = url;                                      //  1: server connection established
-        request.onreadystatechange = function() {               //  2: request received
-            if (request.readyState == 4) {                      //  3: processing request
-                callback(request);                              //  4: request finished and response is ready
-            }                                                   //
-        };                                                      // request.status = returns the HTTP status-code
-        request.open('GET', url , true);                        //  200: "OK"
-        request.send(null);                                     //  404: "Not Found" etc.
+    getUrl: function getUrl(url, callback) {                   // request.readyState = returns the status of the XMLHttpRequest
+        var request = new XMLHttpRequest();                    //  0: request not initialized
+        request.url = url;                                     //  1: server connection established
+        request.onreadystatechange = function() {              //  2: request received
+            if (request.readyState == 4) {                     //  3: processing request
+                callback(request);                             //  4: request finished and response is ready
+            }                                                  //
+        };                                                     // request.status = returns the HTTP status-code
+        request.open('GET', url , true);                       //  200: "OK"
+        request.send(null);                                    //  404: "Not Found" etc.
     },
 
 
@@ -167,16 +190,16 @@ var rosasurfer = {
      * @param object   headers  - additional request header
      * @param function callback - callback function
      */
-    postUrl: function postUrl(url, data, headers, callback) {   // request.readyState = returns the status of the XMLHttpRequest
-        var request = new XMLHttpRequest();                     //  0: request not initialized
-        request.url = url;                                      //  1: server connection established
-        request.onreadystatechange = function() {               //  2: request received
-            if (request.readyState == 4) {                      //  3: processing request
-                callback(request);                              //  4: request finished and response is ready
-            }                                                   //
-        };                                                      // request.status = returns the HTTP status-code
-        request.open('POST', url , true);                       //  200: "OK"
-        for (var name in headers) {                             //  404: "Not Found" etc.
+    postUrl: function postUrl(url, data, headers, callback) {  // request.readyState = returns the status of the XMLHttpRequest
+        var request = new XMLHttpRequest();                    //  0: request not initialized
+        request.url = url;                                     //  1: server connection established
+        request.onreadystatechange = function() {              //  2: request received
+            if (request.readyState == 4) {                     //  3: processing request
+                callback(request);                             //  4: request finished and response is ready
+            }                                                  //
+        };                                                     // request.status = returns the HTTP status-code
+        request.open('POST', url , true);                      //  200: "OK"
+        for (var name in headers) {                            //  404: "Not Found" etc.
             request.setRequestHeader(name, headers[name]);
         }
         request.send(data);
@@ -211,10 +234,12 @@ var rosasurfer = {
      * Show all accessible properties of the passed argument.
      *
      * @param  mixed arg
+     * @param  bool  sort [optional] - whether or not to sort the displayed properties (default: yes)
      */
-    showProperties: function showProperties(arg) {
+    showProperties: function showProperties(arg, sort) {
         if (arg === undefined) return alert('rosasurfer.showProperties()\n\nPassed parameter: undefined');
         if (arg === null)      return alert('rosasurfer.showProperties()\n\nPassed parameter: null');
+        sort = (sort===undefined) ? true : Boolean(sort);
 
         var property='', properties=[], type=this.getType(arg);
 
@@ -229,7 +254,9 @@ var rosasurfer = {
         }
 
         if (properties.length) {
-            this.log(properties.sort().join('<br>\n'));
+            if (sort)
+               properties = properties.sort();
+            this.log(properties.join('<br>\n'));
         }
         else {
             alert('rosasurfer.showProperties()\n\n'+ type +' has no known properties.');
