@@ -1,6 +1,6 @@
 #
-# Unconditional rewrite rules. Intentionally triggers a server error if mod_rewrite is disabled,
-# to protect the project directory from accidently being exposed to the web.
+# Intentionally trigger a server error if mod_rewrite is disabled, to protect the project
+# directory from accidently being exposed to the web.
 #
 RewriteEngine On
 RewriteRule   (.*)  web/$1  [L]
