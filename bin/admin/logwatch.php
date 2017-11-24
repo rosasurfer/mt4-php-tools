@@ -94,12 +94,12 @@ $line  = $entry = '';
 $i = 0;
 while (($line=fGets($hFile)) !== false) {
     $i++;
-    $line = trim($line, "\r\n");                // PHP cannot handle EOL_NETSCAPE "\r\r\n" (standard on PHP-Windows)
+    $line = trim($line, "\r\n");                // PHP cannot handle EOL_NETSCAPE "\r\r\n" which is error_log() standard on Windows
     if (strStartsWith($line, '[')) {            // lines starting with a bracket "[" are considered the start of an entry
         processEntry($entry);
         $entry = '';
     }
-    $entry .= $line;
+    $entry .= $line.NL;
 }
 processEntry($entry);                           // process the last entry (if any)
 
@@ -128,10 +128,10 @@ function processEntry($entry) {
 
     global $quiet, $sender, $receivers;
 
-    $entry = normalizeEOL($entry, WINDOWS ? EOL_WINDOWS:EOL_UNIX);  // normalize line-breaks for email
-    $entry = str_replace(chr(0), '?', $entry);                      // replace NUL bytes which destroy the mail
+    $entry = normalizeEOL($entry, WINDOWS ? EOL_WINDOWS : EOL_UNIX);    // normalize line-breaks for email
+    $entry = str_replace(chr(0), '?', $entry);                          // replace NUL bytes which destroy the mail
 
-    $subject = strTok($entry, "\r\n");                              // that's CR or LF, not CRLF
+    $subject = strTok($entry, "\r\n");                                  // that's CR or LF, not CRLF
     $message = $entry;
 
     $quiet || echoPre('sending log entry: '.subStr($subject, 0, 50).'...');
