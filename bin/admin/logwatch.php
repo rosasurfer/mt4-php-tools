@@ -46,9 +46,9 @@ foreach ($args as $i => $arg) {
 // (1) define error log sender and receivers
 // read the regularily configured receivers
 $config = Config::getDefault();
-$sender = $config->get('mail.from', get_current_user().'@localhost');
+$sender = $config->get('mail.from', strToLower(get_current_user().'@localhost'));
 $receivers = [];
-foreach (explode(',', $config->get('log.mail.receiver', '')) as $receiver) {
+foreach (explode(',', $config->get('log.mail.receivers', '')) as $receiver) {
     if ($receiver=trim($receiver))
         $receivers[] = $receiver;       // TODO: validate address format
 }
@@ -63,7 +63,7 @@ if ($receivers && $forcedReceivers=$config->get('mail.forced-receiver', false)) 
 }
 
 // without receiver mail is sent to the current system user
-!$receivers && $receivers[]=get_current_user().'@localhost';
+!$receivers && $receivers[]=strToLower(get_current_user().'@localhost');
 
 
 // (2) define the location of the error log
