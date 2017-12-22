@@ -1,28 +1,33 @@
 #!/usr/bin/env php
 <?php
-
 /**
- * Scans the application's PHP error log file for entries and notifies by email. Mail is sent to the configured log message
- * receivers. If no receivers are configured mail is sent to the system user running the script. Processed log entries are
- * removed from the log file.
- *
- * TODO: Error messages must not be printed to STDOUT but to STDERR.
- * TODO: Add parameter for not suppressing regular output to get status messages when not executed by CRON.
+ * Scan the application's PHP error log file for new entries and send them by email to the configured log message
+ * receivers. If no receivers are configured mail is sent to the system user running the script. Processed log entries
+ * are removed from the log file.
  */
 namespace rosasurfer\xtrade\logwatch;
 
 use rosasurfer\config\Config;
 use rosasurfer\exception\IllegalTypeException;
+use rosasurfer\net\mail\Mailer;
 use rosasurfer\util\PHP;
 
+use function rosasurfer\echoPre;
+use function rosasurfer\stderror;
+use function rosasurfer\strStartsWith;
+
+use const rosasurfer\CLI;
+use const rosasurfer\NL;
+use const rosasurfer\WINDOWS;
+
 require(dirName(realPath(__FILE__)).'/../../app/init.php');
-set_time_limit(0);                                       // no time limit for CLI
+set_time_limit(0);                                          // no time limit for CLI
 
 
 // --- configuration --------------------------------------------------------------------------------------------------------
 
 
-$quiet = false;                                          // whether or not "quiet" mode is enabled (for CRON)
+$quiet = false;                                             // whether or not "quiet" mode is enabled (for CRON)
 
 
 // --- parse/validate command line arguments --------------------------------------------------------------------------------
@@ -31,8 +36,8 @@ $quiet = false;                                          // whether or not "quie
 $args = array_slice($_SERVER['argv'], 1);
 
 foreach ($args as $i => $arg) {
-    if ($arg == '-h') { help(); exit(0);                           }     // help
-    if ($arg == '-q') { $quiet = true; unset($args[$i]); continue; }     // quiet mode
+    if ($arg == '-h') { help(); exit(0);                           }    // help
+    if ($arg == '-q') { $quiet = true; unset($args[$i]); continue; }    // quiet mode
 
     stderror('invalid argument: '.$arg);
     !$quiet && help();
@@ -43,41 +48,18 @@ foreach ($args as $i => $arg) {
 // --- start ----------------------------------------------------------------------------------------------------------------
 
 
-// (1) define error log sender and receivers
-// read the regularily configured receivers
-$config = Config::getDefault();
-$sender = $config->get('mail.from', strToLower(get_current_user().'@localhost'));
-$receivers = [];
-foreach (explode(',', $config->get('log.mail.receivers', '')) as $receiver) {
-    if ($receiver=trim($receiver))
-        $receivers[] = $receiver;       // TODO: validate address format
-}
-
-// check setting "mail.forced-receiver" (may be set in development)
-if ($receivers && $forcedReceivers=$config->get('mail.forced-receiver', false)) {
-    $receivers = [];
-    foreach (explode(',', $forcedReceivers) as $receiver) {
-        if ($receiver=trim($receiver))
-            $receivers[] = $receiver;
-    }
-}
-
-// without receiver mail is sent to the current system user
-!$receivers && $receivers[]=strToLower(get_current_user().'@localhost');
-
-
-// (2) define the location of the error log
+// (1) define the location of the error log
 $errorLog = ini_get('error_log');
-if (empty($errorLog) || $errorLog=='syslog') {           // errors are logged elsewhere
+if (empty($errorLog) || $errorLog=='syslog') {              // errors are logged elsewhere
     if (empty($errorLog)) $quiet || echoPre('errors are logged elsewhere ('.(CLI     ?    'stderr':'sapi'  ).')');
     else                  $quiet || echoPre('errors are logged elsewhere ('.(WINDOWS ? 'event log':'syslog').')');
     exit(0);
 }
 
 
-// (3) check log file for existence and process it
-if (!is_file    ($errorLog)) { $quiet || echoPre('error log does not exist: '.$errorLog); exit(0); }
-if (!is_writable($errorLog)) {          stderror('cannot access log file: '  .$errorLog); exit(1); }
+// (2) check log file for existence and process it
+if (!is_file    ($errorLog)) { $quiet || echoPre('error log empty: '       .$errorLog); exit(0); }
+if (!is_writable($errorLog)) {          stderror('cannot access log file: '.$errorLog); exit(1); }
 $errorLog = realPath($errorLog);
 
 // rename the file; we don't want to lock it cause doing so could block the main app
@@ -94,7 +76,7 @@ $line  = $entry = '';
 $i = 0;
 while (($line=fGets($hFile)) !== false) {
     $i++;
-    $line = trim($line, "\r\n");                // PHP cannot handle EOL_NETSCAPE "\r\r\n" which is error_log() standard on Windows
+    $line = trim($line, "\r\n");                // PHP doesn't correctly handle EOL_NETSCAPE which is error_log() standard on Windows
     if (strStartsWith($line, '[')) {            // lines starting with a bracket "[" are considered the start of an entry
         processEntry($entry);
         $entry = '';
@@ -108,45 +90,62 @@ fClose($hFile);
 unlink($tempName);
 
 
-// (4) the ugly end
+// (3) the ugly end
 exit(0);
 
 
-// --- function definitions -------------------------------------------------------------------------------------------------
+// --- functions ------------------------------------------------------------------------------------------------------------
 
 
 /**
  * Send a single log entry to the defined error log receivers. The first line is sent as the mail subject and the full
  * log entry as the mail body.
  *
- * @param  string $entry - a single or multi line log entry
+ * @param  string $entry - a single log entry
  */
 function processEntry($entry) {
     if (!is_string($entry)) throw new IllegalTypeException('Illegal type of parameter $entry: '.getType($entry));
     $entry = trim($entry);
     if (!strLen($entry)) return;
 
-    global $quiet, $sender, $receivers;
+    $config = Config::getDefault();
 
-    $entry = normalizeEOL($entry, WINDOWS ? EOL_WINDOWS : EOL_UNIX);    // normalize line-breaks for email
-    $entry = str_replace(chr(0), '?', $entry);                          // replace NUL bytes which destroy the mail
+    $receivers = [];
+    foreach (explode(',', $config->get('log.mail.receiver', '')) as $receiver) {
+        if ($receiver = trim($receiver)) {
+            if (filter_var($receiver, FILTER_VALIDATE_EMAIL)) {     // silently skip invalid receiver addresses
+                $receivers[] = $receiver;
+            }
+        }
+    }                                                               // without receivers mail is sent to the system user
+    !$receivers && $receivers[] = strToLower(get_current_user().'@localhost');
 
-    $subject = strTok($entry, "\r\n");                                  // that's CR or LF, not CRLF
+    $subject = strTok($entry, "\r\n");                              // that's CR or LF, not CRLF
     $message = $entry;
+    $sender  = null;
+    $headers = [];
 
-    $quiet || echoPre('sending log entry: '.subStr($subject, 0, 50).'...');
+    static $mailer; if (!$mailer) {
+        $options = [];
+        if (strLen($name = $config->get('log.mail.profile', ''))) {
+            $options = $config->get('mail.profile.'.$name, []);
+            $sender  = $config->get('mail.profile.'.$name.'.from', null);
+            $headers = $config->get('mail.profile.'.$name.'.headers', []);
+        }
+        $mailer = Mailer::create($options);
+    }
 
-    // send log entry to receivers
+    global $quiet;
+    $quiet || echoPre(subStr($subject, 0, 80).'...');
+
     foreach ($receivers as $receiver) {
-        // Linux:   "From:" header is not reqired but may be set
-        // Windows: mail() fails if "sendmail_from" is not set and "From:" header is missing
-        mail($receiver, $subject, $message, $headers='From: '.$sender);
+        $mailer->sendMail($sender, $receiver, $subject, $message, $headers);
     }
 }
 
 
 /**
- * Help. Display script syntax.
+ * Syntax helper.
  *
  * @param  string $message [optional] - additional message to display (default: none)
  */
