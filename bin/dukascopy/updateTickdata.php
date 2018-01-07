@@ -29,6 +29,9 @@
  *          +------------------------+------------+------------+------------+------------------------+------------------------+
  * GMT:     |   Sunday      Monday   |  Tuesday   | Wednesday  |  Thursday  |   Friday     Saturday  |   Sunday      Monday   |
  *          +------------------------+------------+------------+------------+------------------------+------------------------+
+ *
+ *
+ * TODO: clarify http://www.opserver.de/ubb7/ubbthreads.php?ubb=showflat&Number=463361#Post463345
  */
 namespace rosasurfer\xtrade\dukascopy\update_tickdata;
 
