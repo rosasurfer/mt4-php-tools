@@ -1,6 +1,7 @@
 #
-# Intentionally trigger a server error if mod_rewrite is disabled, to protect the project
-# directory from accidently being exposed to the web.
+# It's strongly recommended to disable .htaccess files and instead configure the project in a VirtualHost definition.
+#
+# Intentionally trigger a server error if mod_rewrite is disabled.
 #
 RewriteEngine On
 RewriteCond   %{REQUEST_FILENAME}  !-d
