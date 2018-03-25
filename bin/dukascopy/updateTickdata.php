@@ -89,11 +89,7 @@ foreach ($args as $i => $arg) {
 $args = $args ? array_unique($args) : array_keys(XTrade::filterSymbols(['provider'=>'dukascopy']));
 
 
-// (2) install SIGINT handler (catches Ctrl-C)                          // To execute destructors calling exit()
-if (!WINDOWS) pcntl_signal(SIGINT, function($signo) { exit(); });       // in the handler is sufficient.
-
-
-// (3) Daten aktualisieren
+// (2) Daten aktualisieren
 foreach ($args as $symbol) {
     !updateSymbol($symbol) && exit(1);
 }

@@ -96,11 +96,7 @@ foreach ($args as $i => $arg) {
 $args = $args ? array_unique($args) : array_keys($indexes);             // ohne Angabe werden alle Indizes aktualisiert
 
 
-// (2) install SIGINT handler (catches Ctrl-C)                          // To execute destructors calling exit()
-if (!WINDOWS) pcntl_signal(SIGINT, function($signo) { exit(); });       // in the handler is sufficient.
-
-
-// (3) Indizes berechnen
+// (2) Indizes berechnen
 foreach ($args as $index) {
     !updateIndex($index) && exit(1);
 }

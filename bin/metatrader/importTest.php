@@ -75,11 +75,7 @@ foreach ($files as $name => &$path) {
 !$files && exit(1|echoPre('error: no test result files found'));
 
 
-// (2) install SIGINT handler (catches Ctrl-C)                          // To execute destructors it's sufficient to call
-if (!WINDOWS) pcntl_signal(SIGINT, function($signo) { exit(); });       // exit() in the handler.
-
-
-// (3) process the files
+// (2) process the files
 processTestFiles($files) || exit(1);
 
 exit(0);

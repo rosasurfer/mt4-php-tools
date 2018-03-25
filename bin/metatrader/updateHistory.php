@@ -49,11 +49,7 @@ foreach ($args as $i => $arg) {
 $args = $args ? array_unique($args) : array_keys(XTrade::$symbols);     // ohne Angabe werden alle Instrumente verarbeitet
 
 
-// (2) install SIGINT handler (catches Ctrl-C)                          // To execute destructors calling exit()
-if (!WINDOWS) pcntl_signal(SIGINT, function($signo) { exit(); });       // in the handler is sufficient.
-
-
-// (3) History aktualisieren
+// (2) History aktualisieren
 foreach ($args as $symbol) {
     !updateHistory($symbol) && exit(1);
     break;                                 // temp.
