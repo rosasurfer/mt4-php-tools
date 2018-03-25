@@ -29,7 +29,7 @@ fi
 
 
 # function to copy a hook file
-copy_hook() {
+function copy_hook() {
     SOURCE="$SCRIPT_DIR/$1"
     TARGET="$GIT_HOOK_DIR/$1"
 
