@@ -1,9 +1,9 @@
 #!/usr/bin/env php
 <?php
 /**
- * Scan the application's PHP error log file for new entries and send them by email to the configured log message
- * receivers. If no receivers are configured mail is sent to the system user running the script. Processed log entries
- * are removed from the log file.
+ * Scans the application's PHP error logfile for entries and sends them by email to the configured logmessage receivers.
+ * If no receivers are configured mail is sent to the system user running the script. Processed log entries are removed
+ * from the file.
  */
 namespace rosasurfer\xtrade\logwatch;
 
@@ -21,16 +21,17 @@ use const rosasurfer\NL;
 use const rosasurfer\WINDOWS;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');
+!CLI && exit(1|stderror('error: This script must be executed from a command line interface.'));
+
+
+// --- Configuration --------------------------------------------------------------------------------------------------------
+
+
 set_time_limit(0);                                          // no time limit for CLI
+$quiet = false;                                             // whether or not "quiet" mode is enabled (e.g. for CRON)
 
 
-// --- configuration --------------------------------------------------------------------------------------------------------
-
-
-$quiet = false;                                             // whether or not "quiet" mode is enabled (for CRON)
-
-
-// --- parse/validate command line arguments --------------------------------------------------------------------------------
+// --- Parse and validate command line arguments ----------------------------------------------------------------------------
 
 
 $args = array_slice($_SERVER['argv'], 1);
@@ -45,7 +46,7 @@ foreach ($args as $i => $arg) {
 }
 
 
-// --- start ----------------------------------------------------------------------------------------------------------------
+// --- Start ----------------------------------------------------------------------------------------------------------------
 
 
 // (1) define the location of the error log
@@ -94,7 +95,7 @@ unlink($tempName);
 exit(0);
 
 
-// --- functions ------------------------------------------------------------------------------------------------------------
+// --- Functions ------------------------------------------------------------------------------------------------------------
 
 
 /**
@@ -159,7 +160,7 @@ echo <<<HELP
 
  Syntax:  $self [options]
 
- Options:  -q   Quiet mode. Suppress status messages but not errors (for execution by CRON).
+ Options:  -q   Quiet mode. Suppress status messages but not errors (for scripted execution, e.g. by CRON).
            -h   This help screen.
 
 
