@@ -208,7 +208,7 @@ class Test extends PersistableObject {
         // (2) parse the test config file
         $content = normalizeEOL(file_get_contents($configFile));
                                                                         // increase RegExp limit if needed
-        static $pcreLimit = null; !$pcreLimit && $pcreLimit = PHP::ini_get_int('pcre.backtrack_limit');
+        static $pcreLimit = null; !$pcreLimit && $pcreLimit = ini_get_int('pcre.backtrack_limit');
         if (strLen($content) > $pcreLimit) PHP::ini_set('pcre.backtrack_limit', $pcreLimit = strLen($content));
 
         // tradeDirections
@@ -304,7 +304,7 @@ class Test extends PersistableObject {
 
         $oldTimezone = date_default_timezone_get();
         try {                                                          // increase RegExp limit if needed
-            static $pcreLimit = null; !$pcreLimit && $pcreLimit = PHP::ini_get_int('pcre.backtrack_limit');
+            static $pcreLimit = null; !$pcreLimit && $pcreLimit = ini_get_int('pcre.backtrack_limit');
             if (strLen($values) > $pcreLimit) PHP::ini_set('pcre.backtrack_limit', $pcreLimit=strLen($values));
 
             // test={id=0, time="Tue, 10-Jan-2017 23:36:38", strategy="MyFX Example MA", reportingId=2, reportingSymbol="MyFXExa.002", symbol="EURUSD", timeframe=PERIOD_M1, startTime="Tue, 01-Dec-2015 00:03:00", endTime="Thu, 31-Dec-2015 23:58:59", barModel=0, spread=0.1, bars=31535, ticks=31536, accountDeposit=100000.00, accountCurrency="USD", tradeDirections=0, visualMode=FALSE, duration=1.544 s, orders=1451}
@@ -423,7 +423,7 @@ class Test extends PersistableObject {
         $values     = trim($values);
         $properties = [];
                                                                                             // increase RegExp limit if needed
-        static $pcreLimit = null; !$pcreLimit && $pcreLimit = PHP::ini_get_int('pcre.backtrack_limit');
+        static $pcreLimit = null; !$pcreLimit && $pcreLimit = ini_get_int('pcre.backtrack_limit');
         if (strLen($values) > $pcreLimit) PHP::ini_set('pcre.backtrack_limit', $pcreLimit=strLen($values));
 
         // order.0={id=0, ticket=1, type=OP_SELL, lots=0.10, symbol="EURUSD", openPrice=1.05669, openTime="Tue, 01-Dec-2015 00:22:00", stopLoss=0, takeProfit=0, closePrice=1.05685, closeTime="Tue, 01-Dec-2015 00:29:00", commission=-0.43, swap=0.00, profit=-1.60, magicNumber=0, comment=""}
