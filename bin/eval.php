@@ -1,8 +1,10 @@
 #!/usr/bin/env php
 <?php
 /**
- * CAUTION: Command line script to execute arbitrary PHP code in the context of the application.
- *          Used to read and return application configuration values to regular shell scripts.
+ * Command line script to execute arbitrary PHP code in the context of the application.
+ * Used to read application configuration values by regular shell scripts.
+ *
+ * CAUTION: Make sure access rights in the project are set accordingly.
  *
  * @example
  *
