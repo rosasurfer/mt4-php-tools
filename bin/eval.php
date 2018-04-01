@@ -5,7 +5,12 @@
  *          Used to read and return application configuration values to regular shell scripts.
  *
  * @example
- *   $ bin/phpcmd.php 'echo rosasurfer\config\Config::getDefault()["app.dir.log"];'
+ *
+ *   #!/bin/bash
+ *   #
+ *   APP_LOG_DIR="$(bin/eval.php 'echo rosasurfer\config\Config::getDefault()["app.dir.log"];')"
+ *   echo "APP_LOG_DIR: $APP_LOG_DIR"
+ *
  */
 require(dirName(realPath(__FILE__)).'/../app/init.php');
 !CLI && exit(1|stderror('error: This script must be executed in CLI mode.'));
