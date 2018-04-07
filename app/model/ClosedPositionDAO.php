@@ -21,33 +21,33 @@ class ClosedPositionDAO extends DAO {
      */
     public function getMapping() {
         static $mapping; return $mapping ?: ($mapping=$this->parseMapping([
-            'class'      => ClosedPosition::class,
-            'table'      => 't_closedposition',
             'connection' => 'mysql',
+            'table'      => 't_closedposition',
+            'class'      => ClosedPosition::class,
             'properties' => [
-                ['name'=>'id'         , 'type'=>INT   , 'primary'=>true   ],      // db:int
-                ['name'=>'created'    , 'type'=>STRING,                   ],      // db:datetime
-                ['name'=>'version'    , 'type'=>STRING, 'version'=>true   ],      // db:datetime
+                ['name'=>'id',          'type'=>INT,    'primary'=>true   ],      // db:int
+                ['name'=>'created',     'type'=>STRING,                   ],      // db:datetime
+                ['name'=>'version',     'type'=>STRING, 'version'=>true   ],      // db:datetime
 
-                ['name'=>'ticket'     , 'type'=>INT   ,                   ],      // db:int
-                ['name'=>'type'       , 'type'=>STRING,                   ],      // db:string
-                ['name'=>'lots'       , 'type'=>FLOAT ,                   ],      // db:decimal
-                ['name'=>'symbol'     , 'type'=>STRING,                   ],      // db:string
-                ['name'=>'openTime'   , 'type'=>STRING,                   ],      // db:datetime
-                ['name'=>'openPrice'  , 'type'=>FLOAT ,                   ],      // db:decimal
-                ['name'=>'closeTime'  , 'type'=>STRING,                   ],      // db:datetime
-                ['name'=>'closePrice' , 'type'=>FLOAT ,                   ],      // db:decimal
-                ['name'=>'stopLoss'   , 'type'=>FLOAT ,                   ],      // db:decimal
-                ['name'=>'takeProfit' , 'type'=>FLOAT ,                   ],      // db:decimal
-                ['name'=>'commission' , 'type'=>FLOAT ,                   ],      // db:decimal
-                ['name'=>'swap'       , 'type'=>FLOAT ,                   ],      // db:decimal
-                ['name'=>'grossProfit', 'type'=>FLOAT , 'column'=>'profit'],      // db:decimal
-                ['name'=>'netProfit'  , 'type'=>FLOAT ,                   ],      // db:decimal
-                ['name'=>'magicNumber', 'type'=>INT   ,                   ],      // db:int
-                ['name'=>'comment'    , 'type'=>STRING,                   ],      // db:string
+                ['name'=>'ticket',      'type'=>INT,                      ],      // db:int
+                ['name'=>'type',        'type'=>STRING,                   ],      // db:string
+                ['name'=>'lots',        'type'=>FLOAT,                    ],      // db:decimal
+                ['name'=>'symbol',      'type'=>STRING,                   ],      // db:string
+                ['name'=>'openTime',    'type'=>STRING,                   ],      // db:datetime
+                ['name'=>'openPrice',   'type'=>FLOAT,                    ],      // db:decimal
+                ['name'=>'closeTime',   'type'=>STRING,                   ],      // db:datetime
+                ['name'=>'closePrice',  'type'=>FLOAT,                    ],      // db:decimal
+                ['name'=>'stopLoss',    'type'=>FLOAT,                    ],      // db:decimal
+                ['name'=>'takeProfit',  'type'=>FLOAT,                    ],      // db:decimal
+                ['name'=>'commission',  'type'=>FLOAT,                    ],      // db:decimal
+                ['name'=>'swap',        'type'=>FLOAT,                    ],      // db:decimal
+                ['name'=>'grossProfit', 'type'=>FLOAT,  'column'=>'profit'],      // db:decimal
+                ['name'=>'netProfit',   'type'=>FLOAT,                    ],      // db:decimal
+                ['name'=>'magicNumber', 'type'=>INT,                      ],      // db:int
+                ['name'=>'comment',     'type'=>STRING,                   ],      // db:string
             ],
             'relations' => [
-                ['name'=>'signal', 'relation'=>'many-to-one', 'type'=>Signal::class, 'column'=>'signal_id'],
+                ['name'=>'signal', 'assoc'=>'many-to-one', 'type'=>Signal::class, 'column'=>'signal_id'],
             ],
         ]));
     }

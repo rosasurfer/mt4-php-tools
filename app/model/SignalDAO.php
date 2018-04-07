@@ -20,23 +20,23 @@ class SignalDAO extends DAO {
      */
     public function getMapping() {
         static $mapping; return $mapping ?: ($mapping=$this->parseMapping([
-            'class'      => Signal::class,
-            'table'      => 't_signal',
             'connection' => 'mysql',
+            'table'      => 't_signal',
+            'class'      => Signal::class,
             'properties' => [
-                ['name'=>'id'             , 'type'=>INT   , 'primary'=>true        ],     // db:int
-                ['name'=>'created'        , 'type'=>STRING,                        ],     // db:datetime
-                ['name'=>'version'        , 'type'=>STRING, 'version'=>true        ],     // db:timestamp
+                ['name'=>'id',              'type'=>INT,    'primary'=>true        ],     // db:int
+                ['name'=>'created',         'type'=>STRING,                        ],     // db:datetime
+                ['name'=>'version',         'type'=>STRING, 'version'=>true        ],     // db:timestamp
 
-                ['name'=>'provider'       , 'type'=>STRING,                        ],     // db:enum
-                ['name'=>'providerId'     , 'type'=>STRING, 'column'=>'provider_id'],     // db:string
-                ['name'=>'name'           , 'type'=>STRING,                        ],     // db:string
-                ['name'=>'alias'          , 'type'=>STRING,                        ],     // db:string
+                ['name'=>'provider',        'type'=>STRING,                        ],     // db:enum
+                ['name'=>'providerId',      'type'=>STRING, 'column'=>'provider_id'],     // db:string
+                ['name'=>'name',            'type'=>STRING,                        ],     // db:string
+                ['name'=>'alias',           'type'=>STRING,                        ],     // db:string
                 ['name'=>'accountCurrency', 'type'=>STRING, 'column'=>'currency'   ],     // db:enum
             ],
             'relations' => [
-                ['name'=>'openPositions'  , 'relation'=>'one-to-many', 'type'=>OpenPosition::class  , 'ref-column'=>'signal_id'],
-                ['name'=>'closedPositions', 'relation'=>'one-to-many', 'type'=>ClosedPosition::class, 'ref-column'=>'signal_id'],
+                ['name'=>'openPositions'  , 'assoc'=>'one-to-many', 'type'=>OpenPosition::class  , 'ref-column'=>'signal_id'],
+                ['name'=>'closedPositions', 'assoc'=>'one-to-many', 'type'=>ClosedPosition::class, 'ref-column'=>'signal_id'],
             ],
         ]));
     }

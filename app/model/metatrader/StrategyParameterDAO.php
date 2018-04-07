@@ -18,12 +18,12 @@ class StrategyParameterDAO extends DAO {
      */
     public function getMapping() {
         static $mapping; return $mapping ?: ($mapping=$this->parseMapping([
-            'class'      => StrategyParameter::class,
-            'table'      => 't_strategyparameter',
             'connection' => 'sqlite',
+            'table'      => 't_strategyparameter',
+            'class'      => StrategyParameter::class,
             'properties' => [
-                ['name'=>'id'   , 'type'=>INT   , 'primary'=>true],                                 // db:int
-                ['name'=>'name' , 'type'=>STRING,                ],                                 // db:text
+                ['name'=>'id',    'type'=>INT,    'primary'=>true],                                 // db:int
+                ['name'=>'name',  'type'=>STRING,                ],                                 // db:text
                 ['name'=>'value', 'type'=>STRING,                ],                                 // db:text
             ],
             'relations' => [
