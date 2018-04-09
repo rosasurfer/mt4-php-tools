@@ -240,12 +240,11 @@ class Order extends PersistableObject {
 
 
     /**
-     * Update pre-processing hook (application-side ORM trigger).
+     * Update the version field as this is not yet automated by the ORM.
      *
      * {@inheritdoc}
      */
     protected function beforeUpdate() {
         $this->modified = date('Y-m-d H:i:s');
-        return true;
     }
 }

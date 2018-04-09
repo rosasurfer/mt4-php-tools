@@ -54,8 +54,6 @@ class ViewTestActionForm extends ActionForm {
 
    /**
     * {@inheritdoc}
-    *
-    * @return bool - whether or not the submitted parameters are valid
     */
     public function validate() {
         $request = $this->request;

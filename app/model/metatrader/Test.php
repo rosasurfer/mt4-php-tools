@@ -573,8 +573,6 @@ class Test extends PersistableObject {
 
 
     /**
-     * Insert pre-processing hook (application-side ORM trigger).
-     *
      * Make sure the test statistics are calculated.
      *
      * {@inheritdoc}
@@ -585,7 +583,7 @@ class Test extends PersistableObject {
 
 
     /**
-     * Update pre-processing hook (application-side ORM trigger).
+     * Update the version field as this is not yet automated by the ORM.
      *
      * {@inheritdoc}
      */
@@ -595,8 +593,6 @@ class Test extends PersistableObject {
 
 
     /**
-     * Insert post-processing hook (application-side ORM trigger).
-     *
      * Insert the related entities as this is not yet automated by the ORM.
      *
      * {@inheritdoc}
