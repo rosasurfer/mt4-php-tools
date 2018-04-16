@@ -1,10 +1,10 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ae977ccda9a20083d4e9afe09f41f922",
+    "content-hash": "9a3722419137d52f0c71dd4ec9c2b1e1",
     "packages": [
         {
             "name": "rosasurfer/ministruts",
@@ -12,29 +12,30 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/rosasurfer/ministruts.git",
-                "reference": "92323adde11136f377b32f2f04e8e778d49453cd"
+                "reference": "a25b53739cebaa65b92934ed34f8e3462db170c5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/92323adde11136f377b32f2f04e8e778d49453cd",
-                "reference": "92323adde11136f377b32f2f04e8e778d49453cd",
+                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/a25b53739cebaa65b92934ed34f8e3462db170c5",
+                "reference": "a25b53739cebaa65b92934ed34f8e3462db170c5",
                 "shasum": ""
             },
             "require": {
+                "ext-mbstring": "*",
                 "php": ">=5.6"
             },
             "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.6.x-dev"
+                }
+            },
             "autoload": {
                 "classmap": [
                     "src/"
                 ],
                 "files": [
                     "src/load.php"
-                ]
-            },
-            "scripts": {
-                "post-install-cmd": [
-                    "bash bin/git/check-setup.sh post-checkout post-merge"
                 ]
             },
             "license": [
@@ -52,7 +53,7 @@
                 "source": "https://github.com/rosasurfer/ministruts/tree/master",
                 "issues": "https://github.com/rosasurfer/ministruts/issues"
             },
-            "time": "2018-04-01T21:30:09+00:00"
+            "time": "2018-04-16T05:28:57+00:00"
         }
     ],
     "packages-dev": [],
