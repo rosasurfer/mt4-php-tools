@@ -1,17 +1,20 @@
 <?php
+use rosasurfer\ministruts\Request;
 use rosasurfer\xtrade\XTrade;
 use rosasurfer\xtrade\model\metatrader\Test;
+
 use function rosasurfer\xtrade\prettyTimeRange;
 
-/** @var Test[] $tests */
+/** @var Request $request */
+/** @var Test[]  $tests   */
 $tests = Test::dao()->findAll('select * from :Test order by strategy, created, reportingsymbol');
 ?>
 
 <link href="<?=asset('/css/tablesorter/theme.blue.min.css')?>" id="tablesorter-theme" rel="stylesheet">
 <script src="<?=asset('/js/tablesorter/jquery.tablesorter.combined.js')?>"></script>
 
-<?foreach ($request->getActionErrors() as $error) {?>
-    <div class="alert alert-danger textcenter"><p><?=hsc($error)?></p></div>
+<?foreach ($request->getActionMessages() as $message) {?>
+    <div class="alert alert-danger textcenter"><p><?=hsc($message)?></p></div>
 <?}?>
 
 
@@ -71,7 +74,7 @@ foreach ($tests as $test) {
 $(document).ready(function() {
     $('#testTable').tablesorter({
         theme: getTableSorterTheme('tablesorter-theme') || 'default',
-        //debug: true,
+      //debug: true,
     });
 });
 </script>

@@ -45,7 +45,7 @@ class ViewTestActionForm extends ActionForm {
     /**
      * {@inheritdoc}
      */
-    protected function populate(Request $request) {
+    public function populate(Request $request) {
         $this->id = trim($request->getParameter('id'));
     }
 

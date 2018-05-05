@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9a3722419137d52f0c71dd4ec9c2b1e1",
+    "content-hash": "93f161a9cf65c7d96224cf6e24e2715c",
     "packages": [
         {
             "name": "rosasurfer/ministruts",
@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/rosasurfer/ministruts.git",
-                "reference": "a25b53739cebaa65b92934ed34f8e3462db170c5"
+                "reference": "286445f93cacdb7ce41a2f389348e53039ac18a9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/a25b53739cebaa65b92934ed34f8e3462db170c5",
-                "reference": "a25b53739cebaa65b92934ed34f8e3462db170c5",
+                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/286445f93cacdb7ce41a2f389348e53039ac18a9",
+                "reference": "286445f93cacdb7ce41a2f389348e53039ac18a9",
                 "shasum": ""
             },
             "require": {
@@ -27,7 +27,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "0.6.x-dev"
+                    "dev-master": "0.7.x-dev"
                 }
             },
             "autoload": {
@@ -53,7 +53,7 @@
                 "source": "https://github.com/rosasurfer/ministruts/tree/master",
                 "issues": "https://github.com/rosasurfer/ministruts/issues"
             },
-            "time": "2018-04-16T05:28:57+00:00"
+            "time": "2018-05-02T23:11:49+00:00"
         }
     ],
     "packages-dev": [],

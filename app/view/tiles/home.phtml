@@ -1,4 +1,4 @@
 
-<?foreach ($request->getActionErrors() as $error) {?>
-    <div class="alert alert-danger textcenter"><p><?=hsc($error)?></p></div>
+<?foreach ($request->getActionMessages() as $message) {?>
+    <div class="alert alert-danger textcenter"><p><?=hsc($message)?></p></div>
 <?}?>
