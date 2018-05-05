@@ -15,7 +15,7 @@ class ViewTestActionForm extends ActionForm {
     /** @var string|int - submitted Test id */
     protected $id;
 
-    /** @var Test|bool [transient] */
+    /** @var Test|bool [transient] - Test instance or FALSE if a test with the submitted id was not found */
     protected $test;
 
 
@@ -35,9 +35,7 @@ class ViewTestActionForm extends ActionForm {
      * @return Test|null - Test instance or NULL if an associated test was not found
      */
     public function getTest() {
-        if (is_null($this->test)) {
-            if (!is_int($this->id))         // abort if $id was not yet validated
-                return null;
+        if (is_null($this->test) && is_int($this->id)) {
             $this->test = Test::dao()->findById($this->id) ?: false;
         }
         return is_bool($this->test) ? null : $this->test;
