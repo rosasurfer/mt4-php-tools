@@ -2,25 +2,34 @@
 <html lang="en">
 <head>
    <meta charset="utf-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+
    <title>XTrade</title>
    <meta name="description" content="XTrade">
 
-   <link rel="stylesheet" type="text/css" href="<?=asset('/css/bootstrap.min.css')?>">
-   <link rel="stylesheet" type="text/css" href="<?=asset('/css/bootstrap-theme.min.css')?>">
-   <link rel="stylesheet" type="text/css" href="<?=asset('/css/xtrade.css')?>">
+   <link rel="stylesheet" href="<?=asset('/css/bootstrap/3.3/css/bootstrap.css')?>"/>
+   <link rel="stylesheet" href="<?=asset('/css/bootstrap/3.3/css/bootstrap-theme.css')?>"/>
+   <link rel="stylesheet" href="<?=asset('/css/bootstrap/assets/css/ie10-viewport-bug-workaround.css')?>">
+   <!--[if lt IE 9]>
+   <script src="<?=asset('/js/html5shiv-3.7.3.min.js')?>"></script>
+   <script src="<?=asset('/js/respond-1.4.2.min.js')?>"></script>
+   <![endif]-->
+   <script src="<?=asset('/js/jquery/jquery-1.12.4.js')?>"></script>
+   <script src="<?=asset('/css/bootstrap/3.3/js/bootstrap.js')?>"></script>
+   <script src="<?=asset('/css/bootstrap/assets/js/ie10-viewport-bug-workaround.js')?>"></script>
 
-   <script src="<?=asset('/js/jquery-1.12.4.js')?>"></script>
-   <script src="<?=asset('/js/bootstrap.min.js')?>"></script>
-   <script src="<?=asset('/js/moment-2.18.1.js')?>"></script>
+   <link rel="stylesheet" href="<?=asset('/css/xtrade.css')?>">
+
+   <script src="<?=asset('/js/moment/moment-2.18.1.js')?>"></script>
    <script src="<?=asset('/js/rosasurfer.js')?>"></script>
    <script src="<?=asset('/js/xtrade.js')?>"></script>
 </head>
 
 <body>
 <div id="page">
-   <div id="header"><?$navigation->render();?></div>
+   <div id="header"><?$navigation->render()?></div>
 
-   <div id="content"><?$content->render();?></div>
+   <div id="content"><?$content->render()?></div>
 </div>
 </body>
 </html>

@@ -7,7 +7,7 @@ use function rosasurfer\xtrade\prettyTimeRange;
 $tests = Test::dao()->findAll('select * from :Test order by strategy, created, reportingsymbol');
 ?>
 
-<link  href="<?=asset('/css/tablesorter/theme.blue.min.css')?>" rel="stylesheet" id="tablesorter-theme">
+<link href="<?=asset('/css/tablesorter/theme.blue.min.css')?>" id="tablesorter-theme" rel="stylesheet">
 <script src="<?=asset('/js/tablesorter/jquery.tablesorter.combined.js')?>"></script>
 
 <?foreach ($request->getActionErrors() as $error) {?>
