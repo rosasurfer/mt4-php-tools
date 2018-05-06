@@ -30,7 +30,7 @@
  *          +------------++------------+------------+------------+------------+------------++------------+------------++------------+
  *
  *
- * TODO: clarify http://www.opserver.de/ubb7/ubbthreads.php?ubb=showflat&Number=463361#Post463345
+ * TODO: check/confirm http://www.opserver.de/ubb7/ubbthreads.php?ubb=showflat&Number=463361#Post463345
  */
 namespace rosasurfer\xtrade\dukascopy\update_m1_bars;
 
