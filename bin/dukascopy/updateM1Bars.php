@@ -7,26 +7,27 @@
  * the earliest on the next day.
  *
  * Website:       https://www.dukascopy.com/swiss/english/marketwatch/historical/
- *                https://www.dukascopy.com/free/candelabrum/
+ *                https://www.dukascopy.com/free/candelabrum/                               (not working anymore)
  *
  * Instruments:   https://www.dukascopy.com/free/candelabrum/data.json
  *
- * History start: http://datafeed.dukascopy.com/datafeed/metadata/HistoryStart.bi5  (format unknown)
+ * History start: http://datafeed.dukascopy.com/datafeed/metadata/HistoryStart.bi5          (binary, uncompressed)
+ *                http://datafeed.dukascopy.com/datafeed/AUDUSD/metadata/HistoryStart.bi5   (binary, uncompressed)
  *
  * URL format:    One file per calendar day since history start,
  *                e.g.: (January = 00)
- *                • http://datafeed.dukascopy.com/datafeed/GBPUSD/2013/00/10/BID_candles_min_1.bi5
- *                • http://datafeed.dukascopy.com/datafeed/GBPUSD/2013/11/31/ASK_candles_min_1.bi5
+ *                - http://datafeed.dukascopy.com/datafeed/GBPUSD/2013/00/10/BID_candles_min_1.bi5
+ *                - http://datafeed.dukascopy.com/datafeed/GBPUSD/2013/11/31/ASK_candles_min_1.bi5
  *
- * File format:   • Binary, LZMA compressed, GMT (no DST).
- *                • During trade breaks the last close price (OHLC) and a volume of zero (V=0) are indicated.
+ * File format:   - Binary, LZMA compressed, GMT (no DST).
+ *                - During trade breaks the last close price (OHLC) and a volume of zero (V=0) are indicated.
  *
- *      +------------------------+------------+------------+------------+------------------------+------------------------+
- * FXT: |   Sunday      Monday   |  Tuesday   | Wednesday  |  Thursday  |   Friday     Saturday  |   Sunday      Monday   |
- *      +------------------------+------------+------------+------------+------------------------+------------------------+
- *          +------------------------+------------+------------+------------+------------------------+------------------------+
- * GMT:     |   Sunday      Monday   |  Tuesday   | Wednesday  |  Thursday  |   Friday     Saturday  |   Sunday      Monday   |
- *          +------------------------+------------+------------+------------+------------------------+------------------------+
+ *      +------------++------------+------------+------------+------------+------------++------------+------------++------------+
+ * FXT: |   Sunday   ||   Monday   |  Tuesday   | Wednesday  |  Thursday  |   Friday   ||  Saturday  |   Sunday   ||   Monday   |
+ *      +------------++------------+------------+------------+------------+------------++------------+------------++------------+
+ *          +------------++------------+------------+------------+------------+------------++------------+------------++------------+
+ * GMT:     |   Sunday   ||   Monday   |  Tuesday   | Wednesday  |  Thursday  |   Friday   ||  Saturday  |   Sunday   ||   Monday   |
+ *          +------------++------------+------------+------------+------------+------------++------------+------------++------------+
  *
  *
  * TODO: clarify http://www.opserver.de/ubb7/ubbthreads.php?ubb=showflat&Number=463361#Post463345
@@ -270,33 +271,33 @@ function loadHistory($symbol, $day, $type) {
 
     // Fuer jeden Forex-Tag werden die GMT-Dukascopy-Daten des vorherigen und des aktuellen Tages benoetigt.
     // Die Daten werden jeweils in folgender Reihenfolge gesucht:
-    //  • im Barbuffer selbst
-    //  • in bereits dekomprimierten Dukascopy-Dateien
-    //  • in noch komprimierten Dukascopy-Dateien
-    //  • als Dukascopy-Download
+    //  - im Barbuffer selbst
+    //  - in bereits dekomprimierten Dukascopy-Dateien
+    //  - in noch komprimierten Dukascopy-Dateien
+    //  - als Dukascopy-Download
 
     $previousDay = $day - 1*DAY; $previousDayData = false;
     $currentDay  = $day;         $currentDayData  = false;
 
 
     // (1) Daten des vorherigen Tages suchen bzw. bereitstellen
-    // • im Buffer nachschauen
+    // - im Buffer nachschauen
     if (!$previousDayData && isSet($barBuffer[$type][$shortDate])) {              // Beginnen die Daten im Buffer mit 00:00, liegt
         $previousDayData = ($barBuffer[$type][$shortDate][0]['delta_fxt'] == 0);   // der Teil des vorherigen GMT-Tags dort schon bereit.
     }
-    // • dekomprimierte Dukascopy-Datei suchen und verarbeiten
+    // - dekomprimierte Dukascopy-Datei suchen und verarbeiten
     if (!$previousDayData) {
         if (is_file($file=getVar('dukaFile.raw', $symbol, $previousDay, $type)))
             if (!$previousDayData=processRawDukascopyBarFile($file, $symbol, $previousDay, $type))
                 return false;
     }
-    // • komprimierte Dukascopy-Datei suchen und verarbeiten
+    // - komprimierte Dukascopy-Datei suchen und verarbeiten
     if (!$previousDayData) {
         if (is_file($file=getVar('dukaFile.compressed', $symbol, $previousDay, $type)))
             if (!$previousDayData=processCompressedDukascopyBarFile($file, $symbol, $previousDay, $type))
                 return false;
     }
-    // • ggf. Dukascopy-Datei herunterladen und verarbeiten
+    // - ggf. Dukascopy-Datei herunterladen und verarbeiten
     if (!$previousDayData) {
         $data = downloadData($symbol, $previousDay, $type, false, $storeCompressedDukaFiles);
         if (!$data)                                                                // bei HTTP status 404 (file not found) Abbruch
@@ -308,24 +309,24 @@ function loadHistory($symbol, $day, $type) {
 
 
     // (2) Daten des aktuellen Tages suchen bzw.bereitstellen
-    // • im Buffer nachschauen
+    // - im Buffer nachschauen
     if (!$currentDayData && isSet($barBuffer[$type][$shortDate])) {               // Enden die Daten im Buffer mit 23:59, liegt
         $size = sizeOf($barBuffer[$type][$shortDate]);                             // der Teil des aktuellen GMT-Tags dort schon bereit.
         $currentDayData = ($barBuffer[$type][$shortDate][$size-1]['delta_fxt'] == 23*HOURS+59*MINUTES);
     }
-    // • dekomprimierte Dukascopy-Datei suchen und verarbeiten
+    // - dekomprimierte Dukascopy-Datei suchen und verarbeiten
     if (!$currentDayData) {
         if (is_file($file=getVar('dukaFile.raw', $symbol, $currentDay, $type)))
             if (!$currentDayData=processRawDukascopyBarFile($file, $symbol, $currentDay, $type))
                 return false;
     }
-    // • komprimierte Dukascopy-Datei suchen und verarbeiten
+    // - komprimierte Dukascopy-Datei suchen und verarbeiten
     if (!$currentDayData) {
         if (is_file($file=getVar('dukaFile.compressed', $symbol, $currentDay, $type)))
             if (!$currentDayData=processCompressedDukascopyBarFile($file, $symbol, $currentDay, $type))
                 return false;
     }
-    // • ggf. Dukascopy-Datei herunterladen und verarbeiten
+    // - ggf. Dukascopy-Datei herunterladen und verarbeiten
     if (!$currentDayData) {
         static $yesterday; if (!$yesterday) $yesterday=($today=time()) - $today%DAY - 1*DAY;    // 00:00 GMT gestriger Tag
         $saveFile = ($storeCompressedDukaFiles || $currentDay==$yesterday);                     // beim letzten Durchlauf immer speichern
@@ -436,7 +437,7 @@ function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $save
 
 
     // (2) HTTP-Request abschicken und auswerten
-    static $client = null;
+    static $client;
     !$client && $client = CurlHttpClient::create($options);             // Instanz fuer KeepAlive-Connections wiederverwenden
 
     $response = $client->send($request);                                // TODO: CURL-Fehler wie bei SimpleTrader behandeln
