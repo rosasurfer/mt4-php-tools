@@ -88,5 +88,6 @@ class Signal extends PersistableObject {
      */
     protected function beforeUpdate() {
         $this->version = date('Y-m-d H:i:s');
+        return true;
     }
 }

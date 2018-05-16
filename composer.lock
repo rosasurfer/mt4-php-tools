@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "93f161a9cf65c7d96224cf6e24e2715c",
+    "content-hash": "72a2b1443da34baf01bd768a99bbcaeb",
     "packages": [
         {
             "name": "rosasurfer/ministruts",
@@ -12,22 +12,22 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/rosasurfer/ministruts.git",
-                "reference": "286445f93cacdb7ce41a2f389348e53039ac18a9"
+                "reference": "21510181865d1229b7e3f11a79c0be2fe1039360"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/286445f93cacdb7ce41a2f389348e53039ac18a9",
-                "reference": "286445f93cacdb7ce41a2f389348e53039ac18a9",
+                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/21510181865d1229b7e3f11a79c0be2fe1039360",
+                "reference": "21510181865d1229b7e3f11a79c0be2fe1039360",
                 "shasum": ""
             },
             "require": {
                 "ext-mbstring": "*",
-                "php": ">=5.6"
+                "php": "^5.6"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "0.7.x-dev"
+                    "dev-master": "0.8.x-dev"
                 }
             },
             "autoload": {
@@ -50,10 +50,10 @@
             "description": "Struts 1.2 inspired MVC web framework for PHP",
             "homepage": "http://ministruts.rosasurfer.com/",
             "support": {
-                "source": "https://github.com/rosasurfer/ministruts/tree/master",
+                "source": "https://github.com/rosasurfer/ministruts/tree/0.8",
                 "issues": "https://github.com/rosasurfer/ministruts/issues"
             },
-            "time": "2018-05-02T23:11:49+00:00"
+            "time": "2018-05-16T09:19:33+00:00"
         }
     ],
     "packages-dev": [],

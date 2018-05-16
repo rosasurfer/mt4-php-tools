@@ -246,5 +246,6 @@ class Order extends PersistableObject {
      */
     protected function beforeUpdate() {
         $this->modified = date('Y-m-d H:i:s');
+        return true;
     }
 }

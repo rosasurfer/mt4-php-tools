@@ -579,6 +579,7 @@ class Test extends PersistableObject {
      */
     protected function beforeInsert() {
         $this->getStats();
+        return true;
     }
 
 
@@ -589,6 +590,7 @@ class Test extends PersistableObject {
      */
     protected function beforeUpdate() {
         $this->modified = date('Y-m-d H:i:s');
+        return true;
     }
 
 
