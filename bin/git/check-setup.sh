@@ -47,13 +47,12 @@ GIT_HOOK_DIR=$(git rev-parse --git-dir)'/hooks'
 
 
 # normalize paths on Windows
-CYGWIN=$(type -P cygpath.exe)
-[ -n "$CYGWIN" ] && {
+if [ $(type -P cygpath.exe) ]; then
     CWD=$(cygpath -m "$CWD")
     SCRIPT_DIR=$(cygpath -m "$SCRIPT_DIR")
     TOP_LEVEL_DIR=$(cygpath -m "$TOP_LEVEL_DIR")
     GIT_HOOK_DIR=$(cygpath -m "$GIT_HOOK_DIR")
-}
+fi    
 
 
 # make sure we run in the repo's root directory (as to not to mess-up nested repos)

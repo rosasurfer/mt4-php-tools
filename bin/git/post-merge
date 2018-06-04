@@ -59,11 +59,10 @@ COMPOSER=${COMPOSER:-$(type -P composer.phar)}
 
 
 # check for a Cygwin terminal and use an existing alias as workaround for possible color issues
-CYGWIN=$(type -P cygpath.exe)
-if [[ -n "$CYGWIN" && "$TERM" == *"color"* ]]; then
+if [[ $(type -P cygpath.exe) && "$TERM" == *"color"* ]]; then
     check_composer_alias
     COMPOSER=${COMPOSER_ALIAS:-$COMPOSER}
-fi
+fi    
 
 
 # get the changed files from Git
