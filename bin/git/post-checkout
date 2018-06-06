@@ -11,6 +11,21 @@
 #  - Whether or not hooks are executed by a graphical Git replacement depends on the tool. For example the JGit
 #    implementation of Eclipse atm does not execute hooks.
 #
+#
+# From the Git hooks documentation:
+# ---------------------------------
+# This hook is invoked when a git checkout is run after having updated the worktree. The hook is given three parameters: 
+# the ref of the previous HEAD, the ref of the new HEAD (which may or may not have changed), and a flag indicating whether 
+# the checkout was a branch checkout (changing branches, flag=1) or a file checkout (retrieving files from the index, flag=0). 
+# This hook cannot affect the outcome of git checkout.
+#
+# It is also run after git clone, unless the --no-checkout (-n) option is used. The first parameter given to the hook is the 
+# null-ref, the second the ref of the new HEAD and the flag is always 1. Likewise for git worktree add unless --no-checkout 
+# is used.
+#
+# This hook can be used to perform repository validity checks, auto-display differences from the previous HEAD if different, 
+# or set working dir metadata properties.
+#
 set -e
 
 
@@ -62,7 +77,8 @@ CHANGED_FILES=$(git diff-tree -r --name-only --no-commit-id $1 $2)
 # check "composer.lock" for modifications and run the according Composer command
 function check_lockfile() {
     LOCKFILE='composer.lock'
-    if [[ -f "$LOCKFILE" && $(echo "$CHANGED_FILES" | grep --quiet -Fx "$LOCKFILE") ]]; then
+    
+    if [[ -f "$LOCKFILE" && $(echo "$CHANGED_FILES" | grep -Fx "$LOCKFILE") ]]; then
         echo " * changes detected in $LOCKFILE"
         echo " * running composer install"
         COMPOSER_ALLOW_SUPERUSER=1 $COMPOSER install --ignore-platform-reqs --no-dev
