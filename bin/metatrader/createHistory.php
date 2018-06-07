@@ -134,9 +134,9 @@ function getVar($id, $symbol=null, $time=null) {
     if (array_key_exists(($key=$id.'|'.$symbol.'|'.$time), $varCache))
         return $varCache[$key];
 
-    if (!is_string($id))                          throw new IllegalTypeException('Illegal type of parameter $id: '.getType($id));
-    if (!is_null($symbol) && !is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
-    if (!is_null($time) && !is_int($time))        throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+    if (!is_string($id))                       throw new IllegalTypeException('Illegal type of parameter $id: '.getType($id));
+    if (isSet($symbol) && !is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
+    if (isSet($time) && !is_int($time))        throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
 
     $self = __FUNCTION__;
 
@@ -177,8 +177,8 @@ function getVar($id, $symbol=null, $time=null) {
  * @param  string $message [optional] - zusaetzlich zur Syntax anzuzeigende Message (default: keine)
  */
 function help($message = null) {
-    if (!is_null($message))
-        echo($message.NL.NL);
+    if (isSet($message))
+        echo $message.NL.NL;
 
     $self = baseName($_SERVER['PHP_SELF']);
 

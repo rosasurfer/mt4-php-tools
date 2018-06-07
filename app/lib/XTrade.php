@@ -822,9 +822,9 @@ class XTrade extends StaticClass {
         if (array_key_exists(($key=$id.'|'.$symbol.'|'.$time), $varCache))
             return $varCache[$key];
 
-        if (!is_string($id))                          throw new IllegalTypeException('Illegal type of parameter $id: '.getType($id));
-        if (!is_null($symbol) && !is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
-        if (!is_null($time) && !is_int($time))        throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+        if (!is_string($id))                       throw new IllegalTypeException('Illegal type of parameter $id: '.getType($id));
+        if (isSet($symbol) && !is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
+        if (isSet($time) && !is_int($time))        throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
 
         $me = __FUNCTION__;
 

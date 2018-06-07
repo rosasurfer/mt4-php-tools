@@ -133,8 +133,8 @@ exit(0);
  * @param  string $message [optional] - zusaetzlich zur Syntax anzuzeigende Message (default: keine)
  */
 function help($message = null) {
-    if (!is_null($message))
-        echo($message.NL.NL);
+    if (isSet($message))
+        echo $message.NL.NL;
 
     $self = baseName($_SERVER['PHP_SELF']);
 

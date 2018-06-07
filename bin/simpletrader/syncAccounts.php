@@ -110,7 +110,7 @@ function processSignal($alias, $fileSyncOnly) {
 
     global $signalNamePadding;                               // output formatting: whether or not the last function call
     static $openUpdates=false, $closedUpdates=false;         //                    detected open trade/history changes
-    echo(($openUpdates ? NL:'').str_pad($signal->getName().' ', $signalNamePadding, '.', STR_PAD_RIGHT).' ');
+    echo ($openUpdates ? NL:'').str_pad($signal->getName().' ', $signalNamePadding, '.', STR_PAD_RIGHT).' ';
 
 
     if (!$fileSyncOnly) {
@@ -404,8 +404,8 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
  * @param  string $message [optional] - zusaetzlich zur Syntax anzuzeigende Message (default: keine)
  */
 function help($message = null) {
-    if (!is_null($message))
-        echo($message."\n");
+    if (isSet($message))
+        echo $message."\n";
 
     $self = baseName($_SERVER['PHP_SELF']);
 

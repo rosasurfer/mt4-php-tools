@@ -685,15 +685,15 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
     if (array_key_exists(($key=$id.'|'.$symbol.'|'.$time.'|'.$type), $varCache))
         return $varCache[$key];
 
-    if (!is_string($id))                          throw new IllegalTypeException('Illegal type of parameter $id: '.getType($id));
-    if (!is_null($symbol) && !is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
-    if (!is_null($time)) {
-        if (!is_int($time))                       throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
-        if ($time % DAY)                          throw new InvalidArgumentException('Invalid parameter $time: '.$time.' (not 00:00)');
+    if (!is_string($id))                       throw new IllegalTypeException('Illegal type of parameter $id: '.getType($id));
+    if (isSet($symbol) && !is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
+    if (isSet($time)) {
+        if (!is_int($time))                    throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+        if ($time % DAY)                       throw new InvalidArgumentException('Invalid parameter $time: '.$time.' (not 00:00)');
     }
-    if (!is_null($type)) {
-        if (!is_string($type))                    throw new IllegalTypeException('Illegal type of parameter $type: '.getType($type));
-        if ($type!='bid' && $type!='ask')         throw new InvalidArgumentException('Invalid parameter $type: "'.$type.'"');
+    if (isSet($type)) {
+        if (!is_string($type))                 throw new IllegalTypeException('Illegal type of parameter $type: '.getType($type));
+        if ($type!='bid' && $type!='ask')      throw new InvalidArgumentException('Invalid parameter $type: "'.$type.'"');
     }
     $self  = __FUNCTION__;
 
@@ -795,8 +795,8 @@ function showBarBuffer() {
  * @param  string $message [optional] - zusaetzlich zur Syntax anzuzeigende Message (default: keine)
  */
 function help($message = null) {
-    if (!is_null($message))
-        echo($message.NL.NL);
+    if (isSet($message))
+        echo $message.NL.NL;
 
     $self = baseName($_SERVER['PHP_SELF']);
 

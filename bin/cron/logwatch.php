@@ -151,8 +151,8 @@ function processEntry($entry) {
  * @param  string $message [optional] - additional message to display (default: none)
  */
 function help($message = null) {
-    if (!is_null($message))
-        echo($message.NL);
+    if (isSet($message))
+        echo $message.NL;
 
     $self = baseName($_SERVER['PHP_SELF']);
 

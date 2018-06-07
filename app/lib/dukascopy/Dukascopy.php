@@ -49,14 +49,14 @@ class Dukascopy extends StaticClass {
      */
     public static function decompressHistoryData($data, $saveAs = null) {
         if (!is_string($data))       throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
-        if (!is_null($saveAs)) {
+        if (isSet($saveAs)) {
             if (!is_string($saveAs)) throw new IllegalTypeException('Illegal type of parameter $saveAs: '.getType($saveAs));
             if (!strLen($saveAs))    throw new InvalidArgumentException('Invalid parameter $saveAs: ""');
         }
 
         $rawData = LZMA::decompressData($data);
 
-        if (!is_null($saveAs)) {
+        if (isSet($saveAs)) {
             mkDirWritable(dirName($saveAs));
             $tmpFile = tempNam(dirName($saveAs), baseName($saveAs));
             $hFile   = fOpen($tmpFile, 'wb');

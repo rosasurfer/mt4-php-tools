@@ -93,7 +93,7 @@ function processAccounts($alias) {
 
     global $signalNamePadding;                               // output formatting: whether or not the last function call
     static $positionsChanged=false, $historyChanged=false;   //                    detected open position/history changes
-    echo(($positionsChanged ? NL:'').str_pad($signal->getName().' ', $signalNamePadding, '.', STR_PAD_RIGHT).' ');
+    echo ($positionsChanged ? NL:'').str_pad($signal->getName().' ', $signalNamePadding, '.', STR_PAD_RIGHT).' ';
 
     // load CSV statement
     $csv = MyfxBook::loadCsvStatement($signal);
@@ -359,8 +359,8 @@ function updateDatabase(Signal $signal, array $currentOpenPositions, &$openUpdat
  * @param  string $message [optional] - additional message to display (default: none)
  */
 function help($message = null) {
-    if (!is_null($message))
-        echo($message."\n");
+    if (isSet($message))
+        echo $message."\n";
 
     $self = baseName($_SERVER['PHP_SELF']);
 
