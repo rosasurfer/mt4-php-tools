@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env php
+#!/usr/bin/env php
 <?php
 /**
  * Aktualisiert anhand existierender Dukascopy-Daten die M1-History der angegebenen FX-Indizes und speichert sie
