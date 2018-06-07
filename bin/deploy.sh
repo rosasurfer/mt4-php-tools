@@ -11,7 +11,7 @@ set -e
 
 
 # notification configuration
-NOTIFY_FOR_PROJECT="mt4-tools"
+NOTIFY_FOR_PROJECT="mt4-web"
 NOTIFY_IF_ON="cob01.rosasurfer.com"
 NOTIFY_TO_EMAIL="deployments@rosasurfer.com"
 
