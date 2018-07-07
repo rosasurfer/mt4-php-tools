@@ -1,5 +1,5 @@
 #
-# It's strongly recommended to disable .htaccess files and instead configure the project in a VirtualHost definition.
+# It's recommended to disable .htaccess files and instead configure the project in a <VirtualHost> definition.
 #
 # Intentionally trigger a server error if mod_rewrite is disabled.
 #
