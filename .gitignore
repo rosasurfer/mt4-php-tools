@@ -25,12 +25,10 @@ nbactions.xml
 vendor/
 /composer
 /composer.phar
-/composer-dev.*
 
 config*.properties
 !config.dist.properties
 
 /data/
 /data
-/log
-/src/
+/deploy

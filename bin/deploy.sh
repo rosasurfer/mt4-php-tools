@@ -1,19 +1,22 @@
 #!/bin/bash
 #
-# Application deploy script for Git based repositories. Deploys a branch, a tag or a specific commit and updates existing
-# Git submodules. Can send email notifications with the deployed changes (commit mesages).
+# Application deploy script for Git based repositories. Deploys a branch, a tag or a specific commit.
+# Sends email notifications with the deployed changes (commit mesages) if configured.
 #
 # Usage: deploy.sh [<branch-name> | <tag-name> | <commit-sha>]
 #
 # Without arguments the latest version of the current branch is deployed.
 #
+#
+# TODO: update existing submodules
+#
 set -e
 
 
-# notification configuration
-NOTIFY_FOR_PROJECT="mt4-web"
-NOTIFY_IF_ON="cob01.rosasurfer.com"
-NOTIFY_TO_EMAIL="deployments@rosasurfer.com"
+# notification configuration (environment variables of the same name will have precedence over values hardcoded here)
+NOTIFY_FOR_PROJECT="${NOTIFY_FOR_PROJECT:-<project-name>}"      `# fill in your project identifier              `
+NOTIFY_ON_HOST="${NOTIFY_ON_HOST:-<hostname>}"                  `# fill in the hostname to notify if deployed on`
+NOTIFY_RECEIVER="${NOTIFY_RECEIVER:-<email@domain.tld>}"        `# fill in the notification receiver            `
 
 
 # --- functions -------------------------------------------------------------------------------------------------------------
@@ -73,34 +76,61 @@ fi
 
 
 # update project
-if   [ -n "$BRANCH" ]; then { [ "$BRANCH" != "$FROM_BRANCH" ] && git checkout "$BRANCH"; git merge --ff-only "origin/$BRANCH"; }
-elif [ -n "$TAG"    ]; then {                                    git checkout "$TAG";                                          }
-elif [ -n "$COMMIT" ]; then {                                    git checkout "$COMMIT";                                       }
+if [ -n "$BRANCH" ]; then
+    [ "$BRANCH" != "$FROM_BRANCH" ] && git checkout "$BRANCH"
+    git merge --ff-only "origin/$BRANCH"
+elif [ -n "$TAG"    ]; then
+    git checkout "$TAG"
+elif [ -n "$COMMIT" ]; then
+    git checkout "$COMMIT"
 fi
 
 
-# check updates and send deployment notifications
+# check updates
 OLD=$FROM_COMMIT
 NEW=$(git rev-parse --short HEAD)
-HOSTNAME=$(hostname)
 
 if [ "$OLD" = "$NEW" ]; then
     echo No changes.
-elif [ "$NOTIFY_IF_ON" = "$HOSTNAME" ]; then
-    if command -v sendmail >/dev/null; then
-        (
-        echo 'From: "Deployments '$NOTIFY_FOR_PROJECT'" <'$NOTIFY_TO_EMAIL'>'
-        if   [ -n "$BRANCH" ]; then echo "Subject: Updated $NOTIFY_FOR_PROJECT, branch $BRANCH to latest ($NEW)"
-        elif [ -n "$TAG"    ]; then echo "Subject: Reset $NOTIFY_FOR_PROJECT to tag $TAG ($NEW)"
-        elif [ -n "$COMMIT" ]; then echo "Subject: Reset $NOTIFY_FOR_PROJECT to commit $COMMIT"
+else
+    # send deployment notifications if configured
+
+    # trim angle brackets
+    NOTIFY_FOR_PROJECT=${NOTIFY_FOR_PROJECT#<}; NOTIFY_FOR_PROJECT=${NOTIFY_FOR_PROJECT%>}
+    NOTIFY_ON_HOST=${NOTIFY_ON_HOST#<};         NOTIFY_ON_HOST=${NOTIFY_ON_HOST%>}
+    NOTIFY_RECEIVER=${NOTIFY_RECEIVER#<};       NOTIFY_RECEIVER=${NOTIFY_RECEIVER%>}
+
+    # reset default values
+    [ "$NOTIFY_FOR_PROJECT" = "project-name"     ] && NOTIFY_FOR_PROJECT=
+    [ "$NOTIFY_ON_HOST"     = "hostname"         ] && NOTIFY_ON_HOST=
+    [ "$NOTIFY_RECEIVER"    = "email@domain.tld" ] && NOTIFY_RECEIVER=
+
+    # check missing values
+    NOTIFY=0
+    if [[ -n "$NOTIFY_ON_HOST" && -n "$NOTIFY_RECEIVER" ]]; then
+        if [ "$NOTIFY_ON_HOST" = "$(hostname)" ]; then
+            [ -z "$NOTIFY_FOR_PROJECT" ] && NOTIFY_FOR_PROJECT=$(basename $(git config --get remote.origin.url) .git)
+            NOTIFY=1
         fi
-        git log --pretty='%h %ae %s' $OLD..$NEW
-        ) | sendmail -f "$NOTIFY_TO_EMAIL" "$NOTIFY_TO_EMAIL"
+    fi
+
+    # notify
+    if [ $NOTIFY -eq 1 ]; then
+        if command -v sendmail >/dev/null; then
+            (
+            echo 'From: "Deployments '$NOTIFY_FOR_PROJECT'" <'$NOTIFY_RECEIVER'>'
+            if   [ -n "$BRANCH" ]; then echo "Subject: Updated $NOTIFY_FOR_PROJECT, branch $BRANCH to latest ($NEW)"
+            elif [ -n "$TAG"    ]; then echo "Subject: Reset $NOTIFY_FOR_PROJECT to tag $TAG ($NEW)"
+            elif [ -n "$COMMIT" ]; then echo "Subject: Reset $NOTIFY_FOR_PROJECT to commit $COMMIT"
+            fi
+            git log --pretty='%h %ae %s' $OLD..$NEW
+            ) | sendmail -f "$NOTIFY_RECEIVER" "$NOTIFY_RECEIVER"
+        fi
     fi
 fi
 
 
-# update access permissions and ownership for writing files
+# update access permissions and ownership for writing of files
 DIRS="etc/log  etc/tmp"
 
 for dir in $DIRS; do
@@ -109,5 +139,5 @@ for dir in $DIRS; do
     chmod 777 "$dir"
 done
 
-#USER="<username>"
-#id -u "$USER" >/dev/null 2>&1 && chown -R --from=root.root "$USER.$USER" "$PROJECT_DIR"
+USER="<username>"
+id -u "$USER" >/dev/null 2>&1 && chown -R --from=root.root "$USER.$USER" "$PROJECT_DIR"

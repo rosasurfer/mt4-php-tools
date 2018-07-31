@@ -826,8 +826,6 @@ class XTrade extends StaticClass {
         if (isSet($symbol) && !is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
         if (isSet($time) && !is_int($time))        throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
 
-        $me = __FUNCTION__;
-
         if ($id == 'xtradeDirDate') {                   // $yyyy/$mm/$dd                                                // lokales Pfad-Datum
             if (!$time)   throw new InvalidArgumentException('Invalid parameter $time: '.$time);
             $result = gmDate('Y/m/d', $time);
@@ -837,15 +835,15 @@ class XTrade extends StaticClass {
             static $dataDirectory; if (!$dataDirectory)
             $dataDirectory = Config::getDefault()->get('app.dir.data');
             $type          = self::$symbols[$symbol]['type'];
-            $xtradeDirDate = self::$me('xtradeDirDate', null, $time);
+            $xtradeDirDate = self::{__FUNCTION__}('xtradeDirDate', null, $time);
             $result        = $dataDirectory.'/history/xtrade/'.$type.'/'.$symbol.'/'.$xtradeDirDate;
         }
         else if ($id == 'xtradeFile.M1.raw') {          // $xtradeDir/M1.myfx                                           // XTrade-M1-Datei ungepackt
-            $xtradeDir = self::$me('xtradeDir' , $symbol, $time);
+            $xtradeDir = self::{__FUNCTION__}('xtradeDir' , $symbol, $time);
             $result    = $xtradeDir.'/M1.myfx';
         }
         else if ($id == 'xtradeFile.M1.compressed') {   // $xtradeDir/M1.rar                                            // XTrade-M1-Datei gepackt
-            $xtradeDir = self::$me('xtradeDir', $symbol, $time);
+            $xtradeDir = self::{__FUNCTION__}('xtradeDir', $symbol, $time);
             $result    = $xtradeDir.'/M1.rar';
         }
         else throw new InvalidArgumentException('Unknown variable identifier "'.$id.'"');
