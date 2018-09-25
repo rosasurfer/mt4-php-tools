@@ -136,7 +136,7 @@ DIRS="etc/log  etc/tmp"
 for dir in $DIRS; do
     dir="$PROJECT_DIR/$dir/"
     [ -d "$dir" ] || mkdir -p "$dir"
-    chmod 777 "$dir"
+    chmod -R 777 "$dir"
 done
 
 USER="<username>"
