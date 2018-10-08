@@ -188,7 +188,7 @@ class MyfxBook extends StaticClass {
 
 
     /**
-     * Comparator function comparing two trades by open time.
+     * Comparator method comparing two trades by open time.
      *
      * @param  array $tradeA
      * @param  array $tradeB
@@ -208,7 +208,7 @@ class MyfxBook extends StaticClass {
 
 
     /**
-     * Comparator function comparing two trades. First compare by close time. If considered equal compare by open time.
+     * Comparator method comparing two trades. First compare by close time. If considered equal compare by open time.
      *
      * @param  array $tradeA
      * @param  array $tradeB

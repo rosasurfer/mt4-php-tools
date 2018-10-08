@@ -388,7 +388,7 @@ class SimpleTrader extends StaticClass {
 
 
     /**
-     * Comparator function comparing two trades. First compare by open time. If considered equal compare by ticket.
+     * Comparator method comparing two trades. First compare by open time. If considered equal compare by ticket.
      *
      * @param  array $tradeA
      * @param  array $tradeB
@@ -412,7 +412,7 @@ class SimpleTrader extends StaticClass {
 
 
     /**
-     * Comparator function comparing two trades. First compare by close time. If considered equal compare by open time.
+     * Comparator method comparing two trades. First compare by close time. If considered equal compare by open time.
      * If still considered equal compare by ticket.
      *
      * @param  array $tradeA
