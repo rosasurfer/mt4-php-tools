@@ -100,7 +100,7 @@ class Statistic extends PersistableObject {
         $stats->test = $test;
 
         // calculate statistics
-        $trades       = $test->getTrades();                 // TODO: order by closeTime
+        $trades       = $test->getTrades();                                 // TODO: order by closeTime
         $numTrades    = sizeOf($trades);
         $testDuration = (strToTime($test->getEndTime().' GMT') - strToTime($test->getStartTime().' GMT'))/DAYS;
         $tradesPerDay = $testDuration ? round($numTrades/($testDuration * 5/7), 1) : 0;
@@ -119,7 +119,7 @@ class Statistic extends PersistableObject {
 
         /** @var Order $trade */
         foreach ($trades as $trade) {
-            $tsOpen  = strToTime($trade->getOpenTime() .' GMT');
+            $tsOpen  = strToTime($trade->getOpenTime() .' GMT');            // $ts => timestamp
             $tsClose = strToTime($trade->getCloseTime().' GMT');
 
             $duration    = $tsClose - $tsOpen;
