@@ -1,4 +1,4 @@
-## MetaTrader 4 Framework Web and Command Line Tools
+## MetaTrader 4 framework web and command line tools
 
 [![Build Status](https://scrutinizer-ci.com/g/rosasurfer/mt4-tools/badges/build.png?b=master)](https://scrutinizer-ci.com/g/rosasurfer/mt4-tools/build-status/master)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/rosasurfer/mt4-tools/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/rosasurfer/mt4-tools/?branch=master)
