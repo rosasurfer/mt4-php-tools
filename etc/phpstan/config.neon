@@ -10,10 +10,17 @@ parameters:
         - vendor/rosasurfer/ministruts/etc/phpstan/function-stubs.php
 
     fileExtensions:                                                 # additional files to analyse
+       #- html
        #- phtml                                                     # TODO: Tile default vars trigger errors
 
     excludes_analyse:
+        - .git/
+        - .settings/
+        - data/
+        - etc/
         - vendor/
+        - web/css/
+        - web/js/
         
     universalObjectCratesClasses:
         - rosasurfer\ministruts\Page
@@ -34,7 +41,6 @@ parameters:
         - '/Strict comparison using [=!]== between (int|string) and null will always evaluate to (true|false)\b/'
 
         # unsolved issues
-        - '/Method rosasurfer\\xtrade\\simpletrader\\SimpleTrader::loadSignalPage\(\) should return string but returns string\|null\b/'
         - '/Parameter (#2 \$sort_order|#4 \.\.\.\$arr2) of function array_multisort is passed by reference, so it expects variables only/'
 
 

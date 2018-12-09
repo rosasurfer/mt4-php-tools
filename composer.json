@@ -12,10 +12,7 @@
       "optimize-autoloader": true
    },
    "repositories": [
-      { "type": "vcs",
-        "url":  "https://github.com/rosasurfer/ministruts"
-      },
-      { "packagist.org": false }
+      { "type": "vcs", "url": "https://github.com/rosasurfer/ministruts" }
    ],
    "require": {
       "php":                   ">=5.6",
