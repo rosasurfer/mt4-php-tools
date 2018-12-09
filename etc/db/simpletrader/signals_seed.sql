@@ -1,41 +1,44 @@
 
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Signals
-insert into t_signal (created, name, alias, referenceid, currency) values
-   (now(), 'AlexProfit'       , 'alexprofit'   , '2474', 'USD'),
-   (now(), 'Asta'             , 'asta'         , '2370', 'GBP'),
-   (now(), 'Caesar2'          , 'caesar2'      , '1619', 'USD'),
-   (now(), 'Caesar2.1'        , 'caesar21'     , '1803', 'USD'),
-   (now(), 'Consistent Profit', 'consistent'   , '4351', 'USD'),
-   (now(), 'DayFox'           , 'dayfox'       , '2465', 'EUR'),
-   (now(), 'FX Viper'         , 'fxviper'      , '633' , 'USD'),
-   (now(), 'GC-Edge'          , 'gcedge'       , '998' , 'USD'),
-   (now(), 'GoldStar'         , 'goldstar'     , '2622', 'USD'),
-   (now(), 'Kilimanjaro'      , 'kilimanjaro'  , '2905', 'USD'),
-   (now(), 'NovoLRfund'       , 'novolr'       , '4322', 'USD'),
-   (now(), 'OverTrader'       , 'overtrader'   , '2973', 'USD'),
-   (now(), 'SmartScalper'     , 'smartscalper' , '1086', 'USD'),
-   (now(), 'SmartTrader'      , 'smarttrader'  , '1081', 'USD'),
-   (now(), 'Steady Capture'   , 'steadycapture', '4023', 'USD'),
-   (now(), 'TwilightScalper'  , 'twilight'     , '3913', 'USD'),
-   (now(), 'Yen Fortress'     , 'yenfortress'  , '2877', 'USD');
+insert into t_signal (created, provider, provider_id, name, alias, currency) values
+   (now(), 'simpletrader', '2474', 'AlexProfit'       , 'alexprofit'   , 'USD'),
+   (now(), 'simpletrader', '2370', 'Asta'             , 'asta'         , 'GBP'),
+   (now(), 'simpletrader', '1619', 'Caesar2'          , 'caesar2'      , 'USD'),
+   (now(), 'simpletrader', '1803', 'Caesar2.1'        , 'caesar21'     , 'USD'),
+   (now(), 'simpletrader', '4351', 'Consistent Profit', 'consistent'   , 'USD'),
+   (now(), 'simpletrader', '2465', 'DayFox'           , 'dayfox'       , 'EUR'),
+   (now(), 'simpletrader', '633' , 'FX Viper'         , 'fxviper'      , 'USD'),
+   (now(), 'simpletrader', '998' , 'GC-Edge'          , 'gcedge'       , 'USD'),
+   (now(), 'simpletrader', '2622', 'GoldStar'         , 'goldstar'     , 'USD'),
+   (now(), 'simpletrader', '2905', 'Kilimanjaro'      , 'kilimanjaro'  , 'USD'),
+   (now(), 'simpletrader', '4322', 'NovoLRfund'       , 'novolr'       , 'USD'),
+   (now(), 'simpletrader', '2973', 'OverTrader'       , 'overtrader'   , 'USD'),
+   (now(), 'simpletrader', '5611', 'Ryan Analyst'     , 'ryan'         , 'USD');
+   (now(), 'simpletrader', '1086', 'SmartScalper'     , 'smartscalper' , 'USD'),
+   (now(), 'simpletrader', '1081', 'SmartTrader'      , 'smarttrader'  , 'USD'),
+   (now(), 'simpletrader', '4023', 'Steady Capture'   , 'steadycapture', 'USD'),
+   (now(), 'simpletrader', '3913', 'TwilightScalper'  , 'twilight'     , 'USD'),
+   (now(), 'simpletrader', '2877', 'Yen Fortress'     , 'yenfortress'  , 'USD');
 
-   set @signal_alexprofit    = (select id from t_signal where alias = 'alexprofit'   );
-   set @signal_asta          = (select id from t_signal where alias = 'asta'         );
-   set @signal_caesar2       = (select id from t_signal where alias = 'caesar2'      );
-   set @signal_caesar21      = (select id from t_signal where alias = 'caesar21'     );
-   set @signal_consistent    = (select id from t_signal where alias = 'consistent'   );
-   set @signal_dayfox        = (select id from t_signal where alias = 'dayfox'       );
-   set @signal_fxviper       = (select id from t_signal where alias = 'fxviper'      );
-   set @signal_gcedge        = (select id from t_signal where alias = 'gcedge'       );
-   set @signal_goldstar      = (select id from t_signal where alias = 'goldstar'     );
-   set @signal_kilimanjaro   = (select id from t_signal where alias = 'kilimanjaro'  );
-   set @signal_novolr        = (select id from t_signal where alias = 'novolr'       );
-   set @signal_overtrader    = (select id from t_signal where alias = 'overtrader'   );
-   set @signal_smarttrader   = (select id from t_signal where alias = 'smarttrader'  );
-   set @signal_steadycapture = (select id from t_signal where alias = 'steadycapture');
-   set @signal_twilight      = (select id from t_signal where alias = 'twilight'     );
-   set @signal_yenfortress   = (select id from t_signal where alias = 'yenfortress'  );
+   set @signal_alexprofit    = (select id from t_signal where provider = 'simpletrader' and lias = 'alexprofit'   );
+   set @signal_asta          = (select id from t_signal where provider = 'simpletrader' and lias = 'asta'         );
+   set @signal_caesar2       = (select id from t_signal where provider = 'simpletrader' and lias = 'caesar2'      );
+   set @signal_caesar21      = (select id from t_signal where provider = 'simpletrader' and lias = 'caesar21'     );
+   set @signal_consistent    = (select id from t_signal where provider = 'simpletrader' and lias = 'consistent'   );
+   set @signal_dayfox        = (select id from t_signal where provider = 'simpletrader' and lias = 'dayfox'       );
+   set @signal_fxviper       = (select id from t_signal where provider = 'simpletrader' and lias = 'fxviper'      );
+   set @signal_gcedge        = (select id from t_signal where provider = 'simpletrader' and lias = 'gcedge'       );
+   set @signal_goldstar      = (select id from t_signal where provider = 'simpletrader' and lias = 'goldstar'     );
+   set @signal_kilimanjaro   = (select id from t_signal where provider = 'simpletrader' and lias = 'kilimanjaro'  );
+   set @signal_novolr        = (select id from t_signal where provider = 'simpletrader' and lias = 'novolr'       );
+   set @signal_overtrader    = (select id from t_signal where provider = 'simpletrader' and lias = 'overtrader'   );
+   set @signal_ryan          = (select id from t_signal where provider = 'simpletrader' and lias = 'ryan'         );
+   set @signal_smartscalper  = (select id from t_signal where provider = 'simpletrader' and lias = 'smartscalper' );
+   set @signal_smarttrader   = (select id from t_signal where provider = 'simpletrader' and lias = 'smarttrader'  );
+   set @signal_steadycapture = (select id from t_signal where provider = 'simpletrader' and lias = 'steadycapture');
+   set @signal_twilight      = (select id from t_signal where provider = 'simpletrader' and lias = 'twilight'     );
+   set @signal_yenfortress   = (select id from t_signal where provider = 'simpletrader' and lias = 'yenfortress'  );
 
 
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
