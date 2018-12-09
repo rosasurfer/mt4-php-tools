@@ -21,8 +21,8 @@ pragma foreign_keys = on;
 
 -- InstrumentTypes
 create table enum_instrumenttype (
-    type text not null collate nocase,
-    primary key (type)
+   type text not null collate nocase,
+   primary key (type)
 );
 insert into enum_instrumenttype (type) values
    ('Forex'    ),
@@ -32,8 +32,8 @@ insert into enum_instrumenttype (type) values
 
 -- OrderTypes
 create table enum_ordertype (
-    type text not null collate nocase,
-    primary key (type)
+   type text not null collate nocase,
+   primary key (type)
 );
 insert into enum_ordertype (type) values
    ('Buy' ),
@@ -42,8 +42,8 @@ insert into enum_ordertype (type) values
 
 -- BarModels
 create table enum_barmodel (
-    type text not null collate nocase,
-    primary key (type)
+   type text not null collate nocase,
+   primary key (type)
 );
 insert into enum_barmodel (type) values
    ('EveryTick'    ),
@@ -53,8 +53,8 @@ insert into enum_barmodel (type) values
 
 -- TradeDirections
 create table enum_tradedirection (
-    type text not null collate nocase,
-    primary key (type)
+   type text not null collate nocase,
+   primary key (type)
 );
 insert into enum_tradedirection (type) values
    ('Long' ),
@@ -200,4 +200,4 @@ create table t_statistic (
 
 
 -- seed the database
-.read "xtrade_seed.sql"
+.read "db-xtrade-seed.sql"
