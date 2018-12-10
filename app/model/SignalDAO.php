@@ -103,7 +103,7 @@ class SignalDAO extends DAO {
      *
      * @return Signal[]
      */
-    public function listActiveMyfxBook() {
+    public function findAllActiveMyfxBook() {
         $sql = "select *
                    from :Signal
                    where provider = 'myfxbook'
@@ -117,7 +117,7 @@ class SignalDAO extends DAO {
      *
      * @return Signal[]
      */
-    public function listActiveSimpleTrader() {
+    public function findAllActiveSimpleTrader() {
         $sql = "select *
                    from :Signal
                    where provider = 'simpletrader'

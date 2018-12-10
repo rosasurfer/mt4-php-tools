@@ -83,9 +83,9 @@ class ClosedPositionDAO extends DAO {
      *
      * @return ClosedPosition[] - Array von ClosedPosition-Instanzen, aufsteigend sortiert nach {CloseTime,OpenTime,Ticket}
      */
-    public function listBySignal(Signal $signal, $assocTicket=false) {
+    public function findAllBySignal(Signal $signal, $assocTicket=false) {
         if (!$signal->isPersistent()) throw new InvalidArgumentException('Cannot process non-persistent '.get_class($signal));
-        return $this->listBySignalAlias($signal->getAlias(), $assocTicket);
+        return $this->findAllBySignalAlias($signal->getAlias(), $assocTicket);
     }
 
 
@@ -97,7 +97,7 @@ class ClosedPositionDAO extends DAO {
      *
      * @return ClosedPosition[] - Array von ClosedPosition-Instanzen, aufsteigend sortiert nach {CloseTime,OpenTime,Ticket}
      */
-    public function listBySignalAlias($alias, $assocTicket=false) {
+    public function findAllBySignalAlias($alias, $assocTicket=false) {
         if (!is_string($alias)) throw new IllegalTypeException('Illegal type of parameter $alias: '.getType($alias));
 
         $alias = $this->escapeLiteral($alias);

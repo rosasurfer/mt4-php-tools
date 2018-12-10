@@ -82,7 +82,7 @@ function processAccounts($alias) {
     // if the wildcard "*" is specified recursively process all active accounts
     if ($alias == '*') {
         $me = __FUNCTION__;
-        foreach ($signalDao->listActiveMyfxBook() as $signal) {
+        foreach ($signalDao->findAllActiveMyfxBook() as $signal) {
             $me($signal->getAlias());
         }
         return true;
@@ -166,7 +166,7 @@ function updateDatabase(Signal $signal, array $currentOpenPositions, &$openUpdat
 
 
         // (2) lokalen Stand der offenen Positionen holen
-        $knownOpenPositions = $openPositionDao->listBySignal($signal, $assocTicket=true);
+        $knownOpenPositions = $openPositionDao->findAllBySignal($signal, $assocTicket=true);
 
 
         // (3) offene Positionen abgleichen

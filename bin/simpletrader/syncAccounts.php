@@ -99,7 +99,7 @@ function processSignal($alias, $fileSyncOnly) {
     // if the wildcard "*" is specified recursively process all active accounts
     if ($alias == '*') {
         $me = __FUNCTION__;
-        foreach ($signalDao->listActiveSimpleTrader() as $signal) {
+        foreach ($signalDao->findAllActiveSimpleTrader() as $signal) {
             $me($signal->getAlias(), $fileSyncOnly);
         }
         return true;
@@ -211,7 +211,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
 
 
         // (2) lokalen Stand der offenen Positionen holen
-        $knownOpenPositions = $openPositionDao->listBySignal($signal, $assocTicket=true);
+        $knownOpenPositions = $openPositionDao->findAllBySignal($signal, $assocTicket=true);
 
 
         // (3) offene Positionen abgleichen

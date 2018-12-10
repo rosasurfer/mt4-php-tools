@@ -402,7 +402,7 @@ class MT4 extends StaticClass {
 
         // (3) Open-Datei neu schreiben, wenn die offenen Positionen modifiziert wurden oder die Datei nicht existiert
         if ($openUpdates || !$isOpenFile) {
-            $positions = $openPositionDao->listBySignal($signal);   // aufsteigend sortiert nach {OpenTime,Ticket}
+            $positions = $openPositionDao->findAllBySignal($signal);    // aufsteigend sortiert nach {OpenTime,Ticket}
 
             // Datei schreiben
             mkDirWritable(dirName($openFileName));
@@ -458,7 +458,7 @@ class MT4 extends StaticClass {
             }
             else {
                 // (4.2) History-Datei komplett neuschreiben
-                $positions = $closedPositionDao->listBySignal($signal); // aufsteigend sortiert nach {CloseTime,OpenTime,Ticket}
+                $positions = $closedPositionDao->findAllBySignal($signal);  // aufsteigend sortiert nach {CloseTime,OpenTime,Ticket}
 
                 // Datei schreiben
                 mkDirWritable(dirName($closedFileName));
