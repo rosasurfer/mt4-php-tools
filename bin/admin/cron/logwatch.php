@@ -20,7 +20,7 @@ use const rosasurfer\CLI;
 use const rosasurfer\NL;
 use const rosasurfer\WINDOWS;
 
-require(dirName(realPath(__FILE__)).'/../../app/init.php');
+require(dirName(realPath(__FILE__)).'/../../../app/init.php');
 !CLI && exit(1|stderror('error: This script must be executed from a command line interface.'));
 
 
