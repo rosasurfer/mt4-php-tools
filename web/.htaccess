@@ -1,8 +1,8 @@
 #
-# It's recommended to disable .htaccess files and instead configure the project in a <VirtualHost> definition.
+# It's strongly recommended to disable the use of .htaccess files and instead configure the project in a <VirtualHost>.
 #
-# Intentionally trigger a server error if mod_rewrite is disabled.
-#
+
+# Intentionally trigger a server error if usage of .htaccess files is enabled and mod_rewrite is disabled.
 RewriteEngine On
 RewriteCond   %{REQUEST_FILENAME}  !-d
 RewriteCond   %{REQUEST_FILENAME}  !-f
