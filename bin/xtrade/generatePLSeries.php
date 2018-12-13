@@ -5,7 +5,7 @@
  *
  *
  * TODO: link the PL series to the originating trade history
- * TODO: check and confirm over/rewriting an existing PL series
+ * TODO: check and confirm over/rewriting existing PL series
  */
 namespace rosasurfer\xtrade\generate_pl_series;
 

@@ -10,9 +10,6 @@
  *  • FX7-Indizes: AUDFX7, CADFX7, CHFFX7, EURFX7, GBPFX7, JPYFX7, USDFX7, NOKFX7, NZDFX7, SEKFX7, SGDFX7, ZARFX7
  *  • ICE-Indizes: EURX, USDX
  *
- *  TODO: AUDFX5, CADFX5, CHFFX5, EURFX5, GBPFX5, USDFX5 (ohne JPY)
- *        NOKFX6, SEKFX6, SGDFX6, ZARFX6                 (ohne JPY)
- *
  * @see  MetaTrader::indicators\LFX-Monitor.mq4
  */
 namespace rosasurfer\xtrade\fxi\update_m1_bars;
