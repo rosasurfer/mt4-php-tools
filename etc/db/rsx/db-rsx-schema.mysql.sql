@@ -1,7 +1,7 @@
 /*
 Created     16.01.2017
-Modified    10.12.2018
-Project     Xtrade
+Modified    15.12.2018
+Project     RSX
 Model       Main model
 Company     
 Author      Peter Walther
@@ -15,9 +15,9 @@ set collation_connection = 'utf8_unicode_ci';
 set autocommit           = 0;
 
 
-drop database if exists xtrade;
-create database xtrade default collate 'latin1_general_ci';
-use xtrade;
+drop database if exists rsx;
+create database rsx default collate 'latin1_general_ci';
+use rsx;
 
 
 create table t_instrument (
@@ -158,7 +158,7 @@ delimiter ;
 
 
 -- seed the database
-source db-xtrade-seed.sql;
+source db-rsx-seed.sql;
 
 commit;
 
