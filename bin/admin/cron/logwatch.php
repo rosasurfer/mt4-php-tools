@@ -12,14 +12,6 @@ use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\net\mail\Mailer;
 use rosasurfer\util\PHP;
 
-use function rosasurfer\echoPre;
-use function rosasurfer\stderror;
-use function rosasurfer\strStartsWith;
-
-use const rosasurfer\CLI;
-use const rosasurfer\NL;
-use const rosasurfer\WINDOWS;
-
 require(dirName(realPath(__FILE__)).'/../../../app/init.php');
 !CLI && exit(1|stderror('error: This script must be executed from a command line interface.'));
 

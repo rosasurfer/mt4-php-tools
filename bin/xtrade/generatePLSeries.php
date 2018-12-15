@@ -16,7 +16,6 @@ use rosasurfer\exception\RuntimeException;
 use rosasurfer\rsx\XTrade;
 use rosasurfer\rsx\model\metatrader\Test;
 
-use function rosasurfer\isLittleEndian;
 use function rosasurfer\rsx\isFxtWeekend;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');

@@ -11,8 +11,6 @@ use rosasurfer\rsx\model\OpenPosition;
 use rosasurfer\rsx\model\OpenPositionDAO;
 use rosasurfer\rsx\model\Signal;
 
-use function rosasurfer\strIsNumeric;
-
 use const rosasurfer\rsx\BARMODEL_BAROPEN;
 use const rosasurfer\rsx\BARMODEL_CONTROLPOINTS;
 use const rosasurfer\rsx\BARMODEL_EVERYTICK;
