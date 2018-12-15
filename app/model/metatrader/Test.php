@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\xtrade\model\metatrader;
+namespace rosasurfer\rsx\model\metatrader;
 
 use rosasurfer\db\orm\PersistableObject;
 use rosasurfer\exception\IllegalArgumentException;
@@ -7,12 +7,12 @@ use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\util\PHP;
 use rosasurfer\util\Windows;
-use rosasurfer\xtrade\XTrade;
-use rosasurfer\xtrade\metatrader\MT4;
+use rosasurfer\rsx\XTrade;
+use rosasurfer\rsx\metatrader\MT4;
 
-use const rosasurfer\xtrade\OP_SELL;
-use const rosasurfer\xtrade\PERIOD_M1;
-use const rosasurfer\xtrade\BARMODEL_BAROPEN;
+use const rosasurfer\rsx\OP_SELL;
+use const rosasurfer\rsx\PERIOD_M1;
+use const rosasurfer\rsx\BARMODEL_BAROPEN;
 
 
 /**

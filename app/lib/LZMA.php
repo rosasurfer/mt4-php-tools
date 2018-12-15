@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\xtrade;
+namespace rosasurfer\rsx;
 
 use rosasurfer\config\Config;
 use rosasurfer\core\StaticClass;

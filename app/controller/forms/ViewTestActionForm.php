@@ -1,9 +1,9 @@
 <?php
-namespace rosasurfer\xtrade\controller\forms;
+namespace rosasurfer\rsx\controller\forms;
 
 use rosasurfer\ministruts\ActionForm;
 use rosasurfer\ministruts\Request;
-use rosasurfer\xtrade\model\metatrader\Test;
+use rosasurfer\rsx\model\metatrader\Test;
 
 
 /**

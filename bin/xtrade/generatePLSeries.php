@@ -7,17 +7,17 @@
  * TODO: link the PL series to the originating trade history
  * TODO: check and confirm over/rewriting existing PL series
  */
-namespace rosasurfer\xtrade\generate_pl_series;
+namespace rosasurfer\rsx\generate_pl_series;
 
 use rosasurfer\config\Config;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
-use rosasurfer\xtrade\XTrade;
-use rosasurfer\xtrade\model\metatrader\Test;
+use rosasurfer\rsx\XTrade;
+use rosasurfer\rsx\model\metatrader\Test;
 
 use function rosasurfer\isLittleEndian;
-use function rosasurfer\xtrade\isFxtWeekend;
+use function rosasurfer\rsx\isFxtWeekend;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');
 

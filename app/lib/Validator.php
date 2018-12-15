@@ -1,7 +1,7 @@
 <?php
-namespace rosasurfer\xtrade;
+namespace rosasurfer\rsx;
 
-use rosasurfer\xtrade\view\ViewHelper;
+use rosasurfer\rsx\view\ViewHelper;
 
 
 /**

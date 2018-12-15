@@ -5,18 +5,18 @@
  * Speichert diese MetaTrader-History im globalen MT4-Serververzeichnis. Vorhandene Historydateien werden ueberschrieben.
  * Um vorhandene Historydateien zu aktualisieren, ist "updateHistory.php" zu benutzen.
  */
-namespace rosasurfer\xtrade\metatrader\create_history;
+namespace rosasurfer\rsx\metatrader\create_history;
 
 use rosasurfer\config\Config;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\util\PHP;
-use rosasurfer\xtrade\XTrade;
-use rosasurfer\xtrade\metatrader\HistorySet;
-use rosasurfer\xtrade\metatrader\MT4;
+use rosasurfer\rsx\XTrade;
+use rosasurfer\rsx\metatrader\HistorySet;
+use rosasurfer\rsx\metatrader\MT4;
 
-use function rosasurfer\xtrade\fxtTime;
-use function rosasurfer\xtrade\isFxtWeekend;
+use function rosasurfer\rsx\fxtTime;
+use function rosasurfer\rsx\isFxtWeekend;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');

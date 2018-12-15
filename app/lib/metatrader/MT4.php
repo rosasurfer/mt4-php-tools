@@ -1,34 +1,34 @@
 <?php
-namespace rosasurfer\xtrade\metatrader;
+namespace rosasurfer\rsx\metatrader;
 
 use rosasurfer\config\Config;
 use rosasurfer\core\StaticClass;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\RuntimeException;
-use rosasurfer\xtrade\model\ClosedPosition;
-use rosasurfer\xtrade\model\ClosedPositionDAO;
-use rosasurfer\xtrade\model\OpenPosition;
-use rosasurfer\xtrade\model\OpenPositionDAO;
-use rosasurfer\xtrade\model\Signal;
+use rosasurfer\rsx\model\ClosedPosition;
+use rosasurfer\rsx\model\ClosedPositionDAO;
+use rosasurfer\rsx\model\OpenPosition;
+use rosasurfer\rsx\model\OpenPositionDAO;
+use rosasurfer\rsx\model\Signal;
 
 use function rosasurfer\strIsNumeric;
 
-use const rosasurfer\xtrade\BARMODEL_BAROPEN;
-use const rosasurfer\xtrade\BARMODEL_CONTROLPOINTS;
-use const rosasurfer\xtrade\BARMODEL_EVERYTICK;
-use const rosasurfer\xtrade\PERIOD_M1;
-use const rosasurfer\xtrade\PERIOD_M5;
-use const rosasurfer\xtrade\PERIOD_M15;
-use const rosasurfer\xtrade\PERIOD_M30;
-use const rosasurfer\xtrade\PERIOD_H1;
-use const rosasurfer\xtrade\PERIOD_H4;
-use const rosasurfer\xtrade\PERIOD_D1;
-use const rosasurfer\xtrade\PERIOD_W1;
-use const rosasurfer\xtrade\PERIOD_MN1;
-use const rosasurfer\xtrade\PERIOD_Q1;
-use const rosasurfer\xtrade\TRADE_DIRECTIONS_BOTH;
-use const rosasurfer\xtrade\TRADE_DIRECTIONS_LONG;
-use const rosasurfer\xtrade\TRADE_DIRECTIONS_SHORT;
+use const rosasurfer\rsx\BARMODEL_BAROPEN;
+use const rosasurfer\rsx\BARMODEL_CONTROLPOINTS;
+use const rosasurfer\rsx\BARMODEL_EVERYTICK;
+use const rosasurfer\rsx\PERIOD_M1;
+use const rosasurfer\rsx\PERIOD_M5;
+use const rosasurfer\rsx\PERIOD_M15;
+use const rosasurfer\rsx\PERIOD_M30;
+use const rosasurfer\rsx\PERIOD_H1;
+use const rosasurfer\rsx\PERIOD_H4;
+use const rosasurfer\rsx\PERIOD_D1;
+use const rosasurfer\rsx\PERIOD_W1;
+use const rosasurfer\rsx\PERIOD_MN1;
+use const rosasurfer\rsx\PERIOD_Q1;
+use const rosasurfer\rsx\TRADE_DIRECTIONS_BOTH;
+use const rosasurfer\rsx\TRADE_DIRECTIONS_LONG;
+use const rosasurfer\rsx\TRADE_DIRECTIONS_SHORT;
 
 
 /**

@@ -1,12 +1,12 @@
 <?php
-namespace rosasurfer\xtrade\model;
+namespace rosasurfer\rsx\model;
 
 use rosasurfer\db\orm\PersistableObject;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 use rosasurfer\util\Number;
-use rosasurfer\xtrade\XTrade;
+use rosasurfer\rsx\XTrade;
 
 
 /**

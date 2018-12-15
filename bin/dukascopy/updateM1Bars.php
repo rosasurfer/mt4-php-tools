@@ -33,7 +33,7 @@
  *
  * TODO: check/confirm info from Zorro forum:  http://www.opserver.de/ubb7/ubbthreads.php?ubb=showflat&Number=463361#Post463345
  */
-namespace rosasurfer\xtrade\dukascopy\update_m1_bars;
+namespace rosasurfer\rsx\dukascopy\update_m1_bars;
 
 use rosasurfer\config\Config;
 use rosasurfer\exception\IllegalTypeException;
@@ -42,12 +42,12 @@ use rosasurfer\exception\RuntimeException;
 use rosasurfer\net\http\CurlHttpClient;
 use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
-use rosasurfer\xtrade\LZMA;
-use rosasurfer\xtrade\XTrade;
-use rosasurfer\xtrade\dukascopy\Dukascopy;
-use rosasurfer\xtrade\simpletrader\SimpleTrader;
+use rosasurfer\rsx\LZMA;
+use rosasurfer\rsx\XTrade;
+use rosasurfer\rsx\dukascopy\Dukascopy;
+use rosasurfer\rsx\simpletrader\SimpleTrader;
 
-use function rosasurfer\xtrade\isFxtWeekend;
+use function rosasurfer\rsx\isFxtWeekend;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');

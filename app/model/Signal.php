@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\xtrade\model;
+namespace rosasurfer\rsx\model;
 
 use rosasurfer\db\orm\PersistableObject;
 use rosasurfer\exception\IllegalTypeException;

@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\xtrade;
+namespace rosasurfer\rsx;
 
 use rosasurfer\config\Config;
 use rosasurfer\core\StaticClass;
@@ -10,7 +10,7 @@ use rosasurfer\exception\UnimplementedFeatureException;
 use rosasurfer\net\http\CurlHttpClient;
 use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
-use rosasurfer\xtrade\metatrader\MT4;
+use rosasurfer\rsx\metatrader\MT4;
 
 
 /**

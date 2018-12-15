@@ -12,17 +12,17 @@
  *
  * @see  MetaTrader::indicators\LFX-Monitor.mq4
  */
-namespace rosasurfer\xtrade\fxi\update_m1_bars;
+namespace rosasurfer\rsx\fxi\update_m1_bars;
 
 use rosasurfer\config\Config;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
-use rosasurfer\xtrade\XTrade;
-use rosasurfer\xtrade\dukascopy\Dukascopy;
+use rosasurfer\rsx\XTrade;
+use rosasurfer\rsx\dukascopy\Dukascopy;
 
-use function rosasurfer\xtrade\fxtTime;
-use function rosasurfer\xtrade\isFxtWeekend;
+use function rosasurfer\rsx\fxtTime;
+use function rosasurfer\rsx\isFxtWeekend;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');

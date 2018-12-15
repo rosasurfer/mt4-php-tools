@@ -1,11 +1,11 @@
 <?php
-namespace rosasurfer\xtrade\model\metatrader;
+namespace rosasurfer\rsx\model\metatrader;
 
 use rosasurfer\db\orm\PersistableObject;
 
-use function rosasurfer\xtrade\stats_sharpe_ratio;
-use function rosasurfer\xtrade\stats_sortino_ratio;
-use function rosasurfer\xtrade\stats_calmar_ratio;
+use function rosasurfer\rsx\stats_sharpe_ratio;
+use function rosasurfer\rsx\stats_sortino_ratio;
+use function rosasurfer\rsx\stats_calmar_ratio;
 
 
 /**

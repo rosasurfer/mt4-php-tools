@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\xtrade\myfxbook;
+namespace rosasurfer\rsx\myfxbook;
 
 use rosasurfer\config\Config;
 use rosasurfer\core\StaticClass;
@@ -9,7 +9,7 @@ use rosasurfer\exception\RuntimeException;
 use rosasurfer\net\http\CurlHttpClient;
 use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
-use rosasurfer\xtrade\model\Signal;
+use rosasurfer\rsx\model\Signal;
 
 
 /**

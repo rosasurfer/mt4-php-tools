@@ -5,9 +5,9 @@
  *
  * @see Struct-Formate in MT4Expander.dll::Expander.h
  */
-namespace rosasurfer\xtrade\metatrader\list_symbols;
+namespace rosasurfer\rsx\metatrader\list_symbols;
 
-use rosasurfer\xtrade\metatrader\MT4;
+use rosasurfer\rsx\metatrader\MT4;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');
 

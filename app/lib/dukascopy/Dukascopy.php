@@ -1,16 +1,16 @@
 <?php
-namespace rosasurfer\xtrade\dukascopy;
+namespace rosasurfer\rsx\dukascopy;
 
 use rosasurfer\core\StaticClass;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 use rosasurfer\log\Logger;
-use rosasurfer\xtrade\LZMA;
-use rosasurfer\xtrade\XTrade;
+use rosasurfer\rsx\LZMA;
+use rosasurfer\rsx\XTrade;
 
-use const rosasurfer\xtrade\DUKASCOPY_BAR_SIZE;
-use const rosasurfer\xtrade\DUKASCOPY_TICK_SIZE;
+use const rosasurfer\rsx\DUKASCOPY_BAR_SIZE;
+use const rosasurfer\rsx\DUKASCOPY_TICK_SIZE;
 
 
 /**

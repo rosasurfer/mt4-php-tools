@@ -1,13 +1,13 @@
 <?php
-namespace rosasurfer\xtrade\model\metatrader;
+namespace rosasurfer\rsx\model\metatrader;
 
 use rosasurfer\db\orm\PersistableObject;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
-use rosasurfer\xtrade\XTrade;
-use rosasurfer\xtrade\metatrader\MT4;
+use rosasurfer\rsx\XTrade;
+use rosasurfer\rsx\metatrader\MT4;
 
-use function rosasurfer\xtrade\isFxtWeekend;
+use function rosasurfer\rsx\isFxtWeekend;
 
 
 /**
