@@ -16,24 +16,25 @@ use const rosasurfer\xtrade\DUKASCOPY_TICK_SIZE;
 /**
  * Dukascopy related functionality
  *
- *                                      size        offset      description
- * struct big-endian DUKASCOPY_BAR {    ----        ------      -------------------------------------------------------
- *    uint  timeDelta;                    4            0        time difference in seconds since 00:00 GMT
- *    uint  open;                         4            4        in points
- *    uint  close;                        4            8        in points
- *    uint  low;                          4           12        in points
- *    uint  high;                         4           16        in points
- *    float lots;                         4           20        cumulated bid/ask offers in lots
- * };                             = 24 byte
  *
- *                                      size        offset      description
- * struct big-endian DUKASCOPY_TICK {   ----        ------      -------------------------------------------------------
- *    uint  timeDelta;                    4            0        time difference in milliseconds since start of the hour
- *    uint  ask;                          4            4        in points
- *    uint  bid;                          4            8        in points
- *    float askSize;                      4           12        cumulated ask size in lots; min. 1 lot (Dukascopy is market maker)
- *    float bidSize;                      4           16        cumulated bid size in lots; min. 1 lot (Dukascopy is market maker)
- * };                             = 20 byte
+ * struct big-endian DUKASCOPY_BAR {    // -- offset --- size --- description -----------------------------------------------
+ *     uint  timeDelta;                 //         0        4     time difference in seconds since 00:00 GMT
+ *     uint  open;                      //         4        4     in points
+ *     uint  close;                     //         8        4     in points
+ *     uint  low;                       //        12        4     in points
+ *     uint  high;                      //        16        4     in points
+ *     float volume;                    //        20        4
+ * };                                   // ----------------------------------------------------------------------------------
+ *                                      //               = 24
+ *
+ * struct big-endian DUKASCOPY_TICK {   // -- offset --- size --- description -----------------------------------------------
+ *     uint  timeDelta;                 //         0        4     time difference in milliseconds since start of the hour
+ *     uint  ask;                       //         4        4     in points
+ *     uint  bid;                       //         8        4     in points
+ *     float askSize;                   //        12        4     cumulated ask size in lots (min. 1)
+ *     float bidSize;                   //        16        4     cumulated bid size in lots (min. 1)
+ * };                                   // ----------------------------------------------------------------------------------
+ *                                      //               = 20
  */
 class Dukascopy extends StaticClass {
 

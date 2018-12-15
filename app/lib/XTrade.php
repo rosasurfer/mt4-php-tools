@@ -56,7 +56,7 @@ class XTrade extends StaticClass {
     const TICK_SIZE = 12;
 
 
-    /** @var array $symbols - symbols meta data, see static initializer at the end of file */
+    /** @var array $symbols - symbols meta data (static initializer at the end of this file) */
     public static $symbols = [];
 
 

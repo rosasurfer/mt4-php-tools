@@ -32,3 +32,5 @@ config*.properties
 /data/
 /data
 /deploy
+*.bi5
+*.bin

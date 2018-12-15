@@ -1,36 +1,37 @@
 #!/usr/bin/env php
 <?php
 /**
- * Updates the XTrade history of one or more symbols with M1 data from Dukascopy. Dukascopy provides continuous bid and ask
- * prices covering weekends and holidays. Bid and ask are merged to median, converted from GMT to FXT and stored in XTrade
- * format. Holiday data is stored (because holidays are irregular), weekend data is not. Data of the current day is available
- * the earliest on the next day.
+ * Updates the M1 history of the specified symbols with data from Dukascopy.
+ *
+ * Dukascopy provides separate bid and ask price series in GMT covering weekends and holidays. Data of the current day is
+ * available the earliest at the next day.
+ *
+ * Bid and ask prices are merged to median, converted to FXT and stored in the internal format. At the moment holiday data
+ * is stored as holidays are irregular and instrument specific. Weekend data is not stored.
+ *
  *
  * Website:       https://www.dukascopy.com/swiss/english/marketwatch/historical/
- *                https://www.dukascopy.com/free/candelabrum/                               (not working anymore)
+ *                https://www.dukascopy.com/free/candelabrum/                                       (inactive)
  *
- * Instruments:   https://www.dukascopy.com/free/candelabrum/data.json
+ * Instruments:   https://www.dukascopy.com/free/candelabrum/data.json                              (inactive)
  *
- * History start: http://datafeed.dukascopy.com/datafeed/metadata/HistoryStart.bi5          (binary, uncompressed)
- *                http://datafeed.dukascopy.com/datafeed/AUDUSD/metadata/HistoryStart.bi5   (binary, uncompressed)
+ * History start: http://datafeed.dukascopy.com/datafeed/metadata/HistoryStart.bi5                  (big-endian)
+ *                http://datafeed.dukascopy.com/datafeed/AUDUSD/metadata/HistoryStart.bi5           (big-endian)
  *
- * URL format:    One file per calendar day since history start,
- *                e.g.: (January = 00)
- *                - http://datafeed.dukascopy.com/datafeed/GBPUSD/2013/00/10/BID_candles_min_1.bi5
+ * Prices:        One file per calendar day (January = 00) since history start. During trade breaks
+ *                the last close price (OHLC) and a volume of zero (V=0) are indicated:
+ *                - http://datafeed.dukascopy.com/datafeed/GBPUSD/2013/00/10/BID_candles_min_1.bi5  (LZMA-compressed, DUKASCOPY_BAR[])
  *                - http://datafeed.dukascopy.com/datafeed/GBPUSD/2013/11/31/ASK_candles_min_1.bi5
  *
- * File format:   - Binary, LZMA compressed, GMT (no DST).
- *                - During trade breaks the last close price (OHLC) and a volume of zero (V=0) are indicated.
- *
- *      +------------++------------+------------+------------+------------+------------++------------+------------++------------+
- * FXT: |   Sunday   ||   Monday   |  Tuesday   | Wednesday  |  Thursday  |   Friday   ||  Saturday  |   Sunday   ||   Monday   |
- *      +------------++------------+------------+------------+------------+------------++------------+------------++------------+
  *          +------------++------------+------------+------------+------------+------------++------------+------------++------------+
  * GMT:     |   Sunday   ||   Monday   |  Tuesday   | Wednesday  |  Thursday  |   Friday   ||  Saturday  |   Sunday   ||   Monday   |
  *          +------------++------------+------------+------------+------------+------------++------------+------------++------------+
+ *      +------------++------------+------------+------------+------------+------------++------------+------------++------------+
+ * FXT: |   Sunday   ||   Monday   |  Tuesday   | Wednesday  |  Thursday  |   Friday   ||  Saturday  |   Sunday   ||   Monday   |
+ *      +------------++------------+------------+------------+------------+------------++------------+------------++------------+
  *
  *
- * TODO: check/confirm http://www.opserver.de/ubb7/ubbthreads.php?ubb=showflat&Number=463361#Post463345
+ * TODO: check/confirm info from Zorro forum:  http://www.opserver.de/ubb7/ubbthreads.php?ubb=showflat&Number=463361#Post463345
  */
 namespace rosasurfer\xtrade\dukascopy\update_m1_bars;
 
