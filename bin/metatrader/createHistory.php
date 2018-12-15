@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 /**
- * Liest die XTrade-M1-History der angegebenen Instrumente ein und erzeugt daraus jeweils eine neue MetaTrader-History.
+ * Liest die RSX-M1-History der angegebenen Instrumente ein und erzeugt daraus jeweils eine neue MetaTrader-History.
  * Speichert diese MetaTrader-History im globalen MT4-Serververzeichnis. Vorhandene Historydateien werden ueberschrieben.
  * Um vorhandene Historydateien zu aktualisieren, ist "updateHistory.php" zu benutzen.
  */
@@ -11,7 +11,7 @@ use rosasurfer\config\Config;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\util\PHP;
-use rosasurfer\rsx\XTrade;
+use rosasurfer\rsx\RSX;
 use rosasurfer\rsx\metatrader\HistorySet;
 use rosasurfer\rsx\metatrader\MT4;
 
@@ -45,10 +45,10 @@ foreach ($args as $i => $arg) {
 // Symbole parsen
 foreach ($args as $i => $arg) {
     $arg = strToUpper($arg);
-    if (!isSet(XTrade::$symbols[$arg])) exit(1|stderror('error: unknown or unsupported symbol "'.$args[$i].'"'));
+    if (!isSet(RSX::$symbols[$arg])) exit(1|stderror('error: unknown or unsupported symbol "'.$args[$i].'"'));
     $args[$i] = $arg;
 }                                                                       // ohne Symbol werden alle Instrumente verarbeitet
-$args = $args ? array_unique($args) : array_keys(XTrade::$symbols);
+$args = $args ? array_unique($args) : array_keys(RSX::$symbols);
 
 
 // (2) History erstellen
@@ -72,15 +72,15 @@ function createHistory($symbol) {
     if (!is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
     if (!strLen($symbol))    throw new InvalidArgumentException('Invalid parameter $symbol: ""');
 
-    $startDay  = fxtTime(XTrade::$symbols[$symbol]['historyStart']['M1']);           // FXT
-    $startDay -= $startDay%DAY;                                                      // 00:00 FXT Starttag
-    $today     = ($today=fxtTime()) - $today%DAY;                                    // 00:00 FXT aktueller Tag
+    $startDay  = fxtTime(RSX::$symbols[$symbol]['historyStart']['M1']);             // FXT
+    $startDay -= $startDay%DAY;                                                     // 00:00 FXT Starttag
+    $today     = ($today=fxtTime()) - $today%DAY;                                   // 00:00 FXT aktueller Tag
 
 
     // MT4-HistorySet erzeugen
-    $digits    = XTrade::$symbols[$symbol]['digits'];
+    $digits    = RSX::$symbols[$symbol]['digits'];
     $format    = 400;
-    $directory = Config::getDefault()->get('app.dir.data').'/history/mt4/XTrade-Testhistory';
+    $directory = Config::getDefault()->get('app.dir.data').'/history/mt4/RSX-Testhistory';
     $history   = HistorySet::create($symbol, $digits, $format, $directory);
 
 
@@ -93,16 +93,16 @@ function createHistory($symbol) {
             $lastMonth = $month;
         }
 
-        // ausser an Wochenenden: XTrade-History verarbeiten
+        // ausser an Wochenenden: RSX-History verarbeiten
         if (!isFxtWeekend($day, 'FXT')) {
-            if      (is_file($file=getVar('xtradeFile.compressed', $symbol, $day))) {}  // wenn komprimierte XTrade-Datei existiert
-            else if (is_file($file=getVar('xtradeFile.raw'       , $symbol, $day))) {}  // wenn unkomprimierte XTrade-Datei existiert
+            if      (is_file($file=getVar('rsxFile.compressed', $symbol, $day))) {}     // wenn komprimierte RSX-Datei existiert
+            else if (is_file($file=getVar('rsxFile.raw'       , $symbol, $day))) {}     // wenn unkomprimierte RSX-Datei existiert
             else {
-                echoPre('[Error]   '.$symbol.' XTrade history for '.$shortDate.' not found');
+                echoPre('[Error]   '.$symbol.' RSX history for '.$shortDate.' not found');
                 return false;
             }
             // Bars einlesen und der MT4-History hinzufuegen
-            $bars = XTrade::readBarFile($file, $symbol);
+            $bars = RSX::readBarFile($file, $symbol);
             $history->appendBars($bars);
         }
 
@@ -140,25 +140,25 @@ function getVar($id, $symbol=null, $time=null) {
 
     $self = __FUNCTION__;
 
-    if ($id == 'xtradeDirDate') {               // $yyyy/$mm/$dd                                                // lokales Pfad-Datum
+    if ($id == 'rsxDirDate') {               // $yyyy/$mm/$dd                                                   // lokales Pfad-Datum
         if (!$time)   throw new InvalidArgumentException('Invalid parameter $time: '.$time);
         $result = gmDate('Y/m/d', $time);
     }
-    else if ($id == 'xtradeDir') {              // $dataDirectory/history/xtrade/$group/$symbol/$xtradeDirDate  // lokales Verzeichnis
+    else if ($id == 'rsxDir') {              // $dataDirectory/history/rsx/$group/$symbol/$rsxDirDate           // lokales Verzeichnis
         if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
         static $dataDirectory; if (!$dataDirectory)
         $dataDirectory = Config::getDefault()->get('app.dir.data');
-        $group         = XTrade::$symbols[$symbol]['group'];
-        $xtradeDirDate = $self('xtradeDirDate', null, $time);
-        $result        = $dataDirectory.'/history/xtrade/'.$group.'/'.$symbol.'/'.$xtradeDirDate;
+        $group         = RSX::$symbols[$symbol]['group'];
+        $rsxDirDate    = $self('rsxDirDate', null, $time);
+        $result        = $dataDirectory.'/history/rsx/'.$group.'/'.$symbol.'/'.$rsxDirDate;
     }
-    else if ($id == 'xtradeFile.raw') {         // $xtradeDir/M1.myfx                                           // lokale Datei ungepackt
-        $xtradeDir = $self('xtradeDir' , $symbol, $time);
-        $result    = $xtradeDir.'/M1.myfx';
+    else if ($id == 'rsxFile.raw') {         // $rsxDir/M1.myfx                                                 // lokale Datei ungepackt
+        $rsxDir = $self('rsxDir' , $symbol, $time);
+        $result = $rsxDir.'/M1.myfx';
     }
-    else if ($id == 'xtradeFile.compressed') {  // $xtradeDir/M1.rar                                            // lokale Datei gepackt
-        $xtradeDir = $self('xtradeDir' , $symbol, $time);
-        $result    = $xtradeDir.'/M1.rar';
+    else if ($id == 'rsxFile.compressed') {  // $rsxDir/M1.rar                                                  // lokale Datei gepackt
+        $rsxDir = $self('rsxDir' , $symbol, $time);
+        $result = $rsxDir.'/M1.rar';
     }
     else {
       throw new InvalidArgumentException('Unknown variable identifier "'.$id.'"');

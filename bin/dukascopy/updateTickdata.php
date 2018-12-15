@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 /**
- * Aktualisiert die lokal vorhandenen Dukascopy-Tickdaten. Die Daten werden nach FXT konvertiert und im XTrade-Format
+ * Aktualisiert die lokal vorhandenen Dukascopy-Tickdaten. Die Daten werden nach FXT konvertiert und im RSX-Format
  * gespeichert. Am Wochenende, an Feiertagen und wenn keine Tickdaten verfuegbar sind, sind die Dukascopy-Dateien leer.
  * Wochenenden werden lokal nicht gespeichert. Montags frueh koennen die Daten erst um 01:00 FXT beginnen.
  * Die Daten der aktuellen Stunde sind fruehestens ab der naechsten Stunde verfuegbar.
@@ -16,10 +16,10 @@
  *
  * URL-Format:    Eine Datei je Tagestunde GMT,
  *                z.B.: (Januar = 00)
- *                • http://datafeed.dukascopy.com/datafeed/EURUSD/2013/00/06/00h_ticks.bi5
- *                • http://datafeed.dukascopy.com/datafeed/EURUSD/2013/05/10/23h_ticks.bi5
+ *                - http://datafeed.dukascopy.com/datafeed/EURUSD/2013/00/06/00h_ticks.bi5
+ *                - http://datafeed.dukascopy.com/datafeed/EURUSD/2013/05/10/23h_ticks.bi5
  *
- * Dateiformat:   • Binaer, LZMA-gepackt, Zeiten in GMT (keine Sommerzeit).
+ * Dateiformat:   - Binaer, LZMA-gepackt, Zeiten in GMT (keine Sommerzeit).
  *
  * @see class Dukascopy
  *
@@ -44,7 +44,7 @@ use rosasurfer\net\http\HttpClient;
 use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
 use rosasurfer\rsx\LZMA;
-use rosasurfer\rsx\XTrade;
+use rosasurfer\rsx\RSX;
 use rosasurfer\rsx\dukascopy\Dukascopy;
 use rosasurfer\rsx\dukascopy\DukascopyException;
 use rosasurfer\rsx\simpletrader\SimpleTrader;
@@ -62,7 +62,7 @@ $verbose = 0;                                   // output verbosity
 
 $saveCompressedDukascopyFiles = false;          // ob heruntergeladene Dukascopy-Dateien zwischengespeichert werden sollen
 $saveRawDukascopyFiles        = false;          // ob entpackte Dukascopy-Dateien zwischengespeichert werden sollen
-$saveRawXTradeData            = true;           // ob unkomprimierte XTrade-Historydaten gespeichert werden sollen
+$saveRawRsxData               = true;           // ob unkomprimierte RSX-Historydaten gespeichert werden sollen
 
 
 // -- Start -----------------------------------------------------------------------------------------------------------------
@@ -82,11 +82,11 @@ foreach ($args as $i => $arg) {
 // Symbole parsen
 foreach ($args as $i => $arg) {
     $arg = strToUpper($arg);
-    if (!isSet(XTrade::$symbols[$arg]) || XTrade::$symbols[$arg]['provider']!='dukascopy')
+    if (!isSet(RSX::$symbols[$arg]) || RSX::$symbols[$arg]['provider']!='dukascopy')
         exit(1|stderror('unknown or unsupported symbol "'.$args[$i].'"'));
     $args[$i] = $arg;
 }                                                                       // ohne Angabe werden alle Dukascopy-Instrumente aktualisiert
-$args = $args ? array_unique($args) : array_keys(XTrade::filterSymbols(['provider'=>'dukascopy']));
+$args = $args ? array_unique($args) : array_keys(RSX::filterSymbols(['provider'=>'dukascopy']));
 
 
 // (2) Daten aktualisieren
@@ -117,9 +117,9 @@ function updateSymbol($symbol) {
 
 
     // (1) Beginn des naechsten Forex-Tages ermitteln
-    $startTimeGMT = XTrade::$symbols[$symbol]['historyStart']['ticks'];     // Beginn der Tickdaten des Symbols GMT
+    $startTimeGMT = RSX::$symbols[$symbol]['historyStart']['ticks'];        // Beginn der Tickdaten des Symbols GMT
     $prev = $next = null;
-    $fxtOffset = XTrade::fxtTimezoneOffset($startTimeGMT, $prev, $next);    // es gilt: FXT = GMT + Offset
+    $fxtOffset = RSX::fxtTimezoneOffset($startTimeGMT, $prev, $next);       // es gilt: FXT = GMT + Offset
     $startTimeFXT = $startTimeGMT + $fxtOffset;                             // Beginn der Tickdaten FXT
 
     if ($remainder=$startTimeFXT % DAY) {                                   // Beginn auf den naechsten Forex-Tag 00:00 aufrunden, sodass
@@ -129,7 +129,7 @@ function updateSymbol($symbol) {
             $startTimeFXT = $startTimeGMT + $next['offset'];
             if ($remainder=$startTimeFXT % DAY) $diff = 1*DAY - $remainder;
             else                                $diff = 0;
-            $fxtOffset = XTrade::fxtTimezoneOffset($startTimeGMT, $prev, $next);
+            $fxtOffset = RSX::fxtTimezoneOffset($startTimeGMT, $prev, $next);
         }
         $startTimeGMT += $diff;                                             // naechster Forex-Tag 00:00 in GMT
         $startTimeFXT += $diff;                                             // naechster Forex-Tag 00:00 in FXT
@@ -143,7 +143,7 @@ function updateSymbol($symbol) {
 
     for ($gmtHour=$startTimeGMT; $gmtHour < $lastHour; $gmtHour+=1*HOUR) {
         if ($gmtHour >= $next['time'])
-            $fxtOffset = XTrade::fxtTimezoneOffset($gmtHour, $prev, $next); // $fxtOffset on-the-fly aktualisieren
+            $fxtOffset = RSX::fxtTimezoneOffset($gmtHour, $prev, $next);    // $fxtOffset on-the-fly aktualisieren
         $fxtHour = $gmtHour + $fxtOffset;
 
         if (!checkHistory($symbol, $gmtHour, $fxtHour)) return false;
@@ -156,7 +156,7 @@ function updateSymbol($symbol) {
 
 
 /**
- * Prueft den Stand der XTrade-Tickdaten einer einzelnen Stunde und stoesst ggf. das Update an.
+ * Prueft den Stand der RSX-Tickdaten einer einzelnen Stunde und stoesst ggf. das Update an.
  *
  * @param  string $symbol  - Symbol
  * @param  int    $gmtHour - GMT-Timestamp der zu pruefenden Stunde
@@ -169,10 +169,10 @@ function checkHistory($symbol, $gmtHour, $fxtHour) {
     if (!is_int($fxtHour)) throw new IllegalTypeException('Illegal type of parameter $fxtHour: '.getType($fxtHour));
     $shortDate = gmDate('D, d-M-Y H:i', $fxtHour);
 
-    global $verbose, $saveCompressedDukascopyFiles, $saveRawDukascopyFiles, $saveRawXTradeData;
+    global $verbose, $saveCompressedDukascopyFiles, $saveRawDukascopyFiles, $saveRawRsxData;
     static $lastDay=-1, $lastMonth=-1;
 
-    // (1) nur an Handelstagen pruefen, ob die XTrade-History existiert und ggf. aktualisieren
+    // (1) nur an Handelstagen pruefen, ob die RSX-History existiert und ggf. aktualisieren
     if (!isFxtWeekend($fxtHour, 'FXT')) {
         $day = (int) gmDate('d', $fxtHour);
         if ($day != $lastDay) {
@@ -187,13 +187,13 @@ function checkHistory($symbol, $gmtHour, $fxtHour) {
             $lastDay = $day;
         }
 
-        // History ist ok, wenn entweder die komprimierte XTrade-Datei existiert...
-        if (is_file($file=getVar('xtradeFile.compressed', $symbol, $fxtHour))) {
-            if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'   XTrade compressed tick file: '.baseName($file));
+        // History ist ok, wenn entweder die komprimierte RSX-Datei existiert...
+        if (is_file($file=getVar('rsxFile.compressed', $symbol, $fxtHour))) {
+            if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'   RSX compressed tick file: '.baseName($file));
         }
-        // History ist ok, ...oder die unkomprimierte XTrade-Datei gespeichert wird und existiert
-        else if ($saveRawXTradeData && is_file($file=getVar('xtradeFile.raw', $symbol, $fxtHour))) {
-            if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'   XTrade raw tick file: '.baseName($file));
+        // History ist ok, ...oder die unkomprimierte RSX-Datei gespeichert wird und existiert
+        else if ($saveRawRsxData && is_file($file=getVar('rsxFile.raw', $symbol, $fxtHour))) {
+            if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'   RSX raw tick file: '.baseName($file));
         }
         // andererseits Tickdaten aktualisieren
         else {
@@ -217,10 +217,10 @@ function checkHistory($symbol, $gmtHour, $fxtHour) {
         if (is_file($file=getVar('dukaFile.raw', $symbol, $gmtHour))) unlink($file);
     }
     // Dukascopy-Downloadverzeichnis der aktuellen Stunde, wenn es leer ist
-    if (is_dir($dir=getVar('xtradeDir', $symbol, $gmtHour))) @rmDir($dir);
+    if (is_dir($dir=getVar('rsxDir', $symbol, $gmtHour))) @rmDir($dir);
     // lokales Historyverzeichnis der aktuellen Stunde, wenn Wochenende und es leer ist
     if (isFxtWeekend($fxtHour, 'FXT')) {
-        if (is_dir($dir=getVar('xtradeDir', $symbol, $fxtHour))) @rmDir($dir);
+        if (is_dir($dir=getVar('rsxDir', $symbol, $fxtHour))) @rmDir($dir);
     }
 
     return true;
@@ -229,7 +229,7 @@ function checkHistory($symbol, $gmtHour, $fxtHour) {
 
 /**
  * Aktualisiert die Tickdaten einer einzelnen Forex-Handelstunde. Wird aufgerufen, wenn fuer diese Stunde keine lokalen
- * XTrade-Tickdateien existieren.
+ * RSX-Tickdateien existieren.
  *
  * @param  string $symbol  - Symbol
  * @param  int    $gmtHour - GMT-Timestamp der zu aktualisierenden Stunde
@@ -268,9 +268,9 @@ function loadTicks($symbol, $gmtHour, $fxtHour) {
     $shortDate = gmDate('D, d-M-Y H:i', $fxtHour);
 
     // Die Tickdaten der Handelsstunde werden in folgender Reihenfolge gesucht:
-    //  • in bereits dekomprimierten Dukascopy-Dateien
-    //  • in noch komprimierten Dukascopy-Dateien
-    //  • als Dukascopy-Download
+    //  � in bereits dekomprimierten Dukascopy-Dateien
+    //  � in noch komprimierten Dukascopy-Dateien
+    //  � als Dukascopy-Download
 
     global $saveCompressedDukascopyFiles;
     $ticks = [];
@@ -305,7 +305,7 @@ function loadTicks($symbol, $gmtHour, $fxtHour) {
 
 
 /**
- * Schreibt die Tickdaten einer Handelsstunde in die lokale XTrade-Tickdatei.
+ * Schreibt die Tickdaten einer Handelsstunde in die lokale RSX-Tickdatei.
  *
  * @param  string  $symbol  - Symbol
  * @param  int     $gmtHour - GMT-Timestamp der Handelsstunde
@@ -318,7 +318,7 @@ function saveTicks($symbol, $gmtHour, $fxtHour, array $ticks) {
     if (!is_int($gmtHour)) throw new IllegalTypeException('Illegal type of parameter $gmtHour: '.getType($gmtHour));
     if (!is_int($fxtHour)) throw new IllegalTypeException('Illegal type of parameter $fxtHour: '.getType($fxtHour));
     $shortDate = gmDate('D, d-M-Y H:i', $fxtHour);
-    global $saveRawXTradeData;
+    global $saveRawRsxData;
 
 
     // (1) Tickdaten nochmal pruefen
@@ -340,8 +340,8 @@ function saveTicks($symbol, $gmtHour, $fxtHour, array $ticks) {
 
 
     // (3) binaere Daten ggf. unkomprimiert speichern
-    if ($saveRawXTradeData) {
-        if (is_file($file=getVar('xtradeFile.raw', $symbol, $fxtHour))) {
+    if ($saveRawRsxData) {
+        if (is_file($file=getVar('rsxFile.raw', $symbol, $fxtHour))) {
             echoPre('[Error]   '.$symbol.' ticks for '.$shortDate.' already exists');
             return false;
         }
@@ -389,7 +389,7 @@ function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=f
 
 
     // (1) Standard-Browser simulieren
-    $userAgent = $config->get('xtrade.useragent'); if (!$userAgent) throw new InvalidArgumentException('Invalid user agent configuration: "'.$userAgent.'"');
+    $userAgent = $config->get('rsx.useragent'); if (!$userAgent) throw new InvalidArgumentException('Invalid user agent configuration: "'.$userAgent.'"');
     $request = HttpRequest::create()
                                  ->setUrl($url)
                                  ->setHeader('User-Agent'     , $userAgent                                                       )
@@ -424,7 +424,7 @@ function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=f
 
         // ist das Flag $saveData gesetzt, Content speichern
         if ($saveData) {
-            mkDirWritable(getVar('xtradeDir', $symbol, $gmtHour));
+            mkDirWritable(getVar('rsxDir', $symbol, $gmtHour));
             $tmpFile = tempNam(dirName($file=getVar('dukaFile.compressed', $symbol, $gmtHour)), baseName($file));
             $hFile   = fOpen($tmpFile, 'wb');
             fWrite($hFile, $content);
@@ -555,37 +555,37 @@ function getVar($id, $symbol=null, $time=null) {
     static $dataDirectory;
     $self = __FUNCTION__;
 
-    if ($id == 'xtradeDirDate') {               // $yyyy/$mmL/$dd                                               // lokales Pfad-Datum
+    if ($id == 'rsxDirDate') {               // $yyyy/$mmL/$dd                                                  // lokales Pfad-Datum
         if (!$time)   throw new InvalidArgumentException('Invalid parameter $time: '.$time);
         $result = gmDate('Y/m/d', $time);
     }
-    else if ($id == 'xtradeDir') {              // $dataDirectory/history/xtrade/$group/$symbol/$xtradeDirDate  // lokales Verzeichnis
+    else if ($id == 'rsxDir') {              // $dataDirectory/history/rsx/$group/$symbol/$rsxDirDate           // lokales Verzeichnis
         if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
         if (!$dataDirectory)
         $dataDirectory = Config::getDefault()->get('app.dir.data');
-        $group         = XTrade::$symbols[$symbol]['group'];
-        $xtradeDirDate = $self('xtradeDirDate', null, $time);
-        $result        = $dataDirectory.'/history/xtrade/'.$group.'/'.$symbol.'/'.$xtradeDirDate;
+        $group         = RSX::$symbols[$symbol]['group'];
+        $rsxDirDate    = $self('rsxDirDate', null, $time);
+        $result        = $dataDirectory.'/history/rsx/'.$group.'/'.$symbol.'/'.$rsxDirDate;
     }
-    else if ($id == 'xtradeFile.raw') {         // $xtradeDir/${hour}h_ticks.myfx                               // lokale Datei ungepackt
-        $xtradeDir = $self('xtradeDir', $symbol, $time);
-        $hour      = gmDate('H', $time);
-        $result    = $xtradeDir.'/'.$hour.'h_ticks.myfx';
+    else if ($id == 'rsxFile.raw') {         // $rsxDir/${hour}h_ticks.myfx                                     // lokale Datei ungepackt
+        $rsxDir = $self('rsxDir', $symbol, $time);
+        $hour   = gmDate('H', $time);
+        $result = $rsxDir.'/'.$hour.'h_ticks.myfx';
     }
-    else if ($id == 'xtradeFile.compressed') {    // $xtradeDir/${hour}h_ticks.rar                              // lokale Datei gepackt
-        $xtradeDir = $self('xtradeDir', $symbol, $time);
-        $hour      = gmDate('H', $time);
-        $result    = $xtradeDir.'/'.$hour.'h_ticks.rar';
+    else if ($id == 'rsxFile.compressed') {    // $rsxDir/${hour}h_ticks.rar                                    // lokale Datei gepackt
+        $rsxDir = $self('rsxDir', $symbol, $time);
+        $hour   = gmDate('H', $time);
+        $result = $rsxDir.'/'.$hour.'h_ticks.rar';
     }
-    else if ($id == 'dukaFile.raw') {           // $xtradeDir/${hour}h_ticks.bin                                // Dukascopy-Datei ungepackt
-        $xtradeDir = $self('xtradeDir', $symbol, $time);
-        $hour      = gmDate('H', $time);
-        $result    = $xtradeDir.'/'.$hour.'h_ticks.bin';
+    else if ($id == 'dukaFile.raw') {           // $rsxDir/${hour}h_ticks.bin                                   // Dukascopy-Datei ungepackt
+        $rsxDir = $self('rsxDir', $symbol, $time);
+        $hour   = gmDate('H', $time);
+        $result = $rsxDir.'/'.$hour.'h_ticks.bin';
     }
-    else if ($id == 'dukaFile.compressed') {    // $xtradeDir/${hour}h_ticks.bi5                                // Dukascopy-Datei gepackt
-        $xtradeDir = $self('xtradeDir', $symbol, $time);
-        $hour      = gmDate('H', $time);
-        $result    = $xtradeDir.'/'.$hour.'h_ticks.bi5';
+    else if ($id == 'dukaFile.compressed') {    // $rsxDir/${hour}h_ticks.bi5                                   // Dukascopy-Datei gepackt
+        $rsxDir = $self('rsxDir', $symbol, $time);
+        $hour   = gmDate('H', $time);
+        $result = $rsxDir.'/'.$hour.'h_ticks.bi5';
     }
     else if ($id == 'dukaUrlDate') {            // $yyyy/$mmD/$dd                                               // Dukascopy-URL-Datum
         if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
@@ -600,15 +600,15 @@ function getVar($id, $symbol=null, $time=null) {
         $hour        = gmDate('H', $time);
         $result      = 'http://datafeed.dukascopy.com/datafeed/'.$symbol.'/'.$dukaUrlDate.'/'.$hour.'h_ticks.bi5';
     }
-    else if ($id == 'dukaFile.404') {           // $xtradeDir/${hour}h_ticks.404                                // Download-Fehler 404
-        $xtradeDir = $self('xtradeDir', $symbol, $time);
-        $hour      = gmDate('H', $time);
-        $result    = $xtradeDir.'/'.$hour.'h_ticks.404';
+    else if ($id == 'dukaFile.404') {           // $rsxDir/${hour}h_ticks.404                                   // Download-Fehler 404
+        $rsxDir = $self('rsxDir', $symbol, $time);
+        $hour   = gmDate('H', $time);
+        $result = $rsxDir.'/'.$hour.'h_ticks.404';
     }
-    else if ($id == 'dukaFile.empty') {         // $xtradeDir/${hour}h_ticks.na                                 // Download-Fehler leerer Response
-        $xtradeDir = $self('xtradeDir', $symbol, $time);
-        $hour      = gmDate('H', $time);
-        $result    = $xtradeDir.'/'.$hour.'h_ticks.na';
+    else if ($id == 'dukaFile.empty') {         // $rsxDir/${hour}h_ticks.na                                    // Download-Fehler leerer Response
+        $rsxDir = $self('rsxDir', $symbol, $time);
+        $hour   = gmDate('H', $time);
+        $result = $rsxDir.'/'.$hour.'h_ticks.na';
     }
     else {
       throw new InvalidArgumentException('Unknown variable identifier "'.$id.'"');

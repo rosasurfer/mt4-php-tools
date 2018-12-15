@@ -1,13 +1,13 @@
 /*
 Created     16.01.2017
-Project     Xtrade
+Project     RSX
 Model       Main model
 Author      Peter Walther
 Database    SQLite3
 */
 
 
-.open --new "xtrade.db"
+.open --new "rsx.db"
 
 
 -- drop all database objects
@@ -200,4 +200,4 @@ create table t_statistic (
 
 
 -- seed the database
-.read "db-xtrade-seed.sql"
+.read "db-rsx-seed.sql"

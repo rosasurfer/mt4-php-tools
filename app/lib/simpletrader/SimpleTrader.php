@@ -13,7 +13,7 @@ use rosasurfer\net\http\HttpClient;
 use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
 use rosasurfer\util\PHP;
-use rosasurfer\rsx\XTrade;
+use rosasurfer\rsx\RSX;
 use rosasurfer\rsx\model\ClosedPosition;
 use rosasurfer\rsx\model\OpenPosition;
 use rosasurfer\rsx\model\Signal;
@@ -53,7 +53,7 @@ class SimpleTrader extends StaticClass {
 
         // (1) Standard-Browser simulieren
         if (!$config=Config::getDefault()) throw new RuntimeException('Service locator returned invalid default config: '.getType($config));
-        $userAgent = $config->get('xtrade.useragent');
+        $userAgent = $config->get('rsx.useragent');
         if (!strLen($userAgent))           throw new InvalidArgumentException('Invalid user agent configuration: "'.$userAgent.'"');
         $request = HttpRequest::create()
                               ->setHeader('User-Agent'     ,  $userAgent                                                      )
@@ -447,14 +447,14 @@ class SimpleTrader extends StaticClass {
         // notify by e-mail
         try {
             $mailMsg = $signal->getName().' Open '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getOpenPrice();
-            foreach (XTrade::getMailSignalReceivers() as $receiver) {
+            foreach (RSX::getMailSignalReceivers() as $receiver) {
                 mail($receiver, $subject=$mailMsg, $msg=$mailMsg);
             }
         }
         catch (\Exception $ex) { Logger::log($ex, L_ERROR); }
 
         // motify by text message if the event occurred at script runtime
-        $openTime = XTrade::fxtStrToTime($position->getOpenTime());
+        $openTime = RSX::fxtStrToTime($position->getOpenTime());
         if ($openTime >= $_SERVER['REQUEST_TIME']) {
             try {
                 $smsMsg = 'Opened '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol()
@@ -463,10 +463,10 @@ class SimpleTrader extends StaticClass {
                          .'#'.$position->getTicket().'  ('.$position->getOpenTime('H:i:s').')';
 
                 // warn if the event is older than 2 minutes (trade was published with delay)
-                if (($now=time()) > $openTime+2*MINUTES) $smsMsg = 'WARN: '.$smsMsg.' detected at '.date($now); // XTrade::fxtDate($now)
+                if (($now=time()) > $openTime+2*MINUTES) $smsMsg = 'WARN: '.$smsMsg.' detected at '.date($now); // RSX::fxtDate($now)
 
-                foreach (XTrade::getSmsSignalReceivers() as $receiver) {
-                    XTrade::sendSms($receiver, $smsMsg);
+                foreach (RSX::getSmsSignalReceivers() as $receiver) {
+                    RSX::sendSms($receiver, $smsMsg);
                 }
             }
             catch (\Exception $ex) { Logger::log($ex, L_ERROR); }
@@ -504,7 +504,7 @@ class SimpleTrader extends StaticClass {
         // notify by e-mail
         $mailMsg = $signal->getName().': modify '.$msg.$modification;
         try {
-            foreach (XTrade::getMailSignalReceivers() as $receiver) {
+            foreach (RSX::getMailSignalReceivers() as $receiver) {
                 mail($receiver, $subject=$mailMsg, $mailMsg);
             }
         }
@@ -515,9 +515,9 @@ class SimpleTrader extends StaticClass {
             try {
                 $smsMsg = $signal->getName().': modified '.str_replace('  ', ' ', $msg)."\n"
                             .$modification                                                ."\n"
-                            .date('(H:i:s)', time());                       // XTrade::fxtDate(time(), '(H:i:s)')
-                foreach (XTrade::getSmsSignalReceivers() as $receiver) {
-                    XTrade::sendSms($receiver, $smsMsg);
+                            .date('(H:i:s)', time());                       // RSX::fxtDate(time(), '(H:i:s)')
+                foreach (RSX::getSmsSignalReceivers() as $receiver) {
+                    RSX::sendSms($receiver, $smsMsg);
                 }
             }
             catch (\Exception $ex) { Logger::log($ex, L_ERROR); }
@@ -540,23 +540,23 @@ class SimpleTrader extends StaticClass {
         // notify by e-mail
         try {
             $mailMsg = $signal->getName().' Close '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getClosePrice();
-            foreach (XTrade::getMailSignalReceivers() as $receiver) {
+            foreach (RSX::getMailSignalReceivers() as $receiver) {
                 mail($receiver, $subject=$mailMsg, $msg=$mailMsg);
             }
         }
         catch (\Exception $ex) { Logger::log($ex, L_ERROR); }
 
         // notify by text message if the event occurred at script runtime
-        $closeTime = XTrade::fxtStrToTime($position->getCloseTime());
+        $closeTime = RSX::fxtStrToTime($position->getCloseTime());
         if ($closeTime >= $_SERVER['REQUEST_TIME']) {
             try {
                 $smsMsg = 'Closed '.ucFirst($position->getType()).' '.$position->getLots().' lot '.$position->getSymbol().' @ '.$position->getClosePrice()."\nOpen: ".$position->getOpenPrice()."\n\n#".$position->getTicket().'  ('.$position->getCloseTime('H:i:s').')';
 
                 // warn if the event is older than 2 minutes (trade was published with delay)
-                if (($now=time()) > $closeTime+2*MINUTES) $smsMsg = 'WARN: '.$smsMsg.' detected at '.date($now); // XTrade::fxtDate($now)
+                if (($now=time()) > $closeTime+2*MINUTES) $smsMsg = 'WARN: '.$smsMsg.' detected at '.date($now); // RSX::fxtDate($now)
 
-                foreach (XTrade::getSmsSignalReceivers() as $receiver) {
-                    XTrade::sendSms($receiver, $smsMsg);
+                foreach (RSX::getSmsSignalReceivers() as $receiver) {
+                    RSX::sendSms($receiver, $smsMsg);
                 }
             }
             catch (\Exception $ex) { Logger::log($ex, L_ERROR); }
@@ -588,7 +588,7 @@ class SimpleTrader extends StaticClass {
         if (!is_string($newNetPosition)) throw new IllegalTypeException('Illegal type of parameter $newNetPosition: '.getType($newNetPosition));
         if (!strLen($newNetPosition))    throw new InvalidArgumentException('Invalid argument $newNetPosition: '.$newNetPosition);
 
-        $lastTradeTime = XTrade::fxtStrToTime($report[$rows-1]['time']);
+        $lastTradeTime = RSX::fxtStrToTime($report[$rows-1]['time']);
 
         $msg = $signal->getName().': ';
         if ($i < $rows-1) $msg .= ($rows-$i).' trades in '.$symbol;
@@ -597,11 +597,11 @@ class SimpleTrader extends StaticClass {
         $subject = $msg;
         $msg .= "\nwas: ".str_replace('  ', ' ', $oldNetPosition);
         $msg .= "\nnow: ".str_replace('  ', ' ', $newNetPosition);
-        $msg .= "\n".date('(H:i:s)', $lastTradeTime);               // XTrade::fxtDate($lastTradeTime, '(H:i:s)')
+        $msg .= "\n".date('(H:i:s)', $lastTradeTime);               // RSX::fxtDate($lastTradeTime, '(H:i:s)')
 
         // notify by e-mail
         try {
-            foreach (XTrade::getMailSignalReceivers() as $receiver) {
+            foreach (RSX::getMailSignalReceivers() as $receiver) {
                 mail($receiver, $subject, $msg);
             }
         }
@@ -611,10 +611,10 @@ class SimpleTrader extends StaticClass {
         if ($lastTradeTime >= $_SERVER['REQUEST_TIME']) {
             try {
                 // warn if the last trade is older than 2 minutes (trade was published with delay)
-                if (($now=time()) > $lastTradeTime+2*MINUTES) $msg = 'WARN: '.$msg.', detected at '.date('H:i:s', $now); // XTrade::fxtDate($now, 'H:i:s')
+                if (($now=time()) > $lastTradeTime+2*MINUTES) $msg = 'WARN: '.$msg.', detected at '.date('H:i:s', $now); // RSX::fxtDate($now, 'H:i:s')
 
-                foreach (XTrade::getSmsSignalReceivers() as $receiver) {
-                    XTrade::sendSms($receiver, $msg);
+                foreach (RSX::getSmsSignalReceivers() as $receiver) {
+                    RSX::sendSms($receiver, $msg);
                 }
             }
             catch (\Exception $ex) { Logger::log($ex, L_ERROR); }

@@ -10,7 +10,7 @@ use rosasurfer\exception\InfrastructureException;
 use rosasurfer\exception\RuntimeException;
 
 use rosasurfer\rsx\ReportHelper;
-use rosasurfer\rsx\XTrade;
+use rosasurfer\rsx\RSX;
 use rosasurfer\rsx\metatrader\MT4;
 use rosasurfer\rsx\model\ClosedPosition;
 use rosasurfer\rsx\model\ClosedPositionDAO;
@@ -267,7 +267,7 @@ function updateDatabase(Signal $signal, array $currentOpenPositions, &$openUpdat
             foreach ($positionChangeStartTimes as $symbol => $startTime) {
                 $n++;
                 if ($startTime < $lastKnownChangeTimes[$symbol])
-                    $startTime = XTrade::fxtDate(XTrade::fxtStrToTime($lastKnownChangeTimes[$symbol]) + 1);
+                    $startTime = RSX::fxtDate(RSX::fxtStrToTime($lastKnownChangeTimes[$symbol]) + 1);
 
                 $report = ReportHelper::getNetPositionHistory($signal, $symbol, $startTime);
                 $oldNetPosition     = 'Flat';
@@ -292,12 +292,12 @@ function updateDatabase(Signal $signal, array $currentOpenPositions, &$openUpdat
                             $oldNetPositionDone = true;
                         }
                         $format = "%s:  %-6s %-4s %5.2F lots %s @ %-8s now: %s";
-                        $date   = date('Y-m-d H:i:s', XTrade::fxtStrToTime($row['time'  ]));
-                        $deal   =                                          $row['trade' ];
-                        $type   =                                  ucFirst($row['type'  ]);
-                        $lots   =                                          $row['lots'  ];
-                        $symbol =                                          $row['symbol'];      // Consolen-Output fuer "[open|close] position...",
-                        $price  =                                          $row['price' ];      // "modify ..." in SimpleTrader::onPositionModify()
+                        $date   = date('Y-m-d H:i:s', RSX::fxtStrToTime($row['time'  ]));
+                        $deal   =                                       $row['trade' ];
+                        $type   =                               ucFirst($row['type'  ]);
+                        $lots   =                                       $row['lots'  ];
+                        $symbol =                                       $row['symbol'];         // Consolen-Output fuer "[open|close] position...",
+                        $price  =                                       $row['price' ];         // "modify ..." in SimpleTrader::onPositionModify()
                         echoPre(sprintf($format, $date, $deal, $type, $lots, $symbol, $price, $netPosition));
                     }
                     else $oldNetPosition = $netPosition;

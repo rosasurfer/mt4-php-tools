@@ -13,7 +13,7 @@ use rosasurfer\config\Config;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
-use rosasurfer\rsx\XTrade;
+use rosasurfer\rsx\RSX;
 use rosasurfer\rsx\model\metatrader\Test;
 
 use function rosasurfer\rsx\isFxtWeekend;
@@ -24,7 +24,7 @@ require(dirName(realPath(__FILE__)).'/../../app/init.php');
 // --- Configuration --------------------------------------------------------------------------------------------------------
 
 
-$saveRawXTradeData = true;                                              // whether or not to store uncompressed XTrade data
+$saveRawRsxData = true;                                                 // whether or not to store uncompressed RSX data
 
 
 // --- Start ----------------------------------------------------------------------------------------------------------------
@@ -81,14 +81,14 @@ $deals = array_values($deals);
 
 // (3) cross-check availability of price history
 $firstDeal = reset($deals);
-if      (is_file(getVar('xtradeFile.compressed', $symbol, $firstDeal->time))) {}
-else if (is_file(getVar('xtradeFile.raw'       , $symbol, $firstDeal->time))) {}
-else     exit(1|echoPre('[Error]   '.$symbol.' XTrade price history for '.gmDate('D, d-M-Y', $firstDeal->time).' not found'));
+if      (is_file(getVar('rsxFile.compressed', $symbol, $firstDeal->time))) {}
+else if (is_file(getVar('rsxFile.raw'       , $symbol, $firstDeal->time))) {}
+else     exit(1|echoPre('[Error]   '.$symbol.' RSX price history for '.gmDate('D, d-M-Y', $firstDeal->time).' not found'));
 
 $lastDeal = end($deals);
-if      (is_file(getVar('xtradeFile.compressed', $symbol, $lastDeal->time))) {}
-else if (is_file(getVar('xtradeFile.raw'       , $symbol, $lastDeal->time))) {}
-else     exit(1|echoPre('[Error]   '.$symbol.' XTrade price history for '.gmDate('D, d-M-Y', $lastDeal->time).' not found'));
+if      (is_file(getVar('rsxFile.compressed', $symbol, $lastDeal->time))) {}
+else if (is_file(getVar('rsxFile.raw'       , $symbol, $lastDeal->time))) {}
+else     exit(1|echoPre('[Error]   '.$symbol.' RSX price history for '.gmDate('D, d-M-Y', $lastDeal->time).' not found'));
 echoPre('[Info]    Processing '.sizeof($trades).' trades of test '.$test->getReportingSymbol().' ('.gmDate('d.m.Y', $firstDeal->time).' - '.gmDate('d.m.Y', $lastDeal->time).')');
 
 
@@ -114,8 +114,8 @@ if (end($deals)->position) throw new RuntimeException('Unexpected total position
 
 // (5) generate a reporting symbol for the PL series
 $reportSymbol = $test->getReportingSymbol();
-define('PIP',   XTrade::$symbols[$symbol]['pip'   ]); define('PIPS',   PIP);
-define('POINT', XTrade::$symbols[$symbol]['point' ]); define('POINTS', POINT);
+define('PIP',   RSX::$symbols[$symbol]['pip'   ]); define('PIPS',   PIP);
+define('POINT', RSX::$symbols[$symbol]['point' ]); define('POINTS', POINT);
 
 
 // (6) generate the PL series
@@ -137,27 +137,27 @@ for ($day=$firstDealDay; $day <= $lastDealDay; $day+=1*DAY) {
     if (isFxtWeekend($day, 'FXT'))                                  // skip non-trading days
         continue;
 
-    if      (is_file($file=getVar('xtradeFile.compressed', $symbol, $day))) {}
-    else if (is_file($file=getVar('xtradeFile.raw'       , $symbol, $day))) {}
-    else exit(1|echoPre('[Error]   '.$symbol.' XTrade price history for '.$shortDate.' not found'));
+    if      (is_file($file=getVar('rsxFile.compressed', $symbol, $day))) {}
+    else if (is_file($file=getVar('rsxFile.raw'       , $symbol, $day))) {}
+    else exit(1|echoPre('[Error]   '.$symbol.' RSX price history for '.$shortDate.' not found'));
 
-    $bars    = XTrade::readBarFile($file, $symbol);
+    $bars    = RSX::readBarFile($file, $symbol);
     $partial = false;
 
     if ($day == $firstDealDay) {                                    // drop leading bars of the first trading day
         $offset = (int)($firstDeal->time % DAY / MINUTES);
         array_splice($bars, 0, $offset);
-        if (($barTime=reset($bars)['time']) != $firstDeal->time) throw new RuntimeException('Unexpected XTrade price bar for '.gmDate('D, d-M-Y H:i:s', $firstDeal->time).' at offset '.$offset.' (found '.gmDate('H:i:s', $barTime).')');
+        if (($barTime=reset($bars)['time']) != $firstDeal->time) throw new RuntimeException('Unexpected RSX price bar for '.gmDate('D, d-M-Y H:i:s', $firstDeal->time).' at offset '.$offset.' (found '.gmDate('H:i:s', $barTime).')');
         $partial = true;
     }
     else if ($day == $lastDealDay) {                                // drop trailing bars of the last trading day
         $offset = (int)($lastDeal->time % DAY / MINUTES);
         array_splice($bars, $offset+1);
-        if (($barTime=end($bars)['time']) != $lastDeal->time)    throw new RuntimeException('Unexpected XTrade price bar for '.gmDate('D, d-M-Y H:i:s', $lastDeal->time).' at offset '.$offset.' (found '.gmDate('H:i:s', $barTime).')');
+        if (($barTime=end($bars)['time']) != $lastDeal->time)    throw new RuntimeException('Unexpected RSX price bar for '.gmDate('D, d-M-Y H:i:s', $lastDeal->time).' at offset '.$offset.' (found '.gmDate('H:i:s', $barTime).')');
         $partial = true;
     }
 
-    /** XTRADE_PIP_BAR[] $pipSeries */
+    /** RSX_PIP_BAR[] $pipSeries */
     $pipSeries = [];
 
     // calculate PL bars of a single day                            // TODO: handle multiple deals per minute or second
@@ -210,12 +210,12 @@ exit(0);
 
 
 /**
- * Store a single day's PL series in an XTrade history file.
+ * Store a single day's PL series in an RSX history file.
  *
- * @param  string           $symbol
- * @param  int              $day                - the day's timestamp (FXT)
- * @param  XTRADE_PIP_BAR[] $bars
- * @param  bool             $partial [optional] - whether or not the bars cover only a part of the day (default: FALSE)
+ * @param  string        $symbol
+ * @param  int           $day                - the day's timestamp (FXT)
+ * @param  RSX_PIP_BAR[] $bars
+ * @param  bool          $partial [optional] - whether or not the bars cover only a part of the day (default: FALSE)
  *
  * @return bool - success status
  */
@@ -252,11 +252,11 @@ function saveBars($symbol, $day, array $bars, $partial = false) {
         $data  = $time.$open.$high.$low.$close;
     }
 
-    global $saveRawXTradeData;
+    global $saveRawRsxData;
 
     // write binary data
-    if ($saveRawXTradeData) {
-        if (is_file($file=getVar('xtradeFile.pl.raw', $symbol, $day)))
+    if ($saveRawRsxData) {
+        if (is_file($file=getVar('rsxFile.pl.raw', $symbol, $day)))
             return false(echoPre('[Error]   PL series '.$symbol.' for '.gmDate('D, d-M-Y', $day).' already exists'));
         mkDirWritable(dirName($file));
         $tmpFile = tempNam(dirName($file), baseName($file));
@@ -291,32 +291,32 @@ function getVar($id, $symbol=null, $time=null) {
     $self = __FUNCTION__;
     static $dataDirectory; !$dataDirectory && $dataDirectory = Config::getDefault()->get('app.dir.data');
 
-    if ($id == 'xtradeDirDate') {               // $yyyy/$mm/$dd                                                // local path date
+    if ($id == 'rsxDirDate') {               // $yyyy/$mm/$dd                                                   // local path date
         if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
         $result = gmDate('Y/m/d', $time);
     }
-    else if ($id == 'xtradeDir') {              // $dataDirectory/history/xtrade/$group/$symbol/$xtradeDirDate  // local directory
+    else if ($id == 'rsxDir') {              // $dataDirectory/history/rsx/$group/$symbol/$rsxDirDate           // local directory
         if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
-        $group         = XTrade::$symbols[$symbol]['group'];
-        $xtradeDirDate = $self('xtradeDirDate', null, $time);
-        $result        = $dataDirectory.'/history/xtrade/'.$group.'/'.$symbol.'/'.$xtradeDirDate;
+        $group      = RSX::$symbols[$symbol]['group'];
+        $rsxDirDate = $self('rsxDirDate', null, $time);
+        $result     = $dataDirectory.'/history/rsx/'.$group.'/'.$symbol.'/'.$rsxDirDate;
     }
-    else if ($id == 'xtradeDirPL') {            // $dataDirectory/stats/pl/$symbol/$xtradeDirDate               // local directory
+    else if ($id == 'rsxDirPL') {            // $dataDirectory/stats/pl/$symbol/$rsxDirDate                     // local directory
         if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
-        $xtradeDirDate = $self('xtradeDirDate', null, $time);
-        $result        = $dataDirectory.'/stats/pl/'.$symbol.'/'.$xtradeDirDate;
+        $rsxDirDate = $self('rsxDirDate', null, $time);
+        $result     = $dataDirectory.'/stats/pl/'.$symbol.'/'.$rsxDirDate;
     }
-    else if ($id == 'xtradeFile.raw') {         // $xtradeDir/M1.myfx                                           // local file uncompressed
-        $xtradeDir = $self('xtradeDir' , $symbol, $time);
-        $result    = $xtradeDir.'/M1.myfx';
+    else if ($id == 'rsxFile.raw') {         // $rsxDir/M1.myfx                                                 // local file uncompressed
+        $rsxDir = $self('rsxDir' , $symbol, $time);
+        $result = $rsxDir.'/M1.myfx';
     }
-    else if ($id == 'xtradeFile.compressed') {  // $xtradeDir/M1.rar                                            // local file compressed
-        $xtradeDir = $self('xtradeDir' , $symbol, $time);
-        $result    = $xtradeDir.'/M1.rar';
+    else if ($id == 'rsxFile.compressed') {  // $rsxDir/M1.rar                                                  // local file compressed
+        $rsxDir = $self('rsxDir' , $symbol, $time);
+        $result = $rsxDir.'/M1.rar';
     }
-    else if ($id == 'xtradeFile.pl.raw') {      // $xtradeDirPL/M1.myfx                                         // local file uncompressed
-        $xtradeDirPL = $self('xtradeDirPL' , $symbol, $time);
-        $result      = $xtradeDirPL.'/M1.myfx';
+    else if ($id == 'rsxFile.pl.raw') {      // $rsxDirPL/M1.myfx                                               // local file uncompressed
+        $rsxDirPL = $self('rsxDirPL' , $symbol, $time);
+        $result   = $rsxDirPL.'/M1.myfx';
     }
     else {
       throw new InvalidArgumentException('Unknown variable identifier "'.$id.'"');

@@ -7,7 +7,7 @@ use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 use rosasurfer\log\Logger;
 use rosasurfer\rsx\LZMA;
-use rosasurfer\rsx\XTrade;
+use rosasurfer\rsx\RSX;
 
 use const rosasurfer\rsx\DUKASCOPY_BAR_SIZE;
 use const rosasurfer\rsx\DUKASCOPY_TICK_SIZE;
@@ -121,7 +121,7 @@ class Dukascopy extends StaticClass {
                 $bars[$i]['close'] > $bars[$i]['high'] ||
                 $bars[$i]['close'] < $bars[$i]['low' ]) {
 
-                $digits  = XTrade::$symbols[$symbol]['digits'];
+                $digits  = RSX::$symbols[$symbol]['digits'];
                 $divider = pow(10, $digits);
 
                 $O = number_format($bars[$i]['open' ]/$divider, $digits);
