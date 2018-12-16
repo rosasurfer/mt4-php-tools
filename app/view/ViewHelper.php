@@ -1,18 +1,18 @@
 <?php
-namespace rosasurfer\xtrade\view;
+namespace rosasurfer\rsx\view;
 
 use rosasurfer\core\StaticClass;
 
-use const rosasurfer\xtrade\OP_BUY;
-use const rosasurfer\xtrade\OP_SELL;
-use const rosasurfer\xtrade\OP_BUYLIMIT;
-use const rosasurfer\xtrade\OP_SELLLIMIT;
-use const rosasurfer\xtrade\OP_BUYSTOP;
-use const rosasurfer\xtrade\OP_SELLSTOP;
-use const rosasurfer\xtrade\OP_BALANCE;
-use const rosasurfer\xtrade\OP_CREDIT;
-use const rosasurfer\xtrade\OP_TRANSFER;
-use const rosasurfer\xtrade\OP_VENDOR;
+use const rosasurfer\rsx\OP_BUY;
+use const rosasurfer\rsx\OP_SELL;
+use const rosasurfer\rsx\OP_BUYLIMIT;
+use const rosasurfer\rsx\OP_SELLLIMIT;
+use const rosasurfer\rsx\OP_BUYSTOP;
+use const rosasurfer\rsx\OP_SELLSTOP;
+use const rosasurfer\rsx\OP_BALANCE;
+use const rosasurfer\rsx\OP_CREDIT;
+use const rosasurfer\rsx\OP_TRANSFER;
+use const rosasurfer\rsx\OP_VENDOR;
 
 
 /**

@@ -1,9 +1,9 @@
 <?php
 use rosasurfer\ministruts\Request;
-use rosasurfer\xtrade\XTrade;
-use rosasurfer\xtrade\model\metatrader\Test;
+use rosasurfer\rsx\RSX;
+use rosasurfer\rsx\model\metatrader\Test;
 
-use function rosasurfer\xtrade\prettyTimeRange;
+use function rosasurfer\rsx\prettyTimeRange;
 
 /** @var Request $request */
 /** @var Test[]  $tests   */
@@ -42,7 +42,7 @@ foreach ($tests as $test) {
     $strategy        = $test->getStrategy();
     $report          = $test->getReportingSymbol();
     $symbol          = $test->getSymbol();
-    $period          = XTrade::periodDescription($test->getTimeframe());
+    $period          = RSX::periodDescription($test->getTimeframe());
     $timeRange       = prettyTimeRange($test->getStartTime(), $test->getEndTime());
     $numTrades       = $test->getStats()->getTrades();
     $avgPips         = $test->getStats()->getAvgPips();

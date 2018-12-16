@@ -1,13 +1,10 @@
 <?php
-namespace rosasurfer\xtrade;
+namespace rosasurfer\rsx;
 
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\IllegalArgumentException;
 use rosasurfer\exception\UnimplementedFeatureException;
 use rosasurfer\exception\RuntimeException;
-
-use const rosasurfer\MONTHS;
-use const rosasurfer\WEEKS;
 
 
 /**

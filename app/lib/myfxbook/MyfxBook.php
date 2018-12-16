@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\xtrade\myfxbook;
+namespace rosasurfer\rsx\myfxbook;
 
 use rosasurfer\config\Config;
 use rosasurfer\core\StaticClass;
@@ -9,7 +9,7 @@ use rosasurfer\exception\RuntimeException;
 use rosasurfer\net\http\CurlHttpClient;
 use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
-use rosasurfer\xtrade\model\Signal;
+use rosasurfer\rsx\model\Signal;
 
 
 /**
@@ -49,7 +49,7 @@ class MyfxBook extends StaticClass {
         if (!$config=Config::getDefault()) throw new RuntimeException('Service locator returned invalid default config: '.getType($config));
         $request = HttpRequest::create()
                               ->setUrl($url)
-                              ->setHeader('User-Agent'     ,  $config->get('xtrade.useragent')                                )
+                              ->setHeader('User-Agent'     ,  $config->get('rsx.useragent')                                )
                               ->setHeader('Accept'         , 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
                               ->setHeader('Accept-Language', 'en-us'                                                          )
                               ->setHeader('Accept-Charset' , 'ISO-8859-1,utf-8;q=0.7,*;q=0.7'                                 )

@@ -4,24 +4,24 @@
  * Synchronisiert die Daten ein oder mehrerer Signale mit den lokal gespeicherten Daten (Datenbank und MT4-Datenfiles).
  * Bei Datenaenderung kann eine Mail oder eine SMS verschickt werden.
  */
-namespace rosasurfer\xtrade\simpletrader\sync_accounts;
+namespace rosasurfer\rsx\simpletrader\sync_accounts;
 
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InfrastructureException;
 use rosasurfer\exception\RuntimeException;
 use rosasurfer\log\Logger;
-use rosasurfer\xtrade\ReportHelper;
-use rosasurfer\xtrade\XTrade;
-use rosasurfer\xtrade\metatrader\MT4;
-use rosasurfer\xtrade\model\ClosedPosition;
-use rosasurfer\xtrade\model\ClosedPositionDAO;
-use rosasurfer\xtrade\model\OpenPosition;
-use rosasurfer\xtrade\model\OpenPositionDAO;
-use rosasurfer\xtrade\model\Signal;
-use rosasurfer\xtrade\model\SignalDAO;
-use rosasurfer\xtrade\model\metatrader\Account;
-use rosasurfer\xtrade\simpletrader\SimpleTrader;
-use rosasurfer\xtrade\simpletrader\SimpleTraderException;
+use rosasurfer\rsx\ReportHelper;
+use rosasurfer\rsx\RSX;
+use rosasurfer\rsx\metatrader\MT4;
+use rosasurfer\rsx\model\ClosedPosition;
+use rosasurfer\rsx\model\ClosedPositionDAO;
+use rosasurfer\rsx\model\OpenPosition;
+use rosasurfer\rsx\model\OpenPositionDAO;
+use rosasurfer\rsx\model\Signal;
+use rosasurfer\rsx\model\SignalDAO;
+use rosasurfer\rsx\model\metatrader\Account;
+use rosasurfer\rsx\simpletrader\SimpleTrader;
+use rosasurfer\rsx\simpletrader\SimpleTraderException;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');
 
@@ -312,7 +312,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
             foreach ($positionChangeStartTimes as $symbol => $startTime) {
                 $n++;
                 if ($startTime < $lastKnownChangeTimes[$symbol])
-                    $startTime = XTrade::fxtDate(XTrade::fxtStrToTime($lastKnownChangeTimes[$symbol]) + 1);
+                    $startTime = RSX::fxtDate(RSX::fxtStrToTime($lastKnownChangeTimes[$symbol]) + 1);
 
                 $report = ReportHelper::getNetPositionHistory($signal, $symbol, $startTime);
                 $oldNetPosition     = 'Flat';
@@ -337,12 +337,12 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
                             $oldNetPositionDone = true;
                         }
                         $format = "%s:  %-6s %-4s %4.2F %s @ %-8s now: %s";
-                        $date   = date('Y-m-d H:i:s', XTrade::fxtStrToTime($row['time'  ]));
-                        $deal   =            ($row['trade']=='open') ? '': $row['trade' ];      // "open" wird nicht extra angezeigt
-                        $type   =                                  ucFirst($row['type'  ]);
-                        $lots   =                                          $row['lots'  ];
-                        $symbol =                                          $row['symbol'];      // Consolen-Output fuer "[open|close] position...",
-                        $price  =                                          $row['price' ];      // "modify ..." in SimpleTrader::onPositionModify()
+                        $date   = date('Y-m-d H:i:s', RSX::fxtStrToTime($row['time'  ]));
+                        $deal   =         ($row['trade']=='open') ? '': $row['trade' ];         // "open" wird nicht extra angezeigt
+                        $type   =                               ucFirst($row['type'  ]);
+                        $lots   =                                       $row['lots'  ];
+                        $symbol =                                       $row['symbol'];         // Consolen-Output fuer "[open|close] position...",
+                        $price  =                                       $row['price' ];         // "modify ..." in SimpleTrader::onPositionModify()
                         echoPre(sprintf($format, $date, $deal, $type, $lots, $symbol, $price, $netPosition));
                     }
                     else $oldNetPosition = $netPosition;

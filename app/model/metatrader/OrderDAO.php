@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\xtrade\model\metatrader;
+namespace rosasurfer\rsx\model\metatrader;
 
 use rosasurfer\db\orm\DAO;
 

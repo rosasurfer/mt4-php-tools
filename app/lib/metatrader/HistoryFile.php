@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\xtrade\metatrader;
+namespace rosasurfer\rsx\metatrader;
 
 use rosasurfer\core\Object;
 use rosasurfer\debug\ErrorHandler;
@@ -9,17 +9,17 @@ use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 use rosasurfer\exception\UnimplementedFeatureException;
-use rosasurfer\xtrade\XTrade;
+use rosasurfer\rsx\RSX;
 
-use const rosasurfer\xtrade\PERIOD_D1;
-use const rosasurfer\xtrade\PERIOD_H1;
-use const rosasurfer\xtrade\PERIOD_H4;
-use const rosasurfer\xtrade\PERIOD_M1;
-use const rosasurfer\xtrade\PERIOD_M15;
-use const rosasurfer\xtrade\PERIOD_M30;
-use const rosasurfer\xtrade\PERIOD_M5;
-use const rosasurfer\xtrade\PERIOD_MN1;
-use const rosasurfer\xtrade\PERIOD_W1;
+use const rosasurfer\rsx\PERIOD_D1;
+use const rosasurfer\rsx\PERIOD_H1;
+use const rosasurfer\rsx\PERIOD_H4;
+use const rosasurfer\rsx\PERIOD_M1;
+use const rosasurfer\rsx\PERIOD_M15;
+use const rosasurfer\rsx\PERIOD_M30;
+use const rosasurfer\rsx\PERIOD_M5;
+use const rosasurfer\rsx\PERIOD_MN1;
+use const rosasurfer\rsx\PERIOD_W1;
 
 
 /**
@@ -66,7 +66,7 @@ class HistoryFile extends Object {
     /** @var int - bar size in bytes according to the data format */
     protected $barSize = 0;
 
-    /** @var array[] - internal write buffer (XTRADE_PRICE_BAR[]) */
+    /** @var array[] - internal write buffer (RSX_PRICE_BAR[]) */
     protected $barBuffer = [];
 
     /** @var int - internal write buffer default size */
@@ -314,7 +314,7 @@ class HistoryFile extends Object {
         $this->hFile     = fOpen($fileName, 'r+b');               // FILE_READ|FILE_WRITE
         $this->hstHeader = new HistoryHeader(fRead($this->hFile, HistoryHeader::SIZE));
 
-        if (!strCompareI($this->fileName, $this->getSymbol().$this->getTimeframe().'.hst')) throw new MetaTraderException('filename.mis-match: File name/symbol mis-match of "'.$fileName.'": header="'.$this->getSymbol().','.XTrade::periodDescription($this->getTimeframe()).'"');
+        if (!strCompareI($this->fileName, $this->getSymbol().$this->getTimeframe().'.hst')) throw new MetaTraderException('filename.mis-match: File name/symbol mis-match of "'.$fileName.'": header="'.$this->getSymbol().','.RSX::periodDescription($this->getTimeframe()).'"');
         $barSize = $this->getVersion()==400 ? MT4::HISTORY_BAR_400_SIZE : MT4::HISTORY_BAR_401_SIZE;
         if ($trailing=($fileSize-HistoryHeader::SIZE) % $barSize)                           throw new MetaTraderException('filesize.trailing: Corrupted file "'.$fileName.'": '.$trailing.' trailing bytes');
 
@@ -382,11 +382,11 @@ class HistoryFile extends Object {
             }
             $from_offset    = 0;
             $from_openTime  = $barFrom['time'];
-            $from_closeTime = XTrade::periodCloseTime($from_openTime, $this->period);
+            $from_closeTime = RSX::periodCloseTime($from_openTime, $this->period);
 
             $to_offset      = $bars-1;
             $to_openTime    = $barTo['time'];
-            $to_closeTime   = XTrade::periodCloseTime($to_openTime, $this->period);
+            $to_closeTime   = RSX::periodCloseTime($to_openTime, $this->period);
 
             // metadata: stored bars
             $this->stored_bars           = $bars;
@@ -470,11 +470,11 @@ class HistoryFile extends Object {
      *
      * @param  int $offset
      *
-     * @return array|null - XTRADE_PRICE_BAR if the bar was not yet stored and is returned from the write buffer
-     *                      HISTORY_BAR      if the bar was stored and is returned from the history file
-     *                      NULL             if no such bar exists (offset is larger than the file's number of bars)
+     * @return array|null - RSX_PRICE_BAR if the bar was not yet stored and is returned from the write buffer
+     *                      HISTORY_BAR   if the bar was stored and is returned from the history file
+     *                      NULL          if no such bar exists (offset is larger than the file's number of bars)
      *
-     * @see  HistoryFile::getXTradeBar()
+     * @see  HistoryFile::getRsxBar()
      * @see  HistoryFile::getHistoryBar()
      */
     public function getBar($offset) {
@@ -484,7 +484,7 @@ class HistoryFile extends Object {
         if ($offset >= $this->full_bars)                                        // bar[$offset] does not exist
             return null;
 
-        if ($offset > $this->stored_to_offset)                                  // bar[$offset] is a buffered bar (XTRADE_PRICE_BAR)
+        if ($offset > $this->stored_to_offset)                                  // bar[$offset] is a buffered bar (RSX_PRICE_BAR)
             return $this->barBuffer[$offset-$this->stored_to_offset-1];
 
         fFlush($this->hFile);
@@ -569,7 +569,7 @@ class HistoryFile extends Object {
         $offset--;
 
         $bar       = $this->getBar($offset);
-        $closeTime = XTrade::periodCloseTime($bar['time'], $this->period);
+        $closeTime = RSX::periodCloseTime($bar['time'], $this->period);
 
         if ($time < $closeTime)                                     // time is covered by the previous bar
             return $offset;
@@ -635,7 +635,7 @@ class HistoryFile extends Object {
         $offset--;                                                  // time is within the previous bar or between the
         $bar = $this->getBar($offset);                              // previous and the findTimeOffset() bar
 
-        $closeTime = XTrade::periodCloseTime($bar['time'], $this->period);
+        $closeTime = RSX::periodCloseTime($bar['time'], $this->period);
         if ($closeTime > $time)                                     // time is within the previous bar
             return $offset;
         return ($offset+1 < $size) ? $offset+1 : -1;                // time is younger than bar[closeTime] which means there
@@ -656,7 +656,7 @@ class HistoryFile extends Object {
      *                                     specified and is negative then all bars starting from offset will be removed
      *                                     except length bars at the end of the history. <br>
      *
-     * @param  array $replace [optional] - XTRADE_PRICE_BAR data. If replacement bars are specified then the removed bars are
+     * @param  array $replace [optional] - RSX_PRICE_BAR data. If replacement bars are specified then the removed bars are
      *                                     replaced with these bars. If offset and length are such that nothing is removed
      *                                     then the replacement bars are inserted at the specified offset. If offset is one
      *                                     greater than the greatest existing offset the replacement bars are appended. <br>
@@ -780,7 +780,7 @@ class HistoryFile extends Object {
      *                       (the oldest bar). If offset is negative then the bars are inserted that far from the end
      *                       (the youngest bar). <br>
      *
-     * @param  array $bars - bars to insert (XTRADE_PRICE_BAR[])
+     * @param  array $bars - bars to insert (RSX_PRICE_BAR[])
      */
     public function insertBars($offset, array $bars) {
         if (!is_int($offset)) throw new IllegalTypeException('Illegal type of parameter $offset: '.getType($offset));
@@ -824,7 +824,7 @@ class HistoryFile extends Object {
     /**
      * Replace a part of the HistoryFile with the specified bars and adjust its file size.
      *
-     * @param  array $bars              - replacement bars (XTRADE_PRICE_BAR[])
+     * @param  array $bars              - replacement bars (RSX_PRICE_BAR[])
      *
      * @param  int   $offset            - Start offset of the bars to replace with 0 (zero) pointing to the first bar from
      *                                    the beginning (the oldest bar). If offset is negative then replacing starts that
@@ -845,7 +845,7 @@ class HistoryFile extends Object {
      * Merge the passed bars into the HistoryFile. Existing bars after the last synchronization time overlapping passed bars
      * are replaced. Existing bars not overlapping passed bars are kept.
      *
-     * @param  array $bars - M1 bars, will be converted to the HistoryFile's timeframe (XTRADE_PRICE_BAR[])
+     * @param  array $bars - M1 bars, will be converted to the HistoryFile's timeframe (RSX_PRICE_BAR[])
      *
      * @todo   rename to mergeBars...()
      */
@@ -869,7 +869,7 @@ class HistoryFile extends Object {
     /**
      * Synchronisiert die M1-History dieser Instanz.
      *
-     * @param  array $bars - XTRADE_PRICE_BAR-Daten der Periode M1
+     * @param  array $bars - RSX_PRICE_BAR-Daten der Periode M1
      */
     private function synchronizeM1(array $bars) {
         if ($this->closed) throw new IllegalStateException('Cannot process a closed '.__CLASS__);
@@ -877,7 +877,7 @@ class HistoryFile extends Object {
 
         // Offset der Bar, die den Zeitpunkt abdeckt, ermitteln
         $lastSyncTime = $this->full_lastSyncTime;
-        $offset       = XTrade::findBarOffsetNext($bars, PERIOD_M1, $lastSyncTime);
+        $offset       = RSX::findBarOffsetNext($bars, PERIOD_M1, $lastSyncTime);
 
         // Bars vor Offset verwerfen
         if ($offset == -1)                                                      // alle Bars liegen vor $lastSyncTime
@@ -902,7 +902,7 @@ class HistoryFile extends Object {
     /**
      * Synchronisiert die M5-History dieser Instanz.
      *
-     * @param  array $bars - XTRADE_PRICE_BAR-Daten der Periode M5
+     * @param  array $bars - RSX_PRICE_BAR-Daten der Periode M5
      */
     private function synchronizeM5(array $bars) {
         throw new UnimplementedFeatureException(__METHOD__.'() not yet implemented');
@@ -912,7 +912,7 @@ class HistoryFile extends Object {
     /**
      * Synchronisiert die M15-History dieser Instanz.
      *
-     * @param  array $bars - XTRADE_PRICE_BAR-Daten der Periode M15
+     * @param  array $bars - RSX_PRICE_BAR-Daten der Periode M15
      */
     private function synchronizeM15(array $bars) {
         throw new UnimplementedFeatureException(__METHOD__.'() not yet implemented');
@@ -922,7 +922,7 @@ class HistoryFile extends Object {
     /**
      * Synchronisiert die M30-History dieser Instanz.
      *
-     * @param  array $bars - XTRADE_PRICE_BAR-Daten der Periode M30
+     * @param  array $bars - RSX_PRICE_BAR-Daten der Periode M30
      */
     private function synchronizeM30(array $bars) {
         throw new UnimplementedFeatureException(__METHOD__.'() not yet implemented');
@@ -932,7 +932,7 @@ class HistoryFile extends Object {
     /**
      * Synchronisiert die H1-History dieser Instanz.
      *
-     * @param  array $bars - XTRADE_PRICE_BAR-Daten der Periode H1
+     * @param  array $bars - RSX_PRICE_BAR-Daten der Periode H1
      */
     private function synchronizeH1(array $bars) {
         throw new UnimplementedFeatureException(__METHOD__.'() not yet implemented');
@@ -942,7 +942,7 @@ class HistoryFile extends Object {
     /**
      * Synchronisiert die H4-History dieser Instanz.
      *
-     * @param  array $bars - XTRADE_PRICE_BAR-Daten der Periode H4
+     * @param  array $bars - RSX_PRICE_BAR-Daten der Periode H4
      */
     private function synchronizeH4(array $bars) {
         throw new UnimplementedFeatureException(__METHOD__.'() not yet implemented');
@@ -952,7 +952,7 @@ class HistoryFile extends Object {
     /**
      * Synchronisiert die D1-History dieser Instanz.
      *
-     * @param  array $bars - XTRADE_PRICE_BAR-Daten der Periode D1
+     * @param  array $bars - RSX_PRICE_BAR-Daten der Periode D1
      */
     private function synchronizeD1(array $bars) {
         throw new UnimplementedFeatureException(__METHOD__.'() not yet implemented');
@@ -962,7 +962,7 @@ class HistoryFile extends Object {
     /**
      * Synchronisiert die W1-History dieser Instanz.
      *
-     * @param  array $bars - XTRADE_PRICE_BAR-Daten der Periode W1
+     * @param  array $bars - RSX_PRICE_BAR-Daten der Periode W1
      */
     private function synchronizeW1(array $bars) {
         throw new UnimplementedFeatureException(__METHOD__.'() not yet implemented');
@@ -972,7 +972,7 @@ class HistoryFile extends Object {
     /**
      * Synchronisiert die MN1-History dieser Instanz.
      *
-     * @param  array $bars - XTRADE_PRICE_BAR-Daten der Periode MN1
+     * @param  array $bars - RSX_PRICE_BAR-Daten der Periode MN1
      */
     private function synchronizeMN1(array $bars) {
         throw new UnimplementedFeatureException(__METHOD__.'() not yet implemented');
@@ -982,7 +982,7 @@ class HistoryFile extends Object {
     /**
      * Fuegt der Historydatei dieser Instanz Bardaten hinzu. Die Daten werden ans Ende der Zeitreihe angefuegt.
      *
-     * @param  array $bars - XTRADE_PRICE_BAR-Daten der Periode M1
+     * @param  array $bars - RSX_PRICE_BAR-Daten der Periode M1
      */
     public function appendBars(array $bars) {
         switch ($this->period) {
@@ -1004,7 +1004,7 @@ class HistoryFile extends Object {
     /**
      * Fuegt der M1-History dieser Instanz weitere Daten hinzu.
      *
-     * @param  array $bars - XTRADE_PRICE_BAR-Daten der Periode M1
+     * @param  array $bars - RSX_PRICE_BAR-Daten der Periode M1
      */
     private function appendToM1(array $bars) {
         if ($this->closed)                             throw new IllegalStateException('Cannot process a closed '.__CLASS__);
@@ -1035,7 +1035,7 @@ class HistoryFile extends Object {
     /**
      * Fuegt der History dieser Instanz weitere Daten hinzu.
      *
-     * @param  array $bars - XTRADE_PRICE_BAR-Daten der Periode M1
+     * @param  array $bars - RSX_PRICE_BAR-Daten der Periode M1
      */
     private function appendToTimeframe(array $bars) {
         if ($this->closed)                             throw new IllegalStateException('Cannot process a closed '.__CLASS__);
@@ -1087,7 +1087,7 @@ class HistoryFile extends Object {
     /**
      * Fuegt der W1-History dieser Instanz weitere Daten hinzu.
      *
-     * @param  array $bars - XTRADE_PRICE_BAR-Daten der Periode M1
+     * @param  array $bars - RSX_PRICE_BAR-Daten der Periode M1
      */
     private function appendToW1(array $bars) {
         if ($this->closed)                             throw new IllegalStateException('Cannot process a closed '.__CLASS__);
@@ -1140,7 +1140,7 @@ class HistoryFile extends Object {
     /**
      * Fuegt der MN1-History dieser Instanz weitere Daten hinzu.
      *
-     * @param  array $bars - XTRADE_PRICE_BAR-Daten der Periode M1
+     * @param  array $bars - RSX_PRICE_BAR-Daten der Periode M1
      */
     private function appendToMN1(array $bars) {
         if ($this->closed)                             throw new IllegalStateException('Cannot process a closed '.__CLASS__);
@@ -1193,7 +1193,7 @@ class HistoryFile extends Object {
 
 
     /**
-     * Schreibt eine Anzahl XTRADE_PRICE_BARs aus dem Barbuffer in die History-Datei.
+     * Schreibt eine Anzahl RSX_PRICE_BARs aus dem Barbuffer in die History-Datei.
      *
      * @param  int $count - Anzahl zu schreibender Bars (default: alle Bars)
      *
@@ -1234,12 +1234,12 @@ class HistoryFile extends Object {
         if (!$this->stored_bars) {                                           // Datei war vorher leer
             $this->stored_from_offset    = 0;
             $this->stored_from_openTime  = $this->barBuffer[0]['time'];
-            $this->stored_from_closeTime = XTrade::periodCloseTime($this->stored_from_openTime, $this->period);
+            $this->stored_from_closeTime = RSX::periodCloseTime($this->stored_from_openTime, $this->period);
         }
         $this->stored_bars         = $this->stored_bars + $todo;
         $this->stored_to_offset    = $this->stored_bars - 1;
         $this->stored_to_openTime  = $this->barBuffer[$todo-1]['time'];
-        $this->stored_to_closeTime = XTrade::periodCloseTime($this->stored_to_openTime, $this->period);
+        $this->stored_to_closeTime = RSX::periodCloseTime($this->stored_to_openTime, $this->period);
 
         // lastSyncTime je nachdem setzen, ob noch weitere Daten im Buffer sind
         $this->stored_lastSyncTime = ($todo < $bufferSize) ? $this->stored_to_closeTime : $this->lastM1DataTime + 1*MINUTE;
@@ -1285,7 +1285,7 @@ class HistoryFile extends Object {
      * Nur zum Debuggen
      */
     public function showMetaData($showStored=true, $showFull=true, $showFile=true) {
-        $Pxx = XTrade::periodDescription($this->period);
+        $Pxx = RSX::periodDescription($this->period);
 
         ($showStored || $showFull || $showFile) && echoPre(NL);
         if ($showStored) {

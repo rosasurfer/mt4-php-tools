@@ -1,13 +1,13 @@
 <?php
-namespace rosasurfer\xtrade\model\metatrader;
+namespace rosasurfer\rsx\model\metatrader;
 
 use rosasurfer\db\orm\PersistableObject;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
-use rosasurfer\xtrade\XTrade;
-use rosasurfer\xtrade\metatrader\MT4;
+use rosasurfer\rsx\RSX;
+use rosasurfer\rsx\metatrader\MT4;
 
-use function rosasurfer\xtrade\isFxtWeekend;
+use function rosasurfer\rsx\isFxtWeekend;
 
 
 /**
@@ -118,8 +118,8 @@ class Order extends PersistableObject {
 
         $type = $properties['type'];
         if (!is_int($type))                                   throw new IllegalTypeException('Illegal type of property order['.$ticket.'].type: '.getType($type));
-        if (!XTrade::isOrderType($type))                      throw new InvalidArgumentException('Invalid property order['.$ticket.'].type: '.$type.' (not an order type)');
-        $order->type = XTrade::orderTypeDescription($type);
+        if (!RSX::isOrderType($type))                         throw new InvalidArgumentException('Invalid property order['.$ticket.'].type: '.$type.' (not an order type)');
+        $order->type = RSX::orderTypeDescription($type);
 
         $lots = $properties['lots'];
         if (!is_float($lots))                                 throw new IllegalTypeException('Illegal type of property order['.$ticket.'].lots: '.getType($lots));
@@ -159,7 +159,7 @@ class Order extends PersistableObject {
         $order->takeProfit = !$takeProfit ? null : $takeProfit;
 
         if ($stopLoss && $takeProfit) {
-            if (XTrade::isLongOrderType(XTrade::strToOrderType($order->type))) {
+            if (RSX::isLongOrderType(RSX::strToOrderType($order->type))) {
                 if ($stopLoss >= $takeProfit)                 throw new InvalidArgumentException('Invalid properties order['.$ticket.'].stopLoss|takeProfit for LONG order: '.$stopLoss.'|'.$takeProfit.' (mis-match)');
             }
             else if ($stopLoss <= $takeProfit)                throw new InvalidArgumentException('Invalid properties order['.$ticket.'].stopLoss|takeProfit for SHORT order: '.$stopLoss.'|'.$takeProfit.' (mis-match)');
