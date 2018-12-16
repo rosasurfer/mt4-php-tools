@@ -1,7 +1,7 @@
 /*
 Created     16.01.2017
-Modified    15.12.2018
-Project     RSX
+Modified    16.12.2018
+Project     RSX (rsx.rosasurfer.com)
 Model       Main model
 Company     
 Author      Peter Walther
@@ -158,7 +158,7 @@ delimiter ;
 
 
 -- seed the database
-source db-rsx-seed.sql;
+source db-seed.sql;
 
 commit;
 

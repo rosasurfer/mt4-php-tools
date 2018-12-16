@@ -1,6 +1,7 @@
 /*
 Created     16.01.2017
-Project     RSX
+Modified    16.12.2018
+Project     RSX (rsx.rosasurfer.com)
 Model       Main model
 Author      Peter Walther
 Database    SQLite3
@@ -200,4 +201,4 @@ create table t_statistic (
 
 
 -- seed the database
-.read "db-rsx-seed.sql"
+.read "db-seed.sql"
