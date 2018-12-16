@@ -324,7 +324,7 @@ function getVar($id, $symbol=null, $time=null) {
 
     $varCache[$key] = $result;
     (sizeof($varCache) > ($maxEntries=2048)) && echoPre('cache limit of '.$maxEntries.' entries hit')           // ~200KB
-                                               |echoPre('memory size: '.strLen(serialize($varCache)).' bytes')
+                                               |echoPre('memory used: '.strLen(serialize($varCache)).' bytes')
                                                |exit(1);
     return $result;
 }
@@ -337,19 +337,19 @@ function getVar($id, $symbol=null, $time=null) {
  */
 function help($message = null) {
     if (is_null($message))
-        $message = 'Generate a profit/loss time series for a trade history.';
+        $message = 'Generate a profit/loss timeseries for the trade history of a specified test.';
     $self = baseName($_SERVER['PHP_SELF']);
 
 echo <<<HELP
 $message
 
-  Syntax:  $self  TEST [OPTIONS]
+  Syntax:  $self  TEST_SYMBOL [OPTIONS]
 
-           TEST - report symbol of the test to process
+    TEST_SYMBOL - report symbol of the test to process
 
   Options: -h     This help screen.
 
-Note: Mixed trade histories are not yet supported.
+Note: Trade histories containing mixed symbols are not yet supported.
 
 
 HELP;

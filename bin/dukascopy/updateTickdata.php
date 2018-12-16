@@ -594,7 +594,7 @@ function getVar($id, $symbol=null, $time=null) {
         $dd     = gmDate('d', $time);
         $result = $yyyy.'/'.$mmD.'/'.$dd;
     }
-    else if ($id == 'dukaUrl') {                // http://datafeed.dukascopy.com/datafeed/$symbol/$dukaUrlDate/${hour}h_ticks.bi5  // URL
+    else if ($id == 'dukaUrl') {                // http://datafeed.dukascopy.com/datafeed/$symbol/$dukaUrlDate/${hour}h_ticks.bi5
         if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
         $dukaUrlDate = $self('dukaUrlDate', null, $time);
         $hour        = gmDate('H', $time);

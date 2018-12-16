@@ -740,7 +740,7 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
         $result = $yyyy.'/'.$mmD.'/'.$dd;
     }
     else if ($id == 'dukaUrl') {                // http://datafeed.dukascopy.com/datafeed/$symbol/$dateD/$dukaName.bi5
-        if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);        // Dukascopy-URL
+        if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
         $dateD    = $self('dukaUrlDate', null, $time, null);
         $dukaName = $self('dukaName'   , null, null, $type);
         $result   = 'http://datafeed.dukascopy.com/datafeed/'.$symbol.'/'.$dateD.'/'.$dukaName.'.bi5';
