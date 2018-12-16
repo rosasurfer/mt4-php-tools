@@ -6,8 +6,8 @@
  * Dukascopy provides separate bid and ask price series in GMT covering weekends and holidays. Data of the current day is
  * available the earliest at the next day.
  *
- * Bid and ask prices are merged to median, converted to FXT and stored in the internal format. At the moment holiday data
- * is stored as holidays are irregular and instrument specific. Weekend data is not stored.
+ * Bid and ask prices are merged to median, converted to FXT and stored in the internal format (RSX_PRICE_BAR). Weekend data
+ * is not stored. Currently holiday data is stored as some holidays are irregular and instrument specific.
  *
  *
  * Website:       https://www.dukascopy.com/swiss/english/marketwatch/historical/
@@ -83,7 +83,7 @@ foreach ($args as $i => $arg) {
 foreach ($args as $i => $arg) {
     $arg = strToUpper($arg);
     if (!isSet(RSX::$symbols[$arg]) || RSX::$symbols[$arg]['provider']!='dukascopy')
-        exit(1|stderror('unknown or unsupported symbol "'.$args[$i].'"'));
+        exit(1|stderror('unknown or unsupported symbol: "'.$args[$i].'"'));
     $args[$i] = $arg;
 }                                                                       // ohne Angabe werden alle Dukascopy-Instrumente aktualisiert
 $args = $args ? array_unique($args) : array_keys(RSX::filterSymbols(['provider'=>'dukascopy']));

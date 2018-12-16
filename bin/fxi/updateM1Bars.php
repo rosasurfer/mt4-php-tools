@@ -1,16 +1,9 @@
 #!/usr/bin/env php
 <?php
 /**
- * Aktualisiert anhand existierender Dukascopy-Daten die M1-History der angegebenen FX-Indizes und speichert sie
- * im RSX-Historyverzeichnis.
+ * Update the local history of the specified synthetic instruments.
  *
- * Unterstuetzte Instrumente:
- *  - LFX-Indizes: LiteForex (gestauchte FX6-Indizes, ausser NZDLFX=NZDFX7)
- *  - FX6-Indizes: AUDFX6, CADFX6, CHFFX6, EURFX6, GBPFX6, JPYFX6, USDFX6
- *  - FX7-Indizes: AUDFX7, CADFX7, CHFFX7, EURFX7, GBPFX7, JPYFX7, USDFX7, NOKFX7, NZDFX7, SEKFX7, SGDFX7, ZARFX7
- *  - ICE-Indizes: EURX, USDX
- *
- * @see  MetaTrader::indicators\LFX-Monitor.mq4
+ * @see  https://github.com/rosasurfer/mt4-tools/blob/master/app/lib/synthetic/README.md
  */
 namespace rosasurfer\rsx\fxi\update_m1_bars;
 
@@ -19,7 +12,6 @@ use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 use rosasurfer\rsx\RSX;
-use rosasurfer\rsx\dukascopy\Dukascopy;
 
 use function rosasurfer\rsx\fxtTime;
 use function rosasurfer\rsx\isFxtWeekend;

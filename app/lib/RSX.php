@@ -17,29 +17,29 @@ use rosasurfer\rsx\metatrader\MT4;
  * RSX related functionality
  *
  *                                             size        offset      description
- * struct little-endian RSX_PRICE_BAR {        ----        ------      ------------------------------------------------
+ * struct RSX_PRICE_BAR {                      ----        ------      ------------------------------------------------
  *    uint time;                                 4            0        FXT timestamp (seconds since 01.01.1970 FXT)
- *    uint open;                                 4            4        in points
- *    uint high;                                 4            8        in points
- *    uint low;                                  4           12        in points
- *    uint close;                                4           16        in points
+ *    uint open;                                 4            4        in point
+ *    uint high;                                 4            8        in point
+ *    uint low;                                  4           12        in point
+ *    uint close;                                4           16        in point
  *    uint ticks;                                4           20
  * };                                    = 24 byte
  *
  *                                             size        offset      description
- * struct little-endian RSX_PIP_BAR {          ----        ------      ------------------------------------------------
+ * struct RSX_PIP_BAR {                        ----        ------      ------------------------------------------------
  *    uint   time;                               4            0        FXT timestamp (seconds since 01.01.1970 FXT)
- *    double open;                               8            4        in pips
- *    double high;                               8           12        in pips
- *    double low;                                8           20        in pips
- *    double close;                              8           28        in pips
+ *    double open;                               8            4        in pip
+ *    double high;                               8           12        in pip
+ *    double low;                                8           20        in pip
+ *    double close;                              8           28        in pip
  * };                                    = 36 byte
  *
  *                                             size        offset      description
- * struct little-endian RSX_TICK {             ----        ------      ------------------------------------------------
+ * struct RSX_TICK {                           ----        ------      ------------------------------------------------
  *    uint timeDelta;                            4            0        milliseconds since beginning of the hour
- *    uint bid;                                  4            4        in points
- *    uint ask;                                  4            8        in points
+ *    uint bid;                                  4            4        in point
+ *    uint ask;                                  4            8        in point
  * };                                    = 12 byte
  */
 class RSX extends StaticClass {
