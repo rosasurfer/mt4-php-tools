@@ -80,7 +80,7 @@ function createHistory($symbol) {
     // MT4-HistorySet erzeugen
     $digits    = RSX::$symbols[$symbol]['digits'];
     $format    = 400;
-    $directory = Config::getDefault()->get('app.dir.data').'/history/mt4/RSX-Testhistory';
+    $directory = Config::getDefault()->get('app.dir.data').'/history/mt4/XTrade-Testhistory';
     $history   = HistorySet::create($symbol, $digits, $format, $directory);
 
 

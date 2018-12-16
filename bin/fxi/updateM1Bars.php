@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 /**
- * Update the local history of the specified synthetic instruments.
+ * Update the local M1 history of the specified synthetic instruments.
  *
  * @see  https://github.com/rosasurfer/mt4-tools/blob/master/app/lib/synthetic/README.md
  */
@@ -1956,8 +1956,16 @@ function help($message = null) {
     $self = baseName($_SERVER['PHP_SELF']);
 
 echo <<<HELP
+ Update the M1 history of the specified synthetic symbols.
 
-  Syntax:  $self [symbol ...]
+ Syntax:  $self [SYMBOL ...]
+
+   SYMBOL    One or more symbols to update. Without a symbol all defined synthetic symbols are updated.
+
+   Options:  -v    Verbose output.
+             -vv   More verbose output.
+             -vvv  Very verbose output.
+             -h    This help screen.
 
 
 HELP;

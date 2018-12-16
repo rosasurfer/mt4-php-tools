@@ -38,8 +38,8 @@ SEKFX7, SGDFX7, ZARFX7
 ### Synthetic LiteForex currency indexes
 All synthetic <a href="http://web.archive.org/web/20140421225104/http://www.liteforex.com/trading/trading-instruments/indices/" target="_blank">
 LiteForex currency indexes</a> are supported: AUDLFX, CADLFX, CHFLFX, EURLFX, GBPLFX, LFXJPY, NZDLFX, USDLFX.<br>
-All indexes except NZDLFX and LFXJPY are scaled-down FX6 indexes. NZDLFX is a pure FX7 index and an alias of NZDFX7.
-LFXJPY is a scaled-up and inversed FX6 index.
+All indexes except NZDLFX are scaled-down FX6 indexes. NZDLFX is a pure FX7 index and an alias of NZDFX7. LFXJPY is an
+inversed FX6 index.
 <br>
 <br>
 

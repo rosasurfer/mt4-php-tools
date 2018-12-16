@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 /**
- * Updates the M1 history of the specified symbols with data from Dukascopy.
+ * Update the local M1 history of the specified symbols with data from Dukascopy.
  *
  * Dukascopy provides separate bid and ask price series in GMT covering weekends and holidays. Data of the current day is
  * available the earliest at the next day.
@@ -31,7 +31,7 @@
  *      +------------++------------+------------+------------+------------+------------++------------+------------++------------+
  *
  *
- * TODO: check/confirm info from Zorro forum:  http://www.opserver.de/ubb7/ubbthreads.php?ubb=showflat&Number=463361#Post463345
+ * TODO: check info from Zorro forum:  http://www.opserver.de/ubb7/ubbthreads.php?ubb=showflat&Number=463361#Post463345
  */
 namespace rosasurfer\rsx\dukascopy\update_m1_bars;
 
@@ -802,13 +802,16 @@ function help($message = null) {
     $self = baseName($_SERVER['PHP_SELF']);
 
 echo <<<HELP
+ Update the M1 history of the specified symbols with data from Dukascopy.
 
- Syntax:  $self [symbol ...]
+ Syntax:  $self [SYMBOL ...]
 
- Options:  -v    Verbose output.
-           -vv   More verbose output.
-           -vvv  Very verbose output.
-           -h    This help screen.
+   SYMBOL    One or more symbols to update. Without a symbol all defined symbols are updated.
+
+   Options:  -v    Verbose output.
+             -vv   More verbose output.
+             -vvv  Very verbose output.
+             -h    This help screen.
 
 
 HELP;
