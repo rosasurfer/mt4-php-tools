@@ -9,7 +9,8 @@ use rosasurfer\exception\RuntimeException;
 use rosasurfer\net\http\CurlHttpClient;
 use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
-use rosasurfer\rsx\model\Signal;
+
+use rosasurfer\rsx\model\signal\Signal;
 
 
 /**

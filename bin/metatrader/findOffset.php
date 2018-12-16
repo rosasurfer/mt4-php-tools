@@ -7,8 +7,8 @@
 namespace rosasurfer\rsx\metatrader\find_offset;
 
 use rosasurfer\rsx\metatrader\HistoryHeader;
-use rosasurfer\rsx\metatrader\MT4;
 use rosasurfer\rsx\metatrader\MetaTraderException;
+use rosasurfer\rsx\metatrader\MT4;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');

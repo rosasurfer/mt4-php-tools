@@ -13,8 +13,9 @@ use rosasurfer\config\Config;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
+
 use rosasurfer\rsx\RSX;
-use rosasurfer\rsx\model\metatrader\Test;
+use rosasurfer\rsx\model\Test;
 
 use function rosasurfer\rsx\isFxtWeekend;
 

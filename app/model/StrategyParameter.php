@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\rsx\model\metatrader;
+namespace rosasurfer\rsx\model;
 
 use rosasurfer\db\orm\PersistableObject;
 use rosasurfer\exception\IllegalArgumentException;

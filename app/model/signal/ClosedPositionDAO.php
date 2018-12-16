@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\rsx\model;
+namespace rosasurfer\rsx\model\signal;
 
 use rosasurfer\db\orm\DAO;
 use rosasurfer\exception\IllegalTypeException;

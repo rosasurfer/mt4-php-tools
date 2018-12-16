@@ -42,6 +42,7 @@ use rosasurfer\exception\RuntimeException;
 use rosasurfer\net\http\CurlHttpClient;
 use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
+
 use rosasurfer\rsx\LZMA;
 use rosasurfer\rsx\RSX;
 use rosasurfer\rsx\dukascopy\Dukascopy;

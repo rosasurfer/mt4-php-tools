@@ -11,6 +11,7 @@ use rosasurfer\config\Config;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\util\PHP;
+
 use rosasurfer\rsx\RSX;
 use rosasurfer\rsx\metatrader\HistorySet;
 use rosasurfer\rsx\metatrader\MT4;

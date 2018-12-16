@@ -8,6 +8,7 @@ use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 use rosasurfer\log\Logger;
+
 use rosasurfer\rsx\RSX;
 use rosasurfer\rsx\metatrader\MT4;
 

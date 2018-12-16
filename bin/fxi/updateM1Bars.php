@@ -11,6 +11,7 @@ use rosasurfer\config\Config;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
+
 use rosasurfer\rsx\RSX;
 
 use function rosasurfer\rsx\fxtTime;

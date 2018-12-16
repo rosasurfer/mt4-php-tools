@@ -13,10 +13,11 @@ use rosasurfer\net\http\HttpClient;
 use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
 use rosasurfer\util\PHP;
+
 use rosasurfer\rsx\RSX;
-use rosasurfer\rsx\model\ClosedPosition;
-use rosasurfer\rsx\model\OpenPosition;
-use rosasurfer\rsx\model\Signal;
+use rosasurfer\rsx\model\signal\ClosedPosition;
+use rosasurfer\rsx\model\signal\OpenPosition;
+use rosasurfer\rsx\model\signal\Signal;
 
 
 /**

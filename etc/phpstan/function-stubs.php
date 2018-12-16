@@ -772,7 +772,7 @@ namespace rosasurfer\rsx\metatrader\update_history {
 
 namespace rosasurfer\rsx\myfxbook\sync_accounts {
 
-    use rosasurfer\rsx\model\Signal;
+    use rosasurfer\rsx\model\signal\Signal;
 
     /**
      * @param  string $message [optional]
@@ -806,7 +806,7 @@ namespace rosasurfer\rsx\myfxbook\sync_accounts {
 
 namespace rosasurfer\rsx\simpletrader\sync_accounts {
 
-    use rosasurfer\rsx\model\Signal;
+    use rosasurfer\rsx\model\signal\Signal;
 
     /**
      * @param  string $message [optional]

@@ -42,6 +42,7 @@ use rosasurfer\net\http\CurlHttpClient;
 use rosasurfer\net\http\HttpClient;
 use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
+
 use rosasurfer\rsx\LZMA;
 use rosasurfer\rsx\RSX;
 use rosasurfer\rsx\dukascopy\Dukascopy;
@@ -267,9 +268,9 @@ function loadTicks($symbol, $gmtHour, $fxtHour) {
     $shortDate = gmDate('D, d-M-Y H:i', $fxtHour);
 
     // Die Tickdaten der Handelsstunde werden in folgender Reihenfolge gesucht:
-    //  � in bereits dekomprimierten Dukascopy-Dateien
-    //  � in noch komprimierten Dukascopy-Dateien
-    //  � als Dukascopy-Download
+    //  - in bereits dekomprimierten Dukascopy-Dateien
+    //  - in noch komprimierten Dukascopy-Dateien
+    //  - als Dukascopy-Download
 
     global $saveCompressedDukascopyFiles;
     $ticks = [];

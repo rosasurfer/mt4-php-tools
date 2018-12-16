@@ -9,6 +9,7 @@ use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 use rosasurfer\exception\UnimplementedFeatureException;
+
 use rosasurfer\rsx\RSX;
 
 use const rosasurfer\rsx\PERIOD_D1;
