@@ -79,8 +79,8 @@ create table t_instrument (
 );
 create index i_instrument_type on t_instrument(type);
 
-create trigger tr_instrument_after_update after update on t_instrument
-when (new.modified is null || new.modified = old.modified)
+create trigger tr_instrument_before_update before update on t_instrument
+when (new.modified is null or new.modified = old.modified)
 begin
    update t_instrument set modified = datetime('now') where id = new.id;
 end;
@@ -114,8 +114,8 @@ create index i_test_symbol          on t_test(symbol);
 create index i_test_barmodel        on t_test(barmodel);
 create index i_test_tradedirections on t_test(tradedirections);
 
-create trigger tr_test_after_update after update on t_test
-when (new.modified is null || new.modified = old.modified)
+create trigger tr_test_before_update before update on t_test
+when (new.modified is null or new.modified = old.modified)
 begin
    update t_test set modified = datetime('now') where id = new.id;
 end;
@@ -161,8 +161,8 @@ create table t_order (
 );
 create index i_order_type on t_order(type);
 
-create trigger tr_order_after_update after update on t_order
-when (new.modified is null || new.modified = old.modified)
+create trigger tr_order_before_update before update on t_order
+when (new.modified is null or new.modified = old.modified)
 begin
    update t_order set modified = datetime('now') where id = new.id;
 end;
