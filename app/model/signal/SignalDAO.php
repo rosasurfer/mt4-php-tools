@@ -48,7 +48,7 @@ class SignalDAO extends DAO {
      * @param  string $provider - provider
      * @param  string $alias    - signal alias
      *
-     * @return Signal
+     * @return Signal|null
      */
     public function getByProviderAndAlias($provider, $alias) {
         if (!is_string($provider)) throw new IllegalTypeException('Illegal type of parameter $provider: '.getType($provider));

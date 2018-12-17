@@ -12,7 +12,6 @@ use rosasurfer\exception\RuntimeException;
 use rosasurfer\rsx\ReportHelper;
 use rosasurfer\rsx\RSX;
 use rosasurfer\rsx\metatrader\MT4;
-use rosasurfer\rsx\model\Account;
 use rosasurfer\rsx\model\signal\ClosedPosition;
 use rosasurfer\rsx\model\signal\ClosedPositionDAO;
 use rosasurfer\rsx\model\signal\OpenPosition;

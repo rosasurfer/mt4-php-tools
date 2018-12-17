@@ -21,7 +21,7 @@ parameters:
         - vendor/
         - web/css/
         - web/js/
-        
+
     universalObjectCratesClasses:
         - rosasurfer\ministruts\Page
 
@@ -34,6 +34,7 @@ parameters:
         - '/Call to ((static )?method|function) [^ ]+\(\) with incorrect case:/'                                    # seriously?
         - '/Array \(([^ ]+)\[\]\) does not accept (\1\|)?null\b/'                                                   # NULL should be considered a value, not a type
         - '/(Static )?property [^ ]+ \(([^ ]+)\) does not accept (\2\|)?null\b/i'                                   # - dito -
+        - '/Property [^ ]+ \([^ ]+\[\]\) does not accept default value of type null\[\]/i'                          # - dito -
         - '/Parameter #[0-9]+ [^ ]+ of class [^ ]+ constructor expects ([^ ]+), (\1\|)?null given\b/'               # - dito -
         - '/Parameter #[0-9]+ [^ ]+ of (static )?(function|method) [^ ]+ expects ([^ ]+), (\3\|)?null given\b/'     # - dito -
         - '/Calling method [^ ]+\(\) on possibly null value of type [^ ]+\|null\b/'
