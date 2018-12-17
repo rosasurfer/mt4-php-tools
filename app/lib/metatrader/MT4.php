@@ -5,11 +5,12 @@ use rosasurfer\config\Config;
 use rosasurfer\core\StaticClass;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\RuntimeException;
-use rosasurfer\rsx\model\ClosedPosition;
-use rosasurfer\rsx\model\ClosedPositionDAO;
-use rosasurfer\rsx\model\OpenPosition;
-use rosasurfer\rsx\model\OpenPositionDAO;
-use rosasurfer\rsx\model\Signal;
+
+use rosasurfer\rsx\model\signal\ClosedPosition;
+use rosasurfer\rsx\model\signal\ClosedPositionDAO;
+use rosasurfer\rsx\model\signal\OpenPosition;
+use rosasurfer\rsx\model\signal\OpenPositionDAO;
+use rosasurfer\rsx\model\signal\Signal;
 
 use const rosasurfer\rsx\BARMODEL_BAROPEN;
 use const rosasurfer\rsx\BARMODEL_CONTROLPOINTS;

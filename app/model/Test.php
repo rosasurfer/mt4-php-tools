@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\rsx\model\metatrader;
+namespace rosasurfer\rsx\model;
 
 use rosasurfer\db\orm\PersistableObject;
 use rosasurfer\exception\IllegalArgumentException;
@@ -7,6 +7,7 @@ use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\util\PHP;
 use rosasurfer\util\Windows;
+
 use rosasurfer\rsx\RSX;
 use rosasurfer\rsx\metatrader\MT4;
 

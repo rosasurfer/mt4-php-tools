@@ -3,7 +3,8 @@ namespace rosasurfer\rsx\controller\forms;
 
 use rosasurfer\ministruts\ActionForm;
 use rosasurfer\ministruts\Request;
-use rosasurfer\rsx\model\metatrader\Test;
+
+use rosasurfer\rsx\model\Test;
 
 
 /**

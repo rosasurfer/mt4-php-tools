@@ -7,12 +7,13 @@
  * Die Daten der aktuellen Stunde sind fruehestens ab der naechsten Stunde verfuegbar.
  *
  *
- * Webseite:      https://www.dukascopy.com/swiss/english/marketwatch/historical/
- *                https://www.dukascopy.com/free/candelabrum/
+ * Website:       https://www.dukascopy.com/swiss/english/marketwatch/historical/
+ *                https://www.dukascopy.com/free/candelabrum/                                       (inactive)
  *
- * Instrumente:   https://www.dukascopy.com/free/candelabrum/data.json
+ * Instruments:   https://www.dukascopy.com/free/candelabrum/data.json                              (inactive)
  *
- * History-Start: http://datafeed.dukascopy.com/datafeed/metadata/HistoryStart.bi5  (Format unbekannt)
+ * History start: http://datafeed.dukascopy.com/datafeed/metadata/HistoryStart.bi5                  (big-endian)
+ *                http://datafeed.dukascopy.com/datafeed/AUDUSD/metadata/HistoryStart.bi5           (big-endian)
  *
  * URL-Format:    Eine Datei je Tagestunde GMT,
  *                z.B.: (Januar = 00)
@@ -21,17 +22,15 @@
  *
  * Dateiformat:   - Binaer, LZMA-gepackt, Zeiten in GMT (keine Sommerzeit).
  *
- * @see class Dukascopy
- *
- *      +------------------------+------------+------------+------------+------------------------+------------------------+
- * FXT: |   Sunday      Monday   |  Tuesday   | Wednesday  |  Thursday  |   Friday     Saturday  |   Sunday      Monday   |
- *      +------------------------+------------+------------+------------+------------------------+------------------------+
- *          +------------------------+------------+------------+------------+------------------------+------------------------+
- * GMT:     |   Sunday      Monday   |  Tuesday   | Wednesday  |  Thursday  |   Friday     Saturday  |   Sunday      Monday   |
- *          +------------------------+------------+------------+------------+------------------------+------------------------+
+ *          +------------++------------+------------+------------+------------+------------++------------+------------++------------+
+ * GMT:     |   Sunday   ||   Monday   |  Tuesday   | Wednesday  |  Thursday  |   Friday   ||  Saturday  |   Sunday   ||   Monday   |
+ *          +------------++------------+------------+------------+------------+------------++------------+------------++------------+
+ *      +------------++------------+------------+------------+------------+------------++------------+------------++------------+
+ * FXT: |   Sunday   ||   Monday   |  Tuesday   | Wednesday  |  Thursday  |   Friday   ||  Saturday  |   Sunday   ||   Monday   |
+ *      +------------++------------+------------+------------+------------+------------++------------+------------++------------+
  *
  *
- * TODO: clarify http://www.opserver.de/ubb7/ubbthreads.php?ubb=showflat&Number=463361#Post463345
+ * TODO: check info from Zorro forum:  http://www.opserver.de/ubb7/ubbthreads.php?ubb=showflat&Number=463361#Post463345
  */
 namespace rosasurfer\rsx\dukascopy\update_tickdata;
 
@@ -43,6 +42,7 @@ use rosasurfer\net\http\CurlHttpClient;
 use rosasurfer\net\http\HttpClient;
 use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
+
 use rosasurfer\rsx\LZMA;
 use rosasurfer\rsx\RSX;
 use rosasurfer\rsx\dukascopy\Dukascopy;
@@ -268,9 +268,9 @@ function loadTicks($symbol, $gmtHour, $fxtHour) {
     $shortDate = gmDate('D, d-M-Y H:i', $fxtHour);
 
     // Die Tickdaten der Handelsstunde werden in folgender Reihenfolge gesucht:
-    //  • in bereits dekomprimierten Dukascopy-Dateien
-    //  • in noch komprimierten Dukascopy-Dateien
-    //  • als Dukascopy-Download
+    //  - in bereits dekomprimierten Dukascopy-Dateien
+    //  - in noch komprimierten Dukascopy-Dateien
+    //  - als Dukascopy-Download
 
     global $saveCompressedDukascopyFiles;
     $ticks = [];

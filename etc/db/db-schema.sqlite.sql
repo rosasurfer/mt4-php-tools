@@ -1,13 +1,11 @@
 /*
 Created     16.01.2017
-Project     RSX
+Modified    16.12.2018
+Project     RSX (rsx.rosasurfer.com)
 Model       Main model
 Author      Peter Walther
 Database    SQLite3
 */
-
-
-.open --new "rsx.db"
 
 
 -- drop all database objects
@@ -17,6 +15,7 @@ delete from sqlite_master;
 pragma writable_schema = 0;
 vacuum;
 pragma foreign_keys = on;
+begin;
 
 
 -- InstrumentTypes
@@ -80,8 +79,8 @@ create table t_instrument (
 );
 create index i_instrument_type on t_instrument(type);
 
-create trigger tr_instrument_after_update after update on t_instrument
-when (new.modified = old.modified || new.modified is null)
+create trigger tr_instrument_before_update before update on t_instrument
+when (new.modified is null or new.modified = old.modified)
 begin
    update t_instrument set modified = datetime('now') where id = new.id;
 end;
@@ -115,8 +114,8 @@ create index i_test_symbol          on t_test(symbol);
 create index i_test_barmodel        on t_test(barmodel);
 create index i_test_tradedirections on t_test(tradedirections);
 
-create trigger tr_test_after_update after update on t_test
-when (new.modified = old.modified || new.modified is null)
+create trigger tr_test_before_update before update on t_test
+when (new.modified is null or new.modified = old.modified)
 begin
    update t_test set modified = datetime('now') where id = new.id;
 end;
@@ -162,8 +161,8 @@ create table t_order (
 );
 create index i_order_type on t_order(type);
 
-create trigger tr_order_after_update after update on t_order
-when (new.modified = old.modified || new.modified is null)
+create trigger tr_order_before_update before update on t_order
+when (new.modified is null or new.modified = old.modified)
 begin
    update t_order set modified = datetime('now') where id = new.id;
 end;
@@ -200,4 +199,6 @@ create table t_statistic (
 
 
 -- seed the database
-.read "db-rsx-seed.sql"
+.read "db-seed.sql"
+
+commit;

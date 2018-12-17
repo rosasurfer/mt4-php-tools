@@ -9,7 +9,7 @@ use rosasurfer\rsx\RSX;
 use rosasurfer\rsx\metatrader\HistoryHeader;
 use rosasurfer\rsx\metatrader\MetaTraderException;
 use rosasurfer\rsx\metatrader\MT4;
-use rosasurfer\rsx\model\metatrader\Order;
+use rosasurfer\rsx\model\Order;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');
 

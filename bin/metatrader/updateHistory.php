@@ -73,7 +73,7 @@ function updateHistory($symbol) {
 
     global $verbose;
     $digits       = RSX::$symbols[$symbol]['digits'];
-    $directory    = Config::getDefault()->get('app.dir.data').'/history/mt4/RSX-Testhistory';
+    $directory    = Config::getDefault()->get('app.dir.data').'/history/mt4/XTrade-Testhistory';
     $lastSyncTime = null;
     echoPre('[Info]    '.$symbol);
 
