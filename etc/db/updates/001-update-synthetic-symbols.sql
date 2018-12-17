@@ -1,6 +1,5 @@
 
 .bail on
-.open "rsx.db"
 pragma foreign_keys = on;
 begin;
 
