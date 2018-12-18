@@ -31,7 +31,7 @@ and its Forex counterparts. Supported symbols: AUDFX6, CADFX6, CHFFX6, EURFX6, G
 A synthetic FX7 currency index measures the change in the value of one currency by tracking the exchange rates to seven other
 major currencies (USD, EUR, GBP, JPY, AUD, CAD, CHF, NZD). The index is calculated using an equally-weighted basket of the
 currency and its counterparts. Supported symbols: AUDFX7, CADFX7, CHFFX7, EURFX7, GBPFX7, JPYFX7, USDFX7, NOKFX7, NZDFX7,
-SEKFX7, SGDFX7, ZARFX7
+SEKFX7, SGDFX7, ZARFX7. For NOKFX7, SEKFX7, SGDFX7 and ZARFX7 the NZD component is replaced by the respective index currency.
 <br>
 <br>
 
