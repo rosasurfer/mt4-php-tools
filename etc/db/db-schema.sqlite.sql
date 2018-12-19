@@ -1,9 +1,10 @@
 /*
 Created     16.01.2017
 Modified    19.12.2018
-Project     RSX (rsx.rosasurfer.com)
+Project     rosatrader
 Model       Main model
 Author      Peter Walther
+Version     0.2
 Database    SQLite3
 */
 
@@ -62,31 +63,56 @@ insert into enum_tradedirection (type) values
    ('Both' );
 
 
--- Instruments
-create table t_instrument (
-   id                 integer        not null,
-   created            text[datetime] not null default (datetime('now')),   -- GMT
-   modified           text[datetime],                                      -- GMT
-   type               text[enum]     not null collate nocase,              -- Forex|Metals|Synthetic
-   symbol             text(11)       not null collate nocase,
-   description        text(63)       not null collate nocase,              -- symbol description
-   digits             integer        not null,                             -- decimal digits
-   hst_tick_from      text[datetime],                                      -- FXT
-   hst_tick_to        text[datetime],                                      -- FXT
-   hst_m1_from        text[datetime],                                      -- FXT
-   hst_m1_to          text[datetime],                                      -- FXT
-   hst_d1_from        text[datetime],                                      -- FXT
-   hst_d1_to          text[datetime],                                      -- FXT
+-- ProjectSymbols
+create table t_projectsymbol (                                             -- project instruments
+   id                integer        not null,
+   created           text[datetime] not null default (datetime('now')),    -- GMT
+   modified          text[datetime],                                       -- GMT
+   type              text[enum]     not null collate nocase,               -- Forex|Metals|Synthetic
+   name              text(11)       not null collate nocase,               -- the project's instrument identifier (the actual symbol)
+   description       text(63)       not null collate nocase,               -- symbol description
+   digits            integer        not null,                              -- decimal digits
+   history_tick_from text[datetime],                                       -- FXT
+   history_tick_to   text[datetime],                                       -- FXT
+   history_M1_from   text[datetime],                                       -- FXT
+   history_M1_to     text[datetime],                                       -- FXT
+   history_D1_from   text[datetime],                                       -- FXT
+   history_D1_to     text[datetime],                                       -- FXT
    primary key (id),
-   constraint fk_instrument_type foreign key (type) references enum_instrumenttype(type) on delete restrict on update cascade,
-   constraint u_symbol           unique (symbol)
+   constraint fk_projectsymbol_type foreign key (type) references enum_instrumenttype(type) on delete restrict on update cascade,
+   constraint u_name unique (name)
 );
-create index i_instrument_type on t_instrument(type);
+create index i_projectsymbol_type on t_projectsymbol(type);
 
-create trigger tr_instrument_before_update before update on t_instrument
+create trigger tr_projectsymbol_before_update before update on t_projectsymbol
 when (new.modified is null or new.modified = old.modified)
 begin
-   update t_instrument set modified = datetime('now') where id = new.id;
+   update t_projectsymbol set modified = datetime('now') where id = new.id;
+end;
+
+
+-- DukascopySymbols
+create table t_dukascopysymbol (                                           -- Dukascopy instruments
+   id                integer        not null,
+   created           text[datetime] not null default (datetime('now')),    -- GMT
+   modified          text[datetime],                                       -- GMT
+   name              text(11)       not null collate nocase,               -- Dukascopy's instrument identifier (the actual symbol)
+   digits            integer        not null,                              -- decimal digits
+   history_tick_from text[datetime],                                       -- FXT
+   history_tick_to   text[datetime],                                       -- FXT
+   history_M1_from   text[datetime],                                       -- FXT
+   history_M1_to     text[datetime],                                       -- FXT
+   projectsymbol_id  integer,
+   primary key (id),
+   constraint fk_dukascopysymbol_projectsymbol foreign key (projectsymbol_id) references t_projectsymbol (id) on delete restrict on update cascade
+   constraint u_name          unique (name)
+   constraint u_projectsymbol unique (projectsymbol_id)
+);
+
+create trigger tr_dukascopysymbol_before_update before update on t_dukascopysymbol
+when (new.modified is null or new.modified = old.modified)
+begin
+   update t_dukascopysymbol set modified = datetime('now') where id = new.id;
 end;
 
 
@@ -165,25 +191,25 @@ create table t_statistic (
 
 -- Orders
 create table t_order (
-   id            integer        not null,
-   created       text[datetime] not null default (datetime('now')),        -- GMT
-   modified      text[datetime],                                           -- GMT
-   ticket        integer        not null,
-   type          text[enum]     not null collate nocase,                   -- Buy|Sell
-   lots          float          not null,
-   symbol        text(11)       not null collate nocase,
-   openprice     float          not null,
-   opentime      text[datetime] not null,                                  -- FXT
-   stoploss      float,
-   takeprofit    float,
-   closeprice    float          not null,
-   closetime     text[datetime] not null,                                  -- FXT
-   commission    float          not null,
-   swap          float          not null,
-   profit        float          not null,                                  -- gross profit
-   magicnumber   integer,
-   comment       text(27)                collate nocase,
-   test_id       integer        not null,
+   id          integer        not null,
+   created     text[datetime] not null default (datetime('now')),          -- GMT
+   modified    text[datetime],                                             -- GMT
+   ticket      integer        not null,
+   type        text[enum]     not null collate nocase,                     -- Buy|Sell
+   lots        float          not null,
+   symbol      text(11)       not null collate nocase,
+   openprice   float          not null,
+   opentime    text[datetime] not null,                                    -- FXT
+   stoploss    float,
+   takeprofit  float,
+   closeprice  float          not null,
+   closetime   text[datetime] not null,                                    -- FXT
+   commission  float          not null,
+   swap        float          not null,
+   profit      float          not null,                                    -- gross profit
+   magicnumber integer,
+   comment     text(27)                collate nocase,
+   test_id     integer        not null,
    primary key (id),
    constraint fk_order_type foreign key (type)    references enum_ordertype(type) on delete restrict on update cascade,
    constraint fk_order_test foreign key (test_id) references t_test(id)           on delete restrict on update cascade,

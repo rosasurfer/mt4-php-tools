@@ -1,11 +1,11 @@
 /*
 Created     16.01.2017
 Modified    19.12.2018
-Project     RSX (rsx.rosasurfer.com)
+Project     rosatrader
 Model       Main model
 Company     
 Author      Peter Walther
-Version     0.1
+Version     0.2
 Database    MySQL 5
 */
 
@@ -20,24 +20,44 @@ create database rsx default collate 'latin1_general_ci';
 use rsx;
 
 
-create table t_instrument (
+create table t_projectsymbol (
    id int unsigned not null auto_increment,
    created timestamp not null default current_timestamp() comment 'GMT',
    modified timestamp null default null comment 'GMT',
    type enum('Forex','Metals','Synthetic') not null comment 'Forex | Metals | Synthetic',
-   symbol varchar(11) not null,
+   name varchar(11) not null comment 'the project''s instrument identifier (the actual symbol)',
    description varchar(63) not null comment 'symbol description',
    digits tinyint unsigned not null comment 'decimal digits',
-   hst_tick_from datetime comment 'FXT',
-   hst_tick_to datetime comment 'FXT',
-   hst_m1_from datetime comment 'FXT',
-   hst_m1_to datetime comment 'FXT',
-   hst_d1_from datetime comment 'FXT',
-   hst_d1_to datetime comment 'FXT',
-   unique index u_symbol (symbol),
+   history_tick_from datetime comment 'FXT',
+   history_tick_to datetime comment 'FXT',
+   history_M1_from datetime comment 'FXT',
+   history_M1_to datetime comment 'FXT',
+   history_D1_from datetime comment 'FXT',
+   history_D1_to datetime comment 'FXT',
+   unique index u_name (name),
    primary key (id),
    index i_type (type)
-) engine = InnoDB;
+) engine = InnoDB
+comment = 'project instruments';
+
+
+create table t_dukascopysymbol (
+   id int unsigned not null auto_increment,
+   created timestamp not null default current_timestamp() comment 'GMT',
+   modified timestamp null default null comment 'GMT',
+   name varchar(11) not null comment 'Dukascopy''s instrument identifier (the actual symbol)',
+   digits tinyint unsigned not null comment 'decimal digits',
+   history_tick_from datetime comment 'FXT',
+   history_tick_to datetime comment 'FXT',
+   history_M1_from datetime comment 'FXT',
+   history_M1_to datetime comment 'FXT',
+   projectsymbol_id int unsigned,
+   unique index u_name (name),
+   unique index u_projectsymbol (projectsymbol_id),
+   primary key (id),
+   constraint fk_dukascopysymbol_projectsymbol foreign key (projectsymbol_id) references t_projectsymbol (id) on delete restrict on update cascade
+) engine = InnoDB
+comment = 'Dukascopy instruments';
 
 
 create table t_test (
@@ -84,10 +104,10 @@ create table t_statistic (
    duration_min int unsigned not null comment 'minimum trade duration in seconds',
    duration_avg int unsigned not null comment 'average trade duration in seconds',
    duration_max int unsigned not null comment 'maximum trade duration in seconds',
-   pips_min decimal(10,1) not null comment 'minimum trade profit in pips',
-   pips_avg decimal(10,1) not null comment 'average profit in pips',
-   pips_max decimal(10,1) not null comment 'maximum trade profit in pips',
-   pips decimal(10,1) not null comment 'total profit in pips',
+   pips_min decimal(10,1) not null comment 'minimum trade profit in pip',
+   pips_avg decimal(10,1) not null comment 'average profit in pip',
+   pips_max decimal(10,1) not null comment 'maximum trade profit in pip',
+   pips decimal(10,1) not null comment 'total profit in pip',
    sharpe_ratio decimal(10,4) not null comment 'simplified non-normalized Sharpe ratio',
    sortino_ratio decimal(10,4) not null comment 'simplified non-normalized Sortino ratio',
    calmar_ratio decimal(10,4) not null comment 'simplified monthly Calmar ratio',
@@ -133,7 +153,15 @@ create table t_order (
 -- trigger definitions
 delimiter //
 
-create trigger tr_instrument_before_update before update on t_instrument for each row
+create trigger tr_projectsymbol_before_update before update on t_projectsymbol for each row
+begin
+   -- update version timestamp if not yet done by the application layer
+   if (new.modified = old.modified or new.modified is null) then
+      set new.modified = current_timestamp();
+   end if;
+end;//
+
+create trigger tr_dukascopysymbol_before_update before update on t_dukascopysymbol for each row
 begin
    -- update version timestamp if not yet done by the application layer
    if (new.modified = old.modified or new.modified is null) then

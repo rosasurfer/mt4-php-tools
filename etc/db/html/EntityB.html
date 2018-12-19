@@ -10,8 +10,8 @@
    </head>
 
 <body class="rightPage">
-<a name = "Entity_9"></a>
-<div class="caption1">Entity 'Instrument'</div>
+<a name = "Entity_10"></a>
+<div class="caption1">Entity 'DukascopySymbol'</div>
 <div class="caption2">General info</div>
 <table class="tabformat" border="0" cellpadding="2" cellspacing="1" width="100%">
  
@@ -31,11 +31,7 @@
   <tr>
     <td class="tabdata" >     </td>    <td class="tabdata" > Modified    </td>    <td class="tabdata" > Timestamp    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> GMT    </td>  </tr>
   <tr>
-    <td class="tabdata" >     </td>    <td class="tabdata" > Type    </td>    <td class="tabdata" > Enum    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> Forex | Metals | Synthetic    </td>  </tr>
-  <tr>
-    <td class="tabdata" >     </td>    <td class="tabdata" > Symbol    </td>    <td class="tabdata" > Varchar (11)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata"  colspan="3"> YES    </td>  </tr>
-  <tr>
-    <td class="tabdata" >     </td>    <td class="tabdata" > Description    </td>    <td class="tabdata" > Varchar (63)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> symbol description    </td>  </tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Name    </td>    <td class="tabdata" > Varchar (11)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata"  colspan="2"> Dukascopy's instrument identifier (the actual symbol)    </td>  </tr>
   <tr>
     <td class="tabdata" >     </td>    <td class="tabdata" > Digits    </td>    <td class="tabdata" > Tinyint    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> decimal digits    </td>  </tr>
   <tr>
@@ -47,9 +43,23 @@
   <tr>
     <td class="tabdata" >     </td>    <td class="tabdata" > HistoryM1To    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> FXT    </td>  </tr>
   <tr>
-    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryD1From    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> FXT    </td>  </tr>
+    <td class="tabdata" > FK    </td>    <td class="tabdata" > ID/ProjectSymbol    </td>    <td class="tabdata" > Integer    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="3"> YES   </td>  </tr>
+</table>
+
+<div class="caption2">Relationships</div>
+<table class="tabformat" border="0" cellpadding="2" cellspacing="1" width="100%">
+ 
   <tr>
-    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryD1To    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> FXT   </td>  </tr>
+    <td class="tabhead"  width="24%"> Relationship name    </td>    <td class="tabhead"  width="20%"> Type    </td>    <td class="tabhead"  width="23%"> Parent entity    </td>    <td class="tabhead"  width="23%"> Child entity    </td>    <td class="tabhead"  width="10%"> Card.    </td>  </tr>
+  <tr>
+    <td class="tabdata" > fk_dukascopysymbol_projectsymbol    </td>    <td class="tabdata" > Non-identifying    </td>    <td class="tabdata" > ProjectSymbol    </td>    <td class="tabdata" > DukascopySymbol    </td>    <td class="tabdata" > 1:N   </td>  </tr>
+</table>
+
+<div class="caption2">Comments</div>
+<table class="tabformat" border="0" cellpadding="2" cellspacing="1" width="100%">
+ 
+  <tr>
+    <td class="tabdata" > Dukascopy instruments   </td>  </tr>
 </table>
 
 <div class="caption2">User-defined variables</div>
@@ -172,6 +182,88 @@
 </table>
 
  <br><br> 
+<a name = "Entity_9"></a>
+<div class="caption1">Entity 'ProjectSymbol'</div>
+<div class="caption2">General info</div>
+<table class="tabformat" border="0" cellpadding="2" cellspacing="1" width="100%">
+ 
+  <tr>
+    <td class="tabhead"  width="25%"> Entity type:    </td>    <td class="tabdata" > independent   </td>  </tr>
+</table>
+
+<div class="caption2">Attributes</div>
+<table class="tabformat" border="0" cellpadding="2" cellspacing="1" width="100%">
+ 
+  <tr>
+    <td class="tabhead"  width="5%"> Key    </td>    <td class="tabhead"  width="25%"> Attribute/role name    </td>    <td class="tabhead"  width="15%"> Data type    </td>    <td class="tabhead"  width="10%"> Not null    </td>    <td class="tabhead"  width="10%"> Unique    </td>    <td class="tabhead"  colspan="2"> Comments    </td>  </tr>
+  <tr>
+    <td class="tabdata" > PK    </td>    <td class="tabdata" > ID    </td>    <td class="tabdata" > Integer    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata"  colspan="3"> NO    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Created    </td>    <td class="tabdata" > Timestamp    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> GMT    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Modified    </td>    <td class="tabdata" > Timestamp    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> GMT    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Type    </td>    <td class="tabdata" > Enum    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> Forex | Metals | Synthetic    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Name    </td>    <td class="tabdata" > Varchar (11)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata"  colspan="2"> the project's instrument identifier (the actual symbol)    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Description    </td>    <td class="tabdata" > Varchar (63)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> symbol description    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Digits    </td>    <td class="tabdata" > Tinyint    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> decimal digits    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryTickFrom    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> FXT    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryTickTo    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> FXT    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryM1From    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> FXT    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryM1To    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> FXT    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryD1From    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> FXT    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryD1To    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> FXT   </td>  </tr>
+</table>
+
+<div class="caption2">Relationships</div>
+<table class="tabformat" border="0" cellpadding="2" cellspacing="1" width="100%">
+ 
+  <tr>
+    <td class="tabhead"  width="24%"> Relationship name    </td>    <td class="tabhead"  width="20%"> Type    </td>    <td class="tabhead"  width="23%"> Parent entity    </td>    <td class="tabhead"  width="23%"> Child entity    </td>    <td class="tabhead"  width="10%"> Card.    </td>  </tr>
+  <tr>
+    <td class="tabdata" > fk_dukascopysymbol_projectsymbol    </td>    <td class="tabdata" > Non-identifying    </td>    <td class="tabdata" > ProjectSymbol    </td>    <td class="tabdata" > DukascopySymbol    </td>    <td class="tabdata" > 1:N   </td>  </tr>
+</table>
+
+<div class="caption2">Comments</div>
+<table class="tabformat" border="0" cellpadding="2" cellspacing="1" width="100%">
+ 
+  <tr>
+    <td class="tabdata" > project instruments   </td>  </tr>
+</table>
+
+<div class="caption2">User-defined variables</div>
+<table class="tabformat" border="0" cellpadding="2" cellspacing="1" width="100%">
+ 
+  <tr>
+    <td class="tabhead"  width="50%"> Name    </td>    <td class="tabhead"  width="50%"> Value    </td>  </tr>
+  <tr>
+    <td class="tabdata" > Temporary table    </td>    <td class="tabdata" > No    </td>  </tr>
+  <tr>
+    <td class="tabdata" > If not exists    </td>    <td class="tabdata" > No    </td>  </tr>
+  <tr>
+    <td class="tabdata" > Table type    </td>    <td class="tabdata" > Default    </td>  </tr>
+  <tr>
+    <td class="tabdata" > Character Set    </td>    <td class="tabdata" >     </td>  </tr>
+  <tr>
+    <td class="tabdata" > Row Format    </td>    <td class="tabdata" > Default    </td>  </tr>
+  <tr>
+    <td class="tabdata" > Collation    </td>    <td class="tabdata" >     </td>  </tr>
+  <tr>
+    <td class="tabdata" > Database Name    </td>    <td class="tabdata" >     </td>  </tr>
+  <tr>
+    <td class="tabdata" > Initial AUTO_INCREMENT    </td>    <td class="tabdata" >    </td>  </tr>
+</table>
+
+ <br><br> 
 <a name = "Entity_8"></a>
 <div class="caption1">Entity 'Statistic'</div>
 <div class="caption2">General info</div>
@@ -199,13 +291,13 @@
   <tr>
     <td class="tabdata" >     </td>    <td class="tabdata" > MaxDuration    </td>    <td class="tabdata" > Integer    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> maximum trade duration in seconds    </td>  </tr>
   <tr>
-    <td class="tabdata" >     </td>    <td class="tabdata" > MinPips    </td>    <td class="tabdata" > Decimal (10,1)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> minimum trade profit in pips    </td>  </tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > MinPips    </td>    <td class="tabdata" > Decimal (10,1)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> minimum trade profit in pip    </td>  </tr>
   <tr>
-    <td class="tabdata" >     </td>    <td class="tabdata" > AvgPips    </td>    <td class="tabdata" > Decimal (10,1)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> average profit in pips    </td>  </tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > AvgPips    </td>    <td class="tabdata" > Decimal (10,1)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> average profit in pip    </td>  </tr>
   <tr>
-    <td class="tabdata" >     </td>    <td class="tabdata" > MaxPips    </td>    <td class="tabdata" > Decimal (10,1)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> maximum trade profit in pips    </td>  </tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > MaxPips    </td>    <td class="tabdata" > Decimal (10,1)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> maximum trade profit in pip    </td>  </tr>
   <tr>
-    <td class="tabdata" >     </td>    <td class="tabdata" > Pips    </td>    <td class="tabdata" > Decimal (10,1)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> total profit in pips    </td>  </tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Pips    </td>    <td class="tabdata" > Decimal (10,1)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> total profit in pip    </td>  </tr>
   <tr>
     <td class="tabdata" >     </td>    <td class="tabdata" > SharpeRatio    </td>    <td class="tabdata" > Decimal (10,4)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> simplified non-normalized Sharpe ratio    </td>  </tr>
   <tr>

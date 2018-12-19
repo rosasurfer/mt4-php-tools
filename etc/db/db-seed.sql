@@ -1,8 +1,8 @@
 
 
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- Instruments
-insert into t_instrument (type, symbol, description, digits) values
+-- ProjectSymbols
+insert into t_projectsymbol (type, name, description, digits) values
    ('forex'    , 'AUDUSD', 'Australian Dollar vs US Dollar'                     , 5),
    ('forex'    , 'EURUSD', 'Euro vs US Dollar'                                  , 5),
    ('forex'    , 'GBPUSD', 'Great Britain Pound vs US Dollar'                   , 5),
