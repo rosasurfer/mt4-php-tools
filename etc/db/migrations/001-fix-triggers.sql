@@ -1,10 +1,10 @@
 
-.bail on
-pragma foreign_keys = on;
+pragma foreign_keys       = on;
+pragma recursive_triggers = on;
 begin;
 
--- fix conditional operators in trigger definitions
 
+-- fix conditional operators in trigger definitions
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Instruments
 drop trigger if exists tr_instrument_before_update;

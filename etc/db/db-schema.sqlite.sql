@@ -1,6 +1,6 @@
 /*
 Created     16.01.2017
-Modified    16.12.2018
+Modified    19.12.2018
 Project     RSX (rsx.rosasurfer.com)
 Model       Main model
 Author      Peter Walther
@@ -14,7 +14,8 @@ pragma writable_schema = 1;
 delete from sqlite_master;
 pragma writable_schema = 0;
 vacuum;
-pragma foreign_keys = on;
+pragma foreign_keys       = on;
+pragma recursive_triggers = on;
 begin;
 
 
@@ -69,10 +70,13 @@ create table t_instrument (
    type               text[enum]     not null collate nocase,              -- Forex|Metals|Synthetic
    symbol             text(11)       not null collate nocase,
    description        text(63)       not null collate nocase,              -- symbol description
-   digits             integer        not null,
-   historystart_ticks text[datetime],                                      -- FXT
-   historystart_m1    text[datetime],                                      -- FXT
-   historystart_d1    text[datetime],                                      -- FXT
+   digits             integer        not null,                             -- decimal digits
+   hst_tick_from      text[datetime],                                      -- FXT
+   hst_tick_to        text[datetime],                                      -- FXT
+   hst_m1_from        text[datetime],                                      -- FXT
+   hst_m1_to          text[datetime],                                      -- FXT
+   hst_d1_from        text[datetime],                                      -- FXT
+   hst_d1_to          text[datetime],                                      -- FXT
    primary key (id),
    constraint fk_instrument_type foreign key (type) references enum_instrumenttype(type) on delete restrict on update cascade,
    constraint u_symbol           unique (symbol)
@@ -99,7 +103,7 @@ create table t_test (
    starttime       text[datetime] not null,                                -- FXT
    endtime         text[datetime] not null,                                -- FXT
    barmodel        text[enum]     not null collate nocase,                 -- EveryTick|ControlPoints|BarOpen
-   spread          float          not null,                                -- in pips
+   spread          float          not null,                                -- in pip
    bars            integer        not null,                                -- number of tested bars
    ticks           integer        not null,                                -- number of tested ticks
    tradedirections text[enum]     not null collate nocase,                 -- Long|Short|Both
@@ -130,6 +134,32 @@ create table t_strategyparameter (
    primary key (id),
    constraint fk_strategyparameter_test foreign key (test_id) references t_test(id) on delete cascade on update cascade,
    constraint u_test_name               unique (test_id, name)
+);
+
+
+-- Test statistics
+create table t_statistic (
+   id               integer not null,
+   trades           integer not null,
+   trades_day       float   not null,                                       -- trades per day
+   duration_min     integer not null,                                       -- minimum trade duration in seconds
+   duration_avg     integer not null,                                       -- average trade duration in seconds
+   duration_max     integer not null,                                       -- maximum trade duration in seconds
+   pips_min         float   not null,                                       -- minimum trade profit in pip
+   pips_avg         float   not null,                                       -- average profit in pip
+   pips_max         float   not null,                                       -- maximum trade profit in pip
+   pips             float   not null,                                       -- total profit in pip
+   sharpe_ratio     float   not null,                                       -- simplified non-normalized Sharpe ratio
+   sortino_ratio    float   not null,                                       -- simplified non-normalized Sortino ratio
+   calmar_ratio     float   not null,                                       -- simplified monthly Calmar ratio
+   max_recoverytime integer not null,                                       -- maximum drawdown recovery time in seconds
+   gross_profit     float   not null,                                       -- test gross profit in money
+   commission       float   not null,                                       -- total commission
+   swap             float   not null,                                       -- total swap
+   test_id          integer not null,
+   primary key (id),
+   constraint fk_statistic_test foreign key (test_id) references t_test (id) on delete cascade on update cascade,
+   constraint u_test            unique (test_id)
 );
 
 
@@ -166,32 +196,6 @@ when (new.modified is null or new.modified = old.modified)
 begin
    update t_order set modified = datetime('now') where id = new.id;
 end;
-
-
--- Test statistics
-create table t_statistic (
-   id               integer not null,
-   trades           integer not null,
-   trades_day       float   not null,                                       -- trades per day
-   duration_min     integer not null,                                       -- minimum trade duration in seconds
-   duration_avg     integer not null,                                       -- average trade duration in seconds
-   duration_max     integer not null,                                       -- maximum trade duration in seconds
-   pips_min         float   not null,                                       -- minimum trade profit in pips
-   pips_avg         float   not null,                                       -- average profit in pips
-   pips_max         float   not null,                                       -- maximum trade profit in pips
-   pips             float   not null,                                       -- total profit in pips
-   sharpe_ratio     float   not null,                                       -- simplified non-normalized Sharpe ratio
-   sortino_ratio    float   not null,                                       -- simplified non-normalized Sortino ratio
-   calmar_ratio     float   not null,                                       -- simplified monthly Calmar ratio
-   max_recoverytime integer not null,                                       -- maximum drawdown recovery time in seconds
-   gross_profit     float   not null,                                       -- test gross profit in money
-   commission       float   not null,                                       -- total commission
-   swap             float   not null,                                       -- total swap
-   test_id          integer not null,
-   primary key (id),
-   constraint fk_statistic_test foreign key (test_id) references t_test (id) on delete cascade on update cascade,
-   constraint u_test            unique (test_id)
-);
 
 
 -- check schema
