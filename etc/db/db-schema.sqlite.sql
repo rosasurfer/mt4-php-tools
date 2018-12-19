@@ -68,7 +68,7 @@ create table t_instrument (
    modified           text[datetime],                                      -- GMT
    type               text[enum]     not null collate nocase,              -- Forex|Metals|Synthetic
    symbol             text(11)       not null collate nocase,
-   description        text(63)       not null collate nocase,
+   description        text(63)       not null collate nocase,              -- symbol description
    digits             integer        not null,
    historystart_ticks text[datetime],                                      -- FXT
    historystart_m1    text[datetime],                                      -- FXT

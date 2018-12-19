@@ -26,7 +26,7 @@ create table t_instrument (
    modified timestamp null default null comment 'GMT',
    type enum('Forex','Metals','Synthetic') not null comment 'Forex | Metals | Synthetic',
    symbol varchar(11) not null,
-   description varchar(63) not null comment 'long name',
+   description varchar(63) not null comment 'symbol description',
    digits tinyint unsigned not null,
    historystart_ticks datetime comment 'FXT',
    historystart_m1 datetime comment 'FXT',
@@ -133,7 +133,7 @@ delimiter //
 create trigger tr_instrument_before_update before update on t_instrument for each row
 begin
    -- update version timestamp if not yet done by the application layer
-   if (new.modified = old.modified || new.modified is null) then
+   if (new.modified = old.modified or new.modified is null) then
       set new.modified = current_timestamp();
    end if;
 end;//
@@ -141,7 +141,7 @@ end;//
 create trigger tr_test_before_update before update on t_test for each row
 begin
    -- update version timestamp if not yet done by the application layer
-   if (new.modified = old.modified || new.modified is null) then
+   if (new.modified = old.modified or new.modified is null) then
       set new.modified = current_timestamp();
    end if;
 end;//
@@ -149,7 +149,7 @@ end;//
 create trigger tr_order_before_update before update on t_order for each row
 begin
    -- update version timestamp if not yet done by the application layer
-   if (new.modified = old.modified || new.modified is null) then
+   if (new.modified = old.modified or new.modified is null) then
       set new.modified = current_timestamp();
    end if;
 end;//
