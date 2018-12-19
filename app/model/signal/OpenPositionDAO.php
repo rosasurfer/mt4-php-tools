@@ -100,9 +100,9 @@ class OpenPositionDAO extends DAO {
      * @param  Signal $signal - Signal
      * @param  int    $ticket - Ticket
      *
-     * @return OpenPosition
+     * @return OpenPosition|null - instance or NULL if no such instance was found
      */
-    public function getByTicket(Signal $signal, $ticket) {
+    public function findByTicket(Signal $signal, $ticket) {
         if (!$signal->isPersistent()) throw new InvalidArgumentException('Cannot process non-persistent '.get_class($signal));
         if (!is_int($ticket))         throw new IllegalTypeException('Illegal type of parameter $ticket: '.getType($ticket));
 

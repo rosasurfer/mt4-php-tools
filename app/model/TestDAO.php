@@ -56,7 +56,7 @@ class TestDAO extends DAO {
      *
      * @param  int $id - primary key
      *
-     * @return Test|null - Test instance or NULL if no such instance exists
+     * @return Test|null - instance or NULL if no such instance was found
      */
     public function findById($id) {
         if (!is_int($id)) throw new IllegalTypeException('Illegal type of parameter $id: '.getType($id));

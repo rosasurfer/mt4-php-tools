@@ -263,7 +263,7 @@ function updateDatabase(Signal $signal, array &$currentOpenPositions, &$openUpda
             if ($formerOpenPositions) {
                 $sTicket = (string) $ticket;
                 if (isSet($formerOpenPositions[$sTicket])) {
-                    $openPosition = $openPositionDao->getByTicket($signal, $ticket);
+                    $openPosition = $openPositionDao->findByTicket($signal, $ticket);
                     unset($formerOpenPositions[$sTicket]);
                 }
             }
