@@ -21,7 +21,7 @@ class TestDAO extends DAO {
      */
     public function getMapping() {
         static $mapping; return $mapping ?: ($mapping=$this->parseMapping([
-            'connection' => 'sqlite',
+            'connection' => 'rosatrader',
             'table'      => 't_test',
             'class'      => Test::class,
             'properties' => [

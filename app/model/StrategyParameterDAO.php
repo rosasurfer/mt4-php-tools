@@ -18,7 +18,7 @@ class StrategyParameterDAO extends DAO {
      */
     public function getMapping() {
         static $mapping; return $mapping ?: ($mapping=$this->parseMapping([
-            'connection' => 'sqlite',
+            'connection' => 'rosatrader',
             'table'      => 't_strategyparameter',
             'class'      => StrategyParameter::class,
             'properties' => [

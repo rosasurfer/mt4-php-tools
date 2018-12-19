@@ -1,12 +1,12 @@
 {
    "name":        "rosasurfer/mt4-tools",
-   "description": "MetaTrader 4 framework web and command line tools",
+   "description": "rosatrader - web and command line tools",
    "type":        "project",
-   "homepage":    "http://xtrade.rosasurfer.com/",
+   "homepage":    "http://www.rosasurfer.com/",
    "license":     "WTFPL",
    "authors": [{
       "name":  "Peter Walther",
-      "email": "xtrade@rosasurfer.com"
+      "email": "rosatrader@rosasurfer.com"
    }],
    "config": {
       "optimize-autoloader": true
@@ -23,8 +23,8 @@
       "classmap": ["app/"],
       "files": [
          "app/helpers.php",
-         "app/lib/myfxbook/defines.php",
-         "app/lib/simpletrader/defines.php"
+         "app/lib/myfxbook/definitions.php",
+         "app/lib/simpletrader/definitions.php"
       ]
    },
    "scripts": {
