@@ -21,7 +21,7 @@ class OpenPositionDAO extends DAO {
      */
     public function getMapping() {
         static $mapping; return $mapping ?: ($mapping=$this->parseMapping([
-            'connection' => 'mysql',
+            'connection' => 'signals',
             'table'      => 't_openposition',
             'class'      => OpenPosition::class,
             'properties' => [

@@ -1,7 +1,6 @@
 <?php
 namespace rosasurfer\rsx\model;
 
-use rosasurfer\db\orm\PersistableObject;
 use rosasurfer\exception\IllegalArgumentException;
 use rosasurfer\exception\IllegalTypeException;
 
@@ -9,16 +8,12 @@ use rosasurfer\exception\IllegalTypeException;
 /**
  * Represents a single input parameter of a tested strategy.
  *
- * @method int    getId()    Return the id (primary key) of the strategy parameter.
  * @method string getName()  Return the name of the input parameter.
  * @method string getValue() Return the value of the input parameter.
  * @method Test   getTest()  Return the test this input parameter belongs to.
  */
-class StrategyParameter extends PersistableObject {
+class StrategyParameter extends RosatraderModel {
 
-
-    /** @var int */
-    protected $id;
 
     /** @var string */
     protected $name;

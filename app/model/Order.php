@@ -1,7 +1,6 @@
 <?php
 namespace rosasurfer\rsx\model;
 
-use rosasurfer\db\orm\PersistableObject;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 
@@ -14,7 +13,6 @@ use function rosasurfer\rsx\isFxtWeekend;
 /**
  * Represents a MetaTrader order ticket.
  *
- * @method int    getId()          Return the id (primary key) of the ticket.
  * @method int    getTicket()      Return the ticket number.
  * @method string getType()        Return the ticket order type.
  * @method float  getLots()        Return the ticket lot size.
@@ -32,17 +30,8 @@ use function rosasurfer\rsx\isFxtWeekend;
  * @method string getComment()     Return the ticket comment.
  * @method Test   getTest()        Return the test the ticket belongs to.
  */
-class Order extends PersistableObject {
+class Order extends RosatraderModel {
 
-
-    /** @var int - primary key */
-    protected $id;
-
-    /** @var string - time of creation */
-    protected $created;
-
-    /** @var string - time of last modification */
-    protected $modified;
 
      /** @var int - ticket number */
     protected $ticket;
@@ -237,16 +226,5 @@ class Order extends PersistableObject {
      */
     public function isClosedPosition() {
         return ($this->isPosition() && $this->isClosed());
-    }
-
-
-    /**
-     * Update the version field as this is not yet automated by the ORM.
-     *
-     * {@inheritdoc}
-     */
-    protected function beforeUpdate() {
-        $this->modified = date('Y-m-d H:i:s');
-        return true;
     }
 }

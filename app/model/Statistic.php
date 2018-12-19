@@ -1,8 +1,6 @@
 <?php
 namespace rosasurfer\rsx\model;
 
-use rosasurfer\db\orm\PersistableObject;
-
 use function rosasurfer\rsx\stats_sharpe_ratio;
 use function rosasurfer\rsx\stats_sortino_ratio;
 use function rosasurfer\rsx\stats_calmar_ratio;
@@ -11,7 +9,6 @@ use function rosasurfer\rsx\stats_calmar_ratio;
 /**
  * Represents the statistics record of a {@link Test}.
  *
- * @method int   getId()              Return the id (primary key) of the statistics record.
  * @method int   getTrades()          Return the number of trades of the test.
  * @method float getTradesPerDay()    Return the number of trades per day of the test.
  * @method int   getMinDuration()     Return the minimum trade duration in seconds.
@@ -30,11 +27,8 @@ use function rosasurfer\rsx\stats_calmar_ratio;
  * @method float getSwap()            Return the total swap amount of the test.
  * @method Test  getTest()            Return the test the statistics record belongs to.
  */
-class Statistic extends PersistableObject {
+class Statistic extends RosatraderModel {
 
-
-    /** @var int */
-    protected $id;
 
     /** @var int */
     protected $trades;

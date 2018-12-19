@@ -20,7 +20,7 @@ class SignalDAO extends DAO {
      */
     public function getMapping() {
         static $mapping; return $mapping ?: ($mapping=$this->parseMapping([
-            'connection' => 'mysql',
+            'connection' => 'signals',
             'table'      => 't_signal',
             'class'      => Signal::class,
             'properties' => [
