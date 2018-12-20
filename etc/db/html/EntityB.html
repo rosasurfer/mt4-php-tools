@@ -31,7 +31,7 @@
   <tr>
     <td class="tabdata" >     </td>    <td class="tabdata" > Modified    </td>    <td class="tabdata" > Timestamp    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> GMT    </td>  </tr>
   <tr>
-    <td class="tabdata" >     </td>    <td class="tabdata" > Name    </td>    <td class="tabdata" > Varchar (11)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata"  colspan="2"> Dukascopy's instrument identifier (the actual symbol)    </td>  </tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Name    </td>    <td class="tabdata" > Varchar (11)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata"  colspan="2"> Dukascopy instrument identifier (the actual symbol)    </td>  </tr>
   <tr>
     <td class="tabdata" >     </td>    <td class="tabdata" > Digits    </td>    <td class="tabdata" > Tinyint    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> decimal digits    </td>  </tr>
   <tr>
@@ -43,7 +43,7 @@
   <tr>
     <td class="tabdata" >     </td>    <td class="tabdata" > HistoryM1To    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> FXT    </td>  </tr>
   <tr>
-    <td class="tabdata" > FK    </td>    <td class="tabdata" > ID/ProjectSymbol    </td>    <td class="tabdata" > Integer    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="3"> YES   </td>  </tr>
+    <td class="tabdata" > FK    </td>    <td class="tabdata" > ID/RosaSymbol    </td>    <td class="tabdata" > Integer    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="3"> YES   </td>  </tr>
 </table>
 
 <div class="caption2">Relationships</div>
@@ -52,7 +52,7 @@
   <tr>
     <td class="tabhead"  width="24%"> Relationship name    </td>    <td class="tabhead"  width="20%"> Type    </td>    <td class="tabhead"  width="23%"> Parent entity    </td>    <td class="tabhead"  width="23%"> Child entity    </td>    <td class="tabhead"  width="10%"> Card.    </td>  </tr>
   <tr>
-    <td class="tabdata" > fk_dukascopysymbol_projectsymbol    </td>    <td class="tabdata" > Non-identifying    </td>    <td class="tabdata" > ProjectSymbol    </td>    <td class="tabdata" > DukascopySymbol    </td>    <td class="tabdata" > 1:N   </td>  </tr>
+    <td class="tabdata" > fk_dukascopysymbol_rosasymbol    </td>    <td class="tabdata" > Non-identifying    </td>    <td class="tabdata" > RosaSymbol    </td>    <td class="tabdata" > DukascopySymbol    </td>    <td class="tabdata" > 1:N   </td>  </tr>
 </table>
 
 <div class="caption2">Comments</div>
@@ -183,7 +183,7 @@
 
  <br><br> 
 <a name = "Entity_9"></a>
-<div class="caption1">Entity 'ProjectSymbol'</div>
+<div class="caption1">Entity 'RosaSymbol'</div>
 <div class="caption2">General info</div>
 <table class="tabformat" border="0" cellpadding="2" cellspacing="1" width="100%">
  
@@ -203,9 +203,9 @@
   <tr>
     <td class="tabdata" >     </td>    <td class="tabdata" > Modified    </td>    <td class="tabdata" > Timestamp    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> GMT    </td>  </tr>
   <tr>
-    <td class="tabdata" >     </td>    <td class="tabdata" > Type    </td>    <td class="tabdata" > Enum    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> Forex | Metals | Synthetic    </td>  </tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Type    </td>    <td class="tabdata" > Enum    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> forex | metals | synthetic    </td>  </tr>
   <tr>
-    <td class="tabdata" >     </td>    <td class="tabdata" > Name    </td>    <td class="tabdata" > Varchar (11)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata"  colspan="2"> the project's instrument identifier (the actual symbol)    </td>  </tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Name    </td>    <td class="tabdata" > Varchar (11)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata"  colspan="2"> Rosatrader instrument identifier (the actual symbol)    </td>  </tr>
   <tr>
     <td class="tabdata" >     </td>    <td class="tabdata" > Description    </td>    <td class="tabdata" > Varchar (63)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> symbol description    </td>  </tr>
   <tr>
@@ -230,14 +230,14 @@
   <tr>
     <td class="tabhead"  width="24%"> Relationship name    </td>    <td class="tabhead"  width="20%"> Type    </td>    <td class="tabhead"  width="23%"> Parent entity    </td>    <td class="tabhead"  width="23%"> Child entity    </td>    <td class="tabhead"  width="10%"> Card.    </td>  </tr>
   <tr>
-    <td class="tabdata" > fk_dukascopysymbol_projectsymbol    </td>    <td class="tabdata" > Non-identifying    </td>    <td class="tabdata" > ProjectSymbol    </td>    <td class="tabdata" > DukascopySymbol    </td>    <td class="tabdata" > 1:N   </td>  </tr>
+    <td class="tabdata" > fk_dukascopysymbol_rosasymbol    </td>    <td class="tabdata" > Non-identifying    </td>    <td class="tabdata" > RosaSymbol    </td>    <td class="tabdata" > DukascopySymbol    </td>    <td class="tabdata" > 1:N   </td>  </tr>
 </table>
 
 <div class="caption2">Comments</div>
 <table class="tabformat" border="0" cellpadding="2" cellspacing="1" width="100%">
  
   <tr>
-    <td class="tabdata" > project instruments   </td>  </tr>
+    <td class="tabdata" > Rosatrader instruments   </td>  </tr>
 </table>
 
 <div class="caption2">User-defined variables</div>

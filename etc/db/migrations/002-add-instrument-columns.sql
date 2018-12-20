@@ -48,3 +48,4 @@ drop table if exists t_instrument_old_20181219;
 commit;
 pragma foreign_keys       = on;
 pragma recursive_triggers = on;
+vacuum;

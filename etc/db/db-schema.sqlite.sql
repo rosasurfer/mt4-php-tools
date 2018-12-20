@@ -1,7 +1,7 @@
 /*
 Created     16.01.2017
-Modified    19.12.2018
-Project     rosatrader
+Modified    20.12.2018
+Project     Rosatrader
 Model       Main model
 Author      Peter Walther
 Version     0.2
@@ -63,13 +63,13 @@ insert into enum_tradedirection (type) values
    ('Both' );
 
 
--- ProjectSymbols
-create table t_projectsymbol (                                             -- project instruments
+-- RosaSymbols
+create table t_rosasymbol (                                                -- Rosatrader instruments
    id                integer        not null,
    created           text[datetime] not null default (datetime('now')),    -- GMT
    modified          text[datetime],                                       -- GMT
-   type              text[enum]     not null collate nocase,               -- Forex|Metals|Synthetic
-   name              text(11)       not null collate nocase,               -- the project's instrument identifier (the actual symbol)
+   type              text[enum]     not null collate nocase,               -- forex|metals|synthetic
+   name              text(11)       not null collate nocase,               -- Rosatrader instrument identifier (the actual symbol)
    description       text(63)       not null collate nocase,               -- symbol description
    digits            integer        not null,                              -- decimal digits
    history_tick_from text[datetime],                                       -- FXT
@@ -79,15 +79,15 @@ create table t_projectsymbol (                                             -- pr
    history_D1_from   text[datetime],                                       -- FXT
    history_D1_to     text[datetime],                                       -- FXT
    primary key (id),
-   constraint fk_projectsymbol_type foreign key (type) references enum_instrumenttype(type) on delete restrict on update cascade,
+   constraint fk_rosasymbol_type foreign key (type) references enum_instrumenttype(type) on delete restrict on update cascade,
    constraint u_name unique (name)
 );
-create index i_projectsymbol_type on t_projectsymbol(type);
+create index i_rosasymbol_type on t_rosasymbol(type);
 
-create trigger tr_projectsymbol_before_update before update on t_projectsymbol
+create trigger tr_rosasymbol_before_update before update on t_rosasymbol
 when (new.modified is null or new.modified = old.modified)
 begin
-   update t_projectsymbol set modified = datetime('now') where id = new.id;
+   update t_rosasymbol set modified = datetime('now') where id = new.id;
 end;
 
 
@@ -96,17 +96,17 @@ create table t_dukascopysymbol (                                           -- Du
    id                integer        not null,
    created           text[datetime] not null default (datetime('now')),    -- GMT
    modified          text[datetime],                                       -- GMT
-   name              text(11)       not null collate nocase,               -- Dukascopy's instrument identifier (the actual symbol)
+   name              text(11)       not null collate nocase,               -- Dukascopy instrument identifier (the actual symbol)
    digits            integer        not null,                              -- decimal digits
    history_tick_from text[datetime],                                       -- FXT
    history_tick_to   text[datetime],                                       -- FXT
    history_M1_from   text[datetime],                                       -- FXT
    history_M1_to     text[datetime],                                       -- FXT
-   projectsymbol_id  integer,
+   rosasymbol_id     integer,
    primary key (id),
-   constraint fk_dukascopysymbol_projectsymbol foreign key (projectsymbol_id) references t_projectsymbol (id) on delete restrict on update cascade
-   constraint u_name          unique (name)
-   constraint u_projectsymbol unique (projectsymbol_id)
+   constraint fk_dukascopysymbol_rosasymbol foreign key (rosasymbol_id) references t_rosasymbol (id) on delete restrict on update cascade
+   constraint u_name       unique (name)
+   constraint u_rosasymbol unique (rosasymbol_id)
 );
 
 create trigger tr_dukascopysymbol_before_update before update on t_dukascopysymbol

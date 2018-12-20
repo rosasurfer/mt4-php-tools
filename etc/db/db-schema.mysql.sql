@@ -1,7 +1,7 @@
 /*
 Created     16.01.2017
-Modified    19.12.2018
-Project     rosatrader
+Modified    20.12.2018
+Project     Rosatrader
 Model       Main model
 Company     
 Author      Peter Walther
@@ -20,12 +20,12 @@ create database rsx default collate 'latin1_general_ci';
 use rsx;
 
 
-create table t_projectsymbol (
+create table t_rosasymbol (
    id int unsigned not null auto_increment,
    created timestamp not null default current_timestamp() comment 'GMT',
    modified timestamp null default null comment 'GMT',
-   type enum('Forex','Metals','Synthetic') not null comment 'Forex | Metals | Synthetic',
-   name varchar(11) not null comment 'the project''s instrument identifier (the actual symbol)',
+   type enum('forex','metals','synthetic') not null comment 'forex | metals | synthetic',
+   name varchar(11) not null comment 'Rosatrader instrument identifier (the actual symbol)',
    description varchar(63) not null comment 'symbol description',
    digits tinyint unsigned not null comment 'decimal digits',
    history_tick_from datetime comment 'FXT',
@@ -38,24 +38,24 @@ create table t_projectsymbol (
    primary key (id),
    index i_type (type)
 ) engine = InnoDB
-comment = 'project instruments';
+comment = 'Rosatrader instruments';
 
 
 create table t_dukascopysymbol (
    id int unsigned not null auto_increment,
    created timestamp not null default current_timestamp() comment 'GMT',
    modified timestamp null default null comment 'GMT',
-   name varchar(11) not null comment 'Dukascopy''s instrument identifier (the actual symbol)',
+   name varchar(11) not null comment 'Dukascopy instrument identifier (the actual symbol)',
    digits tinyint unsigned not null comment 'decimal digits',
    history_tick_from datetime comment 'FXT',
    history_tick_to datetime comment 'FXT',
    history_M1_from datetime comment 'FXT',
    history_M1_to datetime comment 'FXT',
-   projectsymbol_id int unsigned,
+   rosasymbol_id int unsigned,
    unique index u_name (name),
-   unique index u_projectsymbol (projectsymbol_id),
+   unique index u_rosasymbol (rosasymbol_id),
    primary key (id),
-   constraint fk_dukascopysymbol_projectsymbol foreign key (projectsymbol_id) references t_projectsymbol (id) on delete restrict on update cascade
+   constraint fk_dukascopysymbol_rosasymbol foreign key (rosasymbol_id) references t_rosasymbol (id) on delete restrict on update cascade
 ) engine = InnoDB
 comment = 'Dukascopy instruments';
 
@@ -153,7 +153,7 @@ create table t_order (
 -- trigger definitions
 delimiter //
 
-create trigger tr_projectsymbol_before_update before update on t_projectsymbol for each row
+create trigger tr_rosasymbol_before_update before update on t_rosasymbol for each row
 begin
    -- update version timestamp if not yet done by the application layer
    if (new.modified = old.modified or new.modified is null) then
