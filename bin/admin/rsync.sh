@@ -2,7 +2,7 @@
 
 # determine rsync source file
 SELF=$(readlink -e "$0")
-DB_FILE=$(dirname "$SELF")"/../data/rsx.db"
+DB_FILE=$(dirname "$SELF")"/../../data/rost.db"
 SOURCE=$(readlink -e "$DB_FILE")
 [ ! -f "$SOURCE" ] && { echo "source database file not found: $DB_FILE"; exit 1; }
 
@@ -12,9 +12,9 @@ if [ $# -gt 0 ]; then
     [ -z "$1" ]                     && { echo "error: invalid argument for rsync target"; exit 1; }
     TARGET="$1"
 else
-    [ -z ${RSX_RSYNC_TARGET+x} ] && { echo "error: missing argument or env RSX_RSYNC_TARGET for rsync target"; exit 1; }
-    [ -z ${RSX_RSYNC_TARGET}   ] && { echo "error: invalid environment setting RSX_RSYNC_TARGET"; exit 1; }
-    TARGET="$RSX_RSYNC_TARGET"
+    [ -z ${ROST_RSYNC_TARGET+x} ] && { echo "error: missing argument or env ROST_RSYNC_TARGET for rsync target"; exit 1; }
+    [ -z ${ROST_RSYNC_TARGET}   ] && { echo "error: invalid environment setting ROST_RSYNC_TARGET"; exit 1; }
+    TARGET="$ROST_RSYNC_TARGET"
 fi
 [ "${TARGET: -1}" != "/" ] && TARGET="$TARGET/"
 
@@ -25,4 +25,4 @@ command -v ssh   >/dev/null || { echo "error: ssh binary not found";   exit 1; }
 
 
 # run rsync (TODO: externalize ownership settings)
-rsync -ahzPv --no-r --chown=apache:apache -e ssh "$SOURCE" "rsx:$TARGET"
+rsync -ahzPv --no-r --chown=apache:apache -e ssh "$SOURCE" "rost:$TARGET"

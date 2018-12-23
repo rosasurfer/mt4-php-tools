@@ -1,11 +1,11 @@
 <?php
-namespace rosasurfer\rsx;
+namespace rosasurfer\rost;
 
 use rosasurfer\core\Object;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 
-use rosasurfer\rsx\model\signal\Signal;
+use rosasurfer\rost\model\signal\Signal;
 
 
 /**

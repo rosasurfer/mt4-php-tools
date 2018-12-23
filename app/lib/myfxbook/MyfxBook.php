@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\rsx\myfxbook;
+namespace rosasurfer\rost\myfxbook;
 
 use rosasurfer\config\Config;
 use rosasurfer\core\StaticClass;
@@ -10,7 +10,7 @@ use rosasurfer\net\http\CurlHttpClient;
 use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
 
-use rosasurfer\rsx\model\signal\Signal;
+use rosasurfer\rost\model\signal\Signal;
 
 
 /**
@@ -50,7 +50,7 @@ class MyfxBook extends StaticClass {
         if (!$config=Config::getDefault()) throw new RuntimeException('Service locator returned invalid default config: '.getType($config));
         $request = HttpRequest::create()
                               ->setUrl($url)
-                              ->setHeader('User-Agent'     ,  $config->get('rsx.useragent')                                )
+                              ->setHeader('User-Agent'     ,  $config->get('rost.useragent')                                  )
                               ->setHeader('Accept'         , 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
                               ->setHeader('Accept-Language', 'en-us'                                                          )
                               ->setHeader('Accept-Charset' , 'ISO-8859-1,utf-8;q=0.7,*;q=0.7'                                 )

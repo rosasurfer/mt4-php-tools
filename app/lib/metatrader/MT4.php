@@ -1,33 +1,33 @@
 <?php
-namespace rosasurfer\rsx\metatrader;
+namespace rosasurfer\rost\metatrader;
 
 use rosasurfer\config\Config;
 use rosasurfer\core\StaticClass;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\RuntimeException;
 
-use rosasurfer\rsx\model\signal\ClosedPosition;
-use rosasurfer\rsx\model\signal\ClosedPositionDAO;
-use rosasurfer\rsx\model\signal\OpenPosition;
-use rosasurfer\rsx\model\signal\OpenPositionDAO;
-use rosasurfer\rsx\model\signal\Signal;
+use rosasurfer\rost\model\signal\ClosedPosition;
+use rosasurfer\rost\model\signal\ClosedPositionDAO;
+use rosasurfer\rost\model\signal\OpenPosition;
+use rosasurfer\rost\model\signal\OpenPositionDAO;
+use rosasurfer\rost\model\signal\Signal;
 
-use const rosasurfer\rsx\BARMODEL_BAROPEN;
-use const rosasurfer\rsx\BARMODEL_CONTROLPOINTS;
-use const rosasurfer\rsx\BARMODEL_EVERYTICK;
-use const rosasurfer\rsx\PERIOD_M1;
-use const rosasurfer\rsx\PERIOD_M5;
-use const rosasurfer\rsx\PERIOD_M15;
-use const rosasurfer\rsx\PERIOD_M30;
-use const rosasurfer\rsx\PERIOD_H1;
-use const rosasurfer\rsx\PERIOD_H4;
-use const rosasurfer\rsx\PERIOD_D1;
-use const rosasurfer\rsx\PERIOD_W1;
-use const rosasurfer\rsx\PERIOD_MN1;
-use const rosasurfer\rsx\PERIOD_Q1;
-use const rosasurfer\rsx\TRADE_DIRECTIONS_BOTH;
-use const rosasurfer\rsx\TRADE_DIRECTIONS_LONG;
-use const rosasurfer\rsx\TRADE_DIRECTIONS_SHORT;
+use const rosasurfer\rost\BARMODEL_BAROPEN;
+use const rosasurfer\rost\BARMODEL_CONTROLPOINTS;
+use const rosasurfer\rost\BARMODEL_EVERYTICK;
+use const rosasurfer\rost\PERIOD_M1;
+use const rosasurfer\rost\PERIOD_M5;
+use const rosasurfer\rost\PERIOD_M15;
+use const rosasurfer\rost\PERIOD_M30;
+use const rosasurfer\rost\PERIOD_H1;
+use const rosasurfer\rost\PERIOD_H4;
+use const rosasurfer\rost\PERIOD_D1;
+use const rosasurfer\rost\PERIOD_W1;
+use const rosasurfer\rost\PERIOD_MN1;
+use const rosasurfer\rost\PERIOD_Q1;
+use const rosasurfer\rost\TRADE_DIRECTIONS_BOTH;
+use const rosasurfer\rost\TRADE_DIRECTIONS_LONG;
+use const rosasurfer\rost\TRADE_DIRECTIONS_SHORT;
 
 
 /**

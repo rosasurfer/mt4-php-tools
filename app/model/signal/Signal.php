@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\rsx\model\signal;
+namespace rosasurfer\rost\model\signal;
 
 use rosasurfer\db\orm\PersistableObject;
 use rosasurfer\exception\IllegalTypeException;

@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\rsx\model;
+namespace rosasurfer\rost\model;
 
 use rosasurfer\exception\IllegalArgumentException;
 use rosasurfer\exception\IllegalTypeException;
@@ -7,12 +7,12 @@ use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\util\PHP;
 use rosasurfer\util\Windows;
 
-use rosasurfer\rsx\RSX;
-use rosasurfer\rsx\metatrader\MT4;
+use rosasurfer\rost\Rost;
+use rosasurfer\rost\metatrader\MT4;
 
-use const rosasurfer\rsx\OP_SELL;
-use const rosasurfer\rsx\PERIOD_M1;
-use const rosasurfer\rsx\BARMODEL_BAROPEN;
+use const rosasurfer\rost\OP_SELL;
+use const rosasurfer\rost\PERIOD_M1;
+use const rosasurfer\rost\BARMODEL_BAROPEN;
 
 
 /**
@@ -414,7 +414,7 @@ class Test extends RosatraderModel {
         // type
         $pattern = '/, *type *= *(OP_[^ ]+) *,/i';
         if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal order properties ("type" invalid or not found): "'.$valuesOrig.'"');
-        if (($type = RSX::strToOrderType($matches[1][0])) < 0)               throw new IllegalArgumentException('Illegal order property "type": "'.$matches[1][0].'"');
+        if (($type = Rost::strToOrderType($matches[1][0])) < 0)               throw new IllegalArgumentException('Illegal order property "type": "'.$matches[1][0].'"');
         $properties['type'] = $type;
         if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal order properties (multiple "type" occurrences): "'.$valuesOrig.'"');
 

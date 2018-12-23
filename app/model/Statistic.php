@@ -1,9 +1,9 @@
 <?php
-namespace rosasurfer\rsx\model;
+namespace rosasurfer\rost\model;
 
-use function rosasurfer\rsx\stats_sharpe_ratio;
-use function rosasurfer\rsx\stats_sortino_ratio;
-use function rosasurfer\rsx\stats_calmar_ratio;
+use function rosasurfer\rost\stats_sharpe_ratio;
+use function rosasurfer\rost\stats_sortino_ratio;
+use function rosasurfer\rost\stats_calmar_ratio;
 
 
 /**

@@ -1,13 +1,13 @@
 <?php
-namespace rosasurfer\rsx\model;
+namespace rosasurfer\rost\model;
 
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 
-use rosasurfer\rsx\RSX;
-use rosasurfer\rsx\metatrader\MT4;
+use rosasurfer\rost\Rost;
+use rosasurfer\rost\metatrader\MT4;
 
-use function rosasurfer\rsx\isFxtWeekend;
+use function rosasurfer\rost\isFxtWeekend;
 
 
 /**
@@ -108,8 +108,8 @@ class Order extends RosatraderModel {
 
         $type = $properties['type'];
         if (!is_int($type))                                   throw new IllegalTypeException('Illegal type of property order['.$ticket.'].type: '.getType($type));
-        if (!RSX::isOrderType($type))                         throw new InvalidArgumentException('Invalid property order['.$ticket.'].type: '.$type.' (not an order type)');
-        $order->type = RSX::orderTypeDescription($type);
+        if (!Rost::isOrderType($type))                        throw new InvalidArgumentException('Invalid property order['.$ticket.'].type: '.$type.' (not an order type)');
+        $order->type = Rost::orderTypeDescription($type);
 
         $lots = $properties['lots'];
         if (!is_float($lots))                                 throw new IllegalTypeException('Illegal type of property order['.$ticket.'].lots: '.getType($lots));
@@ -149,7 +149,7 @@ class Order extends RosatraderModel {
         $order->takeProfit = !$takeProfit ? null : $takeProfit;
 
         if ($stopLoss && $takeProfit) {
-            if (RSX::isLongOrderType(RSX::strToOrderType($order->type))) {
+            if (Rost::isLongOrderType(Rost::strToOrderType($order->type))) {
                 if ($stopLoss >= $takeProfit)                 throw new InvalidArgumentException('Invalid properties order['.$ticket.'].stopLoss|takeProfit for LONG order: '.$stopLoss.'|'.$takeProfit.' (mis-match)');
             }
             else if ($stopLoss <= $takeProfit)                throw new InvalidArgumentException('Invalid properties order['.$ticket.'].stopLoss|takeProfit for SHORT order: '.$stopLoss.'|'.$takeProfit.' (mis-match)');

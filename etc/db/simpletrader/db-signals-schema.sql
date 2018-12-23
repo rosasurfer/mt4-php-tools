@@ -1,9 +1,9 @@
 /*
 Created     17.09.2014
 Modified    09.12.2018
-Project     RSX
+Project     ROST (www.rosatrader.com)
 Model       Main model
-Company     
+Company
 Author      Peter Walther
 Version     0.1
 Database    MySQL 5
@@ -14,9 +14,9 @@ set sql_mode             = 'traditional';
 set collation_connection = 'latin1_german1_ci';
 set autocommit           = 0;
 
-drop database if exists rsx;
-create database rsx character set latin1;
-use rsx;
+drop database if exists rost;
+create database rost character set latin1;
+use rost;
 
 
 create table t_signal (

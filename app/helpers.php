@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\rsx;
+namespace rosasurfer\rost;
 
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\IllegalArgumentException;

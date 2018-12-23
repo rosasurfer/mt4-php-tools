@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\rsx\model\signal;
+namespace rosasurfer\rost\model\signal;
 
 use rosasurfer\db\orm\PersistableObject;
 use rosasurfer\exception\IllegalTypeException;
@@ -7,7 +7,7 @@ use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 use rosasurfer\util\Number;
 
-use rosasurfer\rsx\RSX;
+use rosasurfer\rost\Rost;
 
 
 /**
@@ -120,22 +120,22 @@ class ClosedPosition extends PersistableObject {
         $position->version = $position->created;
 
         $position->signal      = $openPosition->getSignal();
-        $position->ticket      =              $data['ticket'     ];
-        $position->type        =              $data['type'       ];
-        $position->lots        =              $data['lots'       ];
-        $position->symbol      =              $data['symbol'     ];
-        $position->openTime    = RSX::fxtDate($data['opentime'   ]);
-        $position->openPrice   =              $data['openprice'  ];
-        $position->closeTime   = RSX::fxtDate($data['closetime'  ]);
-        $position->closePrice  =              $data['closeprice' ];
-        $position->stopLoss    =        isSet($data['stoploss'   ]) ? $data['stoploss'   ] : $openPosition->getStopLoss();
-        $position->takeProfit  =        isSet($data['takeprofit' ]) ? $data['takeprofit' ] : $openPosition->getTakeProfit();
-        $position->commission  =        isSet($data['commission' ]) ? $data['commission' ] : $openPosition->getCommission();
-        $position->swap        =        isSet($data['swap'       ]) ? $data['swap'       ] : $openPosition->getSwap();
-        $position->grossProfit =        isSet($data['grossprofit']) ? $data['grossprofit'] : null;
-        $position->netProfit   =              $data['netprofit'  ];
-        $position->magicNumber =        isSet($data['magicnumber']) ? $data['magicnumber'] : $openPosition->getMagicNumber();
-        $position->comment     =        isSet($data['comment'    ]) ? $data['comment'    ] : $openPosition->getComment();
+        $position->ticket      =               $data['ticket'     ];
+        $position->type        =               $data['type'       ];
+        $position->lots        =               $data['lots'       ];
+        $position->symbol      =               $data['symbol'     ];
+        $position->openTime    = Rost::fxtDate($data['opentime'   ]);
+        $position->openPrice   =               $data['openprice'  ];
+        $position->closeTime   = Rost::fxtDate($data['closetime'  ]);
+        $position->closePrice  =               $data['closeprice' ];
+        $position->stopLoss    =         isSet($data['stoploss'   ]) ? $data['stoploss'   ] : $openPosition->getStopLoss();
+        $position->takeProfit  =         isSet($data['takeprofit' ]) ? $data['takeprofit' ] : $openPosition->getTakeProfit();
+        $position->commission  =         isSet($data['commission' ]) ? $data['commission' ] : $openPosition->getCommission();
+        $position->swap        =         isSet($data['swap'       ]) ? $data['swap'       ] : $openPosition->getSwap();
+        $position->grossProfit =         isSet($data['grossprofit']) ? $data['grossprofit'] : null;
+        $position->netProfit   =               $data['netprofit'  ];
+        $position->magicNumber =         isSet($data['magicnumber']) ? $data['magicnumber'] : $openPosition->getMagicNumber();
+        $position->comment     =         isSet($data['comment'    ]) ? $data['comment'    ] : $openPosition->getComment();
 
         return $position;
     }
@@ -156,23 +156,23 @@ class ClosedPosition extends PersistableObject {
         $position->created = date('Y-m-d H:i:s');
         $position->version = $position->created;
 
-        $position->signal      = $signal;
-        $position->ticket      =              $data['ticket'     ];
-        $position->type        =              $data['type'       ];
-        $position->lots        =              $data['lots'       ];
-        $position->symbol      =              $data['symbol'     ];
-        $position->openTime    = RSX::fxtDate($data['opentime'   ]);
-        $position->openPrice   =              $data['openprice'  ];
-        $position->closeTime   = RSX::fxtDate($data['closetime'  ]);
-        $position->closePrice  =              $data['closeprice' ];
-        $position->stopLoss    =        isSet($data['stoploss'   ]) ? $data['stoploss'   ] : null;
-        $position->takeProfit  =        isSet($data['takeprofit' ]) ? $data['takeprofit' ] : null;
-        $position->commission  =        isSet($data['commission' ]) ? $data['commission' ] : null;
-        $position->swap        =        isSet($data['swap'       ]) ? $data['swap'       ] : null;
-        $position->grossProfit =        isSet($data['grossprofit']) ? $data['grossprofit'] : null;
-        $position->netProfit   =              $data['netprofit'  ];
-        $position->magicNumber =        isSet($data['magicnumber']) ? $data['magicnumber'] : null;
-        $position->comment     =        isSet($data['comment'    ]) ? $data['comment'    ] : null;
+        $position->signal      =               $signal;
+        $position->ticket      =               $data['ticket'     ];
+        $position->type        =               $data['type'       ];
+        $position->lots        =               $data['lots'       ];
+        $position->symbol      =               $data['symbol'     ];
+        $position->openTime    = Rost::fxtDate($data['opentime'   ]);
+        $position->openPrice   =               $data['openprice'  ];
+        $position->closeTime   = Rost::fxtDate($data['closetime'  ]);
+        $position->closePrice  =               $data['closeprice' ];
+        $position->stopLoss    =         isSet($data['stoploss'   ]) ? $data['stoploss'   ] : null;
+        $position->takeProfit  =         isSet($data['takeprofit' ]) ? $data['takeprofit' ] : null;
+        $position->commission  =         isSet($data['commission' ]) ? $data['commission' ] : null;
+        $position->swap        =         isSet($data['swap'       ]) ? $data['swap'       ] : null;
+        $position->grossProfit =         isSet($data['grossprofit']) ? $data['grossprofit'] : null;
+        $position->netProfit   =               $data['netprofit'  ];
+        $position->magicNumber =         isSet($data['magicnumber']) ? $data['magicnumber'] : null;
+        $position->comment     =         isSet($data['comment'    ]) ? $data['comment'    ] : null;
 
         return $position;
     }

@@ -7,17 +7,17 @@
  * TODO: link the PL series to the originating trade history
  * TODO: check and confirm over/rewriting existing PL series
  */
-namespace rosasurfer\rsx\generate_pl_series;
+namespace rosasurfer\rost\generate_pl_series;
 
 use rosasurfer\config\Config;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 
-use rosasurfer\rsx\RSX;
-use rosasurfer\rsx\model\Test;
+use rosasurfer\rost\Rost;
+use rosasurfer\rost\model\Test;
 
-use function rosasurfer\rsx\isFxtWeekend;
+use function rosasurfer\rost\isFxtWeekend;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');
 
@@ -25,7 +25,7 @@ require(dirName(realPath(__FILE__)).'/../../app/init.php');
 // --- Configuration --------------------------------------------------------------------------------------------------------
 
 
-$saveRawRsxData = true;                                                 // whether or not to store uncompressed RSX data
+$saveRawRostData = true;                                                // whether or not to store uncompressed Rost data
 
 
 // --- Start ----------------------------------------------------------------------------------------------------------------
@@ -82,14 +82,14 @@ $deals = array_values($deals);
 
 // (3) cross-check availability of price history
 $firstDeal = reset($deals);
-if      (is_file(getVar('rsxFile.compressed', $symbol, $firstDeal->time))) {}
-else if (is_file(getVar('rsxFile.raw'       , $symbol, $firstDeal->time))) {}
-else     exit(1|echoPre('[Error]   '.$symbol.' RSX price history for '.gmDate('D, d-M-Y', $firstDeal->time).' not found'));
+if      (is_file(getVar('rostFile.compressed', $symbol, $firstDeal->time))) {}
+else if (is_file(getVar('rostFile.raw'       , $symbol, $firstDeal->time))) {}
+else     exit(1|echoPre('[Error]   '.$symbol.' Rost price history for '.gmDate('D, d-M-Y', $firstDeal->time).' not found'));
 
 $lastDeal = end($deals);
-if      (is_file(getVar('rsxFile.compressed', $symbol, $lastDeal->time))) {}
-else if (is_file(getVar('rsxFile.raw'       , $symbol, $lastDeal->time))) {}
-else     exit(1|echoPre('[Error]   '.$symbol.' RSX price history for '.gmDate('D, d-M-Y', $lastDeal->time).' not found'));
+if      (is_file(getVar('rostFile.compressed', $symbol, $lastDeal->time))) {}
+else if (is_file(getVar('rostFile.raw'       , $symbol, $lastDeal->time))) {}
+else     exit(1|echoPre('[Error]   '.$symbol.' Rost price history for '.gmDate('D, d-M-Y', $lastDeal->time).' not found'));
 echoPre('[Info]    Processing '.sizeof($trades).' trades of test '.$test->getReportingSymbol().' ('.gmDate('d.m.Y', $firstDeal->time).' - '.gmDate('d.m.Y', $lastDeal->time).')');
 
 
@@ -115,8 +115,8 @@ if (end($deals)->position) throw new RuntimeException('Unexpected total position
 
 // (5) generate a reporting symbol for the PL series
 $reportSymbol = $test->getReportingSymbol();
-define('PIP',   RSX::$symbols[$symbol]['pip'   ]); define('PIPS',   PIP);
-define('POINT', RSX::$symbols[$symbol]['point' ]); define('POINTS', POINT);
+define('PIP',   Rost::$symbols[$symbol]['pip'   ]); define('PIPS',   PIP);
+define('POINT', Rost::$symbols[$symbol]['point' ]); define('POINTS', POINT);
 
 
 // (6) generate the PL series
@@ -138,27 +138,27 @@ for ($day=$firstDealDay; $day <= $lastDealDay; $day+=1*DAY) {
     if (isFxtWeekend($day, 'FXT'))                                  // skip non-trading days
         continue;
 
-    if      (is_file($file=getVar('rsxFile.compressed', $symbol, $day))) {}
-    else if (is_file($file=getVar('rsxFile.raw'       , $symbol, $day))) {}
-    else exit(1|echoPre('[Error]   '.$symbol.' RSX price history for '.$shortDate.' not found'));
+    if      (is_file($file=getVar('rostFile.compressed', $symbol, $day))) {}
+    else if (is_file($file=getVar('rostFile.raw'       , $symbol, $day))) {}
+    else exit(1|echoPre('[Error]   '.$symbol.' Rost price history for '.$shortDate.' not found'));
 
-    $bars    = RSX::readBarFile($file, $symbol);
+    $bars    = Rost::readBarFile($file, $symbol);
     $partial = false;
 
     if ($day == $firstDealDay) {                                    // drop leading bars of the first trading day
         $offset = (int)($firstDeal->time % DAY / MINUTES);
         array_splice($bars, 0, $offset);
-        if (($barTime=reset($bars)['time']) != $firstDeal->time) throw new RuntimeException('Unexpected RSX price bar for '.gmDate('D, d-M-Y H:i:s', $firstDeal->time).' at offset '.$offset.' (found '.gmDate('H:i:s', $barTime).')');
+        if (($barTime=reset($bars)['time']) != $firstDeal->time) throw new RuntimeException('Unexpected Rost price bar for '.gmDate('D, d-M-Y H:i:s', $firstDeal->time).' at offset '.$offset.' (found '.gmDate('H:i:s', $barTime).')');
         $partial = true;
     }
     else if ($day == $lastDealDay) {                                // drop trailing bars of the last trading day
         $offset = (int)($lastDeal->time % DAY / MINUTES);
         array_splice($bars, $offset+1);
-        if (($barTime=end($bars)['time']) != $lastDeal->time)    throw new RuntimeException('Unexpected RSX price bar for '.gmDate('D, d-M-Y H:i:s', $lastDeal->time).' at offset '.$offset.' (found '.gmDate('H:i:s', $barTime).')');
+        if (($barTime=end($bars)['time']) != $lastDeal->time)    throw new RuntimeException('Unexpected Rost price bar for '.gmDate('D, d-M-Y H:i:s', $lastDeal->time).' at offset '.$offset.' (found '.gmDate('H:i:s', $barTime).')');
         $partial = true;
     }
 
-    /** RSX_PIP_BAR[] $pipSeries */
+    /** ROST_PIP_BAR[] $pipSeries */
     $pipSeries = [];
 
     // calculate PL bars of a single day                            // TODO: handle multiple deals per minute or second
@@ -211,12 +211,12 @@ exit(0);
 
 
 /**
- * Store a single day's PL series in an RSX history file.
+ * Store a single day's PL series in an Rost history file.
  *
- * @param  string        $symbol
- * @param  int           $day                - the day's timestamp (FXT)
- * @param  RSX_PIP_BAR[] $bars
- * @param  bool          $partial [optional] - whether or not the bars cover only a part of the day (default: FALSE)
+ * @param  string         $symbol
+ * @param  int            $day                - the day's timestamp (FXT)
+ * @param  ROST_PIP_BAR[] $bars
+ * @param  bool           $partial [optional] - whether or not the bars cover only a part of the day (default: FALSE)
  *
  * @return bool - success status
  */
@@ -253,11 +253,11 @@ function saveBars($symbol, $day, array $bars, $partial = false) {
         $data  = $time.$open.$high.$low.$close;
     }
 
-    global $saveRawRsxData;
+    global $saveRawRostData;
 
     // write binary data
-    if ($saveRawRsxData) {
-        if (is_file($file=getVar('rsxFile.pl.raw', $symbol, $day)))
+    if ($saveRawRostData) {
+        if (is_file($file=getVar('rostFile.pl.raw', $symbol, $day)))
             return false(echoPre('[Error]   PL series '.$symbol.' for '.gmDate('D, d-M-Y', $day).' already exists'));
         mkDirWritable(dirName($file));
         $tmpFile = tempNam(dirName($file), baseName($file));
@@ -292,32 +292,32 @@ function getVar($id, $symbol=null, $time=null) {
     $self = __FUNCTION__;
     static $dataDirectory; !$dataDirectory && $dataDirectory = Config::getDefault()->get('app.dir.data');
 
-    if ($id == 'rsxDirDate') {               // $yyyy/$mm/$dd                                                   // local path date
+    if ($id == 'rostDirDate') {               // $yyyy/$mm/$dd                                                   // local path date
         if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
         $result = gmDate('Y/m/d', $time);
     }
-    else if ($id == 'rsxDir') {              // $dataDirectory/history/rsx/$group/$symbol/$rsxDirDate           // local directory
+    else if ($id == 'rostDir') {              // $dataDirectory/history/rost/$group/$symbol/$rostDirDate        // local directory
         if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
-        $group      = RSX::$symbols[$symbol]['group'];
-        $rsxDirDate = $self('rsxDirDate', null, $time);
-        $result     = $dataDirectory.'/history/rsx/'.$group.'/'.$symbol.'/'.$rsxDirDate;
+        $group       = Rost::$symbols[$symbol]['group'];
+        $rostDirDate = $self('rostDirDate', null, $time);
+        $result      = $dataDirectory.'/history/rost/'.$group.'/'.$symbol.'/'.$rostDirDate;
     }
-    else if ($id == 'rsxDirPL') {            // $dataDirectory/stats/pl/$symbol/$rsxDirDate                     // local directory
+    else if ($id == 'rostDirPL') {            // $dataDirectory/stats/pl/$symbol/$rostDirDate                   // local directory
         if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
-        $rsxDirDate = $self('rsxDirDate', null, $time);
-        $result     = $dataDirectory.'/stats/pl/'.$symbol.'/'.$rsxDirDate;
+        $rostDirDate = $self('rostDirDate', null, $time);
+        $result      = $dataDirectory.'/stats/pl/'.$symbol.'/'.$rostDirDate;
     }
-    else if ($id == 'rsxFile.raw') {         // $rsxDir/M1.myfx                                                 // local file uncompressed
-        $rsxDir = $self('rsxDir' , $symbol, $time);
-        $result = $rsxDir.'/M1.myfx';
+    else if ($id == 'rostFile.raw') {         // $rostDir/M1.myfx                                               // local file uncompressed
+        $rostDir = $self('rostDir' , $symbol, $time);
+        $result  = $rostDir.'/M1.myfx';
     }
-    else if ($id == 'rsxFile.compressed') {  // $rsxDir/M1.rar                                                  // local file compressed
-        $rsxDir = $self('rsxDir' , $symbol, $time);
-        $result = $rsxDir.'/M1.rar';
+    else if ($id == 'rostFile.compressed') {  // $rostDir/M1.rar                                                // local file compressed
+        $rostDir = $self('rostDir' , $symbol, $time);
+        $result  = $rostDir.'/M1.rar';
     }
-    else if ($id == 'rsxFile.pl.raw') {      // $rsxDirPL/M1.myfx                                               // local file uncompressed
-        $rsxDirPL = $self('rsxDirPL' , $symbol, $time);
-        $result   = $rsxDirPL.'/M1.myfx';
+    else if ($id == 'rostFile.pl.raw') {      // $rostDirPL/M1.myfx                                             // local file uncompressed
+        $rostDirPL = $self('rostDirPL' , $symbol, $time);
+        $result    = $rostDirPL.'/M1.myfx';
     }
     else {
       throw new InvalidArgumentException('Unknown variable identifier "'.$id.'"');

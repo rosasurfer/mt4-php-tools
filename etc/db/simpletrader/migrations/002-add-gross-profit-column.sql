@@ -1,5 +1,5 @@
 
-use rsx;
+use rost;
 
 set autocommit           = 0;
 set collation_connection = 'latin1_german1_ci';
