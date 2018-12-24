@@ -1,9 +1,9 @@
 /*
 Created     16.01.2017
 Modified    20.12.2018
-Project     ROST (www.rosatrader.com)
+Project     Rosatrader
 Model       Main model
-Company
+Company     
 Author      Peter Walther
 Version     0.2
 Database    MySQL 5
@@ -15,9 +15,9 @@ set collation_connection = 'utf8_unicode_ci';
 set autocommit           = 0;
 
 
-drop database if exists rost;
-create database rost default collate 'latin1_general_ci';
-use rost;
+drop database if exists rosatrader;
+create database rosatrader default collate 'latin1_general_ci';
+use rosatrader;
 
 
 create table t_rosasymbol (

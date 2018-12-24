@@ -28,24 +28,26 @@
 *.yml        text
 
 
-# use Windows line-endings in the working tree (not yet supported by Eclipse)
-*.dsp        text eol=crlf
-*.dsw        text eol=crlf
-*.tpl        text eol=crlf
-*.vcproj*    text eol=crlf
-*.vcxproj*   text eol=crlf
+# checkout with Windows line-endings (not yet supported by EGit)
+etc/db/html/*.html text eol=crlf
+etc/db/html/*.css  text eol=crlf
+*.dsp              text eol=crlf
+*.dsw              text eol=crlf
+*.tpl              text eol=crlf
+*.vcproj*          text eol=crlf
+*.vcxproj*         text eol=crlf
 
 
 # Gitgub Linguist overrides
-etc/db/html/*         linguist-documentation
-etc/db/html/*         linguist-generated
-etc/db/html/*         linguist-vendored
+etc/db/html/*          linguist-documentation
+etc/db/html/*          linguist-generated
+etc/db/html/*          linguist-vendored
+                       
+web/css/*              linguist-vendored
+web/css/rosatrader.css linguist-vendored=false
 
-web/css/*             linguist-vendored
-web/css/rsx.css       linguist-vendored=false
-
-web/fonts/*           linguist-vendored
-
-web/js/*              linguist-vendored
-web/js/rosasurfer.js  linguist-vendored=false
-web/js/rsx.js         linguist-vendored=false
+web/fonts/*            linguist-vendored
+                       
+web/js/*               linguist-vendored
+web/js/rosasurfer.js   linguist-vendored=false
+web/js/rosatrader.js   linguist-vendored=false
