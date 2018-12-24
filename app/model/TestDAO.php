@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\rsx\model;
+namespace rosasurfer\rost\model;
 
 use rosasurfer\db\orm\DAO;
 use rosasurfer\exception\IllegalTypeException;
@@ -21,7 +21,7 @@ class TestDAO extends DAO {
      */
     public function getMapping() {
         static $mapping; return $mapping ?: ($mapping=$this->parseMapping([
-            'connection' => 'sqlite',
+            'connection' => 'rosatrader',
             'table'      => 't_test',
             'class'      => Test::class,
             'properties' => [
@@ -56,7 +56,7 @@ class TestDAO extends DAO {
      *
      * @param  int $id - primary key
      *
-     * @return Test|null - Test instance or NULL if no such instance exists
+     * @return Test|null - instance or NULL if no such instance was found
      */
     public function findById($id) {
         if (!is_int($id)) throw new IllegalTypeException('Illegal type of parameter $id: '.getType($id));

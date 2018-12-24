@@ -1,9 +1,10 @@
 /*
 Created     16.01.2017
-Modified    16.12.2018
-Project     RSX (rsx.rosasurfer.com)
+Modified    20.12.2018
+Project     Rosatrader
 Model       Main model
 Author      Peter Walther
+Version     0.2
 Database    SQLite3
 */
 
@@ -14,7 +15,8 @@ pragma writable_schema = 1;
 delete from sqlite_master;
 pragma writable_schema = 0;
 vacuum;
-pragma foreign_keys = on;
+pragma foreign_keys       = on;
+pragma recursive_triggers = on;
 begin;
 
 
@@ -61,28 +63,56 @@ insert into enum_tradedirection (type) values
    ('Both' );
 
 
--- Instruments
-create table t_instrument (
-   id                 integer        not null,
-   created            text[datetime] not null default (datetime('now')),   -- GMT
-   modified           text[datetime],                                      -- GMT
-   type               text[enum]     not null collate nocase,              -- Forex|Metals|Synthetic
-   symbol             text(11)       not null collate nocase,
-   description        text(63)       not null collate nocase,
-   digits             integer        not null,
-   historystart_ticks text[datetime],                                      -- FXT
-   historystart_m1    text[datetime],                                      -- FXT
-   historystart_d1    text[datetime],                                      -- FXT
+-- RosaSymbols
+create table t_rosasymbol (                                                -- Rosatrader instruments
+   id                integer        not null,
+   created           text[datetime] not null default (datetime('now')),    -- GMT
+   modified          text[datetime],                                       -- GMT
+   type              text[enum]     not null collate nocase,               -- forex|metals|synthetic
+   name              text(11)       not null collate nocase,               -- Rosatrader instrument identifier (the actual symbol)
+   description       text(63)       not null collate nocase,               -- symbol description
+   digits            integer        not null,                              -- decimal digits
+   history_tick_from text[datetime],                                       -- FXT
+   history_tick_to   text[datetime],                                       -- FXT
+   history_M1_from   text[datetime],                                       -- FXT
+   history_M1_to     text[datetime],                                       -- FXT
+   history_D1_from   text[datetime],                                       -- FXT
+   history_D1_to     text[datetime],                                       -- FXT
    primary key (id),
-   constraint fk_instrument_type foreign key (type) references enum_instrumenttype(type) on delete restrict on update cascade,
-   constraint u_symbol           unique (symbol)
+   constraint fk_rosasymbol_type foreign key (type) references enum_instrumenttype(type) on delete restrict on update cascade,
+   constraint u_name unique (name)
 );
-create index i_instrument_type on t_instrument(type);
+create index i_rosasymbol_type on t_rosasymbol(type);
 
-create trigger tr_instrument_before_update before update on t_instrument
+create trigger tr_rosasymbol_before_update before update on t_rosasymbol
 when (new.modified is null or new.modified = old.modified)
 begin
-   update t_instrument set modified = datetime('now') where id = new.id;
+   update t_rosasymbol set modified = datetime('now') where id = new.id;
+end;
+
+
+-- DukascopySymbols
+create table t_dukascopysymbol (                                           -- Dukascopy instruments
+   id                integer        not null,
+   created           text[datetime] not null default (datetime('now')),    -- GMT
+   modified          text[datetime],                                       -- GMT
+   name              text(11)       not null collate nocase,               -- Dukascopy instrument identifier (the actual symbol)
+   digits            integer        not null,                              -- decimal digits
+   history_tick_from text[datetime],                                       -- FXT
+   history_tick_to   text[datetime],                                       -- FXT
+   history_M1_from   text[datetime],                                       -- FXT
+   history_M1_to     text[datetime],                                       -- FXT
+   rosasymbol_id     integer,
+   primary key (id),
+   constraint fk_dukascopysymbol_rosasymbol foreign key (rosasymbol_id) references t_rosasymbol (id) on delete restrict on update cascade
+   constraint u_name       unique (name)
+   constraint u_rosasymbol unique (rosasymbol_id)
+);
+
+create trigger tr_dukascopysymbol_before_update before update on t_dukascopysymbol
+when (new.modified is null or new.modified = old.modified)
+begin
+   update t_dukascopysymbol set modified = datetime('now') where id = new.id;
 end;
 
 
@@ -99,7 +129,7 @@ create table t_test (
    starttime       text[datetime] not null,                                -- FXT
    endtime         text[datetime] not null,                                -- FXT
    barmodel        text[enum]     not null collate nocase,                 -- EveryTick|ControlPoints|BarOpen
-   spread          float          not null,                                -- in pips
+   spread          float          not null,                                -- in pip
    bars            integer        not null,                                -- number of tested bars
    ticks           integer        not null,                                -- number of tested ticks
    tradedirections text[enum]     not null collate nocase,                 -- Long|Short|Both
@@ -133,41 +163,6 @@ create table t_strategyparameter (
 );
 
 
--- Orders
-create table t_order (
-   id            integer        not null,
-   created       text[datetime] not null default (datetime('now')),        -- GMT
-   modified      text[datetime],                                           -- GMT
-   ticket        integer        not null,
-   type          text[enum]     not null collate nocase,                   -- Buy|Sell
-   lots          float          not null,
-   symbol        text(11)       not null collate nocase,
-   openprice     float          not null,
-   opentime      text[datetime] not null,                                  -- FXT
-   stoploss      float,
-   takeprofit    float,
-   closeprice    float          not null,
-   closetime     text[datetime] not null,                                  -- FXT
-   commission    float          not null,
-   swap          float          not null,
-   profit        float          not null,                                  -- gross profit
-   magicnumber   integer,
-   comment       text(27)                collate nocase,
-   test_id       integer        not null,
-   primary key (id),
-   constraint fk_order_type foreign key (type)    references enum_ordertype(type) on delete restrict on update cascade,
-   constraint fk_order_test foreign key (test_id) references t_test(id)           on delete restrict on update cascade,
-   constraint u_test_ticket unique (test_id, ticket)
-);
-create index i_order_type on t_order(type);
-
-create trigger tr_order_before_update before update on t_order
-when (new.modified is null or new.modified = old.modified)
-begin
-   update t_order set modified = datetime('now') where id = new.id;
-end;
-
-
 -- Test statistics
 create table t_statistic (
    id               integer not null,
@@ -176,10 +171,10 @@ create table t_statistic (
    duration_min     integer not null,                                       -- minimum trade duration in seconds
    duration_avg     integer not null,                                       -- average trade duration in seconds
    duration_max     integer not null,                                       -- maximum trade duration in seconds
-   pips_min         float   not null,                                       -- minimum trade profit in pips
-   pips_avg         float   not null,                                       -- average profit in pips
-   pips_max         float   not null,                                       -- maximum trade profit in pips
-   pips             float   not null,                                       -- total profit in pips
+   pips_min         float   not null,                                       -- minimum trade profit in pip
+   pips_avg         float   not null,                                       -- average profit in pip
+   pips_max         float   not null,                                       -- maximum trade profit in pip
+   pips             float   not null,                                       -- total profit in pip
    sharpe_ratio     float   not null,                                       -- simplified non-normalized Sharpe ratio
    sortino_ratio    float   not null,                                       -- simplified non-normalized Sortino ratio
    calmar_ratio     float   not null,                                       -- simplified monthly Calmar ratio
@@ -192,6 +187,41 @@ create table t_statistic (
    constraint fk_statistic_test foreign key (test_id) references t_test (id) on delete cascade on update cascade,
    constraint u_test            unique (test_id)
 );
+
+
+-- Orders
+create table t_order (
+   id          integer        not null,
+   created     text[datetime] not null default (datetime('now')),          -- GMT
+   modified    text[datetime],                                             -- GMT
+   ticket      integer        not null,
+   type        text[enum]     not null collate nocase,                     -- Buy|Sell
+   lots        float          not null,
+   symbol      text(11)       not null collate nocase,
+   openprice   float          not null,
+   opentime    text[datetime] not null,                                    -- FXT
+   stoploss    float,
+   takeprofit  float,
+   closeprice  float          not null,
+   closetime   text[datetime] not null,                                    -- FXT
+   commission  float          not null,
+   swap        float          not null,
+   profit      float          not null,                                    -- gross profit
+   magicnumber integer,
+   comment     text(27)                collate nocase,
+   test_id     integer        not null,
+   primary key (id),
+   constraint fk_order_type foreign key (type)    references enum_ordertype(type) on delete restrict on update cascade,
+   constraint fk_order_test foreign key (test_id) references t_test(id)           on delete restrict on update cascade,
+   constraint u_test_ticket unique (test_id, ticket)
+);
+create index i_order_type on t_order(type);
+
+create trigger tr_order_before_update before update on t_order
+when (new.modified is null or new.modified = old.modified)
+begin
+   update t_order set modified = datetime('now') where id = new.id;
+end;
 
 
 -- check schema

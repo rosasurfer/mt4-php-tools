@@ -14,7 +14,7 @@
  *   echo "APP_LOG_DIR: $APP_LOG_DIR"
  *
  */
-require(dirName(realPath(__FILE__)).'/../app/init.php');
+require(dirName(realPath(__FILE__)).'/../../app/init.php');
 !CLI && exit(1|stderror('error: This script must be executed in CLI mode.'));
 
 

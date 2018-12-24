@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\rsx\metatrader;
+namespace rosasurfer\rost\metatrader;
 
 use rosasurfer\core\Object;
 use rosasurfer\debug\ErrorHandler;
@@ -9,18 +9,18 @@ use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 use rosasurfer\log\Logger;
 
-use rosasurfer\rsx\RSX;
-use rosasurfer\rsx\metatrader\MT4;
+use rosasurfer\rost\Rost;
+use rosasurfer\rost\metatrader\MT4;
 
-use const rosasurfer\rsx\PERIOD_M1;
-use const rosasurfer\rsx\PERIOD_M5;
-use const rosasurfer\rsx\PERIOD_M15;
-use const rosasurfer\rsx\PERIOD_M30;
-use const rosasurfer\rsx\PERIOD_H1;
-use const rosasurfer\rsx\PERIOD_H4;
-use const rosasurfer\rsx\PERIOD_D1;
-use const rosasurfer\rsx\PERIOD_W1;
-use const rosasurfer\rsx\PERIOD_MN1;
+use const rosasurfer\rost\PERIOD_M1;
+use const rosasurfer\rost\PERIOD_M5;
+use const rosasurfer\rost\PERIOD_M15;
+use const rosasurfer\rost\PERIOD_M30;
+use const rosasurfer\rost\PERIOD_H1;
+use const rosasurfer\rost\PERIOD_H4;
+use const rosasurfer\rost\PERIOD_D1;
+use const rosasurfer\rost\PERIOD_W1;
+use const rosasurfer\rost\PERIOD_MN1;
 
 
 /**
@@ -315,7 +315,7 @@ class HistorySet extends Object {
     /**
      * Fuegt dem Ende der Zeitreihen des Sets weitere Bardaten hinzu. Vorhandene Daten werden nicht geaendert.
      *
-     * @param  RSX_PRICE_BAR[] - Daten der Periode M1
+     * @param  ROST_PRICE_BAR[] - Daten der Periode M1
      *
      * @return bool - Erfolgsstatus
      */
@@ -336,7 +336,7 @@ class HistorySet extends Object {
      * Synchronisationszeitpunkt der Zeitreihe geschrieben wurden und die sich mit den uebergebenen Bars ueberschneiden,
      * werden ersetzt. Vorhandene Bars, die sich mit den uebergebenen Bars nicht ueberschneiden, bleiben unveraendert.
      *
-     * @param  RSX_PRICE_BAR[] - Daten der Periode M1
+     * @param  ROST_PRICE_BAR[] - Daten der Periode M1
      */
     public function synchronize(array $bars) {
         if ($this->closed) throw new IllegalStateException('Cannot process a closed '.__CLASS__);
@@ -367,10 +367,10 @@ class HistorySet extends Object {
                         echoPre($bars);
                     }
                 }
-                echoPre(get_class($file).'['. str_pad(RSX::timeframeDescription($file->getTimeframe()), 3, ' ', STR_PAD_RIGHT).'] => '.str_pad($size, 5, ' ', STR_PAD_LEFT).' bar'.pluralize($size, ' ').$firstBar.($size>1? $lastBar:''));
+                echoPre(get_class($file).'['. str_pad(Rost::timeframeDescription($file->getTimeframe()), 3, ' ', STR_PAD_RIGHT).'] => '.str_pad($size, 5, ' ', STR_PAD_LEFT).' bar'.pluralize($size, ' ').$firstBar.($size>1? $lastBar:''));
             }
             else {
-                echoPre('HistoryFile['. str_pad(RSX::timeframeDescription($timeframe), 3, ' ', STR_PAD_RIGHT).'] => mull');
+                echoPre('HistoryFile['. str_pad(Rost::timeframeDescription($timeframe), 3, ' ', STR_PAD_RIGHT).'] => mull');
             }
         }
         echoPre(NL);

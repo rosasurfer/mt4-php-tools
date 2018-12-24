@@ -1,10 +1,10 @@
 <?php
 use rosasurfer\ministruts\Request;
 
-use rosasurfer\rsx\RSX;
-use rosasurfer\rsx\model\Test;
+use rosasurfer\rost\Rost;
+use rosasurfer\rost\model\Test;
 
-use function rosasurfer\rsx\prettyTimeRange;
+use function rosasurfer\rost\prettyTimeRange;
 
 /** @var Request $request */
 /** @var Test[]  $tests   */
@@ -43,7 +43,7 @@ foreach ($tests as $test) {
     $strategy        = $test->getStrategy();
     $report          = $test->getReportingSymbol();
     $symbol          = $test->getSymbol();
-    $period          = RSX::periodDescription($test->getTimeframe());
+    $period          = Rost::periodDescription($test->getTimeframe());
     $timeRange       = prettyTimeRange($test->getStartTime(), $test->getEndTime());
     $numTrades       = $test->getStats()->getTrades();
     $avgPips         = $test->getStats()->getAvgPips();

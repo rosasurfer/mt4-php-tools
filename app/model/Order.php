@@ -1,20 +1,18 @@
 <?php
-namespace rosasurfer\rsx\model;
+namespace rosasurfer\rost\model;
 
-use rosasurfer\db\orm\PersistableObject;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 
-use rosasurfer\rsx\RSX;
-use rosasurfer\rsx\metatrader\MT4;
+use rosasurfer\rost\Rost;
+use rosasurfer\rost\metatrader\MT4;
 
-use function rosasurfer\rsx\isFxtWeekend;
+use function rosasurfer\rost\isFxtWeekend;
 
 
 /**
  * Represents a MetaTrader order ticket.
  *
- * @method int    getId()          Return the id (primary key) of the ticket.
  * @method int    getTicket()      Return the ticket number.
  * @method string getType()        Return the ticket order type.
  * @method float  getLots()        Return the ticket lot size.
@@ -32,17 +30,8 @@ use function rosasurfer\rsx\isFxtWeekend;
  * @method string getComment()     Return the ticket comment.
  * @method Test   getTest()        Return the test the ticket belongs to.
  */
-class Order extends PersistableObject {
+class Order extends RosatraderModel {
 
-
-    /** @var int - primary key */
-    protected $id;
-
-    /** @var string - time of creation */
-    protected $created;
-
-    /** @var string - time of last modification */
-    protected $modified;
 
      /** @var int - ticket number */
     protected $ticket;
@@ -119,8 +108,8 @@ class Order extends PersistableObject {
 
         $type = $properties['type'];
         if (!is_int($type))                                   throw new IllegalTypeException('Illegal type of property order['.$ticket.'].type: '.getType($type));
-        if (!RSX::isOrderType($type))                         throw new InvalidArgumentException('Invalid property order['.$ticket.'].type: '.$type.' (not an order type)');
-        $order->type = RSX::orderTypeDescription($type);
+        if (!Rost::isOrderType($type))                        throw new InvalidArgumentException('Invalid property order['.$ticket.'].type: '.$type.' (not an order type)');
+        $order->type = Rost::orderTypeDescription($type);
 
         $lots = $properties['lots'];
         if (!is_float($lots))                                 throw new IllegalTypeException('Illegal type of property order['.$ticket.'].lots: '.getType($lots));
@@ -160,7 +149,7 @@ class Order extends PersistableObject {
         $order->takeProfit = !$takeProfit ? null : $takeProfit;
 
         if ($stopLoss && $takeProfit) {
-            if (RSX::isLongOrderType(RSX::strToOrderType($order->type))) {
+            if (Rost::isLongOrderType(Rost::strToOrderType($order->type))) {
                 if ($stopLoss >= $takeProfit)                 throw new InvalidArgumentException('Invalid properties order['.$ticket.'].stopLoss|takeProfit for LONG order: '.$stopLoss.'|'.$takeProfit.' (mis-match)');
             }
             else if ($stopLoss <= $takeProfit)                throw new InvalidArgumentException('Invalid properties order['.$ticket.'].stopLoss|takeProfit for SHORT order: '.$stopLoss.'|'.$takeProfit.' (mis-match)');
@@ -237,16 +226,5 @@ class Order extends PersistableObject {
      */
     public function isClosedPosition() {
         return ($this->isPosition() && $this->isClosed());
-    }
-
-
-    /**
-     * Update the version field as this is not yet automated by the ORM.
-     *
-     * {@inheritdoc}
-     */
-    protected function beforeUpdate() {
-        $this->modified = date('Y-m-d H:i:s');
-        return true;
     }
 }

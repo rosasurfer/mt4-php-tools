@@ -3,18 +3,18 @@
 /**
  * Aktualisiert die MetaTrader-History der angegebenen Instrumente im globalen MT4-Serververzeichnis.
  */
-namespace rosasurfer\rsx\metatrader\update_history;
+namespace rosasurfer\rost\metatrader\update_history;
 
 use rosasurfer\config\Config;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 
-use rosasurfer\rsx\RSX;
-use rosasurfer\rsx\metatrader\HistorySet;
-use rosasurfer\rsx\metatrader\MT4;
+use rosasurfer\rost\Rost;
+use rosasurfer\rost\metatrader\HistorySet;
+use rosasurfer\rost\metatrader\MT4;
 
-use function rosasurfer\rsx\fxtTime;
-use function rosasurfer\rsx\isFxtWeekend;
+use function rosasurfer\rost\fxtTime;
+use function rosasurfer\rost\isFxtWeekend;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');
@@ -43,10 +43,10 @@ foreach ($args as $i => $arg) {
 // Symbole parsen
 foreach ($args as $i => $arg) {
     $arg = strToUpper($arg);
-    if (!isSet(RSX::$symbols[$arg])) exit(1|stderror('error: unknown or unsupported symbol "'.$args[$i].'"'));
+    if (!isSet(Rost::$symbols[$arg])) exit(1|stderror('error: unknown or unsupported symbol "'.$args[$i].'"'));
     $args[$i] = $arg;
 }
-$args = $args ? array_unique($args) : array_keys(RSX::$symbols);     // ohne Angabe werden alle Instrumente verarbeitet
+$args = $args ? array_unique($args) : array_keys(Rost::$symbols);     // ohne Angabe werden alle Instrumente verarbeitet
 
 
 // (2) History aktualisieren
@@ -72,7 +72,7 @@ function updateHistory($symbol) {
     if (!strLen($symbol))    throw new InvalidArgumentException('Invalid parameter $symbol: ""');
 
     global $verbose;
-    $digits       = RSX::$symbols[$symbol]['digits'];
+    $digits       = Rost::$symbols[$symbol]['digits'];
     $directory    = Config::getDefault()->get('app.dir.data').'/history/mt4/XTrade-Testhistory';
     $lastSyncTime = null;
     echoPre('[Info]    '.$symbol);
@@ -84,7 +84,7 @@ function updateHistory($symbol) {
     !$history && $history=HistorySet::create($symbol, $digits, $format=400, $directory);
 
     // History beginnend mit dem letzten synchronisierten Tag aktualisieren
-    $startTime = $lastSyncTime ? $lastSyncTime : fxtTime(RSX::$symbols[$symbol]['historyStart']['M1']);
+    $startTime = $lastSyncTime ? $lastSyncTime : fxtTime(Rost::$symbols[$symbol]['historyStart']['M1']);
     $startDay  = $startTime - $startTime%DAY;                                                       // 00:00 der Startzeit
     $today     = ($time=fxtTime()) - $time%DAY;                                                     // 00:00 des aktuellen Tages
     $today     = $startDay + 5*DAYS;                                                                // zu Testzwecken nur x Tage
@@ -98,15 +98,15 @@ function updateHistory($symbol) {
             $lastMonth = $month;
         }
         if (!isFxtWeekend($day, 'FXT')) {                                                           // nur an Handelstagen
-            if      (is_file($file=RSX::getVar('rsxFile.M1.compressed', $symbol, $day))) {}         // wenn komprimierte RSX-Datei existiert
-            else if (is_file($file=RSX::getVar('rsxFile.M1.raw'       , $symbol, $day))) {}         // wenn unkomprimierte RSX-Datei existiert
+            if      (is_file($file=Rost::getVar('rostFile.M1.compressed', $symbol, $day))) {}       // wenn komprimierte Rost-Datei existiert
+            else if (is_file($file=Rost::getVar('rostFile.M1.raw'       , $symbol, $day))) {}       // wenn unkomprimierte Rost-Datei existiert
             else {
-                echoPre('[Error]   '.$symbol.' RSX history for '.$shortDate.' not found');
+                echoPre('[Error]   '.$symbol.' Rost history for '.$shortDate.' not found');
                 return false;
             }
             if ($verbose > 0) echoPre('[Info]    synchronizing '.$shortDate);
 
-            $bars = RSX::readBarFile($file, $symbol);
+            $bars = Rost::readBarFile($file, $symbol);
             $history->synchronize($bars);
         }
         if (!WINDOWS) pcntl_signal_dispatch();                                                      // Auf Ctrl-C pruefen, um bei Abbruch den

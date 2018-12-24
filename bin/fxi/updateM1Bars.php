@@ -5,17 +5,17 @@
  *
  * @see  https://github.com/rosasurfer/mt4-tools/blob/master/app/lib/synthetic/README.md
  */
-namespace rosasurfer\rsx\fxi\update_m1_bars;
+namespace rosasurfer\rost\fxi\update_m1_bars;
 
 use rosasurfer\config\Config;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 
-use rosasurfer\rsx\RSX;
+use rosasurfer\rost\Rost;
 
-use function rosasurfer\rsx\fxtTime;
-use function rosasurfer\rsx\isFxtWeekend;
+use function rosasurfer\rost\fxtTime;
+use function rosasurfer\rost\isFxtWeekend;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');
@@ -24,8 +24,8 @@ date_default_timezone_set('GMT');
 // -- Konfiguration ---------------------------------------------------------------------------------------------------------
 
 
-$verbose        = 0;                                        // output verbosity
-$saveRawRsxData = true;                                     // ob unkomprimierte RSX-Historydaten gespeichert werden sollen
+$verbose         = 0;                                       // output verbosity
+$saveRawRostData = true;                                    // ob unkomprimierte Rost-Historydaten gespeichert werden sollen
 
 
 // Indizes und die zu ihrer Berechnung benoetigten Instrumente
@@ -97,7 +97,7 @@ exit(0);
 
 
 /**
- * Aktualisiert die M1-History eines Indexes (RSX-Format).
+ * Aktualisiert die M1-History eines Indexes (Rost-Format).
  *
  * @param  string $index - Indexsymbol
  *
@@ -107,14 +107,14 @@ function updateIndex($index) {
     if (!is_string($index)) throw new IllegalTypeException('Illegal type of parameter $index: '.getType($index));
     if (!strLen($index))    throw new InvalidArgumentException('Invalid parameter $index: ""');
 
-    global $verbose, $indexes, $saveRawRsxData;
+    global $verbose, $indexes, $saveRawRostData;
 
     // (1) Starttag der benoetigten Daten ermitteln
     $startTime = 0;
     $pairs = array_flip($indexes[$index]);                                                  // ['AUDUSD', ...] => ['AUDUSD'=>null, ...]
     foreach($pairs as $pair => &$data) {
         $data      = [];                                                                    // $data initialisieren: ['AUDUSD'=>[], ...]
-        $startTime = max($startTime, RSX::$symbols[$pair]['historyStart']['M1']);           // GMT-Timestamp
+        $startTime = max($startTime, Rost::$symbols[$pair]['historyStart']['M1']);           // GMT-Timestamp
     } unset($data);
     $startTime = fxtTime($startTime);
     $startDay  = $startTime - $startTime%DAY;                                               // 00:00 Starttag FXT
@@ -144,13 +144,13 @@ function updateIndex($index) {
                 // History aktualisieren: M1-Bars der benoetigten Instrumente dieses Tages einlesen
                 foreach($pairs as $pair => $data) {
                     if      (is_file($file=getVar('fxiSource.compressed', $pair, $day))) {}    // komprimierte oder
-                    else if (is_file($file=getVar('fxiSource.raw'       , $pair, $day))) {}    // unkomprimierte RSX-Datei
+                    else if (is_file($file=getVar('fxiSource.raw'       , $pair, $day))) {}    // unkomprimierte Rost-Datei
                     else {
                         echoPre('[Error]   '.$pair.' history for '.$shortDate.' not found');
                         return false;
                     }
                     // M1-Bars zwischenspeichern
-                    $pairs[$pair]['bars'] = RSX::readBarFile($file, $pair);                     // ['AUDUSD'=>array('bars'=>[]), ...]
+                    $pairs[$pair]['bars'] = Rost::readBarFile($file, $pair);                     // ['AUDUSD'=>array('bars'=>[]), ...]
                 }
 
                 // Indexdaten fuer diesen Tag berechnen
@@ -175,7 +175,7 @@ function updateIndex($index) {
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
  * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
- * @return RSX_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
+ * @return ROST_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
  * Formel: AUDFX6 = ((AUDCAD * AUDCHF * AUDJPY * AUDUSD) / (EURAUD * GBPAUD)) ^ 1/6
  */
@@ -230,7 +230,7 @@ function calculateAUDFX6($day, array $data) {
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
  * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
- * @return RSX_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
+ * @return ROST_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
  * Formel: AUDFX7 = ((AUDCAD * AUDCHF * AUDJPY * AUDNZD * AUDUSD ) / (EURAUD * GBPAUD)) ^ 1/7
  */
@@ -288,7 +288,7 @@ function calculateAUDFX7($day, array $data) {
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
  * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
- * @return RSX_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
+ * @return ROST_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
  * Formel: AUDLFX = ((AUDCAD * AUDCHF * AUDJPY * AUDUSD) / (EURAUD * GBPAUD)) ^ 1/7
  *   oder: AUDLFX = USDLFX * AUDUSD
@@ -344,7 +344,7 @@ function calculateAUDLFX($day, array $data) {
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
  * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
- * @return RSX_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
+ * @return ROST_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
  * Formel: CADFX6 = ((CADCHF * CADJPY) / (AUDCAD * EURCAD * GBPCAD * USDCAD)) ^ 1/6
  */
@@ -399,7 +399,7 @@ function calculateCADFX6($day, array $data) {
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
  * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
- * @return RSX_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
+ * @return ROST_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
  * Formel: CADFX7 = ((CADCHF * CADJPY) / (AUDCAD * EURCAD * GBPCAD * NZDCAD * USDCAD)) ^ 1/7
  */
@@ -457,7 +457,7 @@ function calculateCADFX7($day, array $data) {
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
  * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
- * @return RSX_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
+ * @return ROST_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
  * Formel: CADLFX = ((CADCHF * CADJPY) / (AUDCAD * EURCAD * GBPCAD * USDCAD)) ^ 1/7
  *   oder: CADLFX = USDLFX / USDCAD
@@ -513,7 +513,7 @@ function calculateCADLFX($day, array $data) {
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
  * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
- * @return RSX_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
+ * @return ROST_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
  * Formel: CHFFX6 = (CHFJPY / (AUDCHF * CADCHF * EURCHF * GBPCHF * USDCHF)) ^ 1/6
  */
@@ -568,7 +568,7 @@ function calculateCHFFX6($day, array $data) {
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
  * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
- * @return RSX_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
+ * @return ROST_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
  * Formel: CHFFX7 = (CHFJPY / (AUDCHF * CADCHF * EURCHF * GBPCHF * NZDCHF * USDCHF)) ^ 1/7
  */
@@ -626,7 +626,7 @@ function calculateCHFFX7($day, array $data) {
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
  * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
- * @return RSX_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
+ * @return ROST_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
  * Formel: CHFLFX = (CHFJPY / (AUDCHF * CADCHF * EURCHF * GBPCHF * USDCHF)) ^ 1/7
  *   oder: CHFLFX = UDLFX / USDCHF
@@ -682,7 +682,7 @@ function calculateCHFLFX($day, array $data) {
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
  * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
- * @return RSX_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
+ * @return ROST_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
  * Formel: EURFX6 = (EURAUD * EURCAD * EURCHF * EURGBP * EURJPY * EURUSD) ^ 1/6
  */
@@ -737,7 +737,7 @@ function calculateEURFX6($day, array $data) {
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
  * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
- * @return RSX_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
+ * @return ROST_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
  * Formel: EURFX7 = (EURAUD * EURCAD * EURCHF * EURGBP * EURJPY * EURNZD * EURUSD) ^ 1/7
  */
@@ -795,7 +795,7 @@ function calculateEURFX7($day, array $data) {
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
  * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
- * @return RSX_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
+ * @return ROST_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
  * Formel: EURLFX = (EURAUD * EURCAD * EURCHF * EURGBP * EURJPY * EURUSD) ^ 1/7
  *   oder: EURLFX = USDLFX * EURUSD
@@ -851,7 +851,7 @@ function calculateEURLFX($day, array $data) {
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
  * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
- * @return RSX_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
+ * @return ROST_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
  * Formel: EURX = 34.38805726 * EURCHF^0.1113 * EURGBP^0.3056 * EURJPY^0.1891 * EURSEK^0.0785 * EURUSD^0.3155
  */
@@ -913,7 +913,7 @@ function calculateEURX($day, array $data) {
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
  * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
- * @return RSX_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
+ * @return ROST_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
  * Formel: GBPFX6 = ((GBPAUD * GBPCAD * GBPCHF * GBPJPY * GBPUSD) / EURGBP) ^ 1/6
  */
@@ -968,7 +968,7 @@ function calculateGBPFX6($day, array $data) {
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
  * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
- * @return RSX_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
+ * @return ROST_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
  * Formel: GBPFX7 = ((GBPAUD * GBPCAD * GBPCHF * GBPJPY * GBPNZD * GBPUSD) / EURGBP) ^ 1/7
  */
@@ -1026,7 +1026,7 @@ function calculateGBPFX7($day, array $data) {
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
  * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
- * @return RSX_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
+ * @return ROST_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
  * Formel: GBPLFX = ((GBPAUD * GBPCAD * GBPCHF * GBPJPY * GBPUSD) / EURGBP) ^ 1/7
  *   oder: GBPLFX = USDLFX * GBPUSD
@@ -1082,7 +1082,7 @@ function calculateGBPLFX($day, array $data) {
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
  * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
- * @return RSX_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
+ * @return ROST_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
  * Formel: JPYFX6 = 100 * (1 / (AUDJPY * CADJPY * CHFJPY * EURJPY * GBPJPY * USDJPY)) ^ 1/6
  */
@@ -1137,7 +1137,7 @@ function calculateJPYFX6($day, array $data) {
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
  * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
- * @return RSX_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
+ * @return ROST_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
  * Formel: JPYFX7 = 100 * (1 / (AUDJPY * CADJPY * CHFJPY * EURJPY * GBPJPY * NZDJPY * USDJPY)) ^ 1/7
  */
@@ -1195,7 +1195,7 @@ function calculateJPYFX7($day, array $data) {
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
  * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
- * @return RSX_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
+ * @return ROST_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
  * Formel: JPYLFX = 100 * (1 / (AUDJPY * CADJPY * CHFJPY * EURJPY * GBPJPY * USDJPY)) ^ 1/7
  *   oder: JPYLFX = 100 * USDLFX / USDJPY
@@ -1251,7 +1251,7 @@ function calculateJPYLFX($day, array $data) {
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
  * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
- * @return RSX_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
+ * @return ROST_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
  * Formel: NOKFX7 = 10 * (NOKJPY / (AUDNOK * CADNOK * CHFNOK * EURNOK * GBPNOK * USDNOK)) ^ 1/7
  *   oder: NOKFX7 = 10 * USDLFX / USDNOK
@@ -1310,7 +1310,7 @@ function calculateNOKFX7($day, array $data) {
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
  * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
- * @return RSX_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
+ * @return ROST_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
  * Formel: NZDFX7 = ((NZDCAD * NZDCHF * NZDJPY * NZDUSD) / (AUDNZD * EURNZD * GBPNZD)) ^ 1/7
  */
@@ -1326,7 +1326,7 @@ function calculateNZDFX7($day, array $data) {
  * @param  array  $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  * @param  string $name - optionaler Name (um die Funktion gleichzeitig fuer NZDLFX und NZDFX7 nutzen zu koennen)
  *
- * @return RSX_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
+ * @return ROST_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
  * Formel: NZDLFX = ((NZDCAD * NZDCHF * NZDJPY * NZDUSD) / (AUDNZD * EURNZD * GBPNZD)) ^ 1/7
  *   oder: NZDLFX = USDLFX * NZDUSD
@@ -1385,7 +1385,7 @@ function calculateNZDLFX($day, array $data, $name='NZDLFX') {
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
  * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
- * @return RSX_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
+ * @return ROST_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
  * Formel: SEKFX7 = 10 * (SEKJPY / (AUDSEK * CADSEK * CHFSEK * EURSEK * GBPSEK * USDSEK)) ^ 1/7
  *   oder: SEKFX7 = 10 * USDLFX / USDSEK
@@ -1444,7 +1444,7 @@ function calculateSEKFX7($day, array $data) {
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
  * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
- * @return RSX_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
+ * @return ROST_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
  * Formel: SGDFX7 = (SGDJPY / (AUDSGD * CADSGD * CHFSGD * EURSGD * GBPSGD * USDSGD)) ^ 1/7
  *   oder: SGDFX7 = USDLFX / USDSGD
@@ -1503,7 +1503,7 @@ function calculateSGDFX7($day, array $data) {
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
  * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
- * @return RSX_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
+ * @return ROST_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
  * Formel: USDFX6 = ((USDCAD * USDCHF * USDJPY) / (AUDUSD * EURUSD * GBPUSD)) ^ 1/6
  */
@@ -1558,7 +1558,7 @@ function calculateUSDFX6($day, array $data) {
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
  * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
- * @return RSX_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
+ * @return ROST_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
  * Formel: USDFX7 = ((USDCAD * USDCHF * USDJPY) / (AUDUSD * EURUSD * GBPUSD * NZDUSD)) ^ 1/7
  */
@@ -1616,7 +1616,7 @@ function calculateUSDFX7($day, array $data) {
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
  * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
- * @return RSX_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
+ * @return ROST_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
  * Formel: USDLFX = ((USDCAD * USDCHF * USDJPY) / (AUDUSD * EURUSD * GBPUSD)) ^ 1/7
  */
@@ -1671,7 +1671,7 @@ function calculateUSDLFX($day, array $data) {
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
  * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
- * @return RSX_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
+ * @return ROST_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
  * Formel: USDX = 50.14348112 * (USDCAD^0.091 * USDCHF^0.036 * USDJPY^0.136 * USDSEK^0.042) / (EURUSD^0.576 * GBPUSD^0.119)
  */
@@ -1730,7 +1730,7 @@ function calculateUSDX($day, array $data) {
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
  * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
- * @return RSX_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
+ * @return ROST_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
  *
  * Formel: ZARFX7 = 10 * (ZARJPY / (AUDZAR * CADZAR * CHFZAR * EURZAR * GBPZAR * USDZAR)) ^ 1/7
  *   oder: ZARFX7 = 10 * USDLFX / USDZAR
@@ -1784,11 +1784,11 @@ function calculateZARFX7($day, array $data) {
 
 
 /**
- * Schreibt die Indexdaten eines Forex-Tages in die lokale RSX-Historydatei.
+ * Schreibt die Indexdaten eines Forex-Tages in die lokale Rost-Historydatei.
  *
- * @param  string          $symbol - Symbol
- * @param  int             $day    - FXT-Timestamp des Tages
- * @param  RSX_PRICE_BAR[] $bars   - Indexdaten des Tages
+ * @param  string           $symbol - Symbol
+ * @param  int              $day    - FXT-Timestamp des Tages
+ * @param  ROST_PRICE_BAR[] $bars   - Indexdaten des Tages
  *
  * @return bool - Erfolgsstatus
  */
@@ -1796,7 +1796,7 @@ function saveBars($symbol, $day, array $bars) {
     if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
     $shortDate = gmDate('D, d-M-Y', $day);
 
-    global $saveRawRsxData;
+    global $saveRawRostData;
 
 
     // (1) Daten nochmal pruefen
@@ -1818,7 +1818,7 @@ function saveBars($symbol, $day, array $bars) {
              $bar['open' ] < $bar['low' ] ||          // aus (H >= O && O >= L) folgt (H >= L)
              $bar['close'] > $bar['high'] ||          // nicht mit min()/max(), da nicht performant
              $bar['close'] < $bar['low' ] ||
-            !$bar['ticks']) throw new RuntimeException('Illegal data for RSX price bar of '.gmDate('D, d-M-Y H:i:s', $bar['time']).": O=$bar[open] H=$bar[high] L=$bar[low] C=$bar[close] V=$bar[ticks]");
+            !$bar['ticks']) throw new RuntimeException('Illegal data for Rost price bar of '.gmDate('D, d-M-Y H:i:s', $bar['time']).": O=$bar[open] H=$bar[high] L=$bar[low] C=$bar[close] V=$bar[ticks]");
 
         $data .= pack('VVVVVV', $bar['time' ],
                                 $bar['open' ],
@@ -1830,7 +1830,7 @@ function saveBars($symbol, $day, array $bars) {
 
 
     // (3) binaere Daten ggf. speichern
-    if ($saveRawRsxData) {
+    if ($saveRawRostData) {
         if (is_file($file=getVar('fxiTarget.raw', $symbol, $day))) {
             echoPre('[Error]   '.$symbol.' history for '.gmDate('D, d-M-Y', $day).' already exists');
             return false;
@@ -1898,25 +1898,25 @@ function getVar($id, $symbol=null, $time=null) {
     static $dataDirectory;
     $self = __FUNCTION__;
 
-    if ($id == 'rsxDirDate') {                  // $yyyy/$mm/$dd                                                // lokales Pfad-Datum
+    if ($id == 'rostDirDate') {                  // $yyyy/$mm/$dd                                               // lokales Pfad-Datum
         if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
         $result = gmDate('Y/m/d', $time);
     }
-    else if ($id == 'fxiSourceDir') {           // $dataDirectory/history/RSX/$group/$symbol/$rsxDirDate        // lokales Quell-Verzeichnis
+    else if ($id == 'fxiSourceDir') {           // $dataDirectory/history/rost/$group/$symbol/$rostDirDate      // lokales Quell-Verzeichnis
         if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
         if (!$dataDirectory)
         $dataDirectory = Config::getDefault()->get('app.dir.data');
-        $group         = RSX::$symbols[$symbol]['group'];
-        $rsxDirDate    = $self('rsxDirDate', null, $time);
-        $result        = $dataDirectory.'/history/rsx/'.$group.'/'.$symbol.'/'.$rsxDirDate;
+        $group         = Rost::$symbols[$symbol]['group'];
+        $rostDirDate   = $self('rostDirDate', null, $time);
+        $result        = $dataDirectory.'/history/rost/'.$group.'/'.$symbol.'/'.$rostDirDate;
     }
-    else if ($id == 'fxiTargetDir') {           // $dataDirectory/history/rsx/$type/$symbol/$rsxDirDate         // lokales Ziel-Verzeichnis
+    else if ($id == 'fxiTargetDir') {           // $dataDirectory/history/rost/$type/$symbol/$rostDirDate       // lokales Ziel-Verzeichnis
         if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
         if (!$dataDirectory)
         $dataDirectory = Config::getDefault()->get('app.dir.data');
-        $group         = RSX::$symbols[$symbol]['group'];
-        $rsxDirDate    = $self('rsxDirDate', null, $time);
-        $result        = $dataDirectory.'/history/rsx/'.$group.'/'.$symbol.'/'.$rsxDirDate;
+        $group         = Rost::$symbols[$symbol]['group'];
+        $rostDirDate   = $self('rostDirDate', null, $time);
+        $result        = $dataDirectory.'/history/rost/'.$group.'/'.$symbol.'/'.$rostDirDate;
     }
     else if ($id == 'fxiSource.raw') {          // $fxiSourceDir/M1.myfx                                        // lokale Quell-Datei ungepackt
         $fxiSourceDir = $self('fxiSourceDir', $symbol, $time);

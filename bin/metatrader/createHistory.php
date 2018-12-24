@@ -1,23 +1,23 @@
 #!/usr/bin/env php
 <?php
 /**
- * Liest die RSX-M1-History der angegebenen Instrumente ein und erzeugt daraus jeweils eine neue MetaTrader-History.
+ * Liest die Rost-M1-History der angegebenen Instrumente ein und erzeugt daraus jeweils eine neue MetaTrader-History.
  * Speichert diese MetaTrader-History im globalen MT4-Serververzeichnis. Vorhandene Historydateien werden ueberschrieben.
  * Um vorhandene Historydateien zu aktualisieren, ist "updateHistory.php" zu benutzen.
  */
-namespace rosasurfer\rsx\metatrader\create_history;
+namespace rosasurfer\rost\metatrader\create_history;
 
 use rosasurfer\config\Config;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\util\PHP;
 
-use rosasurfer\rsx\RSX;
-use rosasurfer\rsx\metatrader\HistorySet;
-use rosasurfer\rsx\metatrader\MT4;
+use rosasurfer\rost\Rost;
+use rosasurfer\rost\metatrader\HistorySet;
+use rosasurfer\rost\metatrader\MT4;
 
-use function rosasurfer\rsx\fxtTime;
-use function rosasurfer\rsx\isFxtWeekend;
+use function rosasurfer\rost\fxtTime;
+use function rosasurfer\rost\isFxtWeekend;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');
@@ -46,10 +46,10 @@ foreach ($args as $i => $arg) {
 // Symbole parsen
 foreach ($args as $i => $arg) {
     $arg = strToUpper($arg);
-    if (!isSet(RSX::$symbols[$arg])) exit(1|stderror('error: unknown or unsupported symbol "'.$args[$i].'"'));
+    if (!isSet(Rost::$symbols[$arg])) exit(1|stderror('error: unknown or unsupported symbol "'.$args[$i].'"'));
     $args[$i] = $arg;
 }                                                                       // ohne Symbol werden alle Instrumente verarbeitet
-$args = $args ? array_unique($args) : array_keys(RSX::$symbols);
+$args = $args ? array_unique($args) : array_keys(Rost::$symbols);
 
 
 // (2) History erstellen
@@ -73,13 +73,13 @@ function createHistory($symbol) {
     if (!is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
     if (!strLen($symbol))    throw new InvalidArgumentException('Invalid parameter $symbol: ""');
 
-    $startDay  = fxtTime(RSX::$symbols[$symbol]['historyStart']['M1']);             // FXT
+    $startDay  = fxtTime(Rost::$symbols[$symbol]['historyStart']['M1']);            // FXT
     $startDay -= $startDay%DAY;                                                     // 00:00 FXT Starttag
     $today     = ($today=fxtTime()) - $today%DAY;                                   // 00:00 FXT aktueller Tag
 
 
     // MT4-HistorySet erzeugen
-    $digits    = RSX::$symbols[$symbol]['digits'];
+    $digits    = Rost::$symbols[$symbol]['digits'];
     $format    = 400;
     $directory = Config::getDefault()->get('app.dir.data').'/history/mt4/XTrade-Testhistory';
     $history   = HistorySet::create($symbol, $digits, $format, $directory);
@@ -94,16 +94,16 @@ function createHistory($symbol) {
             $lastMonth = $month;
         }
 
-        // ausser an Wochenenden: RSX-History verarbeiten
+        // ausser an Wochenenden: Rost-History verarbeiten
         if (!isFxtWeekend($day, 'FXT')) {
-            if      (is_file($file=getVar('rsxFile.compressed', $symbol, $day))) {}     // wenn komprimierte RSX-Datei existiert
-            else if (is_file($file=getVar('rsxFile.raw'       , $symbol, $day))) {}     // wenn unkomprimierte RSX-Datei existiert
+            if      (is_file($file=getVar('rostFile.compressed', $symbol, $day))) {}    // wenn komprimierte Rost-Datei existiert
+            else if (is_file($file=getVar('rostFile.raw'       , $symbol, $day))) {}    // wenn unkomprimierte Rost-Datei existiert
             else {
-                echoPre('[Error]   '.$symbol.' RSX history for '.$shortDate.' not found');
+                echoPre('[Error]   '.$symbol.' Rost history for '.$shortDate.' not found');
                 return false;
             }
             // Bars einlesen und der MT4-History hinzufuegen
-            $bars = RSX::readBarFile($file, $symbol);
+            $bars = Rost::readBarFile($file, $symbol);
             $history->appendBars($bars);
         }
 
@@ -141,25 +141,25 @@ function getVar($id, $symbol=null, $time=null) {
 
     $self = __FUNCTION__;
 
-    if ($id == 'rsxDirDate') {               // $yyyy/$mm/$dd                                                   // lokales Pfad-Datum
+    if ($id == 'rostDirDate') {               // $yyyy/$mm/$dd                                                   // lokales Pfad-Datum
         if (!$time)   throw new InvalidArgumentException('Invalid parameter $time: '.$time);
         $result = gmDate('Y/m/d', $time);
     }
-    else if ($id == 'rsxDir') {              // $dataDirectory/history/rsx/$group/$symbol/$rsxDirDate           // lokales Verzeichnis
+    else if ($id == 'rostDir') {              // $dataDirectory/history/rost/$group/$symbol/$rostDirDate         // lokales Verzeichnis
         if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
         static $dataDirectory; if (!$dataDirectory)
         $dataDirectory = Config::getDefault()->get('app.dir.data');
-        $group         = RSX::$symbols[$symbol]['group'];
-        $rsxDirDate    = $self('rsxDirDate', null, $time);
-        $result        = $dataDirectory.'/history/rsx/'.$group.'/'.$symbol.'/'.$rsxDirDate;
+        $group         = Rost::$symbols[$symbol]['group'];
+        $rostDirDate   = $self('rostDirDate', null, $time);
+        $result        = $dataDirectory.'/history/rost/'.$group.'/'.$symbol.'/'.$rostDirDate;
     }
-    else if ($id == 'rsxFile.raw') {         // $rsxDir/M1.myfx                                                 // lokale Datei ungepackt
-        $rsxDir = $self('rsxDir' , $symbol, $time);
-        $result = $rsxDir.'/M1.myfx';
+    else if ($id == 'rostFile.raw') {         // $rostDir/M1.myfx                                                // lokale Datei ungepackt
+        $rostDir = $self('rostDir' , $symbol, $time);
+        $result  = $rostDir.'/M1.myfx';
     }
-    else if ($id == 'rsxFile.compressed') {  // $rsxDir/M1.rar                                                  // lokale Datei gepackt
-        $rsxDir = $self('rsxDir' , $symbol, $time);
-        $result = $rsxDir.'/M1.rar';
+    else if ($id == 'rostFile.compressed') {  // $rostDir/M1.rar                                                 // lokale Datei gepackt
+        $rostDir = $self('rostDir' , $symbol, $time);
+        $result  = $rostDir.'/M1.rar';
     }
     else {
       throw new InvalidArgumentException('Unknown variable identifier "'.$id.'"');

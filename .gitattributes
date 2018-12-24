@@ -1,39 +1,53 @@
-# enforce Unix line endings
-*.afm        text eol=lf
-*.conf       text eol=lf
-*.css        text eol=lf
-*.dtd        text eol=lf
-*.htm        text eol=lf
-*.html       text eol=lf
-*.ini        text eol=lf
-*.js         text eol=lf
-*.json       text eol=lf
-*.lock       text eol=lf
-*.man        text eol=lf
-*.md         text eol=lf
-*.php        text eol=lf
-*.phtml      text eol=lf
-*.properties text eol=lf
-*.sh         text eol=lf
-*.sql        text eol=lf
-*.txt        text eol=lf
-*.volt       text eol=lf
-*.xml        text eol=lf
-*.yml        text eol=lf
-.git*        text eol=lf
-.ht*         text eol=lf
+# default: self-detect the content type (text vs. binary)
+*   text=auto
+
+
+# enforce text to overwrite mixed line-endings in the repo
+*.conf       text
+*.cpp        text
+*.css        text
+*.dtd        text
+*.h          text
+*.htm        text
+*.html       text
+*.ini        text
+*.js         text
+*.json       text
+*.md         text
+*.mq4        text
+*.mq5        text
+*.mqh        text
+*.mql        text
+*.php        text
+*.phtml      text
+*.properties text
+*.sh         text
+*.sql        text
+*.txt        text
+*.xml        text
+*.yml        text
+
+
+# checkout with Windows line-endings (not yet supported by EGit)
+etc/db/html/*.html text eol=crlf
+etc/db/html/*.css  text eol=crlf
+*.dsp              text eol=crlf
+*.dsw              text eol=crlf
+*.tpl              text eol=crlf
+*.vcproj*          text eol=crlf
+*.vcxproj*         text eol=crlf
 
 
 # Gitgub Linguist overrides
-etc/db/xtrade/html/*  linguist-documentation
-etc/db/xtrade/html/*  linguist-generated
-etc/db/xtrade/html/*  linguist-vendored
+etc/db/html/*          linguist-documentation
+etc/db/html/*          linguist-generated
+etc/db/html/*          linguist-vendored
+                       
+web/css/*              linguist-vendored
+web/css/rosatrader.css linguist-vendored=false
 
-web/css/*             linguist-vendored
-web/css/xtrade.css    linguist-vendored=false
-
-web/fonts/*           linguist-vendored
-
-web/js/*              linguist-vendored
-web/js/rosasurfer.js  linguist-vendored=false
-web/js/xtrade.js      linguist-vendored=false
+web/fonts/*            linguist-vendored
+                       
+web/js/*               linguist-vendored
+web/js/rosasurfer.js   linguist-vendored=false
+web/js/rosatrader.js   linguist-vendored=false

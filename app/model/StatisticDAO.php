@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\rsx\model;
+namespace rosasurfer\rost\model;
 
 use rosasurfer\db\orm\DAO;
 
@@ -18,7 +18,7 @@ class StatisticDAO extends DAO {
      */
     public function getMapping() {
         static $mapping; return $mapping ?: ($mapping=$this->parseMapping([
-            'connection' => 'sqlite',
+            'connection' => 'rosatrader',
             'table'      => 't_statistic',
             'class'      => Statistic::class,
             'properties' => [

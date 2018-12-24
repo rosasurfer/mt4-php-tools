@@ -1,25 +1,23 @@
 <?php
-namespace rosasurfer\rsx\model;
+namespace rosasurfer\rost\model;
 
-use rosasurfer\db\orm\PersistableObject;
 use rosasurfer\exception\IllegalArgumentException;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\util\PHP;
 use rosasurfer\util\Windows;
 
-use rosasurfer\rsx\RSX;
-use rosasurfer\rsx\metatrader\MT4;
+use rosasurfer\rost\Rost;
+use rosasurfer\rost\metatrader\MT4;
 
-use const rosasurfer\rsx\OP_SELL;
-use const rosasurfer\rsx\PERIOD_M1;
-use const rosasurfer\rsx\BARMODEL_BAROPEN;
+use const rosasurfer\rost\OP_SELL;
+use const rosasurfer\rost\PERIOD_M1;
+use const rosasurfer\rost\BARMODEL_BAROPEN;
 
 
 /**
  * Represents a test executed in the MetaTrader Strategy Tester.
  *
- * @method int                 getId()                 Return the id (primary key) of the test.
  * @method string              getStrategy()           Return the name of the tested strategy.
  * @method StrategyParameter[] getStrategyParameters() Return the strategy parameters of the test.
  * @method int                 getReportingId()        Return the reporting id of the test (for composition of the reporting symbol).
@@ -35,17 +33,8 @@ use const rosasurfer\rsx\BARMODEL_BAROPEN;
  * @method string              getTradeDirections()    Return the enabled trade directions of the test.
  * @method Order[]             getTrades()             Return the trade history of the test.
  */
-class Test extends PersistableObject {
+class Test extends RosatraderModel {
 
-
-    /** @var int - primary key */
-    protected $id;
-
-    /** @var string - time of creation */
-    protected $created;
-
-    /** @var string - time of last modification */
-    protected $modified;
 
     /** @var string - strategy name */
     protected $strategy;
@@ -233,37 +222,6 @@ class Test extends PersistableObject {
             }
         }
         return $test;
-    }
-
-
-    /**
-     * Return the creation time of the instance.
-     *
-     * @param  string $format [optional] - format as used by date($format, $timestamp)
-     *
-     * @return string - formatted creation time
-     */
-    public function getCreated($format = 'Y-m-d H:i:s')  {
-        if (!is_string($format)) throw new IllegalTypeException('Illegal type of parameter $format: '.getType($format));
-        if ($format == 'Y-m-d H:i:s')
-            return $this->created;
-        return date($format, strToTime($this->created));
-    }
-
-
-    /**
-     * Return the last modification time of the instance.
-     *
-     * @param  string $format [optional] - format as used by date($format, $timestamp)
-     *
-     * @return string|null - formatted last modification time or NULL if the instance has never been modified
-     */
-    public function getModified($format = 'Y-m-d H:i:s')  {
-        if (!is_string($format)) throw new IllegalTypeException('Illegal type of parameter $format: '.getType($format));
-
-        if (is_null($this->modified)) return null;
-        if ($format == 'Y-m-d H:i:s') return $this->modified;
-        return date($format, strToTime($this->modified));
     }
 
 
@@ -456,7 +414,7 @@ class Test extends PersistableObject {
         // type
         $pattern = '/, *type *= *(OP_[^ ]+) *,/i';
         if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal order properties ("type" invalid or not found): "'.$valuesOrig.'"');
-        if (($type = RSX::strToOrderType($matches[1][0])) < 0)               throw new IllegalArgumentException('Illegal order property "type": "'.$matches[1][0].'"');
+        if (($type = Rost::strToOrderType($matches[1][0])) < 0)               throw new IllegalArgumentException('Illegal order property "type": "'.$matches[1][0].'"');
         $properties['type'] = $type;
         if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal order properties (multiple "type" occurrences): "'.$valuesOrig.'"');
 
@@ -580,17 +538,6 @@ class Test extends PersistableObject {
      */
     protected function beforeInsert() {
         $this->getStats();
-        return true;
-    }
-
-
-    /**
-     * Update the version field as this is not yet automated by the ORM.
-     *
-     * {@inheritdoc}
-     */
-    protected function beforeUpdate() {
-        $this->modified = date('Y-m-d H:i:s');
         return true;
     }
 

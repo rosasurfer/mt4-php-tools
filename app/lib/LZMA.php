@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\rsx;
+namespace rosasurfer\rost;
 
 use rosasurfer\config\Config;
 use rosasurfer\core\StaticClass;
@@ -18,7 +18,7 @@ class LZMA extends StaticClass {
 
 
     /**
-     * Entpackt einen LZMA-komprimierten binären String und gibt seinen Inhalt zurück.
+     * Entpackt einen LZMA-komprimierten binaeren String und gibt seinen Inhalt zurueck.
      *
      * @param  string $data - kompromierter String
      *
@@ -29,7 +29,7 @@ class LZMA extends StaticClass {
         if (!strLen($data))    throw new InvalidArgumentException('Invalid parameter $data: "" (not compressed)');
 
         // Unter Windows blockiert das Schreiben nach STDIN bei Datenmengen ab 8193 Bytes, stream_set_blocking() scheint dort
-        // jedoch nicht zu funktionieren (Windows 7). Daher wird der String in eine temporäre Datei geschrieben und diese
+        // jedoch nicht zu funktionieren (Windows 7). Daher wird der String in eine temporaere Datei geschrieben und diese
         // decodiert.
 
         $tmpFile = tempNam(null, 'php');
@@ -45,9 +45,9 @@ class LZMA extends StaticClass {
 
 
     /**
-     * Entpackt eine LZMA-komprimierte Datei und gibt ihren Inhalt zurück.
+     * Entpackt eine LZMA-komprimierte Datei und gibt ihren Inhalt zurueck.
      *
-     * @param  string $file - vollständiger Dateiname
+     * @param  string $file - vollstaendiger Dateiname
      *
      * @return string - unkomprimierter Dateiinhalt
      */
@@ -68,7 +68,7 @@ class LZMA extends StaticClass {
 
 
     /**
-     * Sucht einen verfügbaren LZMA-Decoder und gibt die Befehlszeile zum Dekomprimieren einer Datei nach STDOUT zurück.
+     * Sucht einen verfuegbaren LZMA-Decoder und gibt die Befehlszeile zum Dekomprimieren einer Datei nach STDOUT zurueck.
      *
      * @return string
      */

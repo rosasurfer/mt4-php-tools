@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\rsx\dukascopy;
+namespace rosasurfer\rost\dukascopy;
 
 use rosasurfer\core\StaticClass;
 use rosasurfer\exception\IllegalTypeException;
@@ -7,11 +7,11 @@ use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 use rosasurfer\log\Logger;
 
-use rosasurfer\rsx\LZMA;
-use rosasurfer\rsx\RSX;
+use rosasurfer\rost\LZMA;
+use rosasurfer\rost\Rost;
 
-use const rosasurfer\rsx\DUKASCOPY_BAR_SIZE;
-use const rosasurfer\rsx\DUKASCOPY_TICK_SIZE;
+use const rosasurfer\rost\DUKASCOPY_BAR_SIZE;
+use const rosasurfer\rost\DUKASCOPY_TICK_SIZE;
 
 
 /**
@@ -122,7 +122,7 @@ class Dukascopy extends StaticClass {
                 $bars[$i]['close'] > $bars[$i]['high'] ||
                 $bars[$i]['close'] < $bars[$i]['low' ]) {
 
-                $digits  = RSX::$symbols[$symbol]['digits'];
+                $digits  = Rost::$symbols[$symbol]['digits'];
                 $divider = pow(10, $digits);
 
                 $O = number_format($bars[$i]['open' ]/$divider, $digits);

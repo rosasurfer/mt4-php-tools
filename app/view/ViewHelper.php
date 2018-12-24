@@ -1,18 +1,18 @@
 <?php
-namespace rosasurfer\rsx\view;
+namespace rosasurfer\rost\view;
 
 use rosasurfer\core\StaticClass;
 
-use const rosasurfer\rsx\OP_BUY;
-use const rosasurfer\rsx\OP_SELL;
-use const rosasurfer\rsx\OP_BUYLIMIT;
-use const rosasurfer\rsx\OP_SELLLIMIT;
-use const rosasurfer\rsx\OP_BUYSTOP;
-use const rosasurfer\rsx\OP_SELLSTOP;
-use const rosasurfer\rsx\OP_BALANCE;
-use const rosasurfer\rsx\OP_CREDIT;
-use const rosasurfer\rsx\OP_TRANSFER;
-use const rosasurfer\rsx\OP_VENDOR;
+use const rosasurfer\rost\OP_BUY;
+use const rosasurfer\rost\OP_SELL;
+use const rosasurfer\rost\OP_BUYLIMIT;
+use const rosasurfer\rost\OP_SELLLIMIT;
+use const rosasurfer\rost\OP_BUYSTOP;
+use const rosasurfer\rost\OP_SELLSTOP;
+use const rosasurfer\rost\OP_BALANCE;
+use const rosasurfer\rost\OP_CREDIT;
+use const rosasurfer\rost\OP_TRANSFER;
+use const rosasurfer\rost\OP_VENDOR;
 
 
 /**

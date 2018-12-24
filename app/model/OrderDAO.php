@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\rsx\model;
+namespace rosasurfer\rost\model;
 
 use rosasurfer\db\orm\DAO;
 
@@ -19,7 +19,7 @@ class OrderDAO extends DAO {
      */
     public function getMapping() {
         static $mapping; return $mapping ?: ($mapping=$this->parseMapping([
-            'connection' => 'sqlite',
+            'connection' => 'rosatrader',
             'table'      => 't_order',
             'class'      => Order::class,
             'properties' => [
