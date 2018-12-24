@@ -22,9 +22,7 @@
    "autoload": {
       "classmap": ["app/"],
       "files": [
-         "app/helpers.php",
-         "app/lib/myfxbook/definitions.php",
-         "app/lib/simpletrader/definitions.php"
+         "app/helpers.php"
       ]
    },
    "scripts": {

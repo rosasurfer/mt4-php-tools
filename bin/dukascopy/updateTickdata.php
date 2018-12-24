@@ -47,7 +47,6 @@ use rosasurfer\rost\LZMA;
 use rosasurfer\rost\Rost;
 use rosasurfer\rost\dukascopy\Dukascopy;
 use rosasurfer\rost\dukascopy\DukascopyException;
-use rosasurfer\rost\simpletrader\SimpleTrader;
 
 use function rosasurfer\rost\isFxtWeekend;
 

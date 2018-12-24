@@ -1,16 +1,9 @@
 <?php
 namespace rosasurfer\rost\metatrader;
 
-use rosasurfer\config\Config;
 use rosasurfer\core\StaticClass;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\RuntimeException;
-
-use rosasurfer\rost\model\signal\ClosedPosition;
-use rosasurfer\rost\model\signal\ClosedPositionDAO;
-use rosasurfer\rost\model\signal\OpenPosition;
-use rosasurfer\rost\model\signal\OpenPositionDAO;
-use rosasurfer\rost\model\signal\Signal;
 
 use const rosasurfer\rost\BARMODEL_BAROPEN;
 use const rosasurfer\rost\BARMODEL_CONTROLPOINTS;
@@ -367,144 +360,6 @@ class MT4 extends StaticClass {
             $data  = $time.$open.$low.$high.$close.$ticks;
         }
         return fWrite($hFile, $data);
-    }
-
-
-    /**
-     * Aktualisiert die Daten-Files des angegebenen Signals (Datenbasis fuer MT4-Terminals).
-     *
-     * @param  Signal $signal
-     * @param  bool   $openUpdates   - ob beim letzten Abgleich der Datenbank Aenderungen an den offenen Positionen festgestellt wurden
-     * @param  bool   $closedUpdates - ob beim letzten Abgleich der Datenbank Aenderungen an der Trade-History festgestellt wurden
-     */
-    public static function updateAccountHistory(Signal $signal, $openUpdates, $closedUpdates) {
-        if (!is_bool($openUpdates))   throw new IllegalTypeException('Illegal type of parameter $openUpdates: '.getType($openUpdates));
-        if (!is_bool($closedUpdates)) throw new IllegalTypeException('Illegal type of parameter $closedUpdates: '.getType($closedUpdates));
-
-
-        // (1) Datenverzeichnis bestimmen
-        static $dataDirectory = null;
-        if (is_null($dataDirectory)) $dataDirectory = Config::getDefault()->get('app.dir.data');
-
-
-        // (2) Pruefen, ob OpenTrades- und History-Datei existieren
-        $alias          = $signal->getAlias();
-        $openFileName   = $dataDirectory.'/simpletrader/'.$alias.'_open.ini';
-        $closedFileName = $dataDirectory.'/simpletrader/'.$alias.'_closed.ini';
-        $isOpenFile     = is_file($openFileName);
-        $isClosedFile   = is_file($closedFileName);
-
-        /** @var OpenPositionDAO $openPositionDao */
-        $openPositionDao   = OpenPosition::dao();
-        /** @var ClosedPositionDAO $closedPositionDao */
-        $closedPositionDao = ClosedPosition::dao();
-
-        // (3) Open-Datei neu schreiben, wenn die offenen Positionen modifiziert wurden oder die Datei nicht existiert
-        if ($openUpdates || !$isOpenFile) {
-            $positions = $openPositionDao->findAllBySignal($signal);    // aufsteigend sortiert nach {OpenTime,Ticket}
-
-            // Datei schreiben
-            mkDirWritable(dirName($openFileName));
-            $hFile = $ex = null;
-            try {
-                $hFile = fOpen($openFileName, 'wb');
-                // (3.1) Header schreiben
-                fWrite($hFile, "[SimpleTrader.$alias]\n");
-                fWrite($hFile, ";Symbol.Ticket   = Type,  Lots, OpenTime           , OpenPrice, TakeProfit, StopLoss, Commission, Swap, MagicNumber, Comment\n");
-
-                // (3.2) Daten schreiben
-                foreach ($positions as $position) {
-                    /*
-                    ;Symbol.Ticket   = Type,  Lots, OpenTime           , OpenPrice, TakeProfit, StopLoss, Commission, Swap, MagicNumber, Comment
-                    AUDUSD.428259953 = Sell,  1.20, 2014.04.10 07:08:46,   1.62166,           ,         ,          0,    0,            ,
-                    AUDUSD.428256273 = Buy , 10.50, 2014.04.23 11:51:32,     1.605,           ,         ,        0.1,    0,            ,
-                    AUDUSD.428253857 = Buy ,  1.50, 2014.04.24 08:00:25,   1.60417,           ,         ,          0,    0,            ,
-                    */
-                    $format      = "%-16s = %-4s, %5.2F, %s, %9s, %10s, %8s, %10s, %4s, %11s, %s\n";
-                    $key         = $position->getSymbol().'.'.$position->getTicket();
-                    $type        = $position->getTypeDescription();
-                    $lots        = $position->getLots();
-                    $openTime    = $position->getOpenTime();
-                    $openPrice   = $position->getOpenPrice();
-                    $takeProfit  = $position->getTakeProfit();
-                    $stopLoss    = $position->getStopLoss();
-                    $commission  = $position->getCommission();
-                    $swap        = $position->getSwap();
-                    $magicNumber = $position->getMagicNumber();
-                    $comment     = $position->getComment();
-                    fWrite($hFile, sprintf($format, $key, $type, $lots, $openTime, $openPrice, $takeProfit, $stopLoss, $commission, $swap, $magicNumber, $comment));
-                }
-                fClose($hFile);
-            }
-            catch (\Exception $ex) {
-                if (is_resource($hFile)) fClose($hFile);                 // Unter Windows kann die Datei u.U. (versionsabhaengig) nicht im Exception-Handler geloescht werden
-            }                                                           // (gesperrt, da das Handle im Exception-Kontext dupliziert wird). Das Handle muss daher innerhalb UND
-            if ($ex) {                                                  // ausserhalb des Handlers geschlossen werden, erst dann laesst sich die Datei unter Windows loeschen.
-                if (is_resource($hFile))                    fClose($hFile);
-                if (!$isOpenFile && is_file($openFileName)) unlink($openFileName);
-                throw $ex;
-            }
-        }
-
-
-        $isClosedFile = false;     // vorerst schreiben wir die History jedesmal komplett neu
-
-
-        // (4) TradeHistory-Datei neu schreiben, wenn die TradeHistory modifiziert wurde oder die Datei nicht existiert
-        if ($closedUpdates || !$isClosedFile) {
-            if ($isClosedFile) {
-                // (4.1) History-Datei aktualisieren
-            }
-            else {
-                // (4.2) History-Datei komplett neuschreiben
-                $positions = $closedPositionDao->findAllBySignal($signal);  // aufsteigend sortiert nach {CloseTime,OpenTime,Ticket}
-
-                // Datei schreiben
-                mkDirWritable(dirName($closedFileName));
-                $hFile = $ex = null;
-                try {
-                    $hFile = fOpen($closedFileName, 'wb');
-                    // (4.2.1) Header schreiben
-                    fWrite($hFile, "[SimpleTrader.$alias]\n");
-                    fWrite($hFile, ";Symbol.Ticket   = Type,  Lots, OpenTime           , OpenPrice, CloseTime          , ClosePrice, TakeProfit, StopLoss, Commission, Swap,   Profit, MagicNumber, Comment\n");
-
-                    // (4.2.2) Daten schreiben
-                    foreach ($positions as $position) {
-                        /*
-                        ;Symbol.Ticket   = Type,  Lots, OpenTime           , OpenPrice, CloseTime          , ClosePrice, TakeProfit, StopLoss, Commission, Swap,   Profit, MagicNumber, Comment
-                        AUDUSD.428259953 = Sell,  1.20, 2014.04.10 07:08:46,   1.62166, 2014.04.10 07:08:46,    1.62166,           ,         ,          0,    0, -1234.55,            ,
-                        AUDUSD.428256273 = Buy , 10.50, 2014.04.23 11:51:32,     1.605, 2014.04.23 11:51:32,      1.605,           ,         ,        0.1,    0,      0.1,            ,
-                        AUDUSD.428253857 = Buy ,  1.50, 2014.04.24 08:00:25,   1.60417, 2014.04.24 08:00:25,    1.60417,           ,         ,          0,    0,        0,            ,
-                        */
-                        $format      = "%-16s = %-4s, %5.2F, %s, %9s, %s, %10s, %10s, %8s, %10s, %4s, %8s, %11s, %s\n";
-                        $key         = $position->getSymbol().'.'.$position->getTicket();
-                        $type        = $position->getTypeDescription();
-                        $lots        = $position->getLots();
-                        $openTime    = $position->getOpenTime();
-                        $openPrice   = $position->getOpenPrice();
-                        $closeTime   = $position->getCloseTime();
-                        $closePrice  = $position->getClosePrice();
-                        $takeProfit  = $position->getTakeProfit();
-                        $stopLoss    = $position->getStopLoss();
-                        $commission  = $position->getCommission();
-                        $swap        = $position->getSwap();
-                        $netProfit   = $position->getNetProfit();
-                        $magicNumber = $position->getMagicNumber();
-                        $comment     = $position->getComment();
-                        fWrite($hFile, sprintf($format, $key, $type, $lots, $openTime, $openPrice, $closeTime, $closePrice, $takeProfit, $stopLoss, $commission, $swap, $netProfit, $magicNumber, $comment));
-                    }
-                    fClose($hFile);
-                }
-                catch (\Exception $ex) {
-                    if (is_resource($hFile)) fClose($hFile);             // Unter Windows kann die Datei u.U. (versionsabhaengig) nicht im Exception-Handler geloescht werden
-                }                                                        // (gesperrt, da das Handle im Exception-Kontext dupliziert wird). Das Handle muss daher innerhalb UND
-                if ($ex) {                                               // ausserhalb des Handlers geschlossen werden, erst dann laesst sich die Datei unter Windows loeschen.
-                    if (is_resource($hFile))                        fClose($hFile);
-                    if (!$isClosedFile && is_file($closedFileName)) unlink($closedFileName);
-                    throw $ex;
-                }
-            }
-        }
     }
 
 
