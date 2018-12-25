@@ -21,6 +21,7 @@ $options = ['verbose' => 0];
 
 
 // (1) Befehlszeilenargumente einlesen und validieren
+/** @var string[] $args */
 $args = array_slice($_SERVER['argv'], 1);
 
 // Hilfe

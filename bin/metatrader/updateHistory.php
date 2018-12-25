@@ -6,12 +6,11 @@
 namespace rosasurfer\rost\metatrader\update_history;
 
 use rosasurfer\config\Config;
-use rosasurfer\exception\IllegalTypeException;
-use rosasurfer\exception\InvalidArgumentException;
 
 use rosasurfer\rost\Rost;
 use rosasurfer\rost\metatrader\HistorySet;
 use rosasurfer\rost\metatrader\MT4;
+use rosasurfer\rost\model\RosaSymbol;
 
 use function rosasurfer\rost\fxtTime;
 use function rosasurfer\rost\isFxtWeekend;
@@ -30,6 +29,7 @@ $verbose = 0;                                                                   
 
 
 // (1) Befehlszeilenargumente einlesen und validieren
+/** @var string[] $args */
 $args = array_slice($_SERVER['argv'], 1);
 
 // Optionen parsen
@@ -40,19 +40,22 @@ foreach ($args as $i => $arg) {
     if ($arg == '-vvv') { $verbose = max($verbose, 3); unset($args[$i]); continue; } // very verbose output
 }
 
+/** @var RosaSymbol[] $symbols */
+$symbols = [];
+
 // Symbole parsen
 foreach ($args as $i => $arg) {
-    $arg = strToUpper($arg);
-    if (!isSet(Rost::$symbols[$arg])) exit(1|stderror('error: unknown or unsupported symbol "'.$args[$i].'"'));
-    $args[$i] = $arg;
+    /** @var RosaSymbol $symbol */
+    $symbol = RosaSymbol::dao()->findByName($arg);
+    if (!$symbol) exit(1|stderror('error: unknown symbol "'.$args[$i].'"'));
+    $symbols[$symbol->getName()] = $symbol;                                         // using the name as index removes duplicates
 }
-$args = $args ? array_unique($args) : array_keys(Rost::$symbols);     // ohne Angabe werden alle Instrumente verarbeitet
+$symbols = $symbols ?: RosaSymbol::dao()->findAll();                                // ohne Angabe werden alle Instrumente verarbeitet
 
 
 // (2) History aktualisieren
-foreach ($args as $symbol) {
-    !updateHistory($symbol) && exit(1);
-    break;                                 // temp.
+foreach ($symbols as $symbol) {
+    updateHistory($symbol) || exit(1);
 }
 exit(0);
 
@@ -63,31 +66,29 @@ exit(0);
 /**
  * Aktualisiert die MT4-History eines Instruments.
  *
- * @param  string $symbol - Symbol
+ * @param  RosaSymbol $symbol
  *
  * @return bool - Erfolgsstatus
  */
-function updateHistory($symbol) {
-    if (!is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
-    if (!strLen($symbol))    throw new InvalidArgumentException('Invalid parameter $symbol: ""');
+function updateHistory(RosaSymbol $symbol) {
+    $symbolName   = $symbol->getName();
+    $symbolDigits = $symbol->getDigits();
 
     global $verbose;
-    $digits       = Rost::$symbols[$symbol]['digits'];
     $directory    = Config::getDefault()->get('app.dir.data').'/history/mt4/XTrade-Testhistory';
     $lastSyncTime = null;
-    echoPre('[Info]    '.$symbol);
+    echoPre('[Info]    '.$symbolName);
 
     // HistorySet oeffnen bzw. neues Set erstellen
-    if ($history=HistorySet::get($symbol, $directory)) {
-        if ($verbose > 0) echoPre('[Info]    lastSyncTime: '.(($lastSyncTime=$history->getLastSyncTime()) ? gmDate('D, d-M-Y H:i:s', $lastSyncTime) : 0));
+    if ($history = HistorySet::get($symbolName, $directory)) {
+        if ($verbose) echoPre('[Info]    lastSyncTime: '.(($lastSyncTime=$history->getLastSyncTime()) ? gmDate('D, d-M-Y H:i:s', $lastSyncTime) : 0));
     }
-    !$history && $history=HistorySet::create($symbol, $digits, $format=400, $directory);
+    !$history && $history=HistorySet::create($symbolName, $symbolDigits, $format=400, $directory);
 
     // History beginnend mit dem letzten synchronisierten Tag aktualisieren
-    $startTime = $lastSyncTime ? $lastSyncTime : fxtTime(Rost::$symbols[$symbol]['historyStart']['M1']);
-    $startDay  = $startTime - $startTime%DAY;                                                       // 00:00 der Startzeit
-    $today     = ($time=fxtTime()) - $time%DAY;                                                     // 00:00 des aktuellen Tages
-    $today     = $startDay + 5*DAYS;                                                                // zu Testzwecken nur x Tage
+    $startTime = $lastSyncTime ?: (int)$symbol->getM1HistoryFrom('U');                              // FXT
+    $startDay  = $startTime - $startTime%DAY;                                                       // 00:00 FXT der Startzeit
+    $today     = ($time=fxtTime()) - $time%DAY;                                                     // 00:00 FXT des aktuellen Tages
     $lastMonth = -1;
 
     for ($day=$startDay; $day < $today; $day+=1*DAY) {
@@ -98,22 +99,22 @@ function updateHistory($symbol) {
             $lastMonth = $month;
         }
         if (!isFxtWeekend($day, 'FXT')) {                                                           // nur an Handelstagen
-            if      (is_file($file=Rost::getVar('rostFile.M1.compressed', $symbol, $day))) {}       // wenn komprimierte Rost-Datei existiert
-            else if (is_file($file=Rost::getVar('rostFile.M1.raw'       , $symbol, $day))) {}       // wenn unkomprimierte Rost-Datei existiert
+            if      (is_file($file=Rost::getVar('rostFile.M1.compressed', $symbolName, $day))) {}   // wenn komprimierte Rost-Datei existiert
+            else if (is_file($file=Rost::getVar('rostFile.M1.raw'       , $symbolName, $day))) {}   // wenn unkomprimierte Rost-Datei existiert
             else {
-                echoPre('[Error]   '.$symbol.' Rost history for '.$shortDate.' not found');
+                echoPre('[Error]   '.$symbolName.' Rost history for '.$shortDate.' not found');
                 return false;
             }
             if ($verbose > 0) echoPre('[Info]    synchronizing '.$shortDate);
 
-            $bars = Rost::readBarFile($file, $symbol);
+            $bars = Rost::readBarFile($file, $symbolName);
             $history->synchronize($bars);
         }
         if (!WINDOWS) pcntl_signal_dispatch();                                                      // Auf Ctrl-C pruefen, um bei Abbruch den
     }                                                                                               // Schreibbuffer der History leeren zu koennen.
     $history->close();
 
-    echoPre('[Ok]      '.$symbol);
+    echoPre('[Ok]      '.$symbolName);
     return true;
 }
 

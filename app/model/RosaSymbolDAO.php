@@ -1,7 +1,9 @@
 <?php
 namespace rosasurfer\rost\model;
 
+use rosasurfer\db\NoSuchRecordException;
 use rosasurfer\db\orm\DAO;
+use rosasurfer\exception\IllegalTypeException;
 
 use const rosasurfer\db\orm\meta\INT;
 use const rosasurfer\db\orm\meta\STRING;
@@ -41,5 +43,59 @@ class RosaSymbolDAO extends DAO {
                 ['name'=>'dukascopySymbol', 'assoc'=>'one-to-one', 'type'=>DukascopySymbol::class, 'ref-column'=>'rosasymbol_id'],  // db:int
             ],
         ]));
+    }
+
+
+    /**
+     * Find the {@link RosaSymbol} with the specified name.
+     *
+     * @param  string $name
+     *
+     * @return RosaSymbol|null
+     */
+    public function findByName($name) {
+        if (!is_string($name)) throw new IllegalTypeException('Illegal type of parameter $name: '.getType($name));
+
+        $name = $this->escapeLiteral($name);
+
+        $sql = 'select *
+                   from :RosaSymbol
+                   where name = '.$name;
+        return $this->find($sql);
+    }
+
+
+    /**
+     * Get the {@link RosaSymbol} with the specified name.
+     *
+     * @param  string $name
+     *
+     * @return RosaSymbol
+     *
+     * @throws NoSuchRecordException if no such instance was found
+     */
+    public function getByName($name) {
+        if (!is_string($name)) throw new IllegalTypeException('Illegal type of parameter $name: '.getType($name));
+
+        $name = $this->escapeLiteral($name);
+
+        $sql = 'select *
+                   from :RosaSymbol
+                   where name = '.$name;
+        return $this->get($sql);
+    }
+
+
+    /**
+     * Find all {@link RosaSymbol}s with a Dukascopy mapping.
+     *
+     * @return RosaSymbol[] - symbol instances sorted ascending by name
+     */
+    public function findAllDukascopyMapped() {
+        $sql = "select *
+                   from :RosaSymbol      r
+                   join :DukascopySymbol d on r.id = d.rosasymbol_id
+                   order r.name";
+        return $this->findAll($sql);
     }
 }

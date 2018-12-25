@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 /**
- * Liest die Rost-M1-History der angegebenen Instrumente ein und erzeugt daraus jeweils eine neue MetaTrader-History.
+ * Liest die Rosatrader-M1-History der angegebenen Instrumente ein und erzeugt daraus jeweils eine neue MetaTrader-History.
  * Speichert diese MetaTrader-History im globalen MT4-Serververzeichnis. Vorhandene Historydateien werden ueberschrieben.
  * Um vorhandene Historydateien zu aktualisieren, ist "updateHistory.php" zu benutzen.
  */
@@ -18,6 +18,7 @@ use rosasurfer\rost\metatrader\MT4;
 
 use function rosasurfer\rost\fxtTime;
 use function rosasurfer\rost\isFxtWeekend;
+use rosasurfer\rost\model\RosaSymbol;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');
@@ -33,6 +34,7 @@ $verbose = 0;                                                                   
 
 
 // (1) Befehlszeilenargumente einlesen und validieren
+/** @var string[] $args */
 $args = array_slice($_SERVER['argv'], 1);
 
 // Optionen parsen
@@ -43,18 +45,22 @@ foreach ($args as $i => $arg) {
     if ($arg == '-vvv') { $verbose = max($verbose, 3); unset($args[$i]); continue; } // very verbose output
 }
 
+/** @var RosaSymbol[] $symbols */
+$symbols = [];
+
 // Symbole parsen
 foreach ($args as $i => $arg) {
-    $arg = strToUpper($arg);
-    if (!isSet(Rost::$symbols[$arg])) exit(1|stderror('error: unknown or unsupported symbol "'.$args[$i].'"'));
-    $args[$i] = $arg;
-}                                                                       // ohne Symbol werden alle Instrumente verarbeitet
-$args = $args ? array_unique($args) : array_keys(Rost::$symbols);
+    /** @var RosaSymbol $symbol */
+    $symbol = RosaSymbol::dao()->findByName($arg);
+    if (!$symbol) exit(1|stderror('error: unknown symbol "'.$args[$i].'"'));
+    $symbols[$symbol->getName()] = $symbol;                                         // using the name as index removes duplicates
+}
+$symbols = $symbols ?: RosaSymbol::dao()->findAll();                                // ohne Angabe werden alle Instrumente verarbeitet
 
 
 // (2) History erstellen
-foreach ($args as $symbol) {
-    !createHistory($symbol) && exit(1);
+foreach ($symbols as $symbol) {
+    createHistory($symbol) || exit(1);
 }
 exit(0);
 
@@ -65,24 +71,22 @@ exit(0);
 /**
  * Erzeugt eine neue MetaTrader-History eines Instruments.
  *
- * @param  string $symbol - Symbol
+ * @param  RosaSymbol $symbol
  *
  * @return bool - Erfolgsstatus
  */
-function createHistory($symbol) {
-    if (!is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
-    if (!strLen($symbol))    throw new InvalidArgumentException('Invalid parameter $symbol: ""');
+function createHistory(RosaSymbol $symbol) {
+    $symbolName   = $symbol->getName();
+    $symbolDigits = $symbol->getDigits();
 
-    $startDay  = fxtTime(Rost::$symbols[$symbol]['historyStart']['M1']);            // FXT
+    $startDay  = (int)$symbol->getM1HistoryFrom('U');                               // FXT
     $startDay -= $startDay%DAY;                                                     // 00:00 FXT Starttag
     $today     = ($today=fxtTime()) - $today%DAY;                                   // 00:00 FXT aktueller Tag
 
 
     // MT4-HistorySet erzeugen
-    $digits    = Rost::$symbols[$symbol]['digits'];
-    $format    = 400;
     $directory = Config::getDefault()->get('app.dir.data').'/history/mt4/XTrade-Testhistory';
-    $history   = HistorySet::create($symbol, $digits, $format, $directory);
+    $hstSet = HistorySet::create($symbolName, $symbolDigits, $format=400, $directory);
 
 
     // Gesamte Zeitspanne tageweise durchlaufen
@@ -96,22 +100,22 @@ function createHistory($symbol) {
 
         // ausser an Wochenenden: Rost-History verarbeiten
         if (!isFxtWeekend($day, 'FXT')) {
-            if      (is_file($file=getVar('rostFile.compressed', $symbol, $day))) {}    // wenn komprimierte Rost-Datei existiert
-            else if (is_file($file=getVar('rostFile.raw'       , $symbol, $day))) {}    // wenn unkomprimierte Rost-Datei existiert
+            if      (is_file($file=getVar('rostFile.compressed', $symbolName, $day))) {}    // wenn komprimierte Rost-Datei existiert
+            else if (is_file($file=getVar('rostFile.raw'       , $symbolName, $day))) {}    // wenn unkomprimierte Rost-Datei existiert
             else {
-                echoPre('[Error]   '.$symbol.' Rost history for '.$shortDate.' not found');
+                echoPre('[Error]   '.$symbolName.' Rost history for '.$shortDate.' not found');
                 return false;
             }
             // Bars einlesen und der MT4-History hinzufuegen
-            $bars = Rost::readBarFile($file, $symbol);
-            $history->appendBars($bars);
+            $bars = Rost::readBarFile($file, $symbolName);
+            $hstSet->appendBars($bars);
         }
 
         if (!WINDOWS) pcntl_signal_dispatch();                                          // Auf Ctrl-C pruefen, um bei Abbruch den
     }                                                                                   // Schreibbuffer der History leeren zu koennen.
-    $history->close();
+    $hstSet->close();
 
-    echoPre('[Ok]      '.$symbol);
+    echoPre('[Ok]      '.$symbolName);
     return true;
 }
 
@@ -130,7 +134,6 @@ function createHistory($symbol) {
  * @return string - Variable
  */
 function getVar($id, $symbol=null, $time=null) {
-    //global $varCache;
     static $varCache = [];
     if (array_key_exists(($key=$id.'|'.$symbol.'|'.$time), $varCache))
         return $varCache[$key];
@@ -140,24 +143,22 @@ function getVar($id, $symbol=null, $time=null) {
     if (isSet($time) && !is_int($time))        throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
 
     $self = __FUNCTION__;
+    static $dataDir; !$dataDir && $dataDir = Config::getDefault()->get('app.dir.data');
 
-    if ($id == 'rostDirDate') {               // $yyyy/$mm/$dd                                                   // lokales Pfad-Datum
-        if (!$time)   throw new InvalidArgumentException('Invalid parameter $time: '.$time);
+    if ($id == 'rostDirDate') {               // $yyyy/$mm/$dd                                                  // lokales Pfad-Datum
+        if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
         $result = gmDate('Y/m/d', $time);
     }
-    else if ($id == 'rostDir') {              // $dataDirectory/history/rost/$group/$symbol/$rostDirDate         // lokales Verzeichnis
-        if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
-        static $dataDirectory; if (!$dataDirectory)
-        $dataDirectory = Config::getDefault()->get('app.dir.data');
-        $group         = Rost::$symbols[$symbol]['group'];
-        $rostDirDate   = $self('rostDirDate', null, $time);
-        $result        = $dataDirectory.'/history/rost/'.$group.'/'.$symbol.'/'.$rostDirDate;
+    else if ($id == 'rostDir') {              // $dataDirectory/history/rost/$type/$symbol/$rostDirDate         // lokales Verzeichnis
+        $type        = RosaSymbol::dao()->getByName($symbol)->getType();
+        $rostDirDate = $self('rostDirDate', null, $time);
+        $result      = $dataDir.'/history/rost/'.$type.'/'.$symbol.'/'.$rostDirDate;
     }
-    else if ($id == 'rostFile.raw') {         // $rostDir/M1.myfx                                                // lokale Datei ungepackt
+    else if ($id == 'rostFile.raw') {         // $rostDir/M1.myfx                                               // lokale Datei ungepackt
         $rostDir = $self('rostDir' , $symbol, $time);
         $result  = $rostDir.'/M1.myfx';
     }
-    else if ($id == 'rostFile.compressed') {  // $rostDir/M1.rar                                                 // lokale Datei gepackt
+    else if ($id == 'rostFile.compressed') {  // $rostDir/M1.rar                                                // lokale Datei gepackt
         $rostDir = $self('rostDir' , $symbol, $time);
         $result  = $rostDir.'/M1.rar';
     }

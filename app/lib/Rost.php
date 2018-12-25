@@ -12,6 +12,7 @@ use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
 
 use rosasurfer\rost\metatrader\MT4;
+use rosasurfer\rost\model\RosaSymbol;
 
 
 /**
@@ -57,33 +58,6 @@ class Rost extends StaticClass {
     const TICK_SIZE = 12;
 
 
-    /** @var array $symbols - symbols meta data (static initializer at the end of this file) */
-    public static $symbols = [];
-
-
-    /**
-     * Gibt eine gefilterte Anzahl von Symbolstammdaten zurueck.
-     *
-     * @param  array $filter - Bedingungen, nach denen die Symbole zu filtern sind (default: kein Filter)
-     *
-     * @return array - gefilterte Symbolstammdaten
-     */
-    public static function filterSymbols(array $filter=null) {
-        if (is_null($filter)) return self::$symbols;
-
-        $results = [];
-        foreach (self::$symbols as $key => $symbol) {
-            foreach ($filter as $field => $value) {
-                if (!array_key_exists($field, $symbol)) throw new InvalidArgumentException('Invalid parameter $filter: '.print_r($filter, true));
-                if ($symbol[$field] != $value)
-                    continue 2;
-            }
-            $results[$key] = $symbol;     // alle Filterbedingungen TRUE
-        }
-        return $results;
-    }
-
-
     /**
      * Parst die String-Repraesentation einer FXT-Zeit in einen GMT-Timestamp.
      *
@@ -113,7 +87,7 @@ class Rost extends StaticClass {
 
 
     /**
-     * Formatiert einen Zeitpunkt als FXT-Zeit.
+     * Formatiert einen Timestamp als FXT-Zeit.
      *
      * @param  int    $time   - Zeitpunkt (default: aktuelle Zeit)
      * @param  string $format - Formatstring (default: 'Y-m-d H:i:s')
@@ -827,17 +801,17 @@ class Rost extends StaticClass {
         if (isSet($symbol) && !is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
         if (isSet($time) && !is_int($time))        throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
 
+        static $dataDir; !$dataDir && $dataDir = Config::getDefault()->get('app.dir.data');
+
         if ($id == 'rostDirDate') {                   // $yyyy/$mm/$dd                                                  // lokales Pfad-Datum
-            if (!$time)   throw new InvalidArgumentException('Invalid parameter $time: '.$time);
+            if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
             $result = gmDate('Y/m/d', $time);
         }
         else if ($id == 'rostDir') {                  // $dataDirectory/history/rost/$type/$symbol/$rostDirDate         // lokales Verzeichnis
             if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
-            static $dataDirectory; if (!$dataDirectory)
-            $dataDirectory = Config::getDefault()->get('app.dir.data');
-            $type          = self::$symbols[$symbol]['type'];
-            $rostDirDate   = self::{__FUNCTION__}('rostDirDate', null, $time);
-            $result        = $dataDirectory.'/history/rost/'.$type.'/'.$symbol.'/'.$rostDirDate;
+            $type        = RosaSymbol::dao()->getByName($symbol)->getType();
+            $rostDirDate = self::{__FUNCTION__}('rostDirDate', null, $time);
+            $result      = $dataDir.'/history/rost/'.$type.'/'.$symbol.'/'.$rostDirDate;
         }
         else if ($id == 'rostFile.M1.raw') {          // $rostDir/M1.myfx                                               // Rost-M1-Datei ungepackt
             $rostDir = self::{__FUNCTION__}('rostDir' , $symbol, $time);
@@ -855,57 +829,3 @@ class Rost extends StaticClass {
         return $result;
     }
 }
-
-
-/**
- * Workaround for PHP's missing static initializers.
- */
-Rost::$symbols = [
-    'AUDUSD' => ['group'=>'forex'    , 'name'=>'AUDUSD', 'description'=>'Australian Dollar vs US Dollar'                     , 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>['ticks'=>strToTime('2003-08-03 21:00:00 GMT'), 'M1'=>strToTime('2003-08-03 00:00:00 GMT')], 'provider'=>'dukascopy'],
-    'EURCHF' => ['group'=>'forex'    , 'name'=>'EURCHF', 'description'=>'Euro vs Swiss Franc'                                , 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>['ticks'=>null                                , 'M1'=>strToTime('2003-08-03 00:00:00 GMT')], 'provider'=>'dukascopy'],
-    'EURUSD' => ['group'=>'forex'    , 'name'=>'EURUSD', 'description'=>'Euro vs US Dollar'                                  , 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>['ticks'=>strToTime('2003-05-04 21:00:00 GMT'), 'M1'=>strToTime('2003-05-04 00:00:00 GMT')], 'provider'=>'dukascopy'],
-    'GBPUSD' => ['group'=>'forex'    , 'name'=>'GBPUSD', 'description'=>'Great Britain Pound vs US Dollar'                   , 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>['ticks'=>strToTime('2003-05-04 21:00:00 GMT'), 'M1'=>strToTime('2003-05-04 00:00:00 GMT')], 'provider'=>'dukascopy'],
-    'NZDUSD' => ['group'=>'forex'    , 'name'=>'NZDUSD', 'description'=>'New Zealand Dollar vs US Dollar'                    , 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>['ticks'=>strToTime('2003-08-03 21:00:00 GMT'), 'M1'=>strToTime('2003-08-03 00:00:00 GMT')], 'provider'=>'dukascopy'],
-    'USDCAD' => ['group'=>'forex'    , 'name'=>'USDCAD', 'description'=>'US Dollar vs Canadian Dollar'                       , 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>['ticks'=>strToTime('2003-08-03 21:00:00 GMT'), 'M1'=>strToTime('2003-08-03 00:00:00 GMT')], 'provider'=>'dukascopy'],
-    'USDCHF' => ['group'=>'forex'    , 'name'=>'USDCHF', 'description'=>'US Dollar vs Swiss Franc'                           , 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>['ticks'=>strToTime('2003-05-04 21:00:00 GMT'), 'M1'=>strToTime('2003-05-04 00:00:00 GMT')], 'provider'=>'dukascopy'],
-    'USDJPY' => ['group'=>'forex'    , 'name'=>'USDJPY', 'description'=>'US Dollar vs Japanese Yen'                          , 'digits'=>3, 'pip'=>0.01  , 'point'=>0.001  , 'priceFormat'=>".2'", 'historyStart'=>['ticks'=>strToTime('2003-05-04 21:00:00 GMT'), 'M1'=>strToTime('2003-05-04 00:00:00 GMT')], 'provider'=>'dukascopy'],
-    'USDNOK' => ['group'=>'forex'    , 'name'=>'USDNOK', 'description'=>'US Dollar vs Norwegian Krone'                       , 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>['ticks'=>strToTime('2003-08-04 00:00:00 GMT'), 'M1'=>strToTime('2003-08-05 00:00:00 GMT')], 'provider'=>'dukascopy'],     // TODO: M1-Start ist der 04.08.2003
-    'USDSEK' => ['group'=>'forex'    , 'name'=>'USDSEK', 'description'=>'US Dollar vs Swedish Krona'                         , 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>['ticks'=>strToTime('2003-08-04 00:00:00 GMT'), 'M1'=>strToTime('2003-08-05 00:00:00 GMT')], 'provider'=>'dukascopy'],     // TODO: M1-Start ist der 04.08.2003
-    'USDSGD' => ['group'=>'forex'    , 'name'=>'USDSGD', 'description'=>'US Dollar vs Singapore Dollar'                      , 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>['ticks'=>strToTime('2004-11-16 18:00:00 GMT'), 'M1'=>strToTime('2004-11-17 00:00:00 GMT')], 'provider'=>'dukascopy'],     // TODO: M1-Start ist der 16.11.2004
-    'USDZAR' => ['group'=>'forex'    , 'name'=>'USDZAR', 'description'=>'US Dollar vs South African Rand'                    , 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>['ticks'=>strToTime('1997-10-13 18:00:00 GMT'), 'M1'=>strToTime('1997-10-14 00:00:00 GMT')], 'provider'=>'dukascopy'],     // TODO: M1-Start ist der 13.11.1997
-
-    'XAUUSD' => ['group'=>'metals'   , 'name'=>'XAUUSD', 'description'=>'Gold vs US Dollar'                                  , 'digits'=>3, 'pip'=>0.01  , 'point'=>0.001  , 'priceFormat'=>".2'", 'historyStart'=>['ticks'=>strToTime('2003-05-05 00:00:00 GMT'), 'M1'=>strToTime('1999-09-02 00:00:00 GMT')], 'provider'=>'dukascopy'],     // TODO: M1-Start ist der 01.09.1999
-
-    'AUDLFX' => ['group'=>'synthetic', 'name'=>'AUDLFX', 'description'=>'LiteForex scaled-down Australian Dollar FX6 index'  , 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>['ticks'=>null                                , 'M1'=>strToTime('2003-08-03 00:00:00 GMT')], 'provider'=>'rost'     ],
-    'CADLFX' => ['group'=>'synthetic', 'name'=>'CADLFX', 'description'=>'LiteForex scaled-down Canadian Dollar FX6 index'    , 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>['ticks'=>null                                , 'M1'=>strToTime('2003-08-03 00:00:00 GMT')], 'provider'=>'rost'     ],
-    'CHFLFX' => ['group'=>'synthetic', 'name'=>'CHFLFX', 'description'=>'LiteForex scaled-down Swiss Franc FX6 index'        , 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>['ticks'=>null                                , 'M1'=>strToTime('2003-08-03 00:00:00 GMT')], 'provider'=>'rost'     ],
-    'EURLFX' => ['group'=>'synthetic', 'name'=>'EURLFX', 'description'=>'LiteForex scaled-down Euro FX6 index'               , 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>['ticks'=>null                                , 'M1'=>strToTime('2003-08-03 00:00:00 GMT')], 'provider'=>'rost'     ],
-    'GBPLFX' => ['group'=>'synthetic', 'name'=>'GBPLFX', 'description'=>'LiteForex scaled-down Great Britain Pound FX6 index', 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>['ticks'=>null                                , 'M1'=>strToTime('2003-08-03 00:00:00 GMT')], 'provider'=>'rost'     ],
-    'JPYLFX' => ['group'=>'synthetic', 'name'=>'JPYLFX', 'description'=>'LiteForex scaled-down Japanese Yen FX6 index'       , 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>['ticks'=>null                                , 'M1'=>strToTime('2003-08-03 00:00:00 GMT')], 'provider'=>'rost'     ],
-    'NZDLFX' => ['group'=>'synthetic', 'name'=>'NZDLFX', 'description'=>'LiteForex alias of New Zealand Dollar FX7 index'    , 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>['ticks'=>null                                , 'M1'=>strToTime('2003-08-03 00:00:00 GMT')], 'provider'=>'rost'     ],
-    'USDLFX' => ['group'=>'synthetic', 'name'=>'USDLFX', 'description'=>'LiteForex scaled-down US Dollar FX6 index'          , 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>['ticks'=>null                                , 'M1'=>strToTime('2003-08-03 00:00:00 GMT')], 'provider'=>'rost'     ],
-
-    'AUDFX6' => ['group'=>'synthetic', 'name'=>'AUDFX6', 'description'=>'Australian Dollar FX6 index'                        , 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>['ticks'=>null                                , 'M1'=>strToTime('2003-08-03 00:00:00 GMT')], 'provider'=>'rost'     ],
-    'CADFX6' => ['group'=>'synthetic', 'name'=>'CADFX6', 'description'=>'Canadian Dollar FX6 index'                          , 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>['ticks'=>null                                , 'M1'=>strToTime('2003-08-03 00:00:00 GMT')], 'provider'=>'rost'     ],
-    'CHFFX6' => ['group'=>'synthetic', 'name'=>'CHFFX6', 'description'=>'Swiss Franc FX6 index'                              , 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>['ticks'=>null                                , 'M1'=>strToTime('2003-08-03 00:00:00 GMT')], 'provider'=>'rost'     ],
-    'EURFX6' => ['group'=>'synthetic', 'name'=>'EURFX6', 'description'=>'Euro FX6 index'                                     , 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>['ticks'=>null                                , 'M1'=>strToTime('2003-08-03 00:00:00 GMT')], 'provider'=>'rost'     ],
-    'GBPFX6' => ['group'=>'synthetic', 'name'=>'GBPFX6', 'description'=>'Great Britain Pound FX6 index'                      , 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>['ticks'=>null                                , 'M1'=>strToTime('2003-08-03 00:00:00 GMT')], 'provider'=>'rost'     ],
-    'JPYFX6' => ['group'=>'synthetic', 'name'=>'JPYFX6', 'description'=>'Japanese Yen FX6 index'                             , 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>['ticks'=>null                                , 'M1'=>strToTime('2003-08-03 00:00:00 GMT')], 'provider'=>'rost'     ],
-    'USDFX6' => ['group'=>'synthetic', 'name'=>'USDFX6', 'description'=>'US Dollar FX6 index'                                , 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>['ticks'=>null                                , 'M1'=>strToTime('2003-08-03 00:00:00 GMT')], 'provider'=>'rost'     ],
-
-    'AUDFX7' => ['group'=>'synthetic', 'name'=>'AUDFX7', 'description'=>'Australian Dollar FX7 index'                        , 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>['ticks'=>null                                , 'M1'=>strToTime('2003-08-03 00:00:00 GMT')], 'provider'=>'rost'     ],
-    'CADFX7' => ['group'=>'synthetic', 'name'=>'CADFX7', 'description'=>'Canadian Dollar FX7 index'                          , 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>['ticks'=>null                                , 'M1'=>strToTime('2003-08-03 00:00:00 GMT')], 'provider'=>'rost'     ],
-    'CHFFX7' => ['group'=>'synthetic', 'name'=>'CHFFX7', 'description'=>'Swiss Franc FX7 index'                              , 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>['ticks'=>null                                , 'M1'=>strToTime('2003-08-03 00:00:00 GMT')], 'provider'=>'rost'     ],
-    'EURFX7' => ['group'=>'synthetic', 'name'=>'EURFX7', 'description'=>'Euro FX7 index'                                     , 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>['ticks'=>null                                , 'M1'=>strToTime('2003-08-03 00:00:00 GMT')], 'provider'=>'rost'     ],
-    'GBPFX7' => ['group'=>'synthetic', 'name'=>'GBPFX7', 'description'=>'Great Britain Pound FX7 index'                      , 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>['ticks'=>null                                , 'M1'=>strToTime('2003-08-03 00:00:00 GMT')], 'provider'=>'rost'     ],
-    'JPYFX7' => ['group'=>'synthetic', 'name'=>'JPYFX7', 'description'=>'Japanese Yen FX7 index'                             , 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>['ticks'=>null                                , 'M1'=>strToTime('2003-08-03 00:00:00 GMT')], 'provider'=>'rost'     ],
-    'NOKFX7' => ['group'=>'synthetic', 'name'=>'NOKFX7', 'description'=>'Norwegian Krone FX7 index'                          , 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>['ticks'=>null                                , 'M1'=>strToTime('2003-08-05 00:00:00 GMT')], 'provider'=>'rost'     ],
-    'NZDFX7' => ['group'=>'synthetic', 'name'=>'NZDFX7', 'description'=>'New Zealand Dollar FX7 index'                       , 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>['ticks'=>null                                , 'M1'=>strToTime('2003-08-03 00:00:00 GMT')], 'provider'=>'rost'     ],
-    'SEKFX7' => ['group'=>'synthetic', 'name'=>'SEKFX7', 'description'=>'Swedish Krona FX7 index'                            , 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>['ticks'=>null                                , 'M1'=>strToTime('2003-08-05 00:00:00 GMT')], 'provider'=>'rost'     ],
-    'SGDFX7' => ['group'=>'synthetic', 'name'=>'SGDFX7', 'description'=>'Singapore Dollar FX7 index'                         , 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>['ticks'=>null                                , 'M1'=>strToTime('2004-11-16 00:00:00 GMT')], 'provider'=>'rost'     ],
-    'USDFX7' => ['group'=>'synthetic', 'name'=>'USDFX7', 'description'=>'US Dollar FX7 index'                                , 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>['ticks'=>null                                , 'M1'=>strToTime('2003-08-03 00:00:00 GMT')], 'provider'=>'rost'     ],
-    'ZARFX7' => ['group'=>'synthetic', 'name'=>'ZARFX7', 'description'=>'South African Rand FX7 index'                       , 'digits'=>5, 'pip'=>0.0001, 'point'=>0.00001, 'priceFormat'=>".4'", 'historyStart'=>['ticks'=>null                                , 'M1'=>strToTime('2003-08-03 00:00:00 GMT')], 'provider'=>'rost'     ],
-
-    'EURX'   => ['group'=>'synthetic', 'name'=>'EURX'  , 'description'=>'ICE Euro Futures index'                             , 'digits'=>3, 'pip'=>0.01  , 'point'=>0.001  , 'priceFormat'=>".2'", 'historyStart'=>['ticks'=>null                                , 'M1'=>strToTime('2003-08-04 00:00:00 GMT')], 'provider'=>'rost'     ],
-    'USDX'   => ['group'=>'synthetic', 'name'=>'USDX'  , 'description'=>'ICE US Dollar Futures index'                        , 'digits'=>3, 'pip'=>0.01  , 'point'=>0.001  , 'priceFormat'=>".2'", 'historyStart'=>['ticks'=>null                                , 'M1'=>strToTime('2003-08-04 00:00:00 GMT')], 'provider'=>'rost'     ],
-];

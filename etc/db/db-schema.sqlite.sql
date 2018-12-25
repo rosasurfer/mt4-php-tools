@@ -11,10 +11,11 @@ Database    SQLite3
 
 -- drop all database objects
 .bail on
-pragma writable_schema = 1;
+pragma writable_schema = on;
 delete from sqlite_master;
-pragma writable_schema = 0;
+pragma writable_schema = off;
 vacuum;
+
 pragma foreign_keys       = on;
 pragma recursive_triggers = on;
 begin;

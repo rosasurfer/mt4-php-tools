@@ -5,13 +5,9 @@ namespace rosasurfer\rost\model;
 /**
  * Represents a Dukascopy symbol.
  *
- * @method string     getName()            Return the symbol name, i.e. the actual symbol.
- * @method int        getDigits()          Return the number of fractional digits of symbol prices.
- * @method string     getTickHistoryFrom() Return the start time of the available tick history (FXT).
- * @method string     getTickHistoryTo()   Return the end time of the available tick history (FXT).
- * @method string     getM1HistoryFrom()   Return the start time of the available M1 history (FXT).
- * @method string     getM1HistoryTo()     Return the end time of the available M1 history (FXT).
- * @method RosaSymbol getRosaSymbol()      Return the Rosatrader symbol this Dukascopy symbol is mapped to.
+ * @method string     getName()       Return the symbol name, i.e. the actual symbol.
+ * @method int        getDigits()     Return the number of fractional digits of symbol prices.
+ * @method RosaSymbol getRosaSymbol() Return the Rosatrader symbol this Dukascopy symbol is mapped to.
  */
 class DukascopySymbol extends RosatraderModel {
 
@@ -36,4 +32,60 @@ class DukascopySymbol extends RosatraderModel {
 
     /** @var RosaSymbol [transient] - the Rosatrader symbol this Dukascopy symbol is mapped to */
     protected $rosaSymbol;
+
+
+    /**
+     * Return the start time of the symbol's available tick history (FXT).
+     *
+     * @param  string $format [optional] - format as used by date($format, $timestamp)
+     *
+     * @return string - start time
+     */
+    public function getTickHistoryFrom($format = 'Y-m-d H:i:s') {
+        if (!isSet($this->tickHistoryFrom) || $format=='Y-m-d H:i:s')
+            return $this->tickHistoryFrom;
+        return gmDate($format, strToTime($this->tickHistoryFrom));
+    }
+
+
+    /**
+     * Return the end time of the symbol's available tick history (FXT).
+     *
+     * @param  string $format [optional] - format as used by date($format, $timestamp)
+     *
+     * @return string - end time
+     */
+    public function getTickHistoryTo($format = 'Y-m-d H:i:s') {
+        if (!isSet($this->tickHistoryTo) || $format=='Y-m-d H:i:s')
+            return $this->tickHistoryTo;
+        return gmDate($format, strToTime($this->tickHistoryTo));
+    }
+
+
+    /**
+     * Return the start time of the symbol's available M1 history (FXT).
+     *
+     * @param  string $format [optional] - format as used by date($format, $timestamp)
+     *
+     * @return string - start time
+     */
+    public function getM1HistoryFrom($format = 'Y-m-d H:i:s') {
+        if (!isSet($this->m1HistoryFrom) || $format=='Y-m-d H:i:s')
+            return $this->m1HistoryFrom;
+        return gmDate($format, strToTime($this->m1HistoryFrom));
+    }
+
+
+    /**
+     * Return the end time of the symbol's available M1 history (FXT).
+     *
+     * @param  string $format [optional] - format as used by date($format, $timestamp)
+     *
+     * @return string - end time
+     */
+    public function getM1HistoryTo($format = 'Y-m-d H:i:s') {
+        if (!isSet($this->m1HistoryTo) || $format=='Y-m-d H:i:s')
+            return $this->m1HistoryTo;
+        return gmDate($format, strToTime($this->m1HistoryTo));
+    }
 }

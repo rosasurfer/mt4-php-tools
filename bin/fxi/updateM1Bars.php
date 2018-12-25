@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 /**
- * Update the local M1 history of the specified synthetic instruments.
+ * Update the M1 history of synthetic Rosatrader instruments.
  *
  * @see  https://github.com/rosasurfer/mt4-tools/blob/master/app/lib/synthetic/README.md
  */
@@ -13,9 +13,11 @@ use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 
 use rosasurfer\rost\Rost;
+use rosasurfer\rost\model\RosaSymbol;
 
 use function rosasurfer\rost\fxtTime;
 use function rosasurfer\rost\isFxtWeekend;
+use rosasurfer\rost\model\DukascopySymbol;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');
@@ -67,6 +69,7 @@ $indexes['USDX'  ] = ['EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'USDSEK'
 
 
 // (1) Befehlszeilenargumente einlesen und validieren
+/** @var string[] $args */
 $args = array_slice($_SERVER['argv'], 1);
 
 // Optionen parsen
@@ -88,7 +91,7 @@ $args = $args ? array_unique($args) : array_keys($indexes);             // ohne 
 
 // (2) Indizes berechnen
 foreach ($args as $index) {
-    !updateIndex($index) && exit(1);
+    updateIndex($index) || exit(1);
 }
 exit(0);
 
@@ -113,12 +116,13 @@ function updateIndex($index) {
     $startTime = 0;
     $pairs = array_flip($indexes[$index]);                                                  // ['AUDUSD', ...] => ['AUDUSD'=>null, ...]
     foreach($pairs as $pair => &$data) {
-        $data      = [];                                                                    // $data initialisieren: ['AUDUSD'=>[], ...]
-        $startTime = max($startTime, Rost::$symbols[$pair]['historyStart']['M1']);           // GMT-Timestamp
+        /** @var DukascopySymbol $dukaSymbol */
+        $dukaSymbol = RosaSymbol::dao()->getByName($pair)->getDukascopySymbol();
+        $startTime  = max($startTime, (int)$dukaSymbol->getM1HistoryFrom('U'));             // FXT
+        $data = [];                                                                         // $data initialisieren: ['AUDUSD'=>[], ...]
     } unset($data);
-    $startTime = fxtTime($startTime);
-    $startDay  = $startTime - $startTime%DAY;                                               // 00:00 Starttag FXT
-    $today     = ($today=fxtTime()) - $today%DAY;                                           // 00:00 aktueller Tag FXT
+    $startDay = $startTime - $startTime%DAY;                                                // 00:00 Starttag FXT
+    $today    = ($today=fxtTime()) - $today%DAY;                                            // 00:00 aktueller Tag FXT
 
 
     // (2) Gesamte Zeitspanne tageweise durchlaufen
@@ -1886,7 +1890,6 @@ function showBuffer($bars) {
  * @return string - Variable
  */
 function getVar($id, $symbol=null, $time=null) {
-    //global $varCache;
     static $varCache = [];
     if (array_key_exists(($key=$id.'|'.$symbol.'|'.$time), $varCache))
         return $varCache[$key];
@@ -1895,28 +1898,22 @@ function getVar($id, $symbol=null, $time=null) {
     if (isSet($symbol) && !is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
     if (isSet($time) && !is_int($time))        throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
 
-    static $dataDirectory;
+    static $dataDir; !$dataDir && $dataDir = Config::getDefault()->get('app.dir.data');
     $self = __FUNCTION__;
 
-    if ($id == 'rostDirDate') {                  // $yyyy/$mm/$dd                                               // lokales Pfad-Datum
+    if ($id == 'rostDirDate') {                 // $yyyy/$mm/$dd                                                // lokales Pfad-Datum
         if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
         $result = gmDate('Y/m/d', $time);
     }
-    else if ($id == 'fxiSourceDir') {           // $dataDirectory/history/rost/$group/$symbol/$rostDirDate      // lokales Quell-Verzeichnis
-        if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
-        if (!$dataDirectory)
-        $dataDirectory = Config::getDefault()->get('app.dir.data');
-        $group         = Rost::$symbols[$symbol]['group'];
-        $rostDirDate   = $self('rostDirDate', null, $time);
-        $result        = $dataDirectory.'/history/rost/'.$group.'/'.$symbol.'/'.$rostDirDate;
+    else if ($id == 'fxiSourceDir') {           // $dataDirectory/history/rost/$type/$symbol/$rostDirDate       // lokales Quell-Verzeichnis
+        $type        = RosaSymbol::dao()->getByName($symbol)->getType();
+        $rostDirDate = $self('rostDirDate', null, $time);
+        $result      = $dataDir.'/history/rost/'.$type.'/'.$symbol.'/'.$rostDirDate;
     }
     else if ($id == 'fxiTargetDir') {           // $dataDirectory/history/rost/$type/$symbol/$rostDirDate       // lokales Ziel-Verzeichnis
-        if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
-        if (!$dataDirectory)
-        $dataDirectory = Config::getDefault()->get('app.dir.data');
-        $group         = Rost::$symbols[$symbol]['group'];
-        $rostDirDate   = $self('rostDirDate', null, $time);
-        $result        = $dataDirectory.'/history/rost/'.$group.'/'.$symbol.'/'.$rostDirDate;
+        $type        = RosaSymbol::dao()->getByName($symbol)->getType();
+        $rostDirDate = $self('rostDirDate', null, $time);
+        $result      = $dataDir.'/history/rost/'.$type.'/'.$symbol.'/'.$rostDirDate;
     }
     else if ($id == 'fxiSource.raw') {          // $fxiSourceDir/M1.myfx                                        // lokale Quell-Datei ungepackt
         $fxiSourceDir = $self('fxiSourceDir', $symbol, $time);

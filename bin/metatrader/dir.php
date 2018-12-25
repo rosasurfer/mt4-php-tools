@@ -18,6 +18,7 @@ require(dirName(realPath(__FILE__)).'/../../app/init.php');
 
 
 // (1) Befehlszeilenparameter auswerten
+/** @var string[] $args */
 $args = array_slice($_SERVER['argv'], 1);
 !$args && ($args[]='.');                                          // Historydateien des aktuellen Verzeichnis
 $expandedArgs = [];
