@@ -234,7 +234,7 @@ function saveBars($symbol, $day, array $bars, $partial = false) {
     // convert bars into a binary string
     $data = null;
     foreach ($bars as $bar) {
-        $data .= pack('Vdddd', $bar['time' ],   // V                // TODO: validate bar data (@see fxi.updateM1Bars)
+        $data .= pack('Vdddd', $bar['time' ],   // V                // TODO: validate bar data (@see bin/rost/updateSyntheticsM1.php)
                                $bar['open' ],   // d
                                $bar['high' ],   // d
                                $bar['low'  ],   // d

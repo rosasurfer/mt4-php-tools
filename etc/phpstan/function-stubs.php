@@ -283,7 +283,7 @@ namespace rosasurfer\rost\dukascopy\update_tickdata {
 }
 
 
-namespace rosasurfer\rost\fxi\update_m1_bars {
+namespace rosasurfer\rost\update_synthetics_m1 {
 
     /**
      * @param  string $index

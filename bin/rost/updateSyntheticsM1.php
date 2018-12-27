@@ -5,7 +5,7 @@
  *
  * @see  https://github.com/rosasurfer/mt4-tools/blob/master/app/lib/synthetic/README.md
  */
-namespace rosasurfer\rost\fxi\update_m1_bars;
+namespace rosasurfer\rost\update_synthetics_m1;
 
 use rosasurfer\config\Config;
 use rosasurfer\exception\IllegalTypeException;
@@ -100,7 +100,7 @@ exit(0);
 
 
 /**
- * Aktualisiert die M1-History eines Indexes (Rost-Format).
+ * Aktualisiert die M1-History eines einzelnen Index.
  *
  * @param  string $index - Indexsymbol
  *
@@ -112,7 +112,7 @@ function updateIndex($index) {
 
     global $verbose, $indexes, $saveRawRostData;
 
-    // (1) Starttag der benoetigten Daten ermitteln
+    // (1) spätesten Starttag der History der benoetigten Daten ermitteln
     $startTime = 0;
     $pairs = array_flip($indexes[$index]);                                                  // ['AUDUSD', ...] => ['AUDUSD'=>null, ...]
     foreach($pairs as $pair => &$data) {
@@ -127,19 +127,18 @@ function updateIndex($index) {
 
     // (2) Gesamte Zeitspanne tageweise durchlaufen
     for ($day=$startDay, $lastMonth=-1; $day < $today; $day+=1*DAY) {
-
         if (!isFxtWeekend($day, 'FXT')) {                                                   // ausser an Wochenenden
             $shortDate = gmDate('D, d-M-Y', $day);
 
             // Pruefen, ob die History bereits existiert
-            if (is_file($file=getVar('fxiTarget.compressed', $index, $day))) {
+            if (is_file($file=getVar('rostFile.compressed', $index, $day))) {
                 if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'   '.$index.' compressed history file: '.baseName($file));
             }
-            else if (is_file($file=getVar('fxiTarget.raw', $index, $day))) {
+            else if (is_file($file=getVar('rostFile.raw', $index, $day))) {
                 if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'   '.$index.' raw history file: '.baseName($file));
             }
             else {
-                $month = (int) gmDate('m', $day);
+                $month = (int)gmDate('m', $day);
                 if ($month != $lastMonth) {
                     echoPre('[Info]    '.$index.' '.gmDate('M-Y', $day));
                     $lastMonth = $month;
@@ -147,22 +146,22 @@ function updateIndex($index) {
 
                 // History aktualisieren: M1-Bars der benoetigten Instrumente dieses Tages einlesen
                 foreach($pairs as $pair => $data) {
-                    if      (is_file($file=getVar('fxiSource.compressed', $pair, $day))) {}    // komprimierte oder
-                    else if (is_file($file=getVar('fxiSource.raw'       , $pair, $day))) {}    // unkomprimierte Rost-Datei
+                    if      (is_file($file=getVar('rostFile.compressed', $pair, $day))) {}      // komprimierte oder
+                    else if (is_file($file=getVar('rostFile.raw',        $pair, $day))) {}      // unkomprimierte Rost-Datei
                     else {
                         echoPre('[Error]   '.$pair.' history for '.$shortDate.' not found');
                         return false;
                     }
                     // M1-Bars zwischenspeichern
-                    $pairs[$pair]['bars'] = Rost::readBarFile($file, $pair);                     // ['AUDUSD'=>array('bars'=>[]), ...]
+                    $pairs[$pair]['bars'] = Rost::readBarFile($file, $pair);                    // ['AUDUSD'=>array('bars'=>[]), ...]
                 }
 
                 // Indexdaten fuer diesen Tag berechnen
                 $function = 'calculate'.$index;
-                $fxiBars   = $function($day, $pairs); if (!$fxiBars) return false;
+                $rostBars = $function($day, $pairs); if (!$rostBars) return false;
 
                 // Indexdaten speichern
-                if (!saveBars($index, $day, $fxiBars)) return false;
+                if (!saveBars($index, $day, $rostBars)) return false;
             }
         }
         if (!WINDOWS) pcntl_signal_dispatch();                         // Auf Ctrl-C pruefen, um bei Abbruch die Destruktoren auszufuehren.
@@ -1835,7 +1834,7 @@ function saveBars($symbol, $day, array $bars) {
 
     // (3) binaere Daten ggf. speichern
     if ($saveRawRostData) {
-        if (is_file($file=getVar('fxiTarget.raw', $symbol, $day))) {
+        if (is_file($file=getVar('rostFile.raw', $symbol, $day))) {
             echoPre('[Error]   '.$symbol.' history for '.gmDate('D, d-M-Y', $day).' already exists');
             return false;
         }
@@ -1901,35 +1900,22 @@ function getVar($id, $symbol=null, $time=null) {
     static $dataDir; !$dataDir && $dataDir = Config::getDefault()->get('app.dir.data');
     $self = __FUNCTION__;
 
-    if ($id == 'rostDirDate') {                 // $yyyy/$mm/$dd                                                // lokales Pfad-Datum
+    if ($id == 'rostDir') {                     // $dataDir/history/rost/$type/$symbol/$rostDirDate     // lokales Verzeichnis
+        $type        = RosaSymbol::dao()->getByName($symbol)->getType();
+        $rostDirDate = $self('rostDirDate', null, $time);
+        $result      = $dataDir.'/history/rost/'.$type.'/'.$symbol.'/'.$rostDirDate;
+    }
+    else if ($id == 'rostDirDate') {            // $yyyy/$mm/$dd                                        // lokales Pfad-Datum
         if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
         $result = gmDate('Y/m/d', $time);
     }
-    else if ($id == 'fxiSourceDir') {           // $dataDirectory/history/rost/$type/$symbol/$rostDirDate       // lokales Quell-Verzeichnis
-        $type        = RosaSymbol::dao()->getByName($symbol)->getType();
-        $rostDirDate = $self('rostDirDate', null, $time);
-        $result      = $dataDir.'/history/rost/'.$type.'/'.$symbol.'/'.$rostDirDate;
+    else if ($id == 'rostFile.raw') {           // $rostDir/M1.myfx                                     // lokale Datei ungepackt
+        $rostDir = $self('rostDir', $symbol, $time);
+        $result  = $rostDir.'/M1.myfx';
     }
-    else if ($id == 'fxiTargetDir') {           // $dataDirectory/history/rost/$type/$symbol/$rostDirDate       // lokales Ziel-Verzeichnis
-        $type        = RosaSymbol::dao()->getByName($symbol)->getType();
-        $rostDirDate = $self('rostDirDate', null, $time);
-        $result      = $dataDir.'/history/rost/'.$type.'/'.$symbol.'/'.$rostDirDate;
-    }
-    else if ($id == 'fxiSource.raw') {          // $fxiSourceDir/M1.myfx                                        // lokale Quell-Datei ungepackt
-        $fxiSourceDir = $self('fxiSourceDir', $symbol, $time);
-        $result       = $fxiSourceDir.'/M1.myfx';
-    }
-    else if ($id == 'fxiSource.compressed') {   // $fxiSourceDir/M1.rar                                         // lokale Quell-Datei gepackt
-        $fxiSourceDir = $self('fxiSourceDir', $symbol, $time);
-        $result       = $fxiSourceDir.'/M1.rar';
-    }
-    else if ($id == 'fxiTarget.raw') {          // $fxiTargetDir/M1.myfx                                        // lokale Ziel-Datei ungepackt
-        $fxiTargetDir = $self('fxiTargetDir' , $symbol, $time);
-        $result       = $fxiTargetDir.'/M1.myfx';
-    }
-    else if ($id == 'fxiTarget.compressed') {   // $fxiTargetDir/M1.rar                                         // lokale Ziel-Datei gepackt
-        $fxiTargetDir = $self('fxiTargetDir' , $symbol, $time);
-        $result       = $fxiTargetDir.'/M1.rar';
+    else if ($id == 'rostFile.compressed') {    // $rostDir/M1.rar                                      // lokale Datei gepackt
+        $rostDir = $self('rostDir', $symbol, $time);
+        $result  = $rostDir.'/M1.rar';
     }
     else {
       throw new InvalidArgumentException('Unknown variable identifier "'.$id.'"');
