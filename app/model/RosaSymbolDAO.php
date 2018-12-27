@@ -95,7 +95,7 @@ class RosaSymbolDAO extends DAO {
         $sql = "select *
                    from :RosaSymbol      r
                    join :DukascopySymbol d on r.id = d.rosasymbol_id
-                   order r.name";
+                   order by r.name";
         return $this->findAll($sql);
     }
 }
