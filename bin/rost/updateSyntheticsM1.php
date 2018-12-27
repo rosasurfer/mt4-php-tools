@@ -13,108 +13,82 @@ use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 
 use rosasurfer\rost\Rost;
+use rosasurfer\rost\model\DukascopySymbol;
 use rosasurfer\rost\model\RosaSymbol;
+use rosasurfer\rost\model\RosaSymbolDAO;
 
 use function rosasurfer\rost\fxtTime;
 use function rosasurfer\rost\isFxtWeekend;
-use rosasurfer\rost\model\DukascopySymbol;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');
 
 
-// -- Konfiguration ---------------------------------------------------------------------------------------------------------
+// -- configuration ---------------------------------------------------------------------------------------------------------
 
 
 $verbose         = 0;                                       // output verbosity
-$saveRawRostData = true;                                    // ob unkomprimierte Rost-Historydaten gespeichert werden sollen
+$saveRawRostData = true;                                    // whether to store uncompressed history files
 
 
-// Indizes und die zu ihrer Berechnung benoetigten Instrumente
-$indexes['AUDLFX'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
-$indexes['CADLFX'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
-$indexes['CHFLFX'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
-$indexes['EURLFX'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
-$indexes['GBPLFX'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
-$indexes['JPYLFX'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
-$indexes['NZDLFX'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD'];
-$indexes['USDLFX'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
-
-$indexes['AUDFX6'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
-$indexes['CADFX6'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
-$indexes['CHFFX6'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
-$indexes['EURFX6'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
-$indexes['GBPFX6'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
-$indexes['JPYFX6'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
-$indexes['USDFX6'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
-
-$indexes['AUDFX7'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD'];
-$indexes['CADFX7'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD'];
-$indexes['CHFFX7'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD'];
-$indexes['EURFX7'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD'];
-$indexes['GBPFX7'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD'];
-$indexes['JPYFX7'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD'];
-$indexes['USDFX7'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD'];
-$indexes['NOKFX7'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'USDNOK'];
-$indexes['NZDFX7'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD'];
-$indexes['SEKFX7'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'USDSEK'];
-$indexes['SGDFX7'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'USDSGD'];
-$indexes['ZARFX7'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'USDZAR'];
-
-$indexes['EURX'  ] = ['EURUSD', 'GBPUSD', 'USDCHF', 'USDJPY', 'USDSEK'];
-$indexes['USDX'  ] = ['EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'USDSEK'];
+// -- start -----------------------------------------------------------------------------------------------------------------
 
 
-// -- Start -----------------------------------------------------------------------------------------------------------------
-
-
-// (1) Befehlszeilenargumente einlesen und validieren
+// (1) parse/validate CLI arguments
 /** @var string[] $args */
 $args = array_slice($_SERVER['argv'], 1);
 
-// Optionen parsen
+// parse options
 foreach ($args as $i => $arg) {
-    if ($arg == '-h'  )   exit(1|help());                                            // Hilfe
+    if ($arg == '-h'  )   exit(1|help());                                            // help
     if ($arg == '-v'  ) { $verbose = max($verbose, 1); unset($args[$i]); continue; } // verbose output
     if ($arg == '-vv' ) { $verbose = max($verbose, 2); unset($args[$i]); continue; } // more verbose output
     if ($arg == '-vvv') { $verbose = max($verbose, 3); unset($args[$i]); continue; } // very verbose output
 }
 
-// Symbole parsen
+/** @var RosaSymbol[] $symbols */
+$symbols = [];
+
+// parse symbols
 foreach ($args as $i => $arg) {
-    $arg = strToUpper($arg);
-    if (!array_key_exists($arg, $indexes)) exit(1|stderror('error: unknown or unsupported index "'.$args[$i].'"'));
-    $args[$i] = $arg;
+    /** @var RosaSymbol $symbol */
+    $symbol = RosaSymbol::dao()->findByName($arg);
+    if (!$symbol)                exit(1|stderror('error: unknown symbol "'.$args[$i].'"'));
+    if (!$symbol->isSynthetic()) exit(1|stderror('error: not a synthetic instrument "'.$symbol->getName().'"'));
+    $symbols[$symbol->getName()] = $symbol;                                         // using the name as index removes duplicates
 }
-$args = $args ? array_unique($args) : array_keys($indexes);             // ohne Angabe werden alle Indizes aktualisiert
+$symbols = $symbols ?: RosaSymbol::dao()->findAllSynthetics();                      // if none specified update all synthetics
 
 
-// (2) Indizes berechnen
-foreach ($args as $index) {
-    updateIndex($index) || exit(1);
+// (2) update instruments
+foreach ($symbols as $symbol) {
+    //$symbol->updateHistory()       || exit(1);
+    updateSyntheticSymbol($symbol) || exit(1);
 }
+
+!$symbols && echoPre('no synthetic instruments found');
 exit(0);
 
 
-// --- Funktionen -----------------------------------------------------------------------------------------------------------
+// --- functions ------------------------------------------------------------------------------------------------------------
 
 
 /**
- * Aktualisiert die M1-History eines einzelnen Index.
+ * Update the M1 history of a synthetic instrument.
  *
- * @param  string $index - Indexsymbol
+ * @param  RosaSymbol $symbol
  *
- * @return bool - Erfolgsstatus
+ * @return bool - success status
  */
-function updateIndex($index) {
-    if (!is_string($index)) throw new IllegalTypeException('Illegal type of parameter $index: '.getType($index));
-    if (!strLen($index))    throw new InvalidArgumentException('Invalid parameter $index: ""');
+function updateSyntheticSymbol(RosaSymbol $symbol) {
+    if (!$symbol->isSynthetic()) throw new InvalidArgumentException('Not a synthetic instrument: "'.$symbol->getName().'"');
+    $symbolName = $symbol->getName();
 
-    global $verbose, $indexes, $saveRawRostData;
+    global $verbose, $saveRawRostData;
 
     // (1) spätesten Starttag der History der benoetigten Daten ermitteln
     $startTime = 0;
-    $pairs = array_flip($indexes[$index]);                                                  // ['AUDUSD', ...] => ['AUDUSD'=>null, ...]
+    $pairs = array_flip(RosaSymbolDAO::$synthetics[$symbolName]);                           // ['AUDUSD', ...] => ['AUDUSD'=>null, ...]
     foreach($pairs as $pair => &$data) {
         /** @var DukascopySymbol $dukaSymbol */
         $dukaSymbol = RosaSymbol::dao()->getByName($pair)->getDukascopySymbol();
@@ -131,16 +105,16 @@ function updateIndex($index) {
             $shortDate = gmDate('D, d-M-Y', $day);
 
             // Pruefen, ob die History bereits existiert
-            if (is_file($file=getVar('rostFile.compressed', $index, $day))) {
-                if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'   '.$index.' compressed history file: '.baseName($file));
+            if (is_file($file=getVar('rostFile.compressed', $symbolName, $day))) {
+                if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'   '.$symbolName.' compressed history file: '.baseName($file));
             }
-            else if (is_file($file=getVar('rostFile.raw', $index, $day))) {
-                if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'   '.$index.' raw history file: '.baseName($file));
+            else if (is_file($file=getVar('rostFile.raw', $symbolName, $day))) {
+                if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'   '.$symbolName.' raw history file: '.baseName($file));
             }
             else {
                 $month = (int)gmDate('m', $day);
                 if ($month != $lastMonth) {
-                    echoPre('[Info]    '.$index.' '.gmDate('M-Y', $day));
+                    echoPre('[Info]    '.$symbolName.' '.gmDate('M-Y', $day));
                     $lastMonth = $month;
                 }
 
@@ -157,17 +131,17 @@ function updateIndex($index) {
                 }
 
                 // Indexdaten fuer diesen Tag berechnen
-                $function = 'calculate'.$index;
+                $function = 'calculate'.$symbolName;
                 $rostBars = $function($day, $pairs); if (!$rostBars) return false;
 
                 // Indexdaten speichern
-                if (!saveBars($index, $day, $rostBars)) return false;
+                if (!saveBars($symbolName, $day, $rostBars)) return false;
             }
         }
         if (!WINDOWS) pcntl_signal_dispatch();                         // Auf Ctrl-C pruefen, um bei Abbruch die Destruktoren auszufuehren.
     }
 
-    echoPre('[Ok]      '.$index);
+    echoPre('[Ok]      '.$symbolName);
     return true;
 }
 

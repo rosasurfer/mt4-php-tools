@@ -285,12 +285,14 @@ namespace rosasurfer\rost\dukascopy\update_tickdata {
 
 namespace rosasurfer\rost\update_synthetics_m1 {
 
+    use rosasurfer\rost\model\RosaSymbol;
+
     /**
-     * @param  string $index
+     * @param  RosaSymbol $symbol
      *
      * @return bool
      */
-    function updateIndex($index) {
+    function updateSyntheticSymbol(RosaSymbol $symbol) {
         return false;
     }
 

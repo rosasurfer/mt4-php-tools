@@ -18,16 +18,16 @@ class DukascopySymbol extends RosatraderModel {
     /** @var int - number of fractional digits of symbol prices */
     protected $digits;
 
-    /** @var string - starttime of the available tick history (FXT) */
+    /** @var string - start time of the available tick history (FXT) */
     protected $tickHistoryFrom;
 
-    /** @var string - endtime of the available tick history (FXT) */
+    /** @var string - end time of the available tick history (FXT) */
     protected $tickHistoryTo;
 
-    /** @var string - starttime of the available M1 history (FXT) */
+    /** @var string - start time of the available M1 history (FXT) */
     protected $m1HistoryFrom;
 
-    /** @var string - endtime of the available M1 history (FXT) */
+    /** @var string - end time of the available M1 history (FXT) */
     protected $m1HistoryTo;
 
     /** @var RosaSymbol [transient] - the Rosatrader symbol this Dukascopy symbol is mapped to */
@@ -39,12 +39,12 @@ class DukascopySymbol extends RosatraderModel {
      *
      * @param  string $format [optional] - format as used by date($format, $timestamp)
      *
-     * @return string - start time
+     * @return string - start time (a returned timestamp is FXT based)
      */
     public function getTickHistoryFrom($format = 'Y-m-d H:i:s') {
         if (!isSet($this->tickHistoryFrom) || $format=='Y-m-d H:i:s')
             return $this->tickHistoryFrom;
-        return gmDate($format, strToTime($this->tickHistoryFrom));
+        return gmDate($format, strToTime($this->tickHistoryFrom.' GMT'));
     }
 
 
@@ -53,12 +53,12 @@ class DukascopySymbol extends RosatraderModel {
      *
      * @param  string $format [optional] - format as used by date($format, $timestamp)
      *
-     * @return string - end time
+     * @return string - end time (a returned timestamp is FXT based)
      */
     public function getTickHistoryTo($format = 'Y-m-d H:i:s') {
         if (!isSet($this->tickHistoryTo) || $format=='Y-m-d H:i:s')
             return $this->tickHistoryTo;
-        return gmDate($format, strToTime($this->tickHistoryTo));
+        return gmDate($format, strToTime($this->tickHistoryTo.' GMT'));
     }
 
 
@@ -67,12 +67,12 @@ class DukascopySymbol extends RosatraderModel {
      *
      * @param  string $format [optional] - format as used by date($format, $timestamp)
      *
-     * @return string - start time
+     * @return string - start time (a returned timestamp is FXT based)
      */
     public function getM1HistoryFrom($format = 'Y-m-d H:i:s') {
         if (!isSet($this->m1HistoryFrom) || $format=='Y-m-d H:i:s')
             return $this->m1HistoryFrom;
-        return gmDate($format, strToTime($this->m1HistoryFrom));
+        return gmDate($format, strToTime($this->m1HistoryFrom.' GMT'));
     }
 
 
@@ -81,19 +81,19 @@ class DukascopySymbol extends RosatraderModel {
      *
      * @param  string $format [optional] - format as used by date($format, $timestamp)
      *
-     * @return string - end time
+     * @return string - end time (a returned timestamp is FXT based)
      */
     public function getM1HistoryTo($format = 'Y-m-d H:i:s') {
         if (!isSet($this->m1HistoryTo) || $format=='Y-m-d H:i:s')
             return $this->m1HistoryTo;
-        return gmDate($format, strToTime($this->m1HistoryTo));
+        return gmDate($format, strToTime($this->m1HistoryTo.' GMT'));
     }
 
 
     /**
      * Refresh the start times of the available tick and M1 history.
      *
-     * @return bool - whether or not at least one of the start times have changed
+     * @return bool - whether at least one of the starttimes have changed
      */
     public function refreshHistoryStart() {
         return true;
