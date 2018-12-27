@@ -43,6 +43,25 @@ class DukascopySymbolDAO extends DAO {
 
 
     /**
+     * Find the {@link DukascopySymbol} with the specified name.
+     *
+     * @param  string $name
+     *
+     * @return DukascopySymbol|null
+     */
+    public function findByName($name) {
+        if (!is_string($name)) throw new IllegalTypeException('Illegal type of parameter $name: '.getType($name));
+
+        $name = $this->escapeLiteral($name);
+
+        $sql = 'select *
+                   from :DukascopySymbol
+                   where name = '.$name;
+        return $this->find($sql);
+    }
+
+
+    /**
      * Get the {@link DukascopySymbol} with the specified name.
      *
      * @param  string $name

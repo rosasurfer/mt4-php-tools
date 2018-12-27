@@ -16,7 +16,7 @@ use const rosasurfer\rost\DUKASCOPY_TICK_SIZE;
 
 
 /**
- * Dukascopy related functionality
+ * Functionality for processing Dukascopy data
  *
  *
  * struct big-endian DUKASCOPY_BAR {    // -- offset --- size --- description -----------------------------------------------

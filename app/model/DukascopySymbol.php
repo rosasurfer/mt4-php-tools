@@ -88,4 +88,14 @@ class DukascopySymbol extends RosatraderModel {
             return $this->m1HistoryTo;
         return gmDate($format, strToTime($this->m1HistoryTo));
     }
+
+
+    /**
+     * Refresh the start times of the available tick and M1 history.
+     *
+     * @return bool - whether or not at least one of the start times have changed
+     */
+    public function refreshHistoryStart() {
+        return true;
+    }
 }
