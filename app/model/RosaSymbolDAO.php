@@ -7,6 +7,7 @@ use rosasurfer\exception\IllegalTypeException;
 
 use const rosasurfer\db\orm\meta\INT;
 use const rosasurfer\db\orm\meta\STRING;
+use const rosasurfer\db\orm\meta\BOOL;
 
 
 /**
@@ -24,20 +25,22 @@ class RosaSymbolDAO extends DAO {
             'table'      => 't_rosasymbol',
             'class'      => RosaSymbol::class,
             'properties' => [
-                ['name'=>'id',                                             'type'=>INT,    'primary'=>true],                        // db:int
-                ['name'=>'created',                                        'type'=>STRING,                ],                        // db:text[datetime] GMT
-                ['name'=>'modified',                                       'type'=>STRING, 'version'=>true],                        // db:text[datetime] GMT
+                ['name'=>'id',                                                'type'=>INT,    'primary'=>true],                     // db:int
+                ['name'=>'created',                                           'type'=>STRING,                ],                     // db:text[datetime] GMT
+                ['name'=>'modified',                                          'type'=>STRING, 'version'=>true],                     // db:text[datetime] GMT
 
-                ['name'=>'type',                                           'type'=>STRING,                ],                        // db:text forex|metals|synthetic
-                ['name'=>'name',                                           'type'=>STRING,                ],                        // db:text
-                ['name'=>'description',                                    'type'=>STRING,                ],                        // db:text
-                ['name'=>'digits',                                         'type'=>INT,                   ],                        // db:int
-                ['name'=>'tickHistoryFrom', 'column'=>'history_tick_from', 'type'=>STRING,                ],                        // db:text[datetime] FXT
-                ['name'=>'tickHistoryTo',   'column'=>'history_tick_to',   'type'=>STRING,                ],                        // db:text[datetime] FXT
-                ['name'=>'m1HistoryFrom',   'column'=>'history_M1_from',   'type'=>STRING,                ],                        // db:text[datetime] FXT
-                ['name'=>'m1HistoryTo',     'column'=>'history_M1_to',     'type'=>STRING,                ],                        // db:text[datetime] FXT
-                ['name'=>'d1HistoryFrom',   'column'=>'history_D1_from',   'type'=>STRING,                ],                        // db:text[datetime] FXT
-                ['name'=>'d1HistoryTo',     'column'=>'history_D1_to',     'type'=>STRING,                ],                        // db:text[datetime] FXT
+                ['name'=>'type',                                              'type'=>STRING,                ],                     // db:text forex|metals|synthetic
+                ['name'=>'name',                                              'type'=>STRING,                ],                     // db:text
+                ['name'=>'description',                                       'type'=>STRING,                ],                     // db:text
+                ['name'=>'digits',                                            'type'=>INT,                   ],                     // db:int
+                ['name'=>'autoUpdate',        'column'=>'autoupdate',         'type'=>BOOL,                  ],                     // db:int[bool]
+                ['name'=>'formula',                                           'type'=>STRING,                ],                     // db:text
+                ['name'=>'historyStartTicks', 'column'=>'historystart_ticks', 'type'=>STRING,                ],                     // db:text[datetime] FXT
+                ['name'=>'historyEndTicks',   'column'=>'historyend_ticks',   'type'=>STRING,                ],                     // db:text[datetime] FXT
+                ['name'=>'historyStartM1',    'column'=>'historystart_m1',    'type'=>STRING,                ],                     // db:text[datetime] FXT
+                ['name'=>'historyEndM1',      'column'=>'historyend_m1',      'type'=>STRING,                ],                     // db:text[datetime] FXT
+                ['name'=>'historyStartD1',    'column'=>'historystart_d1',    'type'=>STRING,                ],                     // db:text[datetime] FXT
+                ['name'=>'historyEndD1',      'column'=>'historyend_d1',      'type'=>STRING,                ],                     // db:text[datetime] FXT
             ],
             'relations' => [
                 ['name'=>'dukascopySymbol', 'assoc'=>'one-to-one', 'type'=>DukascopySymbol::class, 'ref-column'=>'rosasymbol_id'],  // db:int
@@ -114,7 +117,7 @@ class RosaSymbolDAO extends DAO {
     }
 
 
-    /** @var string[][] - wip: index components */
+    /** @var string[][] - temporarily: index components */
     public static $synthetics = [
         'AUDLFX' => ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'],
         'CADLFX' => ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'],

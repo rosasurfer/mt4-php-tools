@@ -35,13 +35,13 @@
   <tr>
     <td class="tabdata" >     </td>    <td class="tabdata" > Digits    </td>    <td class="tabdata" > Tinyint    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> decimal digits    </td>  </tr>
   <tr>
-    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryTickFrom    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> FXT    </td>  </tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryStartTicks    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> start of available history (FXT)    </td>  </tr>
   <tr>
-    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryTickTo    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> FXT    </td>  </tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryEndTicks    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> end of available history (FXT)    </td>  </tr>
   <tr>
-    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryM1From    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> FXT    </td>  </tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryStartM1    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> start of available history (FXT)    </td>  </tr>
   <tr>
-    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryM1To    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> FXT    </td>  </tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryEndM1    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> end of available history (FXT)    </td>  </tr>
   <tr>
     <td class="tabdata" > FK    </td>    <td class="tabdata" > ID/RosaSymbol    </td>    <td class="tabdata" > Integer    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="3"> YES   </td>  </tr>
 </table>
@@ -59,7 +59,7 @@
 <table class="tabformat" border="0" cellpadding="2" cellspacing="1" width="100%">
  
   <tr>
-    <td class="tabdata" > Dukascopy instruments   </td>  </tr>
+    <td class="tabdata" > Dukascopy instruments (available history may start or end intraday)   </td>  </tr>
 </table>
 
 <div class="caption2">User-defined variables</div>
@@ -211,17 +211,21 @@
   <tr>
     <td class="tabdata" >     </td>    <td class="tabdata" > Digits    </td>    <td class="tabdata" > Tinyint    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> decimal digits    </td>  </tr>
   <tr>
-    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryTickFrom    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> FXT    </td>  </tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > AutoUpdate    </td>    <td class="tabdata" > Bool    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> whether automatic history updates are enabled    </td>  </tr>
   <tr>
-    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryTickTo    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> FXT    </td>  </tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Formula    </td>    <td class="tabdata" > Text    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> LaTex formula to calculate quotes (only if synthetic instrument)    </td>  </tr>
   <tr>
-    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryM1From    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> FXT    </td>  </tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryStartTicks    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> first day with stored history (FXT)    </td>  </tr>
   <tr>
-    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryM1To    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> FXT    </td>  </tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryEndTicks    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> last day with stored history (FXT)    </td>  </tr>
   <tr>
-    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryD1From    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> FXT    </td>  </tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryStartM1    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> first day with stored history (FXT)    </td>  </tr>
   <tr>
-    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryD1To    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> FXT   </td>  </tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryEndM1    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> last day with stored history (FXT)    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryStartD1    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> first day with stored history (FXT)    </td>  </tr>
+  <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryEndD1    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> last day with stored history (FXT)   </td>  </tr>
 </table>
 
 <div class="caption2">Relationships</div>
@@ -237,7 +241,7 @@
 <table class="tabformat" border="0" cellpadding="2" cellspacing="1" width="100%">
  
   <tr>
-    <td class="tabdata" > Rosatrader instruments   </td>  </tr>
+    <td class="tabdata" > Rosatrader instruments (history is stored in full days only)   </td>  </tr>
 </table>
 
 <div class="caption2">User-defined variables</div>

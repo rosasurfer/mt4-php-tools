@@ -121,7 +121,7 @@ function updateSymbol(RosaSymbol $symbol) {
     $dukaSymbol = $symbol->getDukascopySymbol();
     $symbolName = $symbol->getName();
 
-    $startFxt  = $dukaSymbol->getM1HistoryFrom();
+    $startFxt  = $dukaSymbol->getHistoryStartM1();
     $startTime = $startFxt ? Rost::fxtStrToTime($startFxt) : 0;         // Beginn der Dukascopy-Daten dieses Symbols in GMT
     $startTime -= $startTime % DAY;                                     // 00:00 GMT
 

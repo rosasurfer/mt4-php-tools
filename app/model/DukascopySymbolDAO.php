@@ -24,16 +24,16 @@ class DukascopySymbolDAO extends DAO {
             'table'      => 't_dukascopysymbol',
             'class'      => DukascopySymbol::class,
             'properties' => [
-                ['name'=>'id',                                             'type'=>INT,    'primary'=>true],            // db:int
-                ['name'=>'created',                                        'type'=>STRING,                ],            // db:text[datetime] GMT
-                ['name'=>'modified',                                       'type'=>STRING, 'version'=>true],            // db:text[datetime] GMT
+                ['name'=>'id',                                                'type'=>INT,    'primary'=>true],         // db:int
+                ['name'=>'created',                                           'type'=>STRING,                ],         // db:text[datetime] GMT
+                ['name'=>'modified',                                          'type'=>STRING, 'version'=>true],         // db:text[datetime] GMT
 
-                ['name'=>'name',                                           'type'=>STRING,                ],            // db:text
-                ['name'=>'digits',                                         'type'=>INT,                   ],            // db:int
-                ['name'=>'tickHistoryFrom', 'column'=>'history_tick_from', 'type'=>STRING,                ],            // db:text[datetime] FXT
-                ['name'=>'tickHistoryTo',   'column'=>'history_tick_to',   'type'=>STRING,                ],            // db:text[datetime] FXT
-                ['name'=>'m1HistoryFrom',   'column'=>'history_M1_from',   'type'=>STRING,                ],            // db:text[datetime] FXT
-                ['name'=>'m1HistoryTo',     'column'=>'history_M1_to',     'type'=>STRING,                ],            // db:text[datetime] FXT
+                ['name'=>'name',                                              'type'=>STRING,                ],         // db:text
+                ['name'=>'digits',                                            'type'=>INT,                   ],         // db:int
+                ['name'=>'historyStartTicks', 'column'=>'historystart_ticks', 'type'=>STRING,                ],         // db:text[datetime] FXT
+                ['name'=>'historyEndTicks',   'column'=>'historyend_ticks',   'type'=>STRING,                ],         // db:text[datetime] FXT
+                ['name'=>'historyStartM1',    'column'=>'historystart_m1',    'type'=>STRING,                ],         // db:text[datetime] FXT
+                ['name'=>'historyEndM1',      'column'=>'historyend_m1',      'type'=>STRING,                ],         // db:text[datetime] FXT
             ],
             'relations' => [
                 ['name'=>'rosaSymbol', 'assoc'=>'one-to-one', 'type'=>RosaSymbol::class, 'column'=>'rosasymbol_id'],    // db:int

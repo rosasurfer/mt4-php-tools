@@ -19,16 +19,16 @@ class DukascopySymbol extends RosatraderModel {
     protected $digits;
 
     /** @var string - start time of the available tick history (FXT) */
-    protected $tickHistoryFrom;
+    protected $historyStartTicks;
 
     /** @var string - end time of the available tick history (FXT) */
-    protected $tickHistoryTo;
+    protected $historyEndTicks;
 
     /** @var string - start time of the available M1 history (FXT) */
-    protected $m1HistoryFrom;
+    protected $historyStartM1;
 
     /** @var string - end time of the available M1 history (FXT) */
-    protected $m1HistoryTo;
+    protected $historyEndM1;
 
     /** @var RosaSymbol [transient] - the Rosatrader symbol this Dukascopy symbol is mapped to */
     protected $rosaSymbol;
@@ -41,10 +41,10 @@ class DukascopySymbol extends RosatraderModel {
      *
      * @return string - start time based on an FXT timestamp
      */
-    public function getTickHistoryFrom($format = 'Y-m-d H:i:s') {
-        if (!isSet($this->tickHistoryFrom) || $format=='Y-m-d H:i:s')
-            return $this->tickHistoryFrom;
-        return gmDate($format, strToTime($this->tickHistoryFrom.' GMT'));
+    public function getHistoryStartTicks($format = 'Y-m-d H:i:s') {
+        if (!isSet($this->historyStartTicks) || $format=='Y-m-d H:i:s')
+            return $this->historyStartTicks;
+        return gmDate($format, strToTime($this->historyStartTicks.' GMT'));
     }
 
 
@@ -55,10 +55,10 @@ class DukascopySymbol extends RosatraderModel {
      *
      * @return string - end time based on an FXT timestamp
      */
-    public function getTickHistoryTo($format = 'Y-m-d H:i:s') {
-        if (!isSet($this->tickHistoryTo) || $format=='Y-m-d H:i:s')
-            return $this->tickHistoryTo;
-        return gmDate($format, strToTime($this->tickHistoryTo.' GMT'));
+    public function getHistoryEndTicks($format = 'Y-m-d H:i:s') {
+        if (!isSet($this->historyEndTicks) || $format=='Y-m-d H:i:s')
+            return $this->historyEndTicks;
+        return gmDate($format, strToTime($this->historyEndTicks.' GMT'));
     }
 
 
@@ -69,10 +69,10 @@ class DukascopySymbol extends RosatraderModel {
      *
      * @return string - start time based on an FXT timestamp
      */
-    public function getM1HistoryFrom($format = 'Y-m-d H:i:s') {
-        if (!isSet($this->m1HistoryFrom) || $format=='Y-m-d H:i:s')
-            return $this->m1HistoryFrom;
-        return gmDate($format, strToTime($this->m1HistoryFrom.' GMT'));
+    public function getHistoryStartM1($format = 'Y-m-d H:i:s') {
+        if (!isSet($this->historyStartM1) || $format=='Y-m-d H:i:s')
+            return $this->historyStartM1;
+        return gmDate($format, strToTime($this->historyStartM1.' GMT'));
     }
 
 
@@ -83,10 +83,10 @@ class DukascopySymbol extends RosatraderModel {
      *
      * @return string - end time based on an FXT timestamp
      */
-    public function getM1HistoryTo($format = 'Y-m-d H:i:s') {
-        if (!isSet($this->m1HistoryTo) || $format=='Y-m-d H:i:s')
-            return $this->m1HistoryTo;
-        return gmDate($format, strToTime($this->m1HistoryTo.' GMT'));
+    public function getHistoryEndM1($format = 'Y-m-d H:i:s') {
+        if (!isSet($this->historyEndM1) || $format=='Y-m-d H:i:s')
+            return $this->historyEndM1;
+        return gmDate($format, strToTime($this->historyEndM1.' GMT'));
     }
 
 

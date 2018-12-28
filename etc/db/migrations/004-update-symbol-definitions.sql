@@ -4,8 +4,8 @@ pragma recursive_triggers = off;
 begin;
 
 
--- alter ProjectSymbols to RosaSymbols
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- alter ProjectSymbols to RosaSymbols
 -- RosaSymbols
 create table t_rosasymbol (                                                -- Rosatrader instruments
    id                integer        not null,
@@ -41,9 +41,8 @@ select id, created, modified, lower(type), name, description, digits, history_ti
 drop table if exists t_projectsymbol;
 
 
--- update DukascopySymbol
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- DukascopySymbol
+-- update DukascopySymbol
 alter table t_dukascopysymbol rename to t_dukascopysymbol_old_20181220;
 drop trigger if exists tr_dukascopysymbol_before_update;
 

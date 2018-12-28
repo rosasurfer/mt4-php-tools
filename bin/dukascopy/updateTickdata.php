@@ -124,7 +124,7 @@ function updateSymbol(RosaSymbol $symbol) {
 
 
     // (1) Beginn des naechsten Forex-Tages ermitteln
-    $startTimeFXT = $dukaSymbol->getTickHistoryFrom();
+    $startTimeFXT = $dukaSymbol->getHistoryStartTicks();
     $startTimeGMT = $startTimeFXT ? Rost::fxtStrToTime($startTimeFXT) : 0;  // Beginn der Tickdaten des Symbols in GMT
     $prev = $next = null;
     $fxtOffset    = Rost::fxtTimezoneOffset($startTimeGMT, $prev, $next);   // es gilt: FXT = GMT + Offset
