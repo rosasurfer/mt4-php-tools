@@ -22,6 +22,7 @@ $verbose = 0;                                                                   
 
 
 // (1) read and validate command line arguments
+/** @var string[] $args */
 $args = array_slice($_SERVER['argv'], 1);
 
 // parse options

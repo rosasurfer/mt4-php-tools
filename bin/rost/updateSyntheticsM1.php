@@ -1,11 +1,11 @@
 #!/usr/bin/env php
 <?php
 /**
- * Update the local M1 history of the specified synthetic instruments.
+ * Update the M1 history of synthetic Rosatrader instruments.
  *
  * @see  https://github.com/rosasurfer/mt4-tools/blob/master/app/lib/synthetic/README.md
  */
-namespace rosasurfer\rost\fxi\update_m1_bars;
+namespace rosasurfer\rost\update_synthetics_m1;
 
 use rosasurfer\config\Config;
 use rosasurfer\exception\IllegalTypeException;
@@ -13,6 +13,9 @@ use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 
 use rosasurfer\rost\Rost;
+use rosasurfer\rost\model\DukascopySymbol;
+use rosasurfer\rost\model\RosaSymbol;
+use rosasurfer\rost\model\RosaSymbolDAO;
 
 use function rosasurfer\rost\fxtTime;
 use function rosasurfer\rost\isFxtWeekend;
@@ -21,150 +24,124 @@ require(dirName(realPath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');
 
 
-// -- Konfiguration ---------------------------------------------------------------------------------------------------------
+// -- configuration ---------------------------------------------------------------------------------------------------------
 
 
 $verbose         = 0;                                       // output verbosity
-$saveRawRostData = true;                                    // ob unkomprimierte Rost-Historydaten gespeichert werden sollen
+$saveRawRostData = true;                                    // whether to store uncompressed history files
 
 
-// Indizes und die zu ihrer Berechnung benoetigten Instrumente
-$indexes['AUDLFX'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
-$indexes['CADLFX'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
-$indexes['CHFLFX'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
-$indexes['EURLFX'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
-$indexes['GBPLFX'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
-$indexes['JPYLFX'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
-$indexes['NZDLFX'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD'];
-$indexes['USDLFX'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
-
-$indexes['AUDFX6'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
-$indexes['CADFX6'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
-$indexes['CHFFX6'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
-$indexes['EURFX6'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
-$indexes['GBPFX6'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
-$indexes['JPYFX6'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
-$indexes['USDFX6'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
-
-$indexes['AUDFX7'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD'];
-$indexes['CADFX7'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD'];
-$indexes['CHFFX7'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD'];
-$indexes['EURFX7'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD'];
-$indexes['GBPFX7'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD'];
-$indexes['JPYFX7'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD'];
-$indexes['USDFX7'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD'];
-$indexes['NOKFX7'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'USDNOK'];
-$indexes['NZDFX7'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'NZDUSD'];
-$indexes['SEKFX7'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'USDSEK'];
-$indexes['SGDFX7'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'USDSGD'];
-$indexes['ZARFX7'] = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'USDZAR'];
-
-$indexes['EURX'  ] = ['EURUSD', 'GBPUSD', 'USDCHF', 'USDJPY', 'USDSEK'];
-$indexes['USDX'  ] = ['EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'USDSEK'];
+// -- start -----------------------------------------------------------------------------------------------------------------
 
 
-// -- Start -----------------------------------------------------------------------------------------------------------------
-
-
-// (1) Befehlszeilenargumente einlesen und validieren
+// (1) parse/validate CLI arguments
+/** @var string[] $args */
 $args = array_slice($_SERVER['argv'], 1);
 
-// Optionen parsen
+// parse options
 foreach ($args as $i => $arg) {
-    if ($arg == '-h'  )   exit(1|help());                                            // Hilfe
+    if ($arg == '-h'  )   exit(1|help());                                            // help
     if ($arg == '-v'  ) { $verbose = max($verbose, 1); unset($args[$i]); continue; } // verbose output
     if ($arg == '-vv' ) { $verbose = max($verbose, 2); unset($args[$i]); continue; } // more verbose output
     if ($arg == '-vvv') { $verbose = max($verbose, 3); unset($args[$i]); continue; } // very verbose output
 }
 
-// Symbole parsen
+/** @var RosaSymbol[] $symbols */
+$symbols = [];
+
+// parse symbols
 foreach ($args as $i => $arg) {
-    $arg = strToUpper($arg);
-    if (!array_key_exists($arg, $indexes)) exit(1|stderror('error: unknown or unsupported index "'.$args[$i].'"'));
-    $args[$i] = $arg;
+    /** @var RosaSymbol $symbol */
+    $symbol = RosaSymbol::dao()->findByName($arg);
+    if (!$symbol)                exit(1|stderror('error: unknown symbol "'.$args[$i].'"'));
+    if (!$symbol->isSynthetic()) exit(1|stderror('error: not a synthetic instrument "'.$symbol->getName().'"'));
+    $symbols[$symbol->getName()] = $symbol;                                         // using the name as index removes duplicates
 }
-$args = $args ? array_unique($args) : array_keys($indexes);             // ohne Angabe werden alle Indizes aktualisiert
+$symbols = $symbols ?: RosaSymbol::dao()->findAllSynthetics();                      // if none specified update all synthetics
 
 
-// (2) Indizes berechnen
-foreach ($args as $index) {
-    !updateIndex($index) && exit(1);
+// (2) update instruments
+foreach ($symbols as $symbol) {
+    //$symbol->updateHistory()       || exit(1);
+    updateSyntheticSymbol($symbol) || exit(1);
 }
+
+!$symbols && echoPre('no synthetic instruments found');
 exit(0);
 
 
-// --- Funktionen -----------------------------------------------------------------------------------------------------------
+// --- functions ------------------------------------------------------------------------------------------------------------
 
 
 /**
- * Aktualisiert die M1-History eines Indexes (Rost-Format).
+ * Update the M1 history of a synthetic instrument.
  *
- * @param  string $index - Indexsymbol
+ * @param  RosaSymbol $symbol
  *
- * @return bool - Erfolgsstatus
+ * @return bool - success status
  */
-function updateIndex($index) {
-    if (!is_string($index)) throw new IllegalTypeException('Illegal type of parameter $index: '.getType($index));
-    if (!strLen($index))    throw new InvalidArgumentException('Invalid parameter $index: ""');
+function updateSyntheticSymbol(RosaSymbol $symbol) {
+    if (!$symbol->isSynthetic()) throw new InvalidArgumentException('Not a synthetic instrument: "'.$symbol->getName().'"');
+    $symbolName = $symbol->getName();
 
-    global $verbose, $indexes, $saveRawRostData;
+    global $verbose, $saveRawRostData;
 
-    // (1) Starttag der benoetigten Daten ermitteln
+    // (1) spätesten Starttag der History der benoetigten Daten ermitteln
     $startTime = 0;
-    $pairs = array_flip($indexes[$index]);                                                  // ['AUDUSD', ...] => ['AUDUSD'=>null, ...]
+    $pairs = array_flip(RosaSymbolDAO::$synthetics[$symbolName]);                           // ['AUDUSD', ...] => ['AUDUSD'=>null, ...]
     foreach($pairs as $pair => &$data) {
-        $data      = [];                                                                    // $data initialisieren: ['AUDUSD'=>[], ...]
-        $startTime = max($startTime, Rost::$symbols[$pair]['historyStart']['M1']);           // GMT-Timestamp
+        /** @var DukascopySymbol $dukaSymbol */
+        $dukaSymbol = RosaSymbol::dao()->getByName($pair)->getDukascopySymbol();
+        $startTime  = max($startTime, (int)$dukaSymbol->getHistoryStartM1('U'));            // FXT
+        $data = [];                                                                         // $data initialisieren: ['AUDUSD'=>[], ...]
     } unset($data);
-    $startTime = fxtTime($startTime);
-    $startDay  = $startTime - $startTime%DAY;                                               // 00:00 Starttag FXT
-    $today     = ($today=fxtTime()) - $today%DAY;                                           // 00:00 aktueller Tag FXT
+    $startDay = $startTime - $startTime%DAY;                                                // 00:00 Starttag FXT
+    $today    = ($today=fxtTime()) - $today%DAY;                                            // 00:00 aktueller Tag FXT
 
 
     // (2) Gesamte Zeitspanne tageweise durchlaufen
     for ($day=$startDay, $lastMonth=-1; $day < $today; $day+=1*DAY) {
-
         if (!isFxtWeekend($day, 'FXT')) {                                                   // ausser an Wochenenden
             $shortDate = gmDate('D, d-M-Y', $day);
 
             // Pruefen, ob die History bereits existiert
-            if (is_file($file=getVar('fxiTarget.compressed', $index, $day))) {
-                if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'   '.$index.' compressed history file: '.baseName($file));
+            if (is_file($file=getVar('rostFile.compressed', $symbolName, $day))) {
+                if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'   '.$symbolName.' compressed history file: '.baseName($file));
             }
-            else if (is_file($file=getVar('fxiTarget.raw', $index, $day))) {
-                if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'   '.$index.' raw history file: '.baseName($file));
+            else if (is_file($file=getVar('rostFile.raw', $symbolName, $day))) {
+                if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'   '.$symbolName.' raw history file: '.baseName($file));
             }
             else {
-                $month = (int) gmDate('m', $day);
+                $month = (int)gmDate('m', $day);
                 if ($month != $lastMonth) {
-                    echoPre('[Info]    '.$index.' '.gmDate('M-Y', $day));
+                    echoPre('[Info]    '.$symbolName.' '.gmDate('M-Y', $day));
                     $lastMonth = $month;
                 }
 
                 // History aktualisieren: M1-Bars der benoetigten Instrumente dieses Tages einlesen
                 foreach($pairs as $pair => $data) {
-                    if      (is_file($file=getVar('fxiSource.compressed', $pair, $day))) {}    // komprimierte oder
-                    else if (is_file($file=getVar('fxiSource.raw'       , $pair, $day))) {}    // unkomprimierte Rost-Datei
+                    if      (is_file($file=getVar('rostFile.compressed', $pair, $day))) {}      // komprimierte oder
+                    else if (is_file($file=getVar('rostFile.raw',        $pair, $day))) {}      // unkomprimierte Rost-Datei
                     else {
                         echoPre('[Error]   '.$pair.' history for '.$shortDate.' not found');
                         return false;
                     }
                     // M1-Bars zwischenspeichern
-                    $pairs[$pair]['bars'] = Rost::readBarFile($file, $pair);                     // ['AUDUSD'=>array('bars'=>[]), ...]
+                    $pairs[$pair]['bars'] = Rost::readBarFile($file, $pair);                    // ['AUDUSD'=>array('bars'=>[]), ...]
                 }
 
                 // Indexdaten fuer diesen Tag berechnen
-                $function = 'calculate'.$index;
-                $fxiBars   = $function($day, $pairs); if (!$fxiBars) return false;
+                $function = 'calculate'.$symbolName;
+                $rostBars = $function($day, $pairs); if (!$rostBars) return false;
 
                 // Indexdaten speichern
-                if (!saveBars($index, $day, $fxiBars)) return false;
+                if (!saveBars($symbolName, $day, $rostBars)) return false;
             }
         }
         if (!WINDOWS) pcntl_signal_dispatch();                         // Auf Ctrl-C pruefen, um bei Abbruch die Destruktoren auszufuehren.
     }
 
-    echoPre('[Ok]      '.$index);
+    echoPre('[Ok]      '.$symbolName);
     return true;
 }
 
@@ -1831,7 +1808,7 @@ function saveBars($symbol, $day, array $bars) {
 
     // (3) binaere Daten ggf. speichern
     if ($saveRawRostData) {
-        if (is_file($file=getVar('fxiTarget.raw', $symbol, $day))) {
+        if (is_file($file=getVar('rostFile.raw', $symbol, $day))) {
             echoPre('[Error]   '.$symbol.' history for '.gmDate('D, d-M-Y', $day).' already exists');
             return false;
         }
@@ -1886,7 +1863,6 @@ function showBuffer($bars) {
  * @return string - Variable
  */
 function getVar($id, $symbol=null, $time=null) {
-    //global $varCache;
     static $varCache = [];
     if (array_key_exists(($key=$id.'|'.$symbol.'|'.$time), $varCache))
         return $varCache[$key];
@@ -1895,44 +1871,25 @@ function getVar($id, $symbol=null, $time=null) {
     if (isSet($symbol) && !is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
     if (isSet($time) && !is_int($time))        throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
 
-    static $dataDirectory;
+    static $dataDir; !$dataDir && $dataDir = Config::getDefault()->get('app.dir.data');
     $self = __FUNCTION__;
 
-    if ($id == 'rostDirDate') {                  // $yyyy/$mm/$dd                                               // lokales Pfad-Datum
+    if ($id == 'rostDir') {                     // $dataDir/history/rost/$type/$symbol/$rostDirDate     // lokales Verzeichnis
+        $type        = RosaSymbol::dao()->getByName($symbol)->getType();
+        $rostDirDate = $self('rostDirDate', null, $time);
+        $result      = $dataDir.'/history/rost/'.$type.'/'.$symbol.'/'.$rostDirDate;
+    }
+    else if ($id == 'rostDirDate') {            // $yyyy/$mm/$dd                                        // lokales Pfad-Datum
         if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
         $result = gmDate('Y/m/d', $time);
     }
-    else if ($id == 'fxiSourceDir') {           // $dataDirectory/history/rost/$group/$symbol/$rostDirDate      // lokales Quell-Verzeichnis
-        if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
-        if (!$dataDirectory)
-        $dataDirectory = Config::getDefault()->get('app.dir.data');
-        $group         = Rost::$symbols[$symbol]['group'];
-        $rostDirDate   = $self('rostDirDate', null, $time);
-        $result        = $dataDirectory.'/history/rost/'.$group.'/'.$symbol.'/'.$rostDirDate;
+    else if ($id == 'rostFile.raw') {           // $rostDir/M1.myfx                                     // lokale Datei ungepackt
+        $rostDir = $self('rostDir', $symbol, $time);
+        $result  = $rostDir.'/M1.myfx';
     }
-    else if ($id == 'fxiTargetDir') {           // $dataDirectory/history/rost/$type/$symbol/$rostDirDate       // lokales Ziel-Verzeichnis
-        if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
-        if (!$dataDirectory)
-        $dataDirectory = Config::getDefault()->get('app.dir.data');
-        $group         = Rost::$symbols[$symbol]['group'];
-        $rostDirDate   = $self('rostDirDate', null, $time);
-        $result        = $dataDirectory.'/history/rost/'.$group.'/'.$symbol.'/'.$rostDirDate;
-    }
-    else if ($id == 'fxiSource.raw') {          // $fxiSourceDir/M1.myfx                                        // lokale Quell-Datei ungepackt
-        $fxiSourceDir = $self('fxiSourceDir', $symbol, $time);
-        $result       = $fxiSourceDir.'/M1.myfx';
-    }
-    else if ($id == 'fxiSource.compressed') {   // $fxiSourceDir/M1.rar                                         // lokale Quell-Datei gepackt
-        $fxiSourceDir = $self('fxiSourceDir', $symbol, $time);
-        $result       = $fxiSourceDir.'/M1.rar';
-    }
-    else if ($id == 'fxiTarget.raw') {          // $fxiTargetDir/M1.myfx                                        // lokale Ziel-Datei ungepackt
-        $fxiTargetDir = $self('fxiTargetDir' , $symbol, $time);
-        $result       = $fxiTargetDir.'/M1.myfx';
-    }
-    else if ($id == 'fxiTarget.compressed') {   // $fxiTargetDir/M1.rar                                         // lokale Ziel-Datei gepackt
-        $fxiTargetDir = $self('fxiTargetDir' , $symbol, $time);
-        $result       = $fxiTargetDir.'/M1.rar';
+    else if ($id == 'rostFile.compressed') {    // $rostDir/M1.rar                                      // lokale Datei gepackt
+        $rostDir = $self('rostDir', $symbol, $time);
+        $result  = $rostDir.'/M1.rar';
     }
     else {
       throw new InvalidArgumentException('Unknown variable identifier "'.$id.'"');

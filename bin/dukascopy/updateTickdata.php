@@ -47,6 +47,8 @@ use rosasurfer\rost\LZMA;
 use rosasurfer\rost\Rost;
 use rosasurfer\rost\dukascopy\Dukascopy;
 use rosasurfer\rost\dukascopy\DukascopyException;
+use rosasurfer\rost\model\DukascopySymbol;
+use rosasurfer\rost\model\RosaSymbol;
 
 use function rosasurfer\rost\isFxtWeekend;
 
@@ -68,6 +70,7 @@ $saveRawRostData              = true;           // ob unkomprimierte Rost-Histor
 
 
 // (1) Befehlszeilenargumente einlesen und validieren
+/** @var string[] $args */
 $args = array_slice($_SERVER['argv'], 1);
 
 // Optionen parsen
@@ -78,19 +81,23 @@ foreach ($args as $i => $arg) {
     if ($arg == '-vvv') { $verbose = max($verbose, 3); unset($args[$i]); continue; } // very verbose output
 }
 
+/** @var RosaSymbol[] $symbols */
+$symbols = [];
+
 // Symbole parsen
 foreach ($args as $i => $arg) {
-    $arg = strToUpper($arg);
-    if (!isSet(Rost::$symbols[$arg]) || Rost::$symbols[$arg]['provider']!='dukascopy')
-        exit(1|stderror('unknown or unsupported symbol "'.$args[$i].'"'));
-    $args[$i] = $arg;
-}                                                                       // ohne Angabe werden alle Dukascopy-Instrumente aktualisiert
-$args = $args ? array_unique($args) : array_keys(Rost::filterSymbols(['provider'=>'dukascopy']));
+    /** @var RosaSymbol $symbol */
+    $symbol = RosaSymbol::dao()->findByName($arg);
+    if (!$symbol)                       exit(1|stderror('error: unknown symbol "'.$args[$i].'"'));
+    if (!$symbol->getDukascopySymbol()) exit(1|stderror('error: no Dukascopy mapping found for symbol "'.$args[$i].'"'));
+    $symbols[$symbol->getName()] = $symbol;                                         // using the name as index removes duplicates
+}
+$symbols = $symbols ?: RosaSymbol::dao()->findAllDukascopyMapped();                 // ohne Angabe werden alle Instrumente verarbeitet
 
 
 // (2) Daten aktualisieren
-foreach ($args as $symbol) {
-    !updateSymbol($symbol) && exit(1);
+foreach ($symbols as $symbol) {
+    updateSymbol($symbol) || exit(1);
 }
 exit(0);
 
@@ -104,22 +111,24 @@ exit(0);
  * Eine Dukascopy-Datei enthaelt eine Stunde Tickdaten. Die Daten der aktuellen Stunde sind fruehestens
  * ab der naechsten Stunde verfuegbar.
  *
- * @param  string $symbol - Symbol
+ * @param  RosaSymbol $symbol
  *
  * @return bool - Erfolgsstatus
  */
-function updateSymbol($symbol) {
-    if (!is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
-    $symbol = strToUpper($symbol);
+function updateSymbol(RosaSymbol $symbol) {
+    /** @var DukascopySymbol $dukaSymbol */
+    $dukaSymbol = $symbol->getDukascopySymbol();
+    $symbolName = $symbol->getName();
 
-    echoPre('[Info]    '.$symbol);
+    echoPre('[Info]    '.$symbolName);
 
 
     // (1) Beginn des naechsten Forex-Tages ermitteln
-    $startTimeGMT = Rost::$symbols[$symbol]['historyStart']['ticks'];       // Beginn der Tickdaten des Symbols GMT
+    $startTimeFXT = $dukaSymbol->getHistoryStartTicks();
+    $startTimeGMT = $startTimeFXT ? Rost::fxtStrToTime($startTimeFXT) : 0;  // Beginn der Tickdaten des Symbols in GMT
     $prev = $next = null;
-    $fxtOffset = Rost::fxtTimezoneOffset($startTimeGMT, $prev, $next);      // es gilt: FXT = GMT + Offset
-    $startTimeFXT = $startTimeGMT + $fxtOffset;                             // Beginn der Tickdaten FXT
+    $fxtOffset    = Rost::fxtTimezoneOffset($startTimeGMT, $prev, $next);   // es gilt: FXT = GMT + Offset
+    $startTimeFXT = $startTimeGMT + $fxtOffset;                             // Beginn der Tickdaten in FXT
 
     if ($remainder=$startTimeFXT % DAY) {                                   // Beginn auf den naechsten Forex-Tag 00:00 aufrunden, sodass
         $diff = 1*DAY - $remainder;                                         // wir nur vollstaendige Forex-Tage verarbeiten. Dabei
@@ -145,11 +154,11 @@ function updateSymbol($symbol) {
             $fxtOffset = Rost::fxtTimezoneOffset($gmtHour, $prev, $next);   // $fxtOffset on-the-fly aktualisieren
         $fxtHour = $gmtHour + $fxtOffset;
 
-        if (!checkHistory($symbol, $gmtHour, $fxtHour)) return false;
+        if (!checkHistory($symbolName, $gmtHour, $fxtHour)) return false;
         if (!WINDOWS) pcntl_signal_dispatch();                              // Auf Ctrl-C pruefen, um bei Abbruch die Destruktoren auszufuehren.
     }
 
-    echoPre('[Ok]      '.$symbol);
+    echoPre('[Ok]      '.$symbolName);
     return true;
 }
 
@@ -542,7 +551,6 @@ function loadRawDukascopyTickData($data, $symbol, $gmtHour, $fxtHour) {
  * @return string - Variable
  */
 function getVar($id, $symbol=null, $time=null) {
-    //global $varCache;
     static $varCache = [];
     if (array_key_exists(($key=$id.'|'.$symbol.'|'.$time), $varCache))
         return $varCache[$key];
@@ -551,37 +559,34 @@ function getVar($id, $symbol=null, $time=null) {
     if (isSet($symbol) && !is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
     if (isSet($time) && !is_int($time))        throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
 
-    static $dataDirectory;
+    static $dataDir; !$dataDir && $dataDir = Config::getDefault()->get('app.dir.data');
     $self = __FUNCTION__;
 
-    if ($id == 'rostDirDate') {               // $yyyy/$mmL/$dd                                                  // lokales Pfad-Datum
+    if ($id == 'rostDirDate') {                 // $yyyy/$mmL/$dd                                               // lokales Pfad-Datum
         if (!$time)   throw new InvalidArgumentException('Invalid parameter $time: '.$time);
         $result = gmDate('Y/m/d', $time);
     }
-    else if ($id == 'rostDir') {              // $dataDirectory/history/rost/$group/$symbol/$rostDirDate         // lokales Verzeichnis
-        if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
-        if (!$dataDirectory)
-        $dataDirectory = Config::getDefault()->get('app.dir.data');
-        $group         = Rost::$symbols[$symbol]['group'];
-        $rostDirDate   = $self('rostDirDate', null, $time);
-        $result        = $dataDirectory.'/history/rost/'.$group.'/'.$symbol.'/'.$rostDirDate;
+    else if ($id == 'rostDir') {                // $dataDirectory/history/rost/$type/$symbol/$rostDirDate       // lokales Verzeichnis
+        $type        = RosaSymbol::dao()->getByName($symbol)->getType();
+        $rostDirDate = $self('rostDirDate', null, $time);
+        $result      = $dataDir.'/history/rost/'.$type.'/'.$symbol.'/'.$rostDirDate;
     }
-    else if ($id == 'rostFile.raw') {         // $rostDir/${hour}h_ticks.myfx                                    // lokale Datei ungepackt
+    else if ($id == 'rostFile.raw') {           // $rostDir/${hour}h_ticks.myfx                                 // lokale Datei ungepackt
         $rostDir = $self('rostDir', $symbol, $time);
         $hour    = gmDate('H', $time);
         $result  = $rostDir.'/'.$hour.'h_ticks.myfx';
     }
-    else if ($id == 'rostFile.compressed') {    // $rostDir/${hour}h_ticks.rar                                   // lokale Datei gepackt
+    else if ($id == 'rostFile.compressed') {    // $rostDir/${hour}h_ticks.rar                                  // lokale Datei gepackt
         $rostDir = $self('rostDir', $symbol, $time);
         $hour    = gmDate('H', $time);
         $result  = $rostDir.'/'.$hour.'h_ticks.rar';
     }
-    else if ($id == 'dukaFile.raw') {           // $rostDir/${hour}h_ticks.bin                                   // Dukascopy-Datei ungepackt
+    else if ($id == 'dukaFile.raw') {           // $rostDir/${hour}h_ticks.bin                                  // Dukascopy-Datei ungepackt
         $rostDir = $self('rostDir', $symbol, $time);
         $hour    = gmDate('H', $time);
         $result  = $rostDir.'/'.$hour.'h_ticks.bin';
     }
-    else if ($id == 'dukaFile.compressed') {    // $rostDir/${hour}h_ticks.bi5                                   // Dukascopy-Datei gepackt
+    else if ($id == 'dukaFile.compressed') {    // $rostDir/${hour}h_ticks.bi5                                  // Dukascopy-Datei gepackt
         $rostDir = $self('rostDir', $symbol, $time);
         $hour    = gmDate('H', $time);
         $result  = $rostDir.'/'.$hour.'h_ticks.bi5';

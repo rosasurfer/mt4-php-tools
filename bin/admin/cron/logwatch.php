@@ -26,6 +26,7 @@ $quiet = false;                                             // whether or not "q
 // --- Parse and validate command line arguments ----------------------------------------------------------------------------
 
 
+/** @var string[] $args */
 $args = array_slice($_SERVER['argv'], 1);
 
 foreach ($args as $i => $arg) {

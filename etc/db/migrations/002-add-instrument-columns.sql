@@ -4,8 +4,8 @@ pragma recursive_triggers = off;
 begin;
 
 
--- add instrument columns
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- add instrument columns
 -- Instruments
 alter table  t_instrument rename to t_instrument_old_20181219;
 drop index   if exists i_instrument_type;

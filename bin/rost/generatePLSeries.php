@@ -18,6 +18,7 @@ use rosasurfer\rost\Rost;
 use rosasurfer\rost\model\Test;
 
 use function rosasurfer\rost\isFxtWeekend;
+use rosasurfer\rost\model\RosaSymbol;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');
 
@@ -32,6 +33,7 @@ $saveRawRostData = true;                                                // wheth
 
 
 // (1) parse/validate command line arguments
+/** @var string[] $args */
 $args = array_slice($_SERVER['argv'], 1);
 foreach ($args as $i => $arg) {
     if ($arg == '-h') exit(1|help());           // help
@@ -74,7 +76,7 @@ foreach ($trades as $trade) {                                           // atm: 
 uSort($deals, function(\StdClass $a, \StdClass $b) {
     if ($a->time < $b->time)  return -1;
     if ($a->time > $b->time)  return +1;
-    if ($a->type != $b->type) return strCmp($a->type, $b->type);        // strCmp('open', 'close') = 1
+    if ($a->type != $b->type) return strCmp($a->type, $b->type);        // 'open' > 'close'
     return $a->ticket > $b->ticket ? +1 : -1;
 });
 $deals = array_values($deals);
@@ -115,8 +117,6 @@ if (end($deals)->position) throw new RuntimeException('Unexpected total position
 
 // (5) generate a reporting symbol for the PL series
 $reportSymbol = $test->getReportingSymbol();
-define('PIP',   Rost::$symbols[$symbol]['pip'   ]); define('PIPS',   PIP);
-define('POINT', Rost::$symbols[$symbol]['point' ]); define('POINTS', POINT);
 
 
 // (6) generate the PL series
@@ -234,7 +234,7 @@ function saveBars($symbol, $day, array $bars, $partial = false) {
     // convert bars into a binary string
     $data = null;
     foreach ($bars as $bar) {
-        $data .= pack('Vdddd', $bar['time' ],   // V                // TODO: validate bar data (@see fxi.updateM1Bars)
+        $data .= pack('Vdddd', $bar['time' ],   // V                // TODO: validate bar data (@see bin/rost/updateSyntheticsM1.php)
                                $bar['open' ],   // d
                                $bar['high' ],   // d
                                $bar['low'  ],   // d
@@ -290,22 +290,21 @@ function getVar($id, $symbol=null, $time=null) {
     if (isSet($time) && !is_int($time))        throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
 
     $self = __FUNCTION__;
-    static $dataDirectory; !$dataDirectory && $dataDirectory = Config::getDefault()->get('app.dir.data');
+    static $dataDir; !$dataDir && $dataDir = Config::getDefault()->get('app.dir.data');
 
-    if ($id == 'rostDirDate') {               // $yyyy/$mm/$dd                                                   // local path date
+    if ($id == 'rostDirDate') {               // $yyyy/$mm/$dd                                                  // local path date
         if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
         $result = gmDate('Y/m/d', $time);
     }
-    else if ($id == 'rostDir') {              // $dataDirectory/history/rost/$group/$symbol/$rostDirDate        // local directory
-        if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
-        $group       = Rost::$symbols[$symbol]['group'];
+    else if ($id == 'rostDir') {              // $dataDirectory/history/rost/$type/$symbol/$rostDirDate         // local directory
+        $type        = RosaSymbol::dao()->getByName($symbol)->getType();
         $rostDirDate = $self('rostDirDate', null, $time);
-        $result      = $dataDirectory.'/history/rost/'.$group.'/'.$symbol.'/'.$rostDirDate;
+        $result      = $dataDir.'/history/rost/'.$type.'/'.$symbol.'/'.$rostDirDate;
     }
     else if ($id == 'rostDirPL') {            // $dataDirectory/stats/pl/$symbol/$rostDirDate                   // local directory
         if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
         $rostDirDate = $self('rostDirDate', null, $time);
-        $result      = $dataDirectory.'/stats/pl/'.$symbol.'/'.$rostDirDate;
+        $result      = $dataDir.'/stats/pl/'.$symbol.'/'.$rostDirDate;
     }
     else if ($id == 'rostFile.raw') {         // $rostDir/M1.myfx                                               // local file uncompressed
         $rostDir = $self('rostDir' , $symbol, $time);

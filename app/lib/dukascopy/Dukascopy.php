@@ -9,31 +9,32 @@ use rosasurfer\log\Logger;
 
 use rosasurfer\rost\LZMA;
 use rosasurfer\rost\Rost;
+use rosasurfer\rost\model\DukascopySymbol;
 
 use const rosasurfer\rost\DUKASCOPY_BAR_SIZE;
 use const rosasurfer\rost\DUKASCOPY_TICK_SIZE;
 
 
 /**
- * Dukascopy related functionality
+ * Functionality for processing Dukascopy data
  *
  *
  * struct big-endian DUKASCOPY_BAR {    // -- offset --- size --- description -----------------------------------------------
  *     uint  timeDelta;                 //         0        4     time difference in seconds since 00:00 GMT
- *     uint  open;                      //         4        4     in points
- *     uint  close;                     //         8        4     in points
- *     uint  low;                       //        12        4     in points
- *     uint  high;                      //        16        4     in points
+ *     uint  open;                      //         4        4     in point
+ *     uint  close;                     //         8        4     in point
+ *     uint  low;                       //        12        4     in point
+ *     uint  high;                      //        16        4     in point
  *     float volume;                    //        20        4
  * };                                   // ----------------------------------------------------------------------------------
  *                                      //               = 24
  *
  * struct big-endian DUKASCOPY_TICK {   // -- offset --- size --- description -----------------------------------------------
  *     uint  timeDelta;                 //         0        4     time difference in milliseconds since start of the hour
- *     uint  ask;                       //         4        4     in points
- *     uint  bid;                       //         8        4     in points
- *     float askSize;                   //        12        4     cumulated ask size in lots (min. 1)
- *     float bidSize;                   //        16        4     cumulated bid size in lots (min. 1)
+ *     uint  ask;                       //         4        4     in point
+ *     uint  bid;                       //         8        4     in point
+ *     float askSize;                   //        12        4     cumulated ask size in lot (min. 1)
+ *     float bidSize;                   //        16        4     cumulated bid size in lot (min. 1)
  * };                                   // ----------------------------------------------------------------------------------
  *                                      //               = 20
  */
@@ -90,16 +91,23 @@ class Dukascopy extends StaticClass {
      * Parse a string with Dukascopy bar data and convert it to a data array.
      *
      * @param  string $data   - string with Dukascopy bar data
-     * @param  string $symbol - meta infos for generating a more readable error message (the Dukascopy data can contain errors)
-     * @param  string $type   - ...
-     * @param  int    $time   - ...
+     * @param  string $symbol - Dukascopy symbol
+     * @param  string $type   - meta infos for generating better error messages (Dukascopy data may contain errors)
+     * @param  int    $time   - ditto
      *
      * @return array - DUKASCOPY_BAR[] data
      */
     public static function readBarData($data, $symbol, $type, $time) {
-        if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
+        /** @var DukascopySymbol $dukaSymbol */
+        $dukaSymbol = DukascopySymbol::dao()->getByName($symbol);
+        $symbol     = $dukaSymbol->getName();
+        $digits     = $dukaSymbol->getDigits();
+        $divider    = pow(10, $digits);
 
-        $lenData = strLen($data); if (!$lenData || $lenData%DUKASCOPY_BAR_SIZE) throw new RuntimeException('Odd length of passed '.$symbol.' '.$type.' data: '.$lenData.' (not an even DUKASCOPY_BAR_SIZE)');
+        if (!is_string($data))                        throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
+        $lenData = strLen($data);
+        if (!$lenData || $lenData%DUKASCOPY_BAR_SIZE) throw new RuntimeException('Odd length of passed '.$symbol.' '.$type.' data: '.$lenData.' (not an even DUKASCOPY_BAR_SIZE)');
+
         $offset  = 0;
         $bars    = [];
         $i       = -1;
@@ -122,15 +130,12 @@ class Dukascopy extends StaticClass {
                 $bars[$i]['close'] > $bars[$i]['high'] ||
                 $bars[$i]['close'] < $bars[$i]['low' ]) {
 
-                $digits  = Rost::$symbols[$symbol]['digits'];
-                $divider = pow(10, $digits);
-
                 $O = number_format($bars[$i]['open' ]/$divider, $digits);
                 $H = number_format($bars[$i]['high' ]/$divider, $digits);
                 $L = number_format($bars[$i]['low'  ]/$divider, $digits);
                 $C = number_format($bars[$i]['close']/$divider, $digits);
 
-                Logger::log("Illegal $symbol $type data for bar[$i] of ".gmDate('D, d-M-Y H:i:s', $time).": O=$O H=$H L=$L C=$C, adjusting high/low...", L_WARN);
+                Logger::log("Illegal ".$symbol." $type data for bar[$i] of ".gmDate('D, d-M-Y H:i:s', $time).": O=$O H=$H L=$L C=$C, adjusting high/low...", L_WARN);
 
                 $bars[$i]['high'] = max($bars[$i]['open'], $bars[$i]['high'], $bars[$i]['low'], $bars[$i]['close']);
                 $bars[$i]['low' ] = min($bars[$i]['open'], $bars[$i]['high'], $bars[$i]['low'], $bars[$i]['close']);

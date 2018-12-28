@@ -18,6 +18,7 @@ require(dirName(realPath(__FILE__)).'/../../app/init.php');
 !CLI && exit(1|stderror('error: This script must be executed in CLI mode.'));
 
 
+/** @var string[] $args */
 $args = array_slice($_SERVER['argv'], 1);
 !$args && exit(0);
 

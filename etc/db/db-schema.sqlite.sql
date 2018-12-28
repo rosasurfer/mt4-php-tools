@@ -1,8 +1,8 @@
 /*
 Created     16.01.2017
-Modified    20.12.2018
+Modified    28.12.2018
 Project     Rosatrader
-Model       Main model
+Model       Rosatrader
 Author      Peter Walther
 Version     0.2
 Database    SQLite3
@@ -11,10 +11,11 @@ Database    SQLite3
 
 -- drop all database objects
 .bail on
-pragma writable_schema = 1;
+pragma writable_schema = on;
 delete from sqlite_master;
-pragma writable_schema = 0;
+pragma writable_schema = off;
 vacuum;
+
 pragma foreign_keys       = on;
 pragma recursive_triggers = on;
 begin;
@@ -64,20 +65,22 @@ insert into enum_tradedirection (type) values
 
 
 -- RosaSymbols
-create table t_rosasymbol (                                                -- Rosatrader instruments
-   id                integer        not null,
-   created           text[datetime] not null default (datetime('now')),    -- GMT
-   modified          text[datetime],                                       -- GMT
-   type              text[enum]     not null collate nocase,               -- forex|metals|synthetic
-   name              text(11)       not null collate nocase,               -- Rosatrader instrument identifier (the actual symbol)
-   description       text(63)       not null collate nocase,               -- symbol description
-   digits            integer        not null,                              -- decimal digits
-   history_tick_from text[datetime],                                       -- FXT
-   history_tick_to   text[datetime],                                       -- FXT
-   history_M1_from   text[datetime],                                       -- FXT
-   history_M1_to     text[datetime],                                       -- FXT
-   history_D1_from   text[datetime],                                       -- FXT
-   history_D1_to     text[datetime],                                       -- FXT
+create table t_rosasymbol (                                                -- Rosatrader instruments (history is stored in full days only)
+   id                 integer        not null,
+   created            text[datetime] not null default (datetime('now')),   -- GMT
+   modified           text[datetime],                                      -- GMT
+   type               text[enum]     not null collate nocase,              -- forex|metals|synthetic
+   name               text(11)       not null collate nocase,              -- Rosatrader instrument identifier (the actual symbol)
+   description        text(63)       not null collate nocase,              -- symbol description
+   digits             integer        not null,                             -- decimal digits
+   autoupdate         integer[bool]  not null default 1,                   -- whether automatic history updates are enabled
+   formula            text,                                                -- LaTex formula to calculate quotes (only if synthetic instrument)
+   historystart_ticks text[datetime],                                      -- first day with stored history (FXT)
+   historyend_ticks   text[datetime],                                      -- last day with stored history (FXT)
+   historystart_m1    text[datetime],                                      -- first day with stored history (FXT)
+   historyend_m1      text[datetime],                                      -- last day with stored history (FXT)
+   historystart_d1    text[datetime],                                      -- first day with stored history (FXT)
+   historyend_d1      text[datetime],                                      -- last day with stored history (FXT)
    primary key (id),
    constraint fk_rosasymbol_type foreign key (type) references enum_instrumenttype(type) on delete restrict on update cascade,
    constraint u_name unique (name)
@@ -92,17 +95,17 @@ end;
 
 
 -- DukascopySymbols
-create table t_dukascopysymbol (                                           -- Dukascopy instruments
-   id                integer        not null,
-   created           text[datetime] not null default (datetime('now')),    -- GMT
-   modified          text[datetime],                                       -- GMT
-   name              text(11)       not null collate nocase,               -- Dukascopy instrument identifier (the actual symbol)
-   digits            integer        not null,                              -- decimal digits
-   history_tick_from text[datetime],                                       -- FXT
-   history_tick_to   text[datetime],                                       -- FXT
-   history_M1_from   text[datetime],                                       -- FXT
-   history_M1_to     text[datetime],                                       -- FXT
-   rosasymbol_id     integer,
+create table t_dukascopysymbol (                                           -- Dukascopy instruments (available history may start or end intraday)
+   id                 integer        not null,
+   created            text[datetime] not null default (datetime('now')),   -- GMT
+   modified           text[datetime],                                      -- GMT
+   name               text(11)       not null collate nocase,              -- Dukascopy instrument identifier (the actual symbol)
+   digits             integer        not null,                             -- decimal digits
+   historystart_ticks text[datetime],                                      -- start of available history (FXT)
+   historyend_ticks   text[datetime],                                      -- end of available history (FXT)
+   historystart_m1    text[datetime],                                      -- start of available history (FXT)
+   historyend_m1      text[datetime],                                      -- end of available history (FXT)
+   rosasymbol_id      integer,
    primary key (id),
    constraint fk_dukascopysymbol_rosasymbol foreign key (rosasymbol_id) references t_rosasymbol (id) on delete restrict on update cascade
    constraint u_name       unique (name)

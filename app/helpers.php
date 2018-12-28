@@ -139,7 +139,7 @@ function fxtTime($timestamp=null, $timezone='GMT') {
 
 
 /**
- * Whether or not a time is on a FXT based Forex trading day.
+ * Whether or not a time is on an FXT based Forex trading day.
  *
  * @param  int    $timestamp
  * @param  string $timezone  - timestamp base, including FXT
@@ -155,7 +155,7 @@ function isFxtTradingDay($timestamp, $timezone='GMT') {
 
 
 /**
- * Whether or not a time is on a FXT based Forex weekend (Saturday or Sunday).
+ * Whether or not a time is on an FXT based Forex weekend (Saturday or Sunday).
  *
  * @param  int    $timestamp
  * @param  string $timezone  - timestamp base, including FXT
@@ -177,7 +177,7 @@ function isFxtWeekend($timestamp, $timezone='GMT') {
 
 
 /**
- * Whether or not a time is on a FXT based Forex holiday.
+ * Whether or not a time is on an FXT based Forex holiday.
  *
  * @param  int    $timestamp
  * @param  string $timezone  - timestamp base, including FXT

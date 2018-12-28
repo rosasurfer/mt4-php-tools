@@ -24,6 +24,7 @@ $fieldArgs = [];
 
 
 // (1) Befehlszeilenargumente auswerten
+/** @var string[] $args */
 $args = array_slice($_SERVER['argv'], 1);
 
 // Hilfe ?

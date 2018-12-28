@@ -37,6 +37,8 @@ namespace rosasurfer\rost\generate_pl_series {
 
 namespace rosasurfer\rost\dukascopy\update_m1_bars {
 
+    use rosasurfer\rost\model\RosaSymbol;
+
     /**
      * @param  string $symbol
      * @param  int    $day
@@ -153,11 +155,11 @@ namespace rosasurfer\rost\dukascopy\update_m1_bars {
     }
 
     /**
-     * @param  string $symbol
+     * @param  RosaSymbol $symbol
      *
      * @return bool
      */
-    function updateSymbol($symbol) {
+    function updateSymbol(RosaSymbol $symbol) {
         return false;
     }
 }
@@ -165,12 +167,14 @@ namespace rosasurfer\rost\dukascopy\update_m1_bars {
 
 namespace rosasurfer\rost\dukascopy\update_tickdata {
 
+    use rosasurfer\rost\model\RosaSymbol;
+
     /**
-     * @param  string $symbol
+     * @param  RosaSymbol $symbol
      *
      * @return bool
      */
-    function updateSymbol($symbol) {
+    function updateSymbol(RosaSymbol $symbol) {
         return false;
     }
 
@@ -279,14 +283,16 @@ namespace rosasurfer\rost\dukascopy\update_tickdata {
 }
 
 
-namespace rosasurfer\rost\fxi\update_m1_bars {
+namespace rosasurfer\rost\update_synthetics_m1 {
+
+    use rosasurfer\rost\model\RosaSymbol;
 
     /**
-     * @param  string $index
+     * @param  RosaSymbol $symbol
      *
      * @return bool
      */
-    function updateIndex($index) {
+    function updateSyntheticSymbol(RosaSymbol $symbol) {
         return false;
     }
 
@@ -631,12 +637,14 @@ namespace rosasurfer\rost\logwatch {
 
 namespace rosasurfer\rost\metatrader\create_history {
 
+    use rosasurfer\rost\model\RosaSymbol;
+
     /**
-     * @param  string $symbol
+     * @param  RosaSymbol $symbol
      *
      * @return bool
      */
-    function createHistory($symbol) {
+    function createHistory(RosaSymbol $symbol) {
         return false;
     }
 
@@ -754,17 +762,19 @@ namespace rosasurfer\rost\metatrader\import_test {
 
 namespace rosasurfer\rost\metatrader\update_history {
 
+    use rosasurfer\rost\model\RosaSymbol;
+
     /**
      * @param  string $message [optional]
      */
     function help($message=null) {}
 
     /**
-     * @param  string $symbol
+     * @param  RosaSymbol $symbol
      *
      * @return bool
      */
-    function updateHistory($symbol) {
+    function updateHistory(RosaSymbol $symbol) {
         return false;
     }
 }

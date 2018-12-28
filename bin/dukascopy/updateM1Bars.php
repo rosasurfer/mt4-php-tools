@@ -1,13 +1,13 @@
 #!/usr/bin/env php
 <?php
 /**
- * Update the local M1 history of the specified symbols with data from Dukascopy.
+ * Update the M1 history of the specified Rosatrader symbols with data fetched from Dukascopy.
  *
- * Dukascopy provides separate bid and ask price series in GMT covering weekends and holidays. Data of the current day is
- * available the earliest at the next day.
+ * Dukascopy provides separate bid and ask price series in GMT covering weekends and holidays. Data of the current day (GMT)
+ * is available the earliest at the next day (GMT).
  *
- * Bid and ask prices are merged to median, converted to FXT and stored in the internal format (ROST_PRICE_BAR). Weekend data
- * is not stored. Currently holiday data is stored as some holidays are irregular and instrument specific.
+ * Bid and ask prices are merged to median, converted to FXT and stored in Rosatrader format (ROST_PRICE_BAR). Weekend data
+ * is not stored. Currently holiday data is stored as some holidays are instrument specific and irregular.
  *
  *
  * Website:       https://www.dukascopy.com/swiss/english/marketwatch/historical/
@@ -46,6 +46,8 @@ use rosasurfer\net\http\HttpResponse;
 use rosasurfer\rost\LZMA;
 use rosasurfer\rost\Rost;
 use rosasurfer\rost\dukascopy\Dukascopy;
+use rosasurfer\rost\model\DukascopySymbol;
+use rosasurfer\rost\model\RosaSymbol;
 
 use function rosasurfer\rost\isFxtWeekend;
 
@@ -69,6 +71,7 @@ $barBuffer = [];
 
 
 // (1) Befehlszeilenargumente einlesen und validieren
+/** @var string[] $args */
 $args = array_slice($_SERVER['argv'], 1);
 
 // Optionen parsen
@@ -79,18 +82,22 @@ foreach ($args as $i => $arg) {
     if ($arg == '-vvv') { $verbose = max($verbose, 3); unset($args[$i]); continue; } // very verbose output
 }
 
+/** @var RosaSymbol[] $symbols */
+$symbols = [];
+
 // Symbole parsen
 foreach ($args as $i => $arg) {
-    $arg = strToUpper($arg);
-    if (!isSet(Rost::$symbols[$arg]) || Rost::$symbols[$arg]['provider']!='dukascopy')
-        exit(1|stderror('unknown or unsupported symbol: "'.$args[$i].'"'));
-    $args[$i] = $arg;
-}                                                                       // ohne Angabe werden alle Dukascopy-Instrumente aktualisiert
-$args = $args ? array_unique($args) : array_keys(Rost::filterSymbols(['provider'=>'dukascopy']));
+    /** @var RosaSymbol $symbol */
+    $symbol = RosaSymbol::dao()->findByName($arg);
+    if (!$symbol)                       exit(1|stderror('error: unknown symbol "'.$args[$i].'"'));
+    if (!$symbol->getDukascopySymbol()) exit(1|stderror('error: no Dukascopy mapping found for symbol "'.$args[$i].'"'));
+    $symbols[$symbol->getName()] = $symbol;                                         // using the name as index removes duplicates
+}
+$symbols = $symbols ?: RosaSymbol::dao()->findAllDukascopyMapped();                 // ohne Angabe werden alle Instrumente verarbeitet
 
 
 // (2) Daten aktualisieren
-foreach ($args as $symbol) {
+foreach ($symbols as $symbol) {
     updateSymbol($symbol) || exit(1);
 }
 exit(0);
@@ -105,31 +112,33 @@ exit(0);
  * Eine Dukascopy-Datei enthaelt immer anteilige Daten zweier FXT-Tage. Zum Update eines FXT-Tages sind immer die Daten
  * zweier Dukascopy-Tage notwendig. Die Daten des aktuellen Tags sind fruehestens am naechsten Tag verfuegbar.
  *
- * @param  string $symbol - Symbol
+ * @param  RosaSymbol $symbol
  *
  * @return bool - Erfolgsstatus
  */
-function updateSymbol($symbol) {
-    if (!is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
-    $symbol = strToUpper($symbol);
+function updateSymbol(RosaSymbol $symbol) {
+    /** @var DukascopySymbol $dukaSymbol */
+    $dukaSymbol = $symbol->getDukascopySymbol();
+    $symbolName = $symbol->getName();
 
-    $startTime  = Rost::$symbols[$symbol]['historyStart']['M1'];    // Beginn der Dukascopy-Daten dieses Symbols in GMT
-    $startTime -= $startTime % DAY;                                 // 00:00 GMT
+    $startFxt  = $dukaSymbol->getHistoryStartM1();
+    $startTime = $startFxt ? Rost::fxtStrToTime($startFxt) : 0;         // Beginn der Dukascopy-Daten dieses Symbols in GMT
+    $startTime -= $startTime % DAY;                                     // 00:00 GMT
 
     global $verbose, $barBuffer;
-    $barBuffer        = [];                                         // Barbuffer zuruecksetzen
+    $barBuffer        = [];                                             // Barbuffer zuruecksetzen
     $barBuffer['bid'] = [];
     $barBuffer['ask'] = [];
     $barBuffer['avg'] = [];
 
-    echoPre('[Info]    '.$symbol);
+    echoPre('[Info]    '.$symbolName);
 
 
     // (1) Pruefen, ob sich der Startzeitpunkt der History des Symbols geaendert hat
-    if (array_search($symbol, ['USDNOK', 'USDSEK', 'USDSGD', 'USDZAR', 'XAUUSD']) === false) {
-        $content = downloadData($symbol, $day=$startTime-1*DAY, $type='bid', $quiet=true, $saveData=false, $saveError=false);
+    if (array_search($symbolName, ['USDNOK', 'USDSEK', 'USDSGD', 'USDZAR', 'XAUUSD']) === false) {
+        $content = downloadData($symbolName, $day=$startTime-1*DAY, $type='bid', $quiet=true, $saveData=false, $saveError=false);
         if (strLen($content)) {
-            echoPre('[Notice]  '.$symbol.' M1 history was extended. Please update the history start time.');
+            echoPre('[Notice]  '.$symbolName.' M1 history was extended. Please update the history start time.');
             return false;
         }
     }
@@ -146,11 +155,11 @@ function updateSymbol($symbol) {
             if ($verbose > 0) echoPre('[Info]    '.gmDate('M-Y', $day));
             $lastMonth = $month;
         }
-        if (!checkHistory($symbol, $day)) return false;
+        if (!checkHistory($symbolName, $day)) return false;
         if (!WINDOWS) pcntl_signal_dispatch();              // auf Ctrl-C pruefen
     }
 
-    echoPre('[Ok]      '.$symbol);
+    echoPre('[Ok]      '.$symbolName);
     return true;
 }
 
@@ -696,19 +705,18 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
         if (!is_string($type))                 throw new IllegalTypeException('Illegal type of parameter $type: '.getType($type));
         if ($type!='bid' && $type!='ask')      throw new InvalidArgumentException('Invalid parameter $type: "'.$type.'"');
     }
-    $self  = __FUNCTION__;
+
+    static $dataDir; !$dataDir && $dataDir = Config::getDefault()->get('app.dir.data');
+    $self = __FUNCTION__;
 
     if ($id == 'rostDirDate') {               // $yyyy/$mmL/$dd                                         // lokales Pfad-Datum
-        if (!$time)   throw new InvalidArgumentException('Invalid parameter $time: '.$time);
+        if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
         $result = gmDate('Y/m/d', $time);
     }
-    else if ($id == 'rostDir') {              // $dataDirectory/history/rost/$group/$symbol/$dateL      // lokales Verzeichnis
-        if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
-        static $dataDirectory; if (!$dataDirectory)
-        $dataDirectory = Config::getDefault()->get('app.dir.data');
-        $group         = Rost::$symbols[$symbol]['group'];
-        $dateL         = $self('rostDirDate', null, $time, null);
-        $result        = $dataDirectory.'/history/rost/'.$group.'/'.$symbol.'/'.$dateL;
+    else if ($id == 'rostDir') {              // $dataDirectory/history/rost/$type/$symbol/$dateL       // lokales Verzeichnis
+        $type   = RosaSymbol::dao()->getByName($symbol)->getType();
+        $dateL  = $self('rostDirDate', null, $time, null);
+        $result = $dataDir.'/history/rost/'.$type.'/'.$symbol.'/'.$dateL;
     }
     else if ($id == 'rostFile.raw') {         // $rostDir/M1.myfx                                       // lokale Datei ungepackt
         $rostDir = $self('rostDir', $symbol, $time, null);

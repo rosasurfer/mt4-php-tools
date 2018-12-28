@@ -1,6 +1,6 @@
 
-.bail on
-pragma foreign_keys = on;
+pragma foreign_keys       = on;
+pragma recursive_triggers = on;
 begin;
 
 

@@ -30,9 +30,9 @@ parameters:
     polluteCatchScopeWithTryAssignments:    true
 
     ignoreErrors:
-        # intentionally ignore these
-        - '/Call to ((static )?method|function) [^ ]+\(\) with incorrect case:/'                                    # seriously?
-        - '/Array \(([^ ]+)\[\]\) does not accept (\1\|)?null\b/'                                                   # NULL should be considered a value, not a type
+        # intentionally ignore the following issues
+        - '/Call to ((static )?method|function) [^ ]+\(\) with incorrect case:/'                                    # Ever heared of naming standards?
+        - '/Array \(([^ ]+)\[\]\) does not accept (\1\|)?null\b/'                                                   # NULL is a value (not a type) and always valid.
         - '/(Static )?property [^ ]+ \(([^ ]+)\) does not accept (\2\|)?null\b/i'                                   # - dito -
         - '/Property [^ ]+ \([^ ]+\[\]\) does not accept default value of type null\[\]/i'                          # - dito -
         - '/Parameter #[0-9]+ [^ ]+ of class [^ ]+ constructor expects ([^ ]+), (\1\|)?null given\b/'               # - dito -
@@ -46,29 +46,29 @@ parameters:
 
 
 services:
-        # Service classes must be loaded via etc/phpstan/autoload.php (services are initialized
-        # before execution of block "parameters/autoload_files").
+        # service classes must be loaded via etc/phpstan/autoload.php
+        # (services are initialized before execution of block "parameters/autoload_files")
     -
-        class: rosasurfer\db\orm\phpstan\DAO_Find_ReturnType
+        class: rosasurfer\phpstan\DAO_Find_ReturnType
         tags:
             - phpstan.broker.dynamicMethodReturnTypeExtension
     -
-        class: rosasurfer\db\orm\phpstan\DAO_FindAll_ReturnType
-        tags:
-            - phpstan.broker.dynamicMethodReturnTypeExtension
-            - phpstan.broker.dynamicStaticMethodReturnTypeExtension
-    -
-        class: rosasurfer\db\orm\phpstan\PersistableObject_Dao_ReturnType
+        class: rosasurfer\phpstan\DAO_FindAll_ReturnType
         tags:
             - phpstan.broker.dynamicMethodReturnTypeExtension
             - phpstan.broker.dynamicStaticMethodReturnTypeExtension
     -
-        class: rosasurfer\db\orm\phpstan\PersistableObject_PopulateNew_ReturnType
+        class: rosasurfer\phpstan\PersistableObject_Dao_ReturnType
         tags:
             - phpstan.broker.dynamicMethodReturnTypeExtension
             - phpstan.broker.dynamicStaticMethodReturnTypeExtension
     -
-        class: rosasurfer\core\phpstan\Singleton_GetInstance_ReturnType
+        class: rosasurfer\phpstan\PersistableObject_PopulateNew_ReturnType
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+            - phpstan.broker.dynamicStaticMethodReturnTypeExtension
+    -
+        class: rosasurfer\phpstan\Singleton_GetInstance_ReturnType
         tags:
             - phpstan.broker.dynamicMethodReturnTypeExtension
             - phpstan.broker.dynamicStaticMethodReturnTypeExtension

@@ -4,8 +4,8 @@ pragma recursive_triggers = off;
 begin;
 
 
--- alter Instruments to ProjectSymbols
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- alter Instruments to ProjectSymbols
 -- ProjectSymbols
 create table t_projectsymbol (                                             -- project instruments
    id                integer        not null,
