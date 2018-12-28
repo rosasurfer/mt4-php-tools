@@ -39,7 +39,7 @@ class DukascopySymbol extends RosatraderModel {
      *
      * @param  string $format [optional] - format as used by date($format, $timestamp)
      *
-     * @return string - start time (a returned timestamp is FXT based)
+     * @return string - start time based on an FXT timestamp
      */
     public function getTickHistoryFrom($format = 'Y-m-d H:i:s') {
         if (!isSet($this->tickHistoryFrom) || $format=='Y-m-d H:i:s')
@@ -53,7 +53,7 @@ class DukascopySymbol extends RosatraderModel {
      *
      * @param  string $format [optional] - format as used by date($format, $timestamp)
      *
-     * @return string - end time (a returned timestamp is FXT based)
+     * @return string - end time based on an FXT timestamp
      */
     public function getTickHistoryTo($format = 'Y-m-d H:i:s') {
         if (!isSet($this->tickHistoryTo) || $format=='Y-m-d H:i:s')
@@ -67,7 +67,7 @@ class DukascopySymbol extends RosatraderModel {
      *
      * @param  string $format [optional] - format as used by date($format, $timestamp)
      *
-     * @return string - start time (a returned timestamp is FXT based)
+     * @return string - start time based on an FXT timestamp
      */
     public function getM1HistoryFrom($format = 'Y-m-d H:i:s') {
         if (!isSet($this->m1HistoryFrom) || $format=='Y-m-d H:i:s')
@@ -81,7 +81,7 @@ class DukascopySymbol extends RosatraderModel {
      *
      * @param  string $format [optional] - format as used by date($format, $timestamp)
      *
-     * @return string - end time (a returned timestamp is FXT based)
+     * @return string - end time based on an FXT timestamp
      */
     public function getM1HistoryTo($format = 'Y-m-d H:i:s') {
         if (!isSet($this->m1HistoryTo) || $format=='Y-m-d H:i:s')

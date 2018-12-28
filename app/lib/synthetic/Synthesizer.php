@@ -5,25 +5,29 @@ use rosasurfer\core\Object;
 use rosasurfer\exception\InvalidArgumentException;
 
 use rosasurfer\rost\model\RosaSymbol;
-use rosasurfer\rost\synthetic\calc\CalculatorInterface;
+use rosasurfer\rost\synthetic\calc\CalculatorInterface as ICalculator;
 
 
 /**
  * Synthesizer
  *
- * A class for processing calculations on synthetic instruments. A synthetic instrument is made of components and a defined
+ * A class for processing calculations on a synthetic instrument. A synthetic instrument is made of components and a defined
  * relation between them (a math formula). Components and formula are stored with each synthetic instrument in text form.
- * The Synthesizer parses and evaluates these descriptions and can calculate instrument prices based on it. This makes it
- * possible to create and calculate synthetic instruments on-the-fly based on arbitrary user input provided at runtime.
+ * The Synthesizer parses and evaluates these descriptions and calculates instrument prices based on it. This allows it to
+ * calculate values of synthetic instruments on-the-fly based on arbitrary user input provided at runtime.
  *
  * Calculation can be considerably speed-up by providing an instrument-specific {@link CalculatorInterface} implementation.
- * If an instrument-specific implementation is found the Synthesizer passes calculation on to that class.
+ * If an instrument-specific calculator is found it replaces the textual definitions and the Synthesizer passes calculation
+ * on to an instance of that class.
  */
 class Synthesizer extends Object {
 
 
     /** @var RosaSymbol */
     protected $symbol;
+
+    /** @var ICalculator */
+    protected $calculator;
 
 
     /**
@@ -40,13 +44,27 @@ class Synthesizer extends Object {
 
 
     /**
-     * Return the latest start time of M1 history of all symbol components (FXT).
+     * Return the consolidated M1 history start time of a synthetic instrument. This is the latest history start time of all
+     * the subcomponents the instrument is made of.
      *
      * @param  string $format [optional] - format as used by date($format, $timestamp)
      *
-     * @return string - start time (a returned timestamp is FXT based)
+     * @return string - start time based on an FXT timestamp
      */
-    public function getM1HistoryFrom($format = 'Y-m-d H:i:s') {
+    public function getAvailableM1HistoryStart($format = 'Y-m-d H:i:s') {
+        return '0';
+    }
+
+
+    /**
+     * Return the consolidated tick history start time of a synthetic instrument. This is the latest history start time of
+     * all the subcomponents the instrument is made of.
+     *
+     * @param  string $format [optional] - format as used by date($format, $timestamp)
+     *
+     * @return string - start time based on an FXT timestamp
+     */
+    public function getAvailableTickHistoryStart($format = 'Y-m-d H:i:s') {
         return '0';
     }
 

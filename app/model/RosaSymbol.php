@@ -68,7 +68,7 @@ class RosaSymbol extends RosatraderModel {
      *
      * @param  string $format [optional] - format as used by date($format, $timestamp)
      *
-     * @return string - start time (a returned timestamp is FXT based)
+     * @return string - start time based on an FXT timestamp
      */
     public function getTickHistoryFrom($format = 'Y-m-d H:i:s') {
         if (!isSet($this->tickHistoryFrom) || $format=='Y-m-d H:i:s')
@@ -82,7 +82,7 @@ class RosaSymbol extends RosatraderModel {
      *
      * @param  string $format [optional] - format as used by date($format, $timestamp)
      *
-     * @return string - end time (a returned timestamp is FXT based)
+     * @return string - end time based on an FXT timestamp
      */
     public function getTickHistoryTo($format = 'Y-m-d H:i:s') {
         if (!isSet($this->tickHistoryTo) || $format=='Y-m-d H:i:s')
@@ -96,7 +96,7 @@ class RosaSymbol extends RosatraderModel {
      *
      * @param  string $format [optional] - format as used by date($format, $timestamp)
      *
-     * @return string - start time (a returned timestamp is FXT based)
+     * @return string - start time based on an FXT timestamp
      */
     public function getM1HistoryFrom($format = 'Y-m-d H:i:s') {
         if (!isSet($this->m1HistoryFrom) || $format=='Y-m-d H:i:s')
@@ -110,7 +110,7 @@ class RosaSymbol extends RosatraderModel {
      *
      * @param  string $format [optional] - format as used by date($format, $timestamp)
      *
-     * @return string - end time (a returned timestamp is FXT based)
+     * @return string - end time based on an FXT timestamp
      */
     public function getM1HistoryTo($format = 'Y-m-d H:i:s') {
         if (!isSet($this->m1HistoryTo) || $format=='Y-m-d H:i:s')
@@ -124,7 +124,7 @@ class RosaSymbol extends RosatraderModel {
      *
      * @param  string $format [optional] - format as used by date($format, $timestamp)
      *
-     * @return string - start time (a returned timestamp is FXT based)
+     * @return string - start time based on an FXT timestamp
      */
     public function getD1HistoryFrom($format = 'Y-m-d H:i:s') {
         if (!isSet($this->d1HistoryFrom) || $format=='Y-m-d H:i:s')
@@ -138,7 +138,7 @@ class RosaSymbol extends RosatraderModel {
      *
      * @param  string $format [optional] - format as used by date($format, $timestamp)
      *
-     * @return string - end time (a returned timestamp is FXT based)
+     * @return string - end time based on an FXT timestamp
      */
     public function getD1HistoryTo($format = 'Y-m-d H:i:s') {
         if (!isSet($this->d1HistoryTo) || $format=='Y-m-d H:i:s')
@@ -191,9 +191,9 @@ class RosaSymbol extends RosatraderModel {
         if ($this->isSynthetic()) {
             // request price updates from a synthesizer
             $synthesizer = new Synthesizer($this);
-            $availableFrom = (int) $synthesizer->getM1HistoryFrom('U');             // latest start time FXT of all components
+            $availableFrom = (int) $synthesizer->getAvailableM1HistoryStart('U');   // latest start time FXT of all components
             if (!$availableFrom)
-                return false(echoPre($this->getName().': history of components of synthetic instrument not available'));
+                return false(echoPre('[Error]   '.$this->getName().': history of components of synthetic instrument not available'));
             if ($part = $availableFrom%DAY)
                 $availableFrom -= $part - 1*DAY;                                    // 00:00 FXT of the first completely available day
             $updateFrom = max($availableFrom, $updateFrom);

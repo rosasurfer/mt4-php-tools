@@ -7,7 +7,7 @@ use rosasurfer\core\Object;
 /**
  * Calculator
  *
- * Calculator base class
+ * Rosatrader base class for calculating values of synthetic instruments.
  */
 abstract class Calculator extends Object implements CalculatorInterface {
 }
