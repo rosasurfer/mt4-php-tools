@@ -143,7 +143,6 @@ function updateSymbol(RosaSymbol $symbol) {
         $content = downloadData($symbolName, $day=$startTime-1*DAY, $type='bid', $quiet=true, $saveData=false, $saveError=false);
         if (strLen($content)) {
             echoPre('[Notice]  '.$symbolName.' M1 history was extended. Please update the history start time.');
-            return false;
         }
     }
 
