@@ -55,37 +55,37 @@ require(dirName(realPath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');
 
 
-// -- Konfiguration ---------------------------------------------------------------------------------------------------------
+// -- configuration ---------------------------------------------------------------------------------------------------------
 
 
-$verbose = 0;                                   // output verbosity
+$verbose = 0;                                               // output verbosity
 
-$storeCompressedDukaFiles   = false;            // ob heruntergeladene Dukascopy-Dateien zwischengespeichert werden sollen
-$storeDecompressedDukaFiles = false;            // ob entpackte Dukascopy-Dateien zwischengespeichert werden sollen
-$storeUncompressedRostFiles = true;             // ob unkomprimierte Rost-Historydaten gespeichert werden sollen
+$storeCompressedDukaFiles   = false;                        // whether to keep downloaded Dukascopy files
+$storeDecompressedDukaFiles = false;                        // whether to keep decompressed Dukascopy files
+$storeUncompressedRostFiles = true;                         // whether to store uncompressed history files
 
 $barBuffer = [];
 
 
-// -- Start -----------------------------------------------------------------------------------------------------------------
+// -- start -----------------------------------------------------------------------------------------------------------------
 
 
-// (1) Befehlszeilenargumente einlesen und validieren
+// (1) parse and validate CLI arguments
 /** @var string[] $args */
 $args = array_slice($_SERVER['argv'], 1);
 
-// Optionen parsen
+// parse options
 foreach ($args as $i => $arg) {
-    if ($arg == '-h'  )   exit(1|help());                                            // Hilfe
-    if ($arg == '-v'  ) { $verbose = max($verbose, 1); unset($args[$i]); continue; } // verbose output
-    if ($arg == '-vv' ) { $verbose = max($verbose, 2); unset($args[$i]); continue; } // more verbose output
-    if ($arg == '-vvv') { $verbose = max($verbose, 3); unset($args[$i]); continue; } // very verbose output
+    if ($arg == '-h'  )   exit(1|help());                                               // help
+    if ($arg == '-v'  ) { $verbose = max($verbose, 1); unset($args[$i]); continue; }    // verbose output
+    if ($arg == '-vv' ) { $verbose = max($verbose, 2); unset($args[$i]); continue; }    // more verbose output
+    if ($arg == '-vvv') { $verbose = max($verbose, 3); unset($args[$i]); continue; }    // very verbose output
 }
 
 /** @var RosaSymbol[] $symbols */
 $symbols = [];
 
-// Symbole parsen
+// parse symbols
 foreach ($args as $i => $arg) {
     /** @var RosaSymbol $symbol */
     $symbol = RosaSymbol::dao()->findByName($arg);
@@ -93,17 +93,21 @@ foreach ($args as $i => $arg) {
     if (!$symbol->getDukascopySymbol()) exit(1|stderror('error: no Dukascopy mapping found for symbol "'.$args[$i].'"'));
     $symbols[$symbol->getName()] = $symbol;                                         // using the name as index removes duplicates
 }
-$symbols = $symbols ?: RosaSymbol::dao()->findAllDukascopyMapped();                 // ohne Angabe werden alle Instrumente verarbeitet
+if (!$symbols) {
+    $symbols = RosaSymbol::dao()->findAllDukascopyMappedByAutoUpdate(true);         // if none specified auto-update all
+}
 
 
-// (2) Daten aktualisieren
+// (2) update instruments
 foreach ($symbols as $symbol) {
     updateSymbol($symbol) || exit(1);
 }
+
+!$symbols && echoPre('no Dukascopy mapped instruments for auto-update found');
 exit(0);
 
 
-// --- Funktionen -----------------------------------------------------------------------------------------------------------
+// --- functions ------------------------------------------------------------------------------------------------------------
 
 
 /**

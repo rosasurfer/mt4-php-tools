@@ -90,15 +90,56 @@ class RosaSymbolDAO extends DAO {
 
 
     /**
+     * Find all {@link RosaSymbol} instances with the specified auto-update status.
+     *
+     * @param  bool $status
+     *
+     * @return RosaSymbol[] - symbol instances sorted ascending by name
+     */
+    public function findAllByAutoUpdate($status) {
+        if (!is_bool($status)) throw new IllegalTypeException('Illegal type of parameter $status: '.getType($status));
+
+        $status = $this->escapeLiteral($status);
+
+        $sql = 'select *
+                   from :RosaSymbol
+                   where autoupdate = '.$status.'
+                   order by name';
+        return $this->findAll($sql);
+    }
+
+
+    /**
      * Find all {@link RosaSymbol}s with a Dukascopy mapping.
      *
      * @return RosaSymbol[] - symbol instances sorted ascending by name
      */
     public function findAllDukascopyMapped() {
-        $sql = "select *
+        $sql = 'select *
                    from :RosaSymbol      r
                    join :DukascopySymbol d on r.id = d.rosasymbol_id
-                   order by r.name";
+                   order by r.name';
+        return $this->findAll($sql);
+    }
+
+
+    /**
+     * Find all {@link RosaSymbol}s with a Dukascopy mapping and the specified auto-update status.
+     *
+     * @param  bool $status
+     *
+     * @return RosaSymbol[] - symbol instances sorted ascending by name
+     */
+    public function findAllDukascopyMappedByAutoUpdate($status) {
+        if (!is_bool($status)) throw new IllegalTypeException('Illegal type of parameter $status: '.getType($status));
+
+        $status = $this->escapeLiteral($status);
+
+        $sql = 'select *
+                   from :RosaSymbol      r
+                   join :DukascopySymbol d on r.id = d.rosasymbol_id
+                   where autoupdate = '.$status.'
+                   order by r.name';
         return $this->findAll($sql);
     }
 

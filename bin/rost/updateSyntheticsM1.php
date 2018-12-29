@@ -34,16 +34,16 @@ $saveRawRostData = true;                                    // whether to store 
 // -- start -----------------------------------------------------------------------------------------------------------------
 
 
-// (1) parse/validate CLI arguments
+// (1) parse and validate CLI arguments
 /** @var string[] $args */
 $args = array_slice($_SERVER['argv'], 1);
 
 // parse options
 foreach ($args as $i => $arg) {
-    if ($arg == '-h'  )   exit(1|help());                                            // help
-    if ($arg == '-v'  ) { $verbose = max($verbose, 1); unset($args[$i]); continue; } // verbose output
-    if ($arg == '-vv' ) { $verbose = max($verbose, 2); unset($args[$i]); continue; } // more verbose output
-    if ($arg == '-vvv') { $verbose = max($verbose, 3); unset($args[$i]); continue; } // very verbose output
+    if ($arg == '-h'  )   exit(1|help());                                               // help
+    if ($arg == '-v'  ) { $verbose = max($verbose, 1); unset($args[$i]); continue; }    // verbose output
+    if ($arg == '-vv' ) { $verbose = max($verbose, 2); unset($args[$i]); continue; }    // more verbose output
+    if ($arg == '-vvv') { $verbose = max($verbose, 3); unset($args[$i]); continue; }    // very verbose output
 }
 
 /** @var RosaSymbol[] $symbols */
