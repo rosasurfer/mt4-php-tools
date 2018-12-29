@@ -131,7 +131,7 @@ function updateSyntheticSymbol(RosaSymbol $symbol) {
                 }
 
                 // Indexdaten fuer diesen Tag berechnen
-                $function = 'calculate'.$symbolName;
+                $function = __NAMESPACE__.'\calculate'.$symbolName;
                 $rostBars = $function($day, $pairs); if (!$rostBars) return false;
 
                 // Indexdaten speichern
