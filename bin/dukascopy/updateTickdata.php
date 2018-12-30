@@ -197,11 +197,11 @@ function checkHistory($symbol, $gmtHour, $fxtHour) {
 
         // History ist ok, wenn entweder die komprimierte Rost-Datei existiert...
         if (is_file($file=getVar('rostFile.compressed', $symbol, $fxtHour))) {
-            if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'   Rost compressed tick file: '.baseName($file));
+            if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'  Rosatrader compressed tick file: '.Rost::relativePath($file));
         }
         // History ist ok, ...oder die unkomprimierte Rost-Datei gespeichert wird und existiert
         else if ($saveRawRostData && is_file($file=getVar('rostFile.raw', $symbol, $fxtHour))) {
-            if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'   Rost raw tick file: '.baseName($file));
+            if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'  Rosatrader uncompressed tick file: '.Rost::relativePath($file));
         }
         // andererseits Tickdaten aktualisieren
         else {
@@ -390,7 +390,7 @@ function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=f
 
     $shortDate = gmDate('D, d-M-Y H:i', $fxtHour);
     $url       = getVar('dukaUrl', $symbol, $gmtHour);
-    if (!$quiet && $verbose > 1) echoPre('[Info]    '.$shortDate.'   url: '.$url);
+    if (!$quiet && $verbose > 1) echoPre('[Info]    '.$shortDate.'  downloading: '.$url);
 
     if (!$config=Config::getDefault())
         throw new RuntimeException('Service locator returned invalid default config: '.getType($config));
@@ -452,8 +452,8 @@ function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=f
         }
 
         if (!$quiet) {
-            if ($status==404) echoPre('[Error]   '.$shortDate.'   url not found (404): '.$url);
-            else              echoPre('[Warn]    '.$shortDate.'   empty response: '.$url);
+            if ($status==404) echoPre('[Error]   '.$shortDate.'  url not found (404): '.$url);
+            else              echoPre('[Warn]    '.$shortDate.'  empty response: '.$url);
         }
 
         // bei leerem Response Exception werfen, damit eine Schleife ggf. fortgesetzt werden kann
@@ -473,7 +473,7 @@ function loadCompressedDukascopyTickFile($file, $symbol, $gmtHour, $fxtHour) {
     if (!is_int($fxtHour)) throw new IllegalTypeException('Illegal type of parameter $fxtHour: '.getType($fxtHour));
 
     global $verbose;
-    if ($verbose > 0) echoPre('[Info]    '.gmDate('D, d-M-Y H:i', $fxtHour).'   Dukascopy compressed tick file: '.baseName($file));
+    if ($verbose > 0) echoPre('[Info]    '.gmDate('D, d-M-Y H:i', $fxtHour).'  Dukascopy compressed tick file: '.Rost::relativePath($file));
 
     return loadCompressedDukascopyTickData(file_get_contents($file), $symbol, $gmtHour, $fxtHour);
 }
@@ -505,7 +505,7 @@ function loadRawDukascopyTickFile($file, $symbol, $gmtHour, $fxtHour) {
     if (!is_int($fxtHour)) throw new IllegalTypeException('Illegal type of parameter $fxtHour: '.getType($fxtHour));
 
     global $verbose;
-    if ($verbose > 0) echoPre('[Info]    '.gmDate('D, d-M-Y H:i', $fxtHour).'   Dukascopy raw tick file: '.baseName($file));
+    if ($verbose > 0) echoPre('[Info]    '.gmDate('D, d-M-Y H:i', $fxtHour).'  Dukascopy uncompressed tick file: '.Rost::relativePath($file));
 
     return loadRawDukascopyTickData(file_get_contents($file), $symbol, $gmtHour, $fxtHour);
 }

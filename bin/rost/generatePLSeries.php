@@ -86,12 +86,12 @@ $deals = array_values($deals);
 $firstDeal = reset($deals);
 if      (is_file(getVar('rostFile.compressed', $symbol, $firstDeal->time))) {}
 else if (is_file(getVar('rostFile.raw'       , $symbol, $firstDeal->time))) {}
-else     exit(1|echoPre('[Error]   '.$symbol.' Rost price history for '.gmDate('D, d-M-Y', $firstDeal->time).' not found'));
+else     exit(1|echoPre('[Error]   '.$symbol.'  Rosatrader price history for '.gmDate('D, d-M-Y', $firstDeal->time).' not found'));
 
 $lastDeal = end($deals);
 if      (is_file(getVar('rostFile.compressed', $symbol, $lastDeal->time))) {}
 else if (is_file(getVar('rostFile.raw'       , $symbol, $lastDeal->time))) {}
-else     exit(1|echoPre('[Error]   '.$symbol.' Rost price history for '.gmDate('D, d-M-Y', $lastDeal->time).' not found'));
+else     exit(1|echoPre('[Error]   '.$symbol.'  Rosatrader price history for '.gmDate('D, d-M-Y', $lastDeal->time).' not found'));
 echoPre('[Info]    Processing '.sizeof($trades).' trades of test '.$test->getReportingSymbol().' ('.gmDate('d.m.Y', $firstDeal->time).' - '.gmDate('d.m.Y', $lastDeal->time).')');
 
 
@@ -140,7 +140,7 @@ for ($day=$firstDealDay; $day <= $lastDealDay; $day+=1*DAY) {
 
     if      (is_file($file=getVar('rostFile.compressed', $symbol, $day))) {}
     else if (is_file($file=getVar('rostFile.raw'       , $symbol, $day))) {}
-    else exit(1|echoPre('[Error]   '.$symbol.' Rost price history for '.$shortDate.' not found'));
+    else exit(1|echoPre('[Error]   '.$symbol.'  Rosatrader price history for '.$shortDate.' not found'));
 
     $bars    = Rost::readBarFile($file, $symbol);
     $partial = false;

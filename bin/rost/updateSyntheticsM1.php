@@ -106,10 +106,10 @@ function updateSyntheticSymbol(RosaSymbol $symbol) {
 
             // Pruefen, ob die History bereits existiert
             if (is_file($file=getVar('rostFile.compressed', $symbolName, $day))) {
-                if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'   '.$symbolName.' compressed history file: '.baseName($file));
+                if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'  '.$symbolName.' compressed history file: '.Rost::relativePath($file));
             }
             else if (is_file($file=getVar('rostFile.raw', $symbolName, $day))) {
-                if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'   '.$symbolName.' raw history file: '.baseName($file));
+                if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'  '.$symbolName.' raw history file: '.Rost::relativePath($file));
             }
             else {
                 $month = (int)gmDate('m', $day);

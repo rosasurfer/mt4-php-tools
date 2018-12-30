@@ -102,7 +102,7 @@ function updateHistory(RosaSymbol $symbol) {
             if      (is_file($file=Rost::getVar('rostFile.M1.compressed', $symbolName, $day))) {}   // wenn komprimierte Rost-Datei existiert
             else if (is_file($file=Rost::getVar('rostFile.M1.raw'       , $symbolName, $day))) {}   // wenn unkomprimierte Rost-Datei existiert
             else {
-                echoPre('[Error]   '.$symbolName.' Rost history for '.$shortDate.' not found');
+                echoPre('[Error]   '.$symbolName.'  Rosatrader history for '.$shortDate.' not found');
                 return false;
             }
             if ($verbose > 0) echoPre('[Info]    synchronizing '.$shortDate);

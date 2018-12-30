@@ -155,7 +155,7 @@ function updateSymbol(RosaSymbol $symbol) {
     for ($day=$startTime; $day < $today; $day+=1*DAY) {
         $month = (int) gmDate('m', $day);
         if ($month != $lastMonth) {
-            if ($verbose > 0) echoPre('[Info]    '.gmDate('M-Y', $day));
+            if ($verbose > 0) echoPre('[Info]    '.gmDate('M-Y', $day).'  checking for existing history files');
             $lastMonth = $month;
         }
         if (!checkHistory($symbolName, $day)) return false;
@@ -186,11 +186,11 @@ function checkHistory($symbol, $day) {
     if (!isFxtWeekend($day, 'FXT')) {                               // um 00:00 GMT sind GMT- und FXT-Wochentag immer gleich
         // History ist ok, wenn entweder die komprimierte Rost-Datei existiert...
         if (is_file($file=getVar('rostFile.compressed', $symbol, $day))) {
-            if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'   Rost compressed history file: '.baseName($file));
+            if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'  Rosatrader history file found: '.Rost::relativePath($file));
         }
         // ...oder die unkomprimierte Rost-Datei gespeichert wird und existiert
         else if ($storeUncompressedRostFiles && is_file($file=getVar('rostFile.raw', $symbol, $day))) {
-            if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'   Rost raw history file: '.baseName($file));
+            if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'  Rosatrader history file found: '.Rost::relativePath($file));
         }
         // andererseits History aktualisieren
         else if (!updateHistory($symbol, $day)) {                   // da 00:00, kann der GMT- als FXT-Timestamp uebergeben werden
@@ -294,23 +294,23 @@ function loadHistory($symbol, $day, $type) {
 
 
     // (1) Daten des vorherigen Tages suchen bzw. bereitstellen
-    // - im Buffer nachschauen
+    // im Buffer nachschauen
     if (!$previousDayData && isSet($barBuffer[$type][$shortDate])) {              // Beginnen die Daten im Buffer mit 00:00, liegt
         $previousDayData = ($barBuffer[$type][$shortDate][0]['delta_fxt'] == 0);   // der Teil des vorherigen GMT-Tags dort schon bereit.
     }
-    // - dekomprimierte Dukascopy-Datei suchen und verarbeiten
+    // dekomprimierte Dukascopy-Datei suchen und verarbeiten
     if (!$previousDayData) {
         if (is_file($file=getVar('dukaFile.raw', $symbol, $previousDay, $type)))
             if (!$previousDayData=processRawDukascopyBarFile($file, $symbol, $previousDay, $type))
                 return false;
     }
-    // - komprimierte Dukascopy-Datei suchen und verarbeiten
+    // komprimierte Dukascopy-Datei suchen und verarbeiten
     if (!$previousDayData) {
         if (is_file($file=getVar('dukaFile.compressed', $symbol, $previousDay, $type)))
             if (!$previousDayData=processCompressedDukascopyBarFile($file, $symbol, $previousDay, $type))
                 return false;
     }
-    // - ggf. Dukascopy-Datei herunterladen und verarbeiten
+    // ggf. Dukascopy-Datei herunterladen und verarbeiten
     if (!$previousDayData) {
         $data = downloadData($symbol, $previousDay, $type, false, $storeCompressedDukaFiles);
         if (!$data)                                                                // bei HTTP status 404 (file not found) Abbruch
@@ -322,24 +322,24 @@ function loadHistory($symbol, $day, $type) {
 
 
     // (2) Daten des aktuellen Tages suchen bzw.bereitstellen
-    // - im Buffer nachschauen
+    // im Buffer nachschauen
     if (!$currentDayData && isSet($barBuffer[$type][$shortDate])) {               // Enden die Daten im Buffer mit 23:59, liegt
         $size = sizeOf($barBuffer[$type][$shortDate]);                             // der Teil des aktuellen GMT-Tags dort schon bereit.
         $currentDayData = ($barBuffer[$type][$shortDate][$size-1]['delta_fxt'] == 23*HOURS+59*MINUTES);
     }
-    // - dekomprimierte Dukascopy-Datei suchen und verarbeiten
+    // dekomprimierte Dukascopy-Datei suchen und verarbeiten
     if (!$currentDayData) {
         if (is_file($file=getVar('dukaFile.raw', $symbol, $currentDay, $type)))
             if (!$currentDayData=processRawDukascopyBarFile($file, $symbol, $currentDay, $type))
                 return false;
     }
-    // - komprimierte Dukascopy-Datei suchen und verarbeiten
+    // komprimierte Dukascopy-Datei suchen und verarbeiten
     if (!$currentDayData) {
         if (is_file($file=getVar('dukaFile.compressed', $symbol, $currentDay, $type)))
             if (!$currentDayData=processCompressedDukascopyBarFile($file, $symbol, $currentDay, $type))
                 return false;
     }
-    // - ggf. Dukascopy-Datei herunterladen und verarbeiten
+    // ggf. Dukascopy-Datei herunterladen und verarbeiten
     if (!$currentDayData) {
         static $yesterday; if (!$yesterday) $yesterday=($today=time()) - $today%DAY - 1*DAY;    // 00:00 GMT gestriger Tag
         $saveFile = ($storeCompressedDukaFiles || $currentDay==$yesterday);                     // beim letzten Durchlauf immer speichern
@@ -432,7 +432,7 @@ function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $save
     $config    = Config::getDefault();
     $shortDate = gmDate('D, d-M-Y', $day);
     $url       = getVar('dukaUrl', $symbol, $day, $type);
-    if (!$quiet) echoPre('[Info]    '.$shortDate.'   url: '.$url);
+    if (!$quiet) echoPre('[Info]    '.$shortDate.'  downloading: '.$url);
 
     // (1) Standard-Browser simulieren
     $userAgent = $config->get('rost.useragent'); if (!$userAgent) throw new InvalidArgumentException('Invalid user agent configuration: "'.$userAgent.'"');
@@ -444,7 +444,7 @@ function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $save
                           ->setHeader('Accept-Charset' , 'ISO-8859-1,utf-8;q=0.7,*;q=0.7'                                 )
                           ->setHeader('Connection'     , 'keep-alive'                                                     )
                           ->setHeader('Cache-Control'  , 'max-age=0'                                                      )
-                          ->setHeader('Referer'        , 'http://www.dukascopy.com/free/candelabrum/'                     );
+                          ->setHeader('Referer'        , 'https://www.dukascopy.com/swiss/english/marketwatch/historical/');
     $options[CURLOPT_SSL_VERIFYPEER] = false;                           // falls HTTPS verwendet wird
     //$options[CURLOPT_VERBOSE     ] = true;
 
@@ -484,7 +484,7 @@ function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $save
     // (4) Download-Fehler: ist das Flag $saveError gesetzt, Fehler speichern
     if ($status == 404) {
         if (!$quiet)
-            echoPre('[Error]   '.$shortDate.'   url not found (404): '.$url);
+            echoPre('[Error]   '.$shortDate.'  url not found (404): '.$url);
 
         if ($saveError) {
             mkDirWritable(dirName($file=getVar('dukaFile.404', $symbol, $day, $type)));
@@ -503,7 +503,7 @@ function processCompressedDukascopyBarFile($file, $symbol, $day, $type) {
     if (!is_int($day))     throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
 
     global $verbose;
-    if ($verbose > 0) echoPre('[Info]    '.gmDate('D, d-M-Y', $day).'   Dukascopy compressed bar file: '.baseName($file));
+    if ($verbose > 0) echoPre('[Info]    '.gmDate('D, d-M-Y', $day).'  Dukascopy compressed bar file: '.Rost::relativePath($file));
 
     return processCompressedDukascopyBarData(file_get_contents($file), $symbol, $day, $type);
 }
@@ -531,7 +531,7 @@ function processRawDukascopyBarFile($file, $symbol, $day, $type) {
     if (!is_int($day))     throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
 
     global $verbose;
-    if ($verbose > 0) echoPre('[Info]    '.gmDate('D, d-M-Y', $day).'   Dukascopy raw bar file: '.baseName($file));
+    if ($verbose > 0) echoPre('[Info]    '.gmDate('D, d-M-Y', $day).'  Dukascopy uncompressed bar file: '.Rost::relativePath($file));
 
     return processRawDukascopyBarData(file_get_contents($file), $symbol, $day, $type);
 }

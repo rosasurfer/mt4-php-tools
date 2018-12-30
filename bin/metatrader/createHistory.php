@@ -103,7 +103,7 @@ function createHistory(RosaSymbol $symbol) {
             if      (is_file($file=getVar('rostFile.compressed', $symbolName, $day))) {}    // wenn komprimierte Rost-Datei existiert
             else if (is_file($file=getVar('rostFile.raw'       , $symbolName, $day))) {}    // wenn unkomprimierte Rost-Datei existiert
             else {
-                echoPre('[Error]   '.$symbolName.' Rost history for '.$shortDate.' not found');
+                echoPre('[Error]   '.$symbolName.'  Rosatrader history for '.$shortDate.' not found');
                 return false;
             }
             // Bars einlesen und der MT4-History hinzufuegen
