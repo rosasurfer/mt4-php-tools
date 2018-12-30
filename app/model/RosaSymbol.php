@@ -1,7 +1,10 @@
 <?php
 namespace rosasurfer\rost\model;
 
+use rosasurfer\config\Config;
+use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\UnimplementedFeatureException;
+
 use rosasurfer\rost\synthetic\Synthesizer;
 
 use function rosasurfer\rost\fxtTime;
@@ -15,7 +18,7 @@ use function rosasurfer\rost\fxtTime;
  * @method string          getDescription()     Return the symbol description.
  * @method int             getDigits()          Return the number of fractional digits of symbol prices.
  * @method bool            isAutoUpdate()       Whether automatic history updates are enabled.
- * @method string          getFormula()         Return a synthetic instrument's calculation formula (LaTex).
+ * @method string          getFormula()         Return a synthetic instrument's calculation formula (LaTeX).
  * @method DukascopySymbol getDukascopySymbol() Return the Dukascopy symbol mapped to this RosaTrader symbol.
  */
 class RosaSymbol extends RosatraderModel {
@@ -46,7 +49,7 @@ class RosaSymbol extends RosatraderModel {
     /** @var bool - whether automatic history updates are enabled */
     protected $autoUpdate;
 
-    /** @var string - LaTex formula for calculation of synthetic instruments */
+    /** @var string - LaTeX formula for calculation of synthetic instruments */
     protected $formula;
 
     /** @var string - start time of the available tick history (FXT) */
@@ -186,19 +189,95 @@ class RosaSymbol extends RosatraderModel {
 
 
     /**
-     * Update the symbol's history (atm only M1 is supported).
+     * Whether the specified day is a trading day for the instrument.
+     *
+     * @param  int $timestamp - FXT timestamp
+     *
+     * @return bool
+     */
+    public function isTradingDay($timestamp) {
+        if (!is_int($timestamp)) throw new IllegalTypeException('Illegal type of parameter $timestamp: '.getType($timestamp));
+
+        $dow = (int) gmDate('w', $timestamp);
+        return ($dow==SATURDAY || $dow==SUNDAY);
+    }
+
+
+    /**
+     * Discard existing history and reload or recreate it.
+     *
+     * @return bool - success status
+     */
+    public function refreshHistory() {
+        return false;
+    }
+
+
+    /**
+     * Synchronize the existing history in the file system with the database.
+     *
+     * @return bool - success status
+     */
+    public function synchronizeHistory() {
+        $dataDir = Config::getDefault()['app.dir.data'];
+        $dir = $dataDir.'/history/rost/'.$this->type.'/'.$this->name;
+
+        // find the oldest existing history file
+        $fileDate = $file = null;
+
+        $years = glob($dir.'/[12][0-9][0-9][0-9]', GLOB_ONLYDIR|GLOB_NOESCAPE|GLOB_ERR) ?: [];
+        foreach ($years as $year) {
+            $months = glob($year.'/[0-9][0-9]',    GLOB_ONLYDIR|GLOB_NOESCAPE|GLOB_ERR) ?: [];
+            foreach ($months as $month) {
+                $days = glob($month.'/[0-9][0-9]', GLOB_ONLYDIR|GLOB_NOESCAPE|GLOB_ERR) ?: [];
+                foreach ($days as $day) {
+                    if (is_file($file=$day.'/M1.bin') || is_file($file.='.rar')) {
+                        $fileDate = strToTime(strRight($day, 10).' GMT');
+                        break 3;
+                    }
+                }
+            }
+        }
+        echoPre(gmDate('Y-m-d H:i:s', $fileDate).' => '.$file);
+
+
+        // scan the file system
+        // record oldest and youngest history
+        // record missing pieces
+
+        return false;
+    }
+
+
+    /**
+     * Update the symbol's history (atm only M1 history is processed).
      *
      * @return bool - success status
      */
     public function updateHistory() {
-        if (!$this->isSynthetic()) throw new UnimplementedFeatureException('RosaSymbol::updateHistory() not yet implemented for regular instruments ('.$this->getName().')');
-
         $updatedTo  = (int) $this->getHistoryEndM1('U');                            // end time FXT
         $updateFrom = $updatedTo ? $updatedTo - $updatedTo%DAY + 1*DAY : 0;         // 00:00 FXT of the first day to update
+        $today      = ($today=fxtTime()) - $today%DAY;                              // 00:00 FXT of the current day
+        echoPre('[Info]    '.$this->getName().'  updating history '.($updateFrom ? 'since '.gmDate('Y-m-d H:i:s', $updateFrom) : 'from start'));
 
         if ($this->isSynthetic()) {
-            // request price updates from the synthesizer
             $synthesizer = new Synthesizer($this);
+
+            for ($day=$updateFrom; $day < $today; $day+=1*DAY) {
+                if ($day && !$this->isTradingDay($day))                             // skip non-trading days
+                    continue;
+
+                $bars = $synthesizer->calculateQuotes($day);
+                if (!$bars) return true(echoPre('[Error]   '.$this->getName().'  history '.($day ? 'for '.gmDate('D, d-M-Y', $day).' ':'').'not available'));
+
+                if (!$day) {                                                        // if $day is zero (no prices have been stored before)
+                    $opentime = $bars[0]['time'];                                   // adjust it to the first available history
+                    $day = $opentime - $opentime%DAY;
+                    echoPre('[Info]    '.$this->getName().'  first available history from '.gmDate('Y-m-d H:i:s', $day));
+                }
+            }
+
+            /*
             $availableFrom = (int) $synthesizer->getHistoryStartM1('U');            // latest start time FXT of all components
             if (!$availableFrom)
                 return false(echoPre('[Error]   '.$this->getName().': history of components not available'));
@@ -214,10 +293,12 @@ class RosaSymbol extends RosatraderModel {
                 //store bars
                 //store the new updatedTo value
             }
+            */
         }
         else {
             // request price updates from a mapped symbol's data source
+            throw new UnimplementedFeatureException('RosaSymbol::updateHistory() not yet implemented for regular instruments ('.$this->getName().')');
         }
-        return false;
+        return true;
     }
 }

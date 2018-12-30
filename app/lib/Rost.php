@@ -48,12 +48,12 @@ class Rost extends StaticClass {
 
 
     /**
-     * struct size in bytes of a ROST_PRICE_BAR (format of Rost history files "M{PERIOD}.myfx")
+     * struct size in bytes of a ROST_PRICE_BAR (format of Rost history files "M{PERIOD}.bin")
      */
     const BAR_SIZE = 24;
 
     /**
-     * struct size in bytes of a Rost tick (format of Rost tick files "{HOUR}h_ticks.myfx")
+     * struct size in bytes of a Rost tick (format of Rost tick files "{HOUR}h_ticks.bin")
      */
     const TICK_SIZE = 12;
 
@@ -807,15 +807,15 @@ class Rost extends StaticClass {
             if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
             $result = gmDate('Y/m/d', $time);
         }
-        else if ($id == 'rostDir') {                  // $dataDirectory/history/rost/$type/$symbol/$rostDirDate         // lokales Verzeichnis
+        else if ($id == 'rostDir') {                  // $dataDir/history/rost/$type/$symbol/$rostDirDate               // lokales Verzeichnis
             if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
             $type        = RosaSymbol::dao()->getByName($symbol)->getType();
             $rostDirDate = self::{__FUNCTION__}('rostDirDate', null, $time);
             $result      = $dataDir.'/history/rost/'.$type.'/'.$symbol.'/'.$rostDirDate;
         }
-        else if ($id == 'rostFile.M1.raw') {          // $rostDir/M1.myfx                                               // Rost-M1-Datei ungepackt
+        else if ($id == 'rostFile.M1.raw') {          // $rostDir/M1.bin                                                // Rost-M1-Datei ungepackt
             $rostDir = self::{__FUNCTION__}('rostDir' , $symbol, $time);
-            $result  = $rostDir.'/M1.myfx';
+            $result  = $rostDir.'/M1.bin';
         }
         else if ($id == 'rostFile.M1.compressed') {   // $rostDir/M1.rar                                                // Rost-M1-Datei gepackt
             $rostDir = self::{__FUNCTION__}('rostDir', $symbol, $time);

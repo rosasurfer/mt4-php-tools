@@ -712,20 +712,20 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
     static $dataDir; !$dataDir && $dataDir = Config::getDefault()->get('app.dir.data');
     $self = __FUNCTION__;
 
-    if ($id == 'rostDirDate') {               // $yyyy/$mmL/$dd                                         // lokales Pfad-Datum
+    if ($id == 'rostDirDate') {                 // $yyyy/$mmL/$dd                                       // lokales Pfad-Datum
         if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
         $result = gmDate('Y/m/d', $time);
     }
-    else if ($id == 'rostDir') {              // $dataDirectory/history/rost/$type/$symbol/$dateL       // lokales Verzeichnis
+    else if ($id == 'rostDir') {                // $dataDir/history/rost/$type/$symbol/$dateL           // lokales Verzeichnis
         $type   = RosaSymbol::dao()->getByName($symbol)->getType();
         $dateL  = $self('rostDirDate', null, $time, null);
         $result = $dataDir.'/history/rost/'.$type.'/'.$symbol.'/'.$dateL;
     }
-    else if ($id == 'rostFile.raw') {         // $rostDir/M1.myfx                                       // lokale Datei ungepackt
+    else if ($id == 'rostFile.raw') {           // $rostDir/M1.bin                                      // lokale Datei ungepackt
         $rostDir = $self('rostDir', $symbol, $time, null);
-        $result  = $rostDir.'/M1.myfx';
+        $result  = $rostDir.'/M1.bin';
     }
-    else if ($id == 'rostFile.compressed') {  // $rostDir/M1.rar                                        // lokale Datei gepackt
+    else if ($id == 'rostFile.compressed') {    // $rostDir/M1.rar                                      // lokale Datei gepackt
         $rostDir = $self('rostDir', $symbol, $time, null);
         $result  = $rostDir.'/M1.rar';
     }

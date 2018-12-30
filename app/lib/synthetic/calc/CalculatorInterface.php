@@ -35,10 +35,11 @@ interface CalculatorInterface {
     /**
      * Calculate and return a synthetic instrument's quotes for the specified day.
      *
-     * @param  int $day - FXT timestamp of the day to calculate quotes for
+     * @param  int $day - FXT timestamp of the day to calculate quotes for. If the value is 0 (zero) the quotes for the
+     *                    oldest available day of the instrument are calculated.
      *
-     * @return array[] - timeseries array with each element describing a bar as following:
-     *
+     * @return array[] - If no history is available for the specified day an empty array is returned. Otherwise a timeseries
+     *                   array is returned with each element describing a bar as following:
      * <pre>
      * Array [
      *     'time'   => {numeric-value},         // (int)    FXT timestamp of bar open time

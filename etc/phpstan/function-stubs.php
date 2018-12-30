@@ -283,6 +283,15 @@ namespace rosasurfer\rost\dukascopy\update_tickdata {
 }
 
 
+namespace rosasurfer\rost\history {
+
+    /**
+     * @param  string $message [optional]
+     */
+    function help($message=null) {}
+}
+
+
 namespace rosasurfer\rost\update_synthetics_m1 {
 
     use rosasurfer\rost\model\RosaSymbol;

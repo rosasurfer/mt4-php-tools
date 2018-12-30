@@ -566,15 +566,15 @@ function getVar($id, $symbol=null, $time=null) {
         if (!$time)   throw new InvalidArgumentException('Invalid parameter $time: '.$time);
         $result = gmDate('Y/m/d', $time);
     }
-    else if ($id == 'rostDir') {                // $dataDirectory/history/rost/$type/$symbol/$rostDirDate       // lokales Verzeichnis
+    else if ($id == 'rostDir') {                // $dataDir/history/rost/$type/$symbol/$rostDirDate             // lokales Verzeichnis
         $type        = RosaSymbol::dao()->getByName($symbol)->getType();
         $rostDirDate = $self('rostDirDate', null, $time);
         $result      = $dataDir.'/history/rost/'.$type.'/'.$symbol.'/'.$rostDirDate;
     }
-    else if ($id == 'rostFile.raw') {           // $rostDir/${hour}h_ticks.myfx                                 // lokale Datei ungepackt
+    else if ($id == 'rostFile.raw') {           // $rostDir/${hour}h_ticks.bin                                  // lokale Datei ungepackt
         $rostDir = $self('rostDir', $symbol, $time);
         $hour    = gmDate('H', $time);
-        $result  = $rostDir.'/'.$hour.'h_ticks.myfx';
+        $result  = $rostDir.'/'.$hour.'h_ticks.bin';
     }
     else if ($id == 'rostFile.compressed') {    // $rostDir/${hour}h_ticks.rar                                  // lokale Datei gepackt
         $rostDir = $self('rostDir', $symbol, $time);

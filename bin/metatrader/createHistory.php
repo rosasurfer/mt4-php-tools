@@ -149,14 +149,14 @@ function getVar($id, $symbol=null, $time=null) {
         if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
         $result = gmDate('Y/m/d', $time);
     }
-    else if ($id == 'rostDir') {              // $dataDirectory/history/rost/$type/$symbol/$rostDirDate         // lokales Verzeichnis
+    else if ($id == 'rostDir') {              // $dataDir/history/rost/$type/$symbol/$rostDirDate               // lokales Verzeichnis
         $type        = RosaSymbol::dao()->getByName($symbol)->getType();
         $rostDirDate = $self('rostDirDate', null, $time);
         $result      = $dataDir.'/history/rost/'.$type.'/'.$symbol.'/'.$rostDirDate;
     }
-    else if ($id == 'rostFile.raw') {         // $rostDir/M1.myfx                                               // lokale Datei ungepackt
+    else if ($id == 'rostFile.raw') {         // $rostDir/M1.bin                                                // lokale Datei ungepackt
         $rostDir = $self('rostDir' , $symbol, $time);
-        $result  = $rostDir.'/M1.myfx';
+        $result  = $rostDir.'/M1.bin';
     }
     else if ($id == 'rostFile.compressed') {  // $rostDir/M1.rar                                                // lokale Datei gepackt
         $rostDir = $self('rostDir' , $symbol, $time);

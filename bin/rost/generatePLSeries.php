@@ -296,27 +296,27 @@ function getVar($id, $symbol=null, $time=null) {
         if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
         $result = gmDate('Y/m/d', $time);
     }
-    else if ($id == 'rostDir') {              // $dataDirectory/history/rost/$type/$symbol/$rostDirDate         // local directory
+    else if ($id == 'rostDir') {              // $dataDir/history/rost/$type/$symbol/$rostDirDate               // local directory
         $type        = RosaSymbol::dao()->getByName($symbol)->getType();
         $rostDirDate = $self('rostDirDate', null, $time);
         $result      = $dataDir.'/history/rost/'.$type.'/'.$symbol.'/'.$rostDirDate;
     }
-    else if ($id == 'rostDirPL') {            // $dataDirectory/stats/pl/$symbol/$rostDirDate                   // local directory
+    else if ($id == 'rostDirPL') {            // $dataDir/stats/pl/$symbol/$rostDirDate                         // local directory
         if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
         $rostDirDate = $self('rostDirDate', null, $time);
         $result      = $dataDir.'/stats/pl/'.$symbol.'/'.$rostDirDate;
     }
-    else if ($id == 'rostFile.raw') {         // $rostDir/M1.myfx                                               // local file uncompressed
+    else if ($id == 'rostFile.raw') {         // $rostDir/M1.bin                                                // local file uncompressed
         $rostDir = $self('rostDir' , $symbol, $time);
-        $result  = $rostDir.'/M1.myfx';
+        $result  = $rostDir.'/M1.bin';
     }
     else if ($id == 'rostFile.compressed') {  // $rostDir/M1.rar                                                // local file compressed
         $rostDir = $self('rostDir' , $symbol, $time);
         $result  = $rostDir.'/M1.rar';
     }
-    else if ($id == 'rostFile.pl.raw') {      // $rostDirPL/M1.myfx                                             // local file uncompressed
+    else if ($id == 'rostFile.pl.raw') {      // $rostDirPL/M1.bin                                              // local file uncompressed
         $rostDirPL = $self('rostDirPL' , $symbol, $time);
-        $result    = $rostDirPL.'/M1.myfx';
+        $result    = $rostDirPL.'/M1.bin';
     }
     else {
       throw new InvalidArgumentException('Unknown variable identifier "'.$id.'"');
