@@ -193,15 +193,15 @@ class RosaSymbol extends RosatraderModel {
     public function updateHistory() {
         if (!$this->isSynthetic()) throw new UnimplementedFeatureException('RosaSymbol::updateHistory() not yet implemented for regular instruments ('.$this->getName().')');
 
-        $updatedTo  = (int) $this->getHistoryEndM1('U');                            // endtime FXT
+        $updatedTo  = (int) $this->getHistoryEndM1('U');                            // end time FXT
         $updateFrom = $updatedTo ? $updatedTo - $updatedTo%DAY + 1*DAY : 0;         // 00:00 FXT of the first day to update
 
         if ($this->isSynthetic()) {
-            // request price updates from a synthesizer
+            // request price updates from the synthesizer
             $synthesizer = new Synthesizer($this);
-            $availableFrom = (int) $synthesizer->getAvailableM1HistoryStart('U');   // latest start time FXT of all components
+            $availableFrom = (int) $synthesizer->getHistoryStartM1('U');            // latest start time FXT of all components
             if (!$availableFrom)
-                return false(echoPre('[Error]   '.$this->getName().': history of components of synthetic instrument not available'));
+                return false(echoPre('[Error]   '.$this->getName().': history of components not available'));
             if ($part = $availableFrom%DAY)
                 $availableFrom -= $part - 1*DAY;                                    // 00:00 FXT of the first completely available day
             $updateFrom = max($availableFrom, $updateFrom);
@@ -210,13 +210,13 @@ class RosaSymbol extends RosatraderModel {
             echoPre('updatedTo: '.$updatedTo.'  availableFrom: '.gmDate('Y-m-d H:i:s', $availableFrom).'  updateFrom: '.gmDate('Y-m-d H:i:s', $updateFrom).'  today: '.gmDate('Y-m-d H:i:s', $today));
 
             for ($day=$updateFrom; $day < $today; $day+=1*DAY) {
-                $bars = $synthesizer->calculateValues($day);
+                $bars = $synthesizer->calculateQuotes($day);
                 //store bars
                 //store the new updatedTo value
             }
         }
         else {
-            // request price updates from a mapped data provider
+            // request price updates from a mapped symbol's data source
         }
         return false;
     }
