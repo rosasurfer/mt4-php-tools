@@ -73,39 +73,32 @@ class LZMA extends StaticClass {
      *
      * @return string
      */
-    private static function getDecompressFileCmd() {
+    public static function getDecompressFileCmd() {
         static $cmd = null;
 
         if (!$cmd) {
-            $output = [];
+            $output = $error = null;
 
-            if (WINDOWS) {
-                $appRoot = Config::getDefault()->get('app.dir.root');
+            !$cmd && exec('lzmadec -V 2> '.NUL_DEVICE, $output, $error);                            // search lzmadec in PATH
+            !$cmd && !$error && ($cmd='lzmadec "%s"');
 
-                !$cmd && exec($appRoot.'/bin/xz/lzmadec -V 2> '.NUL_DEVICE, $output);   // lzmadec im Projekt suchen
-                !$cmd && $output && ($cmd=$appRoot.'/etc/bin/xz/lzmadec "%s"');
+            !$cmd && exec('lzma -V 2> '.NUL_DEVICE, $output, $error);                               // search lzma in PATH
+            !$cmd && !$error && ($cmd='lzma -dc "%s"');
 
-                !$cmd && exec('lzmadec -V 2> '.NUL_DEVICE, $output);                    // lzmadec im Suchpfad suchen
-                !$cmd && $output && ($cmd='lzmadec "%s"');
+            !$cmd && exec('xz -V 2> '.NUL_DEVICE, $output, $error);                                 // search xz in PATH
+            !$cmd && !$error && ($cmd='xz -dc "%s"');
 
-                !$cmd && exec($appRoot.'/bin/xz/xz -V 2> '.NUL_DEVICE, $output);        // xz im Projekt suchen
-                !$cmd && $output && ($cmd=$appRoot.'/etc/bin/xz/xz -dc "%s"');
+            !$cmd && exec('xzdec -V 2> '.NUL_DEVICE, $output, $error);                              // search xzdec in PATH
+            !$cmd && !$error && ($cmd='xzdec "%s"');
 
-                !$cmd && exec('xz -V 2> '.NUL_DEVICE, $output);                         // xz im Suchpfad suchen
-                !$cmd && $output && ($cmd='xz -dc "%s"');
-            }
-            else /*NON-WINDOWS*/ {
-                !$cmd && exec('lzmadec -V 2> '.NUL_DEVICE, $output);                    // lzmadec im Suchpfad suchen
-                !$cmd && $output && ($cmd='lzmadec "%s"');
+            if (!$cmd && WINDOWS) {
+                $appRoot = str_replace('\\', '/', Config::getDefault()->get('app.dir.root'));
 
-                !$cmd && exec('xzdec -V 2> '.NUL_DEVICE, $output);                      // xzdec im Suchpfad suchen
-                !$cmd && $output && ($cmd='xzdec "%s"');
+                !$cmd && exec('"'.$appRoot.'/bin/xz/lzmadec" -V 2> '.NUL_DEVICE, $output, $error);  // search lzmadec in project
+                !$cmd && !$error && ($cmd='"'.$appRoot.'/bin/xz/lzmadec" "%s"');
 
-                !$cmd && exec('lzma -V 2> '.NUL_DEVICE, $output);                       // lzma im Suchpfad suchen
-                !$cmd && $output && ($cmd='lzma -dc "%s"');
-
-                !$cmd && exec('xz -V 2> '.NUL_DEVICE, $output);                         // xz im Suchpfad suchen
-                !$cmd && $output && ($cmd='xz -dc "%s"');
+                !$cmd && exec('"'.$appRoot.'/bin/xz/xz" -V 2> '.NUL_DEVICE, $output, $error);       // search xz in project
+                !$cmd && !$error && ($cmd='"'.$appRoot.'/bin/xz/xz" -dc "%s"');
             }
             if (!$cmd) throw new InfrastructureException('No LZMA decoder found.');
         }
