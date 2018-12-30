@@ -74,7 +74,7 @@ create table t_rosasymbol (                                                -- Ro
    description        text(63)       not null collate nocase,              -- symbol description
    digits             integer        not null,                             -- decimal digits
    autoupdate         integer[bool]  not null default 1,                   -- whether automatic history updates are enabled
-   formula            text,                                                -- LaTex formula to calculate quotes (only if synthetic instrument)
+   formula            text,                                                -- LaTeX formula to calculate quotes (only if synthetic instrument)
    historystart_ticks text[datetime],                                      -- first day with stored history (FXT)
    historyend_ticks   text[datetime],                                      -- last day with stored history (FXT)
    historystart_m1    text[datetime],                                      -- first day with stored history (FXT)

@@ -2,7 +2,8 @@
 *   text=auto
 
 
-# enforce text to overwrite mixed line-endings in the repo
+# an enforced "text" attribute overwrites mixed line-endings in the repo
+*.db         binary
 *.conf       text
 *.cpp        text
 *.css        text
