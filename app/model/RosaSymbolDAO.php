@@ -60,7 +60,6 @@ class RosaSymbolDAO extends DAO {
         if (!is_string($name)) throw new IllegalTypeException('Illegal type of parameter $name: '.getType($name));
 
         $name = $this->escapeLiteral($name);
-
         $sql = 'select *
                    from :RosaSymbol
                    where name = '.$name;
@@ -81,7 +80,6 @@ class RosaSymbolDAO extends DAO {
         if (!is_string($name)) throw new IllegalTypeException('Illegal type of parameter $name: '.getType($name));
 
         $name = $this->escapeLiteral($name);
-
         $sql = 'select *
                    from :RosaSymbol
                    where name = '.$name;
@@ -100,7 +98,6 @@ class RosaSymbolDAO extends DAO {
         if (!is_bool($status)) throw new IllegalTypeException('Illegal type of parameter $status: '.getType($status));
 
         $status = $this->escapeLiteral($status);
-
         $sql = 'select *
                    from :RosaSymbol
                    where autoupdate = '.$status.'
@@ -134,7 +131,6 @@ class RosaSymbolDAO extends DAO {
         if (!is_bool($status)) throw new IllegalTypeException('Illegal type of parameter $status: '.getType($status));
 
         $status = $this->escapeLiteral($status);
-
         $sql = 'select r.*
                    from :RosaSymbol      r
                    join :DukascopySymbol d on r.id = d.rosasymbol_id
@@ -145,15 +141,20 @@ class RosaSymbolDAO extends DAO {
 
 
     /**
-     * Find all synthetic {@link RosaSymbol}s.
+     * Find all {@link RosaSymbol}s of the specified type.
+     *
+     * @param  string $type
      *
      * @return RosaSymbol[] - symbol instances sorted ascending by name
      */
-    public function findAllSynthetics() {
-        $sql = "select *
+    public function findAllByType($type) {
+        if (!is_bool($type)) throw new IllegalTypeException('Illegal type of parameter $type: '.getType($type));
+
+        $type = $this->escapeLiteral($type);
+        $sql = 'select *
                    from :RosaSymbol
-                   where type = 'synthetic'
-                   order by name";
+                   where type = '.$type.'
+                   order by name';
         return $this->findAll($sql);
     }
 
