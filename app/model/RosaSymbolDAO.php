@@ -115,7 +115,7 @@ class RosaSymbolDAO extends DAO {
      * @return RosaSymbol[] - symbol instances sorted ascending by name
      */
     public function findAllDukascopyMapped() {
-        $sql = 'select *
+        $sql = 'select r.*
                    from :RosaSymbol      r
                    join :DukascopySymbol d on r.id = d.rosasymbol_id
                    order by r.name';
@@ -135,7 +135,7 @@ class RosaSymbolDAO extends DAO {
 
         $status = $this->escapeLiteral($status);
 
-        $sql = 'select *
+        $sql = 'select r.*
                    from :RosaSymbol      r
                    join :DukascopySymbol d on r.id = d.rosasymbol_id
                    where autoupdate = '.$status.'
