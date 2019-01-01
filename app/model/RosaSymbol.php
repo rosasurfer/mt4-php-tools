@@ -256,16 +256,20 @@ class RosaSymbol extends RosatraderModel {
         // update the database
         if ($startDate != $this->getHistoryStartM1('U')) {
             echoPre('[Info]    '.$this->name.'  updating start time to '.($startDate ? gmDate('Y-m-d', $startDate) : '(empty)'));
-            $this->historyStartM1 = gmDate('Y-m-d H:i:s', $startDate);
+            $this->historyStartM1 = $startDate ? gmDate('Y-m-d H:i:s', $startDate) : null;
             $this->modified();
         }
         if ($endDate != $this->getHistoryEndM1('U')) {
             echoPre('[Info]    '.$this->name.'  updating end time to '.($endDate ? gmDate('Y-m-d', $endDate) : '(empty)'));
-            $this->historyEndM1 = gmDate('Y-m-d H:i:s', $endDate);
+            $this->historyEndM1 = $endDate ? gmDate('Y-m-d H:i:s', $endDate) : null;
             $this->modified();
         }
-        if ($this->isModified()) $this->save();
-        else                     echoPre('[Info]    '.$this->name.' ok');
+        if (!$this->isModified()) {
+            echoPre('[Info]    '.$this->name.' ok');
+        }
+        else {
+            $this->save();
+        }
         return true;
     }
 
