@@ -7,6 +7,7 @@ use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\rost\model\RosaSymbol;
 use rosasurfer\rost\synthetic\calc\Calculator;
 use rosasurfer\rost\synthetic\calc\CalculatorInterface as ICalculator;
+use rosasurfer\rost\synthetic\calc\CalculatorInterface;
 
 
 /**
@@ -44,8 +45,8 @@ class Synthesizer extends Object implements ICalculator {
 
         $class = dirName(Calculator::class).'\\'.$symbol->getName();
 
-        if (is_class($class)) $this->calculator = new $class();
-        else                  $this->calculator = new Calculator();
+        if (is_class($class)) $this->calculator = new $class($symbol);
+        else                  $this->calculator = new Calculator($symbol);
     }
 
 

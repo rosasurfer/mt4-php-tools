@@ -243,7 +243,7 @@ class RosaSymbol extends RosatraderModel {
 
         // iterate over the whole time range and track the last existing file
         if ($startDate) {
-            $today = ($today=time()) - $today%DAY;                                  // 00:00 FXT of the current day
+            $today = ($today=fxtTime()) - $today%DAY;                               // 00:00 FXT of the current day
             for ($day=$startDate; $day < $today; $day+=1*DAY) {
                 $dir = $dataDir.'/'.gmDate('Y/m/d', $day);
                 if (is_file($file=$dir.'/M1.bin') || is_file($file.='.rar')) {      // TODO: handle missing data
@@ -283,7 +283,7 @@ class RosaSymbol extends RosatraderModel {
         $updatedTo  = (int) $this->getHistoryEndM1('U');                            // end time FXT
         $updateFrom = $updatedTo ? $updatedTo - $updatedTo%DAY + 1*DAY : 0;         // 00:00 FXT of the first day to update
         $today      = ($today=fxtTime()) - $today%DAY;                              // 00:00 FXT of the current day
-        echoPre('[Info]    '.$this->getName().'  updating history '.($updateFrom ? 'since '.gmDate('Y-m-d H:i:s', $updateFrom) : 'from start'));
+        echoPre('[Info]    '.$this->getName().'  updating M1 history '.($updateFrom ? 'since '.gmDate('D, d-M-Y', $updateFrom) : 'from start'));
 
         if ($this->isSynthetic()) {
             $synthesizer = new Synthesizer($this);
@@ -293,12 +293,11 @@ class RosaSymbol extends RosatraderModel {
                     continue;
 
                 $bars = $synthesizer->calculateQuotes($day);
-                if (!$bars) return true(echoPre('[Error]   '.$this->getName().'  history '.($day ? 'for '.gmDate('D, d-M-Y', $day).' ':'').'not available'));
-
+                if (!$bars) return true(echoPre('[Error]   '.$this->getName().'  M1 history sources '.($day ? 'for '.gmDate('D, d-M-Y', $day).' ':'').'not available'));
                 if (!$day) {                                                        // if $day is zero (no prices have been stored before)
                     $opentime = $bars[0]['time'];                                   // adjust it to the first available history
                     $day = $opentime - $opentime%DAY;
-                    echoPre('[Info]    '.$this->getName().'  first available history from '.gmDate('Y-m-d H:i:s', $day));
+                    echoPre('[Info]    '.$this->getName().'  available M1 history starts at '.gmDate('D, d-M-Y', $day));
                 }
             }
 

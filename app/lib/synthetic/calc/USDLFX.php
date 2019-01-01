@@ -1,9 +1,7 @@
 <?php
 namespace rosasurfer\rost\synthetic\calc;
 
-use rosasurfer\core\Object;
 use rosasurfer\exception\IllegalTypeException;
-
 use rosasurfer\rost\model\RosaSymbol;
 
 
@@ -14,27 +12,11 @@ use rosasurfer\rost\model\RosaSymbol;
  *
  * Formula: USDLFX = \sqrt[7]{\frac{USDCAD * USDCHF * USDJPY}{AUDUSD * EURUSD * GBPUSD}}
  */
-class USDLFX extends Object implements CalculatorInterface {
+class USDLFX extends Calculator {
 
 
     /** @var string[] */
-    private $components = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
-
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getHistoryStartTicks($format = 'Y-m-d H:i:s') {
-        return '0';
-    }
-
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getHistoryStartM1($format = 'Y-m-d H:i:s') {
-        return '0';
-    }
+    protected $components = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
 
 
     /**
@@ -43,18 +25,36 @@ class USDLFX extends Object implements CalculatorInterface {
     public function calculateQuotes($day) {
         if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
 
-        if (!$day) {
-            // resolve the oldest available history for all components
-            foreach ($this->components as $name) {
-                /** @var RosaSymbol $symbol */
-                $symbol = RosaSymbol::dao()->getByName($name);
-                $historyStart = (int) $symbol->getHistoryStartM1('U');      // 00:00 FXT of the first stored day
-                echoPre('[Info]    '.$symbol->getName().'  M1 history starts: '.($historyStart ? gmDate('Y-m-d H:i:s', $historyStart) : 0));
-                if (!$historyStart) return [];                              // no history stored
-            }
+        /** @var RosaSymbol $usdlfx */
+        $usdlfx = $this->symbol;
+        /** @var RosaSymbol $components[] */
+        $components = [];
+
+        foreach ($this->components as $name) {
+            $symbol = RosaSymbol::dao()->getByName($name);
+            $components[$symbol->getName()] = $symbol;
         }
-        else {
-            // check available history for the specified day
+
+        if (!$day) {
+            // resolve the oldest available history of all components
+            /** @var RosaSymbol $pair */
+            foreach ($components as $pair) {
+                $historyStart = (int) $pair->getHistoryStartM1('U');        // 00:00 FXT of the first stored day
+                if (!$historyStart) return [];                              // no history stored
+                $day = max($day, $historyStart);
+            }
+            echoPre('[Info]    '.$usdlfx->getName().'  common M1 history starts at '.gmDate('D, d-M-Y', $day));
+        }
+        if (!$usdlfx->isTradingDay($day)) {
+            echoPre('skipping');
+            return [];
+        }                                   // skip non-trading days
+
+        // load history for the specified day
+        $quotes = [];
+        /** @var RosaSymbol $pair */
+        foreach ($components as $symbol => $pair) {
+            $quotes[$symbol] = $pair->getM1History($day);
         }
 
         return [];

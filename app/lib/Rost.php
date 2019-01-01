@@ -89,17 +89,17 @@ class Rost extends StaticClass {
     /**
      * Formatiert einen Timestamp als FXT-Zeit.
      *
+     * @param  string $format - Formatstring
      * @param  int    $time   - Zeitpunkt (default: aktuelle Zeit)
-     * @param  string $format - Formatstring (default: 'Y-m-d H:i:s')
      *
      * @return string - FXT-String
      *
      * Note: Analogous to the date() function except that the time returned is Forex Time (FXT).
      */
-    public static function fxtDate($time=null, $format='Y-m-d H:i:s') {
-        if (is_null($time)) $time = time();
-        else if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+    public static function fxtDate($format, $time = null) {
         if (!is_string($format)) throw new IllegalTypeException('Illegal type of parameter $format: '.getType($format));
+        if (func_num_args() < 2) $time = time();
+        else if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
 
         // FXT = America/New_York +0700           (von 17:00 bis 24:00 = 7h)
         // date($time+7*HOURS) in der Zone 'America/New_York' reicht nicht aus, da dann keine FXT-Repraesentation

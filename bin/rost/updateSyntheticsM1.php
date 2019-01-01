@@ -58,15 +58,16 @@ foreach ($args as $i => $arg) {
     $symbols[$symbol->getName()] = $symbol;                                             // using the name as index removes duplicates
 }
 $symbols = $symbols ?: RosaSymbol::dao()->findAllByType(RosaSymbol::TYPE_SYNTHETIC);    // if none is specified update all synthetics
+!$symbols && echoPre('no synthetic instruments found');
 
 
 // (2) update instruments
 foreach ($symbols as $symbol) {
     //$symbol->updateHistory()       || exit(1);
     updateSyntheticSymbol($symbol) || exit(1);
-}
 
-!$symbols && echoPre('no synthetic instruments found');
+    if (!WINDOWS) pcntl_signal_dispatch();                      // check for and dispatch signals
+}
 exit(0);
 
 
@@ -119,7 +120,7 @@ function updateSyntheticSymbol(RosaSymbol $symbol) {
                 }
 
                 // History aktualisieren: M1-Bars der benoetigten Instrumente dieses Tages einlesen
-                foreach($pairs as $pair => $data) {
+                foreach ($pairs as $pair => $data) {
                     if      (is_file($file=getVar('rostFile.compressed', $pair, $day))) {}      // komprimierte oder
                     else if (is_file($file=getVar('rostFile.raw',        $pair, $day))) {}      // unkomprimierte Rost-Datei
                     else {
@@ -138,9 +139,7 @@ function updateSyntheticSymbol(RosaSymbol $symbol) {
                 if (!saveBars($symbolName, $day, $rostBars)) return false;
             }
         }
-        if (!WINDOWS) pcntl_signal_dispatch();                         // Auf Ctrl-C pruefen, um bei Abbruch die Destruktoren auszufuehren.
     }
-
     echoPre('[Ok]      '.$symbolName);
     return true;
 }
@@ -1883,9 +1882,9 @@ function getVar($id, $symbol=null, $time=null) {
         if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
         $result = gmDate('Y/m/d', $time);
     }
-    else if ($id == 'rostFile.raw') {           // $rostDir/M1.myfx                                     // lokale Datei ungepackt
+    else if ($id == 'rostFile.raw') {           // $rostDir/M1.bin                                      // lokale Datei ungepackt
         $rostDir = $self('rostDir', $symbol, $time);
-        $result  = $rostDir.'/M1.myfx';
+        $result  = $rostDir.'/M1.bin';
     }
     else if ($id == 'rostFile.compressed') {    // $rostDir/M1.rar                                      // lokale Datei gepackt
         $rostDir = $self('rostDir', $symbol, $time);

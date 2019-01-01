@@ -2,12 +2,28 @@
 namespace rosasurfer\rost\synthetic\calc;
 
 use rosasurfer\core\Object;
+use rosasurfer\rost\model\RosaSymbol;
 
 
 /**
  * Calculator
  */
 class Calculator extends Object implements CalculatorInterface {
+
+
+    /** @var RosaSymbol */
+    protected $symbol;
+
+    /** @var string[] */
+    protected $components = [];
+
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __construct(RosaSymbol $symbol) {
+        $this->symbol = $symbol;
+    }
 
 
     /**

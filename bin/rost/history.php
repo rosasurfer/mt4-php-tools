@@ -47,7 +47,7 @@ foreach ($args as $i => $arg) {
     if (!$symbol) exit(1|stderror('error: unknown symbol "'.$args[$i].'"'));
     $symbols[$symbol->getName()] = $symbol;                         // using the name as index removes duplicates
 }
-$symbols = $symbols ?: RosaSymbol::dao()->findAll();                // if none is specified process all
+$symbols = $symbols ?: RosaSymbol::dao()->findAll();                // process all if none was specified
 !$symbols && echoPre('no instruments found');
 
 
