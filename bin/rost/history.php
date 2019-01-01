@@ -55,6 +55,8 @@ $symbols = $symbols ?: RosaSymbol::dao()->findAll();                // if none i
 foreach ($symbols as $symbol) {
     if ($cmd == 'r') $symbol->refreshHistory();
     if ($cmd == 's') $symbol->synchronizeHistory();
+
+    if (!WINDOWS) pcntl_signal_dispatch();                          // check for and dispatch signals
 }
 exit(0);
 
