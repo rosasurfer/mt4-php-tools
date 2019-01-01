@@ -219,33 +219,54 @@ class RosaSymbol extends RosatraderModel {
      * @return bool - success status
      */
     public function synchronizeHistory() {
-        $dataDir = Config::getDefault()['app.dir.data'];
-        $dir = $dataDir.'/history/rost/'.$this->type.'/'.$this->name;
+        $dataDir  = Config::getDefault()['app.dir.data'];
+        $dataDir .= '/history/rost/'.$this->type.'/'.$this->name;
+
+        $startDate = $endDate = null;
+        $firstFile = $lastFile = null;
 
         // find the oldest existing history file
-        $fileDate = $file = null;
-
-        $years = glob($dir.'/[12][0-9][0-9][0-9]', GLOB_ONLYDIR|GLOB_NOESCAPE|GLOB_ERR) ?: [];
+        $years = glob($dataDir.'/[12][0-9][0-9][0-9]', GLOB_ONLYDIR|GLOB_NOESCAPE|GLOB_ERR) ?: [];
         foreach ($years as $year) {
-            $months = glob($year.'/[0-9][0-9]',    GLOB_ONLYDIR|GLOB_NOESCAPE|GLOB_ERR) ?: [];
+            $months = glob($year.'/[0-9][0-9]', GLOB_ONLYDIR|GLOB_NOESCAPE|GLOB_ERR) ?: [];
             foreach ($months as $month) {
                 $days = glob($month.'/[0-9][0-9]', GLOB_ONLYDIR|GLOB_NOESCAPE|GLOB_ERR) ?: [];
                 foreach ($days as $day) {
                     if (is_file($file=$day.'/M1.bin') || is_file($file.='.rar')) {
-                        $fileDate = strToTime(strRight($day, 10).' GMT');
+                        $startDate = strToTime(strRight($day, 10).' GMT');
+                        $firstFile = $file;
                         break 3;
                     }
                 }
             }
         }
-        echoPre(gmDate('Y-m-d H:i:s', $fileDate).' => '.$file);
 
+        // iterate over the whole time range and track the last existing file
+        if ($startDate) {
+            $today = ($today=time()) - $today%DAY;                                  // 00:00 FXT of the current day
+            for ($day=$startDate; $day < $today; $day+=1*DAY) {
+                $dir = $dataDir.'/'.gmDate('Y/m/d', $day);
+                if (is_file($file=$dir.'/M1.bin') || is_file($file.='.rar')) {      // TODO: handle missing data
+                    $endDate  = $day;
+                    $lastFile = $file;
+                }
+            }
+        }
 
-        // scan the file system
-        // record oldest and youngest history
-        // record missing pieces
-
-        return false;
+        // update the database
+        if ($startDate != $this->getHistoryStartM1('U')) {
+            echoPre('[Info]    '.$this->name.'  updating start time to '.($startDate ? gmDate('Y-m-d', $startDate) : '(empty)'));
+            $this->historyStartM1 = gmDate('Y-m-d H:i:s', $startDate);
+            $this->modified();
+        }
+        if ($endDate != $this->getHistoryEndM1('U')) {
+            echoPre('[Info]    '.$this->name.'  updating end time to '.($endDate ? gmDate('Y-m-d', $endDate) : '(empty)'));
+            $this->historyEndM1 = gmDate('Y-m-d H:i:s', $endDate);
+            $this->modified();
+        }
+        if ($this->isModified()) $this->save();
+        else                     echoPre('[Info]    '.$this->name.' ok');
+        return true;
     }
 
 
