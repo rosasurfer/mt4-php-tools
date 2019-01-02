@@ -37,7 +37,7 @@ class DukascopySymbol extends RosatraderModel {
     /**
      * Return the start time of the symbol's available tick history (FXT).
      *
-     * @param  string $format [optional] - format as used by date($format, $timestamp)
+     * @param  string $format [optional] - format as used for <tt>date($format, $timestamp)</tt>
      *
      * @return string - start time based on an FXT timestamp
      */
@@ -51,7 +51,7 @@ class DukascopySymbol extends RosatraderModel {
     /**
      * Return the end time of the symbol's available tick history (FXT).
      *
-     * @param  string $format [optional] - format as used by date($format, $timestamp)
+     * @param  string $format [optional] - format as used for <tt>date($format, $timestamp)</tt>
      *
      * @return string - end time based on an FXT timestamp
      */
@@ -65,7 +65,7 @@ class DukascopySymbol extends RosatraderModel {
     /**
      * Return the start time of the symbol's available M1 history (FXT).
      *
-     * @param  string $format [optional] - format as used by date($format, $timestamp)
+     * @param  string $format [optional] - format as used for <tt>date($format, $timestamp)</tt>
      *
      * @return string - start time based on an FXT timestamp
      */
@@ -79,7 +79,7 @@ class DukascopySymbol extends RosatraderModel {
     /**
      * Return the end time of the symbol's available M1 history (FXT).
      *
-     * @param  string $format [optional] - format as used by date($format, $timestamp)
+     * @param  string $format [optional] - format as used for <tt>date($format, $timestamp)</tt>
      *
      * @return string - end time based on an FXT timestamp
      */

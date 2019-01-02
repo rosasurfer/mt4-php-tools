@@ -39,22 +39,20 @@ class USDLFX extends Calculator {
             // resolve the oldest available history of all components
             /** @var RosaSymbol $pair */
             foreach ($components as $pair) {
-                $historyStart = (int) $pair->getHistoryStartM1('U');        // 00:00 FXT of the first stored day
-                if (!$historyStart) return [];                              // no history stored
+                $historyStart = (int) $pair->getHistoryStartM1('U');    // 00:00 FXT of the first stored day
+                if (!$historyStart) return [];                          // no history stored
                 $day = max($day, $historyStart);
             }
             echoPre('[Info]    '.$usdlfx->getName().'  common M1 history starts at '.gmDate('D, d-M-Y', $day));
         }
-        if (!$usdlfx->isTradingDay($day)) {
-            echoPre('skipping');
+        if (!$usdlfx->isTradingDay($day))                               // skip non-trading days
             return [];
-        }                                   // skip non-trading days
 
         // load history for the specified day
         $quotes = [];
         /** @var RosaSymbol $pair */
-        foreach ($components as $symbol => $pair) {
-            $quotes[$symbol] = $pair->getM1History($day);
+        foreach ($components as $name => $pair) {
+            $quotes[$name] = $pair->getM1History($day);
         }
 
         return [];

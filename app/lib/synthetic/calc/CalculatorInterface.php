@@ -26,7 +26,7 @@ interface CalculatorInterface {
      * Return the consolidated start time of an instrument's tick history. This is the latest history start time of all the
      * subcomponents the instrument is made of.
      *
-     * @param  string $format [optional] - format as used by date($format, $timestamp)
+     * @param  string $format [optional] - format as used for <tt>date($format, $timestamp)</tt>
      *
      * @return string - start time based on an FXT timestamp
      */
@@ -37,7 +37,7 @@ interface CalculatorInterface {
      * Return the consolidated start time of an instrument's M1 history. This is the latest history start time of all the
      * subcomponents the instrument is made of.
      *
-     * @param  string $format [optional] - format as used by date($format, $timestamp)
+     * @param  string $format [optional] - format as used for <tt>date($format, $timestamp)</tt>
      *
      * @return string - start time based on an FXT timestamp
      */

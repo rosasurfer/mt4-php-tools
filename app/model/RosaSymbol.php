@@ -77,7 +77,7 @@ class RosaSymbol extends RosatraderModel {
     /**
      * Return the start time of the symbol's stored tick history (FXT).
      *
-     * @param  string $format [optional] - format as used by date($format, $timestamp)
+     * @param  string $format [optional] - format as used for <tt>date($format, $timestamp)</tt>
      *
      * @return string - start time based on an FXT timestamp
      */
@@ -91,7 +91,7 @@ class RosaSymbol extends RosatraderModel {
     /**
      * Return the end time of the symbol's stored tick history (FXT).
      *
-     * @param  string $format [optional] - format as used by date($format, $timestamp)
+     * @param  string $format [optional] - format as used for <tt>date($format, $timestamp)</tt>
      *
      * @return string - end time based on an FXT timestamp
      */
@@ -105,7 +105,7 @@ class RosaSymbol extends RosatraderModel {
     /**
      * Return the start time of the symbol's stored M1 history (FXT).
      *
-     * @param  string $format [optional] - format as used by date($format, $timestamp)
+     * @param  string $format [optional] - format as used for <tt>date($format, $timestamp)</tt>
      *
      * @return string - start time based on an FXT timestamp
      */
@@ -119,7 +119,7 @@ class RosaSymbol extends RosatraderModel {
     /**
      * Return the end time of the symbol's stored M1 history (FXT).
      *
-     * @param  string $format [optional] - format as used by date($format, $timestamp)
+     * @param  string $format [optional] - format as used for <tt>date($format, $timestamp)</tt>
      *
      * @return string - end time based on an FXT timestamp
      */
@@ -133,7 +133,7 @@ class RosaSymbol extends RosatraderModel {
     /**
      * Return the start time of the symbol's stored D1 history (FXT).
      *
-     * @param  string $format [optional] - format as used by date($format, $timestamp)
+     * @param  string $format [optional] - format as used for <tt>date($format, $timestamp)</tt>
      *
      * @return string - start time based on an FXT timestamp
      */
@@ -147,7 +147,7 @@ class RosaSymbol extends RosatraderModel {
     /**
      * Return the end time of the symbol's stored D1 history (FXT).
      *
-     * @param  string $format [optional] - format as used by date($format, $timestamp)
+     * @param  string $format [optional] - format as used for <tt>date($format, $timestamp)</tt>
      *
      * @return string - end time based on an FXT timestamp
      */
