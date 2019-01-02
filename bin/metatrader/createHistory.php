@@ -15,10 +15,10 @@ use rosasurfer\util\PHP;
 use rosasurfer\rost\Rost;
 use rosasurfer\rost\metatrader\HistorySet;
 use rosasurfer\rost\metatrader\MT4;
-
-use function rosasurfer\rost\fxtTime;
-use function rosasurfer\rost\isFxtWeekend;
 use rosasurfer\rost\model\RosaSymbol;
+
+use function rosasurfer\rost\fxTime;
+use function rosasurfer\rost\isFxtWeekend;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');
@@ -81,7 +81,7 @@ function createHistory(RosaSymbol $symbol) {
 
     $startDay  = (int)$symbol->getHistoryStartM1('U');                              // FXT
     $startDay -= $startDay%DAY;                                                     // 00:00 FXT Starttag
-    $today     = ($today=fxtTime()) - $today%DAY;                                   // 00:00 FXT aktueller Tag
+    $today     = ($today=fxTime()) - $today%DAY;                                    // 00:00 FXT aktueller Tag
 
 
     // MT4-HistorySet erzeugen
@@ -99,7 +99,7 @@ function createHistory(RosaSymbol $symbol) {
         }
 
         // ausser an Wochenenden: Rost-History verarbeiten
-        if (!isFxtWeekend($day, 'FXT')) {
+        if (!isFxtWeekend($day)) {
             if      (is_file($file=getVar('rostFile.compressed', $symbolName, $day))) {}    // wenn komprimierte Rost-Datei existiert
             else if (is_file($file=getVar('rostFile.raw'       , $symbolName, $day))) {}    // wenn unkomprimierte Rost-Datei existiert
             else {

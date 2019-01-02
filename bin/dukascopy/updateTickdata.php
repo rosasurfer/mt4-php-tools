@@ -50,6 +50,8 @@ use rosasurfer\rost\dukascopy\DukascopyException;
 use rosasurfer\rost\model\DukascopySymbol;
 use rosasurfer\rost\model\RosaSymbol;
 
+use function rosasurfer\rost\fxtStrToTime;
+use function rosasurfer\rost\fxtTimezoneOffset;
 use function rosasurfer\rost\isFxtWeekend;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');
@@ -125,9 +127,9 @@ function updateSymbol(RosaSymbol $symbol) {
 
     // (1) Beginn des naechsten Forex-Tages ermitteln
     $startTimeFXT = $dukaSymbol->getHistoryStartTicks();
-    $startTimeGMT = $startTimeFXT ? Rost::fxtStrToTime($startTimeFXT) : 0;  // Beginn der Tickdaten des Symbols in GMT
+    $startTimeGMT = $startTimeFXT ? fxtStrToTime($startTimeFXT) : 0;        // Beginn der Tickdaten des Symbols in GMT
     $prev = $next = null;
-    $fxtOffset    = Rost::fxtTimezoneOffset($startTimeGMT, $prev, $next);   // es gilt: FXT = GMT + Offset
+    $fxtOffset    = fxtTimezoneOffset($startTimeGMT, $prev, $next);         // es gilt: FXT = GMT + Offset
     $startTimeFXT = $startTimeGMT + $fxtOffset;                             // Beginn der Tickdaten in FXT
 
     if ($remainder=$startTimeFXT % DAY) {                                   // Beginn auf den naechsten Forex-Tag 00:00 aufrunden, sodass
@@ -137,7 +139,7 @@ function updateSymbol(RosaSymbol $symbol) {
             $startTimeFXT = $startTimeGMT + $next['offset'];
             if ($remainder=$startTimeFXT % DAY) $diff = 1*DAY - $remainder;
             else                                $diff = 0;
-            $fxtOffset = Rost::fxtTimezoneOffset($startTimeGMT, $prev, $next);
+            $fxtOffset = fxtTimezoneOffset($startTimeGMT, $prev, $next);
         }
         $startTimeGMT += $diff;                                             // naechster Forex-Tag 00:00 in GMT
         $startTimeFXT += $diff;                                             // naechster Forex-Tag 00:00 in FXT
@@ -151,7 +153,7 @@ function updateSymbol(RosaSymbol $symbol) {
 
     for ($gmtHour=$startTimeGMT; $gmtHour < $lastHour; $gmtHour+=1*HOUR) {
         if ($gmtHour >= $next['time'])
-            $fxtOffset = Rost::fxtTimezoneOffset($gmtHour, $prev, $next);   // $fxtOffset on-the-fly aktualisieren
+            $fxtOffset = fxtTimezoneOffset($gmtHour, $prev, $next);         // $fxtOffset on-the-fly aktualisieren
         $fxtHour = $gmtHour + $fxtOffset;
 
         if (!checkHistory($symbolName, $gmtHour, $fxtHour)) return false;
@@ -181,7 +183,7 @@ function checkHistory($symbol, $gmtHour, $fxtHour) {
     static $lastDay=-1, $lastMonth=-1;
 
     // (1) nur an Handelstagen pruefen, ob die Rost-History existiert und ggf. aktualisieren
-    if (!isFxtWeekend($fxtHour, 'FXT')) {
+    if (!isFxtWeekend($fxtHour)) {
         $day = (int) gmDate('d', $fxtHour);
         if ($day != $lastDay) {
             if ($verbose > 1) echoPre('[Info]    '.gmDate('d-M-Y', $fxtHour));
@@ -227,7 +229,7 @@ function checkHistory($symbol, $gmtHour, $fxtHour) {
     // Dukascopy-Downloadverzeichnis der aktuellen Stunde, wenn es leer ist
     if (is_dir($dir=getVar('rostDir', $symbol, $gmtHour))) @rmDir($dir);
     // lokales Historyverzeichnis der aktuellen Stunde, wenn Wochenende und es leer ist
-    if (isFxtWeekend($fxtHour, 'FXT')) {
+    if (isFxtWeekend($fxtHour)) {
         if (is_dir($dir=getVar('rostDir', $symbol, $fxtHour))) @rmDir($dir);
     }
 

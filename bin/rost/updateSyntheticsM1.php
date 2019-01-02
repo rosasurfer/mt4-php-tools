@@ -17,7 +17,7 @@ use rosasurfer\rost\model\DukascopySymbol;
 use rosasurfer\rost\model\RosaSymbol;
 use rosasurfer\rost\model\RosaSymbolDAO;
 
-use function rosasurfer\rost\fxtTime;
+use function rosasurfer\rost\fxTime;
 use function rosasurfer\rost\isFxtWeekend;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');
@@ -97,12 +97,12 @@ function updateSyntheticSymbol(RosaSymbol $symbol) {
         $data = [];                                                                         // $data initialisieren: ['AUDUSD'=>[], ...]
     } unset($data);
     $startDay = $startTime - $startTime%DAY;                                                // 00:00 Starttag FXT
-    $today    = ($today=fxtTime()) - $today%DAY;                                            // 00:00 aktueller Tag FXT
+    $today    = ($today=fxTime()) - $today%DAY;                                             // 00:00 aktueller Tag FXT
 
 
     // (2) Gesamte Zeitspanne tageweise durchlaufen
     for ($day=$startDay, $lastMonth=-1; $day < $today; $day+=1*DAY) {
-        if (!isFxtWeekend($day, 'FXT')) {                                                   // ausser an Wochenenden
+        if (!isFxtWeekend($day)) {                                                          // ausser an Wochenenden
             $shortDate = gmDate('D, d-M-Y', $day);
 
             // Pruefen, ob die History bereits existiert

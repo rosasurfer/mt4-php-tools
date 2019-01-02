@@ -135,7 +135,7 @@ for ($day=$firstDealDay; $day <= $lastDealDay; $day+=1*DAY) {
         echoPre('[Info]    '.gmDate('M-Y', $day));
         $prevMonth = $month;
     }
-    if (isFxtWeekend($day, 'FXT'))                                  // skip non-trading days
+    if (isFxtWeekend($day))                                         // skip non-trading days
         continue;
 
     if      (is_file($file=getVar('rostFile.compressed', $symbol, $day))) {}

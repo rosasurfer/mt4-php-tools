@@ -7,7 +7,7 @@ use rosasurfer\exception\UnimplementedFeatureException;
 
 use rosasurfer\rost\synthetic\Synthesizer;
 
-use function rosasurfer\rost\fxtTime;
+use function rosasurfer\rost\fxTime;
 
 
 /**
@@ -199,7 +199,7 @@ class RosaSymbol extends RosatraderModel {
         if (!is_int($timestamp)) throw new IllegalTypeException('Illegal type of parameter $timestamp: '.getType($timestamp));
 
         $dow = (int) gmDate('w', $timestamp);
-        return ($dow==SATURDAY || $dow==SUNDAY);
+        return ($dow!=SATURDAY && $dow!=SUNDAY);
     }
 
 
@@ -243,7 +243,7 @@ class RosaSymbol extends RosatraderModel {
 
         // iterate over the whole time range and track the last existing file
         if ($startDate) {
-            $today = ($today=fxtTime()) - $today%DAY;                               // 00:00 FXT of the current day
+            $today = ($today=fxTime()) - $today%DAY;                                // 00:00 FXT of the current day
             for ($day=$startDate; $day < $today; $day+=1*DAY) {
                 $dir = $dataDir.'/'.gmDate('Y/m/d', $day);
                 if (is_file($file=$dir.'/M1.bin') || is_file($file.='.rar')) {      // TODO: handle missing data
@@ -282,7 +282,7 @@ class RosaSymbol extends RosatraderModel {
     public function updateHistory() {
         $updatedTo  = (int) $this->getHistoryEndM1('U');                            // end time FXT
         $updateFrom = $updatedTo ? $updatedTo - $updatedTo%DAY + 1*DAY : 0;         // 00:00 FXT of the first day to update
-        $today      = ($today=fxtTime()) - $today%DAY;                              // 00:00 FXT of the current day
+        $today      = ($today=fxTime()) - $today%DAY;                               // 00:00 FXT of the current day
         echoPre('[Info]    '.$this->getName().'  updating M1 history '.($updateFrom ? 'since '.gmDate('D, d-M-Y', $updateFrom) : 'from start'));
 
         if ($this->isSynthetic()) {
@@ -308,7 +308,7 @@ class RosaSymbol extends RosatraderModel {
             if ($part = $availableFrom%DAY)
                 $availableFrom -= $part - 1*DAY;                                    // 00:00 FXT of the first completely available day
             $updateFrom = max($availableFrom, $updateFrom);
-            $today = ($today=fxtTime()) - $today%DAY;                               // 00:00 FXT of the current day
+            $today = ($today=fxTime()) - $today%DAY;                                // 00:00 FXT of the current day
 
             echoPre('updatedTo: '.$updatedTo.'  availableFrom: '.gmDate('Y-m-d H:i:s', $availableFrom).'  updateFrom: '.gmDate('Y-m-d H:i:s', $updateFrom).'  today: '.gmDate('Y-m-d H:i:s', $today));
 

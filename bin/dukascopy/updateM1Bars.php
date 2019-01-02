@@ -49,6 +49,8 @@ use rosasurfer\rost\dukascopy\Dukascopy;
 use rosasurfer\rost\model\DukascopySymbol;
 use rosasurfer\rost\model\RosaSymbol;
 
+use function rosasurfer\rost\fxtStrToTime;
+use function rosasurfer\rost\fxtTimezoneOffset;
 use function rosasurfer\rost\isFxtWeekend;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');
@@ -126,7 +128,7 @@ function updateSymbol(RosaSymbol $symbol) {
     $symbolName = $symbol->getName();
 
     $startFxt   = $dukaSymbol->getHistoryStartM1();
-    $startTime  = $startFxt ? Rost::fxtStrToTime($startFxt) : 0;        // Beginn der Dukascopy-Daten dieses Symbols in GMT
+    $startTime  = $startFxt ? fxtStrToTime($startFxt) : 0;              // Beginn der Dukascopy-Daten dieses Symbols in GMT
     $startTime -= $startTime % DAY;                                     // 00:00 GMT
 
     global $verbose, $barBuffer;
@@ -183,7 +185,7 @@ function checkHistory($symbol, $day) {
     $day -= $day%DAY;                                               // 00:00 GMT
 
     // (1) nur an Wochentagen: pruefen, ob die Rost-History existiert und ggf. aktualisieren
-    if (!isFxtWeekend($day, 'FXT')) {                               // um 00:00 GMT sind GMT- und FXT-Wochentag immer gleich
+    if (!isFxtWeekend($day)) {                                      // um 00:00 GMT sind GMT- und FXT-Wochentag immer gleich
         // History ist ok, wenn entweder die komprimierte Rost-Datei existiert...
         if (is_file($file=getVar('rostFile.compressed', $symbol, $day))) {
             if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'  Rosatrader history file found: '.Rost::relativePath($file));
@@ -215,11 +217,11 @@ function checkHistory($symbol, $day) {
     }
 
     // lokales Historyverzeichnis des Vortages, wenn Wochenende und es leer ist
-    if (isFxtWeekend($previousDay, 'FXT')) {                            // um 00:00 GMT sind GMT- und FXT-Wochentag immer gleich
+    if (isFxtWeekend($previousDay)) {                                   // um 00:00 GMT sind GMT- und FXT-Wochentag immer gleich
         if (is_dir($dir=getVar('rostDir', $symbol, $previousDay))) @rmDir($dir);
     }
     // lokales Historyverzeichnis des aktuellen Tages, wenn Wochenende und es leer ist
-    if (isFxtWeekend($day, 'FXT')) {                                    // um 00:00 GMT sind GMT- und FXT-Wochentag immer gleich
+    if (isFxtWeekend($day)) {                                           // um 00:00 GMT sind GMT- und FXT-Wochentag immer gleich
         if (is_dir($dir=getVar('rostDir', $symbol, $day))) @rmDir($dir);
     }
 
@@ -555,7 +557,7 @@ function processRawDukascopyBarData($data, $symbol, $day, $type) {
 
     // (2) Timestamps und FXT-Daten zu den Bars hinzufuegen
     $prev = $next = null;                                               // Die Daten der Datei koennen einen DST-Wechsel abdecken, wenn
-    $fxtOffset = Rost::fxtTimezoneOffset($day, $prev, $next);           // $day = "Sun, 00:00 GMT" ist. In diesem Fall muss innerhalb
+    $fxtOffset = fxtTimezoneOffset($day, $prev, $next);                 // $day = "Sun, 00:00 GMT" ist. In diesem Fall muss innerhalb
     foreach ($bars as &$bar) {                                          // der Datenreihe bei der Ermittlung von time_fxt und delta_fxt
         $bar['time_gmt' ] = $day + $bar['timeDelta'];                   // auf den naechsten DST-Offset gewechselt werden.
         $bar['delta_gmt'] =        $bar['timeDelta'];
