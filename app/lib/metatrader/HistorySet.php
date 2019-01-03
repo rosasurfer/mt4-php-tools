@@ -29,20 +29,24 @@ use const rosasurfer\rost\PERIOD_MN1;
  */
 class HistorySet extends Object {
 
-    protected /*string*/ $symbol;
-    protected /*int   */ $digits;
-    protected /*string*/ $serverName;                  // einfacher Servername
-    protected /*string*/ $serverDirectory;             // vollstaendiger Verzeichnisname
-    protected /*bool  */ $closed = false;              // ob das Set geschlossen und seine Resourcen freigegeben sind
 
-    // Getter
-    public function getSymbol()          { return       $this->symbol;          }
-    public function getDigits()          { return       $this->digits;          }
-    public function getServerName()      { return       $this->serverName;      }
-    public function getServerDirectory() { return       $this->serverDirectory; }
-    public function isClosed()           { return (bool)$this->closed;          }
+    /** @var string */
+    protected $symbol;
 
-    protected /*HistoryFile[]*/ $historyFiles = [
+    /** @var int */
+    protected $digits;
+
+    /** @var string - einfacher Servername */
+    protected $serverName;
+
+    /** @var string - vollstaendiger Verzeichnisname */
+    protected $serverDirectory;
+
+    /** @var bool - ob das Set geschlossen und seine Resourcen freigegeben sind */
+    protected $closed = false;
+
+    /** @var HistoryFile[] */
+    protected $historyFiles = [
         PERIOD_M1  => null,
         PERIOD_M5  => null,
         PERIOD_M15 => null,
@@ -54,7 +58,8 @@ class HistorySet extends Object {
         PERIOD_MN1 => null
     ];
 
-    private static /*HistorySet[]*/ $instances = [];   // alle Instanzen dieser Klasse
+    /** @var HistorySet[] - alle Instanzen dieser Klasse */
+    private static $instances = [];
 
 
     /**
@@ -64,11 +69,24 @@ class HistorySet extends Object {
      * -----------
      * new HistorySet(string $symbol, int $digits, int $format, string $serverDirectory)
      * new HistorySet(HistoryFile $file)
+     *
+     * @param  HistoryFile|string $arg1
+     * @param  int                $digits
+     * @param  int                $format
+     * @param  string             $serverDirectory
      */
-    private function __construct($arg1=null, $arg2=null, $arg3=null, $arg4=null) {
+    private function __construct($arg1, $digits=null, $format=null, $serverDirectory=null) {
         $argc = func_num_args();
-        if      ($argc == 4) $this->__construct_1($arg1, $arg2, $arg3, $arg4);
-        else if ($argc == 1) $this->__construct_2($arg1);
+        if ($argc == 4) {
+            /** @var string */
+            $symbol = $arg1;
+            $this->__construct_1($symbol, $digits, $format, $serverDirectory);
+        }
+        else if ($argc == 1) {
+            /** @var HistoryFile */
+            $file = $arg1;
+            $this->__construct_2($file);
+        }
         else throw new InvalidArgumentException('Invalid number of arguments: '.$argc);
     }
 
@@ -181,6 +199,46 @@ class HistorySet extends Object {
 
 
     /**
+     * @return string
+     */
+    public function getSymbol() {
+        return $this->symbol;
+    }
+
+
+    /**
+     * @return int
+     */
+    public function getDigits() {
+        return $this->digits;
+    }
+
+
+    /**
+     * @return string
+     */
+    public function getServerName() {
+        return $this->serverName;
+    }
+
+
+    /**
+     * @return string
+     */
+    public function getServerDirectory() {
+        return $this->serverDirectory;
+    }
+
+
+    /**
+     * @return bool
+     */
+    public function isClosed() {
+        return (bool)$this->closed;
+    }
+
+
+    /**
      * Schliesst dieses HistorySet. Gibt alle Resourcen dieser Instanz frei. Nach dem Aufruf kann die Instanz nicht mehr verwendet werden.
      *
      * @return bool - Erfolgsstatus; FALSE, wenn die Instanz bereits geschlossen war
@@ -241,7 +299,10 @@ class HistorySet extends Object {
         }
 
         // das erste existierende HistoryFile an den Constructor uebergeben, das Set liest die weiteren dann selbst ein
-        $set = $file = null;
+        /** @var HistorySet $set */
+        $set  = null;
+        $file = null;
+
         foreach (MT4::$timeframes as $timeframe) {
             $fileName = $serverDirectory.'/'.$symbol.$timeframe.'.hst';
             if (is_file($fileName)) {

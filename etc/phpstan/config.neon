@@ -38,7 +38,7 @@ parameters:
         - '/Parameter #[0-9]+ [^ ]+ of class [^ ]+ constructor expects ([^ ]+), (\1\|)?null given\b/'               # - dito -
         - '/Parameter #[0-9]+ [^ ]+ of (static )?(function|method) [^ ]+ expects ([^ ]+), (\3\|)?null given\b/'     # - dito -
         - '/Calling method [^ ]+\(\) on possibly null value of type [^ ]+\|null\b/'
-        - "/Casting to (bool|int|float|string) something that's already (bool|int|float|string)/"                   # the current implementation ignores not initialized vars
+        - "/Casting to (bool|int|float|string) something that's already (bool|int|float|string)/"                   # PHPStan ignores non-initialized vars
         - '/Strict comparison using [=!]== between (int|string) and null will always evaluate to (true|false)\b/'
 
         # unsolved issues

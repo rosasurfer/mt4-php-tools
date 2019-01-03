@@ -68,7 +68,7 @@ class HistoryFile extends Object {
     protected $barSize = 0;
 
     /** @var array[] - internal write buffer (ROST_PRICE_BAR[]) */
-    protected $barBuffer = [];
+    public $barBuffer = [];
 
     /** @var int - internal write buffer default size */
     protected $barBufferSize = 10000;
