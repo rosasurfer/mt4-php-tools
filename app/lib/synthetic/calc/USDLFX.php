@@ -2,6 +2,8 @@
 namespace rosasurfer\rost\synthetic\calc;
 
 use rosasurfer\exception\IllegalTypeException;
+
+use rosasurfer\rost\FXT;
 use rosasurfer\rost\model\RosaSymbol;
 
 
@@ -22,8 +24,8 @@ class USDLFX extends Calculator {
     /**
      * {@inheritdoc}
      */
-    public function calculateQuotes($day) {
-        if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
+    public function calculateQuotes($fxDay) {
+        if (!is_int($fxDay)) throw new IllegalTypeException('Illegal type of parameter $fxDay: '.getType($fxDay));
 
         /** @var RosaSymbol $usdlfx */
         $usdlfx = $this->symbol;
@@ -31,30 +33,30 @@ class USDLFX extends Calculator {
         $components = [];
 
         foreach ($this->components as $name) {
+            /** @var RosaSymbol $symbol */
             $symbol = RosaSymbol::dao()->getByName($name);
             $components[$symbol->getName()] = $symbol;
         }
 
-        if (!$day) {
+        if (!$fxDay) {
             // resolve the oldest available history of all components
             /** @var RosaSymbol $pair */
             foreach ($components as $pair) {
-                $historyStart = (int) $pair->getHistoryStartM1('U');    // 00:00 FXT of the first stored day
+                $historyStart = (int) $pair->getHistoryM1Start('U');    // 00:00 FXT of the first stored day
                 if (!$historyStart) return [];                          // no history stored
-                $day = max($day, $historyStart);
+                $fxDay = max($fxDay, $historyStart);
             }
-            echoPre('[Info]    '.$usdlfx->getName().'  common M1 history starts at '.gmDate('D, d-M-Y', $day));
+            echoPre('[Info]    '.$usdlfx->getName().'  common M1 history starts at '.FXT::fxDate('D, d-M-Y', $fxDay));
         }
-        if (!$usdlfx->isTradingDay($day))                               // skip non-trading days
+        if (!$usdlfx->isTradingDay($fxDay))                             // skip non-trading days
             return [];
 
         // load history for the specified day
         $quotes = [];
-        /** @var RosaSymbol $pair */
         foreach ($components as $name => $pair) {
-            $quotes[$name] = $pair->getM1History($day);
+            $quotes[$name] = $pair->getHistoryM1($fxDay);
+            echoPre($quotes[$name][0]);
         }
-
         return [];
     }
 }

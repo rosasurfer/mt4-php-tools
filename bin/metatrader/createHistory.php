@@ -79,7 +79,7 @@ function createHistory(RosaSymbol $symbol) {
     $symbolName   = $symbol->getName();
     $symbolDigits = $symbol->getDigits();
 
-    $startDay  = (int)$symbol->getHistoryStartM1('U');                              // FXT
+    $startDay  = (int)$symbol->getHistoryM1Start('U');                              // FXT
     $startDay -= $startDay%DAY;                                                     // 00:00 FXT Starttag
     $today     = ($today=fxTime()) - $today%DAY;                                    // 00:00 FXT aktueller Tag
 

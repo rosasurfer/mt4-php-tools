@@ -48,7 +48,7 @@ class Rost extends StaticClass {
 
 
     /**
-     * struct size in bytes of a ROST_PRICE_BAR (format of Rost history files "M{PERIOD}.bin")
+     * struct size in bytes of a ROST_PRICE_BAR (format of Rosatrader history files "{PERIOD}.bin")
      */
     const BAR_SIZE = 24;
 
@@ -297,21 +297,10 @@ class Rost extends StaticClass {
         if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
 
         $lenData = strLen($data); if ($lenData % self::BAR_SIZE) throw new RuntimeException('Odd length of passed '.$symbol.' data: '.$lenData.' (not an even Rost::BAR_SIZE)');
-        $offset  = 0;
-        $bars    = [];
-        $i       = -1;
+        $bars = [];
 
-        while ($offset < $lenData) {
-            $i++;
+        for ($offset=0; $offset < $lenData; $offset += self::BAR_SIZE) {
             $bars[] = unpack("@$offset/Vtime/Vopen/Vhigh/Vlow/Vclose/Vticks", $data);
-            $offset += self::BAR_SIZE;
-
-            // Bars validieren
-            if ($bars[$i]['open' ] > $bars[$i]['high'] ||      // aus (H >= O && O >= L) folgt (H >= L)
-                 $bars[$i]['open' ] < $bars[$i]['low' ] ||      // nicht mit min()/max(), da nicht performant
-                 $bars[$i]['close'] > $bars[$i]['high'] ||
-                 $bars[$i]['close'] < $bars[$i]['low' ] ||
-                !$bars[$i]['ticks']) throw new RuntimeException("Illegal $symbol data for bar[$i]: O={$bars[$i]['open']} H={$bars[$i]['high']} L={$bars[$i]['low']} C={$bars[$i]['close']} V={$bars[$i]['ticks']} T='".gmDate('D, d-M-Y H:i:s', $bars[$i]['time'])."'");
         }
         return $bars;
     }

@@ -35,12 +35,12 @@ class RosaSymbolDAO extends DAO {
                 ['name'=>'digits',                                            'type'=>INT,                   ],                     // db:int
                 ['name'=>'autoUpdate',        'column'=>'autoupdate',         'type'=>BOOL,                  ],                     // db:int[bool]
                 ['name'=>'formula',                                           'type'=>STRING,                ],                     // db:text
-                ['name'=>'historyStartTicks', 'column'=>'historystart_ticks', 'type'=>STRING,                ],                     // db:text[datetime] FXT
-                ['name'=>'historyEndTicks',   'column'=>'historyend_ticks',   'type'=>STRING,                ],                     // db:text[datetime] FXT
-                ['name'=>'historyStartM1',    'column'=>'historystart_m1',    'type'=>STRING,                ],                     // db:text[datetime] FXT
-                ['name'=>'historyEndM1',      'column'=>'historyend_m1',      'type'=>STRING,                ],                     // db:text[datetime] FXT
-                ['name'=>'historyStartD1',    'column'=>'historystart_d1',    'type'=>STRING,                ],                     // db:text[datetime] FXT
-                ['name'=>'historyEndD1',      'column'=>'historyend_d1',      'type'=>STRING,                ],                     // db:text[datetime] FXT
+                ['name'=>'historyTicksStart', 'column'=>'historystart_ticks', 'type'=>STRING,                ],                     // db:text[datetime] FXT
+                ['name'=>'historyTicksEnd',   'column'=>'historyend_ticks',   'type'=>STRING,                ],                     // db:text[datetime] FXT
+                ['name'=>'historyM1Start',    'column'=>'historystart_m1',    'type'=>STRING,                ],                     // db:text[datetime] FXT
+                ['name'=>'historyM1End',      'column'=>'historyend_m1',      'type'=>STRING,                ],                     // db:text[datetime] FXT
+                ['name'=>'historyD1Start',    'column'=>'historystart_d1',    'type'=>STRING,                ],                     // db:text[datetime] FXT
+                ['name'=>'historyD1End',      'column'=>'historyend_d1',      'type'=>STRING,                ],                     // db:text[datetime] FXT
             ],
             'relations' => [
                 ['name'=>'dukascopySymbol', 'assoc'=>'one-to-one', 'type'=>DukascopySymbol::class, 'ref-column'=>'rosasymbol_id'],  // db:int

@@ -5,6 +5,9 @@ use rosasurfer\config\Config;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\UnimplementedFeatureException;
 
+use rosasurfer\rost\FXT;
+use rosasurfer\rost\Rost;
+use rosasurfer\rost\RT;
 use rosasurfer\rost\synthetic\Synthesizer;
 
 use function rosasurfer\rost\fxTime;
@@ -53,25 +56,35 @@ class RosaSymbol extends RosatraderModel {
     protected $formula;
 
     /** @var string - start time of the available tick history (FXT) */
-    protected $historyStartTicks;
+    protected $historyTicksStart;
 
     /** @var string - end time of the available tick history (FXT) */
-    protected $historyEndTicks;
+    protected $historyTicksEnd;
 
     /** @var string - start time of the available M1 history (FXT) */
-    protected $historyStartM1;
+    protected $historyM1Start;
 
     /** @var string - end time of the available M1 history (FXT) */
-    protected $historyEndM1;
+    protected $historyM1End;
 
     /** @var string - start time of the available D1 history (FXT) */
-    protected $historyStartD1;
+    protected $historyD1Start;
 
     /** @var string - end time of the available D1 history (FXT) */
-    protected $historyEndD1;
+    protected $historyD1End;
 
     /** @var DukascopySymbol [transient] - the Dukascopy symbol mapped to this RosaTrader symbol */
     protected $dukascopySymbol;
+
+
+    /**
+     * Return the instrument's quote resolution (the value of 1 point).
+     *
+     * @return double
+     */
+    public function getPoint() {
+        return 1/pow(10, $this->digits);
+    }
 
 
     /**
@@ -81,10 +94,10 @@ class RosaSymbol extends RosatraderModel {
      *
      * @return string - start time based on an FXT timestamp
      */
-    public function getHistoryStartTicks($format = 'Y-m-d H:i:s') {
-        if (!isSet($this->historyStartTicks) || $format=='Y-m-d H:i:s')
-            return $this->historyStartTicks;
-        return gmDate($format, strToTime($this->historyStartTicks.' GMT'));
+    public function getHistoryTicksStart($format = 'Y-m-d H:i:s') {
+        if (!isSet($this->historyTicksStart) || $format=='Y-m-d H:i:s')
+            return $this->historyTicksStart;
+        return gmDate($format, strToTime($this->historyTicksStart.' GMT'));
     }
 
 
@@ -95,10 +108,10 @@ class RosaSymbol extends RosatraderModel {
      *
      * @return string - end time based on an FXT timestamp
      */
-    public function getHistoryEndTicks($format = 'Y-m-d H:i:s') {
-        if (!isSet($this->historyEndTicks) || $format=='Y-m-d H:i:s')
-            return $this->historyEndTicks;
-        return gmDate($format, strToTime($this->historyEndTicks.' GMT'));
+    public function getHistoryTicksEnd($format = 'Y-m-d H:i:s') {
+        if (!isSet($this->historyTicksEnd) || $format=='Y-m-d H:i:s')
+            return $this->historyTicksEnd;
+        return gmDate($format, strToTime($this->historyTicksEnd.' GMT'));
     }
 
 
@@ -109,10 +122,10 @@ class RosaSymbol extends RosatraderModel {
      *
      * @return string - start time based on an FXT timestamp
      */
-    public function getHistoryStartM1($format = 'Y-m-d H:i:s') {
-        if (!isSet($this->historyStartM1) || $format=='Y-m-d H:i:s')
-            return $this->historyStartM1;
-        return gmDate($format, strToTime($this->historyStartM1.' GMT'));
+    public function getHistoryM1Start($format = 'Y-m-d H:i:s') {
+        if (!isSet($this->historyM1Start) || $format=='Y-m-d H:i:s')
+            return $this->historyM1Start;
+        return gmDate($format, strToTime($this->historyM1Start.' GMT'));
     }
 
 
@@ -123,10 +136,10 @@ class RosaSymbol extends RosatraderModel {
      *
      * @return string - end time based on an FXT timestamp
      */
-    public function getHistoryEndM1($format = 'Y-m-d H:i:s') {
-        if (!isSet($this->historyEndM1) || $format=='Y-m-d H:i:s')
-            return $this->historyEndM1;
-        return gmDate($format, strToTime($this->historyEndM1.' GMT'));
+    public function getHistoryM1End($format = 'Y-m-d H:i:s') {
+        if (!isSet($this->historyM1End) || $format=='Y-m-d H:i:s')
+            return $this->historyM1End;
+        return gmDate($format, strToTime($this->historyM1End.' GMT'));
     }
 
 
@@ -137,10 +150,10 @@ class RosaSymbol extends RosatraderModel {
      *
      * @return string - start time based on an FXT timestamp
      */
-    public function getHistoryStartD1($format = 'Y-m-d H:i:s') {
-        if (!isSet($this->historyStartD1) || $format=='Y-m-d H:i:s')
-            return $this->historyStartD1;
-        return gmDate($format, strToTime($this->historyStartD1.' GMT'));
+    public function getHistoryD1Start($format = 'Y-m-d H:i:s') {
+        if (!isSet($this->historyD1Start) || $format=='Y-m-d H:i:s')
+            return $this->historyD1Start;
+        return gmDate($format, strToTime($this->historyD1Start.' GMT'));
     }
 
 
@@ -151,10 +164,39 @@ class RosaSymbol extends RosatraderModel {
      *
      * @return string - end time based on an FXT timestamp
      */
-    public function getHistoryEndD1($format = 'Y-m-d H:i:s') {
-        if (!isSet($this->historyEndD1) || $format=='Y-m-d H:i:s')
-            return $this->historyEndD1;
-        return gmDate($format, strToTime($this->historyEndD1.' GMT'));
+    public function getHistoryD1End($format = 'Y-m-d H:i:s') {
+        if (!isSet($this->historyD1End) || $format=='Y-m-d H:i:s')
+            return $this->historyD1End;
+        return gmDate($format, strToTime($this->historyD1End.' GMT'));
+    }
+
+
+    /**
+     * Get the M1 history for the specified day.
+     *
+     * @param  int $fxDay - FXT timestamp
+     *
+     * @return array[] - If history for the specified day is not available an empty array is returned. Otherwise a timeseries
+     *                   array is returned with each element describing a M1 bar as following:
+     * <pre>
+     * Array [
+     *     'time'  => (int),            // bar open time in FXT
+     *     'open'  => (double),         // open value
+     *     'high'  => (double),         // high value
+     *     'low'   => (double),         // low value
+     *     'close' => (double),         // close value
+     *     'ticks' => (int),            // ticks or volume (if available)
+     * ]
+     * </pre>
+     */
+    public function getHistoryM1($fxDay) {
+        $dataDir  = Config::getDefault()['app.dir.data'];
+        $dataDir .= '/history/rost/'.$this->type.'/'.$this->name;
+        $dir      = $dataDir.'/'.gmDate('Y/m/d', $fxDay);
+
+        if (is_file($file=$dir.'/M1.bin') || is_file($file.='.rar'))
+            return RT::readBarFile($file, $this);
+        return [];
     }
 
 
@@ -191,14 +233,14 @@ class RosaSymbol extends RosatraderModel {
     /**
      * Whether the specified day is a trading day for the instrument.
      *
-     * @param  int $timestamp - FXT timestamp
+     * @param  int $fxTime - FXT timestamp
      *
      * @return bool
      */
-    public function isTradingDay($timestamp) {
-        if (!is_int($timestamp)) throw new IllegalTypeException('Illegal type of parameter $timestamp: '.getType($timestamp));
+    public function isTradingDay($fxTime) {
+        if (!is_int($fxTime)) throw new IllegalTypeException('Illegal type of parameter $fxTime: '.getType($fxTime));
 
-        $dow = (int) gmDate('w', $timestamp);
+        $dow = (int) gmDate('w', $fxTime);
         return ($dow!=SATURDAY && $dow!=SUNDAY);
     }
 
@@ -254,14 +296,14 @@ class RosaSymbol extends RosatraderModel {
         }
 
         // update the database
-        if ($startDate != $this->getHistoryStartM1('U')) {
+        if ($startDate != $this->getHistoryM1Start('U')) {
             echoPre('[Info]    '.$this->name.'  updating start time to '.($startDate ? gmDate('Y-m-d', $startDate) : '(empty)'));
-            $this->historyStartM1 = $startDate ? gmDate('Y-m-d H:i:s', $startDate) : null;
+            $this->historyM1Start = $startDate ? gmDate('Y-m-d H:i:s', $startDate) : null;
             $this->modified();
         }
-        if ($endDate != $this->getHistoryEndM1('U')) {
+        if ($endDate != $this->getHistoryM1End('U')) {
             echoPre('[Info]    '.$this->name.'  updating end time to '.($endDate ? gmDate('Y-m-d', $endDate) : '(empty)'));
-            $this->historyEndM1 = $endDate ? gmDate('Y-m-d H:i:s', $endDate) : null;
+            $this->historyM1End = $endDate ? gmDate('Y-m-d H:i:s', $endDate) : null;
             $this->modified();
         }
         if (!$this->isModified()) {
@@ -280,7 +322,7 @@ class RosaSymbol extends RosatraderModel {
      * @return bool - success status
      */
     public function updateHistory() {
-        $updatedTo  = (int) $this->getHistoryEndM1('U');                            // end time FXT
+        $updatedTo  = (int) $this->getHistoryM1End('U');                            // end time FXT
         $updateFrom = $updatedTo ? $updatedTo - $updatedTo%DAY + 1*DAY : 0;         // 00:00 FXT of the first day to update
         $today      = ($today=fxTime()) - $today%DAY;                               // 00:00 FXT of the current day
         echoPre('[Info]    '.$this->getName().'  updating M1 history '.($updateFrom ? 'since '.gmDate('D, d-M-Y', $updateFrom) : 'from start'));
@@ -302,7 +344,7 @@ class RosaSymbol extends RosatraderModel {
             }
 
             /*
-            $availableFrom = (int) $synthesizer->getHistoryStartM1('U');            // latest start time FXT of all components
+            $availableFrom = (int) $synthesizer->getHistoryM1Start('U');            // latest start time FXT of all components
             if (!$availableFrom)
                 return false(echoPre('[Error]   '.$this->getName().': history of components not available'));
             if ($part = $availableFrom%DAY)

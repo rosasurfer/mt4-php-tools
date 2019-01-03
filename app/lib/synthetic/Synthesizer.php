@@ -53,23 +53,23 @@ class Synthesizer extends Object implements ICalculator {
     /**
      * {@inheritdoc}
      */
-    public function getHistoryStartTicks($format = 'Y-m-d H:i:s') {
-        return $this->calculator->getHistoryStartTicks($format);
+    public function getHistoryTicksStart($format = 'Y-m-d H:i:s') {
+        return $this->calculator->getHistoryTicksStart($format);
     }
 
 
     /**
      * {@inheritdoc}
      */
-    public function getHistoryStartM1($format = 'Y-m-d H:i:s') {
-        return $this->calculator->getHistoryStartM1($format);
+    public function getHistoryM1Start($format = 'Y-m-d H:i:s') {
+        return $this->calculator->getHistoryM1Start($format);
     }
 
 
     /**
      * {@inheritdoc}
      */
-    public function calculateQuotes($day) {
-        return $this->calculator->calculateQuotes($day);
+    public function calculateQuotes($fxDay) {
+        return $this->calculator->calculateQuotes($fxDay);
     }
 }

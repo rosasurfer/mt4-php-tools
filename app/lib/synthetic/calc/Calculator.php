@@ -29,7 +29,7 @@ class Calculator extends Object implements CalculatorInterface {
     /**
      * {@inheritdoc}
      */
-    public function getHistoryStartTicks($format = 'Y-m-d H:i:s') {
+    public function getHistoryTicksStart($format = 'Y-m-d H:i:s') {
         return '0';
     }
 
@@ -37,7 +37,7 @@ class Calculator extends Object implements CalculatorInterface {
     /**
      * {@inheritdoc}
      */
-    public function getHistoryStartM1($format = 'Y-m-d H:i:s') {
+    public function getHistoryM1Start($format = 'Y-m-d H:i:s') {
         return '0';
     }
 
@@ -45,7 +45,7 @@ class Calculator extends Object implements CalculatorInterface {
     /**
      * {@inheritdoc}
      */
-    public function calculateQuotes($day) {
+    public function calculateQuotes($fxDay) {
         return [];
     }
 }

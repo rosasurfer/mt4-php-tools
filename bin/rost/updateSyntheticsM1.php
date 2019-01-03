@@ -93,7 +93,7 @@ function updateSyntheticSymbol(RosaSymbol $symbol) {
     foreach($pairs as $pair => &$data) {
         /** @var DukascopySymbol $dukaSymbol */
         $dukaSymbol = RosaSymbol::dao()->getByName($pair)->getDukascopySymbol();
-        $startTime  = max($startTime, (int)$dukaSymbol->getHistoryStartM1('U'));            // FXT
+        $startTime  = max($startTime, (int)$dukaSymbol->getHistoryM1Start('U'));            // FXT
         $data = [];                                                                         // $data initialisieren: ['AUDUSD'=>[], ...]
     } unset($data);
     $startDay = $startTime - $startTime%DAY;                                                // 00:00 Starttag FXT
