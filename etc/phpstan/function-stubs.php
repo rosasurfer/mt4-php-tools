@@ -294,17 +294,6 @@ namespace rosasurfer\rost\history {
 
 namespace rosasurfer\rost\update_synthetics_m1 {
 
-    use rosasurfer\rost\model\RosaSymbol;
-
-    /**
-     * @param  RosaSymbol $symbol
-     *
-     * @return bool
-     */
-    function updateSyntheticSymbol(RosaSymbol $symbol) {
-        return false;
-    }
-
     /**
      * @param  int   $day
      * @param  array $data
@@ -572,16 +561,6 @@ namespace rosasurfer\rost\update_synthetics_m1 {
      *
      * @return array
      */
-    function calculateUSDLFX($day, array $data) {
-        return [];
-    }
-
-    /**
-     * @param  int   $day
-     * @param  array $data
-     *
-     * @return array
-     */
     function calculateUSDX($day, array $data) {
         return [];
     }
@@ -595,22 +574,6 @@ namespace rosasurfer\rost\update_synthetics_m1 {
     function calculateZARFX7($day, array $data) {
         return [];
     }
-
-    /**
-     * @param  string $symbol
-     * @param  int    $day
-     * @param  array  $bars
-     *
-     * @return bool
-     */
-    function saveBars($symbol, $day, array $bars) {
-        return false;
-    }
-
-    /**
-     * @param  array $bars
-     */
-    function showBuffer($bars) {}
 
     /**
      * @param  string $id

@@ -336,32 +336,13 @@ class RosaSymbol extends RosatraderModel {
 
                 $bars = $synthesizer->calculateQuotes($day);
                 if (!$bars) return true(echoPre('[Error]   '.$this->getName().'  M1 history sources '.($day ? 'for '.gmDate('D, d-M-Y', $day).' ':'').'not available'));
-                if (!$day) {                                                        // if $day is zero (no prices have been stored before)
-                    $opentime = $bars[0]['time'];                                   // adjust it to the first available history
-                    $day = $opentime - $opentime%DAY;
-                    echoPre('[Info]    '.$this->getName().'  available M1 history starts at '.gmDate('D, d-M-Y', $day));
+                if (!$day) {
+                    $opentime = $bars[0]['time'];                                   // if $day is zero (complete update since start)
+                    $day = $opentime - $opentime%DAY;                               // adjust it to the first available history
                 }
-                echoPre($bars[0]);
-                exit();
-            }
-
-            /*
-            $availableFrom = (int) $synthesizer->getHistoryM1Start('U');            // latest start time FXT of all components
-            if (!$availableFrom)
-                return false(echoPre('[Error]   '.$this->getName().': history of components not available'));
-            if ($part = $availableFrom%DAY)
-                $availableFrom -= $part - 1*DAY;                                    // 00:00 FXT of the first completely available day
-            $updateFrom = max($availableFrom, $updateFrom);
-            $today = ($today=fxTime()) - $today%DAY;                                // 00:00 FXT of the current day
-
-            echoPre('updatedTo: '.$updatedTo.'  availableFrom: '.gmDate('Y-m-d H:i:s', $availableFrom).'  updateFrom: '.gmDate('Y-m-d H:i:s', $updateFrom).'  today: '.gmDate('Y-m-d H:i:s', $today));
-
-            for ($day=$updateFrom; $day < $today; $day+=1*DAY) {
-                $bars = $synthesizer->calculateQuotes($day);
-                //store bars
+                RT::saveM1Bars($bars, $this);
                 //store the new updatedTo value
             }
-            */
         }
         else {
             // request price updates from a mapped symbol's data source

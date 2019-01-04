@@ -708,10 +708,10 @@ class Rost extends StaticClass {
             $realData = str_replace('\\', '/', realPath($data).'/');
         }
 
-        if (strStartsWith($_path, $root))     return '{data}/'.strRightFrom($_path, $root);
-        if (strStartsWith($_path, $realRoot)) return '{data}/'.strRightFrom($_path, $realRoot);
-        if (strStartsWith($_path, $data))     return '{data}/'.strRightFrom($_path, $data);
-        if (strStartsWith($_path, $realData)) return '{data}/'.strRightFrom($_path, $realData);
+        if (strStartsWith($_path, $root))     return               strRightFrom($_path, $root);
+        if (strStartsWith($_path, $realRoot)) return               strRightFrom($_path, $realRoot);
+        if (strStartsWith($_path, $data))     return '{data-dir}/'.strRightFrom($_path, $data);
+        if (strStartsWith($_path, $realData)) return '{data-dir}/'.strRightFrom($_path, $realData);
 
         return $path;
     }

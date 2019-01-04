@@ -10,15 +10,10 @@ namespace rosasurfer\rost\update_synthetics_m1;
 use rosasurfer\config\Config;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
-use rosasurfer\exception\RuntimeException;
 
 use rosasurfer\rost\Rost;
-use rosasurfer\rost\model\DukascopySymbol;
 use rosasurfer\rost\model\RosaSymbol;
-use rosasurfer\rost\model\RosaSymbolDAO;
 
-use function rosasurfer\rost\fxTime;
-use function rosasurfer\rost\isFxtWeekend;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');
@@ -27,8 +22,7 @@ date_default_timezone_set('GMT');
 // -- configuration ---------------------------------------------------------------------------------------------------------
 
 
-$verbose         = 0;                                       // output verbosity
-$saveRawRostData = true;                                    // whether to store uncompressed history files
+$verbose = 0;                       // output verbosity
 
 
 // -- start -----------------------------------------------------------------------------------------------------------------
@@ -63,86 +57,15 @@ $symbols = $symbols ?: RosaSymbol::dao()->findAllByType(RosaSymbol::TYPE_SYNTHET
 
 // (2) update instruments
 foreach ($symbols as $symbol) {
-    //$symbol->updateHistory()       || exit(1);
-    updateSyntheticSymbol($symbol) || exit(1);
+    if ($symbol->updateHistory())
+        echoPre('[Ok]      '.$symbol->getName());
 
-    if (!WINDOWS) pcntl_signal_dispatch();                      // check for and dispatch signals
+    if (!WINDOWS) pcntl_signal_dispatch();                      // check and dispatch signals
 }
 exit(0);
 
 
 // --- functions ------------------------------------------------------------------------------------------------------------
-
-
-/**
- * Update the M1 history of a synthetic instrument.
- *
- * @param  RosaSymbol $symbol
- *
- * @return bool - success status
- */
-function updateSyntheticSymbol(RosaSymbol $symbol) {
-    if (!$symbol->isSynthetic()) throw new InvalidArgumentException('Not a synthetic instrument: "'.$symbol->getName().'"');
-    $symbolName = $symbol->getName();
-
-    global $verbose, $saveRawRostData;
-
-    // (1) spätesten Starttag der History der benoetigten Daten ermitteln
-    $startTime = 0;
-    $pairs = array_flip(RosaSymbolDAO::$synthetics[$symbolName]);                           // ['AUDUSD', ...] => ['AUDUSD'=>null, ...]
-    foreach($pairs as $pair => &$data) {
-        /** @var DukascopySymbol $dukaSymbol */
-        $dukaSymbol = RosaSymbol::dao()->getByName($pair)->getDukascopySymbol();
-        $startTime  = max($startTime, (int)$dukaSymbol->getHistoryM1Start('U'));            // FXT
-        $data = [];                                                                         // $data initialisieren: ['AUDUSD'=>[], ...]
-    } unset($data);
-    $startDay = $startTime - $startTime%DAY;                                                // 00:00 Starttag FXT
-    $today    = ($today=fxTime()) - $today%DAY;                                             // 00:00 aktueller Tag FXT
-
-
-    // (2) Gesamte Zeitspanne tageweise durchlaufen
-    for ($day=$startDay, $lastMonth=-1; $day < $today; $day+=1*DAY) {
-        if (!isFxtWeekend($day)) {                                                          // ausser an Wochenenden
-            $shortDate = gmDate('D, d-M-Y', $day);
-
-            // Pruefen, ob die History bereits existiert
-            if (is_file($file=getVar('rostFile.compressed', $symbolName, $day))) {
-                if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'  '.$symbolName.' compressed history file: '.Rost::relativePath($file));
-            }
-            else if (is_file($file=getVar('rostFile.raw', $symbolName, $day))) {
-                if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'  '.$symbolName.' raw history file: '.Rost::relativePath($file));
-            }
-            else {
-                $month = (int)gmDate('m', $day);
-                if ($month != $lastMonth) {
-                    echoPre('[Info]    '.$symbolName.' '.gmDate('M-Y', $day));
-                    $lastMonth = $month;
-                }
-
-                // History aktualisieren: M1-Bars der benoetigten Instrumente dieses Tages einlesen
-                foreach ($pairs as $pair => $data) {
-                    if      (is_file($file=getVar('rostFile.compressed', $pair, $day))) {}      // komprimierte oder
-                    else if (is_file($file=getVar('rostFile.raw',        $pair, $day))) {}      // unkomprimierte Rost-Datei
-                    else {
-                        echoPre('[Error]   '.$pair.' history for '.$shortDate.' not found');
-                        return false;
-                    }
-                    // M1-Bars zwischenspeichern
-                    $pairs[$pair]['bars'] = Rost::readBarFile($file, $pair);                    // ['AUDUSD'=>array('bars'=>[]), ...]
-                }
-
-                // Indexdaten fuer diesen Tag berechnen
-                $function = __NAMESPACE__.'\calculate'.$symbolName;
-                $rostBars = $function($day, $pairs); if (!$rostBars) return false;
-
-                // Indexdaten speichern
-                if (!saveBars($symbolName, $day, $rostBars)) return false;
-            }
-        }
-    }
-    echoPre('[Ok]      '.$symbolName);
-    return true;
-}
 
 
 /**
@@ -1587,61 +1510,6 @@ function calculateUSDFX7($day, array $data) {
 
 
 /**
- * Berechnet fuer die uebergebenen M1-Daten den USDLFX-Index.
- *
- * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
- * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
- *
- * @return ROST_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
- *
- * Formel: USDLFX = ((USDCAD * USDCHF * USDJPY) / (AUDUSD * EURUSD * GBPUSD)) ^ 1/7
- */
-function calculateUSDLFX($day, array $data) {
-    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
-    $shortDate = gmDate('D, d-M-Y', $day);
-
-    global $verbose;
-    if ($verbose > 1) echoPre('[Info]    USDLFX  '.$shortDate);
-
-    $AUDUSD = $data['AUDUSD']['bars'];
-    $EURUSD = $data['EURUSD']['bars'];
-    $GBPUSD = $data['GBPUSD']['bars'];
-    $USDCAD = $data['USDCAD']['bars'];
-    $USDCHF = $data['USDCHF']['bars'];
-    $USDJPY = $data['USDJPY']['bars'];
-    $index  = [];
-
-    foreach ($AUDUSD as $i => $bar) {
-        $audusd = $AUDUSD[$i]['open'];
-        $eurusd = $EURUSD[$i]['open'];
-        $gbpusd = $GBPUSD[$i]['open'];
-        $usdcad = $USDCAD[$i]['open'];
-        $usdchf = $USDCHF[$i]['open'];
-        $usdjpy = $USDJPY[$i]['open'];
-        $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7);
-        $iOpen  = (int) round($open * 100000);
-
-        $audusd = $AUDUSD[$i]['close'];
-        $eurusd = $EURUSD[$i]['close'];
-        $gbpusd = $GBPUSD[$i]['close'];
-        $usdcad = $USDCAD[$i]['close'];
-        $usdchf = $USDCHF[$i]['close'];
-        $usdjpy = $USDJPY[$i]['close'];
-        $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7);
-        $iClose = (int) round($close * 100000);
-
-        $index[$i]['time' ] = $bar['time'];
-        $index[$i]['open' ] = $iOpen;
-        $index[$i]['high' ] = $iOpen > $iClose ? $iOpen : $iClose;        // min()/max() ist nicht performant
-        $index[$i]['low'  ] = $iOpen < $iClose ? $iOpen : $iClose;
-        $index[$i]['close'] = $iClose;
-        $index[$i]['ticks'] = $iOpen==$iClose ? 1 : (abs($iOpen-$iClose) << 1);
-    }
-    return $index;
-}
-
-
-/**
  * Berechnet fuer die uebergebenen M1-Daten den USDX-Index (ICE).
  *
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
@@ -1756,95 +1624,6 @@ function calculateZARFX7($day, array $data) {
         $index[$i]['ticks'] = $iOpen==$iClose ? 1 : (abs($iOpen-$iClose) << 1);
     }
     return $index;
-}
-
-
-/**
- * Schreibt die Indexdaten eines Forex-Tages in die lokale Rost-Historydatei.
- *
- * @param  string           $symbol - Symbol
- * @param  int              $day    - FXT-Timestamp des Tages
- * @param  ROST_PRICE_BAR[] $bars   - Indexdaten des Tages
- *
- * @return bool - Erfolgsstatus
- */
-function saveBars($symbol, $day, array $bars) {
-    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
-    $shortDate = gmDate('D, d-M-Y', $day);
-
-    global $saveRawRostData;
-
-
-    // (1) Daten nochmal pruefen
-    $errorMsg = null;
-    if (!$errorMsg && ($size=sizeOf($bars))!=1*DAY/MINUTES)             $errorMsg = 'Invalid number of bars for '.$shortDate.': '.$size;
-    if (!$errorMsg && $bars[0]['time']%DAYS!=0)                         $errorMsg = 'No beginning bars for '.$shortDate.' found, first bar:'.NL.printPretty($bars[0], true);
-    if (!$errorMsg && $bars[$size-1]['time']%DAYS!=23*HOURS+59*MINUTES) $errorMsg = 'No ending bars for '.$shortDate.' found, last bar:'.NL.printPretty($bars[$size-1], true);
-    if ($errorMsg) {
-        showBuffer($bars);
-        throw new RuntimeException($errorMsg);
-    }
-
-
-    // (2) Bars in Binaerstring umwandeln
-    $data = null;
-    foreach ($bars as $bar) {
-        // Bardaten vorm Schreiben validieren
-        if ($bar['open' ] > $bar['high'] ||
-             $bar['open' ] < $bar['low' ] ||          // aus (H >= O && O >= L) folgt (H >= L)
-             $bar['close'] > $bar['high'] ||          // nicht mit min()/max(), da nicht performant
-             $bar['close'] < $bar['low' ] ||
-            !$bar['ticks']) throw new RuntimeException('Illegal data for Rost price bar of '.gmDate('D, d-M-Y H:i:s', $bar['time']).": O=$bar[open] H=$bar[high] L=$bar[low] C=$bar[close] V=$bar[ticks]");
-
-        $data .= pack('VVVVVV', $bar['time' ],
-                                $bar['open' ],
-                                $bar['high' ],
-                                $bar['low'  ],
-                                $bar['close'],
-                                $bar['ticks']);
-    }
-
-
-    // (3) binaere Daten ggf. speichern
-    if ($saveRawRostData) {
-        if (is_file($file=getVar('rostFile.raw', $symbol, $day))) {
-            echoPre('[Error]   '.$symbol.' history for '.gmDate('D, d-M-Y', $day).' already exists');
-            return false;
-        }
-        mkDirWritable(dirName($file));
-        $tmpFile = tempNam(dirName($file), baseName($file));
-        $hFile   = fOpen($tmpFile, 'wb');
-        fWrite($hFile, $data);
-        fClose($hFile);
-        rename($tmpFile, $file);                                       // So kann eine existierende Datei niemals korrupt sein.
-    }
-
-
-    // (4) TODO: binaere Daten komprimieren und speichern
-
-    return true;
-}
-
-
-/**
- *
- */
-function showBuffer($bars) {
-    echoPre(NL);
-    $size = sizeOf($bars);
-    $firstBar = $lastBar = null;
-    if ($size) {
-        if (isSet($bars[0]['time']) && $bars[$size-1]['time']) {
-            $firstBar = 'from='.gmDate('d-M-Y H:i', $bars[0      ]['time']);
-            $lastBar  = '  to='.gmDate('d-M-Y H:i', $bars[$size-1]['time']);
-        }
-        else {
-            $firstBar = $lastBar = '  invalid';
-            echoPre($bars);
-        }
-    }
-    echoPre('bars['.$size.'] => '.$firstBar.($size>1? $lastBar:''));
-    echoPre(NL);
 }
 
 
