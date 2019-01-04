@@ -341,6 +341,8 @@ class RosaSymbol extends RosatraderModel {
                     $day = $opentime - $opentime%DAY;
                     echoPre('[Info]    '.$this->getName().'  available M1 history starts at '.gmDate('D, d-M-Y', $day));
                 }
+                echoPre($bars[0]);
+                exit();
             }
 
             /*
