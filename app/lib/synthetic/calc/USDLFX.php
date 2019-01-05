@@ -24,8 +24,10 @@ class USDLFX extends Calculator {
     /**
      * {@inheritdoc}
      */
-    public function calculateQuotes($fxDay) {
-        if (!is_int($fxDay)) throw new IllegalTypeException('Illegal type of parameter $fxDay: '.getType($fxDay));
+    public function calculateQuotes($day) {
+        if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
+
+        echoPre('[Debug]   '.$this->symbol->getName().'  '.__METHOD__.'()  '.gmDate('D, d-M-Y', $day));
 
         $pairs = [];
         foreach ($this->components as $name) {
@@ -34,8 +36,8 @@ class USDLFX extends Calculator {
             $pairs[$pair->getName()] = $pair;
         }
 
-        // on $fxDay == 0 start with the oldest available history of all components
-        if (!$fxDay) {
+        // on $day == 0 start with the oldest available history of all components
+        if (!$day) {
             /** @var RosaSymbol $pair */
             foreach ($pairs as $pair) {
                 $historyStart = (int) $pair->getHistoryM1Start('U');    // 00:00 FXT of the first stored day
@@ -43,11 +45,11 @@ class USDLFX extends Calculator {
                     echoPre('[Error]   '.$this->symbol->getName().'  M1 history for '.$pair->getName().' not available');
                     return [];                                          // no history stored
                 }
-                $fxDay = max($fxDay, $historyStart);
+                $day = max($day, $historyStart);
             }
-            echoPre('[Info]    '.$this->symbol->getName().'  common M1 history starts at '.FXT::fxDate('D, d-M-Y', $fxDay));
+            echoPre('[Info]    '.$this->symbol->getName().'  common M1 history starts at '.gmDate('D, d-M-Y', $day));
         }
-        if (!$this->symbol->isTradingDay($fxDay)) {                     // skip non-trading days
+        if (!$this->symbol->isTradingDay($day)) {                       // skip non-trading days
             echoPre('[Debug]   '.$this->symbol->getName().'  skipping non-trading day: '.gmDate('D, d-M-Y', $day));
             return [];
         }
@@ -55,11 +57,11 @@ class USDLFX extends Calculator {
         // load history for the specified day
         $quotes = [];
         foreach ($pairs as $name => $pair) {
-            $quotes[$name] = $pair->getHistoryM1($fxDay);
+            $quotes[$name] = $pair->getHistoryM1($day);
         }
 
         // calculate quotes
-        echoPre('[Info]    '.$this->symbol->getName().'  calculating M1 history for '.gmDate('D, d-M-Y', $fxDay));
+        echoPre('[Info]    '.$this->symbol->getName().'  calculating M1 history for '.gmDate('D, d-M-Y', $day));
         $AUDUSD = $quotes['AUDUSD'];
         $EURUSD = $quotes['EURUSD'];
         $GBPUSD = $quotes['GBPUSD'];
