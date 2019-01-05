@@ -354,8 +354,6 @@ class RosaSymbol extends RosatraderModel {
                 if ($day && !$this->isTradingDay($day))                             // skip non-trading days
                     continue;
 
-                echoPre('[Debug]   '.$this->getName().'  requesting quotes for '.gmDate('D, d-M-Y', $day));
-
                 $bars = $synthesizer->calculateQuotes($day);
                 if (!$bars) return false(echoPre('[Error]   '.$this->getName().'  M1 history'.($day ? ' for '.gmDate('D, d-M-Y', $day):'').' not available'));
                 if (!$day) {

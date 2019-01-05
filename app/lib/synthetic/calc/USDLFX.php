@@ -27,8 +27,6 @@ class USDLFX extends Calculator {
     public function calculateQuotes($day) {
         if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
 
-        echoPre('[Debug]   '.$this->symbol->getName().'  '.__METHOD__.'()  '.gmDate('D, d-M-Y', $day));
-
         $pairs = [];
         foreach ($this->components as $name) {
             /** @var RosaSymbol $pair */
@@ -42,17 +40,15 @@ class USDLFX extends Calculator {
             foreach ($pairs as $pair) {
                 $historyStart = (int) $pair->getHistoryM1Start('U');    // 00:00 FXT of the first stored day
                 if (!$historyStart) {
-                    echoPre('[Error]   '.$this->symbol->getName().'  M1 history for '.$pair->getName().' not available');
+                    echoPre('[Error]   '.$this->symbol->getName().'  required M1 history for '.$pair->getName().' not available');
                     return [];                                          // no history stored
                 }
                 $day = max($day, $historyStart);
             }
             echoPre('[Info]    '.$this->symbol->getName().'  common M1 history starts at '.gmDate('D, d-M-Y', $day));
         }
-        if (!$this->symbol->isTradingDay($day)) {                       // skip non-trading days
-            echoPre('[Debug]   '.$this->symbol->getName().'  skipping non-trading day: '.gmDate('D, d-M-Y', $day));
+        if (!$this->symbol->isTradingDay($day))                         // skip non-trading days
             return [];
-        }
 
         // load history for the specified day
         $quotes = [];
