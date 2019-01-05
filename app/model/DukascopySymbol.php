@@ -19,16 +19,16 @@ class DukascopySymbol extends RosatraderModel {
     protected $digits;
 
     /** @var string - start time of the available tick history (FXT) */
-    protected $historyStartTicks;
+    protected $historyTicksStart;
 
     /** @var string - end time of the available tick history (FXT) */
-    protected $historyEndTicks;
+    protected $historyTicksEnd;
 
     /** @var string - start time of the available M1 history (FXT) */
-    protected $historyStartM1;
+    protected $historyM1Start;
 
     /** @var string - end time of the available M1 history (FXT) */
-    protected $historyEndM1;
+    protected $historyM1End;
 
     /** @var RosaSymbol [transient] - the Rosatrader symbol this Dukascopy symbol is mapped to */
     protected $rosaSymbol;
@@ -37,56 +37,56 @@ class DukascopySymbol extends RosatraderModel {
     /**
      * Return the start time of the symbol's available tick history (FXT).
      *
-     * @param  string $format [optional] - format as used by date($format, $timestamp)
+     * @param  string $format [optional] - format as used for <tt>date($format, $timestamp)</tt>
      *
      * @return string - start time based on an FXT timestamp
      */
-    public function getHistoryStartTicks($format = 'Y-m-d H:i:s') {
-        if (!isSet($this->historyStartTicks) || $format=='Y-m-d H:i:s')
-            return $this->historyStartTicks;
-        return gmDate($format, strToTime($this->historyStartTicks.' GMT'));
+    public function getHistoryTicksStart($format = 'Y-m-d H:i:s') {
+        if (!isSet($this->historyTicksStart) || $format=='Y-m-d H:i:s')
+            return $this->historyTicksStart;
+        return gmDate($format, strToTime($this->historyTicksStart.' GMT'));
     }
 
 
     /**
      * Return the end time of the symbol's available tick history (FXT).
      *
-     * @param  string $format [optional] - format as used by date($format, $timestamp)
+     * @param  string $format [optional] - format as used for <tt>date($format, $timestamp)</tt>
      *
      * @return string - end time based on an FXT timestamp
      */
-    public function getHistoryEndTicks($format = 'Y-m-d H:i:s') {
-        if (!isSet($this->historyEndTicks) || $format=='Y-m-d H:i:s')
-            return $this->historyEndTicks;
-        return gmDate($format, strToTime($this->historyEndTicks.' GMT'));
+    public function getHistoryTicksEnd($format = 'Y-m-d H:i:s') {
+        if (!isSet($this->historyTicksEnd) || $format=='Y-m-d H:i:s')
+            return $this->historyTicksEnd;
+        return gmDate($format, strToTime($this->historyTicksEnd.' GMT'));
     }
 
 
     /**
      * Return the start time of the symbol's available M1 history (FXT).
      *
-     * @param  string $format [optional] - format as used by date($format, $timestamp)
+     * @param  string $format [optional] - format as used for <tt>date($format, $timestamp)</tt>
      *
      * @return string - start time based on an FXT timestamp
      */
-    public function getHistoryStartM1($format = 'Y-m-d H:i:s') {
-        if (!isSet($this->historyStartM1) || $format=='Y-m-d H:i:s')
-            return $this->historyStartM1;
-        return gmDate($format, strToTime($this->historyStartM1.' GMT'));
+    public function getHistoryM1Start($format = 'Y-m-d H:i:s') {
+        if (!isSet($this->historyM1Start) || $format=='Y-m-d H:i:s')
+            return $this->historyM1Start;
+        return gmDate($format, strToTime($this->historyM1Start.' GMT'));
     }
 
 
     /**
      * Return the end time of the symbol's available M1 history (FXT).
      *
-     * @param  string $format [optional] - format as used by date($format, $timestamp)
+     * @param  string $format [optional] - format as used for <tt>date($format, $timestamp)</tt>
      *
      * @return string - end time based on an FXT timestamp
      */
-    public function getHistoryEndM1($format = 'Y-m-d H:i:s') {
-        if (!isSet($this->historyEndM1) || $format=='Y-m-d H:i:s')
-            return $this->historyEndM1;
-        return gmDate($format, strToTime($this->historyEndM1.' GMT'));
+    public function getHistoryM1End($format = 'Y-m-d H:i:s') {
+        if (!isSet($this->historyM1End) || $format=='Y-m-d H:i:s')
+            return $this->historyM1End;
+        return gmDate($format, strToTime($this->historyM1End.' GMT'));
     }
 
 

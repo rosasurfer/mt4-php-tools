@@ -1,6 +1,6 @@
 /*
 Created     16.01.2017
-Modified    28.12.2018
+Modified    30.12.2018
 Project     Rosatrader
 Model       Rosatrader
 Company     

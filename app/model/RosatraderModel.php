@@ -25,7 +25,7 @@ abstract class RosatraderModel extends PersistableObject {
     /**
      * Return the creation time of the instance.
      *
-     * @param  string $format [optional] - format as used by date($format, $timestamp)
+     * @param  string $format [optional] - format as used for <tt>date($format, $timestamp)</tt>
      *
      * @return string - creation time
      */
@@ -39,7 +39,7 @@ abstract class RosatraderModel extends PersistableObject {
     /**
      * Return the last modification time of the instance.
      *
-     * @param  string $format [optional] - format as used by date($format, $timestamp)
+     * @param  string $format [optional] - format as used for <tt>date($format, $timestamp)</tt>
      *
      * @return string|null - last modification time or NULL if the instance hasn't been modified yet
      */
@@ -56,7 +56,7 @@ abstract class RosatraderModel extends PersistableObject {
      * {@inheritdoc}
      */
     protected function beforeUpdate() {
-        $this->modified = date('Y-m-d H:i:s');
+        $this->modified = gmDate('Y-m-d H:i:s');
         return parent::beforeUpdate();
     }
 }

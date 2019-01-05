@@ -48,145 +48,14 @@ class Rost extends StaticClass {
 
 
     /**
-     * struct size in bytes of a ROST_PRICE_BAR (format of Rost history files "M{PERIOD}.myfx")
+     * struct size in bytes of a ROST_PRICE_BAR (format of Rosatrader history files "{PERIOD}.bin")
      */
     const BAR_SIZE = 24;
 
     /**
-     * struct size in bytes of a Rost tick (format of Rost tick files "{HOUR}h_ticks.myfx")
+     * struct size in bytes of a Rost tick (format of Rost tick files "{HOUR}h_ticks.bin")
      */
     const TICK_SIZE = 12;
-
-
-    /**
-     * Parst die String-Repraesentation einer FXT-Zeit in einen GMT-Timestamp.
-     *
-     * @param  string $time - FXT-Zeit in einem der Funktion strToTime() verstaendlichen Format
-     *
-     * @return int - Timestamp
-     *
-     * TODO:  Funktion unnoetig: strToTime() ueberladen und um Erkennung der FXT-Zeitzone erweitern
-     */
-    public static function fxtStrToTime($time) {
-        if (!is_string($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
-
-        $oldTimezone = date_default_timezone_get();
-        try {
-            date_default_timezone_set('America/New_York');
-
-            $timestamp = strToTime($time);
-            if ($timestamp === false) throw new InvalidArgumentException('Invalid argument $time: "'.$time.'"');
-            $timestamp -= 7*HOURS;
-
-            return $timestamp;
-        }
-        finally {
-            date_default_timezone_set($oldTimezone);
-        }
-    }
-
-
-    /**
-     * Formatiert einen Timestamp als FXT-Zeit.
-     *
-     * @param  int    $time   - Zeitpunkt (default: aktuelle Zeit)
-     * @param  string $format - Formatstring (default: 'Y-m-d H:i:s')
-     *
-     * @return string - FXT-String
-     *
-     * Note: Analogous to the date() function except that the time returned is Forex Time (FXT).
-     */
-    public static function fxtDate($time=null, $format='Y-m-d H:i:s') {
-        if (is_null($time)) $time = time();
-        else if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
-        if (!is_string($format)) throw new IllegalTypeException('Illegal type of parameter $format: '.getType($format));
-
-        // FXT = America/New_York +0700           (von 17:00 bis 24:00 = 7h)
-        // date($time+7*HOURS) in der Zone 'America/New_York' reicht nicht aus, da dann keine FXT-Repraesentation
-        // von Zeiten, die in New York in eine Zeitumstellung fallen, moeglich ist. Dies ist nur mit einer Zone ohne DST
-        // moeglich. Der GMT-Timestamp muss in einen FXT-Timestamp konvertiert und dieser als GMT-Timestamp formatiert werden.
-
-        return gmDate($format, fxtTime($time, 'GMT'));
-    }
-
-
-    /**
-     * Gibt den FXT-Offset einer Zeit zu GMT und ggf. die beiden jeweils angrenzenden naechsten DST-Transitionsdaten zurueck.
-     *
-     * @param  int        $time           - GMT-Zeitpunkt (default: aktuelle Zeit)
-     * @param  array|null $prevTransition - Wenn angegeben, enthaelt diese Variable nach Rueckkehr ein Array
-     *                                      ['time'=>{timestamp}, 'offset'=>{offset}] mit dem GMT-Timestamp des vorherigen
-     *                                      Zeitwechsels und dem Offset vor diesem Zeitpunkt.
-     * @param  array|null $nextTransition - Wenn angegeben, enthaelt diese Variable nach Rueckkehr ein Array
-     *                                      ['time'=>{timestamp}, 'offset'=>{offset}] mit dem GMT-Timestamp des naechsten
-     *                                      Zeitwechsels und dem Offset nach diesem Zeitpunkt.
-     *
-     * @return int - Offset in Sekunden oder NULL, wenn der Zeitpunkt ausserhalb der bekannten Transitionsdaten liegt.
-     *               FXT liegt oestlich von GMT, der Offset ist also immer positiv. Es gilt: GMT + Offset = FXT
-     *
-     *
-     * Note: Analog zu date('Z', $time) verhaelt sich diese Funktion, als wenn lokal die (in PHP nicht existierende) Zeitzone 'FXT'
-     *       eingestellt worden waere.
-     */
-    public static function fxtTimezoneOffset($time=null, &$prevTransition=[], &$nextTransition=[]) {
-        if (is_null($time)) $time = time();
-        else if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
-
-        static $transitions = null;
-        if (!$transitions) {
-            $timezone    = new \DateTimeZone('America/New_York');
-            $transitions = $timezone->getTransitions();
-        }
-
-        $i = -2;
-        foreach ($transitions as $i => $transition) {
-            if ($transition['ts'] > $time) {
-                $i--;
-                break;                                                   // hier zeigt $i auf die aktuelle Periode
-            }
-        }
-
-        $transSize = sizeOf($transitions);
-        $argsSize  = func_num_args();
-
-        // $prevTransition definieren
-        if ($argsSize > 1) {
-            $prevTransition = [];
-
-            if ($i < 0) {                                               // $transitions ist leer oder $time
-                $prevTransition['time'  ] = null;                        // liegt vor der ersten Periode
-                $prevTransition['offset'] = null;
-            }
-            else if ($i == 0) {                                         // $time liegt in erster Periode
-                $prevTransition['time'  ] = $transitions[0]['ts'];
-                $prevTransition['offset'] = null;                        // vorheriger Offset unbekannt
-            }
-            else {
-                $prevTransition['time'  ] = $transitions[$i  ]['ts'    ];
-                $prevTransition['offset'] = $transitions[$i-1]['offset'] + 7*HOURS;
-            }
-        }
-
-        // $nextTransition definieren
-        if ($argsSize > 2) {
-            $nextTransition = [];
-
-            if ($i==-2 || $i >= $transSize-1) {                         // $transitions ist leer oder
-                $nextTransition['time'  ] = null;                        // $time liegt in letzter Periode
-                $nextTransition['offset'] = null;
-            }
-            else {
-                $nextTransition['time'  ] = $transitions[$i+1]['ts'    ];
-                $nextTransition['offset'] = $transitions[$i+1]['offset'] + 7*HOURS;
-            }
-        }
-
-        // Rueckgabewert definieren
-        $offset = null;
-        if ($i >= 0)                                                   // $transitions ist nicht leer und
-            $offset = $transitions[$i]['offset'] + 7*HOURS;             // $time liegt nicht vor der ersten Periode
-        return $offset;
-    }
 
 
     /**
@@ -428,21 +297,10 @@ class Rost extends StaticClass {
         if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
 
         $lenData = strLen($data); if ($lenData % self::BAR_SIZE) throw new RuntimeException('Odd length of passed '.$symbol.' data: '.$lenData.' (not an even Rost::BAR_SIZE)');
-        $offset  = 0;
-        $bars    = [];
-        $i       = -1;
+        $bars = [];
 
-        while ($offset < $lenData) {
-            $i++;
+        for ($offset=0; $offset < $lenData; $offset += self::BAR_SIZE) {
             $bars[] = unpack("@$offset/Vtime/Vopen/Vhigh/Vlow/Vclose/Vticks", $data);
-            $offset += self::BAR_SIZE;
-
-            // Bars validieren
-            if ($bars[$i]['open' ] > $bars[$i]['high'] ||      // aus (H >= O && O >= L) folgt (H >= L)
-                 $bars[$i]['open' ] < $bars[$i]['low' ] ||      // nicht mit min()/max(), da nicht performant
-                 $bars[$i]['close'] > $bars[$i]['high'] ||
-                 $bars[$i]['close'] < $bars[$i]['low' ] ||
-                !$bars[$i]['ticks']) throw new RuntimeException("Illegal $symbol data for bar[$i]: O={$bars[$i]['open']} H={$bars[$i]['high']} L={$bars[$i]['low']} C={$bars[$i]['close']} V={$bars[$i]['ticks']} T='".gmDate('D, d-M-Y H:i:s', $bars[$i]['time'])."'");
         }
         return $bars;
     }
@@ -807,15 +665,15 @@ class Rost extends StaticClass {
             if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
             $result = gmDate('Y/m/d', $time);
         }
-        else if ($id == 'rostDir') {                  // $dataDirectory/history/rost/$type/$symbol/$rostDirDate         // lokales Verzeichnis
+        else if ($id == 'rostDir') {                  // $dataDir/history/rost/$type/$symbol/$rostDirDate               // lokales Verzeichnis
             if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
             $type        = RosaSymbol::dao()->getByName($symbol)->getType();
             $rostDirDate = self::{__FUNCTION__}('rostDirDate', null, $time);
             $result      = $dataDir.'/history/rost/'.$type.'/'.$symbol.'/'.$rostDirDate;
         }
-        else if ($id == 'rostFile.M1.raw') {          // $rostDir/M1.myfx                                               // Rost-M1-Datei ungepackt
+        else if ($id == 'rostFile.M1.raw') {          // $rostDir/M1.bin                                                // Rost-M1-Datei ungepackt
             $rostDir = self::{__FUNCTION__}('rostDir' , $symbol, $time);
-            $result  = $rostDir.'/M1.myfx';
+            $result  = $rostDir.'/M1.bin';
         }
         else if ($id == 'rostFile.M1.compressed') {   // $rostDir/M1.rar                                                // Rost-M1-Datei gepackt
             $rostDir = self::{__FUNCTION__}('rostDir', $symbol, $time);
@@ -827,5 +685,34 @@ class Rost extends StaticClass {
         (sizeof($varCache) > ($maxSize=256)) && array_shift($varCache)/* && echoPre('var cache size limit of '.$maxSize.' hit')*/;
 
         return $result;
+    }
+
+
+    /**
+     * Convert an absolute file path to a project-relative one.
+     *
+     * @param  string $path
+     *
+     * @return string
+     */
+    public static function relativePath($path) {
+        if (!is_string($path)) throw new IllegalTypeException('Illegal type of parameter $path: '.getType($path));
+        $_path = str_replace('\\', '/', $path);
+
+        static $root, $realRoot, $data, $realData;
+        if (!$root) {
+            $config   = Config::getDefault();
+            $root     = str_replace('\\', '/', $config['app.dir.root'].'/');
+            $realRoot = str_replace('\\', '/', realPath($root).'/');
+            $data     = str_replace('\\', '/', $config['app.dir.data'].'/');
+            $realData = str_replace('\\', '/', realPath($data).'/');
+        }
+
+        if (strStartsWith($_path, $root))     return               strRightFrom($_path, $root);
+        if (strStartsWith($_path, $realRoot)) return               strRightFrom($_path, $realRoot);
+        if (strStartsWith($_path, $data))     return '{data-dir}/'.strRightFrom($_path, $data);
+        if (strStartsWith($_path, $realData)) return '{data-dir}/'.strRightFrom($_path, $realData);
+
+        return $path;
     }
 }

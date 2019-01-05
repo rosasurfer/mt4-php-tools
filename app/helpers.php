@@ -5,6 +5,7 @@ use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\IllegalArgumentException;
 use rosasurfer\exception\UnimplementedFeatureException;
 use rosasurfer\exception\RuntimeException;
+use rosasurfer\exception\InvalidArgumentException;
 
 
 /**
@@ -35,7 +36,7 @@ const TIMEZONE_ID_GLOBALPRIME      =  9;
 const TIMEZONE_ID_GMT              = 10;
 
 
-// Timeframe identifier
+// period identifiers
 const PERIOD_M1  =      1;                  // 1 minute
 const PERIOD_M5  =      5;                  // 5 minutes
 const PERIOD_M15 =     15;                  // 15 minutes
@@ -48,7 +49,7 @@ const PERIOD_MN1 =  43200;                  // monthly
 const PERIOD_Q1  = 129600;                  // a quarter (3 months)
 
 
-// Operation types
+// operation types
 const OP_BUY       =       0;               //    MT4: long position
 const OP_LONG      =  OP_BUY;               //
 const OP_SELL      =       1;               //         short position
@@ -69,138 +70,209 @@ const BARMODEL_CONTROLPOINTS = 1;
 const BARMODEL_BAROPEN       = 2;
 
 
-// Trade directions, can be used as flags
+// trade directions, may be used as flags
 const TRADE_DIRECTIONS_LONG  = 1;
 const TRADE_DIRECTIONS_SHORT = 2;
 const TRADE_DIRECTIONS_BOTH  = 3;
 
 
-// Struct sizes
+// struct sizes
 const DUKASCOPY_BAR_SIZE  = 24;
 const DUKASCOPY_TICK_SIZE = 20;
 
 
 /**
- * Return the FXT based timestamp of the specified time (seconds since 1970-01-01 00:00 FXT).
+ * Convert a Unix timestamp (seconds since 1970-01-01 00:00 GMT) to an FXT timestamp (seconds since 1970-01-01 00:00 FXT).
+ * Without a parameter the function returns the current FXT timestamp.
  *
- * @param  int    $timestamp - time (default: current time)
- * @param  string $timezone  - timestamp base, including FXT (default: GMT)
+ * @param  int $unixTime [optional] - timestamp (default: the current time)
  *
- * @return int - FXT based timestamp
+ * @return int - FXT timestamp
  */
-function fxtTime($timestamp=null, $timezone='GMT') {
-    if (!is_string($timezone))    throw new IllegalTypeException('Illegal type of parameter $timezone: '.getType($timezone));
-    if ($timestamp === null) {
-        $timestamp = time();
-        $timezone  = 'GMT';
+function fxTime($unixTime = null) {
+    if (!func_num_args()) $unixTime = time();
+    else if (!is_int($unixTime)) throw new IllegalTypeException('Illegal type of parameter $unixTime: '.getType($unixTime));
+
+    try {
+        $currentTZ = date_default_timezone_get();
+        date_default_timezone_set('America/New_York');
+        $offset = iDate('Z', $unixTime);
+        return $unixTime + $offset + 7*HOURS;
     }
-    else if (!is_int($timestamp)) throw new IllegalTypeException('Illegal type of parameter $timestamp: '.getType($timestamp));
-    $timezone = strToUpper($timezone);
+    finally { date_default_timezone_set($currentTZ); }
 
-    if ($timezone == 'FXT')
-        return $timestamp;                           // with FXT input and result are equal
+    // Calculating the offset by switching default timezones is 3-10 times faster then using an OOP approach. Only on HHVM
+    // OOP speed becomes better but is still 1.5 times lower:
+    //
+    // $localTime = new \DateTime();
+    // $timezone  = new \DateTimeZone('America/New_York');
+    // $offset    = $timezone->getOffset($localTime);
+    // $fxTime    = $localTime->getTimestamp() + $offset + 7*HOURS;
+}
 
-    $gmtTime = null;
 
-    if ($timezone=='GMT' || $timezone=='UTC') {
-        $gmtTime = $timestamp;
+/**
+ * Convert an FXT timestamp (seconds since 1970-01-01 00:00 FXT) to a Unix timestamp (seconds since 1970-01-01 00:00 GMT).
+ * Without a parameter the function returns the current Unix timestamp (as the PHP function <tt>time()</tt>).
+ *
+ * @param  int $fxTime [optional] - timestamp (default: the current time)
+ *
+ * @return int - Unix timestamp
+ */
+function unixTime($fxTime = null) {
+    if (!func_num_args()) $fxTime = fxTime();
+    else if (!is_int($fxTime)) throw new IllegalTypeException('Illegal type of parameter $fxTime: '.getType($fxTime));
+
+    try {
+        $currentTZ = date_default_timezone_get();
+        date_default_timezone_set('America/New_York');
+        $offset1  = iDate('Z', $fxTime);
+        $unixTime = $fxTime - $offset1 - 7*HOURS;
+        if ($offset1 != ($offset2=iDate('Z', $unixTime)))       // detect and handle a DST change between EasternTime
+            $unixTime = $fxTime - $offset2 - 7*HOURS;           // and EasternTime+0700
+        return $unixTime;
     }
-    else {
-        // convert $timestamp to GMT timestamp
-        $oldTimezone = date_default_timezone_get();
-        try {
-            date_default_timezone_set($timezone);
+    finally { date_default_timezone_set($currentTZ); }          // TODO: detect and handle invalid FXT timestamps
+}
 
-            $offsetA = iDate('Z', $timestamp);
-            $gmtTime = $timestamp + $offsetA;
 
-            $offsetB = iDate('Z', $gmtTime);          // double check if DST change is exactly between $timestamp and $gmtTime
-            if ($offsetA != $offsetB) { /* TODO */ }
-        }
-        finally {
-            date_default_timezone_set($oldTimezone);
-        }
+/**
+ * Format a Unix timestamp and return an FXT representation.
+ *
+ * @param  string $format              - format string as used for <tt>date($format, $timestamp)</tt>
+ * @param  int    $unixTime [optional] - timestamp (default: the current time)
+ *
+ * @return string - formatted string
+ */
+function fxDate($format, $unixTime = null) {
+    if (!is_string($format))     throw new IllegalTypeException('Illegal type of parameter $format: '.getType($format));
+    if (func_num_args() < 2)     $unixTime = time();
+    else if (!is_int($unixTime)) throw new IllegalTypeException('Illegal type of parameter $unixTime: '.getType($unixTime));
+
+    try {
+        $currentTZ = date_default_timezone_get();
+        date_default_timezone_set('America/New_York');
+        return date($format, $unixTime+7*HOURS);
     }
+    finally { date_default_timezone_set($currentTZ); }
+}
 
-    // convert $gmtTime to FXT timestamp
-    $oldTimezone = date_default_timezone_get();
+
+/**
+ * Parst die String-Repraesentation einer FXT-Zeit in einen GMT-Timestamp.
+ *
+ * @param  string $time - FXT-Zeit in einem der Funktion strToTime() verstaendlichen Format
+ *
+ * @return int - Unix-Timestamp
+ *
+ * TODO:  Funktion unnoetig: strToTime() ueberladen und um Erkennung der FXT-Zeitzone erweitern
+ */
+function fxtStrToTime($time) {
+    if (!is_string($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+
+    $currentTZ = date_default_timezone_get();
     try {
         date_default_timezone_set('America/New_York');
-
-        $estOffset = iDate('Z', $gmtTime);
-        $fxtTime   = $gmtTime + $estOffset + 7*HOURS;
-
-        return $fxtTime;
+        $unixTime = strToTime($time);
+        if ($unixTime === false) throw new InvalidArgumentException('Invalid argument $time: "'.$time.'"');
+        return $unixTime - 7*HOURS;
     }
-    finally {
-        date_default_timezone_set($oldTimezone);
-    }
+    finally { date_default_timezone_set($currentTZ); }
 }
 
 
 /**
- * Whether or not a time is on an FXT based Forex trading day.
+ * Gibt den FXT-Offset einer Zeit zu GMT und ggf. die beiden jeweils angrenzenden naechsten DST-Transitionsdaten zurueck.
  *
- * @param  int    $timestamp
- * @param  string $timezone  - timestamp base, including FXT
- *                             (default: GMT)
- * @return bool
+ * @param  int        $time           - GMT-Zeitpunkt (default: aktuelle Zeit)
+ * @param  array|null $prevTransition - Wenn angegeben, enthaelt diese Variable nach Rueckkehr ein Array
+ *                                      ['time'=>{timestamp}, 'offset'=>{offset}] mit dem GMT-Timestamp des vorherigen
+ *                                      Zeitwechsels und dem Offset vor diesem Zeitpunkt.
+ * @param  array|null $nextTransition - Wenn angegeben, enthaelt diese Variable nach Rueckkehr ein Array
+ *                                      ['time'=>{timestamp}, 'offset'=>{offset}] mit dem GMT-Timestamp des naechsten
+ *                                      Zeitwechsels und dem Offset nach diesem Zeitpunkt.
+ *
+ * @return int - Offset in Sekunden oder NULL, wenn der Zeitpunkt ausserhalb der bekannten Transitionsdaten liegt.
+ *               FXT liegt oestlich von GMT, der Offset ist also immer positiv. Es gilt: GMT + Offset = FXT
+ *
+ *
+ * Note: Analog zu date('Z', $time) verhaelt sich diese Funktion, als wenn lokal die (in PHP nicht existierende) Zeitzone 'FXT'
+ *       eingestellt worden waere.
  */
-function isFxtTradingDay($timestamp, $timezone='GMT') {
-    if (!is_int($timestamp))   throw new IllegalTypeException('Illegal type of parameter $timestamp: '.getType($timestamp));
-    if (!is_string($timezone)) throw new IllegalTypeException('Illegal type of parameter $timezone: '.getType($timezone));
+function fxtTimezoneOffset($time=null, &$prevTransition=[], &$nextTransition=[]) {
+    if (is_null($time)) $time = time();
+    else if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
 
-    return (!isFxtWeekend($timestamp, $timezone) && !isFxtHoliday($timestamp, $timezone));
+    static $transitions = null;
+    if (!$transitions) {
+        $timezone    = new \DateTimeZone('America/New_York');
+        $transitions = $timezone->getTransitions();
+    }
+
+    $i = -2;
+    foreach ($transitions as $i => $transition) {
+        if ($transition['ts'] > $time) {
+            $i--;
+            break;                                                  // hier zeigt $i auf die aktuelle Periode
+        }
+    }
+
+    $transSize = sizeOf($transitions);
+    $argsSize  = func_num_args();
+
+    // $prevTransition definieren
+    if ($argsSize > 1) {
+        $prevTransition = [];
+
+        if ($i < 0) {                                               // $transitions ist leer oder $time
+            $prevTransition['time'  ] = null;                       // liegt vor der ersten Periode
+            $prevTransition['offset'] = null;
+        }
+        else if ($i == 0) {                                         // $time liegt in erster Periode
+            $prevTransition['time'  ] = $transitions[0]['ts'];
+            $prevTransition['offset'] = null;                       // vorheriger Offset unbekannt
+        }
+        else {
+            $prevTransition['time'  ] = $transitions[$i  ]['ts'    ];
+            $prevTransition['offset'] = $transitions[$i-1]['offset'] + 7*HOURS;
+        }
+    }
+
+    // $nextTransition definieren
+    if ($argsSize > 2) {
+        $nextTransition = [];
+
+        if ($i==-2 || $i >= $transSize-1) {                         // $transitions ist leer oder
+            $nextTransition['time'  ] = null;                       // $time liegt in letzter Periode
+            $nextTransition['offset'] = null;
+        }
+        else {
+            $nextTransition['time'  ] = $transitions[$i+1]['ts'    ];
+            $nextTransition['offset'] = $transitions[$i+1]['offset'] + 7*HOURS;
+        }
+    }
+
+    // Rueckgabewert definieren
+    $offset = null;
+    if ($i >= 0)                                                    // $transitions ist nicht leer und
+        $offset = $transitions[$i]['offset'] + 7*HOURS;             // $time liegt nicht vor der ersten Periode
+    return $offset;
 }
 
 
 /**
- * Whether or not a time is on an FXT based Forex weekend (Saturday or Sunday).
+ * Whether or not a time is on an FXT weekend (Saturday or Sunday).
  *
- * @param  int    $timestamp
- * @param  string $timezone  - timestamp base, including FXT
- *                             (default: GMT)
+ * @param  int $fxTime - FXT timestamp
+ *
  * @return bool
  */
-function isFxtWeekend($timestamp, $timezone='GMT') {
-    if (!is_int($timestamp))   throw new IllegalTypeException('Illegal type of parameter $timestamp: '.getType($timestamp));
-    if (!is_string($timezone)) throw new IllegalTypeException('Illegal type of parameter $timezone: '.getType($timezone));
+function isFxtWeekend($fxTime) {
+    if (!is_int($fxTime)) throw new IllegalTypeException('Illegal type of parameter $fxTime: '.getType($fxTime));
 
-    // convert $timestamp to FXT timestamp
-    if (strToUpper($timezone) != 'FXT')
-        $timestamp = fxtTime($timestamp, $timezone);
-
-    // check $timestamp as GMT timestamp
-    $dow = (int) gmDate('w', $timestamp);
+    // check as a GMT timestamp
+    $dow = (int) gmDate('w', $fxTime);                  // TODO: that's wrong
     return ($dow==SATURDAY || $dow==SUNDAY);
-}
-
-
-/**
- * Whether or not a time is on an FXT based Forex holiday.
- *
- * @param  int    $timestamp
- * @param  string $timezone  - timestamp base, including FXT
- *                             (default: GMT)
- * @return bool
- */
-function isFxtHoliday($timestamp, $timezone='GMT') {
-    if (!is_int($timestamp))   throw new IllegalTypeException('Illegal type of parameter $timestamp: '.getType($timestamp));
-    if (!is_string($timezone)) throw new IllegalTypeException('Illegal type of parameter $timezone: '.getType($timezone));
-
-    // convert $timestamp to FXT timestamp
-    if (strToUpper($timezone) != 'FXT')
-        $timestamp = fxtTime($timestamp, $timezone);
-
-    // check $timestamp as GMT timestamp
-    $m   = (int) gmDate('n', $timestamp);     // month
-    $dom = (int) gmDate('j', $timestamp);     // day of month
-
-    if ($dom==1 && $m==1)                     // 1. January
-        return true;
-    if ($dom==25 && $m==12)                   // 25. December
-        return true;
-    return false;
 }
 
 

@@ -35,12 +35,12 @@ class RosaSymbolDAO extends DAO {
                 ['name'=>'digits',                                            'type'=>INT,                   ],                     // db:int
                 ['name'=>'autoUpdate',        'column'=>'autoupdate',         'type'=>BOOL,                  ],                     // db:int[bool]
                 ['name'=>'formula',                                           'type'=>STRING,                ],                     // db:text
-                ['name'=>'historyStartTicks', 'column'=>'historystart_ticks', 'type'=>STRING,                ],                     // db:text[datetime] FXT
-                ['name'=>'historyEndTicks',   'column'=>'historyend_ticks',   'type'=>STRING,                ],                     // db:text[datetime] FXT
-                ['name'=>'historyStartM1',    'column'=>'historystart_m1',    'type'=>STRING,                ],                     // db:text[datetime] FXT
-                ['name'=>'historyEndM1',      'column'=>'historyend_m1',      'type'=>STRING,                ],                     // db:text[datetime] FXT
-                ['name'=>'historyStartD1',    'column'=>'historystart_d1',    'type'=>STRING,                ],                     // db:text[datetime] FXT
-                ['name'=>'historyEndD1',      'column'=>'historyend_d1',      'type'=>STRING,                ],                     // db:text[datetime] FXT
+                ['name'=>'historyTicksStart', 'column'=>'historystart_ticks', 'type'=>STRING,                ],                     // db:text[datetime] FXT
+                ['name'=>'historyTicksEnd',   'column'=>'historyend_ticks',   'type'=>STRING,                ],                     // db:text[datetime] FXT
+                ['name'=>'historyM1Start',    'column'=>'historystart_m1',    'type'=>STRING,                ],                     // db:text[datetime] FXT
+                ['name'=>'historyM1End',      'column'=>'historyend_m1',      'type'=>STRING,                ],                     // db:text[datetime] FXT
+                ['name'=>'historyD1Start',    'column'=>'historystart_d1',    'type'=>STRING,                ],                     // db:text[datetime] FXT
+                ['name'=>'historyD1End',      'column'=>'historyend_d1',      'type'=>STRING,                ],                     // db:text[datetime] FXT
             ],
             'relations' => [
                 ['name'=>'dukascopySymbol', 'assoc'=>'one-to-one', 'type'=>DukascopySymbol::class, 'ref-column'=>'rosasymbol_id'],  // db:int
@@ -60,7 +60,6 @@ class RosaSymbolDAO extends DAO {
         if (!is_string($name)) throw new IllegalTypeException('Illegal type of parameter $name: '.getType($name));
 
         $name = $this->escapeLiteral($name);
-
         $sql = 'select *
                    from :RosaSymbol
                    where name = '.$name;
@@ -81,11 +80,29 @@ class RosaSymbolDAO extends DAO {
         if (!is_string($name)) throw new IllegalTypeException('Illegal type of parameter $name: '.getType($name));
 
         $name = $this->escapeLiteral($name);
-
         $sql = 'select *
                    from :RosaSymbol
                    where name = '.$name;
         return $this->get($sql);
+    }
+
+
+    /**
+     * Find all {@link RosaSymbol} instances with the specified auto-update status.
+     *
+     * @param  bool $status
+     *
+     * @return RosaSymbol[] - symbol instances sorted ascending by name
+     */
+    public function findAllByAutoUpdate($status) {
+        if (!is_bool($status)) throw new IllegalTypeException('Illegal type of parameter $status: '.getType($status));
+
+        $status = $this->escapeLiteral($status);
+        $sql = 'select *
+                   from :RosaSymbol
+                   where autoupdate = '.$status.'
+                   order by name';
+        return $this->findAll($sql);
     }
 
 
@@ -95,24 +112,49 @@ class RosaSymbolDAO extends DAO {
      * @return RosaSymbol[] - symbol instances sorted ascending by name
      */
     public function findAllDukascopyMapped() {
-        $sql = "select *
+        $sql = 'select r.*
                    from :RosaSymbol      r
                    join :DukascopySymbol d on r.id = d.rosasymbol_id
-                   order by r.name";
+                   order by r.name';
         return $this->findAll($sql);
     }
 
 
     /**
-     * Find all synthetic {@link RosaSymbol}s.
+     * Find all {@link RosaSymbol}s with a Dukascopy mapping and the specified auto-update status.
+     *
+     * @param  bool $status
      *
      * @return RosaSymbol[] - symbol instances sorted ascending by name
      */
-    public function findAllSynthetics() {
-        $sql = "select *
+    public function findAllDukascopyMappedByAutoUpdate($status) {
+        if (!is_bool($status)) throw new IllegalTypeException('Illegal type of parameter $status: '.getType($status));
+
+        $status = $this->escapeLiteral($status);
+        $sql = 'select r.*
+                   from :RosaSymbol      r
+                   join :DukascopySymbol d on r.id = d.rosasymbol_id
+                   where autoupdate = '.$status.'
+                   order by r.name';
+        return $this->findAll($sql);
+    }
+
+
+    /**
+     * Find all {@link RosaSymbol}s of the specified type.
+     *
+     * @param  string $type
+     *
+     * @return RosaSymbol[] - symbol instances sorted ascending by name
+     */
+    public function findAllByType($type) {
+        if (!is_bool($type)) throw new IllegalTypeException('Illegal type of parameter $type: '.getType($type));
+
+        $type = $this->escapeLiteral($type);
+        $sql = 'select *
                    from :RosaSymbol
-                   where type = 'synthetic'
-                   order by name";
+                   where type = '.$type.'
+                   order by name';
         return $this->findAll($sql);
     }
 

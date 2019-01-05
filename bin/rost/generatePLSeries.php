@@ -86,12 +86,12 @@ $deals = array_values($deals);
 $firstDeal = reset($deals);
 if      (is_file(getVar('rostFile.compressed', $symbol, $firstDeal->time))) {}
 else if (is_file(getVar('rostFile.raw'       , $symbol, $firstDeal->time))) {}
-else     exit(1|echoPre('[Error]   '.$symbol.' Rost price history for '.gmDate('D, d-M-Y', $firstDeal->time).' not found'));
+else     exit(1|echoPre('[Error]   '.$symbol.'  Rosatrader price history for '.gmDate('D, d-M-Y', $firstDeal->time).' not found'));
 
 $lastDeal = end($deals);
 if      (is_file(getVar('rostFile.compressed', $symbol, $lastDeal->time))) {}
 else if (is_file(getVar('rostFile.raw'       , $symbol, $lastDeal->time))) {}
-else     exit(1|echoPre('[Error]   '.$symbol.' Rost price history for '.gmDate('D, d-M-Y', $lastDeal->time).' not found'));
+else     exit(1|echoPre('[Error]   '.$symbol.'  Rosatrader price history for '.gmDate('D, d-M-Y', $lastDeal->time).' not found'));
 echoPre('[Info]    Processing '.sizeof($trades).' trades of test '.$test->getReportingSymbol().' ('.gmDate('d.m.Y', $firstDeal->time).' - '.gmDate('d.m.Y', $lastDeal->time).')');
 
 
@@ -135,12 +135,12 @@ for ($day=$firstDealDay; $day <= $lastDealDay; $day+=1*DAY) {
         echoPre('[Info]    '.gmDate('M-Y', $day));
         $prevMonth = $month;
     }
-    if (isFxtWeekend($day, 'FXT'))                                  // skip non-trading days
+    if (isFxtWeekend($day))                                         // skip non-trading days
         continue;
 
     if      (is_file($file=getVar('rostFile.compressed', $symbol, $day))) {}
     else if (is_file($file=getVar('rostFile.raw'       , $symbol, $day))) {}
-    else exit(1|echoPre('[Error]   '.$symbol.' Rost price history for '.$shortDate.' not found'));
+    else exit(1|echoPre('[Error]   '.$symbol.'  Rosatrader price history for '.$shortDate.' not found'));
 
     $bars    = Rost::readBarFile($file, $symbol);
     $partial = false;
@@ -296,27 +296,27 @@ function getVar($id, $symbol=null, $time=null) {
         if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
         $result = gmDate('Y/m/d', $time);
     }
-    else if ($id == 'rostDir') {              // $dataDirectory/history/rost/$type/$symbol/$rostDirDate         // local directory
+    else if ($id == 'rostDir') {              // $dataDir/history/rost/$type/$symbol/$rostDirDate               // local directory
         $type        = RosaSymbol::dao()->getByName($symbol)->getType();
         $rostDirDate = $self('rostDirDate', null, $time);
         $result      = $dataDir.'/history/rost/'.$type.'/'.$symbol.'/'.$rostDirDate;
     }
-    else if ($id == 'rostDirPL') {            // $dataDirectory/stats/pl/$symbol/$rostDirDate                   // local directory
+    else if ($id == 'rostDirPL') {            // $dataDir/stats/pl/$symbol/$rostDirDate                         // local directory
         if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
         $rostDirDate = $self('rostDirDate', null, $time);
         $result      = $dataDir.'/stats/pl/'.$symbol.'/'.$rostDirDate;
     }
-    else if ($id == 'rostFile.raw') {         // $rostDir/M1.myfx                                               // local file uncompressed
+    else if ($id == 'rostFile.raw') {         // $rostDir/M1.bin                                                // local file uncompressed
         $rostDir = $self('rostDir' , $symbol, $time);
-        $result  = $rostDir.'/M1.myfx';
+        $result  = $rostDir.'/M1.bin';
     }
     else if ($id == 'rostFile.compressed') {  // $rostDir/M1.rar                                                // local file compressed
         $rostDir = $self('rostDir' , $symbol, $time);
         $result  = $rostDir.'/M1.rar';
     }
-    else if ($id == 'rostFile.pl.raw') {      // $rostDirPL/M1.myfx                                             // local file uncompressed
+    else if ($id == 'rostFile.pl.raw') {      // $rostDirPL/M1.bin                                              // local file uncompressed
         $rostDirPL = $self('rostDirPL' , $symbol, $time);
-        $result    = $rostDirPL.'/M1.myfx';
+        $result    = $rostDirPL.'/M1.bin';
     }
     else {
       throw new InvalidArgumentException('Unknown variable identifier "'.$id.'"');

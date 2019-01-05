@@ -50,6 +50,8 @@ use rosasurfer\rost\dukascopy\DukascopyException;
 use rosasurfer\rost\model\DukascopySymbol;
 use rosasurfer\rost\model\RosaSymbol;
 
+use function rosasurfer\rost\fxtStrToTime;
+use function rosasurfer\rost\fxtTimezoneOffset;
 use function rosasurfer\rost\isFxtWeekend;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');
@@ -124,10 +126,10 @@ function updateSymbol(RosaSymbol $symbol) {
 
 
     // (1) Beginn des naechsten Forex-Tages ermitteln
-    $startTimeFXT = $dukaSymbol->getHistoryStartTicks();
-    $startTimeGMT = $startTimeFXT ? Rost::fxtStrToTime($startTimeFXT) : 0;  // Beginn der Tickdaten des Symbols in GMT
+    $startTimeFXT = $dukaSymbol->getHistoryTicksStart();
+    $startTimeGMT = $startTimeFXT ? fxtStrToTime($startTimeFXT) : 0;        // Beginn der Tickdaten des Symbols in GMT
     $prev = $next = null;
-    $fxtOffset    = Rost::fxtTimezoneOffset($startTimeGMT, $prev, $next);   // es gilt: FXT = GMT + Offset
+    $fxtOffset    = fxtTimezoneOffset($startTimeGMT, $prev, $next);         // es gilt: FXT = GMT + Offset
     $startTimeFXT = $startTimeGMT + $fxtOffset;                             // Beginn der Tickdaten in FXT
 
     if ($remainder=$startTimeFXT % DAY) {                                   // Beginn auf den naechsten Forex-Tag 00:00 aufrunden, sodass
@@ -137,7 +139,7 @@ function updateSymbol(RosaSymbol $symbol) {
             $startTimeFXT = $startTimeGMT + $next['offset'];
             if ($remainder=$startTimeFXT % DAY) $diff = 1*DAY - $remainder;
             else                                $diff = 0;
-            $fxtOffset = Rost::fxtTimezoneOffset($startTimeGMT, $prev, $next);
+            $fxtOffset = fxtTimezoneOffset($startTimeGMT, $prev, $next);
         }
         $startTimeGMT += $diff;                                             // naechster Forex-Tag 00:00 in GMT
         $startTimeFXT += $diff;                                             // naechster Forex-Tag 00:00 in FXT
@@ -151,7 +153,7 @@ function updateSymbol(RosaSymbol $symbol) {
 
     for ($gmtHour=$startTimeGMT; $gmtHour < $lastHour; $gmtHour+=1*HOUR) {
         if ($gmtHour >= $next['time'])
-            $fxtOffset = Rost::fxtTimezoneOffset($gmtHour, $prev, $next);   // $fxtOffset on-the-fly aktualisieren
+            $fxtOffset = fxtTimezoneOffset($gmtHour, $prev, $next);         // $fxtOffset on-the-fly aktualisieren
         $fxtHour = $gmtHour + $fxtOffset;
 
         if (!checkHistory($symbolName, $gmtHour, $fxtHour)) return false;
@@ -181,7 +183,7 @@ function checkHistory($symbol, $gmtHour, $fxtHour) {
     static $lastDay=-1, $lastMonth=-1;
 
     // (1) nur an Handelstagen pruefen, ob die Rost-History existiert und ggf. aktualisieren
-    if (!isFxtWeekend($fxtHour, 'FXT')) {
+    if (!isFxtWeekend($fxtHour)) {
         $day = (int) gmDate('d', $fxtHour);
         if ($day != $lastDay) {
             if ($verbose > 1) echoPre('[Info]    '.gmDate('d-M-Y', $fxtHour));
@@ -197,11 +199,11 @@ function checkHistory($symbol, $gmtHour, $fxtHour) {
 
         // History ist ok, wenn entweder die komprimierte Rost-Datei existiert...
         if (is_file($file=getVar('rostFile.compressed', $symbol, $fxtHour))) {
-            if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'   Rost compressed tick file: '.baseName($file));
+            if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'  Rosatrader compressed tick file: '.Rost::relativePath($file));
         }
         // History ist ok, ...oder die unkomprimierte Rost-Datei gespeichert wird und existiert
         else if ($saveRawRostData && is_file($file=getVar('rostFile.raw', $symbol, $fxtHour))) {
-            if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'   Rost raw tick file: '.baseName($file));
+            if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'  Rosatrader uncompressed tick file: '.Rost::relativePath($file));
         }
         // andererseits Tickdaten aktualisieren
         else {
@@ -227,7 +229,7 @@ function checkHistory($symbol, $gmtHour, $fxtHour) {
     // Dukascopy-Downloadverzeichnis der aktuellen Stunde, wenn es leer ist
     if (is_dir($dir=getVar('rostDir', $symbol, $gmtHour))) @rmDir($dir);
     // lokales Historyverzeichnis der aktuellen Stunde, wenn Wochenende und es leer ist
-    if (isFxtWeekend($fxtHour, 'FXT')) {
+    if (isFxtWeekend($fxtHour)) {
         if (is_dir($dir=getVar('rostDir', $symbol, $fxtHour))) @rmDir($dir);
     }
 
@@ -390,7 +392,7 @@ function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=f
 
     $shortDate = gmDate('D, d-M-Y H:i', $fxtHour);
     $url       = getVar('dukaUrl', $symbol, $gmtHour);
-    if (!$quiet && $verbose > 1) echoPre('[Info]    '.$shortDate.'   url: '.$url);
+    if (!$quiet && $verbose > 1) echoPre('[Info]    '.$shortDate.'  downloading: '.$url);
 
     if (!$config=Config::getDefault())
         throw new RuntimeException('Service locator returned invalid default config: '.getType($config));
@@ -452,8 +454,8 @@ function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=f
         }
 
         if (!$quiet) {
-            if ($status==404) echoPre('[Error]   '.$shortDate.'   url not found (404): '.$url);
-            else              echoPre('[Warn]    '.$shortDate.'   empty response: '.$url);
+            if ($status==404) echoPre('[Error]   '.$shortDate.'  url not found (404): '.$url);
+            else              echoPre('[Warn]    '.$shortDate.'  empty response: '.$url);
         }
 
         // bei leerem Response Exception werfen, damit eine Schleife ggf. fortgesetzt werden kann
@@ -473,7 +475,7 @@ function loadCompressedDukascopyTickFile($file, $symbol, $gmtHour, $fxtHour) {
     if (!is_int($fxtHour)) throw new IllegalTypeException('Illegal type of parameter $fxtHour: '.getType($fxtHour));
 
     global $verbose;
-    if ($verbose > 0) echoPre('[Info]    '.gmDate('D, d-M-Y H:i', $fxtHour).'   Dukascopy compressed tick file: '.baseName($file));
+    if ($verbose > 0) echoPre('[Info]    '.gmDate('D, d-M-Y H:i', $fxtHour).'  Dukascopy compressed tick file: '.Rost::relativePath($file));
 
     return loadCompressedDukascopyTickData(file_get_contents($file), $symbol, $gmtHour, $fxtHour);
 }
@@ -505,7 +507,7 @@ function loadRawDukascopyTickFile($file, $symbol, $gmtHour, $fxtHour) {
     if (!is_int($fxtHour)) throw new IllegalTypeException('Illegal type of parameter $fxtHour: '.getType($fxtHour));
 
     global $verbose;
-    if ($verbose > 0) echoPre('[Info]    '.gmDate('D, d-M-Y H:i', $fxtHour).'   Dukascopy raw tick file: '.baseName($file));
+    if ($verbose > 0) echoPre('[Info]    '.gmDate('D, d-M-Y H:i', $fxtHour).'  Dukascopy uncompressed tick file: '.Rost::relativePath($file));
 
     return loadRawDukascopyTickData(file_get_contents($file), $symbol, $gmtHour, $fxtHour);
 }
@@ -566,15 +568,15 @@ function getVar($id, $symbol=null, $time=null) {
         if (!$time)   throw new InvalidArgumentException('Invalid parameter $time: '.$time);
         $result = gmDate('Y/m/d', $time);
     }
-    else if ($id == 'rostDir') {                // $dataDirectory/history/rost/$type/$symbol/$rostDirDate       // lokales Verzeichnis
+    else if ($id == 'rostDir') {                // $dataDir/history/rost/$type/$symbol/$rostDirDate             // lokales Verzeichnis
         $type        = RosaSymbol::dao()->getByName($symbol)->getType();
         $rostDirDate = $self('rostDirDate', null, $time);
         $result      = $dataDir.'/history/rost/'.$type.'/'.$symbol.'/'.$rostDirDate;
     }
-    else if ($id == 'rostFile.raw') {           // $rostDir/${hour}h_ticks.myfx                                 // lokale Datei ungepackt
+    else if ($id == 'rostFile.raw') {           // $rostDir/${hour}h_ticks.bin                                  // lokale Datei ungepackt
         $rostDir = $self('rostDir', $symbol, $time);
         $hour    = gmDate('H', $time);
-        $result  = $rostDir.'/'.$hour.'h_ticks.myfx';
+        $result  = $rostDir.'/'.$hour.'h_ticks.bin';
     }
     else if ($id == 'rostFile.compressed') {    // $rostDir/${hour}h_ticks.rar                                  // lokale Datei gepackt
         $rostDir = $self('rostDir', $symbol, $time);

@@ -12,7 +12,7 @@ use rosasurfer\rost\metatrader\HistorySet;
 use rosasurfer\rost\metatrader\MT4;
 use rosasurfer\rost\model\RosaSymbol;
 
-use function rosasurfer\rost\fxtTime;
+use function rosasurfer\rost\fxTime;
 use function rosasurfer\rost\isFxtWeekend;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');
@@ -86,9 +86,9 @@ function updateHistory(RosaSymbol $symbol) {
     !$history && $history=HistorySet::create($symbolName, $symbolDigits, $format=400, $directory);
 
     // History beginnend mit dem letzten synchronisierten Tag aktualisieren
-    $startTime = $lastSyncTime ?: (int)$symbol->getHistoryStartM1('U');                             // FXT
+    $startTime = $lastSyncTime ?: (int)$symbol->getHistoryM1Start('U');                             // FXT
     $startDay  = $startTime - $startTime%DAY;                                                       // 00:00 FXT der Startzeit
-    $today     = ($time=fxtTime()) - $time%DAY;                                                     // 00:00 FXT des aktuellen Tages
+    $today     = ($time=fxTime()) - $time%DAY;                                                      // 00:00 FXT des aktuellen Tages
     $lastMonth = -1;
 
     for ($day=$startDay; $day < $today; $day+=1*DAY) {
@@ -98,11 +98,11 @@ function updateHistory(RosaSymbol $symbol) {
             echoPre('[Info]    '.gmDate('M-Y', $day));
             $lastMonth = $month;
         }
-        if (!isFxtWeekend($day, 'FXT')) {                                                           // nur an Handelstagen
+        if (!isFxtWeekend($day)) {                                                                  // nur an Handelstagen
             if      (is_file($file=Rost::getVar('rostFile.M1.compressed', $symbolName, $day))) {}   // wenn komprimierte Rost-Datei existiert
             else if (is_file($file=Rost::getVar('rostFile.M1.raw'       , $symbolName, $day))) {}   // wenn unkomprimierte Rost-Datei existiert
             else {
-                echoPre('[Error]   '.$symbolName.' Rost history for '.$shortDate.' not found');
+                echoPre('[Error]   '.$symbolName.'  Rosatrader history for '.$shortDate.' not found');
                 return false;
             }
             if ($verbose > 0) echoPre('[Info]    synchronizing '.$shortDate);

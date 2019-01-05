@@ -15,10 +15,10 @@ use rosasurfer\util\PHP;
 use rosasurfer\rost\Rost;
 use rosasurfer\rost\metatrader\HistorySet;
 use rosasurfer\rost\metatrader\MT4;
-
-use function rosasurfer\rost\fxtTime;
-use function rosasurfer\rost\isFxtWeekend;
 use rosasurfer\rost\model\RosaSymbol;
+
+use function rosasurfer\rost\fxTime;
+use function rosasurfer\rost\isFxtWeekend;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');
@@ -79,9 +79,9 @@ function createHistory(RosaSymbol $symbol) {
     $symbolName   = $symbol->getName();
     $symbolDigits = $symbol->getDigits();
 
-    $startDay  = (int)$symbol->getHistoryStartM1('U');                              // FXT
+    $startDay  = (int)$symbol->getHistoryM1Start('U');                              // FXT
     $startDay -= $startDay%DAY;                                                     // 00:00 FXT Starttag
-    $today     = ($today=fxtTime()) - $today%DAY;                                   // 00:00 FXT aktueller Tag
+    $today     = ($today=fxTime()) - $today%DAY;                                    // 00:00 FXT aktueller Tag
 
 
     // MT4-HistorySet erzeugen
@@ -99,11 +99,11 @@ function createHistory(RosaSymbol $symbol) {
         }
 
         // ausser an Wochenenden: Rost-History verarbeiten
-        if (!isFxtWeekend($day, 'FXT')) {
+        if (!isFxtWeekend($day)) {
             if      (is_file($file=getVar('rostFile.compressed', $symbolName, $day))) {}    // wenn komprimierte Rost-Datei existiert
             else if (is_file($file=getVar('rostFile.raw'       , $symbolName, $day))) {}    // wenn unkomprimierte Rost-Datei existiert
             else {
-                echoPre('[Error]   '.$symbolName.' Rost history for '.$shortDate.' not found');
+                echoPre('[Error]   '.$symbolName.'  Rosatrader history for '.$shortDate.' not found');
                 return false;
             }
             // Bars einlesen und der MT4-History hinzufuegen
@@ -149,14 +149,14 @@ function getVar($id, $symbol=null, $time=null) {
         if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
         $result = gmDate('Y/m/d', $time);
     }
-    else if ($id == 'rostDir') {              // $dataDirectory/history/rost/$type/$symbol/$rostDirDate         // lokales Verzeichnis
+    else if ($id == 'rostDir') {              // $dataDir/history/rost/$type/$symbol/$rostDirDate               // lokales Verzeichnis
         $type        = RosaSymbol::dao()->getByName($symbol)->getType();
         $rostDirDate = $self('rostDirDate', null, $time);
         $result      = $dataDir.'/history/rost/'.$type.'/'.$symbol.'/'.$rostDirDate;
     }
-    else if ($id == 'rostFile.raw') {         // $rostDir/M1.myfx                                               // lokale Datei ungepackt
+    else if ($id == 'rostFile.raw') {         // $rostDir/M1.bin                                                // lokale Datei ungepackt
         $rostDir = $self('rostDir' , $symbol, $time);
-        $result  = $rostDir.'/M1.myfx';
+        $result  = $rostDir.'/M1.bin';
     }
     else if ($id == 'rostFile.compressed') {  // $rostDir/M1.rar                                                // lokale Datei gepackt
         $rostDir = $self('rostDir' , $symbol, $time);
