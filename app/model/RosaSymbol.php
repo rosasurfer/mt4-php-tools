@@ -11,6 +11,9 @@ use rosasurfer\rost\RT;
 use rosasurfer\rost\synthetic\Synthesizer;
 
 use function rosasurfer\rost\fxTime;
+use function rosasurfer\rost\isGoodFriday;
+use function rosasurfer\rost\isHoliday;
+use function rosasurfer\rost\isWeekend;
 
 
 /**
@@ -231,17 +234,34 @@ class RosaSymbol extends RosatraderModel {
 
 
     /**
-     * Whether the specified day is a trading day for the instrument.
+     * Whether a time is a trading day for the instrument in the standard timezone of the timestamp.
      *
-     * @param  int $fxTime - FXT timestamp
+     * @param  int $time - Unix or FXT timestamp
      *
      * @return bool
      */
-    public function isTradingDay($fxTime) {
-        if (!is_int($fxTime)) throw new IllegalTypeException('Illegal type of parameter $fxTime: '.getType($fxTime));
+    public function isTradingDay($time) {
+        if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
 
-        $dow = (int) gmDate('w', $fxTime);
-        return ($dow!=SATURDAY && $dow!=SUNDAY);
+        return (!isWeekend($time) && !$this->isHoliday($time));
+    }
+
+
+    /**
+     * Whether a time is on a Holiday for the instrument in the standard timezone of the timestamp.
+     *
+     * @param  int $time - Unix or FXT timestamp
+     *
+     * @return bool
+     */
+    public function isHoliday($time) {
+        if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+
+        if (isHoliday($time))                           // check for common Holidays
+            return true;
+        if ($this->isMetal() && isGoodFriday($time))    // check for specific Holidays
+            return true;
+        return false;
     }
 
 

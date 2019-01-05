@@ -15,10 +15,10 @@ use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 
 use rosasurfer\rost\Rost;
+use rosasurfer\rost\model\RosaSymbol;
 use rosasurfer\rost\model\Test;
 
-use function rosasurfer\rost\isFxtWeekend;
-use rosasurfer\rost\model\RosaSymbol;
+use function rosasurfer\rost\isWeekend;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');
 
@@ -135,7 +135,7 @@ for ($day=$firstDealDay; $day <= $lastDealDay; $day+=1*DAY) {
         echoPre('[Info]    '.gmDate('M-Y', $day));
         $prevMonth = $month;
     }
-    if (isFxtWeekend($day))                                         // skip non-trading days
+    if (isWeekend($day))                                            // skip non-trading days
         continue;
 
     if      (is_file($file=getVar('rostFile.compressed', $symbol, $day))) {}

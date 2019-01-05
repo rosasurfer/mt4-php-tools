@@ -261,17 +261,60 @@ function fxtTimezoneOffset($time=null, &$prevTransition=[], &$nextTransition=[])
 
 
 /**
- * Whether or not a time is on an FXT weekend (Saturday or Sunday).
+ * Whether a time is on a Good Friday in the standard timezone of the timestamp.
  *
- * @param  int $fxTime - FXT timestamp
+ * @param  int $time - Unix or FXT timestamp
  *
  * @return bool
  */
-function isFxtWeekend($fxTime) {
-    if (!is_int($fxTime)) throw new IllegalTypeException('Illegal type of parameter $fxTime: '.getType($fxTime));
+function isGoodFriday($time) {
+    if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
 
-    // check as a GMT timestamp
-    $dow = (int) gmDate('w', $fxTime);                  // TODO: that's wrong
+    try {
+        $currentTZ = date_default_timezone_get();
+        date_default_timezone_set('Europe/London');
+        $easter     = easter_date(gmDate('Y', $time));          // easter_date() returns Midnight London time
+        $easter    += iDate('Z', $easter);
+        $goodFriday = $easter - 2*DAYS;
+        $time      -= $time%DAY;
+        return ($time == $goodFriday);
+    }
+    finally { date_default_timezone_set($currentTZ); }
+}
+
+
+/**
+ * Whether a time is on a common Holiday in the standard timezone of the timestamp.
+ *
+ * @param  int $time - Unix or FXT timestamp
+ *
+ * @return bool
+ */
+function isHoliday($time) {
+    if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+
+    $m   = (int) gmDate('n', $time);            // month
+    $dom = (int) gmDate('j', $time);            // day of month
+
+    if ($dom==1 && $m==1)                       // 1. January
+        return true;
+    if ($dom==25 && $m==12)                     // 25. December
+        return true;
+    return false;
+}
+
+
+/**
+ * Whether a time is on a Saturday or Sunday in the standard timezone of the timestamp.
+ *
+ * @param  int $time - Unix or FXT timestamp
+ *
+ * @return bool
+ */
+function isWeekend($time) {
+    if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+
+    $dow = (int) gmDate('w', $time);
     return ($dow==SATURDAY || $dow==SUNDAY);
 }
 

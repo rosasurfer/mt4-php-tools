@@ -51,7 +51,7 @@ use rosasurfer\rost\model\RosaSymbol;
 
 use function rosasurfer\rost\fxtStrToTime;
 use function rosasurfer\rost\fxtTimezoneOffset;
-use function rosasurfer\rost\isFxtWeekend;
+use function rosasurfer\rost\isWeekend;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');
@@ -185,7 +185,7 @@ function checkHistory($symbol, $day) {
     $day -= $day%DAY;                                               // 00:00 GMT
 
     // (1) nur an Wochentagen: pruefen, ob die Rost-History existiert und ggf. aktualisieren
-    if (!isFxtWeekend($day)) {                                      // um 00:00 GMT sind GMT- und FXT-Wochentag immer gleich
+    if (!isWeekend($day)) {
         // History ist ok, wenn entweder die komprimierte Rost-Datei existiert...
         if (is_file($file=getVar('rostFile.compressed', $symbol, $day))) {
             if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'  Rosatrader history file found: '.Rost::relativePath($file));
@@ -217,11 +217,11 @@ function checkHistory($symbol, $day) {
     }
 
     // lokales Historyverzeichnis des Vortages, wenn Wochenende und es leer ist
-    if (isFxtWeekend($previousDay)) {                                   // um 00:00 GMT sind GMT- und FXT-Wochentag immer gleich
+    if (isWeekend($previousDay)) {
         if (is_dir($dir=getVar('rostDir', $symbol, $previousDay))) @rmDir($dir);
     }
     // lokales Historyverzeichnis des aktuellen Tages, wenn Wochenende und es leer ist
-    if (isFxtWeekend($day)) {                                           // um 00:00 GMT sind GMT- und FXT-Wochentag immer gleich
+    if (isWeekend($day)) {
         if (is_dir($dir=getVar('rostDir', $symbol, $day))) @rmDir($dir);
     }
 
