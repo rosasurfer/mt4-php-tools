@@ -47,8 +47,10 @@ class USDLFX extends Calculator {
             }
             echoPre('[Info]    '.$this->symbol->getName().'  common M1 history starts at '.FXT::fxDate('D, d-M-Y', $fxDay));
         }
-        if (!$this->symbol->isTradingDay($fxDay))                       // skip non-trading days
+        if (!$this->symbol->isTradingDay($fxDay)) {                     // skip non-trading days
+            echoPre('[Debug]   '.$this->symbol->getName().'  skipping non-trading day: '.gmDate('D, d-M-Y', $day));
             return [];
+        }
 
         // load history for the specified day
         $quotes = [];
