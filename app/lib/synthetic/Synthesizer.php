@@ -47,6 +47,7 @@ class Synthesizer extends Object implements ICalculator {
 
         if (is_class($class)) $this->calculator = new $class($symbol);
         else                  $this->calculator = new Calculator($symbol);
+        echoPre(__METHOD__.'()  $class="'.$class.'"  get_class($this->calculator): '.get_class($this->calculator));
     }
 
 
