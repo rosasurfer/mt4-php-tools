@@ -3,14 +3,19 @@ namespace rosasurfer\rost\model;
 
 use rosasurfer\config\Config;
 use rosasurfer\exception\IllegalTypeException;
+use rosasurfer\exception\RuntimeException;
 use rosasurfer\exception\UnimplementedFeatureException;
 
 use rosasurfer\rost\FXT;
 use rosasurfer\rost\Rost;
 use rosasurfer\rost\RT;
-use rosasurfer\rost\synthetic\Synthesizer;
+use rosasurfer\rost\synthetic\DefaultSynthesizer;
+use rosasurfer\rost\synthetic\SynthesizerInterface as Synthesizer;
 
 use function rosasurfer\rost\fxTime;
+use function rosasurfer\rost\isGoodFriday;
+use function rosasurfer\rost\isHoliday;
+use function rosasurfer\rost\isWeekend;
 
 
 /**
@@ -231,17 +236,34 @@ class RosaSymbol extends RosatraderModel {
 
 
     /**
-     * Whether the specified day is a trading day for the instrument.
+     * Whether a time is a trading day for the instrument in the standard timezone of the timestamp.
      *
-     * @param  int $fxTime - FXT timestamp
+     * @param  int $time - Unix or FXT timestamp
      *
      * @return bool
      */
-    public function isTradingDay($fxTime) {
-        if (!is_int($fxTime)) throw new IllegalTypeException('Illegal type of parameter $fxTime: '.getType($fxTime));
+    public function isTradingDay($time) {
+        if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
 
-        $dow = (int) gmDate('w', $fxTime);
-        return ($dow!=SATURDAY && $dow!=SUNDAY);
+        return (!isWeekend($time) && !$this->isHoliday($time));
+    }
+
+
+    /**
+     * Whether a time is on a Holiday for the instrument in the standard timezone of the timestamp.
+     *
+     * @param  int $time - Unix or FXT timestamp
+     *
+     * @return bool
+     */
+    public function isHoliday($time) {
+        if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+
+        if (isHoliday($time))                           // check for common Holidays
+            return true;
+        if ($this->isMetal() && isGoodFriday($time))    // check for specific Holidays
+            return true;
+        return false;
     }
 
 
@@ -284,13 +306,23 @@ class RosaSymbol extends RosatraderModel {
         }
 
         // iterate over the whole time range and track the last existing file
-        if ($startDate) {
-            $today = ($today=fxTime()) - $today%DAY;                                // 00:00 FXT of the current day
+        if ($startDate) {                                                               // 00:00 FXT of the first day
+            $today  = ($today=fxTime()) - $today%DAY;                                   // 00:00 FXT of the current day
+            $delMsg = '[Info]    '.$this->name.'  deleting obsolete M1 file: ';
+
             for ($day=$startDate; $day < $today; $day+=1*DAY) {
                 $dir = $dataDir.'/'.gmDate('Y/m/d', $day);
-                if (is_file($file=$dir.'/M1.bin') || is_file($file.='.rar')) {      // TODO: handle missing data
-                    $endDate  = $day;
-                    $lastFile = $file;
+
+                if ($this->isTradingDay($day)) {
+                    if (is_file($file=$dir.'/M1.bin') || is_file($file.='.rar')) {
+                        $endDate  = $day;
+                        $lastFile = $file;
+                    }
+                    else echoPre('[Error]   '.$this->name.'  missing history file for '.gmDate('D, Y-m-d', $day));
+                }
+                else {
+                    is_file($file=$dir.'/M1.bin'    ) && true(echoPre($delMsg.Rost::relativePath($file))) && unlink($file);
+                    is_file($file=$dir.'/M1.bin.rar') && true(echoPre($delMsg.Rost::relativePath($file))) && unlink($file);
                 }
             }
         }
@@ -306,12 +338,9 @@ class RosaSymbol extends RosatraderModel {
             $this->historyM1End = $endDate ? gmDate('Y-m-d H:i:s', $endDate) : null;
             $this->modified();
         }
-        if (!$this->isModified()) {
-            echoPre('[Info]    '.$this->name.' ok');
-        }
-        else {
-            $this->save();
-        }
+        if ($this->isModified()) $this->save();
+        else                     echoPre('[Info]    '.$this->name.'  ok');
+
         return true;
     }
 
@@ -325,27 +354,27 @@ class RosaSymbol extends RosatraderModel {
         $updatedTo  = (int) $this->getHistoryM1End('U');                            // 00:00 FXT of the last existing day
         $updateFrom = $updatedTo ? $updatedTo - $updatedTo%DAY + 1*DAY : 0;         // 00:00 FXT of the first day to update
         $today      = ($today=fxTime()) - $today%DAY;                               // 00:00 FXT of the current day
-        echoPre('[Info]    '.$this->getName().'  updating M1 history '.($updatedTo ? 'since '.gmDate('D, d-M-Y', $updatedTo) : 'from start'));
+        echoPre('[Info]    '.$this->name.'  updating M1 history '.($updatedTo ? 'since '.gmDate('D, d-M-Y', $updatedTo) : 'from start'));
 
         if ($this->isSynthetic()) {
-            $synthesizer = new Synthesizer($this);
+            /** @var Synthesizer $synthesizer */
+            $synthesizer = $this->getSynthesizer();
 
             for ($day=$updateFrom; $day < $today; $day+=1*DAY) {
                 if ($day && !$this->isTradingDay($day))                             // skip non-trading days
                     continue;
 
                 $bars = $synthesizer->calculateQuotes($day);
-                if (!$bars) return true(echoPre('[Error]   '.$this->getName().'  M1 history sources '.($day ? 'for '.gmDate('D, d-M-Y', $day).' ':'').'not available'));
+                if (!$bars) return false(echoPre('[Error]   '.$this->name.'  M1 quotes'.($day ? ' for '.gmDate('D, d-M-Y', $day):'').' not available'));
                 if (!$day) {
                     $opentime = $bars[0]['time'];                                   // if $day is zero (complete update since start)
                     $day = $opentime - $opentime%DAY;                               // adjust it to the first available history
                 }
-                RT::saveM1Bars($bars, $this);                                       // store the bars
+                RT::saveM1Bars($bars, $this);                                       // store the quotes
 
-                // update the database
                 if (!$this->historyM1Start)
                     $this->historyM1Start = gmDate('Y-m-d H:i:s', $day);
-                $this->historyM1End = gmDate('Y-m-d H:i:s', $day);
+                $this->historyM1End = gmDate('Y-m-d H:i:s', $day);                  // update the database
                 $this->modified();
                 $this->save();
 
@@ -354,8 +383,23 @@ class RosaSymbol extends RosatraderModel {
         }
         else {
             // request price updates from a mapped symbol's data source
-            throw new UnimplementedFeatureException('RosaSymbol::updateHistory() not yet implemented for regular instruments ('.$this->getName().')');
+            throw new UnimplementedFeatureException('RosaSymbol::updateHistory() not yet implemented for regular instruments ('.$this->name.')');
         }
         return true;
+    }
+
+
+    /**
+     * Look-up and instantiate a {@link Synthesizer} to calculate quotes of a synthetic instrument.
+     *
+     * @return Synthesizer
+     */
+    protected function getSynthesizer() {
+        if (!$this->isSynthetic()) throw new RuntimeException('Cannot create Synthesizer for non-synthetic instrument');
+
+        $customClass = strLeftTo(Synthesizer::class, '\\', -1).'\\custom\\'.$this->name;
+        if (is_class($customClass) && is_a($customClass, Synthesizer::class, $allowString=true))
+            return new $customClass($this);
+        return new DefaultSynthesizer($this);
     }
 }

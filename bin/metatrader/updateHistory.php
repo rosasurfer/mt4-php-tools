@@ -13,7 +13,7 @@ use rosasurfer\rost\metatrader\MT4;
 use rosasurfer\rost\model\RosaSymbol;
 
 use function rosasurfer\rost\fxTime;
-use function rosasurfer\rost\isFxtWeekend;
+use function rosasurfer\rost\isWeekend;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');
@@ -98,7 +98,7 @@ function updateHistory(RosaSymbol $symbol) {
             echoPre('[Info]    '.gmDate('M-Y', $day));
             $lastMonth = $month;
         }
-        if (!isFxtWeekend($day)) {                                                                  // nur an Handelstagen
+        if (!isWeekend($day)) {                                                                     // nur an Handelstagen
             if      (is_file($file=Rost::getVar('rostFile.M1.compressed', $symbolName, $day))) {}   // wenn komprimierte Rost-Datei existiert
             else if (is_file($file=Rost::getVar('rostFile.M1.raw'       , $symbolName, $day))) {}   // wenn unkomprimierte Rost-Datei existiert
             else {

@@ -52,7 +52,7 @@ use rosasurfer\rost\model\RosaSymbol;
 
 use function rosasurfer\rost\fxtStrToTime;
 use function rosasurfer\rost\fxtTimezoneOffset;
-use function rosasurfer\rost\isFxtWeekend;
+use function rosasurfer\rost\isWeekend;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');
@@ -183,7 +183,7 @@ function checkHistory($symbol, $gmtHour, $fxtHour) {
     static $lastDay=-1, $lastMonth=-1;
 
     // (1) nur an Handelstagen pruefen, ob die Rost-History existiert und ggf. aktualisieren
-    if (!isFxtWeekend($fxtHour)) {
+    if (!isWeekend($fxtHour)) {
         $day = (int) gmDate('d', $fxtHour);
         if ($day != $lastDay) {
             if ($verbose > 1) echoPre('[Info]    '.gmDate('d-M-Y', $fxtHour));
@@ -229,7 +229,7 @@ function checkHistory($symbol, $gmtHour, $fxtHour) {
     // Dukascopy-Downloadverzeichnis der aktuellen Stunde, wenn es leer ist
     if (is_dir($dir=getVar('rostDir', $symbol, $gmtHour))) @rmDir($dir);
     // lokales Historyverzeichnis der aktuellen Stunde, wenn Wochenende und es leer ist
-    if (isFxtWeekend($fxtHour)) {
+    if (isWeekend($fxtHour)) {
         if (is_dir($dir=getVar('rostDir', $symbol, $fxtHour))) @rmDir($dir);
     }
 

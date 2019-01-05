@@ -7,7 +7,7 @@ use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\rost\Rost;
 use rosasurfer\rost\metatrader\MT4;
 
-use function rosasurfer\rost\isFxtWeekend;
+use function rosasurfer\rost\isWeekend;
 
 
 /**
@@ -133,7 +133,7 @@ class Order extends RosatraderModel {
         $openTime = $properties['openTime'];                  // FXT timestamp
         if (!is_int($openTime))                               throw new IllegalTypeException('Illegal type of property order['.$ticket.'].openTime: '.getType($openTime));
         if ($openTime <= 0)                                   throw new InvalidArgumentException('Invalid property order['.$ticket.'].openTime: '.$openTime.' (not positive)');
-        if (isFxtWeekend($openTime))                          throw new InvalidArgumentException('Invalid property order['.$ticket.'].openTime: '.$openTime.' (not a weekday)');
+        if (isWeekend($openTime))                             throw new InvalidArgumentException('Invalid property order['.$ticket.'].openTime: '.$openTime.' (not a weekday)');
         $order->openTime = gmDate('Y-m-d H:i:s', $openTime);
 
         $stopLoss = $properties['stopLoss'];
@@ -167,7 +167,7 @@ class Order extends RosatraderModel {
         if      ($closeTime && !$closePrice)                  throw new InvalidArgumentException('Invalid properties order['.$ticket.'].closePrice|closeTime: '.$closePrice.'|'.$closeTime.' (mis-match)');
         else if (!$closeTime && $closePrice)                  throw new InvalidArgumentException('Invalid properties order['.$ticket.'].closePrice|closeTime: '.$closePrice.'|'.$closeTime.' (mis-match)');
         if ($closeTime) {
-            if (isFxtWeekend($closeTime))                     throw new InvalidArgumentException('Invalid property order['.$ticket.'].closeTime: '.$closeTime.' (not a weekday)');
+            if (isWeekend($closeTime))                        throw new InvalidArgumentException('Invalid property order['.$ticket.'].closeTime: '.$closeTime.' (not a weekday)');
             if ($closeTime < $openTime)                       throw new InvalidArgumentException('Invalid properties order['.$ticket.'].openTime|closeTime: '.$openTime.'|'.$closeTime.' (mis-match)');
         }
         $order->closeTime = !$closeTime ? null : gmDate('Y-m-d H:i:s', $closeTime);

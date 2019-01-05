@@ -1,15 +1,15 @@
 <?php
-namespace rosasurfer\rost\synthetic\calc;
+namespace rosasurfer\rost\synthetic;
 
 use rosasurfer\rost\model\RosaSymbol;
 
 
 /**
- * CalculatorInterface
+ * SynthesizerInterface
  *
- * Interface to be implemented by instrument-specific calculators.
+ * Interface to be implemented by instrument-specific synthesizers.
  */
-interface CalculatorInterface {
+interface SynthesizerInterface {
 
 
     /**
@@ -24,7 +24,7 @@ interface CalculatorInterface {
 
     /**
      * Return the consolidated start time of an instrument's tick history. This is the latest history start time of all the
-     * subcomponents the instrument is made of.
+     * subcomponents the instrument needs for calculation.
      *
      * @param  string $format [optional] - format as used for <tt>date($format, $timestamp)</tt>
      *
@@ -35,7 +35,7 @@ interface CalculatorInterface {
 
     /**
      * Return the consolidated start time of an instrument's M1 history. This is the latest history start time of all the
-     * subcomponents the instrument is made of.
+     * subcomponents the instrument needs for calculation.
      *
      * @param  string $format [optional] - format as used for <tt>date($format, $timestamp)</tt>
      *
@@ -47,8 +47,8 @@ interface CalculatorInterface {
     /**
      * Calculate and return instrument quotes for the specified day.
      *
-     * @param  int $fxDay - FXT timestamp of the day to calculate quotes for. If the value is 0 (zero) quotes for the oldest
-     *                      available day of the instrument are calculated.
+     * @param  int $day - FXT timestamp of the day to calculate quotes for. If the value is 0 (zero) quotes for the oldest
+     *                    available day of the instrument are calculated.
      *
      * @return array[] - If history for the specified day is not available an empty array is returned. Otherwise a timeseries
      *                   array is returned with each element describing a single bar as following:
@@ -63,5 +63,5 @@ interface CalculatorInterface {
      * ]
      * </pre>
      */
-    public function calculateQuotes($fxDay);
+    public function calculateQuotes($day);
 }
