@@ -22,7 +22,7 @@ date_default_timezone_set('GMT');
 // -- configuration ---------------------------------------------------------------------------------------------------------
 
 
-$verbose = 0;                       // output verbosity
+$verbose = 0;                               // output verbosity
 
 
 // -- start -----------------------------------------------------------------------------------------------------------------
@@ -74,7 +74,7 @@ exit(0);
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
  * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
  *
- * @return ROST_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
+ * @return array[] - Array mit den resultierenden M1-Indexdaten
  *
  * Formel: AUDFX6 = ((AUDCAD * AUDCHF * AUDJPY * AUDUSD) / (EURAUD * GBPAUD)) ^ 1/6
  */
