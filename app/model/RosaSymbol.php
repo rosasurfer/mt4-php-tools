@@ -322,10 +322,10 @@ class RosaSymbol extends RosatraderModel {
      * @return bool - success status
      */
     public function updateHistory() {
-        $updatedTo  = (int) $this->getHistoryM1End('U');                            // end time FXT
+        $updatedTo  = (int) $this->getHistoryM1End('U');                            // 00:00 FXT of the last existing day
         $updateFrom = $updatedTo ? $updatedTo - $updatedTo%DAY + 1*DAY : 0;         // 00:00 FXT of the first day to update
         $today      = ($today=fxTime()) - $today%DAY;                               // 00:00 FXT of the current day
-        echoPre('[Info]    '.$this->getName().'  updating M1 history '.($updateFrom ? 'since '.gmDate('D, d-M-Y', $updateFrom) : 'from start'));
+        echoPre('[Info]    '.$this->getName().'  updating M1 history '.($updatedTo ? 'since '.gmDate('D, d-M-Y', $updatedTo) : 'from start'));
 
         if ($this->isSynthetic()) {
             $synthesizer = new Synthesizer($this);
@@ -340,8 +340,16 @@ class RosaSymbol extends RosatraderModel {
                     $opentime = $bars[0]['time'];                                   // if $day is zero (complete update since start)
                     $day = $opentime - $opentime%DAY;                               // adjust it to the first available history
                 }
-                RT::saveM1Bars($bars, $this);
-                //store the new updatedTo value
+                RT::saveM1Bars($bars, $this);                                       // store the bars
+
+                // update the database
+                if (!$this->historyM1Start)
+                    $this->historyM1Start = gmDate('Y-m-d H:i:s', $day);
+                $this->historyM1End = gmDate('Y-m-d H:i:s', $day);
+                $this->modified();
+                $this->save();
+
+                if (!WINDOWS) pcntl_signal_dispatch();                              // dispatch new signals
             }
         }
         else {

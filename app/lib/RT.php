@@ -79,7 +79,7 @@ class RT extends StaticClass {
 
 
     /**
-     * Save a timeseries array with M1 bars of a single day to the filesystem.
+     * Save a timeseries array with M1 bars of a single day to the file system.
      *
      * @param  array[]    $bars   - bar data
      * @param  RosaSymbol $symbol - instrument the data belongs to
@@ -106,7 +106,7 @@ class RT extends StaticClass {
                !$bar['ticks']) throw new RuntimeException('Illegal M1 bar data for '.gmDate('D, d-M-Y H:i:s', $bar['time']).":  O=$bar[open]  H=$bar[high]  L=$bar[low]  C=$bar[close]  V=$bar[ticks]");
 
             $data .= pack('VVVVVV', $bar['time' ],
-                         (int)round($bar['open' ]/$point),      // store price values in point
+                         (int)round($bar['open' ]/$point),      // storing price values in points saves 40% place
                          (int)round($bar['high' ]/$point),
                          (int)round($bar['low'  ]/$point),
                          (int)round($bar['close']/$point),

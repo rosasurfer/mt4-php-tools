@@ -60,7 +60,7 @@ foreach ($symbols as $symbol) {
     if ($symbol->updateHistory())
         echoPre('[Ok]      '.$symbol->getName());
 
-    if (!WINDOWS) pcntl_signal_dispatch();                      // check and dispatch signals
+    if (!WINDOWS) pcntl_signal_dispatch();                                              // dispatch new signals
 }
 exit(0);
 
