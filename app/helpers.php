@@ -272,16 +272,12 @@ function isGoodFriday($time) {
 
     $dow = (int) gmDate('w', $time);
     if ($dow == FRIDAY) {
-        try {
-            $currentTZ = date_default_timezone_get();
-            date_default_timezone_set('Europe/London');
-            $easter     = easter_date(gmDate('Y', $time));      // easter_date() returns Midnight London time
-            $easter    += iDate('Z', $easter);
-            $goodFriday = $easter - 2*DAYS;
-            $time      -= $time%DAY;
-            return ($time == $goodFriday);
-        }
-        finally { date_default_timezone_set($currentTZ); }
+        $year       = gmDate('Y', $time);
+        $spring     = strToTime($year.'-03-21 GMT');
+        $easter     = $spring + easter_days($year)*DAYS;
+        $goodFriday = $easter - 2*DAYS;
+        $time      -= $time%DAY;
+        return ($time == $goodFriday);
     }
     return false;
 }
