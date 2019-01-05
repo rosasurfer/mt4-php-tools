@@ -1,6 +1,6 @@
 /*
 Created     16.01.2017
-Modified    28.12.2018
+Modified    05.01.2019
 Project     Rosatrader
 Model       Rosatrader
 Author      Peter Walther
@@ -87,8 +87,8 @@ create table t_rosasymbol (                                                -- Ro
 );
 create index i_rosasymbol_type on t_rosasymbol(type);
 
-create trigger tr_rosasymbol_before_update before update on t_rosasymbol
-when (new.modified is null or new.modified = old.modified)
+create trigger tr_rosasymbol_after_update after update on t_rosasymbol
+when (new.modified is null or (new.modified=old.modified and new.modified!=datetime('now')))
 begin
    update t_rosasymbol set modified = datetime('now') where id = new.id;
 end;
@@ -112,8 +112,8 @@ create table t_dukascopysymbol (                                           -- Du
    constraint u_rosasymbol unique (rosasymbol_id)
 );
 
-create trigger tr_dukascopysymbol_before_update before update on t_dukascopysymbol
-when (new.modified is null or new.modified = old.modified)
+create trigger tr_dukascopysymbol_after_update after update on t_dukascopysymbol
+when (new.modified is null or (new.modified=old.modified and new.modified!=datetime('now')))
 begin
    update t_dukascopysymbol set modified = datetime('now') where id = new.id;
 end;
@@ -147,8 +147,8 @@ create index i_test_symbol          on t_test(symbol);
 create index i_test_barmodel        on t_test(barmodel);
 create index i_test_tradedirections on t_test(tradedirections);
 
-create trigger tr_test_before_update before update on t_test
-when (new.modified is null or new.modified = old.modified)
+create trigger tr_test_after_update after update on t_test
+when (new.modified is null or (new.modified=old.modified and new.modified!=datetime('now')))
 begin
    update t_test set modified = datetime('now') where id = new.id;
 end;
@@ -220,8 +220,8 @@ create table t_order (
 );
 create index i_order_type on t_order(type);
 
-create trigger tr_order_before_update before update on t_order
-when (new.modified is null or new.modified = old.modified)
+create trigger tr_order_after_update after update on t_order
+when (new.modified is null or (new.modified=old.modified and new.modified!=datetime('now')))
 begin
    update t_order set modified = datetime('now') where id = new.id;
 end;
