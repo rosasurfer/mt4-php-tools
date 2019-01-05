@@ -39,7 +39,10 @@ class USDLFX extends Calculator {
             /** @var RosaSymbol $pair */
             foreach ($pairs as $pair) {
                 $historyStart = (int) $pair->getHistoryM1Start('U');    // 00:00 FXT of the first stored day
-                if (!$historyStart) return [];                          // no history stored
+                if (!$historyStart) {
+                    echoPre('[Error]   '.$pair->getName().'  no M1 history available');
+                    return [];                                          // no history stored
+                }
                 $fxDay = max($fxDay, $historyStart);
             }
             echoPre('[Info]    '.$this->symbol->getName().'  common M1 history starts at '.FXT::fxDate('D, d-M-Y', $fxDay));

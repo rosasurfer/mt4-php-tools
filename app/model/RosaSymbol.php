@@ -355,7 +355,7 @@ class RosaSymbol extends RosatraderModel {
                     continue;
 
                 $bars = $synthesizer->calculateQuotes($day);
-                if (!$bars) return true(echoPre('[Error]   '.$this->getName().'  M1 history sources '.($day ? 'for '.gmDate('D, d-M-Y', $day).' ':'').'not available'));
+                if (!$bars) return false(echoPre('[Error]   '.$this->getName().'  M1 history'.($day ? ' for '.gmDate('D, d-M-Y', $day):'').' not available'));
                 if (!$day) {
                     $opentime = $bars[0]['time'];                                   // if $day is zero (complete update since start)
                     $day = $opentime - $opentime%DAY;                               // adjust it to the first available history

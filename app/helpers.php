@@ -270,16 +270,20 @@ function fxtTimezoneOffset($time=null, &$prevTransition=[], &$nextTransition=[])
 function isGoodFriday($time) {
     if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
 
-    try {
-        $currentTZ = date_default_timezone_get();
-        date_default_timezone_set('Europe/London');
-        $easter     = easter_date(gmDate('Y', $time));          // easter_date() returns Midnight London time
-        $easter    += iDate('Z', $easter);
-        $goodFriday = $easter - 2*DAYS;
-        $time      -= $time%DAY;
-        return ($time == $goodFriday);
+    $dow = (int) gmDate('w', $time);
+    if ($dow == FRIDAY) {
+        try {
+            $currentTZ = date_default_timezone_get();
+            date_default_timezone_set('Europe/London');
+            $easter     = easter_date(gmDate('Y', $time));      // easter_date() returns Midnight London time
+            $easter    += iDate('Z', $easter);
+            $goodFriday = $easter - 2*DAYS;
+            $time      -= $time%DAY;
+            return ($time == $goodFriday);
+        }
+        finally { date_default_timezone_set($currentTZ); }
     }
-    finally { date_default_timezone_set($currentTZ); }
+    return false;
 }
 
 
