@@ -8,7 +8,8 @@ use rosasurfer\exception\UnimplementedFeatureException;
 use rosasurfer\rost\FXT;
 use rosasurfer\rost\Rost;
 use rosasurfer\rost\RT;
-use rosasurfer\rost\synthetic\Synthesizer;
+use rosasurfer\rost\synthetic\DefaultSynthesizer;
+use rosasurfer\rost\synthetic\SynthesizerInterface as ISynthesizer;
 
 use function rosasurfer\rost\fxTime;
 use function rosasurfer\rost\isGoodFriday;
@@ -348,14 +349,16 @@ class RosaSymbol extends RosatraderModel {
         echoPre('[Info]    '.$this->getName().'  updating M1 history '.($updatedTo ? 'since '.gmDate('D, d-M-Y', $updatedTo) : 'from start'));
 
         if ($this->isSynthetic()) {
-            $synthesizer = new Synthesizer($this);
+            /** @var ISynthesizer $synthesizer */
+            $synthesizer = $this->getSynthesizer();
+            if (!$synthesizer) return false(echoPre('[Error]   '.$this->getName().'  quotes synthesizer not found'));
 
             for ($day=$updateFrom; $day < $today; $day+=1*DAY) {
                 if ($day && !$this->isTradingDay($day))                             // skip non-trading days
                     continue;
 
                 $bars = $synthesizer->calculateQuotes($day);
-                if (!$bars) return false(echoPre('[Error]   '.$this->getName().'  M1 history'.($day ? ' for '.gmDate('D, d-M-Y', $day):'').' not available'));
+                if (!$bars) return false(echoPre('[Error]   '.$this->getName().'  M1 quotes'.($day ? ' for '.gmDate('D, d-M-Y', $day):'').' not available'));
                 if (!$day) {
                     $opentime = $bars[0]['time'];                                   // if $day is zero (complete update since start)
                     $day = $opentime - $opentime%DAY;                               // adjust it to the first available history
@@ -377,5 +380,22 @@ class RosaSymbol extends RosatraderModel {
             throw new UnimplementedFeatureException('RosaSymbol::updateHistory() not yet implemented for regular instruments ('.$this->getName().')');
         }
         return true;
+    }
+
+
+    /**
+     * Look-up and instantiate a {@link Synthesizer} to calculate quotes of a synthetic instrument.
+     *
+     * @return ISynthesizer|null
+     */
+    protected function getSynthesizer() {
+        if ($this->isSynthetic()) {
+            $customClass = strLeftTo(ISynthesizer::class, '\\', -1).'\\custom\\'.$this->getName();
+
+            if (is_class($customClass) && is_a($customClass, ISynthesizer::class, $allowString=true))
+                return new $customClass($this);
+            return new DefaultSynthesizer($this);
+        }
+        return null;
     }
 }

@@ -1,24 +1,42 @@
 <?php
-namespace rosasurfer\rost\synthetic\calc;
+namespace rosasurfer\rost\synthetic\custom;
 
 use rosasurfer\exception\IllegalTypeException;
 
 use rosasurfer\rost\FXT;
 use rosasurfer\rost\model\RosaSymbol;
+use rosasurfer\rost\synthetic\AbstractSynthesizer;
+use rosasurfer\rost\synthetic\SynthesizerInterface as Synthesizer;
 
 
 /**
  * USDLFX calculator
  *
- * A calculator for calculating the "LiteForex US Dollar index".
+ * A {@link Synthesizer} for calculating the "LiteForex US Dollar index".
  *
  * Formula: USDLFX = \sqrt[7]{\frac{USDCAD * USDCHF * USDJPY}{AUDUSD * EURUSD * GBPUSD}}
  */
-class USDLFX extends Calculator {
+class USDLFX extends AbstractSynthesizer {
 
 
     /** @var string[] */
     protected $components = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
+
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getHistoryTicksStart($format = 'Y-m-d H:i:s') {
+        return '0';
+    }
+
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getHistoryM1Start($format = 'Y-m-d H:i:s') {
+        return '0';
+    }
 
 
     /**
@@ -57,7 +75,7 @@ class USDLFX extends Calculator {
         }
 
         // calculate quotes
-        echoPre('[Info]    '.$this->symbol->getName().'  calculating M1 history for '.gmDate('D, d-M-Y', $day));
+        echoPre('[Info]    '.$this->symbol->getName().'  calculating M1 quotes for '.gmDate('D, d-M-Y', $day));
         $AUDUSD = $quotes['AUDUSD'];
         $EURUSD = $quotes['EURUSD'];
         $GBPUSD = $quotes['GBPUSD'];
