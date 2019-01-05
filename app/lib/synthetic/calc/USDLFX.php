@@ -40,7 +40,7 @@ class USDLFX extends Calculator {
             foreach ($pairs as $pair) {
                 $historyStart = (int) $pair->getHistoryM1Start('U');    // 00:00 FXT of the first stored day
                 if (!$historyStart) {
-                    echoPre('[Error]   '.$pair->getName().'  no M1 history available');
+                    echoPre('[Error]   '.$this->symbol->getName().'  M1 history for '.$pair->getName().' not available');
                     return [];                                          // no history stored
                 }
                 $fxDay = max($fxDay, $historyStart);
