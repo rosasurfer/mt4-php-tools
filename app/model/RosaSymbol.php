@@ -15,6 +15,7 @@ use function rosasurfer\rost\fxTime;
 use function rosasurfer\rost\isGoodFriday;
 use function rosasurfer\rost\isHoliday;
 use function rosasurfer\rost\isWeekend;
+use rosasurfer\exception\RuntimeException;
 
 
 /**
@@ -351,7 +352,6 @@ class RosaSymbol extends RosatraderModel {
         if ($this->isSynthetic()) {
             /** @var ISynthesizer $synthesizer */
             $synthesizer = $this->getSynthesizer();
-            if (!$synthesizer) return false(echoPre('[Error]   '.$this->getName().'  quotes synthesizer not found'));
 
             for ($day=$updateFrom; $day < $today; $day+=1*DAY) {
                 if ($day && !$this->isTradingDay($day))                             // skip non-trading days
@@ -363,12 +363,11 @@ class RosaSymbol extends RosatraderModel {
                     $opentime = $bars[0]['time'];                                   // if $day is zero (complete update since start)
                     $day = $opentime - $opentime%DAY;                               // adjust it to the first available history
                 }
-                RT::saveM1Bars($bars, $this);                                       // store the bars
+                RT::saveM1Bars($bars, $this);                                       // store the quotes
 
-                // update the database
                 if (!$this->historyM1Start)
                     $this->historyM1Start = gmDate('Y-m-d H:i:s', $day);
-                $this->historyM1End = gmDate('Y-m-d H:i:s', $day);
+                $this->historyM1End = gmDate('Y-m-d H:i:s', $day);                  // update the database
                 $this->modified();
                 $this->save();
 
@@ -386,16 +385,14 @@ class RosaSymbol extends RosatraderModel {
     /**
      * Look-up and instantiate a {@link Synthesizer} to calculate quotes of a synthetic instrument.
      *
-     * @return ISynthesizer|null
+     * @return ISynthesizer
      */
     protected function getSynthesizer() {
-        if ($this->isSynthetic()) {
-            $customClass = strLeftTo(ISynthesizer::class, '\\', -1).'\\custom\\'.$this->getName();
+        if (!$this->isSynthetic()) throw new RuntimeException('Cannot create Synthesizer for non-synthetic instrument');
 
-            if (is_class($customClass) && is_a($customClass, ISynthesizer::class, $allowString=true))
-                return new $customClass($this);
-            return new DefaultSynthesizer($this);
-        }
-        return null;
+        $customClass = strLeftTo(ISynthesizer::class, '\\', -1).'\\custom\\'.$this->getName();
+        if (is_class($customClass) && is_a($customClass, ISynthesizer::class, $allowString=true))
+            return new $customClass($this);
+        return new DefaultSynthesizer($this);
     }
 }
