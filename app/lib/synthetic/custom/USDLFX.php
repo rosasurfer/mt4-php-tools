@@ -10,11 +10,11 @@ use rosasurfer\rost\synthetic\SynthesizerInterface as Synthesizer;
 
 
 /**
- * USDLFX calculator
+ * USDLFX synthesizer
  *
  * A {@link Synthesizer} for calculating the "LiteForex US Dollar index".
  *
- * Formula: USDLFX = \sqrt[7]{\frac{USDCAD * USDCHF * USDJPY}{AUDUSD * EURUSD * GBPUSD}}
+ * formula: USDLFX = \sqrt[7]{\frac{USDCAD * USDCHF * USDJPY}{AUDUSD * EURUSD * GBPUSD}}
  */
 class USDLFX extends AbstractSynthesizer {
 

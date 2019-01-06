@@ -7,7 +7,15 @@ use rosasurfer\rost\model\RosaSymbol;
 /**
  * SynthesizerInterface
  *
- * Interface to be implemented by instrument-specific synthesizers.
+ * An interface for classes processing calculations on synthetic instruments.
+ *
+ * A synthetic instrument is made of components and a defined relation between them (a math formula). Components and formula
+ * are stored with the instrument in text form. A Synthesizer reads and evaluates a formula and calculates quotes based on it.
+ * This way quotes of runtime generated synthetic instruments can be calculated.
+ *
+ * Performance can be considerably increased by providing an instrument-specific Synthesizer implementation. If an instrument
+ * specific implementation is found calculations are passed on to an instance of that class. Otherwise calculations are
+ * processed by a {@link DefaultSynthesizer}.
  */
 interface SynthesizerInterface {
 
