@@ -6,6 +6,7 @@
 namespace rosasurfer\rost\metatrader\update_history;
 
 use rosasurfer\config\Config;
+use rosasurfer\process\Process;
 
 use rosasurfer\rost\Rost;
 use rosasurfer\rost\metatrader\HistorySet;
@@ -110,8 +111,8 @@ function updateHistory(RosaSymbol $symbol) {
             $bars = Rost::readBarFile($file, $symbolName);
             $history->synchronize($bars);
         }
-        if (!WINDOWS) pcntl_signal_dispatch();                                                      // Auf Ctrl-C pruefen, um bei Abbruch den
-    }                                                                                               // Schreibbuffer der History leeren zu koennen.
+        Process::dispatchSignals();                                                                 // check for Ctrl-C
+    }
     $history->close();
 
     echoPre('[Ok]      '.$symbolName);

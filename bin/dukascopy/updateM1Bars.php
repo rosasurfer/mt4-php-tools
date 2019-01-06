@@ -42,6 +42,7 @@ use rosasurfer\exception\RuntimeException;
 use rosasurfer\net\http\CurlHttpClient;
 use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
+use rosasurfer\process\Process;
 
 use rosasurfer\rost\LZMA;
 use rosasurfer\rost\Rost;
@@ -161,7 +162,8 @@ function updateSymbol(RosaSymbol $symbol) {
             $lastMonth = $month;
         }
         if (!checkHistory($symbolName, $day)) return false;
-        if (!WINDOWS) pcntl_signal_dispatch();              // auf Ctrl-C pruefen
+
+        Process::dispatchSignals();                         // check for Ctrl-C
     }
 
     echoPre('[Ok]      '.$symbolName);

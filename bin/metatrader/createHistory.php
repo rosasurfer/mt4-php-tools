@@ -10,6 +10,7 @@ namespace rosasurfer\rost\metatrader\create_history;
 use rosasurfer\config\Config;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
+use rosasurfer\process\Process;
 use rosasurfer\util\PHP;
 
 use rosasurfer\rost\Rost;
@@ -110,9 +111,8 @@ function createHistory(RosaSymbol $symbol) {
             $bars = Rost::readBarFile($file, $symbolName);
             $hstSet->appendBars($bars);
         }
-
-        if (!WINDOWS) pcntl_signal_dispatch();                                          // Auf Ctrl-C pruefen, um bei Abbruch den
-    }                                                                                   // Schreibbuffer der History leeren zu koennen.
+        Process::dispatchSignals();                                                         // check for Ctrl-C
+    }
     $hstSet->close();
 
     echoPre('[Ok]      '.$symbolName);

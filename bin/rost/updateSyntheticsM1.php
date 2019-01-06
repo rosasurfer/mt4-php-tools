@@ -10,6 +10,7 @@ namespace rosasurfer\rost\update_synthetics_m1;
 use rosasurfer\config\Config;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
+use rosasurfer\process\Process;
 
 use rosasurfer\rost\Rost;
 use rosasurfer\rost\model\RosaSymbol;
@@ -59,8 +60,7 @@ $symbols = $symbols ?: RosaSymbol::dao()->findAllByType(RosaSymbol::TYPE_SYNTHET
 foreach ($symbols as $symbol) {
     if ($symbol->updateHistory())
         echoPre('[Ok]      '.$symbol->getName());
-
-    if (!WINDOWS) pcntl_signal_dispatch();                                              // dispatch new signals
+    Process::dispatchSignals();                                                         // check for Ctrl-C
 }
 exit(0);
 

@@ -5,6 +5,7 @@ use rosasurfer\config\Config;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\RuntimeException;
 use rosasurfer\exception\UnimplementedFeatureException;
+use rosasurfer\process\Process;
 
 use rosasurfer\rost\FXT;
 use rosasurfer\rost\Rost;
@@ -378,7 +379,7 @@ class RosaSymbol extends RosatraderModel {
                 $this->modified();
                 $this->save();
 
-                if (!WINDOWS) pcntl_signal_dispatch();                              // dispatch new signals
+                Process::dispatchSignals();                                         // check for Ctrl-C
             }
         }
         else {

@@ -42,6 +42,7 @@ use rosasurfer\net\http\CurlHttpClient;
 use rosasurfer\net\http\HttpClient;
 use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
+use rosasurfer\process\Process;
 
 use rosasurfer\rost\LZMA;
 use rosasurfer\rost\Rost;
@@ -157,9 +158,9 @@ function updateSymbol(RosaSymbol $symbol) {
         $fxtHour = $gmtHour + $fxtOffset;
 
         if (!checkHistory($symbolName, $gmtHour, $fxtHour)) return false;
-        if (!WINDOWS) pcntl_signal_dispatch();                              // Auf Ctrl-C pruefen, um bei Abbruch die Destruktoren auszufuehren.
-    }
 
+        Process::dispatchSignals();                                         // check for Ctrl-C
+    }
     echoPre('[Ok]      '.$symbolName);
     return true;
 }
