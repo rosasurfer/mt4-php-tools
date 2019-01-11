@@ -1,12 +1,12 @@
 <?php
-namespace rosasurfer\rost\synthetic\custom;
+namespace rosasurfer\rt\synthetic\custom;
 
 use rosasurfer\exception\IllegalTypeException;
 
-use rosasurfer\rost\FXT;
-use rosasurfer\rost\model\RosaSymbol;
-use rosasurfer\rost\synthetic\AbstractSynthesizer;
-use rosasurfer\rost\synthetic\SynthesizerInterface as Synthesizer;
+use rosasurfer\rt\FXT;
+use rosasurfer\rt\model\RosaSymbol;
+use rosasurfer\rt\synthetic\AbstractSynthesizer;
+use rosasurfer\rt\synthetic\SynthesizerInterface as Synthesizer;
 
 
 /**

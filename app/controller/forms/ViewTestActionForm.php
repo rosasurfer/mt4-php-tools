@@ -1,10 +1,10 @@
 <?php
-namespace rosasurfer\rost\controller\forms;
+namespace rosasurfer\rt\controller\forms;
 
 use rosasurfer\ministruts\ActionForm;
 use rosasurfer\ministruts\Request;
 
-use rosasurfer\rost\model\Test;
+use rosasurfer\rt\model\Test;
 
 
 /**

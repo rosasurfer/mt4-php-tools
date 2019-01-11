@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\rost\metatrader;
+namespace rosasurfer\rt\metatrader;
 
 use rosasurfer\core\Object;
 use rosasurfer\debug\ErrorHandler;
@@ -9,18 +9,18 @@ use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 use rosasurfer\log\Logger;
 
-use rosasurfer\rost\Rost;
-use rosasurfer\rost\metatrader\MT4;
+use rosasurfer\rt\Rost;
+use rosasurfer\rt\metatrader\MT4;
 
-use const rosasurfer\rost\PERIOD_M1;
-use const rosasurfer\rost\PERIOD_M5;
-use const rosasurfer\rost\PERIOD_M15;
-use const rosasurfer\rost\PERIOD_M30;
-use const rosasurfer\rost\PERIOD_H1;
-use const rosasurfer\rost\PERIOD_H4;
-use const rosasurfer\rost\PERIOD_D1;
-use const rosasurfer\rost\PERIOD_W1;
-use const rosasurfer\rost\PERIOD_MN1;
+use const rosasurfer\rt\PERIOD_M1;
+use const rosasurfer\rt\PERIOD_M5;
+use const rosasurfer\rt\PERIOD_M15;
+use const rosasurfer\rt\PERIOD_M30;
+use const rosasurfer\rt\PERIOD_H1;
+use const rosasurfer\rt\PERIOD_H4;
+use const rosasurfer\rt\PERIOD_D1;
+use const rosasurfer\rt\PERIOD_W1;
+use const rosasurfer\rt\PERIOD_MN1;
 
 
 /**

@@ -5,9 +5,9 @@
 
     <!-- ==================================================== Imports =================================================== -->
     <imports>
-        <import value="rosasurfer/rost/controller/*"/>
-        <import value="rosasurfer/rost/controller/actions/*"/>
-        <import value="rosasurfer/rost/controller/forms/*"/>
+        <import value="rosasurfer/rt/controller/*"/>
+        <import value="rosasurfer/rt/controller/actions/*"/>
+        <import value="rosasurfer/rt/controller/forms/*"/>
     </imports>
 
 

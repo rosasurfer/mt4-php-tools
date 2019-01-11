@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\rost;
+namespace rosasurfer\rt;
 
 use rosasurfer\config\Config;
 use rosasurfer\core\StaticClass;
@@ -11,8 +11,8 @@ use rosasurfer\net\http\CurlHttpClient;
 use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
 
-use rosasurfer\rost\metatrader\MT4;
-use rosasurfer\rost\model\RosaSymbol;
+use rosasurfer\rt\metatrader\MT4;
+use rosasurfer\rt\model\RosaSymbol;
 
 
 /**
@@ -53,7 +53,7 @@ class Rost extends StaticClass {
     const BAR_SIZE = 24;
 
     /**
-     * struct size in bytes of a Rost tick (format of Rost tick files "{HOUR}h_ticks.bin")
+     * struct size in bytes of an RT tick (format of Rosatrader tick files "{HOUR}h_ticks.bin")
      */
     const TICK_SIZE = 12;
 
@@ -307,7 +307,7 @@ class Rost extends StaticClass {
 
 
     /**
-     * Interpretiert die Bardaten einer Rost-Datei und liest sie in ein Array ein.
+     * Interpretiert die Bardaten einer RT-Datei und liest sie in ein Array ein.
      *
      * @param  string $fileName - Name der Datei mit ROST_PRICE_BAR-Daten
      * @param  string $symbol   - Meta-Information fuer eine evt. Fehlermeldung (falls die Daten fehlerhaft sind)
@@ -321,7 +321,7 @@ class Rost extends StaticClass {
 
 
     /**
-     * Interpretiert die Bardaten einer komprimierten Rost-Datei und liest sie in ein Array ein.
+     * Interpretiert die Bardaten einer komprimierten RT-Datei und liest sie in ein Array ein.
      *
      * @param  string $fileName - Name der Datei mit ROST_PRICE_BAR-Daten
      *
@@ -661,23 +661,23 @@ class Rost extends StaticClass {
 
         static $dataDir; !$dataDir && $dataDir = Config::getDefault()->get('app.dir.data');
 
-        if ($id == 'rostDirDate') {                   // $yyyy/$mm/$dd                                                  // lokales Pfad-Datum
+        if ($id == 'rtDirDate') {                       // $yyyy/$mm/$dd                                                // lokales Pfad-Datum
             if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
             $result = gmDate('Y/m/d', $time);
         }
-        else if ($id == 'rostDir') {                  // $dataDir/history/rost/$type/$symbol/$rostDirDate               // lokales Verzeichnis
+        else if ($id == 'rtDir') {                      // $dataDir/history/rosatrader/$type/$symbol/$rtDirDate         // lokales Verzeichnis
             if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
-            $type        = RosaSymbol::dao()->getByName($symbol)->getType();
-            $rostDirDate = self::{__FUNCTION__}('rostDirDate', null, $time);
-            $result      = $dataDir.'/history/rost/'.$type.'/'.$symbol.'/'.$rostDirDate;
+            $type      = RosaSymbol::dao()->getByName($symbol)->getType();
+            $rtDirDate = self::{__FUNCTION__}('rtDirDate', null, $time);
+            $result    = $dataDir.'/history/rosatrader/'.$type.'/'.$symbol.'/'.$rtDirDate;
         }
-        else if ($id == 'rostFile.M1.raw') {          // $rostDir/M1.bin                                                // Rost-M1-Datei ungepackt
-            $rostDir = self::{__FUNCTION__}('rostDir' , $symbol, $time);
-            $result  = $rostDir.'/M1.bin';
+        else if ($id == 'rtFile.M1.raw') {              // $rtDir/M1.bin                                                // RT-M1-Datei ungepackt
+            $rtDir  = self::{__FUNCTION__}('rtDir' , $symbol, $time);
+            $result = $rtDir.'/M1.bin';
         }
-        else if ($id == 'rostFile.M1.compressed') {   // $rostDir/M1.rar                                                // Rost-M1-Datei gepackt
-            $rostDir = self::{__FUNCTION__}('rostDir', $symbol, $time);
-            $result  = $rostDir.'/M1.rar';
+        else if ($id == 'rtFile.M1.compressed') {       // $rtDir/M1.rar                                                // RT-M1-Datei gepackt
+            $rtDir  = self::{__FUNCTION__}('rtDir', $symbol, $time);
+            $result = $rtDir.'/M1.rar';
         }
         else throw new InvalidArgumentException('Unknown variable identifier "'.$id.'"');
 

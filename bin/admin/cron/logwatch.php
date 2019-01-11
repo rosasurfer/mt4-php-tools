@@ -5,7 +5,7 @@
  * If no receivers are configured mail is sent to the system user running the script. Processed log entries are removed
  * from the file.
  */
-namespace rosasurfer\rost\logwatch;
+namespace rosasurfer\rt\logwatch;
 
 use rosasurfer\config\Config;
 use rosasurfer\exception\IllegalTypeException;

@@ -5,15 +5,14 @@
  *
  * @see  https://github.com/rosasurfer/mt4-tools/blob/master/app/lib/synthetic/README.md
  */
-namespace rosasurfer\rost\update_synthetics_m1;
+namespace rosasurfer\rt\update_synthetics_m1;
 
 use rosasurfer\config\Config;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\process\Process;
 
-use rosasurfer\rost\Rost;
-use rosasurfer\rost\model\RosaSymbol;
+use rosasurfer\rt\model\RosaSymbol;
 
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');
@@ -1652,22 +1651,22 @@ function getVar($id, $symbol=null, $time=null) {
     static $dataDir; !$dataDir && $dataDir = Config::getDefault()->get('app.dir.data');
     $self = __FUNCTION__;
 
-    if ($id == 'rostDir') {                     // $dataDir/history/rost/$type/$symbol/$rostDirDate     // lokales Verzeichnis
-        $type        = RosaSymbol::dao()->getByName($symbol)->getType();
-        $rostDirDate = $self('rostDirDate', null, $time);
-        $result      = $dataDir.'/history/rost/'.$type.'/'.$symbol.'/'.$rostDirDate;
+    if ($id == 'rtDir') {                       // $dataDir/history/rosatrader/$type/$symbol/$rtDirDate     // lokales Verzeichnis
+        $type      = RosaSymbol::dao()->getByName($symbol)->getType();
+        $rtDirDate = $self('rtDirDate', null, $time);
+        $result    = $dataDir.'/history/rosatrader/'.$type.'/'.$symbol.'/'.$rtDirDate;
     }
-    else if ($id == 'rostDirDate') {            // $yyyy/$mm/$dd                                        // lokales Pfad-Datum
+    else if ($id == 'rtDirDate') {              // $yyyy/$mm/$dd                                            // lokales Pfad-Datum
         if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
         $result = gmDate('Y/m/d', $time);
     }
-    else if ($id == 'rostFile.raw') {           // $rostDir/M1.bin                                      // lokale Datei ungepackt
-        $rostDir = $self('rostDir', $symbol, $time);
-        $result  = $rostDir.'/M1.bin';
+    else if ($id == 'rtFile.raw') {             // $rtDir/M1.bin                                            // lokale Datei ungepackt
+        $rtDir  = $self('rtDir', $symbol, $time);
+        $result = $rtDir.'/M1.bin';
     }
-    else if ($id == 'rostFile.compressed') {    // $rostDir/M1.rar                                      // lokale Datei gepackt
-        $rostDir = $self('rostDir', $symbol, $time);
-        $result  = $rostDir.'/M1.rar';
+    else if ($id == 'rtFile.compressed') {      // $rtDir/M1.rar                                            // lokale Datei gepackt
+        $rtDir  = $self('rtDir', $symbol, $time);
+        $result = $rtDir.'/M1.rar';
     }
     else {
       throw new InvalidArgumentException('Unknown variable identifier "'.$id.'"');

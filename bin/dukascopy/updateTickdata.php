@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 /**
- * Aktualisiert die lokal vorhandenen Dukascopy-Tickdaten. Die Daten werden nach FXT konvertiert und im Rost-Format
+ * Aktualisiert die lokal vorhandenen Dukascopy-Tickdaten. Die Daten werden nach FXT konvertiert und im Rosatrader-Format
  * gespeichert. Am Wochenende, an Feiertagen und wenn keine Tickdaten verfuegbar sind, sind die Dukascopy-Dateien leer.
  * Wochenenden werden lokal nicht gespeichert. Montags frueh koennen die Daten erst um 01:00 FXT beginnen.
  * Die Daten der aktuellen Stunde sind fruehestens ab der naechsten Stunde verfuegbar.
@@ -32,7 +32,7 @@
  *
  * TODO: check info from Zorro forum:  http://www.opserver.de/ubb7/ubbthreads.php?ubb=showflat&Number=463361#Post463345
  */
-namespace rosasurfer\rost\dukascopy\update_tickdata;
+namespace rosasurfer\rt\dukascopy\update_tickdata;
 
 use rosasurfer\config\Config;
 use rosasurfer\exception\IllegalTypeException;
@@ -44,16 +44,16 @@ use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
 use rosasurfer\process\Process;
 
-use rosasurfer\rost\LZMA;
-use rosasurfer\rost\Rost;
-use rosasurfer\rost\dukascopy\Dukascopy;
-use rosasurfer\rost\dukascopy\DukascopyException;
-use rosasurfer\rost\model\DukascopySymbol;
-use rosasurfer\rost\model\RosaSymbol;
+use rosasurfer\rt\LZMA;
+use rosasurfer\rt\Rost;
+use rosasurfer\rt\dukascopy\Dukascopy;
+use rosasurfer\rt\dukascopy\DukascopyException;
+use rosasurfer\rt\model\DukascopySymbol;
+use rosasurfer\rt\model\RosaSymbol;
 
-use function rosasurfer\rost\fxtStrToTime;
-use function rosasurfer\rost\fxtTimezoneOffset;
-use function rosasurfer\rost\isWeekend;
+use function rosasurfer\rt\fxtStrToTime;
+use function rosasurfer\rt\fxtTimezoneOffset;
+use function rosasurfer\rt\isWeekend;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');
@@ -66,7 +66,7 @@ $verbose = 0;                                   // output verbosity
 
 $saveCompressedDukascopyFiles = false;          // ob heruntergeladene Dukascopy-Dateien zwischengespeichert werden sollen
 $saveRawDukascopyFiles        = false;          // ob entpackte Dukascopy-Dateien zwischengespeichert werden sollen
-$saveRawRostData              = true;           // ob unkomprimierte Rost-Historydaten gespeichert werden sollen
+$saveRawRTData                = true;           // ob unkomprimierte RT-Historydaten gespeichert werden sollen
 
 
 // -- Start -----------------------------------------------------------------------------------------------------------------
@@ -167,7 +167,7 @@ function updateSymbol(RosaSymbol $symbol) {
 
 
 /**
- * Prueft den Stand der Rost-Tickdaten einer einzelnen Stunde und stoesst ggf. das Update an.
+ * Prueft den Stand der RT-Tickdaten einer einzelnen Stunde und stoesst ggf. das Update an.
  *
  * @param  string $symbol  - Symbol
  * @param  int    $gmtHour - GMT-Timestamp der zu pruefenden Stunde
@@ -180,10 +180,10 @@ function checkHistory($symbol, $gmtHour, $fxtHour) {
     if (!is_int($fxtHour)) throw new IllegalTypeException('Illegal type of parameter $fxtHour: '.getType($fxtHour));
     $shortDate = gmDate('D, d-M-Y H:i', $fxtHour);
 
-    global $verbose, $saveCompressedDukascopyFiles, $saveRawDukascopyFiles, $saveRawRostData;
+    global $verbose, $saveCompressedDukascopyFiles, $saveRawDukascopyFiles, $saveRawRTData;
     static $lastDay=-1, $lastMonth=-1;
 
-    // (1) nur an Handelstagen pruefen, ob die Rost-History existiert und ggf. aktualisieren
+    // (1) nur an Handelstagen pruefen, ob die RT-History existiert und ggf. aktualisieren
     if (!isWeekend($fxtHour)) {
         $day = (int) gmDate('d', $fxtHour);
         if ($day != $lastDay) {
@@ -198,12 +198,12 @@ function checkHistory($symbol, $gmtHour, $fxtHour) {
             $lastDay = $day;
         }
 
-        // History ist ok, wenn entweder die komprimierte Rost-Datei existiert...
-        if (is_file($file=getVar('rostFile.compressed', $symbol, $fxtHour))) {
+        // History ist ok, wenn entweder die komprimierte RT-Datei existiert...
+        if (is_file($file=getVar('rtFile.compressed', $symbol, $fxtHour))) {
             if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'  Rosatrader compressed tick file: '.Rost::relativePath($file));
         }
-        // History ist ok, ...oder die unkomprimierte Rost-Datei gespeichert wird und existiert
-        else if ($saveRawRostData && is_file($file=getVar('rostFile.raw', $symbol, $fxtHour))) {
+        // History ist ok, ...oder die unkomprimierte RT-Datei gespeichert wird und existiert
+        else if ($saveRawRTData && is_file($file=getVar('rtFile.raw', $symbol, $fxtHour))) {
             if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'  Rosatrader uncompressed tick file: '.Rost::relativePath($file));
         }
         // andererseits Tickdaten aktualisieren
@@ -228,10 +228,10 @@ function checkHistory($symbol, $gmtHour, $fxtHour) {
         if (is_file($file=getVar('dukaFile.raw', $symbol, $gmtHour))) unlink($file);
     }
     // Dukascopy-Downloadverzeichnis der aktuellen Stunde, wenn es leer ist
-    if (is_dir($dir=getVar('rostDir', $symbol, $gmtHour))) @rmDir($dir);
+    if (is_dir($dir=getVar('rtDir', $symbol, $gmtHour))) @rmDir($dir);
     // lokales Historyverzeichnis der aktuellen Stunde, wenn Wochenende und es leer ist
     if (isWeekend($fxtHour)) {
-        if (is_dir($dir=getVar('rostDir', $symbol, $fxtHour))) @rmDir($dir);
+        if (is_dir($dir=getVar('rtDir', $symbol, $fxtHour))) @rmDir($dir);
     }
 
     return true;
@@ -240,7 +240,7 @@ function checkHistory($symbol, $gmtHour, $fxtHour) {
 
 /**
  * Aktualisiert die Tickdaten einer einzelnen Forex-Handelstunde. Wird aufgerufen, wenn fuer diese Stunde keine lokalen
- * Rost-Tickdateien existieren.
+ * RT-Tickdateien existieren.
  *
  * @param  string $symbol  - Symbol
  * @param  int    $gmtHour - GMT-Timestamp der zu aktualisierenden Stunde
@@ -316,7 +316,7 @@ function loadTicks($symbol, $gmtHour, $fxtHour) {
 
 
 /**
- * Schreibt die Tickdaten einer Handelsstunde in die lokale Rost-Tickdatei.
+ * Schreibt die Tickdaten einer Handelsstunde in die lokale RT-Tickdatei.
  *
  * @param  string  $symbol  - Symbol
  * @param  int     $gmtHour - GMT-Timestamp der Handelsstunde
@@ -329,7 +329,7 @@ function saveTicks($symbol, $gmtHour, $fxtHour, array $ticks) {
     if (!is_int($gmtHour)) throw new IllegalTypeException('Illegal type of parameter $gmtHour: '.getType($gmtHour));
     if (!is_int($fxtHour)) throw new IllegalTypeException('Illegal type of parameter $fxtHour: '.getType($fxtHour));
     $shortDate = gmDate('D, d-M-Y H:i', $fxtHour);
-    global $saveRawRostData;
+    global $saveRawRTData;
 
 
     // (1) Tickdaten nochmal pruefen
@@ -351,8 +351,8 @@ function saveTicks($symbol, $gmtHour, $fxtHour, array $ticks) {
 
 
     // (3) binaere Daten ggf. unkomprimiert speichern
-    if ($saveRawRostData) {
-        if (is_file($file=getVar('rostFile.raw', $symbol, $fxtHour))) {
+    if ($saveRawRTData) {
+        if (is_file($file=getVar('rtFile.raw', $symbol, $fxtHour))) {
             echoPre('[Error]   '.$symbol.' ticks for '.$shortDate.' already exists');
             return false;
         }
@@ -400,7 +400,7 @@ function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=f
 
 
     // (1) Standard-Browser simulieren
-    $userAgent = $config->get('rost.useragent'); if (!$userAgent) throw new InvalidArgumentException('Invalid user agent configuration: "'.$userAgent.'"');
+    $userAgent = $config->get('rt.useragent'); if (!$userAgent) throw new InvalidArgumentException('Invalid user agent configuration: "'.$userAgent.'"');
     $request = HttpRequest::create()
                                  ->setUrl($url)
                                  ->setHeader('User-Agent'     , $userAgent                                                       )
@@ -435,7 +435,7 @@ function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=f
 
         // ist das Flag $saveData gesetzt, Content speichern
         if ($saveData) {
-            mkDirWritable(getVar('rostDir', $symbol, $gmtHour));
+            mkDirWritable(getVar('rtDir', $symbol, $gmtHour));
             $tmpFile = tempNam(dirName($file=getVar('dukaFile.compressed', $symbol, $gmtHour)), baseName($file));
             $hFile   = fOpen($tmpFile, 'wb');
             fWrite($hFile, $content);
@@ -565,34 +565,34 @@ function getVar($id, $symbol=null, $time=null) {
     static $dataDir; !$dataDir && $dataDir = Config::getDefault()->get('app.dir.data');
     $self = __FUNCTION__;
 
-    if ($id == 'rostDirDate') {                 // $yyyy/$mmL/$dd                                               // lokales Pfad-Datum
+    if ($id == 'rtDirDate') {                   // $yyyy/$mmL/$dd                                               // lokales Pfad-Datum
         if (!$time)   throw new InvalidArgumentException('Invalid parameter $time: '.$time);
         $result = gmDate('Y/m/d', $time);
     }
-    else if ($id == 'rostDir') {                // $dataDir/history/rost/$type/$symbol/$rostDirDate             // lokales Verzeichnis
-        $type        = RosaSymbol::dao()->getByName($symbol)->getType();
-        $rostDirDate = $self('rostDirDate', null, $time);
-        $result      = $dataDir.'/history/rost/'.$type.'/'.$symbol.'/'.$rostDirDate;
+    else if ($id == 'rtDir') {                  // $dataDir/history/rosatrader/$type/$symbol/$rtDirDate         // lokales Verzeichnis
+        $type      = RosaSymbol::dao()->getByName($symbol)->getType();
+        $rtDirDate = $self('rtDirDate', null, $time);
+        $result    = $dataDir.'/history/rosatrader/'.$type.'/'.$symbol.'/'.$rtDirDate;
     }
-    else if ($id == 'rostFile.raw') {           // $rostDir/${hour}h_ticks.bin                                  // lokale Datei ungepackt
-        $rostDir = $self('rostDir', $symbol, $time);
-        $hour    = gmDate('H', $time);
-        $result  = $rostDir.'/'.$hour.'h_ticks.bin';
+    else if ($id == 'rtFile.raw') {             // $rtDir/${hour}h_ticks.bin                                    // lokale Datei ungepackt
+        $rtDir  = $self('rtDir', $symbol, $time);
+        $hour   = gmDate('H', $time);
+        $result = $rtDir.'/'.$hour.'h_ticks.bin';
     }
-    else if ($id == 'rostFile.compressed') {    // $rostDir/${hour}h_ticks.rar                                  // lokale Datei gepackt
-        $rostDir = $self('rostDir', $symbol, $time);
-        $hour    = gmDate('H', $time);
-        $result  = $rostDir.'/'.$hour.'h_ticks.rar';
+    else if ($id == 'rtFile.compressed') {      // $rtDir/${hour}h_ticks.rar                                    // lokale Datei gepackt
+        $rtDir  = $self('rtDir', $symbol, $time);
+        $hour   = gmDate('H', $time);
+        $result = $rtDir.'/'.$hour.'h_ticks.rar';
     }
-    else if ($id == 'dukaFile.raw') {           // $rostDir/${hour}h_ticks.bin                                  // Dukascopy-Datei ungepackt
-        $rostDir = $self('rostDir', $symbol, $time);
-        $hour    = gmDate('H', $time);
-        $result  = $rostDir.'/'.$hour.'h_ticks.bin';
+    else if ($id == 'dukaFile.raw') {           // $rtDir/${hour}h_ticks.bin                                    // Dukascopy-Datei ungepackt
+        $rtDir  = $self('rtDir', $symbol, $time);
+        $hour   = gmDate('H', $time);
+        $result = $rtDir.'/'.$hour.'h_ticks.bin';
     }
-    else if ($id == 'dukaFile.compressed') {    // $rostDir/${hour}h_ticks.bi5                                  // Dukascopy-Datei gepackt
-        $rostDir = $self('rostDir', $symbol, $time);
-        $hour    = gmDate('H', $time);
-        $result  = $rostDir.'/'.$hour.'h_ticks.bi5';
+    else if ($id == 'dukaFile.compressed') {    // $rtDir/${hour}h_ticks.bi5                                    // Dukascopy-Datei gepackt
+        $rtDir  = $self('rtDir', $symbol, $time);
+        $hour   = gmDate('H', $time);
+        $result = $rtDir.'/'.$hour.'h_ticks.bi5';
     }
     else if ($id == 'dukaUrlDate') {            // $yyyy/$mmD/$dd                                               // Dukascopy-URL-Datum
         if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
@@ -607,15 +607,15 @@ function getVar($id, $symbol=null, $time=null) {
         $hour        = gmDate('H', $time);
         $result      = 'http://datafeed.dukascopy.com/datafeed/'.$symbol.'/'.$dukaUrlDate.'/'.$hour.'h_ticks.bi5';
     }
-    else if ($id == 'dukaFile.404') {           // $rostDir/${hour}h_ticks.404                                  // Download-Fehler 404
-        $rostDir = $self('rostDir', $symbol, $time);
-        $hour    = gmDate('H', $time);
-        $result  = $rostDir.'/'.$hour.'h_ticks.404';
+    else if ($id == 'dukaFile.404') {           // $rtDir/${hour}h_ticks.404                                    // Download-Fehler 404
+        $rtDir  = $self('rtDir', $symbol, $time);
+        $hour   = gmDate('H', $time);
+        $result = $rtDir.'/'.$hour.'h_ticks.404';
     }
-    else if ($id == 'dukaFile.empty') {         // $rostDir/${hour}h_ticks.na                                   // Download-Fehler leerer Response
-        $rostDir = $self('rostDir', $symbol, $time);
-        $hour    = gmDate('H', $time);
-        $result  = $rostDir.'/'.$hour.'h_ticks.na';
+    else if ($id == 'dukaFile.empty') {         // $rtDir/${hour}h_ticks.na                                     // Download-Fehler leerer Response
+        $rtDir  = $self('rtDir', $symbol, $time);
+        $hour   = gmDate('H', $time);
+        $result = $rtDir.'/'.$hour.'h_ticks.na';
     }
     else {
       throw new InvalidArgumentException('Unknown variable identifier "'.$id.'"');

@@ -1,13 +1,13 @@
 <?php
-namespace rosasurfer\rost\model;
+namespace rosasurfer\rt\model;
 
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 
-use rosasurfer\rost\Rost;
-use rosasurfer\rost\metatrader\MT4;
+use rosasurfer\rt\Rost;
+use rosasurfer\rt\metatrader\MT4;
 
-use function rosasurfer\rost\isWeekend;
+use function rosasurfer\rt\isWeekend;
 
 
 /**

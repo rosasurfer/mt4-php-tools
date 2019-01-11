@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\rost;
+namespace rosasurfer\rt;
 
 use rosasurfer\core\StaticClass;
 use rosasurfer\exception\IllegalTypeException;

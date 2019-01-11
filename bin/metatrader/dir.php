@@ -3,13 +3,13 @@
 /**
  * Verzeichnislisting fuer MetaTrader-Historydateien
  */
-namespace rosasurfer\rost\metatrader\dir;
+namespace rosasurfer\rt\metatrader\dir;
 
-use rosasurfer\rost\Rost;
-use rosasurfer\rost\metatrader\HistoryHeader;
-use rosasurfer\rost\metatrader\MetaTraderException;
-use rosasurfer\rost\metatrader\MT4;
-use rosasurfer\rost\model\Order;
+use rosasurfer\rt\Rost;
+use rosasurfer\rt\metatrader\HistoryHeader;
+use rosasurfer\rt\metatrader\MetaTraderException;
+use rosasurfer\rt\metatrader\MT4;
+use rosasurfer\rt\model\Order;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');
 

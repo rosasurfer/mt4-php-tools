@@ -1,12 +1,12 @@
 <?php
-namespace rosasurfer\rost;
+namespace rosasurfer\rt;
 
 use rosasurfer\config\Config;
 use rosasurfer\core\StaticClass;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\RuntimeException;
 
-use rosasurfer\rost\model\RosaSymbol;
+use rosasurfer\rt\model\RosaSymbol;
 
 
 /**
@@ -115,7 +115,7 @@ class RT extends StaticClass {
 
         // delete existing files
         $dataDir  = Config::getDefault()['app.dir.data'];
-        $dataDir .= '/history/rost/'.$symbol->getType().'/'.$symbol->getName();
+        $dataDir .= '/history/rosatrader/'.$symbol->getType().'/'.$symbol->getName();
         $dir      = $dataDir.'/'.gmDate('Y/m/d', $day);
         $msg      = '[Info]    '.$symbol->getName().'  deleting existing M1 file: ';
         is_file($file=$dir.'/M1.bin'    ) && true(echoPre($msg.Rost::relativePath($file))) && unlink($file);

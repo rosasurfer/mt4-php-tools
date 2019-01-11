@@ -3,12 +3,10 @@
 /**
  * Command line tool for processing Rosatrader history.
  */
-namespace rosasurfer\rost\history;
+namespace rosasurfer\rt\history;
 
 use rosasurfer\process\Process;
-
-use rosasurfer\rost\Rost;
-use rosasurfer\rost\model\RosaSymbol;
+use rosasurfer\rt\model\RosaSymbol;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');

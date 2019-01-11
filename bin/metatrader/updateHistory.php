@@ -3,18 +3,18 @@
 /**
  * Aktualisiert die MetaTrader-History der angegebenen Instrumente im globalen MT4-Serververzeichnis.
  */
-namespace rosasurfer\rost\metatrader\update_history;
+namespace rosasurfer\rt\metatrader\update_history;
 
 use rosasurfer\config\Config;
 use rosasurfer\process\Process;
 
-use rosasurfer\rost\Rost;
-use rosasurfer\rost\metatrader\HistorySet;
-use rosasurfer\rost\metatrader\MT4;
-use rosasurfer\rost\model\RosaSymbol;
+use rosasurfer\rt\Rost;
+use rosasurfer\rt\metatrader\HistorySet;
+use rosasurfer\rt\metatrader\MT4;
+use rosasurfer\rt\model\RosaSymbol;
 
-use function rosasurfer\rost\fxTime;
-use function rosasurfer\rost\isWeekend;
+use function rosasurfer\rt\fxTime;
+use function rosasurfer\rt\isWeekend;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');
@@ -100,8 +100,8 @@ function updateHistory(RosaSymbol $symbol) {
             $lastMonth = $month;
         }
         if (!isWeekend($day)) {                                                                     // nur an Handelstagen
-            if      (is_file($file=Rost::getVar('rostFile.M1.compressed', $symbolName, $day))) {}   // wenn komprimierte Rost-Datei existiert
-            else if (is_file($file=Rost::getVar('rostFile.M1.raw'       , $symbolName, $day))) {}   // wenn unkomprimierte Rost-Datei existiert
+            if      (is_file($file=Rost::getVar('rtFile.M1.compressed', $symbolName, $day))) {}     // wenn komprimierte RT-Datei existiert
+            else if (is_file($file=Rost::getVar('rtFile.M1.raw'       , $symbolName, $day))) {}     // wenn unkomprimierte RT-Datei existiert
             else {
                 echoPre('[Error]   '.$symbolName.'  Rosatrader history for '.$shortDate.' not found');
                 return false;

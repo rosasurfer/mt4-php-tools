@@ -1,26 +1,26 @@
 <?php
-namespace rosasurfer\rost\metatrader;
+namespace rosasurfer\rt\metatrader;
 
 use rosasurfer\core\StaticClass;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\RuntimeException;
 
-use const rosasurfer\rost\BARMODEL_BAROPEN;
-use const rosasurfer\rost\BARMODEL_CONTROLPOINTS;
-use const rosasurfer\rost\BARMODEL_EVERYTICK;
-use const rosasurfer\rost\PERIOD_M1;
-use const rosasurfer\rost\PERIOD_M5;
-use const rosasurfer\rost\PERIOD_M15;
-use const rosasurfer\rost\PERIOD_M30;
-use const rosasurfer\rost\PERIOD_H1;
-use const rosasurfer\rost\PERIOD_H4;
-use const rosasurfer\rost\PERIOD_D1;
-use const rosasurfer\rost\PERIOD_W1;
-use const rosasurfer\rost\PERIOD_MN1;
-use const rosasurfer\rost\PERIOD_Q1;
-use const rosasurfer\rost\TRADE_DIRECTIONS_BOTH;
-use const rosasurfer\rost\TRADE_DIRECTIONS_LONG;
-use const rosasurfer\rost\TRADE_DIRECTIONS_SHORT;
+use const rosasurfer\rt\BARMODEL_BAROPEN;
+use const rosasurfer\rt\BARMODEL_CONTROLPOINTS;
+use const rosasurfer\rt\BARMODEL_EVERYTICK;
+use const rosasurfer\rt\PERIOD_M1;
+use const rosasurfer\rt\PERIOD_M5;
+use const rosasurfer\rt\PERIOD_M15;
+use const rosasurfer\rt\PERIOD_M30;
+use const rosasurfer\rt\PERIOD_H1;
+use const rosasurfer\rt\PERIOD_H4;
+use const rosasurfer\rt\PERIOD_D1;
+use const rosasurfer\rt\PERIOD_W1;
+use const rosasurfer\rt\PERIOD_MN1;
+use const rosasurfer\rt\PERIOD_Q1;
+use const rosasurfer\rt\TRADE_DIRECTIONS_BOTH;
+use const rosasurfer\rt\TRADE_DIRECTIONS_LONG;
+use const rosasurfer\rt\TRADE_DIRECTIONS_SHORT;
 
 
 /**

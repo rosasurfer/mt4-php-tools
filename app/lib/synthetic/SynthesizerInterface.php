@@ -1,7 +1,7 @@
 <?php
-namespace rosasurfer\rost\synthetic;
+namespace rosasurfer\rt\synthetic;
 
-use rosasurfer\rost\model\RosaSymbol;
+use rosasurfer\rt\model\RosaSymbol;
 
 
 /**

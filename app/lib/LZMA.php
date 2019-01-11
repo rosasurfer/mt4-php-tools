@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\rost;
+namespace rosasurfer\rt;
 
 use rosasurfer\config\Config;
 use rosasurfer\core\StaticClass;

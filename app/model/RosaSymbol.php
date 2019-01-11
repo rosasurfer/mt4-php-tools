@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\rost\model;
+namespace rosasurfer\rt\model;
 
 use rosasurfer\config\Config;
 use rosasurfer\exception\IllegalTypeException;
@@ -7,16 +7,16 @@ use rosasurfer\exception\RuntimeException;
 use rosasurfer\exception\UnimplementedFeatureException;
 use rosasurfer\process\Process;
 
-use rosasurfer\rost\FXT;
-use rosasurfer\rost\Rost;
-use rosasurfer\rost\RT;
-use rosasurfer\rost\synthetic\DefaultSynthesizer;
-use rosasurfer\rost\synthetic\SynthesizerInterface as Synthesizer;
+use rosasurfer\rt\FXT;
+use rosasurfer\rt\Rost;
+use rosasurfer\rt\RT;
+use rosasurfer\rt\synthetic\DefaultSynthesizer;
+use rosasurfer\rt\synthetic\SynthesizerInterface as Synthesizer;
 
-use function rosasurfer\rost\fxTime;
-use function rosasurfer\rost\isGoodFriday;
-use function rosasurfer\rost\isHoliday;
-use function rosasurfer\rost\isWeekend;
+use function rosasurfer\rt\fxTime;
+use function rosasurfer\rt\isGoodFriday;
+use function rosasurfer\rt\isHoliday;
+use function rosasurfer\rt\isWeekend;
 
 
 /**
@@ -197,7 +197,7 @@ class RosaSymbol extends RosatraderModel {
      */
     public function getHistoryM1($fxDay) {
         $dataDir  = Config::getDefault()['app.dir.data'];
-        $dataDir .= '/history/rost/'.$this->type.'/'.$this->name;
+        $dataDir .= '/history/rosatrader/'.$this->type.'/'.$this->name;
         $dir      = $dataDir.'/'.gmDate('Y/m/d', $fxDay);
 
         if (is_file($file=$dir.'/M1.bin') || is_file($file.='.rar'))
@@ -285,7 +285,7 @@ class RosaSymbol extends RosatraderModel {
      */
     public function synchronizeHistory() {
         $dataDir  = Config::getDefault()['app.dir.data'];
-        $dataDir .= '/history/rost/'.$this->type.'/'.$this->name;
+        $dataDir .= '/history/rosatrader/'.$this->type.'/'.$this->name;
 
         $startDate = $endDate = null;
         $firstFile = $lastFile = null;
