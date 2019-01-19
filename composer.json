@@ -17,7 +17,7 @@
    "require": {
       "php":                   ">=5.6",
       "ext-stats":             "*",
-      "rosasurfer/ministruts": "^0.8@dev"
+      "rosasurfer/ministruts": "^0.9@dev"
    },
    "autoload": {
       "classmap": ["app/"],

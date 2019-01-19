@@ -1,7 +1,6 @@
 <?php
 namespace rosasurfer\rt;
 
-use rosasurfer\config\Config;
 use rosasurfer\core\StaticClass;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\RuntimeException;
@@ -114,7 +113,7 @@ class RT extends StaticClass {
         }
 
         // delete existing files
-        $dataDir  = Config::getDefault()['app.dir.data'];
+        $dataDir  = self::di()['config']['app.dir.data'];
         $dataDir .= '/history/rosatrader/'.$symbol->getType().'/'.$symbol->getName();
         $dir      = $dataDir.'/'.gmDate('Y/m/d', $day);
         $msg      = '[Info]    '.$symbol->getName().'  deleting existing M1 file: ';

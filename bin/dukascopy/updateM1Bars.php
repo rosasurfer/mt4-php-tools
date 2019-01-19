@@ -35,7 +35,7 @@
  */
 namespace rosasurfer\rt\dukascopy\update_m1_bars;
 
-use rosasurfer\config\Config;
+use rosasurfer\Application;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
@@ -433,13 +433,12 @@ function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $save
     if (!is_bool($saveData))  throw new IllegalTypeException('Illegal type of parameter $saveData: '.getType($saveData));
     if (!is_bool($saveError)) throw new IllegalTypeException('Illegal type of parameter $saveError: '.getType($saveError));
 
-    $config    = Config::getDefault();
     $shortDate = gmDate('D, d-M-Y', $day);
     $url       = getVar('dukaUrl', $symbol, $day, $type);
     if (!$quiet) echoPre('[Info]    '.$shortDate.'  downloading: '.$url);
 
     // (1) Standard-Browser simulieren
-    $userAgent = $config->get('rt.useragent'); if (!$userAgent) throw new InvalidArgumentException('Invalid user agent configuration: "'.$userAgent.'"');
+    $userAgent = Application::getConfig()['rt.useragent'];
     $request = HttpRequest::create()
                           ->setUrl($url)
                           ->setHeader('User-Agent'     , $userAgent                                                       )
@@ -713,7 +712,7 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
         if ($type!='bid' && $type!='ask')      throw new InvalidArgumentException('Invalid parameter $type: "'.$type.'"');
     }
 
-    static $dataDir; !$dataDir && $dataDir = Config::getDefault()->get('app.dir.data');
+    static $dataDir; !$dataDir && $dataDir = Application::getConfig()['app.dir.data'];
     $self = __FUNCTION__;
 
     if ($id == 'rtDirDate') {                   // $yyyy/$mmL/$dd                                       // lokales Pfad-Datum

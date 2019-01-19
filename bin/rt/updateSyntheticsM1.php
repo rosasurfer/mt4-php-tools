@@ -7,13 +7,12 @@
  */
 namespace rosasurfer\rt\update_synthetics_m1;
 
-use rosasurfer\config\Config;
+use rosasurfer\Application;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\process\Process;
 
 use rosasurfer\rt\model\RosaSymbol;
-
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');
@@ -1648,7 +1647,7 @@ function getVar($id, $symbol=null, $time=null) {
     if (isSet($symbol) && !is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
     if (isSet($time) && !is_int($time))        throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
 
-    static $dataDir; !$dataDir && $dataDir = Config::getDefault()->get('app.dir.data');
+    static $dataDir; !$dataDir && $dataDir = Application::getConfig()['app.dir.data'];
     $self = __FUNCTION__;
 
     if ($id == 'rtDir') {                       // $dataDir/history/rosatrader/$type/$symbol/$rtDirDate     // lokales Verzeichnis

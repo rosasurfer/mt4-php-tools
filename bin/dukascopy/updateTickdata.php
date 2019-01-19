@@ -34,7 +34,7 @@
  */
 namespace rosasurfer\rt\dukascopy\update_tickdata;
 
-use rosasurfer\config\Config;
+use rosasurfer\Application;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
@@ -395,12 +395,9 @@ function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=f
     $url       = getVar('dukaUrl', $symbol, $gmtHour);
     if (!$quiet && $verbose > 1) echoPre('[Info]    '.$shortDate.'  downloading: '.$url);
 
-    if (!$config=Config::getDefault())
-        throw new RuntimeException('Service locator returned invalid default config: '.getType($config));
-
 
     // (1) Standard-Browser simulieren
-    $userAgent = $config->get('rt.useragent'); if (!$userAgent) throw new InvalidArgumentException('Invalid user agent configuration: "'.$userAgent.'"');
+    $userAgent = Application::getConfig()['rt.useragent'];
     $request = HttpRequest::create()
                                  ->setUrl($url)
                                  ->setHeader('User-Agent'     , $userAgent                                                       )
@@ -562,7 +559,7 @@ function getVar($id, $symbol=null, $time=null) {
     if (isSet($symbol) && !is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
     if (isSet($time) && !is_int($time))        throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
 
-    static $dataDir; !$dataDir && $dataDir = Config::getDefault()->get('app.dir.data');
+    static $dataDir; !$dataDir && $dataDir = Application::getConfig()['app.dir.data'];
     $self = __FUNCTION__;
 
     if ($id == 'rtDirDate') {                   // $yyyy/$mmL/$dd                                               // lokales Pfad-Datum

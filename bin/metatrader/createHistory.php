@@ -7,7 +7,7 @@
  */
 namespace rosasurfer\rt\metatrader\create_history;
 
-use rosasurfer\config\Config;
+use rosasurfer\Application;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\process\Process;
@@ -86,7 +86,7 @@ function createHistory(RosaSymbol $symbol) {
 
 
     // MT4-HistorySet erzeugen
-    $directory = Config::getDefault()->get('app.dir.data').'/history/mt4/XTrade-Testhistory';
+    $directory = Application::getConfig()['app.dir.data'].'/history/mt4/XTrade-Testhistory';
     $hstSet = HistorySet::create($symbolName, $symbolDigits, $format=400, $directory);
 
 
@@ -143,7 +143,7 @@ function getVar($id, $symbol=null, $time=null) {
     if (isSet($time) && !is_int($time))        throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
 
     $self = __FUNCTION__;
-    static $dataDir; !$dataDir && $dataDir = Config::getDefault()->get('app.dir.data');
+    static $dataDir; !$dataDir && $dataDir = Application::getConfig()['app.dir.data'];
 
     if ($id == 'rtDirDate') {                   // $yyyy/$mm/$dd                                                // lokales Pfad-Datum
         if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);

@@ -1,7 +1,6 @@
 <?php
 namespace rosasurfer\rt\model;
 
-use rosasurfer\config\Config;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\RuntimeException;
 use rosasurfer\exception\UnimplementedFeatureException;
@@ -196,7 +195,7 @@ class RosaSymbol extends RosatraderModel {
      * </pre>
      */
     public function getHistoryM1($fxDay) {
-        $dataDir  = Config::getDefault()['app.dir.data'];
+        $dataDir  = $this->di()['config']['app.dir.data'];
         $dataDir .= '/history/rosatrader/'.$this->type.'/'.$this->name;
         $dir      = $dataDir.'/'.gmDate('Y/m/d', $fxDay);
 
@@ -284,7 +283,7 @@ class RosaSymbol extends RosatraderModel {
      * @return bool - success status
      */
     public function synchronizeHistory() {
-        $dataDir  = Config::getDefault()['app.dir.data'];
+        $dataDir  = $this->di()['config']['app.dir.data'];
         $dataDir .= '/history/rosatrader/'.$this->type.'/'.$this->name;
 
         $startDate = $endDate = null;

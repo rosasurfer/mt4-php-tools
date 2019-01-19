@@ -1,0 +1,6 @@
+<?php
+/**
+ * Service configuration.
+ */
+return [
+];

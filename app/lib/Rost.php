@@ -1,7 +1,6 @@
 <?php
 namespace rosasurfer\rt;
 
-use rosasurfer\config\Config;
 use rosasurfer\core\StaticClass;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
@@ -67,10 +66,7 @@ class Rost extends StaticClass {
         static $addresses = null;
 
         if (is_null($addresses)) {
-            if (!$config=Config::getDefault())
-                throw new RuntimeException('Service locator returned invalid default config: '.getType($config));
-
-            $values = $config->get('mail.signalreceivers');
+            $values = self::di()['config']->get('mail.signalreceivers', '');
             foreach (explode(',', $values) as $address) {
                 if ($address=trim($address))
                     $addresses[] = $address;
@@ -91,10 +87,7 @@ class Rost extends StaticClass {
         static $numbers = null;
 
         if (is_null($numbers)) {
-            if (!$config=Config::getDefault())
-                throw new RuntimeException('Service locator returned invalid default config: '.getType($config));
-
-            $values = $config->get('sms.signalreceivers', null);
+            $values = self::di()['config']->get('sms.signalreceivers', '');
             foreach (explode(',', $values) as $number) {
                 if ($number=trim($number))
                     $numbers[] = $number;
@@ -123,10 +116,7 @@ class Rost extends StaticClass {
         $message = trim($message);
         if ($message == '')          throw new InvalidArgumentException('Invalid argument $message: "'.$message.'"');
 
-        if (!$config=Config::getDefault())
-            throw new RuntimeException('Service locator returned invalid default config: '.getType($config));
-
-        $config   = $config->get('sms.clickatell');
+        $config   = self::di()['config']['sms.clickatell'];
         $username = $config['username'];
         $password = $config['password'];
         $api_id   = $config['api_id'  ];
@@ -659,7 +649,7 @@ class Rost extends StaticClass {
         if (isSet($symbol) && !is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
         if (isSet($time) && !is_int($time))        throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
 
-        static $dataDir; !$dataDir && $dataDir = Config::getDefault()->get('app.dir.data');
+        static $dataDir; !$dataDir && $dataDir = self::di()['config']['app.dir.data'];
 
         if ($id == 'rtDirDate') {                       // $yyyy/$mm/$dd                                                // lokales Pfad-Datum
             if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
@@ -701,7 +691,7 @@ class Rost extends StaticClass {
 
         static $root, $realRoot, $data, $realData;
         if (!$root) {
-            $config   = Config::getDefault();
+            $config   = self::di()['config'];
             $root     = str_replace('\\', '/', $config['app.dir.root'].'/');
             $realRoot = str_replace('\\', '/', realPath($root).'/');
             $data     = str_replace('\\', '/', $config['app.dir.data'].'/');

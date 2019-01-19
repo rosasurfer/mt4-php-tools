@@ -5,11 +5,11 @@
  *
  *
  * TODO: link the PL series to the originating trade history
- * TODO: check and confirm over/rewriting existing PL series
+ * TODO: check and confirm over/rewriting of existing PL series
  */
 namespace rosasurfer\rt\generate_pl_series;
 
-use rosasurfer\config\Config;
+use rosasurfer\Application;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
@@ -290,7 +290,7 @@ function getVar($id, $symbol=null, $time=null) {
     if (isSet($time) && !is_int($time))        throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
 
     $self = __FUNCTION__;
-    static $dataDir; !$dataDir && $dataDir = Config::getDefault()->get('app.dir.data');
+    static $dataDir; !$dataDir && $dataDir = Application::getConfig()['app.dir.data'];
 
     if ($id == 'rtDirDate') {                   // $yyyy/$mm/$dd                                                // local path date
         if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);

@@ -5,7 +5,7 @@
  */
 namespace rosasurfer\rt\metatrader\update_history;
 
-use rosasurfer\config\Config;
+use rosasurfer\Application;
 use rosasurfer\process\Process;
 
 use rosasurfer\rt\Rost;
@@ -76,7 +76,7 @@ function updateHistory(RosaSymbol $symbol) {
     $symbolDigits = $symbol->getDigits();
 
     global $verbose;
-    $directory    = Config::getDefault()->get('app.dir.data').'/history/mt4/XTrade-Testhistory';
+    $directory    = Application::getConfig()['app.dir.data'].'/history/mt4/XTrade-Testhistory';
     $lastSyncTime = null;
     echoPre('[Info]    '.$symbolName);
 
