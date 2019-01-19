@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/rosasurfer/ministruts.git",
-                "reference": "831b0856bf6ff7f854d2e0a4162cf338927107c6"
+                "reference": "e198a675c7bde01bebeb895a20a6036bfb3a758c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/831b0856bf6ff7f854d2e0a4162cf338927107c6",
-                "reference": "831b0856bf6ff7f854d2e0a4162cf338927107c6",
+                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/e198a675c7bde01bebeb895a20a6036bfb3a758c",
+                "reference": "e198a675c7bde01bebeb895a20a6036bfb3a758c",
                 "shasum": ""
             },
             "require": {
@@ -50,12 +50,11 @@
                 }
             ],
             "description": "Struts 1.2 inspired MVC web framework for PHP",
-            "homepage": "http://ministruts.rosasurfer.com/",
             "support": {
-                "source": "https://github.com/rosasurfer/ministruts/tree/0.9",
+                "source": "https://github.com/rosasurfer/ministruts",
                 "issues": "https://github.com/rosasurfer/ministruts/issues"
             },
-            "time": "2019-01-18T20:01:28+00:00"
+            "time": "2019-01-19T10:53:55+00:00"
         }
     ],
     "packages-dev": [],
