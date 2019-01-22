@@ -2,7 +2,7 @@
 
 # determine rsync source file
 SELF=$(readlink -e "$0")
-DB_FILE=$(dirname "$SELF")"/../../data/rost.db"
+DB_FILE=$(dirname "$SELF")"/../../data/rosatrader.db"
 SOURCE=$(readlink -e "$DB_FILE")
 [ ! -f "$SOURCE" ] && { echo "source database file not found: $DB_FILE"; exit 1; }
 
@@ -25,4 +25,4 @@ command -v ssh   >/dev/null || { echo "error: ssh binary not found";   exit 1; }
 
 
 # run rsync (TODO: externalize ownership settings)
-rsync -ahzPv --no-r --chown=apache:apache -e ssh "$SOURCE" "rost:$TARGET"
+rsync -ahzPv --no-r --chown=apache:apache -e ssh "$SOURCE" "rosatrader:$TARGET"

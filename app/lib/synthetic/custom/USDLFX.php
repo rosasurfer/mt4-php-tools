@@ -1,42 +1,30 @@
 <?php
-namespace rosasurfer\rost\synthetic\custom;
+namespace rosasurfer\rt\synthetic\custom;
 
 use rosasurfer\exception\IllegalTypeException;
 
-use rosasurfer\rost\FXT;
-use rosasurfer\rost\model\RosaSymbol;
-use rosasurfer\rost\synthetic\AbstractSynthesizer;
-use rosasurfer\rost\synthetic\SynthesizerInterface as Synthesizer;
+use rosasurfer\rt\FXT;
+use rosasurfer\rt\model\RosaSymbol;
+use rosasurfer\rt\synthetic\AbstractSynthesizer;
+use rosasurfer\rt\synthetic\SynthesizerInterface as Synthesizer;
 
 
 /**
- * USDLFX calculator
+ * USDLFX synthesizer
  *
  * A {@link Synthesizer} for calculating the "LiteForex US Dollar index".
  *
- * Formula: USDLFX = \sqrt[7]{\frac{USDCAD * USDCHF * USDJPY}{AUDUSD * EURUSD * GBPUSD}}
+ * <pre>
+ * formula: USDLFX = \sqrt[7]{\frac{USDCAD * USDCHF * USDJPY}{AUDUSD * EURUSD * GBPUSD}}
+ * </pre>
  */
 class USDLFX extends AbstractSynthesizer {
 
 
-    /** @var string[] */
-    protected $components = ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'];
-
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getHistoryTicksStart($format = 'Y-m-d H:i:s') {
-        return '0';
-    }
-
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getHistoryM1Start($format = 'Y-m-d H:i:s') {
-        return '0';
-    }
+    /** @var string[][] */
+    protected $components = [
+        'pairs' => ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'],
+    ];
 
 
     /**
@@ -46,7 +34,7 @@ class USDLFX extends AbstractSynthesizer {
         if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
 
         $pairs = [];
-        foreach ($this->components as $name) {
+        foreach ($this->components['pairs'] as $name) {
             /** @var RosaSymbol $pair */
             $pair = RosaSymbol::dao()->getByName($name);
             $pairs[$pair->getName()] = $pair;

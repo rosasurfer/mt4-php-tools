@@ -3,10 +3,10 @@
 /**
  * Import test results into the database.
  */
-namespace rosasurfer\rost\metatrader\import_test;
+namespace rosasurfer\rt\metatrader\import_test;
 
 use rosasurfer\util\PHP;
-use rosasurfer\rost\model\Test;
+use rosasurfer\rt\model\Test;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');

@@ -1,31 +1,32 @@
 {
-   "name":        "rosasurfer/mt4-tools",
-   "description": "rosatrader - web and command line tools",
-   "type":        "project",
-   "homepage":    "http://www.rosasurfer.com/",
-   "license":     "WTFPL",
-   "authors": [{
-      "name":  "Peter Walther",
-      "email": "rosatrader@rosasurfer.com"
-   }],
-   "config": {
-      "optimize-autoloader": true
-   },
-   "repositories": [
-      { "type": "vcs", "url": "https://github.com/rosasurfer/ministruts" }
-   ],
-   "require": {
-      "php":                   ">=5.6",
-      "ext-stats":             "*",
-      "rosasurfer/ministruts": "^0.8@dev"
-   },
-   "autoload": {
-      "classmap": ["app/"],
-      "files": [
-         "app/helpers.php"
-      ]
-   },
-   "scripts": {
-      "post-install-cmd": "bash bin/admin/git/check-setup.sh post-checkout post-merge"
-   }
+    "name":        "rosasurfer/mt4-tools",
+    "description": "rosatrader - web and command line tools",
+    "type":        "project",
+    "homepage":    "http://www.rosasurfer.com/",
+    "license":     "WTFPL",
+    "authors": [{
+        "name":  "Peter Walther",
+        "email": "rosatrader@rosasurfer.com"
+    }],
+    "config": {
+        "optimize-autoloader": true
+    },
+    "repositories": [
+        { "type": "vcs", "url": "https://github.com/rosasurfer/ministruts" }
+    ],
+    "require": {
+        "php":                   ">=5.6",
+        "ext-stats":             "*",
+        "rosasurfer/ministruts": "^0.9@dev"
+    },
+    "autoload": {
+        "classmap": ["app/"],
+        "files":    ["app/helpers.php"]
+    },
+    "scripts": {
+        "post-install-cmd": "bash bin/admin/git/check-setup.sh post-checkout post-merge"
+    },
+    "support": {
+        "source": "https://github.com/rosasurfer/mt4-tools"
+    }
 }

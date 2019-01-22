@@ -1,7 +1,6 @@
 <?php
-namespace rosasurfer\rost;
+namespace rosasurfer\rt;
 
-use rosasurfer\config\Config;
 use rosasurfer\core\StaticClass;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
@@ -11,8 +10,8 @@ use rosasurfer\net\http\CurlHttpClient;
 use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
 
-use rosasurfer\rost\metatrader\MT4;
-use rosasurfer\rost\model\RosaSymbol;
+use rosasurfer\rt\metatrader\MT4;
+use rosasurfer\rt\model\RosaSymbol;
 
 
 /**
@@ -53,7 +52,7 @@ class Rost extends StaticClass {
     const BAR_SIZE = 24;
 
     /**
-     * struct size in bytes of a Rost tick (format of Rost tick files "{HOUR}h_ticks.bin")
+     * struct size in bytes of an RT tick (format of Rosatrader tick files "{HOUR}h_ticks.bin")
      */
     const TICK_SIZE = 12;
 
@@ -67,10 +66,7 @@ class Rost extends StaticClass {
         static $addresses = null;
 
         if (is_null($addresses)) {
-            if (!$config=Config::getDefault())
-                throw new RuntimeException('Service locator returned invalid default config: '.getType($config));
-
-            $values = $config->get('mail.signalreceivers');
+            $values = self::di()['config']->get('mail.signalreceivers', '');
             foreach (explode(',', $values) as $address) {
                 if ($address=trim($address))
                     $addresses[] = $address;
@@ -91,10 +87,7 @@ class Rost extends StaticClass {
         static $numbers = null;
 
         if (is_null($numbers)) {
-            if (!$config=Config::getDefault())
-                throw new RuntimeException('Service locator returned invalid default config: '.getType($config));
-
-            $values = $config->get('sms.signalreceivers', null);
+            $values = self::di()['config']->get('sms.signalreceivers', '');
             foreach (explode(',', $values) as $number) {
                 if ($number=trim($number))
                     $numbers[] = $number;
@@ -123,10 +116,7 @@ class Rost extends StaticClass {
         $message = trim($message);
         if ($message == '')          throw new InvalidArgumentException('Invalid argument $message: "'.$message.'"');
 
-        if (!$config=Config::getDefault())
-            throw new RuntimeException('Service locator returned invalid default config: '.getType($config));
-
-        $config   = $config->get('sms.clickatell');
+        $config   = self::di()['config']['sms.clickatell'];
         $username = $config['username'];
         $password = $config['password'];
         $api_id   = $config['api_id'  ];
@@ -224,7 +214,7 @@ class Rost extends StaticClass {
     /**
      * Return an order type description.
      *
-     * @param  int - order type id
+     * @param  int $id - order type id
      *
      * @return string|null - description or NULL if the parameter is not a valid order type id
      */
@@ -307,7 +297,7 @@ class Rost extends StaticClass {
 
 
     /**
-     * Interpretiert die Bardaten einer Rost-Datei und liest sie in ein Array ein.
+     * Interpretiert die Bardaten einer RT-Datei und liest sie in ein Array ein.
      *
      * @param  string $fileName - Name der Datei mit ROST_PRICE_BAR-Daten
      * @param  string $symbol   - Meta-Information fuer eine evt. Fehlermeldung (falls die Daten fehlerhaft sind)
@@ -321,7 +311,7 @@ class Rost extends StaticClass {
 
 
     /**
-     * Interpretiert die Bardaten einer komprimierten Rost-Datei und liest sie in ein Array ein.
+     * Interpretiert die Bardaten einer komprimierten RT-Datei und liest sie in ein Array ein.
      *
      * @param  string $fileName - Name der Datei mit ROST_PRICE_BAR-Daten
      *
@@ -335,87 +325,38 @@ class Rost extends StaticClass {
     /**
      * Gibt den Offset eines Zeitpunktes innerhalb einer Zeitreihe zurueck.
      *
-     * @param  array $series - zu durchsuchende Reihe: Zeiten, Arrays mit dem Feld 'time' oder Objekte mit der Methode getTime()
+     * @param  array $series - zu durchsuchende Reihe: Arrays mit dem Feld "time"
      * @param  int   $time   - Zeitpunkt
      *
      * @return int - Offset oder -1, wenn der Offset ausserhalb der Arraygrenzen liegt
      */
     public static function findTimeOffset(array $series, $time) {
-        if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+        if (!is_int($time))              throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+        $size = sizeof($series); if (!$size) return -1;
+        if (!is_array($series[0]))       throw new IllegalTypeException('Illegal type of element $series[0]: '.getType($series[0]));
+        if (!isSet($series[0]['time']))  throw new InvalidArgumentException('Invalid parameter $series[0]: '.getType($series[0].' (no index "time")'));
+        if (!is_int($series[0]['time'])) throw new IllegalTypeException('Illegal type of element $series[0][time]: '.getType($series[0]['time']));
 
-        $size  = sizeof($series); if (!$size) return -1;
         $i     = -1;
         $iFrom =  0;
+        $iTo   = $size-1; if ($series[$iTo]['time'] < $time) return -1;
 
-        // Zeiten
-        if (is_int($series[0])) {
-            $iTo = $size-1; if ($series[$iTo] < $time) return -1;
-
-            while (true) {                                           // Zeitfenster von Beginn- und Endbar rekursiv bis zum
-                if ($series[$iFrom] >= $time) {                       // gesuchten Zeitpunkt verkleinern
-                    $i = $iFrom;
-                    break;
-                }
-                if ($series[$iTo]==$time || $size==2) {
-                    $i = $iTo;
-                    break;
-                }
-                $midSize = (int) ceil($size/2);                       // Fenster halbieren
-                $iMid    = $iFrom + $midSize - 1;
-                if ($series[$iMid] <= $time) $iFrom = $iMid;
-                else                         $iTo   = $iMid;
-                $size = $iTo - $iFrom + 1;
+        while (true) {                                              // Zeitfenster von Beginn- und Endbar rekursiv bis zum
+            if ($series[$iFrom]['time'] >= $time) {                 // gesuchten Zeitpunkt verkleinern
+                $i = $iFrom;
+                break;
             }
-            return $i;
-        }
-
-        // Arrays
-        if (is_array($series[0])) {
-            if (!is_int($series[0]['time'])) throw new IllegalTypeException('Illegal type of element $series[0][time]: '.getType($series[0]['time']));
-            $iTo = $size-1; if ($series[$iTo]['time'] < $time) return -1;
-
-            while (true) {                                           // Zeitfenster von Beginn- und Endbar rekursiv bis zum
-                if ($series[$iFrom]['time'] >= $time) {               // gesuchten Zeitpunkt verkleinern
-                    $i = $iFrom;
-                    break;
-                }
-                if ($series[$iTo]['time']==$time || $size==2) {
-                    $i = $iTo;
-                    break;
-                }
-                $midSize = (int) ceil($size/2);                       // Fenster halbieren
-                $iMid    = $iFrom + $midSize - 1;
-                if ($series[$iMid]['time'] <= $time) $iFrom = $iMid;
-                else                                 $iTo   = $iMid;
-                $size = $iTo - $iFrom + 1;
+            if ($series[$iTo]['time']==$time || $size==2) {
+                $i = $iTo;
+                break;
             }
-            return $i;
+            $midSize = (int) ceil($size/2);                         // Fenster halbieren
+            $iMid    = $iFrom + $midSize - 1;
+            if ($series[$iMid]['time'] <= $time) $iFrom = $iMid;
+            else                                 $iTo   = $iMid;
+            $size = $iTo - $iFrom + 1;
         }
-
-        // Objekte
-        if (is_object($series[0])) {
-            if (!is_int($series[0]->getTime())) throw new IllegalTypeException('Illegal type of property $series[0]->getTime(): '.getType($series[0]->getTime()));
-            $iTo = $size-1; if ($series[$iTo]->getTime() < $time) return -1;
-
-            while (true) {                                           // Zeitfenster von Beginn- und Endbar rekursiv bis zum
-                if ($series[$iFrom]->getTime() >= $time) {            // gesuchten Zeitpunkt verkleinern
-                    $i = $iFrom;
-                    break;
-                }
-                if ($series[$iTo]->getTime()==$time || $size==2) {
-                    $i = $iTo;
-                    break;
-                }
-                $midSize = (int) ceil($size/2);                       // Fenster halbieren
-                $iMid    = $iFrom + $midSize - 1;
-                if ($series[$iMid]->getTime() <= $time) $iFrom = $iMid;
-                else                                    $iTo   = $iMid;
-                $size = $iTo - $iFrom + 1;
-            }
-            return $i;
-        }
-
-        throw new IllegalTypeException('Illegal type of element $series[0]: '.getType($series[0]));
+        return $i;
     }
 
 
@@ -532,7 +473,7 @@ class Rost extends StaticClass {
     /**
      * Gibt die lesbare Konstante eines Timeframe-Codes zurueck.
      *
-     * @param  int period - Timeframe-Code bzw. Anzahl der Minuten je Bar
+     * @param  int $period - Timeframe-Code bzw. Anzahl der Minuten je Bar
      *
      * @return string
      */
@@ -558,7 +499,7 @@ class Rost extends StaticClass {
     /**
      * Alias fuer periodToStr()
      *
-     * @param  int timeframe
+     * @param  int $timeframe
      *
      * @return string
      */
@@ -570,7 +511,7 @@ class Rost extends StaticClass {
     /**
      * Gibt die Beschreibung eines Timeframe-Codes zurueck.
      *
-     * @param  int period - Timeframe-Code bzw. Anzahl der Minuten je Bar
+     * @param  int $period - Timeframe-Code bzw. Anzahl der Minuten je Bar
      *
      * @return string
      */
@@ -596,7 +537,7 @@ class Rost extends StaticClass {
     /**
      * Alias fuer periodDescription()
      *
-     * @param  int timeframe
+     * @param  int $timeframe
      *
      * @return string
      */
@@ -659,25 +600,25 @@ class Rost extends StaticClass {
         if (isSet($symbol) && !is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
         if (isSet($time) && !is_int($time))        throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
 
-        static $dataDir; !$dataDir && $dataDir = Config::getDefault()->get('app.dir.data');
+        static $dataDir; !$dataDir && $dataDir = self::di()['config']['app.dir.data'];
 
-        if ($id == 'rostDirDate') {                   // $yyyy/$mm/$dd                                                  // lokales Pfad-Datum
+        if ($id == 'rtDirDate') {                       // $yyyy/$mm/$dd                                                // lokales Pfad-Datum
             if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
             $result = gmDate('Y/m/d', $time);
         }
-        else if ($id == 'rostDir') {                  // $dataDir/history/rost/$type/$symbol/$rostDirDate               // lokales Verzeichnis
+        else if ($id == 'rtDir') {                      // $dataDir/history/rosatrader/$type/$symbol/$rtDirDate         // lokales Verzeichnis
             if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
-            $type        = RosaSymbol::dao()->getByName($symbol)->getType();
-            $rostDirDate = self::{__FUNCTION__}('rostDirDate', null, $time);
-            $result      = $dataDir.'/history/rost/'.$type.'/'.$symbol.'/'.$rostDirDate;
+            $type      = RosaSymbol::dao()->getByName($symbol)->getType();
+            $rtDirDate = self::{__FUNCTION__}('rtDirDate', null, $time);
+            $result    = $dataDir.'/history/rosatrader/'.$type.'/'.$symbol.'/'.$rtDirDate;
         }
-        else if ($id == 'rostFile.M1.raw') {          // $rostDir/M1.bin                                                // Rost-M1-Datei ungepackt
-            $rostDir = self::{__FUNCTION__}('rostDir' , $symbol, $time);
-            $result  = $rostDir.'/M1.bin';
+        else if ($id == 'rtFile.M1.raw') {              // $rtDir/M1.bin                                                // RT-M1-Datei ungepackt
+            $rtDir  = self::{__FUNCTION__}('rtDir' , $symbol, $time);
+            $result = $rtDir.'/M1.bin';
         }
-        else if ($id == 'rostFile.M1.compressed') {   // $rostDir/M1.rar                                                // Rost-M1-Datei gepackt
-            $rostDir = self::{__FUNCTION__}('rostDir', $symbol, $time);
-            $result  = $rostDir.'/M1.rar';
+        else if ($id == 'rtFile.M1.compressed') {       // $rtDir/M1.rar                                                // RT-M1-Datei gepackt
+            $rtDir  = self::{__FUNCTION__}('rtDir', $symbol, $time);
+            $result = $rtDir.'/M1.rar';
         }
         else throw new InvalidArgumentException('Unknown variable identifier "'.$id.'"');
 
@@ -701,7 +642,7 @@ class Rost extends StaticClass {
 
         static $root, $realRoot, $data, $realData;
         if (!$root) {
-            $config   = Config::getDefault();
+            $config   = self::di()['config'];
             $root     = str_replace('\\', '/', $config['app.dir.root'].'/');
             $realRoot = str_replace('\\', '/', realPath($root).'/');
             $data     = str_replace('\\', '/', $config['app.dir.data'].'/');

@@ -1,7 +1,7 @@
 <?php
-namespace rosasurfer\rost;
+namespace rosasurfer\rt;
 
-use rosasurfer\rost\view\ViewHelper;
+use rosasurfer\rt\view\ViewHelper;
 
 
 /**

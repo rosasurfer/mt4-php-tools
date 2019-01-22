@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\rost\model;
+namespace rosasurfer\rt\model;
 
 use rosasurfer\db\NoSuchRecordException;
 use rosasurfer\db\orm\DAO;
@@ -148,7 +148,7 @@ class RosaSymbolDAO extends DAO {
      * @return RosaSymbol[] - symbol instances sorted ascending by name
      */
     public function findAllByType($type) {
-        if (!is_bool($type)) throw new IllegalTypeException('Illegal type of parameter $type: '.getType($type));
+        if (!is_string($type)) throw new IllegalTypeException('Illegal type of parameter $type: '.getType($type));
 
         $type = $this->escapeLiteral($type);
         $sql = 'select *

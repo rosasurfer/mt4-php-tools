@@ -33,25 +33,26 @@
  *
  * TODO: check info from Zorro forum:  http://www.opserver.de/ubb7/ubbthreads.php?ubb=showflat&Number=463361#Post463345
  */
-namespace rosasurfer\rost\dukascopy\update_m1_bars;
+namespace rosasurfer\rt\dukascopy\update_m1_bars;
 
-use rosasurfer\config\Config;
+use rosasurfer\Application;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 use rosasurfer\net\http\CurlHttpClient;
 use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
+use rosasurfer\process\Process;
 
-use rosasurfer\rost\LZMA;
-use rosasurfer\rost\Rost;
-use rosasurfer\rost\dukascopy\Dukascopy;
-use rosasurfer\rost\model\DukascopySymbol;
-use rosasurfer\rost\model\RosaSymbol;
+use rosasurfer\rt\LZMA;
+use rosasurfer\rt\Rost;
+use rosasurfer\rt\dukascopy\Dukascopy;
+use rosasurfer\rt\model\DukascopySymbol;
+use rosasurfer\rt\model\RosaSymbol;
 
-use function rosasurfer\rost\fxtStrToTime;
-use function rosasurfer\rost\fxtTimezoneOffset;
-use function rosasurfer\rost\isWeekend;
+use function rosasurfer\rt\fxtStrToTime;
+use function rosasurfer\rt\fxtTimezoneOffset;
+use function rosasurfer\rt\isWeekend;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');
@@ -64,7 +65,7 @@ $verbose = 0;                                               // output verbosity
 
 $storeCompressedDukaFiles   = false;                        // whether to keep downloaded Dukascopy files
 $storeDecompressedDukaFiles = false;                        // whether to keep decompressed Dukascopy files
-$storeUncompressedRostFiles = true;                         // whether to store uncompressed history files
+$storeUncompressedRTFiles   = true;                         // whether to store uncompressed history files
 
 $barBuffer = [];
 
@@ -161,7 +162,8 @@ function updateSymbol(RosaSymbol $symbol) {
             $lastMonth = $month;
         }
         if (!checkHistory($symbolName, $day)) return false;
-        if (!WINDOWS) pcntl_signal_dispatch();              // auf Ctrl-C pruefen
+
+        Process::dispatchSignals();                         // check for Ctrl-C
     }
 
     echoPre('[Ok]      '.$symbolName);
@@ -170,7 +172,7 @@ function updateSymbol(RosaSymbol $symbol) {
 
 
 /**
- * Prueft den Stand der Rost-History eines einzelnen Forex-Tages und stoesst ggf. das Update an.
+ * Prueft den Stand der RT-History eines einzelnen Forex-Tages und stoesst ggf. das Update an.
  *
  * @param  string $symbol - Symbol
  * @param  int    $day    - GMT-Timestamp des zu pruefenden Tages
@@ -181,17 +183,17 @@ function checkHistory($symbol, $day) {
     if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
     $shortDate = gmDate('D, d-M-Y', $day);
 
-    global $verbose, $storeCompressedDukaFiles, $storeDecompressedDukaFiles, $storeUncompressedRostFiles, $barBuffer;
+    global $verbose, $storeCompressedDukaFiles, $storeDecompressedDukaFiles, $storeUncompressedRTFiles, $barBuffer;
     $day -= $day%DAY;                                               // 00:00 GMT
 
-    // (1) nur an Wochentagen: pruefen, ob die Rost-History existiert und ggf. aktualisieren
+    // (1) nur an Wochentagen: pruefen, ob die RT-History existiert und ggf. aktualisieren
     if (!isWeekend($day)) {
-        // History ist ok, wenn entweder die komprimierte Rost-Datei existiert...
-        if (is_file($file=getVar('rostFile.compressed', $symbol, $day))) {
+        // History ist ok, wenn entweder die komprimierte RT-Datei existiert...
+        if (is_file($file=getVar('rtFile.compressed', $symbol, $day))) {
             if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'  Rosatrader history file found: '.Rost::relativePath($file));
         }
-        // ...oder die unkomprimierte Rost-Datei gespeichert wird und existiert
-        else if ($storeUncompressedRostFiles && is_file($file=getVar('rostFile.raw', $symbol, $day))) {
+        // ...oder die unkomprimierte RT-Datei gespeichert wird und existiert
+        else if ($storeUncompressedRTFiles && is_file($file=getVar('rtFile.raw', $symbol, $day))) {
             if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'  Rosatrader history file found: '.Rost::relativePath($file));
         }
         // andererseits History aktualisieren
@@ -218,11 +220,11 @@ function checkHistory($symbol, $day) {
 
     // lokales Historyverzeichnis des Vortages, wenn Wochenende und es leer ist
     if (isWeekend($previousDay)) {
-        if (is_dir($dir=getVar('rostDir', $symbol, $previousDay))) @rmDir($dir);
+        if (is_dir($dir=getVar('rtDir', $symbol, $previousDay))) @rmDir($dir);
     }
     // lokales Historyverzeichnis des aktuellen Tages, wenn Wochenende und es leer ist
     if (isWeekend($day)) {
-        if (is_dir($dir=getVar('rostDir', $symbol, $day))) @rmDir($dir);
+        if (is_dir($dir=getVar('rtDir', $symbol, $day))) @rmDir($dir);
     }
 
     // Barbuffer-Daten des Vortages
@@ -241,7 +243,7 @@ function checkHistory($symbol, $day) {
 
 /**
  * Aktualisiert die Daten eines einzelnen Forex-Tages. Wird aufgerufen, wenn fuer einen Wochentag keine lokalen
- * Rost-Historydateien existieren.
+ * RT-Historydateien existieren.
  *
  * @param  string $symbol - Symbol
  * @param  int    $day    - FXT-Timestamp des zu aktualisierenden Forex-Tages
@@ -375,7 +377,7 @@ function mergeHistory($symbol, $day) {
     $types = ['bid', 'ask'];
     foreach ($types as $type) {
         if (!isSet($barBuffer[$type][$shortDate]) || ($size=sizeOf($barBuffer[$type][$shortDate]))!=1*DAY/MINUTES)
-            throw new RuntimeException('Unexpected number of Rost '.$type.' bars for '.$shortDate.' in bar buffer: '.$size.' ('.($size > 1*DAY/MINUTES ? 'more':'less').' then a day)');
+            throw new RuntimeException('Unexpected number of Rosatrader '.$type.' bars for '.$shortDate.' in bar buffer: '.$size.' ('.($size > 1*DAY/MINUTES ? 'more':'less').' then a day)');
     }
 
 
@@ -431,13 +433,12 @@ function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $save
     if (!is_bool($saveData))  throw new IllegalTypeException('Illegal type of parameter $saveData: '.getType($saveData));
     if (!is_bool($saveError)) throw new IllegalTypeException('Illegal type of parameter $saveError: '.getType($saveError));
 
-    $config    = Config::getDefault();
     $shortDate = gmDate('D, d-M-Y', $day);
     $url       = getVar('dukaUrl', $symbol, $day, $type);
     if (!$quiet) echoPre('[Info]    '.$shortDate.'  downloading: '.$url);
 
     // (1) Standard-Browser simulieren
-    $userAgent = $config->get('rost.useragent'); if (!$userAgent) throw new InvalidArgumentException('Invalid user agent configuration: "'.$userAgent.'"');
+    $userAgent = Application::getConfig()['rt.useragent'];
     $request = HttpRequest::create()
                           ->setUrl($url)
                           ->setHeader('User-Agent'     , $userAgent                                                       )
@@ -472,7 +473,7 @@ function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $save
 
         // ist das Flag $saveData gesetzt, Content speichern
         if ($saveData) {
-            mkDirWritable(getVar('rostDir', $symbol, $day, $type));
+            mkDirWritable(getVar('rtDir', $symbol, $day, $type));
             $tmpFile = tempNam(dirName($file=getVar('dukaFile.compressed', $symbol, $day, $type)), baseName($file));
             $hFile   = fOpen($tmpFile, 'wb');
             fWrite($hFile, $response->getContent());
@@ -615,7 +616,7 @@ function processRawDukascopyBarData($data, $symbol, $day, $type) {
 
 
 /**
- * Schreibt die gemergten Bardaten eines FXT-Tages aus dem Barbuffer in die lokale Rost-Historydatei.
+ * Schreibt die gemergten Bardaten eines FXT-Tages aus dem Barbuffer in die lokale RT-Historydatei.
  *
  * @param  string $symbol - Symbol
  * @param  int    $day    - Timestamp des FXT-Tages
@@ -625,7 +626,7 @@ function processRawDukascopyBarData($data, $symbol, $day, $type) {
 function saveBars($symbol, $day) {
     if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
     $shortDate = gmDate('D, d-M-Y', $day);
-    global $barBuffer, $storeUncompressedRostFiles;
+    global $barBuffer, $storeUncompressedRTFiles;
 
 
     // (1) gepufferte Datenreihe nochmal pruefen
@@ -649,7 +650,7 @@ function saveBars($symbol, $day) {
             $bar['open' ] < $bar['low' ] ||          // aus (H >= O && O >= L) folgt (H >= L)
             $bar['close'] > $bar['high'] ||          // nicht mit min()/max(), da nicht performant
             $bar['close'] < $bar['low' ] ||
-           !$bar['ticks']) throw new RuntimeException('Illegal data for Rost price bar of '.gmDate('D, d-M-Y H:i:s', $bar['time_fxt']).": O=$bar[open] H=$bar[high] L=$bar[low] C=$bar[close] V=$bar[ticks]");
+           !$bar['ticks']) throw new RuntimeException('Illegal data for Rosatrader price bar of '.gmDate('D, d-M-Y H:i:s', $bar['time_fxt']).": O=$bar[open] H=$bar[high] L=$bar[low] C=$bar[close] V=$bar[ticks]");
 
         $data .= pack('VVVVVV', $bar['time_fxt'],
                                 $bar['open'    ],
@@ -661,8 +662,8 @@ function saveBars($symbol, $day) {
 
 
     // (3) binaere Daten ggf. unkomprimiert speichern
-    if ($storeUncompressedRostFiles) {
-        if (is_file($file=getVar('rostFile.raw', $symbol, $day))) {
+    if ($storeUncompressedRTFiles) {
+        if (is_file($file=getVar('rtFile.raw', $symbol, $day))) {
             echoPre('[Error]   '.$symbol.' history for '.$shortDate.' already exists');
             return false;
         }
@@ -711,39 +712,39 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
         if ($type!='bid' && $type!='ask')      throw new InvalidArgumentException('Invalid parameter $type: "'.$type.'"');
     }
 
-    static $dataDir; !$dataDir && $dataDir = Config::getDefault()->get('app.dir.data');
+    static $dataDir; !$dataDir && $dataDir = Application::getConfig()['app.dir.data'];
     $self = __FUNCTION__;
 
-    if ($id == 'rostDirDate') {                 // $yyyy/$mmL/$dd                                       // lokales Pfad-Datum
+    if ($id == 'rtDirDate') {                   // $yyyy/$mmL/$dd                                       // lokales Pfad-Datum
         if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
         $result = gmDate('Y/m/d', $time);
     }
-    else if ($id == 'rostDir') {                // $dataDir/history/rost/$type/$symbol/$dateL           // lokales Verzeichnis
+    else if ($id == 'rtDir') {                  // $dataDir/history/rosatrader/$type/$symbol/$dateL     // lokales Verzeichnis
         $type   = RosaSymbol::dao()->getByName($symbol)->getType();
-        $dateL  = $self('rostDirDate', null, $time, null);
-        $result = $dataDir.'/history/rost/'.$type.'/'.$symbol.'/'.$dateL;
+        $dateL  = $self('rtDirDate', null, $time, null);
+        $result = $dataDir.'/history/rosatrader/'.$type.'/'.$symbol.'/'.$dateL;
     }
-    else if ($id == 'rostFile.raw') {           // $rostDir/M1.bin                                      // lokale Datei ungepackt
-        $rostDir = $self('rostDir', $symbol, $time, null);
-        $result  = $rostDir.'/M1.bin';
+    else if ($id == 'rtFile.raw') {             // $rtDir/M1.bin                                        // lokale Datei ungepackt
+        $rtDir  = $self('rtDir', $symbol, $time, null);
+        $result = $rtDir.'/M1.bin';
     }
-    else if ($id == 'rostFile.compressed') {    // $rostDir/M1.rar                                      // lokale Datei gepackt
-        $rostDir = $self('rostDir', $symbol, $time, null);
-        $result  = $rostDir.'/M1.rar';
+    else if ($id == 'rtFile.compressed') {      // $rtDir/M1.rar                                        // lokale Datei gepackt
+        $rtDir  = $self('rtDir', $symbol, $time, null);
+        $result = $rtDir.'/M1.rar';
     }
     else if ($id == 'dukaName') {               // BID_candles_min_1                                    // Dukascopy-Name
         if (is_null($type)) throw new InvalidArgumentException('Invalid parameter $type: (null)');
         $result = ($type=='bid' ? 'BID':'ASK').'_candles_min_1';
     }
-    else if ($id == 'dukaFile.raw') {           // $rostDir/$dukaName.bin                               // Dukascopy-Datei ungepackt
-        $rostDir  = $self('rostDir', $symbol, $time, null);
+    else if ($id == 'dukaFile.raw') {           // $rtDir/$dukaName.bin                                 // Dukascopy-Datei ungepackt
+        $rtDir    = $self('rtDir', $symbol, $time, null);
         $dukaName = $self('dukaName', null, null, $type);
-        $result   = $rostDir.'/'.$dukaName.'.bin';
+        $result   = $rtDir.'/'.$dukaName.'.bin';
     }
-    else if ($id == 'dukaFile.compressed') {    // $rostDir/$dukaName.bi5                               // Dukascopy-Datei gepackt
-        $rostDir  = $self('rostDir', $symbol, $time, null);
+    else if ($id == 'dukaFile.compressed') {    // $rtDir/$dukaName.bi5                                 // Dukascopy-Datei gepackt
+        $rtDir    = $self('rtDir', $symbol, $time, null);
         $dukaName = $self('dukaName', null, null, $type);
-        $result   = $rostDir.'/'.$dukaName.'.bi5';
+        $result   = $rtDir.'/'.$dukaName.'.bi5';
     }
     else if ($id == 'dukaUrlDate') {            // $yyyy/$mmD/$dd                                       // Dukascopy-URL-Datum
         if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
@@ -758,10 +759,10 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
         $dukaName = $self('dukaName'   , null, null, $type);
         $result   = 'http://datafeed.dukascopy.com/datafeed/'.$symbol.'/'.$dateD.'/'.$dukaName.'.bi5';
     }
-    else if ($id == 'dukaFile.404') {           // $rostDir/$dukaName.404                               // Download-Fehlerdatei (404)
-        $rostDir  = $self('rostDir', $symbol, $time, null);
+    else if ($id == 'dukaFile.404') {           // $rtDir/$dukaName.404                                 // Download-Fehlerdatei (404)
+        $rtDir    = $self('rtDir', $symbol, $time, null);
         $dukaName = $self('dukaName', null, null, $type);
-        $result   = $rostDir.'/'.$dukaName.'.404';
+        $result   = $rtDir.'/'.$dukaName.'.404';
     }
     else {
       throw new InvalidArgumentException('Unknown variable identifier "'.$id.'"');

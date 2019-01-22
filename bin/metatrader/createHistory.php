@@ -5,20 +5,21 @@
  * Speichert diese MetaTrader-History im globalen MT4-Serververzeichnis. Vorhandene Historydateien werden ueberschrieben.
  * Um vorhandene Historydateien zu aktualisieren, ist "updateHistory.php" zu benutzen.
  */
-namespace rosasurfer\rost\metatrader\create_history;
+namespace rosasurfer\rt\metatrader\create_history;
 
-use rosasurfer\config\Config;
+use rosasurfer\Application;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
+use rosasurfer\process\Process;
 use rosasurfer\util\PHP;
 
-use rosasurfer\rost\Rost;
-use rosasurfer\rost\metatrader\HistorySet;
-use rosasurfer\rost\metatrader\MT4;
-use rosasurfer\rost\model\RosaSymbol;
+use rosasurfer\rt\Rost;
+use rosasurfer\rt\metatrader\HistorySet;
+use rosasurfer\rt\metatrader\MT4;
+use rosasurfer\rt\model\RosaSymbol;
 
-use function rosasurfer\rost\fxTime;
-use function rosasurfer\rost\isWeekend;
+use function rosasurfer\rt\fxTime;
+use function rosasurfer\rt\isWeekend;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');
@@ -85,7 +86,7 @@ function createHistory(RosaSymbol $symbol) {
 
 
     // MT4-HistorySet erzeugen
-    $directory = Config::getDefault()->get('app.dir.data').'/history/mt4/XTrade-Testhistory';
+    $directory = Application::getConfig()['app.dir.data'].'/history/mt4/XTrade-Testhistory';
     $hstSet = HistorySet::create($symbolName, $symbolDigits, $format=400, $directory);
 
 
@@ -98,10 +99,10 @@ function createHistory(RosaSymbol $symbol) {
             $lastMonth = $month;
         }
 
-        // ausser an Wochenenden: Rost-History verarbeiten
+        // ausser an Wochenenden: RT-History verarbeiten
         if (!isWeekend($day)) {
-            if      (is_file($file=getVar('rostFile.compressed', $symbolName, $day))) {}    // wenn komprimierte Rost-Datei existiert
-            else if (is_file($file=getVar('rostFile.raw'       , $symbolName, $day))) {}    // wenn unkomprimierte Rost-Datei existiert
+            if      (is_file($file=getVar('rtFile.compressed', $symbolName, $day))) {}      // wenn komprimierte RT-Datei existiert
+            else if (is_file($file=getVar('rtFile.raw'       , $symbolName, $day))) {}      // wenn unkomprimierte RT-Datei existiert
             else {
                 echoPre('[Error]   '.$symbolName.'  Rosatrader history for '.$shortDate.' not found');
                 return false;
@@ -110,9 +111,8 @@ function createHistory(RosaSymbol $symbol) {
             $bars = Rost::readBarFile($file, $symbolName);
             $hstSet->appendBars($bars);
         }
-
-        if (!WINDOWS) pcntl_signal_dispatch();                                          // Auf Ctrl-C pruefen, um bei Abbruch den
-    }                                                                                   // Schreibbuffer der History leeren zu koennen.
+        Process::dispatchSignals();                                                         // check for Ctrl-C
+    }
     $hstSet->close();
 
     echoPre('[Ok]      '.$symbolName);
@@ -143,24 +143,24 @@ function getVar($id, $symbol=null, $time=null) {
     if (isSet($time) && !is_int($time))        throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
 
     $self = __FUNCTION__;
-    static $dataDir; !$dataDir && $dataDir = Config::getDefault()->get('app.dir.data');
+    static $dataDir; !$dataDir && $dataDir = Application::getConfig()['app.dir.data'];
 
-    if ($id == 'rostDirDate') {               // $yyyy/$mm/$dd                                                  // lokales Pfad-Datum
+    if ($id == 'rtDirDate') {                   // $yyyy/$mm/$dd                                                // lokales Pfad-Datum
         if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
         $result = gmDate('Y/m/d', $time);
     }
-    else if ($id == 'rostDir') {              // $dataDir/history/rost/$type/$symbol/$rostDirDate               // lokales Verzeichnis
-        $type        = RosaSymbol::dao()->getByName($symbol)->getType();
-        $rostDirDate = $self('rostDirDate', null, $time);
-        $result      = $dataDir.'/history/rost/'.$type.'/'.$symbol.'/'.$rostDirDate;
+    else if ($id == 'rtDir') {                  // $dataDir/history/rosatrader/$type/$symbol/$rtDirDate         // lokales Verzeichnis
+        $type      = RosaSymbol::dao()->getByName($symbol)->getType();
+        $rtDirDate = $self('rtDirDate', null, $time);
+        $result    = $dataDir.'/history/rosatrader/'.$type.'/'.$symbol.'/'.$rtDirDate;
     }
-    else if ($id == 'rostFile.raw') {         // $rostDir/M1.bin                                                // lokale Datei ungepackt
-        $rostDir = $self('rostDir' , $symbol, $time);
-        $result  = $rostDir.'/M1.bin';
+    else if ($id == 'rtFile.raw') {             // $rtDir/M1.bin                                                // lokale Datei ungepackt
+        $rtDir  = $self('rtDir' , $symbol, $time);
+        $result = $rtDir.'/M1.bin';
     }
-    else if ($id == 'rostFile.compressed') {  // $rostDir/M1.rar                                                // lokale Datei gepackt
-        $rostDir = $self('rostDir' , $symbol, $time);
-        $result  = $rostDir.'/M1.rar';
+    else if ($id == 'rtFile.compressed') {      // $rtDir/M1.rar                                                // lokale Datei gepackt
+        $rtDir  = $self('rtDir' , $symbol, $time);
+        $result = $rtDir.'/M1.rar';
     }
     else {
       throw new InvalidArgumentException('Unknown variable identifier "'.$id.'"');

@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\rost\dukascopy;
+namespace rosasurfer\rt\dukascopy;
 
 use rosasurfer\core\StaticClass;
 use rosasurfer\exception\IllegalTypeException;
@@ -7,12 +7,11 @@ use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 use rosasurfer\log\Logger;
 
-use rosasurfer\rost\LZMA;
-use rosasurfer\rost\Rost;
-use rosasurfer\rost\model\DukascopySymbol;
+use rosasurfer\rt\LZMA;
+use rosasurfer\rt\model\DukascopySymbol;
 
-use const rosasurfer\rost\DUKASCOPY_BAR_SIZE;
-use const rosasurfer\rost\DUKASCOPY_TICK_SIZE;
+use const rosasurfer\rt\DUKASCOPY_BAR_SIZE;
+use const rosasurfer\rt\DUKASCOPY_TICK_SIZE;
 
 
 /**

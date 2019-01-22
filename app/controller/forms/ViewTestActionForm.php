@@ -1,10 +1,10 @@
 <?php
-namespace rosasurfer\rost\controller\forms;
+namespace rosasurfer\rt\controller\forms;
 
 use rosasurfer\ministruts\ActionForm;
 use rosasurfer\ministruts\Request;
 
-use rosasurfer\rost\model\Test;
+use rosasurfer\rt\model\Test;
 
 
 /**
@@ -36,7 +36,7 @@ class ViewTestActionForm extends ActionForm {
      * @return Test|null - Test instance or NULL if an associated test was not found
      */
     public function getTest() {
-        if (is_null($this->test) && is_int($this->id)) {
+        if (!isSet($this->test) && is_int($this->id)) {
             $this->test = Test::dao()->findById($this->id) ?: false;
         }
         return is_bool($this->test) ? null : $this->test;

@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\rost\metatrader;
+namespace rosasurfer\rt\metatrader;
 
 use rosasurfer\core\Object;
 use rosasurfer\debug\ErrorHandler;
@@ -9,18 +9,18 @@ use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 use rosasurfer\log\Logger;
 
-use rosasurfer\rost\Rost;
-use rosasurfer\rost\metatrader\MT4;
+use rosasurfer\rt\Rost;
+use rosasurfer\rt\metatrader\MT4;
 
-use const rosasurfer\rost\PERIOD_M1;
-use const rosasurfer\rost\PERIOD_M5;
-use const rosasurfer\rost\PERIOD_M15;
-use const rosasurfer\rost\PERIOD_M30;
-use const rosasurfer\rost\PERIOD_H1;
-use const rosasurfer\rost\PERIOD_H4;
-use const rosasurfer\rost\PERIOD_D1;
-use const rosasurfer\rost\PERIOD_W1;
-use const rosasurfer\rost\PERIOD_MN1;
+use const rosasurfer\rt\PERIOD_M1;
+use const rosasurfer\rt\PERIOD_M5;
+use const rosasurfer\rt\PERIOD_M15;
+use const rosasurfer\rt\PERIOD_M30;
+use const rosasurfer\rt\PERIOD_H1;
+use const rosasurfer\rt\PERIOD_H4;
+use const rosasurfer\rt\PERIOD_D1;
+use const rosasurfer\rt\PERIOD_W1;
+use const rosasurfer\rt\PERIOD_MN1;
 
 
 /**
@@ -378,7 +378,7 @@ class HistorySet extends Object {
     /**
      * Fuegt dem Ende der Zeitreihen des Sets weitere Bardaten hinzu. Vorhandene Daten werden nicht geaendert.
      *
-     * @param  ROST_PRICE_BAR[] - Daten der Periode M1
+     * @param  int[][] $bars - ROST_PRICE_BAR Daten der Periode M1
      *
      * @return bool - Erfolgsstatus
      */
@@ -399,7 +399,7 @@ class HistorySet extends Object {
      * Synchronisationszeitpunkt der Zeitreihe geschrieben wurden und die sich mit den uebergebenen Bars ueberschneiden,
      * werden ersetzt. Vorhandene Bars, die sich mit den uebergebenen Bars nicht ueberschneiden, bleiben unveraendert.
      *
-     * @param  ROST_PRICE_BAR[] - Daten der Periode M1
+     * @param  int[][] $bars - ROST_PRICE_BAR Daten der Periode M1
      */
     public function synchronize(array $bars) {
         if ($this->closed) throw new IllegalStateException('Cannot process a closed '.__CLASS__);

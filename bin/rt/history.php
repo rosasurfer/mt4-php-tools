@@ -3,10 +3,10 @@
 /**
  * Command line tool for processing Rosatrader history.
  */
-namespace rosasurfer\rost\history;
+namespace rosasurfer\rt\history;
 
-use rosasurfer\rost\Rost;
-use rosasurfer\rost\model\RosaSymbol;
+use rosasurfer\process\Process;
+use rosasurfer\rt\model\RosaSymbol;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');
@@ -56,7 +56,7 @@ foreach ($symbols as $symbol) {
     if ($cmd == 'r') $symbol->refreshHistory();
     if ($cmd == 's') $symbol->synchronizeHistory();
 
-    if (!WINDOWS) pcntl_signal_dispatch();                          // check for and dispatch signals
+    Process::dispatchSignals();                                     // check for Ctrl-C
 }
 exit(0);
 

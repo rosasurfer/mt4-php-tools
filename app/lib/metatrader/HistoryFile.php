@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\rost\metatrader;
+namespace rosasurfer\rt\metatrader;
 
 use rosasurfer\core\Object;
 use rosasurfer\debug\ErrorHandler;
@@ -10,17 +10,17 @@ use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 use rosasurfer\exception\UnimplementedFeatureException;
 
-use rosasurfer\rost\Rost;
+use rosasurfer\rt\Rost;
 
-use const rosasurfer\rost\PERIOD_D1;
-use const rosasurfer\rost\PERIOD_H1;
-use const rosasurfer\rost\PERIOD_H4;
-use const rosasurfer\rost\PERIOD_M1;
-use const rosasurfer\rost\PERIOD_M15;
-use const rosasurfer\rost\PERIOD_M30;
-use const rosasurfer\rost\PERIOD_M5;
-use const rosasurfer\rost\PERIOD_MN1;
-use const rosasurfer\rost\PERIOD_W1;
+use const rosasurfer\rt\PERIOD_D1;
+use const rosasurfer\rt\PERIOD_H1;
+use const rosasurfer\rt\PERIOD_H4;
+use const rosasurfer\rt\PERIOD_M1;
+use const rosasurfer\rt\PERIOD_M15;
+use const rosasurfer\rt\PERIOD_M30;
+use const rosasurfer\rt\PERIOD_M5;
+use const rosasurfer\rt\PERIOD_MN1;
+use const rosasurfer\rt\PERIOD_W1;
 
 
 /**
@@ -475,7 +475,7 @@ class HistoryFile extends Object {
      *                      HISTORY_BAR    if the bar was stored and is returned from the history file
      *                      NULL           if no such bar exists (offset is larger than the file's number of bars)
      *
-     * @see  HistoryFile::getRostBar()
+     * @see  HistoryFile::getRosatraderBar()
      * @see  HistoryFile::getHistoryBar()
      */
     public function getBar($offset) {

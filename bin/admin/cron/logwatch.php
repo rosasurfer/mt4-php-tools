@@ -5,9 +5,9 @@
  * If no receivers are configured mail is sent to the system user running the script. Processed log entries are removed
  * from the file.
  */
-namespace rosasurfer\rost\logwatch;
+namespace rosasurfer\rt\logwatch;
 
-use rosasurfer\config\Config;
+use rosasurfer\Application;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\net\mail\Mailer;
 use rosasurfer\util\PHP;
@@ -102,9 +102,9 @@ function processEntry($entry) {
     $entry = trim($entry);
     if (!strLen($entry)) return;
 
-    $config = Config::getDefault();
-
+    $config = Application::getConfig();
     $receivers = [];
+
     foreach (explode(',', $config->get('log.mail.receiver', '')) as $receiver) {
         if ($receiver = trim($receiver)) {
             if (filter_var($receiver, FILTER_VALIDATE_EMAIL)) {     // silently skip invalid receiver addresses

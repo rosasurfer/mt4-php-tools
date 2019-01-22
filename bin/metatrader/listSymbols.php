@@ -5,9 +5,9 @@
  *
  * @see Struct-Formate in MT4Expander.dll::Expander.h
  */
-namespace rosasurfer\rost\metatrader\list_symbols;
+namespace rosasurfer\rt\metatrader\list_symbols;
 
-use rosasurfer\rost\metatrader\MT4;
+use rosasurfer\rt\metatrader\MT4;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');
 
@@ -181,10 +181,10 @@ exit(0);
 /**
  * Erfasst die Informationen einer Symboldatei.
  *
- * @param  _In_     string $file    - Name der Symboldatei
- * @param  _In_Out_ array &$fields  - zu erfassende Felder (Laengen werden im Array gespeichert)
- * @param  _In_Out_ array &$data    - Array zum Zwischenspeichern der erfassten Daten
- * @param  _In_     array  $options - Optionen
+ * @param  string $file    [_in_    ] - Name der Symboldatei
+ * @param  array  $fields  [_in_out_] - reference to zu erfassende Felder (Laengen werden im Array gespeichert)
+ * @param  array  $data    [_in_out_] - reference to Array zum Zwischenspeichern der erfassten Daten
+ * @param  array  $options [_in_    ] - Optionen
  *
  * @return bool - Erfolgsstatus
  */

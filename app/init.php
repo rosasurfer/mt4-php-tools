@@ -3,8 +3,7 @@ use rosasurfer\Application;
 use rosasurfer\util\PHP;
 
 // class loader
-$appRoot = dirName(__DIR__);
-require($appRoot.'/vendor/autoload.php');
+require(($appRoot=dirName(__DIR__)).'/vendor/autoload.php');
 
 
 // php.ini settings
@@ -18,7 +17,7 @@ PHP::ini_set('memory_limit',     '256M'                            );
 
 // create a new application
 return new Application([
-    'app.dir.root'       => $appRoot,
-    'app.dir.config'     => __DIR__.'/config',
-    'app.global-helpers' => true,
+    'app.dir.root'   => $appRoot,
+    'app.dir.config' => __DIR__.'/config',
+    'app.globals'    => true,
 ]);

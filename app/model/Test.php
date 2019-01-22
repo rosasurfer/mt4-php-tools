@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\rost\model;
+namespace rosasurfer\rt\model;
 
 use rosasurfer\exception\IllegalArgumentException;
 use rosasurfer\exception\IllegalTypeException;
@@ -7,12 +7,12 @@ use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\util\PHP;
 use rosasurfer\util\Windows;
 
-use rosasurfer\rost\Rost;
-use rosasurfer\rost\metatrader\MT4;
+use rosasurfer\rt\Rost;
+use rosasurfer\rt\metatrader\MT4;
 
-use const rosasurfer\rost\OP_SELL;
-use const rosasurfer\rost\PERIOD_M1;
-use const rosasurfer\rost\BARMODEL_BAROPEN;
+use const rosasurfer\rt\BARMODEL_BAROPEN;
+use const rosasurfer\rt\OP_SELL;
+use const rosasurfer\rt\PERIOD_M1;
 
 
 /**

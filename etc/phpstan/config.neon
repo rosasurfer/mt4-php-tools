@@ -1,17 +1,17 @@
 #
-# alias phpstan='php7 -d memory_limit=256M -d short_open_tag=On /path/to/phpstan/bin/phpstan --ansi'
+# alias phpstan='php7 -d memory_limit=256M -d short_open_tag=On /path/to/phpstan/bin/phpstan'
 #
-# phpstan analyse -a etc/phpstan/autoload.php -c etc/phpstan/config.neon --level=0 [--] <path>
+# phpstan analyse -a etc/phpstan/autoload.php -c etc/phpstan/config.neon --level=0..7 [--] <path>
 #
 
 parameters:
     autoload_files:
-        - etc/phpstan/function-stubs.php                            # stubs for PHP extensions and procedural code
+        - etc/phpstan/function-stubs.php                                    # stubs for PHP extensions and procedural code
         - vendor/rosasurfer/ministruts/etc/phpstan/function-stubs.php
 
-    fileExtensions:                                                 # additional files to analyse
+    fileExtensions:                                                         # additional files to analyse
        #- html
-       #- phtml                                                     # TODO: Tile default vars trigger errors
+       #- phtml                                                             # TODO: Tile default vars trigger errors
 
     excludes_analyse:
         - .git/
@@ -31,27 +31,33 @@ parameters:
 
     ignoreErrors:
         # intentionally ignore the following issues
-        - '/Call to ((static )?method|function) [^ ]+\(\) with incorrect case:/'                                    # Ever heared of naming standards?
-        - '/Array \(([^ ]+)\[\]\) does not accept (\1\|)?null\b/'                                                   # NULL is a value (not a type) and always valid.
+        - '/Call to ((static )?method|function) [^ ]+\(\) with incorrect case:/'                                    # We prefer camel-case standards.
+        - '/Class stdClass referenced with incorrect case: StdClass\b/'                                             # - dito -
+        - '/Array \(([^ ]+)\[\]\) does not accept (\1\|)?null\b/'                                                   # NULL is a value (not a type) and can always be assigned.
+        - '/Array \(array<([^ ]+)>\) does not accept (\1\|)?null\b/'                                                # - dito -
         - '/(Static )?property [^ ]+ \(([^ ]+)\) does not accept (\2\|)?null\b/i'                                   # - dito -
         - '/Property [^ ]+ \([^ ]+\[\]\) does not accept default value of type null\[\]/i'                          # - dito -
+        - '/Property [^ ]+ \(array<[^ ]+>\) does not accept default value of type array<int, null>/'                # - dito -
         - '/Parameter #[0-9]+ [^ ]+ of class [^ ]+ constructor expects ([^ ]+), (\1\|)?null given\b/'               # - dito -
         - '/Parameter #[0-9]+ [^ ]+ of (static )?(function|method) [^ ]+ expects ([^ ]+), (\3\|)?null given\b/'     # - dito -
         - '/Calling method [^ ]+\(\) on possibly null value of type [^ ]+\|null\b/'
         - "/Casting to (bool|int|float|string) something that's already (bool|int|float|string)/"                   # PHPStan ignores non-initialized vars
         - '/Strict comparison using [=!]== between (int|string) and null will always evaluate to (true|false)\b/'
 
+        # false positives since v0.9
+        - '/PHPDoc tag @param for parameter \$[^ ]+ with type array(<[^ |]+(\|[^ |]+)?>)? is not subtype of native type array<int, mixed>/'
+
         # unsolved issues
         - '/Parameter (#2 \$sort_order|#4 \.\.\.\$arr2) of function array_multisort is passed by reference, so it expects variables only/'
 
 
-services:
-        # service classes must be loaded via etc/phpstan/autoload.php
-        # (services are initialized before execution of block "parameters/autoload_files")
+services: # Services must be loaded via cmd line option --autoload-file as they are
+          # instantiated before execution of block "parameters/autoload_files".
     -
         class: rosasurfer\phpstan\DAO_Find_ReturnType
         tags:
             - phpstan.broker.dynamicMethodReturnTypeExtension
+            - phpstan.broker.dynamicStaticMethodReturnTypeExtension
     -
         class: rosasurfer\phpstan\DAO_FindAll_ReturnType
         tags:
@@ -63,12 +69,6 @@ services:
             - phpstan.broker.dynamicMethodReturnTypeExtension
             - phpstan.broker.dynamicStaticMethodReturnTypeExtension
     -
-        class: rosasurfer\phpstan\PersistableObject_PopulateNew_ReturnType
-        tags:
-            - phpstan.broker.dynamicMethodReturnTypeExtension
-            - phpstan.broker.dynamicStaticMethodReturnTypeExtension
-    -
         class: rosasurfer\phpstan\Singleton_GetInstance_ReturnType
         tags:
-            - phpstan.broker.dynamicMethodReturnTypeExtension
             - phpstan.broker.dynamicStaticMethodReturnTypeExtension

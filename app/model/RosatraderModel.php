@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\rost\model;
+namespace rosasurfer\rt\model;
 
 use rosasurfer\db\orm\PersistableObject;
 
