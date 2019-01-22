@@ -214,7 +214,7 @@ class Rost extends StaticClass {
     /**
      * Return an order type description.
      *
-     * @param  int - order type id
+     * @param  int $id - order type id
      *
      * @return string|null - description or NULL if the parameter is not a valid order type id
      */
@@ -325,87 +325,38 @@ class Rost extends StaticClass {
     /**
      * Gibt den Offset eines Zeitpunktes innerhalb einer Zeitreihe zurueck.
      *
-     * @param  array $series - zu durchsuchende Reihe: Zeiten, Arrays mit dem Feld 'time' oder Objekte mit der Methode getTime()
+     * @param  array $series - zu durchsuchende Reihe: Arrays mit dem Feld "time"
      * @param  int   $time   - Zeitpunkt
      *
      * @return int - Offset oder -1, wenn der Offset ausserhalb der Arraygrenzen liegt
      */
     public static function findTimeOffset(array $series, $time) {
-        if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+        if (!is_int($time))              throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+        $size = sizeof($series); if (!$size) return -1;
+        if (!is_array($series[0]))       throw new IllegalTypeException('Illegal type of element $series[0]: '.getType($series[0]));
+        if (!isSet($series[0]['time']))  throw new InvalidArgumentException('Invalid parameter $series[0]: '.getType($series[0].' (no index "time")'));
+        if (!is_int($series[0]['time'])) throw new IllegalTypeException('Illegal type of element $series[0][time]: '.getType($series[0]['time']));
 
-        $size  = sizeof($series); if (!$size) return -1;
         $i     = -1;
         $iFrom =  0;
+        $iTo   = $size-1; if ($series[$iTo]['time'] < $time) return -1;
 
-        // Zeiten
-        if (is_int($series[0])) {
-            $iTo = $size-1; if ($series[$iTo] < $time) return -1;
-
-            while (true) {                                           // Zeitfenster von Beginn- und Endbar rekursiv bis zum
-                if ($series[$iFrom] >= $time) {                       // gesuchten Zeitpunkt verkleinern
-                    $i = $iFrom;
-                    break;
-                }
-                if ($series[$iTo]==$time || $size==2) {
-                    $i = $iTo;
-                    break;
-                }
-                $midSize = (int) ceil($size/2);                       // Fenster halbieren
-                $iMid    = $iFrom + $midSize - 1;
-                if ($series[$iMid] <= $time) $iFrom = $iMid;
-                else                         $iTo   = $iMid;
-                $size = $iTo - $iFrom + 1;
+        while (true) {                                              // Zeitfenster von Beginn- und Endbar rekursiv bis zum
+            if ($series[$iFrom]['time'] >= $time) {                 // gesuchten Zeitpunkt verkleinern
+                $i = $iFrom;
+                break;
             }
-            return $i;
-        }
-
-        // Arrays
-        if (is_array($series[0])) {
-            if (!is_int($series[0]['time'])) throw new IllegalTypeException('Illegal type of element $series[0][time]: '.getType($series[0]['time']));
-            $iTo = $size-1; if ($series[$iTo]['time'] < $time) return -1;
-
-            while (true) {                                           // Zeitfenster von Beginn- und Endbar rekursiv bis zum
-                if ($series[$iFrom]['time'] >= $time) {               // gesuchten Zeitpunkt verkleinern
-                    $i = $iFrom;
-                    break;
-                }
-                if ($series[$iTo]['time']==$time || $size==2) {
-                    $i = $iTo;
-                    break;
-                }
-                $midSize = (int) ceil($size/2);                       // Fenster halbieren
-                $iMid    = $iFrom + $midSize - 1;
-                if ($series[$iMid]['time'] <= $time) $iFrom = $iMid;
-                else                                 $iTo   = $iMid;
-                $size = $iTo - $iFrom + 1;
+            if ($series[$iTo]['time']==$time || $size==2) {
+                $i = $iTo;
+                break;
             }
-            return $i;
+            $midSize = (int) ceil($size/2);                         // Fenster halbieren
+            $iMid    = $iFrom + $midSize - 1;
+            if ($series[$iMid]['time'] <= $time) $iFrom = $iMid;
+            else                                 $iTo   = $iMid;
+            $size = $iTo - $iFrom + 1;
         }
-
-        // Objekte
-        if (is_object($series[0])) {
-            if (!is_int($series[0]->getTime())) throw new IllegalTypeException('Illegal type of property $series[0]->getTime(): '.getType($series[0]->getTime()));
-            $iTo = $size-1; if ($series[$iTo]->getTime() < $time) return -1;
-
-            while (true) {                                           // Zeitfenster von Beginn- und Endbar rekursiv bis zum
-                if ($series[$iFrom]->getTime() >= $time) {            // gesuchten Zeitpunkt verkleinern
-                    $i = $iFrom;
-                    break;
-                }
-                if ($series[$iTo]->getTime()==$time || $size==2) {
-                    $i = $iTo;
-                    break;
-                }
-                $midSize = (int) ceil($size/2);                       // Fenster halbieren
-                $iMid    = $iFrom + $midSize - 1;
-                if ($series[$iMid]->getTime() <= $time) $iFrom = $iMid;
-                else                                    $iTo   = $iMid;
-                $size = $iTo - $iFrom + 1;
-            }
-            return $i;
-        }
-
-        throw new IllegalTypeException('Illegal type of element $series[0]: '.getType($series[0]));
+        return $i;
     }
 
 
@@ -522,7 +473,7 @@ class Rost extends StaticClass {
     /**
      * Gibt die lesbare Konstante eines Timeframe-Codes zurueck.
      *
-     * @param  int period - Timeframe-Code bzw. Anzahl der Minuten je Bar
+     * @param  int $period - Timeframe-Code bzw. Anzahl der Minuten je Bar
      *
      * @return string
      */
@@ -548,7 +499,7 @@ class Rost extends StaticClass {
     /**
      * Alias fuer periodToStr()
      *
-     * @param  int timeframe
+     * @param  int $timeframe
      *
      * @return string
      */
@@ -560,7 +511,7 @@ class Rost extends StaticClass {
     /**
      * Gibt die Beschreibung eines Timeframe-Codes zurueck.
      *
-     * @param  int period - Timeframe-Code bzw. Anzahl der Minuten je Bar
+     * @param  int $period - Timeframe-Code bzw. Anzahl der Minuten je Bar
      *
      * @return string
      */
@@ -586,7 +537,7 @@ class Rost extends StaticClass {
     /**
      * Alias fuer periodDescription()
      *
-     * @param  int timeframe
+     * @param  int $timeframe
      *
      * @return string
      */

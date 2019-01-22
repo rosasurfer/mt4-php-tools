@@ -86,7 +86,7 @@ class HistoryHeader extends Object {
     private function __construct_1($format, $copyright, $symbol, $period, $digits, $syncMarker, $lastSyncTime) {
         if (!is_int($format))                         throw new IllegalTypeException('Illegal type of parameter $format: '.getType($format));
         if ($format!=400 && $format!=401)             throw new MetaTraderException('version.unsupported: Invalid parameter $format: '.$format.' (can be 400 or 401)');
-        if (is_null($copyright)) $copyright = '';
+        if (!isSet($copyright)) $copyright = '';
         if (!is_string($copyright))                   throw new IllegalTypeException('Illegal type of parameter $copyright: '.getType($copyright));
         $copyright = strLeft($copyright, 63);
         if (!is_string($symbol))                      throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
@@ -96,10 +96,10 @@ class HistoryHeader extends Object {
         if ($period <= 0)                             throw new InvalidArgumentException('Invalid parameter $period: '.$period);
         if (!is_int($digits))                         throw new IllegalTypeException('Illegal type of parameter $digits: '.getType($digits));
         if ($digits < 0)                              throw new InvalidArgumentException('Invalid parameter $digits: '.$digits);
-        if (is_null($syncMarker)) $syncMarker = 0;
+        if (!isSet($syncMarker)) $syncMarker = 0;
         if (!is_int($syncMarker))                     throw new IllegalTypeException('Illegal type of parameter $syncMarker: '.getType($syncMarker));
         if ($syncMarker < 0)                          throw new InvalidArgumentException('Invalid parameter $syncMarker: '.$syncMarker);
-        if (is_null($lastSyncTime)) $lastSyncTime = 0;
+        if (!isSet($lastSyncTime)) $lastSyncTime = 0;
         if (!is_int($lastSyncTime))                   throw new IllegalTypeException('Illegal type of parameter $lastSyncTime: '.getType($lastSyncTime));
         if ($lastSyncTime < 0)                        throw new InvalidArgumentException('Invalid parameter $lastSyncTime: '.$lastSyncTime);
 

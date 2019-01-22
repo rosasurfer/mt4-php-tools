@@ -580,7 +580,7 @@ class MT4 extends StaticClass {
     /**
      * Return a bar model description.
      *
-     * @param  int - bar model id
+     * @param  int $id - bar model id
      *
      * @return string|null - description or NULL if the parameter is not a valid bar model id
      */
@@ -600,7 +600,7 @@ class MT4 extends StaticClass {
     /**
      * Return a trade direction description.
      *
-     * @param  int - direction id
+     * @param  int $id - direction id
      *
      * @return string|null - description or NULL if the parameter is not a valid trade direction id
      */

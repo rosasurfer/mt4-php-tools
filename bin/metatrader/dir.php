@@ -103,17 +103,10 @@ foreach ($expandedArgs as $fileName) {
         continue;
     }
 
-    $hFile  = fOpen($fileName, 'rb');
-    $header = null;
+    $hFile = fOpen($fileName, 'rb');
     try {
         $header = new HistoryHeader(fRead($hFile, HistoryHeader::SIZE));
-    }
-    catch (MetaTraderException $ex) {
-        if (!strStartsWith($ex->getMessage(), 'version.unsupported')) throw $ex;
-        $header = $ex->getMessage();
-    }
 
-    if (is_object($header)) {
         // Daten zwischenspeichern
         $formats      [] =            $header->getFormat();
         $symbols      [] =            $header->getSymbol();
@@ -153,7 +146,9 @@ foreach ($expandedArgs as $fileName) {
         }
         $errors[] = $error;
     }
-    else {
+    catch (MetaTraderException $ex) {
+        if (!strStartsWith($ex->getMessage(), 'version.unsupported')) throw $ex;
+
         // Fehlermeldung zwischenspeichern
         $formats      [] = null;
         $symbols      [] = ($name=strLeftTo($baseName, '.hst'));
@@ -165,7 +160,7 @@ foreach ($expandedArgs as $fileName) {
         $bars         [] = null;
         $barsFrom     [] = null;
         $barsTo       [] = null;
-        $errors       [] = $header;   // ist $header kein Object, ist es ein String (Fehlermeldung einer Exception)
+        $errors       [] = $ex->getMessage();
     }
     fClose($hFile);
 }
@@ -187,7 +182,18 @@ exit(0);
  * Zeigt das Listing eines Verzeichnisses an.
  *
  * @param  string $dirName
- * @param  array  ...
+ * @param  array  $files
+ * @param  array  $formats
+ * @param  array  $symbols
+ * @param  array  $symbolsU
+ * @param  array  $periods
+ * @param  array  $digits
+ * @param  array  $syncMarkers
+ * @param  array  $lastSyncTimes
+ * @param  array  $bars
+ * @param  array  $barsFrom
+ * @param  array  $barsTo
+ * @param  array  $errors
  */
 function showDirResults($dirName, array $files, array $formats, array $symbols, array $symbolsU, array $periods, array $digits, array $syncMarkers, array $lastSyncTimes, array $bars, array $barsFrom, array $barsTo, array $errors) {
     // Daten sortieren: ORDER by Symbol, Periode (ASC ist default); alle anderen "Spalten" mitsortieren
