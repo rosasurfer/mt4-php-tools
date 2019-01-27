@@ -455,17 +455,6 @@ namespace rosasurfer\rt\update_synthetics_m1 {
     }
 
     /**
-     * @param  int    $day
-     * @param  array  $data
-     * @param  string $name
-     *
-     * @return array
-     */
-    function calculateNZDLFX($day, array $data, $name='NZDLFX') {
-        return [];
-    }
-
-    /**
      * @param  int   $day
      * @param  array $data
      *

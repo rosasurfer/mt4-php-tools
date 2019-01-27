@@ -932,67 +932,8 @@ function calculateNOKFX7($day, array $data) {
  * Formel: NZDFX7 = ((NZDCAD * NZDCHF * NZDJPY * NZDUSD) / (AUDNZD * EURNZD * GBPNZD)) ^ 1/7
  */
 function calculateNZDFX7($day, array $data) {
-    return calculateNZDLFX($day, $data, 'NZDFX7');
-}
-
-
-/**
- * Berechnet fuer die uebergebenen M1-Daten den NZDLFX-Index. Dieser Index entspricht dem NZDFX7.
- *
- * @param  int    $day  - FXT-Timestamp des Tages der zu berechnenden Daten
- * @param  array  $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
- * @param  string $name - optionaler Name (um die Funktion gleichzeitig fuer NZDLFX und NZDFX7 nutzen zu koennen)
- *
- * @return ROST_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
- *
- * Formel: NZDLFX = ((NZDCAD * NZDCHF * NZDJPY * NZDUSD) / (AUDNZD * EURNZD * GBPNZD)) ^ 1/7
- *   oder: NZDLFX = USDLFX * NZDUSD
- */
-function calculateNZDLFX($day, array $data, $name='NZDLFX') {
-    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
-    $shortDate = gmDate('D, d-M-Y', $day);
-
-    global $verbose;
-    if ($verbose > 1) echoPre('[Info]    '.$name.'  '.$shortDate);
-
-    $AUDUSD = $data['AUDUSD']['bars'];
-    $EURUSD = $data['EURUSD']['bars'];
-    $GBPUSD = $data['GBPUSD']['bars'];
-    $USDCAD = $data['USDCAD']['bars'];
-    $USDCHF = $data['USDCHF']['bars'];
-    $USDJPY = $data['USDJPY']['bars'];
-    $NZDUSD = $data['NZDUSD']['bars'];
-    $index  = [];
-
-    foreach ($AUDUSD as $i => $bar) {
-        $audusd = $AUDUSD[$i]['open'];
-        $eurusd = $EURUSD[$i]['open'];
-        $gbpusd = $GBPUSD[$i]['open'];
-        $usdcad = $USDCAD[$i]['open'];
-        $usdchf = $USDCHF[$i]['open'];
-        $usdjpy = $USDJPY[$i]['open'];
-        $nzdusd = $NZDUSD[$i]['open'];
-        $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) * $nzdusd;
-        $iOpen  = (int) round($open);
-
-        $audusd = $AUDUSD[$i]['close'];
-        $eurusd = $EURUSD[$i]['close'];
-        $gbpusd = $GBPUSD[$i]['close'];
-        $usdcad = $USDCAD[$i]['close'];
-        $usdchf = $USDCHF[$i]['close'];
-        $usdjpy = $USDJPY[$i]['close'];
-        $nzdusd = $NZDUSD[$i]['close'];
-        $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) * $nzdusd;
-        $iClose = (int) round($close);
-
-        $index[$i]['time' ] = $bar['time'];
-        $index[$i]['open' ] = $iOpen;
-        $index[$i]['high' ] = $iOpen > $iClose ? $iOpen : $iClose;        // min()/max() ist nicht performant
-        $index[$i]['low'  ] = $iOpen < $iClose ? $iOpen : $iClose;
-        $index[$i]['close'] = $iClose;
-        $index[$i]['ticks'] = $iOpen==$iClose ? 1 : (abs($iOpen-$iClose) << 1);
-    }
-    return $index;
+    //return calculateNZDLFX($day, $data, 'NZDFX7');
+    return [];
 }
 
 
