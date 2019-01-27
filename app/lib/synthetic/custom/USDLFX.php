@@ -36,7 +36,11 @@ class USDLFX extends AbstractSynthesizer {
         $pairs = [];
         foreach ($this->components['pairs'] as $name) {
             /** @var RosaSymbol $pair */
-            $pair = RosaSymbol::dao()->getByName($name);
+            $pair = RosaSymbol::dao()->findByName($name);
+            if (!$pair) {                                               // symbol not found
+                echoPre('[Error]   '.$this->symbol->getName().'  required M1 history for '.$name.' not available');
+                return [];
+            }
             $pairs[$pair->getName()] = $pair;
         }
 
@@ -51,7 +55,7 @@ class USDLFX extends AbstractSynthesizer {
                 }
                 $day = max($day, $historyStart);
             }
-            echoPre('[Info]    '.$this->symbol->getName().'  common M1 history starts at '.gmDate('D, d-M-Y', $day));
+            echoPre('[Info]    '.$this->symbol->getName().'  available M1 history for all sources starts at '.gmDate('D, d-M-Y', $day));
         }
         if (!$this->symbol->isTradingDay($day))                         // skip non-trading days
             return [];
@@ -59,11 +63,14 @@ class USDLFX extends AbstractSynthesizer {
         // load history for the specified day
         $quotes = [];
         foreach ($pairs as $name => $pair) {
-            $quotes[$name] = $pair->getHistoryM1($day);
+            if (!$quotes[$name] = $pair->getHistoryM1($day)) {
+                echoPre('[Error]   '.$this->symbol->getName().'  required '.$name.' history for '.gmDate('D, d-M-Y', $day).' not available');
+                return [];
+            }
         }
 
         // calculate quotes
-        echoPre('[Info]    '.$this->symbol->getName().'  calculating M1 quotes for '.gmDate('D, d-M-Y', $day));
+        echoPre('[Info]    '.$this->symbol->getName().'  calculating M1 history for '.gmDate('D, d-M-Y', $day));
         $AUDUSD = $quotes['AUDUSD'];
         $EURUSD = $quotes['EURUSD'];
         $GBPUSD = $quotes['GBPUSD'];
@@ -99,8 +106,8 @@ class USDLFX extends AbstractSynthesizer {
 
             $bars[$i]['time' ] = $bar['time'];
             $bars[$i]['open' ] = $open;
-            $bars[$i]['high' ] = $iOpen > $iClose ? $open : $close;                 // no min()/max(): This is a massive loop and
-            $bars[$i]['low'  ] = $iOpen < $iClose ? $open : $close;                 // every single function call slows it down.
+            $bars[$i]['high' ] = $iOpen > $iClose ? $open : $close;     // no min()/max(): This is a massive loop and
+            $bars[$i]['low'  ] = $iOpen < $iClose ? $open : $close;     // every function call slows it down.
             $bars[$i]['close'] = $close;
             $bars[$i]['ticks'] = $iOpen==$iClose ? 1 : (abs($iOpen-$iClose) << 1);
         }

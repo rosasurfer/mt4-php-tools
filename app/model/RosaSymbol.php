@@ -268,12 +268,22 @@ class RosaSymbol extends RosatraderModel {
 
 
     /**
-     * Discard existing history and reload or recreate it.
+     * Show history status information.
      *
      * @return bool - success status
      */
-    public function refreshHistory() {
-        return false;
+    public function showHistoryStatus() {
+        $start = $this->getHistoryM1Start('D, d-M-Y');
+        $end   = $this->getHistoryM1End('D, d-M-Y');
+
+        if ($start) {
+            echoPre('[Info]    '.$this->name.'  M1 history from '.$start);
+            echoPre('[Info]    '.$this->name.'  M1 history to   '.$end);
+        }
+        else {
+            echoPre('[Info]    '.$this->name.'  M1 history empty');
+        }
+        return true;
     }
 
 
@@ -362,7 +372,17 @@ class RosaSymbol extends RosatraderModel {
 
 
     /**
-     * Update the symbol's history (atm only M1 history is processed).
+     * Discard existing history and reload or recreate it.
+     *
+     * @return bool - success status
+     */
+    public function refreshHistory() {
+        return false;
+    }
+
+
+    /**
+     * Update the symbol's history (at the moment only M1 history is updated).
      *
      * @return bool - success status
      */
@@ -381,7 +401,7 @@ class RosaSymbol extends RosatraderModel {
                     continue;
 
                 $bars = $synthesizer->calculateQuotes($day);
-                if (!$bars) return false(echoPre('[Error]   '.$this->name.'  M1 quotes'.($day ? ' for '.gmDate('D, d-M-Y', $day):'').' not available'));
+                if (!$bars) return false(echoPre('[Error]   '.$this->name.'  M1 source history'.($day ? ' for '.gmDate('D, d-M-Y', $day) : '').' not available'));
                 if (!$day) {
                     $opentime = $bars[0]['time'];                                   // if $day is zero (complete update since start)
                     $day = $opentime - $opentime%DAY;                               // adjust it to the first available history

@@ -15,8 +15,8 @@ use rosasurfer\rt\synthetic\SynthesizerInterface as Synthesizer;
  * A {@link Synthesizer} for calculating the "LiteForex Australian Dollar index".
  *
  * <pre>
- * formula(1): AUDLFX = \sqrt[7]{\frac{AUDCAD * AUDCHF * AUDJPY * AUDUSD}{EURAUD * GBPAUD}}
- * formula(2): AUDLFX = USDLFX * AUDUSD
+ * formula(1): AUDLFX = USDLFX * AUDUSD         (preferred)
+ * formula(2): AUDLFX = \sqrt[7]{\frac{AUDCAD * AUDCHF * AUDJPY * AUDUSD}{EURAUD * GBPAUD}}
  * </pre>
  */
 class AUDLFX extends AbstractSynthesizer {
@@ -35,43 +35,45 @@ class AUDLFX extends AbstractSynthesizer {
     public function calculateQuotes($day) {
         if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
 
-        // check/calculate via USDLFX
-        // check/calculate via separate pairs
-
-
-
-        $pairs = [];
-        foreach ($this->components['pairs'] as $name) {
+        $symbols = [];
+        foreach ($this->components['usdlfx'] as $name) {
             /** @var RosaSymbol $pair */
-            $pair = RosaSymbol::dao()->getByName($name);
-            $pairs[$pair->getName()] = $pair;
+            $symbol = RosaSymbol::dao()->findByName($name);
+            if (!$symbol) {                                             // symbol not found
+                echoPre('[Error]   '.$this->symbol->getName().'  required M1 history for '.$name.' not available');
+                return [];
+            }
+            $symbols[$symbol->getName()] = $symbol;
         }
 
         // on $day == 0 start with the oldest available history of all components
         if (!$day) {
-            /** @var RosaSymbol $pair */
-            foreach ($pairs as $pair) {
-                $historyStart = (int) $pair->getHistoryM1Start('U');    // 00:00 FXT of the first stored day
+            /** @var RosaSymbol $symbol */
+            foreach ($symbols as $symbol) {
+                $historyStart = (int) $symbol->getHistoryM1Start('U');  // 00:00 FXT of the first stored day
                 if (!$historyStart) {
-                    echoPre('[Error]   '.$this->symbol->getName().'  required M1 history for '.$pair->getName().' not available');
+                    echoPre('[Error]   '.$this->symbol->getName().'  required M1 history for '.$symbol->getName().' not available');
                     return [];                                          // no history stored
                 }
                 $day = max($day, $historyStart);
             }
-            echoPre('[Info]    '.$this->symbol->getName().'  common M1 history starts at '.gmDate('D, d-M-Y', $day));
+            echoPre('[Info]    '.$this->symbol->getName().'  available M1 history for all sources starts at '.gmDate('D, d-M-Y', $day));
         }
         if (!$this->symbol->isTradingDay($day))                         // skip non-trading days
             return [];
 
         // load history for the specified day
         $quotes = [];
-        foreach ($pairs as $name => $pair) {
-            $quotes[$name] = $pair->getHistoryM1($day);
+        foreach ($symbols as $name => $symbol) {
+            if (!$quotes[$name] = $symbol->getHistoryM1($day)) {
+                echoPre('[Error]   '.$this->symbol->getName().'  required '.$name.' history for '.gmDate('D, d-M-Y', $day).' not available');
+                return [];
+            }
         }
 
         // calculate quotes
-        echoPre('[Info]    '.$this->symbol->getName().'  calculating M1 quotes for '.gmDate('D, d-M-Y', $day));
-
+        echoPre('[Info]    '.$this->symbol->getName().'  calculating M1 history for '.gmDate('D, d-M-Y', $day));
+        echoPre('skipping...');
         return [];
     }
 }

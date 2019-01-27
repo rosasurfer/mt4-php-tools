@@ -34,8 +34,7 @@ foreach ($args as $i => $arg) {
 }
 // parse command
 $cmd = array_shift($args);
-if (!in_array($cmd, ['r', 'refresh', 's', 'synchronize'])) exit(1|help());
-$cmd = $cmd[0];
+if (!in_array($cmd, ['status', 'synchronize', 'refresh'])) exit(1|help());
 
 /** @var RosaSymbol[] $symbols */
 $symbols = [];
@@ -53,8 +52,9 @@ $symbols = $symbols ?: RosaSymbol::dao()->findAll('select * from :RosaSymbol ord
 
 // (2) process instruments
 foreach ($symbols as $symbol) {
-    if ($cmd == 'r') $symbol->refreshHistory();
-    if ($cmd == 's') $symbol->synchronizeHistory();
+    if ($cmd == 'status'     ) $symbol->showHistoryStatus();
+    if ($cmd == 'synchronize') $symbol->synchronizeHistory();
+    if ($cmd == 'refresh'    ) $symbol->refreshHistory();
 
     Process::dispatchSignals();                                     // check for Ctrl-C
 }
@@ -77,13 +77,14 @@ echo <<<HELP
 
  Syntax:  $self <command> [options] [SYMBOL...]
 
-   Commands: (s)ynchronize  Synchronize the history in the file system with the database.
-             (r)efresh      Discard the existing history and reload/recreate it.
+   Commands: status       Show history status information.
+             synchronize  Synchronize the history in the file system with the database.
+             refresh      Discard the existing history and reload/recreate it.
 
-   Options:  -v             Verbose output.
-             -vv            More verbose output.
-             -vvv           Very verbose output.
-             -h             This help screen.
+   Options:  -v           Verbose output.
+             -vv          More verbose output.
+             -vvv         Very verbose output.
+             -h           This help screen.
 
    SYMBOL    The symbols to process. Without a symbol all symbols are processed.
 
