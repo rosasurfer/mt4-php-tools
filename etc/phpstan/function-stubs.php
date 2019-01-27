@@ -320,16 +320,6 @@ namespace rosasurfer\rt\update_synthetics_m1 {
      *
      * @return array
      */
-    function calculateAUDLFX($day, array $data) {
-        return [];
-    }
-
-    /**
-     * @param  int   $day
-     * @param  array $data
-     *
-     * @return array
-     */
     function calculateCADFX6($day, array $data) {
         return [];
     }
@@ -341,16 +331,6 @@ namespace rosasurfer\rt\update_synthetics_m1 {
      * @return array
      */
     function calculateCADFX7($day, array $data) {
-        return [];
-    }
-
-    /**
-     * @param  int   $day
-     * @param  array $data
-     *
-     * @return array
-     */
-    function calculateCADLFX($day, array $data) {
         return [];
     }
 
