@@ -67,8 +67,8 @@ class AUDLFX extends AbstractSynthesizer {
 
             $bars[$i]['time' ] = $bar['time'];
             $bars[$i]['open' ] = $open;
-            $bars[$i]['high' ] = $iOpen > $iClose ? $open : $close;     // no min()/max(): This is a massive loop and
-            $bars[$i]['low'  ] = $iOpen < $iClose ? $open : $close;     // every function call slows it down.
+            $bars[$i]['high' ] = $iOpen > $iClose ? $open : $close;     // no min()/max() for performance
+            $bars[$i]['low'  ] = $iOpen < $iClose ? $open : $close;
             $bars[$i]['close'] = $close;
             $bars[$i]['ticks'] = $iOpen==$iClose ? 1 : (abs($iOpen-$iClose) << 1);
         }
