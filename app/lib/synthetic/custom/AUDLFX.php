@@ -12,12 +12,13 @@ use rosasurfer\rt\synthetic\SynthesizerInterface as Synthesizer;
 /**
  * AUDLFX synthesizer
  *
- * A {@link Synthesizer} for calculating the "LiteForex Australian Dollar index".
+ * A {@link Synthesizer} for calculating the "LiteForex Australian Dollar index" (a scaled-down FX6 index).
  *
  * <pre>
- * formula(1): AUDLFX = \sqrt[7]{\frac{AUDCAD * AUDCHF * AUDJPY * AUDUSD}{EURAUD * GBPAUD}}
- * or
- * formula(2): AUDLFX = USDLFX * AUDUSD
+ * Formulas:
+ * ---------
+ * AUDLFX = USDLFX * AUDUSD
+ * AUDLFX = \sqrt[7]{\frac{AUDCAD * AUDCHF * AUDJPY * AUDUSD}{EURAUD * GBPAUD}}
  * </pre>
  */
 class AUDLFX extends AbstractSynthesizer {
@@ -25,8 +26,8 @@ class AUDLFX extends AbstractSynthesizer {
 
     /** @var string[][] */
     protected $components = [
-        'usdlfx' => ['AUDUSD', 'USDLFX'],                                           // preferred calculation method
-        'pairs'  => ['AUDCAD', 'AUDCHF', 'AUDJPY', 'AUDUSD', 'EURAUD', 'GBPAUD'],   // alternative calculation method
+        'fast' => ['AUDUSD', 'USDLFX'],
+        'slow' => ['AUDCAD', 'AUDCHF', 'AUDJPY', 'AUDUSD', 'EURAUD', 'GBPAUD'],
     ];
 
 
@@ -36,43 +37,70 @@ class AUDLFX extends AbstractSynthesizer {
     public function calculateQuotes($day) {
         if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
 
-        // check/calculate via USDLFX
-        // check/calculate via separate pairs
-
-
-
-        $pairs = [];
-        foreach ($this->components['pairs'] as $name) {
-            /** @var RosaSymbol $pair */
-            $pair = RosaSymbol::dao()->getByName($name);
-            $pairs[$pair->getName()] = $pair;
+        $symbols = [];
+        foreach (first($this->components) as $name) {
+            /** @var RosaSymbol $symbol */
+            $symbol = RosaSymbol::dao()->findByName($name);
+            if (!$symbol) {                                             // symbol not found
+                echoPre('[Error]   '.$this->symbol->getName().'  required M1 history for '.$name.' not available');
+                return [];
+            }
+            $symbols[$symbol->getName()] = $symbol;
         }
 
-        // on $day == 0 start with the oldest available history of all components
+        // without a day look-up the oldest available history of all components
         if (!$day) {
-            /** @var RosaSymbol $pair */
-            foreach ($pairs as $pair) {
-                $historyStart = (int) $pair->getHistoryM1Start('U');    // 00:00 FXT of the first stored day
+            /** @var RosaSymbol $symbol */
+            foreach ($symbols as $symbol) {
+                $historyStart = (int) $symbol->getHistoryM1Start('U');  // 00:00 FXT of the first stored day
                 if (!$historyStart) {
-                    echoPre('[Error]   '.$this->symbol->getName().'  required M1 history for '.$pair->getName().' not available');
+                    echoPre('[Error]   '.$this->symbol->getName().'  required M1 history for '.$symbol->getName().' not available');
                     return [];                                          // no history stored
                 }
                 $day = max($day, $historyStart);
             }
-            echoPre('[Info]    '.$this->symbol->getName().'  common M1 history starts at '.gmDate('D, d-M-Y', $day));
+            echoPre('[Info]    '.$this->symbol->getName().'  available M1 history for all sources starts at '.gmDate('D, d-M-Y', $day));
         }
         if (!$this->symbol->isTradingDay($day))                         // skip non-trading days
             return [];
 
         // load history for the specified day
         $quotes = [];
-        foreach ($pairs as $name => $pair) {
-            $quotes[$name] = $pair->getHistoryM1($day);
+        foreach ($symbols as $name => $symbol) {
+            if (!$quotes[$name] = $symbol->getHistoryM1($day)) {
+                echoPre('[Error]   '.$this->symbol->getName().'  required '.$name.' history for '.gmDate('D, d-M-Y', $day).' not available');
+                return [];
+            }
         }
 
         // calculate quotes
-        echoPre('[Info]    '.$this->symbol->getName().'  calculating M1 quotes for '.gmDate('D, d-M-Y', $day));
+        echoPre('[Info]    '.$this->symbol->getName().'  calculating M1 history for '.gmDate('D, d-M-Y', $day));
+        $AUDUSD = $quotes['AUDUSD'];
+        $USDLFX = $quotes['USDLFX'];
 
-        return [];
+        $digits = $this->symbol->getDigits();
+        $point  = $this->symbol->getPoint();
+        $bars   = [];
+
+        // AUDLFX = USDLFX * AUDUSD
+        foreach ($AUDUSD as $i => $bar) {
+            $audusd = $AUDUSD[$i]['open'];
+            $usdlfx = $USDLFX[$i]['open'];
+            $open   = round($usdlfx * $audusd, $digits);
+            $iOpen  = (int) round($open/$point);
+
+            $audusd = $AUDUSD[$i]['close'];
+            $usdlfx = $USDLFX[$i]['close'];
+            $close  = round($usdlfx * $audusd, $digits);
+            $iClose = (int) round($close/$point);
+
+            $bars[$i]['time' ] = $bar['time'];
+            $bars[$i]['open' ] = $open;
+            $bars[$i]['high' ] = $iOpen > $iClose ? $open : $close;     // no min()/max(): This is a massive loop and
+            $bars[$i]['low'  ] = $iOpen < $iClose ? $open : $close;     // every function call slows it down.
+            $bars[$i]['close'] = $close;
+            $bars[$i]['ticks'] = $iOpen==$iClose ? 1 : (abs($iOpen-$iClose) << 1);
+        }
+        return $bars;
     }
 }

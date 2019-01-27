@@ -320,16 +320,6 @@ namespace rosasurfer\rt\update_synthetics_m1 {
      *
      * @return array
      */
-    function calculateAUDLFX($day, array $data) {
-        return [];
-    }
-
-    /**
-     * @param  int   $day
-     * @param  array $data
-     *
-     * @return array
-     */
     function calculateCADFX6($day, array $data) {
         return [];
     }
@@ -350,16 +340,6 @@ namespace rosasurfer\rt\update_synthetics_m1 {
      *
      * @return array
      */
-    function calculateCADLFX($day, array $data) {
-        return [];
-    }
-
-    /**
-     * @param  int   $day
-     * @param  array $data
-     *
-     * @return array
-     */
     function calculateCHFFX6($day, array $data) {
         return [];
     }
@@ -371,16 +351,6 @@ namespace rosasurfer\rt\update_synthetics_m1 {
      * @return array
      */
     function calculateCHFFX7($day, array $data) {
-        return [];
-    }
-
-    /**
-     * @param  int   $day
-     * @param  array $data
-     *
-     * @return array
-     */
-    function calculateCHFLFX($day, array $data) {
         return [];
     }
 

@@ -268,17 +268,27 @@ class RosaSymbol extends RosatraderModel {
 
 
     /**
-     * Discard existing history and reload or recreate it.
+     * Show history status information.
      *
      * @return bool - success status
      */
-    public function refreshHistory() {
-        return false;
+    public function showHistoryStatus() {
+        $start = $this->getHistoryM1Start('D, d-M-Y');
+        $end   = $this->getHistoryM1End('D, d-M-Y');
+
+        if ($start) {
+            echoPre('[Info]    '.$this->name.'  M1 history from '.$start);
+            echoPre('[Info]    '.$this->name.'  M1 history to   '.$end);
+        }
+        else {
+            echoPre('[Info]    '.$this->name.'  M1 history empty');
+        }
+        return true;
     }
 
 
     /**
-     * Synchronize the existing history in the file system with the database.
+     * Synchronize the history in the file system with the database.
      *
      * @return bool - success status
      */
@@ -286,8 +296,11 @@ class RosaSymbol extends RosatraderModel {
         $dataDir  = $this->di()['config']['app.dir.data'];
         $dataDir .= '/history/rosatrader/'.$this->type.'/'.$this->name;
 
+        echoPre('[Info]    '.$this->name.'  synchronizing history');
+
         $startDate = $endDate = null;
-        $firstFile = $lastFile = null;
+        $errors  = false;
+        $missing = [];
 
         // find the oldest existing history file
         $years = glob($dataDir.'/[12][0-9][0-9][0-9]', GLOB_ONLYDIR|GLOB_NOESCAPE|GLOB_ERR) ?: [];
@@ -298,33 +311,46 @@ class RosaSymbol extends RosatraderModel {
                 foreach ($days as $day) {
                     if (is_file($file=$day.'/M1.bin') || is_file($file.='.rar')) {
                         $startDate = strToTime(strRight($day, 10).' GMT');
-                        $firstFile = $file;
                         break 3;
                     }
                 }
             }
         }
 
-        // iterate over the whole time range and track the last existing file
+        // iterate over the whole time range and check existing files
         if ($startDate) {                                                               // 00:00 FXT of the first day
             $today  = ($today=fxTime()) - $today%DAY;                                   // 00:00 FXT of the current day
             $delMsg = '[Info]    '.$this->name.'  deleting obsolete M1 file: ';
+
+            $missMsg = function($missing) {
+                if ($misses = sizeOf($missing)) {
+                    ($misses > 2) && echoPre('[Error]   '.$this->name.'  ...');
+                    echoPre('[Error]   '.$this->name.'  '.($misses > 2 ? $misses : '').' missing history file'.($misses==2 ? ' for':'s until').' '.gmDate('D, Y-m-d', last($missing)));
+                }
+            };
 
             for ($day=$startDate; $day < $today; $day+=1*DAY) {
                 $dir = $dataDir.'/'.gmDate('Y/m/d', $day);
 
                 if ($this->isTradingDay($day)) {
                     if (is_file($file=$dir.'/M1.bin') || is_file($file.='.rar')) {
-                        $endDate  = $day;
-                        $lastFile = $file;
+                        $endDate = $day;
+                        if ($missing) {
+                            $missMsg($missing);
+                            $missing = [];
+                        }
                     }
-                    else echoPre('[Error]   '.$this->name.'  missing history file for '.gmDate('D, Y-m-d', $day));
+                    else {
+                        !$missing && echoPre('[Error]   '.$this->name.'  missing history file for '.gmDate('D, Y-m-d', $day));
+                        $errors = (bool)$missing[] = $day;
+                    }
                 }
                 else {
                     is_file($file=$dir.'/M1.bin'    ) && true(echoPre($delMsg.Rost::relativePath($file))) && unlink($file);
                     is_file($file=$dir.'/M1.bin.rar') && true(echoPre($delMsg.Rost::relativePath($file))) && unlink($file);
                 }
             }
+            $missing && $missMsg($missing);
         }
 
         // update the database
@@ -339,14 +365,24 @@ class RosaSymbol extends RosatraderModel {
             $this->modified();
         }
         if ($this->isModified()) $this->save();
-        else                     echoPre('[Info]    '.$this->name.'  ok');
+        else                     echoPre('[Info]    '.$this->name.'  '.($errors ? 'done':'ok'));
 
         return true;
     }
 
 
     /**
-     * Update the symbol's history (atm only M1 history is processed).
+     * Discard existing history and reload or recreate it.
+     *
+     * @return bool - success status
+     */
+    public function refreshHistory() {
+        return false;
+    }
+
+
+    /**
+     * Update the symbol's history (at the moment only M1 history is updated).
      *
      * @return bool - success status
      */
@@ -365,7 +401,7 @@ class RosaSymbol extends RosatraderModel {
                     continue;
 
                 $bars = $synthesizer->calculateQuotes($day);
-                if (!$bars) return false(echoPre('[Error]   '.$this->name.'  M1 quotes'.($day ? ' for '.gmDate('D, d-M-Y', $day):'').' not available'));
+                if (!$bars) return false(echoPre('[Error]   '.$this->name.'  M1 history sources'.($day ? ' for '.gmDate('D, d-M-Y', $day) : '').' not available'));
                 if (!$day) {
                     $opentime = $bars[0]['time'];                                   // if $day is zero (complete update since start)
                     $day = $opentime - $opentime%DAY;                               // adjust it to the first available history

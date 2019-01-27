@@ -181,10 +181,10 @@ exit(0);
 /**
  * Erfasst die Informationen einer Symboldatei.
  *
- * @param  string $file    [_in_    ] - Name der Symboldatei
- * @param  array  $fields  [_in_out_] - reference to zu erfassende Felder (Laengen werden im Array gespeichert)
- * @param  array  $data    [_in_out_] - reference to Array zum Zwischenspeichern der erfassten Daten
- * @param  array  $options [_in_    ] - Optionen
+ * @param  string $file    [in    ] - Name der Symboldatei
+ * @param  array  $fields  [in_out] - reference to zu erfassende Felder (Laengen werden im Array gespeichert)
+ * @param  array  $data    [in_out] - reference to Array zum Zwischenspeichern der erfassten Daten
+ * @param  array  $options [in    ] - Optionen
  *
  * @return bool - Erfolgsstatus
  */

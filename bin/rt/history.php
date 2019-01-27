@@ -34,8 +34,7 @@ foreach ($args as $i => $arg) {
 }
 // parse command
 $cmd = array_shift($args);
-if (!in_array($cmd, ['r', 'refresh', 's', 'synchronize'])) exit(1|help());
-$cmd = $cmd[0];
+if (!in_array($cmd, ['status', 'synchronize', 'refresh'])) exit(1|help());
 
 /** @var RosaSymbol[] $symbols */
 $symbols = [];
@@ -45,16 +44,17 @@ foreach ($args as $i => $arg) {
     /** @var RosaSymbol $symbol */
     $symbol = RosaSymbol::dao()->findByName($arg);
     if (!$symbol) exit(1|stderror('error: unknown symbol "'.$args[$i].'"'));
-    $symbols[$symbol->getName()] = $symbol;                         // using the name as index removes duplicates
+    $symbols[$symbol->getName()] = $symbol;                                                     // using the name as index removes duplicates
 }
-$symbols = $symbols ?: RosaSymbol::dao()->findAll();                // process all if none was specified
+$symbols = $symbols ?: RosaSymbol::dao()->findAll('select * from :RosaSymbol order by name');   // process all if none was specified
 !$symbols && echoPre('no instruments found');
 
 
 // (2) process instruments
 foreach ($symbols as $symbol) {
-    if ($cmd == 'r') $symbol->refreshHistory();
-    if ($cmd == 's') $symbol->synchronizeHistory();
+    if ($cmd == 'status'     ) $symbol->showHistoryStatus();
+    if ($cmd == 'synchronize') $symbol->synchronizeHistory();
+    if ($cmd == 'refresh'    ) $symbol->refreshHistory();
 
     Process::dispatchSignals();                                     // check for Ctrl-C
 }
@@ -75,17 +75,18 @@ function help($message = null) {
 echo <<<HELP
  Process the history of the specified Rosatrader symbols.
 
- Syntax:  $self <command> [options] [SYMBOL ...]
+ Syntax:  $self <command> [options] [SYMBOL...]
 
-   Commands: (s)ynchronize  Synchronize the existing history in the file system with the database.
-             (r)efresh      Discard the existing history and reload/recreate it.
+   Commands: status       Show history status information.
+             synchronize  Synchronize the history in the file system with the database.
+             refresh      Discard the existing history and reload/recreate it.
 
-   Options:  -v             Verbose output.
-             -vv            More verbose output.
-             -vvv           Very verbose output.
-             -h             This help screen.
+   Options:  -v           Verbose output.
+             -vv          More verbose output.
+             -vvv         Very verbose output.
+             -h           This help screen.
 
-   SYMBOL    One or more symbols to process. Without a symbol all symbols are processed.
+   SYMBOL    The symbols to process. Without a symbol all symbols are processed.
 
 
 HELP;
