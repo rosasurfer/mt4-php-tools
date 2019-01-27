@@ -406,62 +406,6 @@ function calculateCHFFX7($day, array $data) {
 
 
 /**
- * Berechnet fuer die uebergebenen M1-Daten den CHFLFX-Index.
- *
- * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
- * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
- *
- * @return ROST_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
- *
- * Formel: CHFLFX = (CHFJPY / (AUDCHF * CADCHF * EURCHF * GBPCHF * USDCHF)) ^ 1/7
- *   oder: CHFLFX = UDLFX / USDCHF
- */
-function calculateCHFLFX($day, array $data) {
-    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
-    $shortDate = gmDate('D, d-M-Y', $day);
-
-    global $verbose;
-    if ($verbose > 1) echoPre('[Info]    CHFLFX  '.$shortDate);
-
-    $AUDUSD = $data['AUDUSD']['bars'];
-    $EURUSD = $data['EURUSD']['bars'];
-    $GBPUSD = $data['GBPUSD']['bars'];
-    $USDCAD = $data['USDCAD']['bars'];
-    $USDCHF = $data['USDCHF']['bars'];
-    $USDJPY = $data['USDJPY']['bars'];
-    $index  = [];
-
-    foreach ($AUDUSD as $i => $bar) {
-        $audusd = $AUDUSD[$i]['open'];
-        $eurusd = $EURUSD[$i]['open'];
-        $gbpusd = $GBPUSD[$i]['open'];
-        $usdcad = $USDCAD[$i]['open'];
-        $usdchf = $USDCHF[$i]['open'];
-        $usdjpy = $USDJPY[$i]['open'];
-        $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdchf * 100000;
-        $iOpen  = (int) round($open * 100000);
-
-        $audusd = $AUDUSD[$i]['close'];
-        $eurusd = $EURUSD[$i]['close'];
-        $gbpusd = $GBPUSD[$i]['close'];
-        $usdcad = $USDCAD[$i]['close'];
-        $usdchf = $USDCHF[$i]['close'];
-        $usdjpy = $USDJPY[$i]['close'];
-        $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd) * 100, 1/7) / $usdchf * 100000;
-        $iClose = (int) round($close * 100000);
-
-        $index[$i]['time' ] = $bar['time'];
-        $index[$i]['open' ] = $iOpen;
-        $index[$i]['high' ] = $iOpen > $iClose ? $iOpen : $iClose;        // min()/max() ist nicht performant
-        $index[$i]['low'  ] = $iOpen < $iClose ? $iOpen : $iClose;
-        $index[$i]['close'] = $iClose;
-        $index[$i]['ticks'] = $iOpen==$iClose ? 1 : (abs($iOpen-$iClose) << 1);
-    }
-    return $index;
-}
-
-
-/**
  * Berechnet fuer die uebergebenen M1-Daten den EURFX6-Index.
  *
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten

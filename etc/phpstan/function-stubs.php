@@ -360,16 +360,6 @@ namespace rosasurfer\rt\update_synthetics_m1 {
      *
      * @return array
      */
-    function calculateCHFLFX($day, array $data) {
-        return [];
-    }
-
-    /**
-     * @param  int   $day
-     * @param  array $data
-     *
-     * @return array
-     */
     function calculateEURFX6($day, array $data) {
         return [];
     }
