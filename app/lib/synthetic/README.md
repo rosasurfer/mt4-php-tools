@@ -2,7 +2,8 @@
 ## ICE futures indexes, synthetic currency indexes and custom baskets
 
 Currency indexes are used to analyze strength and weakness of global Forex currencies separately. They measure the change in
-value of one currency compared to a basket of other major currencies. The following indexes are constantly calculated and updated and can be setup for real-time charting by MetaTrader:
+value of one currency compared to a basket of other major currencies. The following indexes are constantly calculated and
+updated and can be setup for real-time charting by MetaTrader:
 <br>
 <br>
 
