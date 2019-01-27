@@ -14,6 +14,9 @@ abstract class AbstractSynthesizer extends Object implements SynthesizerInterfac
     /** @var RosaSymbol */
     protected $symbol;
 
+    /** @var string */
+    protected $symbolName;
+
     /** @var string[][] - one or more sets of components */
     protected $components = [];
 
@@ -22,7 +25,8 @@ abstract class AbstractSynthesizer extends Object implements SynthesizerInterfac
      * {@inheritdoc}
      */
     public function __construct(RosaSymbol $symbol) {
-        $this->symbol = $symbol;
+        $this->symbol     = $symbol;
+        $this->symbolName = $symbol->getName();
     }
 
 
@@ -39,5 +43,71 @@ abstract class AbstractSynthesizer extends Object implements SynthesizerInterfac
      */
     public function getHistoryM1Start($format = 'Y-m-d H:i:s') {
         return '0';
+    }
+
+
+    /**
+     * Load the symbols required to calculate the synthetic instrument.
+     *
+     * @param string[] $names
+     *
+     * @return RosaSymbol[] - associative array of symbols with names as key or an empty value if at least one of the
+     *                        symbols was not found
+     */
+    protected function loadSymbols(array $names) {
+        $symbols = [];
+        foreach ($names as $name) {
+            /** @var RosaSymbol $symbol */
+            $symbol = RosaSymbol::dao()->findByName($name);
+            if (!$symbol) {                                             // symbol not found
+                echoPre('[Error]   '.$this->symbolName.'  required M1 history for '.$name.' not available');
+                return [];
+            }
+            $symbols[$symbol->getName()] = $symbol;
+        }
+        return $symbols;
+    }
+
+
+    /**
+     * Look-up the oldest available common history for all specified symbols.
+     *
+     * @param RosaSymbol[] $symbols
+     *
+     * @return int - history start time for all symbols (FXT) or 0 (zero) if no common history is available
+     */
+    protected function findCommonHistoryM1Start(array $symbols) {
+        $day = 0;
+        foreach ($symbols as $symbol) {
+            $historyStart = (int) $symbol->getHistoryM1Start('U');      // 00:00 FXT of the first stored day
+            if (!$historyStart) {
+                echoPre('[Error]   '.$this->symbolName.'  required M1 history for '.$symbol->getName().' not available');
+                return 0;                                               // no history stored
+            }
+            $day = max($day, $historyStart);
+        }
+        echoPre('[Info]    '.$this->symbolName.'  available M1 history for all sources starts at '.gmDate('D, d-M-Y', $day));
+        return $day;
+    }
+
+
+    /**
+     * Load the history of all symbols for the specified day.
+     *
+     * @param RosaSymbol[] $symbols
+     * @param int          $day
+     *
+     * @return array[] - associative array of timeseries with the symbol name as key
+     */
+    protected function loadHistory($symbols, $day) {
+        $quotes = [];
+        foreach ($symbols as $symbol) {
+            $name = $symbol->getName();
+            if (!$quotes[$name] = $symbol->getHistoryM1($day)) {
+                echoPre('[Error]   '.$this->symbolName.'  required '.$name.' history for '.gmDate('D, d-M-Y', $day).' not available');
+                return [];
+            }
+        }
+        return $quotes;
     }
 }
