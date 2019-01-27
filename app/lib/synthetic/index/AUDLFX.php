@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\rt\synthetic\custom;
+namespace rosasurfer\rt\synthetic\index;
 
 use rosasurfer\exception\IllegalTypeException;
 
@@ -8,22 +8,24 @@ use rosasurfer\rt\synthetic\SynthesizerInterface as Synthesizer;
 
 
 /**
- * USDLFX synthesizer
+ * AUDLFX synthesizer
  *
- * A {@link Synthesizer} for calculating the "LiteForex US Dollar index" (a scaled-down FX6 index).
+ * A {@link Synthesizer} for calculating the "LiteForex Australian Dollar index" (a scaled-down FX6 index).
  *
  * <pre>
- * Formula:
- * --------
- * USDLFX = \sqrt[7]{\frac{USDCAD * USDCHF * USDJPY}{AUDUSD * EURUSD * GBPUSD}}
+ * Formulas:
+ * ---------
+ * AUDLFX = USDLFX * AUDUSD
+ * AUDLFX = \sqrt[7]{\frac{AUDCAD * AUDCHF * AUDJPY * AUDUSD}{EURAUD * GBPAUD}}
  * </pre>
  */
-class USDLFX extends AbstractSynthesizer {
+class AUDLFX extends AbstractSynthesizer {
 
 
     /** @var string[][] */
     protected $components = [
-        'pairs' => ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'],
+        'fast' => ['AUDUSD', 'USDLFX'],
+        'slow' => ['AUDCAD', 'AUDCHF', 'AUDJPY', 'AUDUSD', 'EURAUD', 'GBPAUD'],
     ];
 
 
@@ -45,36 +47,22 @@ class USDLFX extends AbstractSynthesizer {
         // calculate quotes
         echoPre('[Info]    '.$this->symbolName.'  calculating M1 history for '.gmDate('D, d-M-Y', $day));
         $AUDUSD = $quotes['AUDUSD'];
-        $EURUSD = $quotes['EURUSD'];
-        $GBPUSD = $quotes['GBPUSD'];
-        $USDCAD = $quotes['USDCAD'];
-        $USDCHF = $quotes['USDCHF'];
-        $USDJPY = $quotes['USDJPY'];
+        $USDLFX = $quotes['USDLFX'];
 
         $digits = $this->symbol->getDigits();
         $point  = $this->symbol->getPoint();
         $bars   = [];
 
-        // USDLFX = \sqrt[7]{\frac{USDCAD * USDCHF * USDJPY}{AUDUSD * EURUSD * GBPUSD}}
+        // AUDLFX = USDLFX * AUDUSD
         foreach ($AUDUSD as $i => $bar) {
             $audusd = $AUDUSD[$i]['open'];
-            $eurusd = $EURUSD[$i]['open'];
-            $gbpusd = $GBPUSD[$i]['open'];
-            $usdcad = $USDCAD[$i]['open'];
-            $usdchf = $USDCHF[$i]['open'];
-            $usdjpy = $USDJPY[$i]['open'];
-            $open   = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd), 1/7);
-            $open   = round($open, $digits);
+            $usdlfx = $USDLFX[$i]['open'];
+            $open   = round($usdlfx * $audusd, $digits);
             $iOpen  = (int) round($open/$point);
 
             $audusd = $AUDUSD[$i]['close'];
-            $eurusd = $EURUSD[$i]['close'];
-            $gbpusd = $GBPUSD[$i]['close'];
-            $usdcad = $USDCAD[$i]['close'];
-            $usdchf = $USDCHF[$i]['close'];
-            $usdjpy = $USDJPY[$i]['close'];
-            $close  = pow(($usdcad/$audusd) * ($usdchf/$eurusd) * ($usdjpy/$gbpusd), 1/7);
-            $close  = round($close, $digits);
+            $usdlfx = $USDLFX[$i]['close'];
+            $close  = round($usdlfx * $audusd, $digits);
             $iClose = (int) round($close/$point);
 
             $bars[$i]['time' ] = $bar['time'];

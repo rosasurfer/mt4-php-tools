@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\rt\synthetic\custom;
+namespace rosasurfer\rt\synthetic\index;
 
 use rosasurfer\exception\IllegalTypeException;
 
@@ -8,24 +8,24 @@ use rosasurfer\rt\synthetic\SynthesizerInterface as Synthesizer;
 
 
 /**
- * AUDLFX synthesizer
+ * CHFLFX synthesizer
  *
- * A {@link Synthesizer} for calculating the "LiteForex Australian Dollar index" (a scaled-down FX6 index).
+ * A {@link Synthesizer} for calculating the "LiteForex Swiss Franc index" (a scaled-down FX6 index).
  *
  * <pre>
  * Formulas:
  * ---------
- * AUDLFX = USDLFX * AUDUSD
- * AUDLFX = \sqrt[7]{\frac{AUDCAD * AUDCHF * AUDJPY * AUDUSD}{EURAUD * GBPAUD}}
+ * CHFLFX = UDLFX / USDCHF
+ * CHFLFX = \sqrt[7]{\frac{CHFJPY}{AUDCHF * CADCHF * EURCHF * GBPCHF * USDCHF}}
  * </pre>
  */
-class AUDLFX extends AbstractSynthesizer {
+class CHFLFX extends AbstractSynthesizer {
 
 
     /** @var string[][] */
     protected $components = [
-        'fast' => ['AUDUSD', 'USDLFX'],
-        'slow' => ['AUDCAD', 'AUDCHF', 'AUDJPY', 'AUDUSD', 'EURAUD', 'GBPAUD'],
+        'fast' => ['USDCHF', 'USDLFX'],
+        'slow' => ['AUDCHF', 'CADCHF', 'CHFJPY', 'EURCHF', 'GBPCHF', 'USDCHF'],
     ];
 
 
@@ -46,23 +46,23 @@ class AUDLFX extends AbstractSynthesizer {
 
         // calculate quotes
         echoPre('[Info]    '.$this->symbolName.'  calculating M1 history for '.gmDate('D, d-M-Y', $day));
-        $AUDUSD = $quotes['AUDUSD'];
+        $USDCHF = $quotes['USDCHF'];
         $USDLFX = $quotes['USDLFX'];
 
         $digits = $this->symbol->getDigits();
         $point  = $this->symbol->getPoint();
         $bars   = [];
 
-        // AUDLFX = USDLFX * AUDUSD
-        foreach ($AUDUSD as $i => $bar) {
-            $audusd = $AUDUSD[$i]['open'];
+        // CHFLFX = UDLFX / USDCHF
+        foreach ($USDCHF as $i => $bar) {
+            $usdchf = $USDCHF[$i]['open'];
             $usdlfx = $USDLFX[$i]['open'];
-            $open   = round($usdlfx * $audusd, $digits);
+            $open   = round($usdlfx / $usdchf, $digits);
             $iOpen  = (int) round($open/$point);
 
-            $audusd = $AUDUSD[$i]['close'];
+            $usdchf = $USDCHF[$i]['close'];
             $usdlfx = $USDLFX[$i]['close'];
-            $close  = round($usdlfx * $audusd, $digits);
+            $close  = round($usdlfx / $usdchf, $digits);
             $iClose = (int) round($close/$point);
 
             $bars[$i]['time' ] = $bar['time'];

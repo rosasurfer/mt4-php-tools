@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\rt\synthetic\custom;
+namespace rosasurfer\rt\synthetic\index;
 
 use rosasurfer\exception\IllegalTypeException;
 
@@ -8,24 +8,24 @@ use rosasurfer\rt\synthetic\SynthesizerInterface as Synthesizer;
 
 
 /**
- * CADLFX synthesizer
+ * GBPLFX synthesizer
  *
- * A {@link Synthesizer} for calculating the "LiteForex Canadian Dollar index" (a scaled-down FX6 index).
+ * A {@link Synthesizer} for calculating the "LiteForex Great Britain Pound index" (a scaled-down FX6 index).
  *
  * <pre>
  * Formulas:
  * ---------
- * CADLFX = USDLFX / USDCAD
- * CADLFX = \sqrt[7]{\frac{CADCHF * CADJPY}{AUDCAD * EURCAD * GBPCAD * USDCAD}}
+ * GBPLFX = USDLFX * GBPUSD
+ * GBPLFX = \sqrt[7]{\frac{GBPAUD * GBPCAD * GBPCHF * GBPJPY * GBPUSD}{EURGBP}}
  * </pre>
  */
-class CADLFX extends AbstractSynthesizer {
+class GBPLFX extends AbstractSynthesizer {
 
 
     /** @var string[][] */
     protected $components = [
-        'fast' => ['USDCAD', 'USDLFX'],
-        'slow' => ['AUDCAD', 'CADCHF', 'CADJPY', 'EURCAD', 'GBPCAD', 'USDCAD'],
+        'fast' => ['GBPUSD', 'USDLFX'],
+        'slow' => ['EURGBP', 'GBPAUD', 'GBPCAD', 'GBPCHF', 'GBPJPY', 'GBPUSD'],
     ];
 
 
@@ -46,23 +46,23 @@ class CADLFX extends AbstractSynthesizer {
 
         // calculate quotes
         echoPre('[Info]    '.$this->symbolName.'  calculating M1 history for '.gmDate('D, d-M-Y', $day));
-        $USDCAD = $quotes['USDCAD'];
+        $GBPUSD = $quotes['GBPUSD'];
         $USDLFX = $quotes['USDLFX'];
 
         $digits = $this->symbol->getDigits();
         $point  = $this->symbol->getPoint();
         $bars   = [];
 
-        // CADLFX = USDLFX / USDCAD
-        foreach ($USDCAD as $i => $bar) {
-            $usdcad = $USDCAD[$i]['open'];
+        // GBPLFX = USDLFX * GBPUSD
+        foreach ($GBPUSD as $i => $bar) {
+            $gbpusd = $GBPUSD[$i]['open'];
             $usdlfx = $USDLFX[$i]['open'];
-            $open   = round($usdlfx / $usdcad, $digits);
+            $open   = round($usdlfx * $gbpusd, $digits);
             $iOpen  = (int) round($open/$point);
 
-            $usdcad = $USDCAD[$i]['close'];
+            $gbpusd = $GBPUSD[$i]['close'];
             $usdlfx = $USDLFX[$i]['close'];
-            $close  = round($usdlfx / $usdcad, $digits);
+            $close  = round($usdlfx * $gbpusd, $digits);
             $iClose = (int) round($close/$point);
 
             $bars[$i]['time' ] = $bar['time'];
