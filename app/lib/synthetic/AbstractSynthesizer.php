@@ -17,8 +17,11 @@ abstract class AbstractSynthesizer extends Object implements SynthesizerInterfac
     /** @var string */
     protected $symbolName;
 
-    /** @var string[][] - one or more sets of components */
+    /** @var string[][] - one or more sets of component names */
     protected $components = [];
+
+    /** @var RosaSymbol[] - loaded symbols */
+    protected $loadedSymbols = [];
 
 
     /**
@@ -47,23 +50,23 @@ abstract class AbstractSynthesizer extends Object implements SynthesizerInterfac
 
 
     /**
-     * Load the symbols required to calculate the synthetic instrument.
+     * Load the components required to calculate the synthetic instrument.
      *
      * @param string[] $names
      *
-     * @return RosaSymbol[] - associative array of symbols with names as key or an empty value if at least one of the
-     *                        symbols was not found
+     * @return RosaSymbol[] - loaded symbols or an empty value if one of the symbols was not found
      */
-    protected function loadSymbols(array $names) {
+    protected function loadComponents(array $names) {
         $symbols = [];
         foreach ($names as $name) {
-            /** @var RosaSymbol $symbol */
-            $symbol = RosaSymbol::dao()->findByName($name);
-            if (!$symbol) {                                             // symbol not found
+            if (isSet($this->loadedSymbols[$name])) {
+                $symbol = $this->loadedSymbols[$name];
+            }
+            else if (!$symbol = RosaSymbol::dao()->findByName($name)) {
                 echoPre('[Error]   '.$this->symbolName.'  required M1 history for '.$name.' not available');
                 return [];
             }
-            $symbols[$symbol->getName()] = $symbol;
+            $symbols[] = $symbol;
         }
         return $symbols;
     }
@@ -92,14 +95,14 @@ abstract class AbstractSynthesizer extends Object implements SynthesizerInterfac
 
 
     /**
-     * Load the history of all symbols for the specified day.
+     * Load the history of all components for the specified day.
      *
      * @param RosaSymbol[] $symbols
      * @param int          $day
      *
      * @return array[] - associative array of timeseries with the symbol name as key
      */
-    protected function loadHistory($symbols, $day) {
+    protected function loadComponentHistory($symbols, $day) {
         $quotes = [];
         foreach ($symbols as $symbol) {
             $name = $symbol->getName();
