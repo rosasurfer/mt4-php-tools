@@ -15,8 +15,10 @@ use rosasurfer\rt\synthetic\SynthesizerInterface as Synthesizer;
  * A {@link Synthesizer} for calculating the "LiteForex Australian Dollar index".
  *
  * <pre>
- * formula(1): AUDLFX = USDLFX * AUDUSD         (preferred)
- * formula(2): AUDLFX = \sqrt[7]{\frac{AUDCAD * AUDCHF * AUDJPY * AUDUSD}{EURAUD * GBPAUD}}
+ * Formulas:
+ * ---------
+ * AUDLFX = USDLFX * AUDUSD
+ * AUDLFX = \sqrt[7]{\frac{AUDCAD * AUDCHF * AUDJPY * AUDUSD}{EURAUD * GBPAUD}}
  * </pre>
  */
 class AUDLFX extends AbstractSynthesizer {
@@ -24,8 +26,8 @@ class AUDLFX extends AbstractSynthesizer {
 
     /** @var string[][] */
     protected $components = [
-        'usdlfx' => ['AUDUSD', 'USDLFX'],                                           // preferred calculation method
-        'pairs'  => ['AUDCAD', 'AUDCHF', 'AUDJPY', 'AUDUSD', 'EURAUD', 'GBPAUD'],   // alternative calculation method
+        'fast' => ['AUDUSD', 'USDLFX'],
+        'slow' => ['AUDCAD', 'AUDCHF', 'AUDJPY', 'AUDUSD', 'EURAUD', 'GBPAUD'],
     ];
 
 
@@ -36,8 +38,8 @@ class AUDLFX extends AbstractSynthesizer {
         if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
 
         $symbols = [];
-        foreach ($this->components['usdlfx'] as $name) {
-            /** @var RosaSymbol $pair */
+        foreach (first($this->components) as $name) {
+            /** @var RosaSymbol $symbol */
             $symbol = RosaSymbol::dao()->findByName($name);
             if (!$symbol) {                                             // symbol not found
                 echoPre('[Error]   '.$this->symbol->getName().'  required M1 history for '.$name.' not available');
@@ -46,7 +48,7 @@ class AUDLFX extends AbstractSynthesizer {
             $symbols[$symbol->getName()] = $symbol;
         }
 
-        // on $day == 0 start with the oldest available history of all components
+        // without a day look-up the oldest available history of all components
         if (!$day) {
             /** @var RosaSymbol $symbol */
             foreach ($symbols as $symbol) {
@@ -73,7 +75,32 @@ class AUDLFX extends AbstractSynthesizer {
 
         // calculate quotes
         echoPre('[Info]    '.$this->symbol->getName().'  calculating M1 history for '.gmDate('D, d-M-Y', $day));
-        echoPre('skipping...');
-        return [];
+        $AUDUSD = $quotes['AUDUSD'];
+        $USDLFX = $quotes['USDLFX'];
+
+        $digits = $this->symbol->getDigits();
+        $point  = $this->symbol->getPoint();
+        $bars   = [];
+
+        // AUDLFX = USDLFX * AUDUSD
+        foreach ($AUDUSD as $i => $bar) {
+            $audusd = $AUDUSD[$i]['open'];
+            $usdlfx = $USDLFX[$i]['open'];
+            $open   = round($usdlfx * $audusd, $digits);
+            $iOpen  = (int) round($open/$point);
+
+            $audusd = $AUDUSD[$i]['close'];
+            $usdlfx = $USDLFX[$i]['close'];
+            $close  = round($usdlfx * $audusd, $digits);
+            $iClose = (int) round($close/$point);
+
+            $bars[$i]['time' ] = $bar['time'];
+            $bars[$i]['open' ] = $open;
+            $bars[$i]['high' ] = $iOpen > $iClose ? $open : $close;     // no min()/max(): This is a massive loop and
+            $bars[$i]['low'  ] = $iOpen < $iClose ? $open : $close;     // every function call slows it down.
+            $bars[$i]['close'] = $close;
+            $bars[$i]['ticks'] = $iOpen==$iClose ? 1 : (abs($iOpen-$iClose) << 1);
+        }
+        return $bars;
     }
 }
