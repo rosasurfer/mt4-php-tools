@@ -16,7 +16,7 @@ use rosasurfer\rt\synthetic\SynthesizerInterface as Synthesizer;
  * Formulas:
  * ---------
  * NZDLFX = USDLFX * NZDUSD
- * NZDLFX = \sqrt[7]{\frac{NZDCAD * NZDCHF * NZDJPY * NZDUSD}{AUDNZD * EURNZD * GBPNZD}}
+ * NZDLFX = pow(NZDCAD * NZDCHF * NZDJPY * NZDUSD / (AUDNZD * EURNZD * GBPNZD), 1/7)
  * </pre>
  */
 class NZDLFX extends AbstractSynthesizer {

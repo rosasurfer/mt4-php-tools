@@ -16,7 +16,7 @@ use rosasurfer\rt\synthetic\SynthesizerInterface as Synthesizer;
  * Formulas:
  * ---------
  * AUDLFX = USDLFX * AUDUSD
- * AUDLFX = \sqrt[7]{\frac{AUDCAD * AUDCHF * AUDJPY * AUDUSD}{EURAUD * GBPAUD}}
+ * AUDLFX = pow(AUDCAD * AUDCHF * AUDJPY * AUDUSD / (EURAUD * GBPAUD), 1/7)
  * </pre>
  */
 class AUDLFX extends AbstractSynthesizer {

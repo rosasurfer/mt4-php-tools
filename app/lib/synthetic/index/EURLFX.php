@@ -16,7 +16,7 @@ use rosasurfer\rt\synthetic\SynthesizerInterface as Synthesizer;
  * Formulas:
  * ---------
  * EURLFX = USDLFX * EURUSD
- * EURLFX = \sqrt[7]{EURAUD * EURCAD * EURCHF * EURGBP * EURJPY * EURUSD}
+ * EURLFX = pow(EURAUD * EURCAD * EURCHF * EURGBP * EURJPY * EURUSD, 1/7)
  * </pre>
  */
 class EURLFX extends AbstractSynthesizer {

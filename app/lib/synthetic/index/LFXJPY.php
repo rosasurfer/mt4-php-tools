@@ -16,7 +16,7 @@ use rosasurfer\rt\synthetic\SynthesizerInterface as Synthesizer;
  * Formulas:
  * ---------
  * LFXJPY = USDJPY / USDLFX
- * LFXJPY = \sqrt[7]{AUDJPY * CADJPY * CHFJPY * EURJPY * GBPJPY * USDJPY}
+ * LFXJPY = pow(AUDJPY * CADJPY * CHFJPY * EURJPY * GBPJPY * USDJPY, 1/7)
  * </pre>
  */
 class LFXJPY extends AbstractSynthesizer {

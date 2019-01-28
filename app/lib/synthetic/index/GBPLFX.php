@@ -16,7 +16,7 @@ use rosasurfer\rt\synthetic\SynthesizerInterface as Synthesizer;
  * Formulas:
  * ---------
  * GBPLFX = USDLFX * GBPUSD
- * GBPLFX = \sqrt[7]{\frac{GBPAUD * GBPCAD * GBPCHF * GBPJPY * GBPUSD}{EURGBP}}
+ * GBPLFX = pow(GBPAUD * GBPCAD * GBPCHF * GBPJPY * GBPUSD / EURGBP, 1/7)
  * </pre>
  */
 class GBPLFX extends AbstractSynthesizer {

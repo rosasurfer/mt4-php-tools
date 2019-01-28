@@ -16,7 +16,7 @@ use rosasurfer\rt\synthetic\SynthesizerInterface as Synthesizer;
  * Formulas:
  * ---------
  * CADLFX = USDLFX / USDCAD
- * CADLFX = \sqrt[7]{\frac{CADCHF * CADJPY}{AUDCAD * EURCAD * GBPCAD * USDCAD}}
+ * CADLFX = pow(CADCHF * CADJPY / (AUDCAD * EURCAD * GBPCAD * USDCAD), 1/7)
  * </pre>
  */
 class CADLFX extends AbstractSynthesizer {

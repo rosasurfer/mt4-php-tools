@@ -8,24 +8,26 @@ use rosasurfer\rt\synthetic\SynthesizerInterface as Synthesizer;
 
 
 /**
- * CHFLFX synthesizer
+ * CADLFX synthesizer
  *
- * A {@link Synthesizer} for calculating the "LiteForex Swiss Franc index" (a scaled-down FX6 index).
+ * A {@link Synthesizer} for calculating the Canadian Dollar FX6 index.
  *
  * <pre>
  * Formulas:
  * ---------
- * CHFLFX = UDLFX / USDCHF
- * CHFLFX = pow(CHFJPY / (AUDCHF * CADCHF * EURCHF * GBPCHF * USDCHF), 1/7)
+ * CADFX6 = pow(USDLFX / USDCAD, 7/6)
+ * CADFX6 = pow(USDCHF * USDJPY / (AUDUSD * EURUSD * GBPUSD), 1/6) / USDCAD
+ * CADFX6 = pow(CADCHF * CADJPY / (AUDCAD * EURCAD * GBPCAD * USDCAD), 1/6)
  * </pre>
  */
-class CHFLFX extends AbstractSynthesizer {
+class CADFX6 extends AbstractSynthesizer {
 
 
     /** @var string[][] */
     protected $components = [
-        'fast'    => ['USDCHF', 'USDLFX'],
-        'crosses' => ['AUDCHF', 'CADCHF', 'CHFJPY', 'EURCHF', 'GBPCHF', 'USDCHF'],
+        'fast'    => ['USDCAD', 'USDLFX'],
+        'majors'  => ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'],
+        'crosses' => ['AUDCAD', 'CADCHF', 'CADJPY', 'EURCAD', 'GBPCAD', 'USDCAD'],
     ];
 
 
@@ -46,23 +48,25 @@ class CHFLFX extends AbstractSynthesizer {
 
         // calculate quotes
         echoPre('[Info]    '.$this->symbolName.'  calculating M1 history for '.gmDate('D, d-M-Y', $day));
-        $USDCHF = $quotes['USDCHF'];
+        $USDCAD = $quotes['USDCAD'];
         $USDLFX = $quotes['USDLFX'];
 
         $digits = $this->symbol->getDigits();
         $point  = $this->symbol->getPoint();
         $bars   = [];
 
-        // CHFLFX = UDLFX / USDCHF
-        foreach ($USDCHF as $i => $bar) {
-            $usdchf = $USDCHF[$i]['open'];
+        // CADFX6 = pow(USDLFX / USDCAD, 7/6)
+        foreach ($USDCAD as $i => $bar) {
+            $usdcad = $USDCAD[$i]['open'];
             $usdlfx = $USDLFX[$i]['open'];
-            $open   = round($usdlfx / $usdchf, $digits);
+            $open   = pow($usdlfx / $usdcad, 7/6);
+            $open   = round($open, $digits);
             $iOpen  = (int) round($open/$point);
 
-            $usdchf = $USDCHF[$i]['close'];
+            $usdcad = $USDCAD[$i]['close'];
             $usdlfx = $USDLFX[$i]['close'];
-            $close  = round($usdlfx / $usdchf, $digits);
+            $close  = pow($usdlfx / $usdcad, 7/6);
+            $close  = round($close, $digits);
             $iClose = (int) round($close/$point);
 
             $bars[$i]['time' ] = $bar['time'];

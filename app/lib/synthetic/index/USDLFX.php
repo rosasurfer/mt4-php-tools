@@ -15,7 +15,7 @@ use rosasurfer\rt\synthetic\SynthesizerInterface as Synthesizer;
  * <pre>
  * Formula:
  * --------
- * USDLFX = \sqrt[7]{\frac{USDCAD * USDCHF * USDJPY}{AUDUSD * EURUSD * GBPUSD}}
+ * USDLFX = pow(USDCAD * USDCHF * USDJPY / (AUDUSD * EURUSD * GBPUSD), 1/7)
  * </pre>
  */
 class USDLFX extends AbstractSynthesizer {
@@ -55,7 +55,7 @@ class USDLFX extends AbstractSynthesizer {
         $point  = $this->symbol->getPoint();
         $bars   = [];
 
-        // USDLFX = \sqrt[7]{\frac{USDCAD * USDCHF * USDJPY}{AUDUSD * EURUSD * GBPUSD}}
+        // USDLFX = pow(USDCAD * USDCHF * USDJPY / (AUDUSD * EURUSD * GBPUSD), 1/7)
         foreach ($AUDUSD as $i => $bar) {
             $audusd = $AUDUSD[$i]['open'];
             $eurusd = $EURUSD[$i]['open'];

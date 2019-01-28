@@ -15,9 +15,9 @@ use rosasurfer\rt\synthetic\SynthesizerInterface as Synthesizer;
  * <pre>
  * Formulas:
  * ---------
- * AUDFX6 = \sqrt[\frac{7}{6}]{USDLFX * AUDUSD}
- * AUDFX6 = \sqrt[6]{\frac{USDCAD * USDCHF * USDJPY}{EURUSD * GBPUSD}} * AUDUSD
- * AUDFX6 = \sqrt[6]{\frac{AUDCAD * AUDCHF * AUDJPY * AUDUSD}{EURAUD * GBPAUD}}
+ * AUDFX6 = pow(USDLFX * AUDUSD, 7/6)
+ * AUDFX6 = pow(USDCAD * USDCHF * USDJPY / (EURUSD * GBPUSD), 1/6) * AUDUSD
+ * AUDFX6 = pow(AUDCAD * AUDCHF * AUDJPY * AUDUSD / (EURAUD * GBPAUD), 1/6)
  * </pre>
  */
 class AUDFX6 extends AbstractSynthesizer {
@@ -55,7 +55,7 @@ class AUDFX6 extends AbstractSynthesizer {
         $point  = $this->symbol->getPoint();
         $bars   = [];
 
-        // AUDFX6 = \sqrt[\frac{7}{6}]{USDLFX * AUDUSD}
+        // AUDFX6 = pow(USDLFX * AUDUSD, 7/6)
         foreach ($AUDUSD as $i => $bar) {
             $audusd = $AUDUSD[$i]['open'];
             $usdlfx = $USDLFX[$i]['open'];
