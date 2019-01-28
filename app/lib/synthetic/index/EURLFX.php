@@ -24,8 +24,8 @@ class EURLFX extends AbstractSynthesizer {
 
     /** @var string[][] */
     protected $components = [
-        'fast' => ['EURUSD', 'USDLFX'],
-        'slow' => ['EURAUD', 'EURCAD', 'EURCHF', 'EURGBP', 'EURJPY', 'EURUSD'],
+        'fast'    => ['EURUSD', 'USDLFX'],
+        'crosses' => ['EURAUD', 'EURCAD', 'EURCHF', 'EURGBP', 'EURJPY', 'EURUSD'],
     ];
 
 

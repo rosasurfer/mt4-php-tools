@@ -24,8 +24,8 @@ class CHFLFX extends AbstractSynthesizer {
 
     /** @var string[][] */
     protected $components = [
-        'fast' => ['USDCHF', 'USDLFX'],
-        'slow' => ['AUDCHF', 'CADCHF', 'CHFJPY', 'EURCHF', 'GBPCHF', 'USDCHF'],
+        'fast'    => ['USDCHF', 'USDLFX'],
+        'crosses' => ['AUDCHF', 'CADCHF', 'CHFJPY', 'EURCHF', 'GBPCHF', 'USDCHF'],
     ];
 
 

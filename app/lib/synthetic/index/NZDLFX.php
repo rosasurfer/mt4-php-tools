@@ -24,8 +24,8 @@ class NZDLFX extends AbstractSynthesizer {
 
     /** @var string[][] */
     protected $components = [
-        'fast' => ['NZDUSD', 'USDLFX'],
-        'slow' => ['AUDNZD', 'EURNZD', 'GBPNZD', 'NZDCAD', 'NZDCHF', 'NZDJPY', 'NZDUSD'],
+        'fast'    => ['NZDUSD', 'USDLFX'],
+        'crosses' => ['AUDNZD', 'EURNZD', 'GBPNZD', 'NZDCAD', 'NZDCHF', 'NZDJPY', 'NZDUSD'],
     ];
 
 

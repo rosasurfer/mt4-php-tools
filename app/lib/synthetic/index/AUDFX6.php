@@ -8,24 +8,26 @@ use rosasurfer\rt\synthetic\SynthesizerInterface as Synthesizer;
 
 
 /**
- * LFXJPY synthesizer
+ * AUDFX6 synthesizer
  *
- * A {@link Synthesizer} for calculating the "LiteForex Japanese Yen index" (a scaled-down and inversed FX6 index).
+ * A {@link Synthesizer} for calculating the Australian Dollar FX6 index.
  *
  * <pre>
  * Formulas:
  * ---------
- * LFXJPY = USDJPY / USDLFX
- * LFXJPY = \sqrt[7]{AUDJPY * CADJPY * CHFJPY * EURJPY * GBPJPY * USDJPY}
+ * AUDFX6 = \sqrt[\frac{7}{6}]{USDLFX * AUDUSD}
+ * AUDFX6 = \sqrt[6]{\frac{USDCAD * USDCHF * USDJPY}{EURUSD * GBPUSD}} * AUDUSD
+ * AUDFX6 = \sqrt[6]{\frac{AUDCAD * AUDCHF * AUDJPY * AUDUSD}{EURAUD * GBPAUD}}
  * </pre>
  */
-class LFXJPY extends AbstractSynthesizer {
+class AUDFX6 extends AbstractSynthesizer {
 
 
     /** @var string[][] */
     protected $components = [
-        'fast'    => ['USDJPY', 'USDLFX'],
-        'crosses' => ['AUDJPY', 'CADJPY', 'CHFJPY', 'EURJPY', 'GBPJPY', 'USDJPY'],
+        'fast'    => ['AUDUSD', 'USDLFX'],
+        'majors'  => ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'],
+        'crosses' => ['AUDCAD', 'AUDCHF', 'AUDJPY', 'AUDUSD', 'EURAUD', 'GBPAUD'],
     ];
 
 
@@ -46,23 +48,25 @@ class LFXJPY extends AbstractSynthesizer {
 
         // calculate quotes
         echoPre('[Info]    '.$this->symbolName.'  calculating M1 history for '.gmDate('D, d-M-Y', $day));
-        $USDJPY = $quotes['USDJPY'];
+        $AUDUSD = $quotes['AUDUSD'];
         $USDLFX = $quotes['USDLFX'];
 
         $digits = $this->symbol->getDigits();
         $point  = $this->symbol->getPoint();
         $bars   = [];
 
-        // LFXJPY = USDJPY / USDLFX
-        foreach ($USDJPY as $i => $bar) {
-            $usdjpy = $USDJPY[$i]['open'];
+        // AUDFX6 = \sqrt[\frac{7}{6}]{USDLFX * AUDUSD}
+        foreach ($AUDUSD as $i => $bar) {
+            $audusd = $AUDUSD[$i]['open'];
             $usdlfx = $USDLFX[$i]['open'];
-            $open   = round($usdjpy / $usdlfx, $digits);
+            $open   = pow(($usdlfx * $audusd), 7/6);
+            $open   = round($open, $digits);
             $iOpen  = (int) round($open/$point);
 
-            $usdjpy = $USDJPY[$i]['close'];
+            $audusd = $AUDUSD[$i]['close'];
             $usdlfx = $USDLFX[$i]['close'];
-            $close  = round($usdjpy / $usdlfx, $digits);
+            $close  = pow(($usdlfx * $audusd), 7/6);
+            $close  = round($close, $digits);
             $iClose = (int) round($close/$point);
 
             $bars[$i]['time' ] = $bar['time'];

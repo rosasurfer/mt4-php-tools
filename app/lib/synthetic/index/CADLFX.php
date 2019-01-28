@@ -24,8 +24,8 @@ class CADLFX extends AbstractSynthesizer {
 
     /** @var string[][] */
     protected $components = [
-        'fast' => ['USDCAD', 'USDLFX'],
-        'slow' => ['AUDCAD', 'CADCHF', 'CADJPY', 'EURCAD', 'GBPCAD', 'USDCAD'],
+        'fast'    => ['USDCAD', 'USDLFX'],
+        'crosses' => ['AUDCAD', 'CADCHF', 'CADJPY', 'EURCAD', 'GBPCAD', 'USDCAD'],
     ];
 
 

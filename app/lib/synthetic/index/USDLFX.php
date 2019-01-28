@@ -23,7 +23,7 @@ class USDLFX extends AbstractSynthesizer {
 
     /** @var string[][] */
     protected $components = [
-        'pairs' => ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'],
+        'majors' => ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'],
     ];
 
 

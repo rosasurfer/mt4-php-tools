@@ -24,8 +24,8 @@ class GBPLFX extends AbstractSynthesizer {
 
     /** @var string[][] */
     protected $components = [
-        'fast' => ['GBPUSD', 'USDLFX'],
-        'slow' => ['EURGBP', 'GBPAUD', 'GBPCAD', 'GBPCHF', 'GBPJPY', 'GBPUSD'],
+        'fast'    => ['GBPUSD', 'USDLFX'],
+        'crosses' => ['EURGBP', 'GBPAUD', 'GBPCAD', 'GBPCHF', 'GBPJPY', 'GBPUSD'],
     ];
 
 

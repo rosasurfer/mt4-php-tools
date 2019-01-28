@@ -24,8 +24,8 @@ class AUDLFX extends AbstractSynthesizer {
 
     /** @var string[][] */
     protected $components = [
-        'fast' => ['AUDUSD', 'USDLFX'],
-        'slow' => ['AUDCAD', 'AUDCHF', 'AUDJPY', 'AUDUSD', 'EURAUD', 'GBPAUD'],
+        'fast'    => ['AUDUSD', 'USDLFX'],
+        'crosses' => ['AUDCAD', 'AUDCHF', 'AUDJPY', 'AUDUSD', 'EURAUD', 'GBPAUD'],
     ];
 
 
