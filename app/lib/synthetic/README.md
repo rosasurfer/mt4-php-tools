@@ -1,11 +1,8 @@
 
-## ICE futures indexes, synthetic currency indexes and custom currency baskets
+## ICE futures indexes, synthetic currency indexes and custom baskets
 
 Currency indexes are used to analyze strength and weakness of global Forex currencies separately. They measure the change in
-value of one currency compared to a basket of other major currencies. The following indexes are constantly calculated and
-updated and can be setup for real-time charting by MetaTrader:
-<br>
-<br>
+value of one currency compared to a basket of other currencies. The following indexes are predefined and constantly updated.<br>
 
 ---
 
@@ -20,28 +17,41 @@ and CHF).
 ICE Euro Index (EURX)</a> was launched on 13 January 2006 and calculated back to 2001. The index is
 <a href="http://www.forexltd.co.uk/trade/contrspec/eurx/" target="_blank">calculated</a> by comparing the value of the Euro
 to a basket of five other currencies (USD, GBP, JPY, CHF, SEK). 5 years later on 20 May 2011, the ICE ended trading of futures
-and options on the index.
-<br>
+and options on the index.<br>
 
 ---
 
 ### Synthetic FX6 currency indexes
-An FX6 currency index measures the change in the value of one currency by tracking the exchange rates to six other major
-currencies (USD, EUR, GBP, JPY, AUD, CAD, CHF). The index is calculated using an equally-weighted basket of the currency and
-its Forex counterparts. Supported indexes: AUDFX6, CADFX6, CHFFX6, EURFX6, GBPFX6, JPYFX6 and USDFX6
+An FX6 currency index measures the value of one major currency by tracking the exchange rates of six other major currencies:<br>
+1 + 6: USD, EUR, GBP, JPY, AUD, CAD, CHF. The index is calculated using an equally-weighted basket of the index currency and
+its six Forex counterparts. Predefined indexes and formulas:<br>
 <br>
+![AUDFX6](https://user-images.githubusercontent.com/12749283/51959885-2bfced80-245f-11e9-8f63-8a1bddecd156.png)<br>
 <br>
+![CADFX6](https://user-images.githubusercontent.com/12749283/51959989-99a91980-245f-11e9-87d5-623477676d03.png)<br>
+<br>
+![CHFFX6](https://user-images.githubusercontent.com/12749283/51960256-f6f19a80-2460-11e9-9e99-84669b75f710.png)<br>
+<br>
+![EURFX6](https://user-images.githubusercontent.com/12749283/51960322-3ae49f80-2461-11e9-8e0a-004f915ab6de.png)<br>
+<br>
+![GBPFX6](https://user-images.githubusercontent.com/12749283/51960408-93b43800-2461-11e9-9ce4-b70503ac2fae.png)<br>
+<br>
+![JPYFX6](https://user-images.githubusercontent.com/12749283/51960552-22c15000-2462-11e9-8f37-1d5c03d8b11a.png)<br>
+<br>
+![USDFX6](https://user-images.githubusercontent.com/12749283/51960612-64ea9180-2462-11e9-92ef-9fb55576da3a.png)<br>
+<br>
+Due to the Yen's extreme devaluation the JPYFX6 index is scaled-up by a factor of 100. This adjustment only effects the
+nominal scale but not the shape of the JPYFX6 index chart.<br>
 
 ---
 
 ### Synthetic FX7 currency indexes
-An FX7 currency index measures the change in the value of one currency by tracking the exchange rates to seven other major
-currencies (USD, EUR, GBP, JPY, AUD, CAD, CHF, NZD). The index is calculated using an equally-weighted basket of the currency
-and its counterparts. Supported indexes: AUDFX7, CADFX7, CHFFX7, EURFX7, GBPFX7, JPYFX7, NZDFX7 and USDFX7.  
-Additionally supported indexes: NOKFX7, SEKFX7, SGDFX7 and ZARFX7 (the NZD component is replaced by the respective index
-currency).
-<br>
-<br>
+An FX7 currency index measures the value of one currency by tracking the exchange rates of seven other major currencies:<br>
+1 + 7: USD, EUR, GBP, JPY, AUD, CAD, CHF, NZD. The index is calculated using an equally-weighted basket of the index currency
+and its seven Forex counterparts. Predefined indexes and formulas:<br>
+AUDFX7, CADFX7, CHFFX7, EURFX7, GBPFX7, JPYFX7, NZDFX7 and USDFX7<br>
+Additional indexes (the NZD component is replaced by the respective index currency):<br>
+NOKFX7, SEKFX7, SGDFX7 and ZARFX7<br>
 
 ---
 
@@ -65,12 +75,11 @@ LiteForex currency indexes</a> are supported. Symbols and formulas:<br>
 <br>
 ![USDLFX](https://user-images.githubusercontent.com/12749283/51872916-c415ac80-2363-11e9-92b5-96e119b415d2.png)<br>
 <br>
-All indexes except NZDLFX are scaled-down FX6 indexes. NZDLFX is a regular FX7 index and an alias of NZDFX7.  
-LFXJPY is a scaled-down and inversed FX6 index. 
+All indexes except NZDLFX are scaled-down FX6 indexes. NZDLFX is an FX7 index and an alias of NZDFX7.<br>
+LFXJPY is an inversed index. 
 
 ---
 
 ### Custom currency baskets
-TODO: documentation
-<br>
+TODO: documentation<br>
 <br>

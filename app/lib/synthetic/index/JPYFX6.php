@@ -11,7 +11,7 @@ use rosasurfer\rt\synthetic\SynthesizerInterface as Synthesizer;
  * JPYFX6 synthesizer
  *
  * A {@link Synthesizer} for calculating the Japanese Yen FX6 index. Due to the Yen's extreme devaluation the index is
- * scaled-up by a factor of 100. This adjustment only effects the nominal scala, not the shape of the Yen's chart.
+ * scaled-up by a factor of 100. This adjustment only effects the nominal scala, not the shape of the Yen index chart.
  *
  * <pre>
  * Formulas:

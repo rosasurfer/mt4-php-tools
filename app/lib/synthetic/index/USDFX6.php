@@ -8,17 +8,17 @@ use rosasurfer\rt\synthetic\SynthesizerInterface as Synthesizer;
 
 
 /**
- * USDLFX synthesizer
+ * USDFX6 synthesizer
  *
- * A {@link Synthesizer} for calculating the "LiteForex US Dollar index" (a scaled-down FX6 index).
+ * A {@link Synthesizer} for calculating the US Dollar FX6 index.
  *
  * <pre>
  * Formula:
  * --------
- * USDLFX = pow(USDCAD * USDCHF * USDJPY / (AUDUSD * EURUSD * GBPUSD), 1/7)
+ * USDFX6 = pow(USDCAD * USDCHF * USDJPY / (AUDUSD * EURUSD * GBPUSD), 1/6)
  * </pre>
  */
-class USDLFX extends AbstractSynthesizer {
+class USDFX6 extends AbstractSynthesizer {
 
 
     /** @var string[][] */
@@ -55,7 +55,7 @@ class USDLFX extends AbstractSynthesizer {
         $point  = $this->symbol->getPoint();
         $bars   = [];
 
-        // USDLFX = pow(USDCAD * USDCHF * USDJPY / (AUDUSD * EURUSD * GBPUSD), 1/7)
+        // USDFX6 = pow(USDCAD * USDCHF * USDJPY / (AUDUSD * EURUSD * GBPUSD), 1/6)
         foreach ($AUDUSD as $i => $bar) {
             $audusd = $AUDUSD[$i]['open'];
             $eurusd = $EURUSD[$i]['open'];
@@ -63,7 +63,7 @@ class USDLFX extends AbstractSynthesizer {
             $usdcad = $USDCAD[$i]['open'];
             $usdchf = $USDCHF[$i]['open'];
             $usdjpy = $USDJPY[$i]['open'];
-            $open   = pow($usdcad * $usdchf * $usdjpy / ($audusd * $eurusd * $gbpusd), 1/7);
+            $open   = pow($usdcad * $usdchf * $usdjpy / ($audusd * $eurusd * $gbpusd), 1/6);
             $open   = round($open, $digits);
             $iOpen  = (int) round($open/$point);
 
@@ -73,7 +73,7 @@ class USDLFX extends AbstractSynthesizer {
             $usdcad = $USDCAD[$i]['close'];
             $usdchf = $USDCHF[$i]['close'];
             $usdjpy = $USDJPY[$i]['close'];
-            $close  = pow($usdcad * $usdchf * $usdjpy / ($audusd * $eurusd * $gbpusd), 1/7);
+            $close  = pow($usdcad * $usdchf * $usdjpy / ($audusd * $eurusd * $gbpusd), 1/6);
             $close  = round($close, $digits);
             $iClose = (int) round($close/$point);
 
