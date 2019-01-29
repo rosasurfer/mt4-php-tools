@@ -47,10 +47,8 @@ currency).
 
 ### Synthetic LiteForex currency indexes
 All <a href="http://web.archive.org/web/20140421225104/http://www.liteforex.com/trading/trading-instruments/indices/" target="_blank">
-LiteForex currency indexes</a> are supported. All indexes except NZDLFX are scaled-down FX6 indexes. LFXJPY is a scaled-down
-and inversed FX6 index. NZDLFX is a regular FX7 index and an alias of NZDFX7.
-
-#### Symbols and formulas:
+LiteForex currency indexes</a> are supported. Symbols and formulas:<br>
+<br>
 ![AUDLFX](https://user-images.githubusercontent.com/12749283/51873340-74d07b80-2365-11e9-9764-30ce54a9539d.png)<br>
 <br>
 ![CADLFX](https://user-images.githubusercontent.com/12749283/51873467-f0cac380-2365-11e9-9f21-8b7f3db45c7a.png)<br>
@@ -67,6 +65,8 @@ and inversed FX6 index. NZDLFX is a regular FX7 index and an alias of NZDFX7.
 <br>
 ![USDLFX](https://user-images.githubusercontent.com/12749283/51872916-c415ac80-2363-11e9-92b5-96e119b415d2.png)<br>
 <br>
+All indexes except NZDLFX are scaled-down FX6 indexes. NZDLFX is a regular FX7 index and an alias of NZDFX7.  
+LFXJPY is a scaled-down and inversed FX6 index. 
 
 ---
 
