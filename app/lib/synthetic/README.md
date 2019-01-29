@@ -1,5 +1,5 @@
 
-## ICE futures indexes, synthetic currency indexes and custom baskets
+## ICE futures indexes, synthetic currency indexes and custom currency baskets
 
 Currency indexes are used to analyze strength and weakness of global Forex currencies separately. They measure the change in
 value of one currency compared to a basket of other major currencies. The following indexes are constantly calculated and
@@ -50,7 +50,7 @@ All <a href="http://web.archive.org/web/20140421225104/http://www.liteforex.com/
 LiteForex currency indexes</a> are supported. All indexes except NZDLFX are scaled-down FX6 indexes. LFXJPY is a scaled-down
 and inversed FX6 index. NZDLFX is a regular FX7 index and an alias of NZDFX7.
 
-#### Formulas:
+#### Symbols and formulas:
 ![AUDLFX](https://user-images.githubusercontent.com/12749283/51873340-74d07b80-2365-11e9-9764-30ce54a9539d.png)<br>
 <br>
 ![CADLFX](https://user-images.githubusercontent.com/12749283/51873467-f0cac380-2365-11e9-9f21-8b7f3db45c7a.png)<br>

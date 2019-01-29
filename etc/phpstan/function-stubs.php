@@ -320,16 +320,6 @@ namespace rosasurfer\rt\update_synthetics_m1 {
      *
      * @return array
      */
-    function calculateCHFFX6($day, array $data) {
-        return [];
-    }
-
-    /**
-     * @param  int   $day
-     * @param  array $data
-     *
-     * @return array
-     */
     function calculateCHFFX7($day, array $data) {
         return [];
     }
