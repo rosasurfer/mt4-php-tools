@@ -49,7 +49,18 @@ nominal scale but not the shape of the JPYFX6 index chart.<br>
 An FX7 currency index measures the value of one currency by tracking the exchange rates of seven other major currencies:<br>
 1 + 7: USD, EUR, GBP, JPY, AUD, CAD, CHF, NZD. The index is calculated using an equally-weighted basket of the index currency
 and its seven Forex counterparts. Predefined indexes and formulas:<br>
-AUDFX7, CADFX7, CHFFX7, EURFX7, GBPFX7, JPYFX7, NZDFX7 and USDFX7<br>
+<br>
+![AUDFX7](https://user-images.githubusercontent.com/12749283/52004266-61d9ba80-24cf-11e9-97e2-6e4a13a61593.png)<br>
+<br>
+![CADFX7](https://user-images.githubusercontent.com/12749283/52004443-c39a2480-24cf-11e9-98b7-11acf392287e.png)<br>
+<br>
+![CHFFX7](https://user-images.githubusercontent.com/12749283/52004532-f7754a00-24cf-11e9-8ef8-801aa1bb9338.png)<br>
+<br>
+![EURFX7](https://user-images.githubusercontent.com/12749283/52004649-47eca780-24d0-11e9-9179-388bdace610b.png)<br>
+<br>
+![GBPFX7](https://user-images.githubusercontent.com/12749283/52004745-897d5280-24d0-11e9-90e8-bbb6b17e7b1d.png)<br>
+<br>
+JPYFX7, NZDFX7 and USDFX7<br>
 Additional indexes (the NZD component is replaced by the respective index currency):<br>
 NOKFX7, SEKFX7, SGDFX7 and ZARFX7<br>
 
@@ -76,7 +87,7 @@ LiteForex currency indexes</a> are supported. Symbols and formulas:<br>
 ![USDLFX](https://user-images.githubusercontent.com/12749283/51872916-c415ac80-2363-11e9-92b5-96e119b415d2.png)<br>
 <br>
 All indexes except NZDLFX are scaled-down FX6 indexes. NZDLFX is an FX7 index and an alias of NZDFX7.<br>
-LFXJPY is an inversed index. 
+LFXJPY is an inversed index.
 
 ---
 
