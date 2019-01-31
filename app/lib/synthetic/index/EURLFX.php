@@ -10,7 +10,7 @@ use rosasurfer\rt\synthetic\SynthesizerInterface as Synthesizer;
 /**
  * EURLFX synthesizer
  *
- * A {@link Synthesizer} for calculating the "LiteForex Euro index" (a scaled-down FX6 index).
+ * A {@link Synthesizer} for calculating the LiteForex Euro index.
  *
  * <pre>
  * Formulas:

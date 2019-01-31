@@ -8,26 +8,26 @@ use rosasurfer\rt\synthetic\SynthesizerInterface as Synthesizer;
 
 
 /**
- * SGDFX7 synthesizer
+ * CHFFXI synthesizer
  *
- * A {@link Synthesizer} for calculating the Singapore Dollar FX7 index.
+ * A {@link Synthesizer} for calculating the Swiss Franc currency index.
  *
  * <pre>
  * Formulas:
  * ---------
- * SGDFX7 = USDLFX / USDSGD
- * SGDFX7 = pow(USDCAD * USDCHF * USDJPY / (AUDUSD * EURUSD * GBPUSD), 1/7) / USDSGD
- * SGDFX7 = pow(SGDJPY / (AUDSGD * CADSGD * CHFSGD * EURSGD * GBPSGD * USDSGD), 1/7)
+ * CHFFXI = pow(USDLFX / USDCHF, 7/6)
+ * CHFFXI = pow(USDCAD * USDJPY / (AUDUSD * EURUSD * GBPUSD), 1/6) / USDCHF
+ * CHFFXI = pow(CHFJPY / (AUDCHF * CADCHF * EURCHF * GBPCHF * USDCHF), 1/6)
  * </pre>
  */
-class SGDFX7 extends AbstractSynthesizer {
+class CHFFXI extends AbstractSynthesizer {
 
 
     /** @var string[][] */
     protected $components = [
-        'fast'    => ['USDLFX', 'USDSGD'],
-        'majors'  => ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'USDSGD'],
-        'crosses' => ['AUDSGD', 'CADSGD', 'CHFSGD', 'EURSGD', 'GBPSGD', 'SGDJPY', 'USDSGD'],
+        'fast'    => ['USDCHF', 'USDLFX'],
+        'majors'  => ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'],
+        'crosses' => ['AUDCHF', 'CADCHF', 'CHFJPY', 'EURCHF', 'GBPCHF', 'USDCHF'],
     ];
 
 
@@ -48,23 +48,25 @@ class SGDFX7 extends AbstractSynthesizer {
 
         // calculate quotes
         echoPre('[Info]    '.$this->symbolName.'  calculating M1 history for '.gmDate('D, d-M-Y', $day));
-        $USDSGD = $quotes['USDSGD'];
+        $USDCHF = $quotes['USDCHF'];
         $USDLFX = $quotes['USDLFX'];
 
         $digits = $this->symbol->getDigits();
         $point  = $this->symbol->getPoint();
         $bars   = [];
 
-        // SGDFX7 = USDLFX / USDSGD
-        foreach ($USDSGD as $i => $bar) {
-            $usdsgd = $USDSGD[$i]['open'];
+        // CHFFXI = pow(USDLFX / USDCHF, 7/6)
+        foreach ($USDCHF as $i => $bar) {
+            $usdchf = $USDCHF[$i]['open'];
             $usdlfx = $USDLFX[$i]['open'];
-            $open   = round($usdlfx / $usdsgd, $digits);
+            $open   = pow($usdlfx / $usdchf, 7/6);
+            $open   = round($open, $digits);
             $iOpen  = (int) round($open/$point);
 
-            $usdsgd = $USDSGD[$i]['close'];
+            $usdchf = $USDCHF[$i]['close'];
             $usdlfx = $USDLFX[$i]['close'];
-            $close  = round($usdlfx / $usdsgd, $digits);
+            $close  = pow($usdlfx / $usdchf, 7/6);
+            $close  = round($close, $digits);
             $iClose = (int) round($close/$point);
 
             $bars[$i]['time' ] = $bar['time'];

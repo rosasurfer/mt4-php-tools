@@ -8,26 +8,27 @@ use rosasurfer\rt\synthetic\SynthesizerInterface as Synthesizer;
 
 
 /**
- * CHFFX7 synthesizer
+ * ZARFXI synthesizer
  *
- * A {@link Synthesizer} for calculating the Swiss Franc FX7 index.
+ * A {@link Synthesizer} for calculating the South African Rand currency index. Due to the Rand's low value the index is
+ * scaled-up by a factor of 10. This adjustment only effects the nominal scala, not the shape of the ZAR index chart.
  *
  * <pre>
  * Formulas:
  * ---------
- * CHFFX7 = USDFX7 / pow(USDCHF, 8/7)
- * CHFFX7 = pow(USDCAD * USDJPY / (AUDUSD * EURUSD * GBPUSD * NZDUSD), 1/7) / USDCHF
- * CHFFX7 = pow(CHFJPY / (AUDCHF * CADCHF * EURCHF * GBPCHF * NZDCHF * USDCHF), 1/7)
+ * ZARFXI = 10 * USDLFX / USDZAR
+ * ZARFXI = 10 * pow(USDCAD * USDCHF *USDJPY / (AUDUSD * EURUSD * GBPUSD), 1/7) / USDZAR
+ * ZARFXI = 10 * pow(ZARJPY / (AUDZAR * CADZAR * CHFZAR * EURZAR * GBPZAR * USDZAR), 1/7)
  * </pre>
  */
-class CHFFX7 extends AbstractSynthesizer {
+class ZARFXI extends AbstractSynthesizer {
 
 
     /** @var string[][] */
     protected $components = [
-        'fast'    => ['USDCHF', 'USDFX7'],
-        'majors'  => ['AUDUSD', 'EURUSD', 'GBPUSD', 'NZDUSD', 'USDCAD', 'USDCHF', 'USDJPY'],
-        'crosses' => ['AUDCHF', 'CADCHF', 'CHFJPY', 'EURCHF', 'GBPCHF', 'NZDCHF', 'USDCHF'],
+        'fast'    => ['USDLFX', 'USDZAR'],
+        'majors'  => ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'USDZAR'],
+        'crosses' => ['AUDZAR', 'CADZAR', 'CHFZAR', 'EURZAR', 'GBPZAR', 'USDZAR', 'ZARJPY'],
     ];
 
 
@@ -48,24 +49,24 @@ class CHFFX7 extends AbstractSynthesizer {
 
         // calculate quotes
         echoPre('[Info]    '.$this->symbolName.'  calculating M1 history for '.gmDate('D, d-M-Y', $day));
-        $USDCHF = $quotes['USDCHF'];
-        $USDFX7 = $quotes['USDFX7'];
+        $USDZAR = $quotes['USDZAR'];
+        $USDLFX = $quotes['USDLFX'];
 
         $digits = $this->symbol->getDigits();
         $point  = $this->symbol->getPoint();
         $bars   = [];
 
-        // CHFFX7 = USDFX7 / pow(USDCHF, 8/7)
-        foreach ($USDCHF as $i => $bar) {
-            $usdchf = $USDCHF[$i]['open'];
-            $usdfx7 = $USDFX7[$i]['open'];
-            $open   = $usdfx7 / pow($usdchf, 8/7);
+        // ZARFXI = 10 * USDLFX / USDZAR
+        foreach ($USDZAR as $i => $bar) {
+            $usdzar = $USDZAR[$i]['open'];
+            $usdlfx = $USDLFX[$i]['open'];
+            $open   = 10 * $usdlfx / $usdzar;
             $open   = round($open, $digits);
             $iOpen  = (int) round($open/$point);
 
-            $usdchf = $USDCHF[$i]['close'];
-            $usdfx7 = $USDFX7[$i]['close'];
-            $close  = $usdfx7 / pow($usdchf, 8/7);
+            $usdzar = $USDZAR[$i]['close'];
+            $usdlfx = $USDLFX[$i]['close'];
+            $close  = 10 * $usdlfx / $usdzar;
             $close  = round($close, $digits);
             $iClose = (int) round($close/$point);
 

@@ -8,26 +8,27 @@ use rosasurfer\rt\synthetic\SynthesizerInterface as Synthesizer;
 
 
 /**
- * CHFFX6 synthesizer
+ * SEKFXI synthesizer
  *
- * A {@link Synthesizer} for calculating the Swiss Franc FX6 index.
+ * A {@link Synthesizer} for calculating the Swedish Krona currency index. Due to the Krona's low value the index is
+ * scaled-up by a factor of 10. This adjustment only effects the nominal scala, not the shape of the SEK index chart.
  *
  * <pre>
  * Formulas:
  * ---------
- * CHFFX6 = pow(USDLFX / USDCHF, 7/6)
- * CHFFX6 = pow(USDCAD * USDJPY / (AUDUSD * EURUSD * GBPUSD), 1/6) / USDCHF
- * CHFFX6 = pow(CHFJPY / (AUDCHF * CADCHF * EURCHF * GBPCHF * USDCHF), 1/6)
+ * SEKFXI = 10 * USDLFX / USDSEK
+ * SEKFXI = 10 * pow(USDCAD * USDCHF * USDJPY / (AUDUSD * EURUSD * GBPUSD), 1/7) / USDSEK
+ * SEKFXI = 10 * pow(SEKJPY / (AUDSEK * CADSEK * CHFSEK * EURSEK * GBPSEK * USDSEK), 1/7)
  * </pre>
  */
-class CHFFX6 extends AbstractSynthesizer {
+class SEKFXI extends AbstractSynthesizer {
 
 
     /** @var string[][] */
     protected $components = [
-        'fast'    => ['USDCHF', 'USDLFX'],
-        'majors'  => ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'],
-        'crosses' => ['AUDCHF', 'CADCHF', 'CHFJPY', 'EURCHF', 'GBPCHF', 'USDCHF'],
+        'fast'    => ['USDLFX', 'USDSEK'],
+        'majors'  => ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'USDSEK'],
+        'crosses' => ['AUDSEK', 'CADSEK', 'CHFSEK', 'EURSEK', 'GBPSEK', 'SEKJPY', 'USDSEK'],
     ];
 
 
@@ -48,24 +49,24 @@ class CHFFX6 extends AbstractSynthesizer {
 
         // calculate quotes
         echoPre('[Info]    '.$this->symbolName.'  calculating M1 history for '.gmDate('D, d-M-Y', $day));
-        $USDCHF = $quotes['USDCHF'];
+        $USDSEK = $quotes['USDSEK'];
         $USDLFX = $quotes['USDLFX'];
 
         $digits = $this->symbol->getDigits();
         $point  = $this->symbol->getPoint();
         $bars   = [];
 
-        // CHFFX6 = pow(USDLFX / USDCHF, 7/6)
-        foreach ($USDCHF as $i => $bar) {
-            $usdchf = $USDCHF[$i]['open'];
+        // SEKFXI = 10 * USDLFX / USDSEK
+        foreach ($USDSEK as $i => $bar) {
+            $usdsek = $USDSEK[$i]['open'];
             $usdlfx = $USDLFX[$i]['open'];
-            $open   = pow($usdlfx / $usdchf, 7/6);
+            $open   = 10 * $usdlfx / $usdsek;
             $open   = round($open, $digits);
             $iOpen  = (int) round($open/$point);
 
-            $usdchf = $USDCHF[$i]['close'];
+            $usdsek = $USDSEK[$i]['close'];
             $usdlfx = $USDLFX[$i]['close'];
-            $close  = pow($usdlfx / $usdchf, 7/6);
+            $close  = 10 * $usdlfx / $usdsek;
             $close  = round($close, $digits);
             $iClose = (int) round($close/$point);
 

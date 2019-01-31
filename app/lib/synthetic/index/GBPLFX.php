@@ -10,7 +10,7 @@ use rosasurfer\rt\synthetic\SynthesizerInterface as Synthesizer;
 /**
  * GBPLFX synthesizer
  *
- * A {@link Synthesizer} for calculating the "LiteForex Great Britain Pound index" (a scaled-down FX6 index).
+ * A {@link Synthesizer} for calculating the LiteForex Great Britain Pound index.
  *
  * <pre>
  * Formulas:

@@ -10,7 +10,7 @@ use rosasurfer\rt\synthetic\SynthesizerInterface as Synthesizer;
 /**
  * USDLFX synthesizer
  *
- * A {@link Synthesizer} for calculating the "LiteForex US Dollar index" (a scaled-down FX6 index).
+ * A {@link Synthesizer} for calculating the LiteForex US Dollar index.
  *
  * <pre>
  * Formula:

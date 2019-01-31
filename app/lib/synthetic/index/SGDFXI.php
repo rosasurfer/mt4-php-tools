@@ -8,26 +8,26 @@ use rosasurfer\rt\synthetic\SynthesizerInterface as Synthesizer;
 
 
 /**
- * GBPFX6 synthesizer
+ * SGDFXI synthesizer
  *
- * A {@link Synthesizer} for calculating the Great Britain Pound FX6 index.
+ * A {@link Synthesizer} for calculating the Singapore Dollar currency index.
  *
  * <pre>
  * Formulas:
  * ---------
- * GBPFX6 = pow(USDLFX * GBPUSD, 7/6)
- * GBPFX6 = pow(USDCAD * USDCHF * USDJPY / ($AUDUSD * EURUSD), 1/6) * GBPUSD
- * GBPFX6 = pow(GBPAUD * GBPCAD * GBPCHF * GBPJPY * GBPUSD / EURGBP, 1/6)
+ * SGDFXI = USDLFX / USDSGD
+ * SGDFXI = pow(USDCAD * USDCHF * USDJPY / (AUDUSD * EURUSD * GBPUSD), 1/7) / USDSGD
+ * SGDFXI = pow(SGDJPY / (AUDSGD * CADSGD * CHFSGD * EURSGD * GBPSGD * USDSGD), 1/7)
  * </pre>
  */
-class GBPFX6 extends AbstractSynthesizer {
+class SGDFXI extends AbstractSynthesizer {
 
 
     /** @var string[][] */
     protected $components = [
-        'fast'    => ['GBPUSD', 'USDLFX'],
-        'majors'  => ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'],
-        'crosses' => ['EURGBP', 'GBPAUD', 'GBPCAD', 'GBPCHF', 'GBPJPY', 'GBPUSD'],
+        'fast'    => ['USDLFX', 'USDSGD'],
+        'majors'  => ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'USDSGD'],
+        'crosses' => ['AUDSGD', 'CADSGD', 'CHFSGD', 'EURSGD', 'GBPSGD', 'SGDJPY', 'USDSGD'],
     ];
 
 
@@ -48,25 +48,23 @@ class GBPFX6 extends AbstractSynthesizer {
 
         // calculate quotes
         echoPre('[Info]    '.$this->symbolName.'  calculating M1 history for '.gmDate('D, d-M-Y', $day));
-        $GBPUSD = $quotes['GBPUSD'];
+        $USDSGD = $quotes['USDSGD'];
         $USDLFX = $quotes['USDLFX'];
 
         $digits = $this->symbol->getDigits();
         $point  = $this->symbol->getPoint();
         $bars   = [];
 
-        // GBPFX6 = pow(USDLFX * GBPUSD, 7/6)
-        foreach ($GBPUSD as $i => $bar) {
-            $gbpusd = $GBPUSD[$i]['open'];
+        // SGDFXI = USDLFX / USDSGD
+        foreach ($USDSGD as $i => $bar) {
+            $usdsgd = $USDSGD[$i]['open'];
             $usdlfx = $USDLFX[$i]['open'];
-            $open   = pow($usdlfx * $gbpusd, 7/6);
-            $open   = round($open, $digits);
+            $open   = round($usdlfx / $usdsgd, $digits);
             $iOpen  = (int) round($open/$point);
 
-            $gbpusd = $GBPUSD[$i]['close'];
+            $usdsgd = $USDSGD[$i]['close'];
             $usdlfx = $USDLFX[$i]['close'];
-            $close  = pow($usdlfx * $gbpusd, 7/6);
-            $close  = round($close, $digits);
+            $close  = round($usdlfx / $usdsgd, $digits);
             $iClose = (int) round($close/$point);
 
             $bars[$i]['time' ] = $bar['time'];

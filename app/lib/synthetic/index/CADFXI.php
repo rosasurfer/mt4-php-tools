@@ -10,17 +10,17 @@ use rosasurfer\rt\synthetic\SynthesizerInterface as Synthesizer;
 /**
  * CADLFX synthesizer
  *
- * A {@link Synthesizer} for calculating the Canadian Dollar FX6 index.
+ * A {@link Synthesizer} for calculating the Canadian Dollar currency index.
  *
  * <pre>
  * Formulas:
  * ---------
- * CADFX6 = pow(USDLFX / USDCAD, 7/6)
- * CADFX6 = pow(USDCHF * USDJPY / (AUDUSD * EURUSD * GBPUSD), 1/6) / USDCAD
- * CADFX6 = pow(CADCHF * CADJPY / (AUDCAD * EURCAD * GBPCAD * USDCAD), 1/6)
+ * CADFXI = pow(USDLFX / USDCAD, 7/6)
+ * CADFXI = pow(USDCHF * USDJPY / (AUDUSD * EURUSD * GBPUSD), 1/6) / USDCAD
+ * CADFXI = pow(CADCHF * CADJPY / (AUDCAD * EURCAD * GBPCAD * USDCAD), 1/6)
  * </pre>
  */
-class CADFX6 extends AbstractSynthesizer {
+class CADFXI extends AbstractSynthesizer {
 
 
     /** @var string[][] */
@@ -55,7 +55,7 @@ class CADFX6 extends AbstractSynthesizer {
         $point  = $this->symbol->getPoint();
         $bars   = [];
 
-        // CADFX6 = pow(USDLFX / USDCAD, 7/6)
+        // CADFXI = pow(USDLFX / USDCAD, 7/6)
         foreach ($USDCAD as $i => $bar) {
             $usdcad = $USDCAD[$i]['open'];
             $usdlfx = $USDLFX[$i]['open'];

@@ -8,26 +8,26 @@ use rosasurfer\rt\synthetic\SynthesizerInterface as Synthesizer;
 
 
 /**
- * CADFX7 synthesizer
+ * AUDFXI synthesizer
  *
- * A {@link Synthesizer} for calculating the Canadian Dollar FX7 index.
+ * A {@link Synthesizer} for calculating the Australian Dollar currency index.
  *
  * <pre>
  * Formulas:
  * ---------
- * CADFX7 = USDFX7 / pow(USDCAD, 8/7)
- * CADFX7 = pow(USDCHF * USDJPY / (AUDUSD * EURUSD * GBPUSD * NZDUSD), 1/7) / USDCAD
- * CADFX7 = pow(CADCHF * CADJPY / (AUDCAD * EURCAD * GBPCAD * NZDCAD * USDCAD), 1/7)
+ * AUDFXI = pow(USDLFX * AUDUSD, 7/6)
+ * AUDFXI = pow(USDCAD * USDCHF * USDJPY / (EURUSD * GBPUSD), 1/6) * AUDUSD
+ * AUDFXI = pow(AUDCAD * AUDCHF * AUDJPY * AUDUSD / (EURAUD * GBPAUD), 1/6)
  * </pre>
  */
-class CADFX7 extends AbstractSynthesizer {
+class AUDFXI extends AbstractSynthesizer {
 
 
     /** @var string[][] */
     protected $components = [
-        'fast'    => ['USDCAD', 'USDFX7'],
-        'majors'  => ['AUDUSD', 'EURUSD', 'GBPUSD', 'NZDUSD', 'USDCAD', 'USDCHF', 'USDJPY'],
-        'crosses' => ['AUDCAD', 'CADCHF', 'CADJPY', 'EURCAD', 'GBPCAD', 'NZDCAD', 'USDCAD'],
+        'fast'    => ['AUDUSD', 'USDLFX'],
+        'majors'  => ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'],
+        'crosses' => ['AUDCAD', 'AUDCHF', 'AUDJPY', 'AUDUSD', 'EURAUD', 'GBPAUD'],
     ];
 
 
@@ -48,24 +48,24 @@ class CADFX7 extends AbstractSynthesizer {
 
         // calculate quotes
         echoPre('[Info]    '.$this->symbolName.'  calculating M1 history for '.gmDate('D, d-M-Y', $day));
-        $USDCAD = $quotes['USDCAD'];
-        $USDFX7 = $quotes['USDFX7'];
+        $AUDUSD = $quotes['AUDUSD'];
+        $USDLFX = $quotes['USDLFX'];
 
         $digits = $this->symbol->getDigits();
         $point  = $this->symbol->getPoint();
         $bars   = [];
 
-        // CADFX7 = USDFX7 / pow(USDCAD, 8/7)
-        foreach ($USDCAD as $i => $bar) {
-            $usdcad = $USDCAD[$i]['open'];
-            $usdfx7 = $USDFX7[$i]['open'];
-            $open   = $usdfx7 / pow($usdcad, 8/7);
+        // AUDFXI = pow(USDLFX * AUDUSD, 7/6)
+        foreach ($AUDUSD as $i => $bar) {
+            $audusd = $AUDUSD[$i]['open'];
+            $usdlfx = $USDLFX[$i]['open'];
+            $open   = pow(($usdlfx * $audusd), 7/6);
             $open   = round($open, $digits);
             $iOpen  = (int) round($open/$point);
 
-            $usdcad = $USDCAD[$i]['close'];
-            $usdfx7 = $USDFX7[$i]['close'];
-            $close  = $usdfx7 / pow($usdcad, 8/7);
+            $audusd = $AUDUSD[$i]['close'];
+            $usdlfx = $USDLFX[$i]['close'];
+            $close  = pow(($usdlfx * $audusd), 7/6);
             $close  = round($close, $digits);
             $iClose = (int) round($close/$point);
 

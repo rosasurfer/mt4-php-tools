@@ -10,7 +10,7 @@ use rosasurfer\rt\synthetic\SynthesizerInterface as Synthesizer;
 /**
  * CHFLFX synthesizer
  *
- * A {@link Synthesizer} for calculating the "LiteForex Swiss Franc index" (a scaled-down FX6 index).
+ * A {@link Synthesizer} for calculating the LiteForex Swiss Franc index.
  *
  * <pre>
  * Formulas:

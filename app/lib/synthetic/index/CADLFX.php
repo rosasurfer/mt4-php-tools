@@ -10,7 +10,7 @@ use rosasurfer\rt\synthetic\SynthesizerInterface as Synthesizer;
 /**
  * CADLFX synthesizer
  *
- * A {@link Synthesizer} for calculating the "LiteForex Canadian Dollar index" (a scaled-down FX6 index).
+ * A {@link Synthesizer} for calculating the LiteForex Canadian Dollar index.
  *
  * <pre>
  * Formulas:

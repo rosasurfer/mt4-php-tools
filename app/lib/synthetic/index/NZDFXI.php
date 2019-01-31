@@ -8,27 +8,26 @@ use rosasurfer\rt\synthetic\SynthesizerInterface as Synthesizer;
 
 
 /**
- * ZARFX7 synthesizer
+ * NZDFXI synthesizer
  *
- * A {@link Synthesizer} for calculating the South African Rand FX7 index. Due to the Rand's low value the index is scaled-up
- * by a factor of 10. This adjustment only effects the nominal scala, not the shape of the ZAR index chart.
+ * A {@link Synthesizer} for calculating the New Zealand Dollar currency index.
  *
  * <pre>
  * Formulas:
  * ---------
- * ZARFX7 = 10 * USDLFX / USDZAR
- * ZARFX7 = 10 * pow(USDCAD * USDCHF *USDJPY / (AUDUSD * EURUSD * GBPUSD), 1/7) / USDZAR
- * ZARFX7 = 10 * pow(ZARJPY / (AUDZAR * CADZAR * CHFZAR * EURZAR * GBPZAR * USDZAR), 1/7)
+ * NZDFXI = USDLFX * NZDUSD
+ * NZDFXI = pow(USDCAD * USDCHF * USDJPY / (AUDUSD * EURUSD * GBPUSD), 1/7) * NZDUSD
+ * NZDFXI = pow(NZDCAD * NZDCHF * NZDJPY * NZDUSD / (AUDNZD * EURNZD * GBPNZD), 1/7)
  * </pre>
  */
-class ZARFX7 extends AbstractSynthesizer {
+class NZDFXI extends AbstractSynthesizer {
 
 
     /** @var string[][] */
     protected $components = [
-        'fast'    => ['USDLFX', 'USDZAR'],
-        'majors'  => ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'USDZAR'],
-        'crosses' => ['AUDZAR', 'CADZAR', 'CHFZAR', 'EURZAR', 'GBPZAR', 'USDZAR', 'ZARJPY'],
+        'fast'    => ['NZDUSD', 'USDLFX'],
+        'majors'  => ['AUDUSD', 'EURUSD', 'GBPUSD', 'NZDUSD', 'USDCAD', 'USDCHF', 'USDJPY'],
+        'crosses' => ['AUDNZD', 'EURNZD', 'GBPNZD', 'NZDCAD', 'NZDCHF', 'NZDJPY', 'NZDUSD'],
     ];
 
 
@@ -49,25 +48,23 @@ class ZARFX7 extends AbstractSynthesizer {
 
         // calculate quotes
         echoPre('[Info]    '.$this->symbolName.'  calculating M1 history for '.gmDate('D, d-M-Y', $day));
-        $USDZAR = $quotes['USDZAR'];
+        $NZDUSD = $quotes['NZDUSD'];
         $USDLFX = $quotes['USDLFX'];
 
         $digits = $this->symbol->getDigits();
         $point  = $this->symbol->getPoint();
         $bars   = [];
 
-        // ZARFX7 = 10 * USDLFX / USDZAR
-        foreach ($USDZAR as $i => $bar) {
-            $usdzar = $USDZAR[$i]['open'];
+        // NZDFXI = USDLFX * NZDUSD
+        foreach ($NZDUSD as $i => $bar) {
+            $nzdusd = $NZDUSD[$i]['open'];
             $usdlfx = $USDLFX[$i]['open'];
-            $open   = 10 * $usdlfx / $usdzar;
-            $open   = round($open, $digits);
+            $open   = round($usdlfx * $nzdusd, $digits);
             $iOpen  = (int) round($open/$point);
 
-            $usdzar = $USDZAR[$i]['close'];
+            $nzdusd = $NZDUSD[$i]['close'];
             $usdlfx = $USDLFX[$i]['close'];
-            $close  = 10 * $usdlfx / $usdzar;
-            $close  = round($close, $digits);
+            $close  = round($usdlfx * $nzdusd, $digits);
             $iClose = (int) round($close/$point);
 
             $bars[$i]['time' ] = $bar['time'];

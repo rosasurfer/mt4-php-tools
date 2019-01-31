@@ -10,7 +10,7 @@ use rosasurfer\rt\synthetic\SynthesizerInterface as Synthesizer;
 /**
  * LFXJPY synthesizer
  *
- * A {@link Synthesizer} for calculating the "LiteForex Japanese Yen index" (a scaled-down and inversed FX6 index).
+ * A {@link Synthesizer} for calculating the LiteForex Japanese Yen index.
  *
  * <pre>
  * Formulas:

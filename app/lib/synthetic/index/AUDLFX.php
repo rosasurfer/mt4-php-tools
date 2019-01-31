@@ -10,7 +10,7 @@ use rosasurfer\rt\synthetic\SynthesizerInterface as Synthesizer;
 /**
  * AUDLFX synthesizer
  *
- * A {@link Synthesizer} for calculating the "LiteForex Australian Dollar index" (a scaled-down FX6 index).
+ * A {@link Synthesizer} for calculating the LiteForex Australian Dollar index.
  *
  * <pre>
  * Formulas:

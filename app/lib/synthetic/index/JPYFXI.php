@@ -8,20 +8,20 @@ use rosasurfer\rt\synthetic\SynthesizerInterface as Synthesizer;
 
 
 /**
- * JPYFX6 synthesizer
+ * JPYFXI synthesizer
  *
- * A {@link Synthesizer} for calculating the Japanese Yen FX6 index. Due to the Yen's low value the index is scaled-up by a
- * factor of 100. This adjustment only effects the nominal scala, not the shape of the JPY index chart.
+ * A {@link Synthesizer} for calculating the Japanese Yen currency index. Due to the Yen's low value the index is scaled-up
+ * by a factor of 100. This adjustment only effects the nominal scala, not the shape of the JPY index chart.
  *
  * <pre>
  * Formulas:
  * ---------
- * JPYFX6 = 100 / pow(USDLFX / USDJPY, 7/6)
- * JPYFX6 = 100 * pow(USDCAD * USDCHF / (AUDUSD * EURUSD * GBPUSD), 1/6) * USDJPY
- * JPYFX6 = 100 * pow(1 / (AUDJPY * CADJPY * CHFJPY * EURJPY * GBPJPY * USDJPY), 1/6)
+ * JPYFXI = 100 / pow(USDLFX / USDJPY, 7/6)
+ * JPYFXI = 100 * pow(USDCAD * USDCHF / (AUDUSD * EURUSD * GBPUSD), 1/6) * USDJPY
+ * JPYFXI = 100 * pow(1 / (AUDJPY * CADJPY * CHFJPY * EURJPY * GBPJPY * USDJPY), 1/6)
  * </pre>
  */
-class JPYFX6 extends AbstractSynthesizer {
+class JPYFXI extends AbstractSynthesizer {
 
 
     /** @var string[][] */
@@ -56,7 +56,7 @@ class JPYFX6 extends AbstractSynthesizer {
         $point  = $this->symbol->getPoint();
         $bars   = [];
 
-        // JPYFX6 = 100 / pow(USDLFX / USDJPY, 7/6)
+        // JPYFXI = 100 / pow(USDLFX / USDJPY, 7/6)
         foreach ($USDJPY as $i => $bar) {
             $usdjpy = $USDJPY[$i]['open'];
             $usdlfx = $USDLFX[$i]['open'];

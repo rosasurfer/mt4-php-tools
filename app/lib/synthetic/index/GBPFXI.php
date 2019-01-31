@@ -8,27 +8,26 @@ use rosasurfer\rt\synthetic\SynthesizerInterface as Synthesizer;
 
 
 /**
- * NOKFX7 synthesizer
+ * GBPFXI synthesizer
  *
- * A {@link Synthesizer} for calculating the Norwegian Krone FX7 index. Due to the Krone's low value the index is scaled-up
- * by a factor of 10. This adjustment only effects the nominal scala, not the shape of the NOK index chart.
+ * A {@link Synthesizer} for calculating the Great Britain Pound currency index.
  *
  * <pre>
  * Formulas:
  * ---------
- * NOKFX7 = 10 * USDLFX / USDNOK
- * NOKFX7 = 10 * pow(USDCAD * USDCHF * USDJPY / (AUDUSD * EURUSD * GBPUSD), 1/7) / USDNOK
- * NOKFX7 = 10 * pow(NOKJPY / (AUDNOK * CADNOK * CHFNOK * EURNOK * GBPNOK * USDNOK), 1/7)
+ * GBPFXI = pow(USDLFX * GBPUSD, 7/6)
+ * GBPFXI = pow(USDCAD * USDCHF * USDJPY / ($AUDUSD * EURUSD), 1/6) * GBPUSD
+ * GBPFXI = pow(GBPAUD * GBPCAD * GBPCHF * GBPJPY * GBPUSD / EURGBP, 1/6)
  * </pre>
  */
-class NOKFX7 extends AbstractSynthesizer {
+class GBPFXI extends AbstractSynthesizer {
 
 
     /** @var string[][] */
     protected $components = [
-        'fast'    => ['USDLFX', 'USDNOK'],
-        'majors'  => ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'USDNOK'],
-        'crosses' => ['AUDNOK', 'CADNOK', 'CHFNOK', 'EURNOK', 'GBPNOK', 'NOKJPY', 'USDNOK'],
+        'fast'    => ['GBPUSD', 'USDLFX'],
+        'majors'  => ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'],
+        'crosses' => ['EURGBP', 'GBPAUD', 'GBPCAD', 'GBPCHF', 'GBPJPY', 'GBPUSD'],
     ];
 
 
@@ -49,24 +48,24 @@ class NOKFX7 extends AbstractSynthesizer {
 
         // calculate quotes
         echoPre('[Info]    '.$this->symbolName.'  calculating M1 history for '.gmDate('D, d-M-Y', $day));
-        $USDNOK = $quotes['USDNOK'];
+        $GBPUSD = $quotes['GBPUSD'];
         $USDLFX = $quotes['USDLFX'];
 
         $digits = $this->symbol->getDigits();
         $point  = $this->symbol->getPoint();
         $bars   = [];
 
-        // NOKFX7 = 10 * USDLFX / USDNOK
-        foreach ($USDNOK as $i => $bar) {
-            $usdnok = $USDNOK[$i]['open'];
+        // GBPFXI = pow(USDLFX * GBPUSD, 7/6)
+        foreach ($GBPUSD as $i => $bar) {
+            $gbpusd = $GBPUSD[$i]['open'];
             $usdlfx = $USDLFX[$i]['open'];
-            $open   = 10 * $usdlfx / $usdnok;
+            $open   = pow($usdlfx * $gbpusd, 7/6);
             $open   = round($open, $digits);
             $iOpen  = (int) round($open/$point);
 
-            $usdnok = $USDNOK[$i]['close'];
+            $gbpusd = $GBPUSD[$i]['close'];
             $usdlfx = $USDLFX[$i]['close'];
-            $close  = 10 * $usdlfx / $usdnok;
+            $close  = pow($usdlfx * $gbpusd, 7/6);
             $close  = round($close, $digits);
             $iClose = (int) round($close/$point);
 
