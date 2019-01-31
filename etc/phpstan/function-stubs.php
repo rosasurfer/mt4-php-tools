@@ -295,27 +295,6 @@ namespace rosasurfer\rt\history {
 namespace rosasurfer\rt\update_synthetics_m1 {
 
     /**
-     * @param  int   $day
-     * @param  array $data
-     *
-     * @return array
-     */
-    function calculateEURX($day, array $data) {
-        return [];
-    }
-
-    /**
-     * @param  string $id
-     * @param  string $symbol [optional]
-     * @param  int    $time   [optional]
-     *
-     * @return string
-     */
-    function getVar($id, $symbol=null, $time=null) {
-        return '';
-    }
-
-    /**
      * @param  string $message [optional]
      */
     function help($message=null) {}

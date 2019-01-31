@@ -8,22 +8,24 @@ use rosasurfer\rt\synthetic\SynthesizerInterface as Synthesizer;
 
 
 /**
- * USDX synthesizer
+ * EURX synthesizer
  *
- * A {@link Synthesizer} for calculating the ICE US-Dollar index.
+ * A {@link Synthesizer} for calculating the ICE Euro index.
  *
  * <pre>
  * Formula:
  * --------
- * USDX = 50.14348112 * pow(USDCAD, 0.091) * pow(USDCHF, 0.036) * pow(USDJPY, 0.136) * pow(USDSEK, 0.042) / (pow(EURUSD, 0.576) * pow(GBPUSD, 0.119))
+ * EURX = 34.38805726 * EURUSD * pow(USDCHF, 0.1113) * pow(USDJPY, 0.1891) * pow(USDSEK, 0.0785) / pow(GBPUSD, 0.3056)
+ * EURX = 34.38805726 * pow(EURCHF, 0.1113) * pow(EURGBP, 0.3056) * pow(EURJPY, 0.1891) * pow(EURSEK, 0.0785) * pow(EURUSD, 0.3155)
  * </pre>
  */
-class USDX extends AbstractSynthesizer {
+class EURX extends AbstractSynthesizer {
 
 
     /** @var string[][] */
     protected $components = [
-        'crosses' => ['EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'USDSEK'],
+        'majors'  => ['EURUSD', 'GBPUSD', 'USDCHF', 'USDJPY', 'USDSEK'],
+        'crosses' => ['EURCHF', 'EURGBP', 'EURJPY', 'EURSEK', 'EURUSD'],
     ];
 
 
@@ -46,7 +48,6 @@ class USDX extends AbstractSynthesizer {
         echoPre('[Info]    '.$this->symbolName.'  calculating M1 history for '.gmDate('D, d-M-Y', $day));
         $EURUSD = $quotes['EURUSD'];
         $GBPUSD = $quotes['GBPUSD'];
-        $USDCAD = $quotes['USDCAD'];
         $USDCHF = $quotes['USDCHF'];
         $USDJPY = $quotes['USDJPY'];
         $USDSEK = $quotes['USDSEK'];
@@ -55,25 +56,23 @@ class USDX extends AbstractSynthesizer {
         $point  = $this->symbol->getPoint();
         $bars   = [];
 
-        // USDX = 50.14348112 * pow(USDCAD, 0.091) * pow(USDCHF, 0.036) * pow(USDJPY, 0.136) * pow(USDSEK, 0.042) / (pow(EURUSD, 0.576) * pow(GBPUSD, 0.119))
+        // EURX = 34.38805726 * EURUSD * pow(USDCHF, 0.1113) * pow(USDJPY, 0.1891) * pow(USDSEK, 0.0785) / pow(GBPUSD, 0.3056)
         foreach ($EURUSD as $i => $bar) {
             $eurusd = $EURUSD[$i]['open'];
             $gbpusd = $GBPUSD[$i]['open'];
-            $usdcad = $USDCAD[$i]['open'];
             $usdchf = $USDCHF[$i]['open'];
             $usdjpy = $USDJPY[$i]['open'];
             $usdsek = $USDSEK[$i]['open'];
-            $open   = 50.14348112 * pow($usdcad, 0.091) * pow($usdchf, 0.036) * pow($usdjpy, 0.136) * pow($usdsek, 0.042) / (pow($eurusd, 0.576) * pow($gbpusd, 0.119));
+            $open   = 34.38805726 * $eurusd * pow($usdchf, 0.1113) * pow($usdjpy, 0.1891) * pow($usdsek, 0.0785) / pow($gbpusd, 0.3056);
             $open   = round($open, $digits);
             $iOpen  = (int) round($open/$point);
 
             $eurusd = $EURUSD[$i]['close'];
             $gbpusd = $GBPUSD[$i]['close'];
-            $usdcad = $USDCAD[$i]['close'];
             $usdchf = $USDCHF[$i]['close'];
             $usdjpy = $USDJPY[$i]['close'];
             $usdsek = $USDSEK[$i]['close'];
-            $close  = 50.14348112 * pow($usdcad, 0.091) * pow($usdchf, 0.036) * pow($usdjpy, 0.136) * pow($usdsek, 0.042) / (pow($eurusd, 0.576) * pow($gbpusd, 0.119));
+            $close  = 34.38805726 * $eurusd * pow($usdchf, 0.1113) * pow($usdjpy, 0.1891) * pow($usdsek, 0.0785) / pow($gbpusd, 0.3056);
             $close  = round($close, $digits);
             $iClose = (int) round($close/$point);
 
