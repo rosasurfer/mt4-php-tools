@@ -305,16 +305,6 @@ namespace rosasurfer\rt\update_synthetics_m1 {
     }
 
     /**
-     * @param  int   $day
-     * @param  array $data
-     *
-     * @return array
-     */
-    function calculateUSDX($day, array $data) {
-        return [];
-    }
-
-    /**
      * @param  string $id
      * @param  string $symbol [optional]
      * @param  int    $time   [optional]

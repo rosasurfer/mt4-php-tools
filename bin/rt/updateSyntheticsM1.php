@@ -129,65 +129,6 @@ function calculateEURX($day, array $data) {
 
 
 /**
- * Berechnet fuer die uebergebenen M1-Daten den USDX-Index (ICE).
- *
- * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
- * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
- *
- * @return ROST_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
- *
- * Formel: USDX = 50.14348112 * (USDCAD^0.091 * USDCHF^0.036 * USDJPY^0.136 * USDSEK^0.042) / (EURUSD^0.576 * GBPUSD^0.119)
- */
-function calculateUSDX($day, array $data) {
-    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
-    $shortDate = gmDate('D, d-M-Y', $day);
-
-    global $verbose;
-    if ($verbose > 1) echoPre('[Info]    USDX  '.$shortDate);
-
-    $EURUSD = $data['EURUSD']['bars'];
-    $GBPUSD = $data['GBPUSD']['bars'];
-    $USDCAD = $data['USDCAD']['bars'];
-    $USDCHF = $data['USDCHF']['bars'];
-    $USDJPY = $data['USDJPY']['bars'];
-    $USDSEK = $data['USDSEK']['bars'];
-    $index  = [];
-
-    foreach ($EURUSD as $i => $bar) {
-        $eurusd = $EURUSD[$i]['open'];
-        $gbpusd = $GBPUSD[$i]['open'];
-        $usdcad = $USDCAD[$i]['open'];
-        $usdchf = $USDCHF[$i]['open'];
-        $usdjpy = $USDJPY[$i]['open'];
-        $usdsek = $USDSEK[$i]['open'];
-        $open   = 50.14348112
-                  * pow($usdcad/100000, 0.091) * pow($usdchf/100000, 0.036) * pow($usdjpy/1000, 0.136) * pow($usdsek/100000, 0.042)
-                  / pow($eurusd/100000, 0.576) / pow($gbpusd/100000, 0.119);
-        $iOpen  = (int) round($open * 1000);
-
-        $eurusd = $EURUSD[$i]['close'];
-        $gbpusd = $GBPUSD[$i]['close'];
-        $usdcad = $USDCAD[$i]['close'];
-        $usdchf = $USDCHF[$i]['close'];
-        $usdjpy = $USDJPY[$i]['close'];
-        $usdsek = $USDSEK[$i]['close'];
-        $close  = 50.14348112
-                  * pow($usdcad/100000, 0.091) * pow($usdchf/100000, 0.036) * pow($usdjpy/1000, 0.136) * pow($usdsek/100000, 0.042)
-                  / pow($eurusd/100000, 0.576) / pow($gbpusd/100000, 0.119);
-        $iClose = (int) round($close * 1000);
-
-        $index[$i]['time' ] = $bar['time'];
-        $index[$i]['open' ] = $iOpen;
-        $index[$i]['high' ] = $iOpen > $iClose ? $iOpen : $iClose;        // min()/max() ist nicht performant
-        $index[$i]['low'  ] = $iOpen < $iClose ? $iOpen : $iClose;
-        $index[$i]['close'] = $iClose;
-        $index[$i]['ticks'] = $iOpen==$iClose ? 1 : (abs($iOpen-$iClose) << 1);
-    }
-    return $index;
-}
-
-
-/**
  * Erzeugt und verwaltet dynamisch generierte Variablen.
  *
  * Evaluiert und cacht staendig wiederbenutzte dynamische Variablen an einem zentralen Ort. Vereinfacht die Logik,
