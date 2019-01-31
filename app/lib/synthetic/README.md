@@ -40,8 +40,8 @@ its six Forex counterparts. Predefined indexes and formulas:<br>
 <br>
 ![USDFX6](https://user-images.githubusercontent.com/12749283/51960612-64ea9180-2462-11e9-92ef-9fb55576da3a.png)<br>
 <br>
-Due to the Yen's extreme devaluation the JPYFX6 index is scaled-up by a factor of 100. This adjustment only effects the
-nominal scale but not the shape of the JPYFX6 index chart.<br>
+Due to the Yen's extremely low value the JPYFX6 index is scaled-up by a factor of 100. This adjustment only effects the
+nominal scale but not the shape of the Yen index chart.<br>
 
 ---
 

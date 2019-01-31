@@ -8,27 +8,27 @@ use rosasurfer\rt\synthetic\SynthesizerInterface as Synthesizer;
 
 
 /**
- * JPYFX6 synthesizer
+ * JPYFX7 synthesizer
  *
- * A {@link Synthesizer} for calculating the Japanese Yen FX6 index. Due to the Yen's extremely low value the index is
+ * A {@link Synthesizer} for calculating the Japanese Yen FX7 index. Due to the Yen's extremely low value the index is
  * scaled-up by a factor of 100. This adjustment only effects the nominal scala, not the shape of the Yen index chart.
  *
  * <pre>
  * Formulas:
  * ---------
- * JPYFX6 = 100 / pow(USDLFX / USDJPY, 7/6)
- * JPYFX6 = 100 * pow(USDCAD * USDCHF / (AUDUSD * EURUSD * GBPUSD), 1/6) * USDJPY
- * JPYFX6 = 100 * pow(1 / (AUDJPY * CADJPY * CHFJPY * EURJPY * GBPJPY * USDJPY), 1/6)
+ * JPYFX7 = 100 * USDFX7 / pow(USDJPY, 8/7)
+ * JPYFX7 = 100 * pow(USDCAD * USDCHF / (AUDUSD * EURUSD * GBPUSD * NZDUSD), 1/7) / USDJPY;
+ * JPYFX7 = 100 * pow(1 / (AUDJPY * CADJPY * CHFJPY * EURJPY * GBPJPY * NZDJPY * USDJPY), 1/7)
  * </pre>
  */
-class JPYFX6 extends AbstractSynthesizer {
+class JPYFX7 extends AbstractSynthesizer {
 
 
     /** @var string[][] */
     protected $components = [
-        'fast'    => ['USDJPY', 'USDLFX'],
-        'majors'  => ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'],
-        'crosses' => ['AUDJPY', 'CADJPY', 'CHFJPY', 'EURJPY', 'GBPJPY', 'USDJPY'],
+        'fast'    => ['USDFX7', 'USDJPY'],
+        'majors'  => ['AUDUSD', 'EURUSD', 'GBPUSD', 'NZDUSD', 'USDCAD', 'USDCHF', 'USDJPY'],
+        'crosses' => ['AUDJPY', 'CADJPY', 'CHFJPY', 'EURJPY', 'GBPJPY', 'NZDJPY', 'USDJPY'],
     ];
 
 
@@ -50,23 +50,23 @@ class JPYFX6 extends AbstractSynthesizer {
         // calculate quotes
         echoPre('[Info]    '.$this->symbolName.'  calculating M1 history for '.gmDate('D, d-M-Y', $day));
         $USDJPY = $quotes['USDJPY'];
-        $USDLFX = $quotes['USDLFX'];
+        $USDFX7 = $quotes['USDFX7'];
 
         $digits = $this->symbol->getDigits();
         $point  = $this->symbol->getPoint();
         $bars   = [];
 
-        // JPYFX6 = 100 / pow(USDLFX / USDJPY, 7/6)
+        // JPYFX7 = 100 * USDFX7 / pow(USDJPY, 8/7)
         foreach ($USDJPY as $i => $bar) {
             $usdjpy = $USDJPY[$i]['open'];
-            $usdlfx = $USDLFX[$i]['open'];
-            $open   = 100 / pow($usdlfx / $usdjpy, 7/6);
+            $usdfx7 = $USDFX7[$i]['open'];
+            $open   = 100 * $usdfx7 / pow($usdjpy, 8/7);
             $open   = round($open, $digits);
             $iOpen  = (int) round($open/$point);
 
             $usdjpy = $USDJPY[$i]['close'];
-            $usdlfx = $USDLFX[$i]['close'];
-            $close  = 100 / pow($usdlfx / $usdjpy, 7/6);
+            $usdfx7 = $USDFX7[$i]['close'];
+            $close  = 100 * $usdfx7 / pow($usdjpy, 8/7);
             $close  = round($close, $digits);
             $iClose = (int) round($close/$point);
 
