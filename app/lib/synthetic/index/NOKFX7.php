@@ -8,27 +8,27 @@ use rosasurfer\rt\synthetic\SynthesizerInterface as Synthesizer;
 
 
 /**
- * JPYFX6 synthesizer
+ * NOKFX7 synthesizer
  *
- * A {@link Synthesizer} for calculating the Japanese Yen FX6 index. Due to the Yen's low value the index is scaled-up by a
- * factor of 100. This adjustment only effects the nominal scala, not the shape of the JPY index chart.
+ * A {@link Synthesizer} for calculating the Norwegian Krone FX7 index. Due to the Krone's low value the index is scaled-up
+ * by a factor of 10. This adjustment only effects the nominal scala, not the shape of the NOK index chart.
  *
  * <pre>
  * Formulas:
  * ---------
- * JPYFX6 = 100 / pow(USDLFX / USDJPY, 7/6)
- * JPYFX6 = 100 * pow(USDCAD * USDCHF / (AUDUSD * EURUSD * GBPUSD), 1/6) * USDJPY
- * JPYFX6 = 100 * pow(1 / (AUDJPY * CADJPY * CHFJPY * EURJPY * GBPJPY * USDJPY), 1/6)
+ * NOKFX7 = 10 * USDLFX / USDNOK
+ * NOKFX7 = 10 * pow(USDCAD * USDCHF * USDJPY / (AUDUSD * EURUSD * GBPUSD), 1/7) / USDNOK
+ * NOKFX7 = 10 * pow(NOKJPY / (AUDNOK * CADNOK * CHFNOK * EURNOK * GBPNOK * USDNOK), 1/7)
  * </pre>
  */
-class JPYFX6 extends AbstractSynthesizer {
+class NOKFX7 extends AbstractSynthesizer {
 
 
     /** @var string[][] */
     protected $components = [
-        'fast'    => ['USDJPY', 'USDLFX'],
-        'majors'  => ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY'],
-        'crosses' => ['AUDJPY', 'CADJPY', 'CHFJPY', 'EURJPY', 'GBPJPY', 'USDJPY'],
+        'fast'    => ['USDLFX', 'USDNOK'],
+        'majors'  => ['AUDUSD', 'EURUSD', 'GBPUSD', 'USDCAD', 'USDCHF', 'USDJPY', 'USDNOK'],
+        'crosses' => ['AUDNOK', 'CADNOK', 'CHFNOK', 'EURNOK', 'GBPNOK', 'NOKJPY', 'USDNOK'],
     ];
 
 
@@ -49,24 +49,24 @@ class JPYFX6 extends AbstractSynthesizer {
 
         // calculate quotes
         echoPre('[Info]    '.$this->symbolName.'  calculating M1 history for '.gmDate('D, d-M-Y', $day));
-        $USDJPY = $quotes['USDJPY'];
+        $USDNOK = $quotes['USDNOK'];
         $USDLFX = $quotes['USDLFX'];
 
         $digits = $this->symbol->getDigits();
         $point  = $this->symbol->getPoint();
         $bars   = [];
 
-        // JPYFX6 = 100 / pow(USDLFX / USDJPY, 7/6)
-        foreach ($USDJPY as $i => $bar) {
-            $usdjpy = $USDJPY[$i]['open'];
+        // NOKFX7 = 10 * USDLFX / USDNOK
+        foreach ($USDNOK as $i => $bar) {
+            $usdnok = $USDNOK[$i]['open'];
             $usdlfx = $USDLFX[$i]['open'];
-            $open   = 100 / pow($usdlfx / $usdjpy, 7/6);
+            $open   = 10 * $usdlfx / $usdnok;
             $open   = round($open, $digits);
             $iOpen  = (int) round($open/$point);
 
-            $usdjpy = $USDJPY[$i]['close'];
+            $usdnok = $USDNOK[$i]['close'];
             $usdlfx = $USDLFX[$i]['close'];
-            $close  = 100 / pow($usdlfx / $usdjpy, 7/6);
+            $close  = 10 * $usdlfx / $usdnok;
             $close  = round($close, $digits);
             $iClose = (int) round($close/$point);
 

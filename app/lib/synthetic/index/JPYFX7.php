@@ -10,8 +10,8 @@ use rosasurfer\rt\synthetic\SynthesizerInterface as Synthesizer;
 /**
  * JPYFX7 synthesizer
  *
- * A {@link Synthesizer} for calculating the Japanese Yen FX7 index. Due to the Yen's extremely low value the index is
- * scaled-up by a factor of 100. This adjustment only effects the nominal scala, not the shape of the Yen index chart.
+ * A {@link Synthesizer} for calculating the Japanese Yen FX7 index. Due to the Yen's low value the index is scaled-up by a
+ * factor of 100. This adjustment only effects the nominal scala, not the shape of the JPY index chart.
  *
  * <pre>
  * Formulas:
