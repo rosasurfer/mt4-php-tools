@@ -23,46 +23,34 @@ and options on the index.<br>
 
 ### Synthetic FX6 currency indexes
 An FX6 currency index measures the value of one major currency by tracking the exchange rates of six other major currencies:<br>
-1 + 6: USD, EUR, GBP, JPY, AUD, CAD, CHF. The index is calculated using an equally-weighted basket of the index currency and
+1 + 6: AUD, CAD, CHF, EUR, GBP, JPY, USD. The index is calculated using an equally-weighted basket of the index currency and
 its six Forex counterparts. Predefined indexes and formulas:<br>
 <br>
-![AUDFX6](https://user-images.githubusercontent.com/12749283/51959885-2bfced80-245f-11e9-8f63-8a1bddecd156.png)<br>
+![AUDFXI](https://user-images.githubusercontent.com/12749283/51959885-2bfced80-245f-11e9-8f63-8a1bddecd156.png)<br>
 <br>
-![CADFX6](https://user-images.githubusercontent.com/12749283/51959989-99a91980-245f-11e9-87d5-623477676d03.png)<br>
+![CADFXI](https://user-images.githubusercontent.com/12749283/51959989-99a91980-245f-11e9-87d5-623477676d03.png)<br>
 <br>
-![CHFFX6](https://user-images.githubusercontent.com/12749283/51960256-f6f19a80-2460-11e9-9e99-84669b75f710.png)<br>
+![CHFFXI](https://user-images.githubusercontent.com/12749283/51960256-f6f19a80-2460-11e9-9e99-84669b75f710.png)<br>
 <br>
-![EURFX6](https://user-images.githubusercontent.com/12749283/51960322-3ae49f80-2461-11e9-8e0a-004f915ab6de.png)<br>
+![EURFXI](https://user-images.githubusercontent.com/12749283/51960322-3ae49f80-2461-11e9-8e0a-004f915ab6de.png)<br>
 <br>
-![GBPFX6](https://user-images.githubusercontent.com/12749283/51960408-93b43800-2461-11e9-9ce4-b70503ac2fae.png)<br>
+![GBPFXI](https://user-images.githubusercontent.com/12749283/51960408-93b43800-2461-11e9-9ce4-b70503ac2fae.png)<br>
 <br>
-![JPYFX6](https://user-images.githubusercontent.com/12749283/51960552-22c15000-2462-11e9-8f37-1d5c03d8b11a.png)<br>
+![JPYFXI](https://user-images.githubusercontent.com/12749283/51960552-22c15000-2462-11e9-8f37-1d5c03d8b11a.png)<br>
 <br>
-![USDFX6](https://user-images.githubusercontent.com/12749283/51960612-64ea9180-2462-11e9-92ef-9fb55576da3a.png)<br>
+![USDFXI](https://user-images.githubusercontent.com/12749283/51960612-64ea9180-2462-11e9-92ef-9fb55576da3a.png)<br>
 <br>
-Due to the Yen's low value the JPYFX6 index is scaled-up by a factor of 100. This adjustment only effects the nominal scale 
-but not the shape of the JPY index chart.<br>
+Due to the Yen's low value the JPYFXI index is scaled-up by a factor of 100. This adjustment only effects the nominal scale 
+of the index.<br>
 
 ---
 
 ### Synthetic FX7 currency indexes
-An FX7 currency index measures the value of one currency by tracking the exchange rates of seven other major currencies:<br>
-1 + 7: USD, EUR, GBP, JPY, AUD, CAD, CHF, NZD. The index is calculated using an equally-weighted basket of the index currency
+An FX7 currency index measures the value of a minor currency by tracking the exchange rates of seven other major currencies:<br>
+AUD, CAD, CHF, EUR, GBP, JPY, USD. The index is calculated using an equally-weighted basket of the index currency
 and its seven Forex counterparts. Predefined indexes and formulas:<br>
 <br>
-![AUDFX7](https://user-images.githubusercontent.com/12749283/52004266-61d9ba80-24cf-11e9-97e2-6e4a13a61593.png)<br>
-<br>
-![CADFX7](https://user-images.githubusercontent.com/12749283/52004443-c39a2480-24cf-11e9-98b7-11acf392287e.png)<br>
-<br>
-![CHFFX7](https://user-images.githubusercontent.com/12749283/52004532-f7754a00-24cf-11e9-8ef8-801aa1bb9338.png)<br>
-<br>
-![EURFX7](https://user-images.githubusercontent.com/12749283/52004649-47eca780-24d0-11e9-9179-388bdace610b.png)<br>
-<br>
-![GBPFX7](https://user-images.githubusercontent.com/12749283/52004745-897d5280-24d0-11e9-90e8-bbb6b17e7b1d.png)<br>
-<br>
-JPYFX7, NZDFX7 and USDFX7<br>
-Additional indexes (the NZD component is replaced by the respective index currency):<br>
-NOKFX7, SEKFX7, SGDFX7 and ZARFX7<br>
+NOKFX7, NZDFX7, SEKFX7, SGDFX7 and ZARFX7<br>
 
 ---
 
@@ -86,8 +74,7 @@ LiteForex currency indexes</a> are supported. Symbols and formulas:<br>
 <br>
 ![USDLFX](https://user-images.githubusercontent.com/12749283/51872916-c415ac80-2363-11e9-92b5-96e119b415d2.png)<br>
 <br>
-All indexes except NZDLFX are scaled-down FX6 indexes. NZDLFX is an FX7 index and an alias of NZDFX7.<br>
-LFXJPY is an inversed index.
+All indexes except NZDLFX are scaled-down FX6 indexes. NZDLFX is an alias of NZDFX7. LFXJPY is an inversed index.<br>
 
 ---
 
