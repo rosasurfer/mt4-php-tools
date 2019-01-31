@@ -244,22 +244,6 @@ function calculateNOKFX7($day, array $data) {
 
 
 /**
- * Berechnet fuer die uebergebenen M1-Daten den NZDFX7-Index.
- *
- * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
- * @param  array $data - M1-Bars dieses Tages aller fuer den Index benoetigten Instrumente
- *
- * @return ROST_PRICE_BAR[] - Array mit den resultierenden M1-Indexdaten
- *
- * Formel: NZDFX7 = ((NZDCAD * NZDCHF * NZDJPY * NZDUSD) / (AUDNZD * EURNZD * GBPNZD)) ^ 1/7
- */
-function calculateNZDFX7($day, array $data) {
-    //return calculateNZDLFX($day, $data, 'NZDFX7');
-    return [];
-}
-
-
-/**
  * Berechnet fuer die uebergebenen M1-Daten den SEKFX7-Index.
  *
  * @param  int   $day  - FXT-Timestamp des Tages der zu berechnenden Daten
