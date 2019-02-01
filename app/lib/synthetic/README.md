@@ -17,7 +17,7 @@ CAD, SEK and CHF):<br><br>
 ICE Euro Index</a> was launched on 13 January 2006 and calculated back to 2001. The index is calculated by measuring the
 performance of the Euro compared to a trade-weighted basket of five other currencies (USD, GBP, JPY, CHF, SEK). 5 years later
 on 20 May 2011, the ICE ended trading of futures and options on the index:<br><br>
-![EURX](https://user-images.githubusercontent.com/12749283/52093631-8f546000-25c4-11e9-8eef-a108eeaac328.png)<br>
+![EURX](https://user-images.githubusercontent.com/12749283/52140336-2f5cc880-265b-11e9-9d1e-3bd8bbff9247.png)<br>
 
 ---
 
