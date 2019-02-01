@@ -74,16 +74,14 @@ function help($message = null) {
     $self = baseName($_SERVER['PHP_SELF']);
 
 echo <<<HELP
- Update the M1 history of the specified synthetic symbols.
+Update the M1 history of the specified synthetic symbols.
 
- Syntax:  $self [SYMBOL...]
+ Syntax:   $self [options] [SYMBOL...]
 
-   SYMBOL    One or more symbols to update. Without a symbol all defined synthetic symbols are updated.
+   SYMBOL  The symbols to update. Without an argument all synthetic symbols marked for automatic update are processed.
 
-   Options:  -v    Verbose output.
-             -vv   More verbose output.
-             -vvv  Very verbose output.
-             -h    This help screen.
+ Options:
+   -h      This help message.
 
 
 HELP;

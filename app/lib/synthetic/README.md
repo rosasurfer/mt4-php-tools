@@ -8,55 +8,59 @@ value of one currency compared to a basket of other currencies. The following in
 
 ### Exchange traded currency indexes
 - The <a href="https://www.theice.com/publicdocs/futures_us/USDX_Futures_Contract.pdf" target="_blank">ICE US-Dollar Index
-(USDX)</a> futures contract is a leading benchmark for the international value of the US dollar and the world's most
-widely-recognized traded currency index. It is <a href="http://www.forexltd.co.uk/trade/contrspec/usdx/" target="_blank">
-calculated</a> by measuring the performance of the USD against a basket of six other currencies (EUR, JPY, GBP, CAD, SEK
-and CHF).
+</a> futures contract is a leading benchmark for the value of the US dollar and the world's most traded currency index. It is
+calculated by measuring the performance of the USD compared to a trade-weighted basket of six other currencies (EUR, JPY, GBP,
+CAD, SEK and CHF):<br><br>
+![USDX](https://user-images.githubusercontent.com/12749283/52092983-46031100-25c2-11e9-8b08-9c413e55fcee.png)<br>
 
 - The <a href="http://web.archive.org/web/20111213011531if_/https://www.theice.com/publicdocs/rulebooks/futures_us/24_ICE_Futures_EURO_Index.pdf" target="_blank">
-ICE Euro Index (EURX)</a> was launched on 13 January 2006 and calculated back to 2001. The index is
-<a href="http://www.forexltd.co.uk/trade/contrspec/eurx/" target="_blank">calculated</a> by comparing the value of the Euro
-to a basket of five other currencies (USD, GBP, JPY, CHF, SEK). 5 years later on 20 May 2011, the ICE ended trading of futures
-and options on the index.<br>
+ICE Euro Index</a> was launched on 13 January 2006 and calculated back to 2001. The index is calculated by measuring the
+performance of the Euro compared to a trade-weighted basket of five other currencies (USD, GBP, JPY, CHF, SEK). 5 years later
+on 20 May 2011, the ICE ended trading of futures and options on the index:<br><br>
+![EURX](https://user-images.githubusercontent.com/12749283/52093631-8f546000-25c4-11e9-8eef-a108eeaac328.png)<br>
 
 ---
 
-### Synthetic FX6 currency indexes
-An FX6 currency index measures the value of one major currency by tracking the exchange rates of six other major currencies:<br>
-1 + 6: AUD, CAD, CHF, EUR, GBP, JPY, USD. The index is calculated using an equally-weighted basket of the index currency and
-its six Forex counterparts. Predefined indexes and formulas:<br>
+### Synthetic currency indexes
+Major synthetic currency indexes measure the value of a major currency by tracking the exchange rates of the six other major
+currencies. Indexes are calculated by using an equally-weighted basket of the six Forex counterparts. Predefined symbols and
+formulas:<br>
 <br>
-![AUDFXI](https://user-images.githubusercontent.com/12749283/51959885-2bfced80-245f-11e9-8f63-8a1bddecd156.png)<br>
+![AUDFXI](https://user-images.githubusercontent.com/12749283/52094502-1b1bbb80-25c8-11e9-93fe-83d04ae26464.png)<br>
 <br>
-![CADFXI](https://user-images.githubusercontent.com/12749283/51959989-99a91980-245f-11e9-87d5-623477676d03.png)<br>
+![CADFXI](https://user-images.githubusercontent.com/12749283/52094509-2242c980-25c8-11e9-812d-95f3fe976ad2.png)<br>
 <br>
-![CHFFXI](https://user-images.githubusercontent.com/12749283/51960256-f6f19a80-2460-11e9-9e99-84669b75f710.png)<br>
+![CHFFXI](https://user-images.githubusercontent.com/12749283/52094526-28d14100-25c8-11e9-8724-e9a5599222f3.png)<br>
 <br>
-![EURFXI](https://user-images.githubusercontent.com/12749283/51960322-3ae49f80-2461-11e9-8e0a-004f915ab6de.png)<br>
+![EURFXI](https://user-images.githubusercontent.com/12749283/52094536-2ec72200-25c8-11e9-9c50-373dfc2b6847.png)<br>
 <br>
-![GBPFXI](https://user-images.githubusercontent.com/12749283/51960408-93b43800-2461-11e9-9ce4-b70503ac2fae.png)<br>
+![GBPFXI](https://user-images.githubusercontent.com/12749283/52094541-34246c80-25c8-11e9-94ee-b02f440411f0.png)<br>
 <br>
-![JPYFXI](https://user-images.githubusercontent.com/12749283/51960552-22c15000-2462-11e9-8f37-1d5c03d8b11a.png)<br>
+![JPYFXI](https://user-images.githubusercontent.com/12749283/52094546-38e92080-25c8-11e9-9e86-418ad018ed9c.png)<br>
 <br>
-![USDFXI](https://user-images.githubusercontent.com/12749283/51960612-64ea9180-2462-11e9-92ef-9fb55576da3a.png)<br>
+![USDFXI](https://user-images.githubusercontent.com/12749283/52094551-3dadd480-25c8-11e9-90ca-1a33c96b37f2.png)<br>
 <br>
-Due to the Yen's low value the JPYFXI index is scaled-up by a factor of 100. This adjustment only effects the nominal scale 
-of the index.<br>
-
----
-
-### Synthetic FX7 currency indexes
-An FX7 currency index measures the value of a minor currency by tracking the exchange rates of seven other major currencies:<br>
-AUD, CAD, CHF, EUR, GBP, JPY, USD. The index is calculated using an equally-weighted basket of the index currency
-and its seven Forex counterparts. Predefined indexes and formulas:<br>
+Minor synthetic currency indexes measure the value of a minor currency by tracking the exchange rates of all seven major
+currencies. Indexes are calculated by using an equally-weighted basket of the seven Forex counterparts. Predefined symbols
+and formulas:<br>
 <br>
-NOKFX7, NZDFX7, SEKFX7, SGDFX7 and ZARFX7<br>
+![NOKFXI](https://user-images.githubusercontent.com/12749283/52094995-07715480-25ca-11e9-86c5-a3edfabe6260.png)<br>
+<br>
+![NZDFXI](https://user-images.githubusercontent.com/12749283/52095000-0d673580-25ca-11e9-9226-a85dd1d1cedb.png)<br>
+<br>
+![SEKFXI](https://user-images.githubusercontent.com/12749283/52095006-10fabc80-25ca-11e9-8e65-d726f1f93c38.png)<br>
+<br>
+![SGDFXI](https://user-images.githubusercontent.com/12749283/52095013-135d1680-25ca-11e9-8cb3-e13b2a0a803a.png)<br>
+<br>
+![ZARFXI](https://user-images.githubusercontent.com/12749283/52095021-1b1cbb00-25ca-11e9-96fb-dec00ab1f084.png)<br>
+<br>
+Indexes of currencies with low values are scaled-up. This adjustment only effects the nominal scale of an index.<br>
 
 ---
 
 ### Synthetic LiteForex currency indexes
 All <a href="http://web.archive.org/web/20140421225104/http://www.liteforex.com/trading/trading-instruments/indices/" target="_blank">
-LiteForex currency indexes</a> are supported. Symbols and formulas:<br>
+LiteForex currency indexes</a> are supported. Predefined symbols and formulas:<br>
 <br>
 ![AUDLFX](https://user-images.githubusercontent.com/12749283/51873340-74d07b80-2365-11e9-9764-30ce54a9539d.png)<br>
 <br>
@@ -74,7 +78,7 @@ LiteForex currency indexes</a> are supported. Symbols and formulas:<br>
 <br>
 ![USDLFX](https://user-images.githubusercontent.com/12749283/51872916-c415ac80-2363-11e9-92b5-96e119b415d2.png)<br>
 <br>
-All indexes except NZDLFX are scaled-down FX6 indexes. NZDLFX is an alias of NZDFX7. LFXJPY is an inversed index.<br>
+Due to the a-typical calculations it is recommended to use regular synthetic indexes for currency strength analysis.<br>
 
 ---
 
