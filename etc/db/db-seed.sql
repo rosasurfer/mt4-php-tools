@@ -18,35 +18,28 @@ insert into t_rosasymbol (type, name, description, digits) values
 
    ('metals'   , 'XAUUSD', 'Gold vs US Dollar'                                  , 3),
 
-   ('synthetic', 'AUDLFX', 'LiteForex scaled-down Australian Dollar FX6 index'  , 5),     -- history_M1_from was: 2003-08-03 00:00:00 GMT  =>  2003-08-03 03:00:00 FXT
-   ('synthetic', 'CADLFX', 'LiteForex scaled-down Canadian Dollar FX6 index'    , 5),     -- history_M1_from was: 2003-08-03 00:00:00 GMT  =>  2003-08-03 03:00:00 FXT
-   ('synthetic', 'CHFLFX', 'LiteForex scaled-down Swiss Franc FX6 index'        , 5),     -- history_M1_from was: 2003-08-03 00:00:00 GMT  =>  2003-08-03 03:00:00 FXT
-   ('synthetic', 'EURLFX', 'LiteForex scaled-down Euro FX6 index'               , 5),     -- history_M1_from was: 2003-08-03 00:00:00 GMT  =>  2003-08-03 03:00:00 FXT
-   ('synthetic', 'GBPLFX', 'LiteForex scaled-down Great Britain Pound FX6 index', 5),     -- history_M1_from was: 2003-08-03 00:00:00 GMT  =>  2003-08-03 03:00:00 FXT
-   ('synthetic', 'JPYLFX', 'LiteForex scaled-down Japanese Yen FX6 index'       , 5),     -- history_M1_from was: 2003-08-03 00:00:00 GMT  =>  2003-08-03 03:00:00 FXT
-   ('synthetic', 'NZDLFX', 'LiteForex alias of New Zealand Dollar FX7 index'    , 5),     -- history_M1_from was: 2003-08-03 00:00:00 GMT  =>  2003-08-03 03:00:00 FXT
-   ('synthetic', 'USDLFX', 'LiteForex scaled-down US Dollar FX6 index'          , 5),     -- history_M1_from was: 2003-08-03 00:00:00 GMT  =>  2003-08-03 03:00:00 FXT
+   ('synthetic', 'AUDLFX', 'LiteForex Australian Dollar index'                  , 5),     -- history_M1_from was: 2003-08-03 00:00:00 GMT  =>  2003-08-03 03:00:00 FXT
+   ('synthetic', 'CADLFX', 'LiteForex Canadian Dollar index'                    , 5),     -- history_M1_from was: 2003-08-03 00:00:00 GMT  =>  2003-08-03 03:00:00 FXT
+   ('synthetic', 'CHFLFX', 'LiteForex Swiss Franc index'                        , 5),     -- history_M1_from was: 2003-08-03 00:00:00 GMT  =>  2003-08-03 03:00:00 FXT
+   ('synthetic', 'EURLFX', 'LiteForex Euro index'                               , 5),     -- history_M1_from was: 2003-08-03 00:00:00 GMT  =>  2003-08-03 03:00:00 FXT
+   ('synthetic', 'GBPLFX', 'LiteForex Great Britain Pound index'                , 5),     -- history_M1_from was: 2003-08-03 00:00:00 GMT  =>  2003-08-03 03:00:00 FXT
+   ('synthetic', 'LFXJPY', 'LiteForex Japanese Yen index'                       , 5),     -- history_M1_from was: 2003-08-03 00:00:00 GMT  =>  2003-08-03 03:00:00 FXT
+   ('synthetic', 'NZDLFX', 'LiteForex New Zealand Dollar index'                 , 5),     -- history_M1_from was: 2003-08-03 00:00:00 GMT  =>  2003-08-03 03:00:00 FXT
+   ('synthetic', 'USDLFX', 'LiteForex US Dollar index'                          , 5),     -- history_M1_from was: 2003-08-03 00:00:00 GMT  =>  2003-08-03 03:00:00 FXT
 
-   ('synthetic', 'AUDFX6', 'Australian Dollar FX6 index'                        , 5),     -- history_M1_from was: 2003-08-03 00:00:00 GMT  =>  2003-08-03 03:00:00 FXT
-   ('synthetic', 'CADFX6', 'Canadian Dollar FX6 index'                          , 5),     -- history_M1_from was: 2003-08-03 00:00:00 GMT  =>  2003-08-03 03:00:00 FXT
-   ('synthetic', 'CHFFX6', 'Swiss Franc FX6 index'                              , 5),     -- history_M1_from was: 2003-08-03 00:00:00 GMT  =>  2003-08-03 03:00:00 FXT
-   ('synthetic', 'EURFX6', 'Euro FX6 index'                                     , 5),     -- history_M1_from was: 2003-08-03 00:00:00 GMT  =>  2003-08-03 03:00:00 FXT
-   ('synthetic', 'GBPFX6', 'Great Britain Pound FX6 index'                      , 5),     -- history_M1_from was: 2003-08-03 00:00:00 GMT  =>  2003-08-03 03:00:00 FXT
-   ('synthetic', 'JPYFX6', 'Japanese Yen FX6 index'                             , 5),     -- history_M1_from was: 2003-08-03 00:00:00 GMT  =>  2003-08-03 03:00:00 FXT
-   ('synthetic', 'USDFX6', 'US Dollar FX6 index'                                , 5),     -- history_M1_from was: 2003-08-03 00:00:00 GMT  =>  2003-08-03 03:00:00 FXT
+   ('synthetic', 'AUDFXI', 'Australian Dollar vs Major currencies index'        , 5),     -- history_M1_from was: 2003-08-03 00:00:00 GMT  =>  2003-08-03 03:00:00 FXT
+   ('synthetic', 'CADFXI', 'Canadian Dollar vs Major currencies index'          , 5),     -- history_M1_from was: 2003-08-03 00:00:00 GMT  =>  2003-08-03 03:00:00 FXT
+   ('synthetic', 'CHFFXI', 'Swiss Franc vs Major currencies index'              , 5),     -- history_M1_from was: 2003-08-03 00:00:00 GMT  =>  2003-08-03 03:00:00 FXT
+   ('synthetic', 'EURFXI', 'Euro vs Major currencies index'                     , 5),     -- history_M1_from was: 2003-08-03 00:00:00 GMT  =>  2003-08-03 03:00:00 FXT
+   ('synthetic', 'GBPFXI', 'Great Britain Pound vs Major currencies index'      , 5),     -- history_M1_from was: 2003-08-03 00:00:00 GMT  =>  2003-08-03 03:00:00 FXT
+   ('synthetic', 'JPYFXI', 'Japanese Yen vs Major currencies index'             , 5),     -- history_M1_from was: 2003-08-03 00:00:00 GMT  =>  2003-08-03 03:00:00 FXT
+   ('synthetic', 'USDFXI', 'US Dollar vs Major currencies index'                , 5),     -- history_M1_from was: 2003-08-03 00:00:00 GMT  =>  2003-08-03 03:00:00 FXT
 
-   ('synthetic', 'AUDFX7', 'Australian Dollar FX7 index'                        , 5),     -- history_M1_from was: 2003-08-03 00:00:00 GMT  =>  2003-08-03 03:00:00 FXT
-   ('synthetic', 'CADFX7', 'Canadian Dollar FX7 index'                          , 5),     -- history_M1_from was: 2003-08-03 00:00:00 GMT  =>  2003-08-03 03:00:00 FXT
-   ('synthetic', 'CHFFX7', 'Swiss Franc FX7 index'                              , 5),     -- history_M1_from was: 2003-08-03 00:00:00 GMT  =>  2003-08-03 03:00:00 FXT
-   ('synthetic', 'EURFX7', 'Euro FX7 index'                                     , 5),     -- history_M1_from was: 2003-08-03 00:00:00 GMT  =>  2003-08-03 03:00:00 FXT
-   ('synthetic', 'GBPFX7', 'Great Britain Pound FX7 index'                      , 5),     -- history_M1_from was: 2003-08-03 00:00:00 GMT  =>  2003-08-03 03:00:00 FXT
-   ('synthetic', 'JPYFX7', 'Japanese Yen FX7 index'                             , 5),     -- history_M1_from was: 2003-08-03 00:00:00 GMT  =>  2003-08-03 03:00:00 FXT
-   ('synthetic', 'NOKFX7', 'Norwegian Krone FX7 index'                          , 5),     -- history_M1_from was: 2003-08-05 00:00:00 GMT  =>  2003-08-05 03:00:00 FXT
-   ('synthetic', 'NZDFX7', 'New Zealand Dollar FX7 index'                       , 5),     -- history_M1_from was: 2003-08-03 00:00:00 GMT  =>  2003-08-03 03:00:00 FXT
-   ('synthetic', 'SEKFX7', 'Swedish Krona FX7 index'                            , 5),     -- history_M1_from was: 2003-08-05 00:00:00 GMT  =>  2003-08-05 03:00:00 FXT
-   ('synthetic', 'SGDFX7', 'Singapore Dollar FX7 index'                         , 5),     -- history_M1_from was: 2004-11-16 00:00:00 GMT  =>  2004-11-16 02:00:00 FXT
-   ('synthetic', 'USDFX7', 'US Dollar FX7 index'                                , 5),     -- history_M1_from was: 2003-08-03 00:00:00 GMT  =>  2003-08-03 03:00:00 FXT
-   ('synthetic', 'ZARFX7', 'South African Rand FX7 index'                       , 5),     -- history_M1_from was: 2003-08-03 00:00:00 GMT  =>  2003-08-03 03:00:00 FXT
+   ('synthetic', 'NOKFXI', 'Norwegian Krone vs Major currencies index'          , 5),     -- history_M1_from was: 2003-08-05 00:00:00 GMT  =>  2003-08-05 03:00:00 FXT
+   ('synthetic', 'NZDFXI', 'New Zealand Dollar vs Major currencies index'       , 5),     -- history_M1_from was: 2003-08-03 00:00:00 GMT  =>  2003-08-03 03:00:00 FXT
+   ('synthetic', 'SEKFXI', 'Swedish Krona vs Major currencies index'            , 5),     -- history_M1_from was: 2003-08-05 00:00:00 GMT  =>  2003-08-05 03:00:00 FXT
+   ('synthetic', 'SGDFXI', 'Singapore Dollar vs Major currencies index'         , 5),     -- history_M1_from was: 2004-11-16 00:00:00 GMT  =>  2004-11-16 02:00:00 FXT
+   ('synthetic', 'ZARFXI', 'South African Rand vs Major currencies index'       , 5),     -- history_M1_from was: 2003-08-03 00:00:00 GMT  =>  2003-08-03 03:00:00 FXT
 
    ('synthetic', 'EURX'  , 'ICE Euro Futures index'                             , 3),     -- history_M1_from was: 2003-08-04 00:00:00 GMT  =>  2003-08-04 03:00:00 FXT
    ('synthetic', 'USDX'  , 'ICE US Dollar Futures index'                        , 3);     -- history_M1_from was: 2003-08-04 00:00:00 GMT  =>  2003-08-04 03:00:00 FXT

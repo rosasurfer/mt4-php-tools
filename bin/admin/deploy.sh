@@ -139,5 +139,5 @@ for dir in $DIRS; do
     chmod -R u+rwX,g+rwX "$dir"
 done
 
-USER="<username>"
+USER="apache"
 id -u "$USER" >/dev/null 2>&1 && chown -R --from=root.root "$USER.$USER" "$PROJECT_DIR"

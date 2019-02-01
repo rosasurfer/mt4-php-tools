@@ -433,7 +433,7 @@ class RosaSymbol extends RosatraderModel {
     protected function getSynthesizer() {
         if (!$this->isSynthetic()) throw new RuntimeException('Cannot create Synthesizer for non-synthetic instrument');
 
-        $customClass = strLeftTo(Synthesizer::class, '\\', -1).'\\custom\\'.$this->name;
+        $customClass = strLeftTo(Synthesizer::class, '\\', -1).'\\index\\'.$this->name;
         if (is_class($customClass) && is_a($customClass, Synthesizer::class, $allowString=true))
             return new $customClass($this);
         return new DefaultSynthesizer($this);
