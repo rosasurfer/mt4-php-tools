@@ -14,25 +14,13 @@ require(dirName(realPath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');
 
 
-// -- configuration ---------------------------------------------------------------------------------------------------------
-
-
-$verbose = 0;                               // output verbosity
-
-
-// -- start -----------------------------------------------------------------------------------------------------------------
-
-
 // (1) parse and validate CLI arguments
 /** @var string[] $args */
 $args = array_slice($_SERVER['argv'], 1);
 
 // parse options
 foreach ($args as $i => $arg) {
-    if ($arg == '-h'  )   exit(1|help());                                               // help
-    if ($arg == '-v'  ) { $verbose = max($verbose, 1); unset($args[$i]); continue; }    // verbose output
-    if ($arg == '-vv' ) { $verbose = max($verbose, 2); unset($args[$i]); continue; }    // more verbose output
-    if ($arg == '-vvv') { $verbose = max($verbose, 3); unset($args[$i]); continue; }    // very verbose output
+    $arg=='-h' && exit(1|help());
 }
 
 /** @var RosaSymbol[] $symbols */
@@ -54,12 +42,9 @@ $symbols = $symbols ?: RosaSymbol::dao()->findAllByType(RosaSymbol::TYPE_SYNTHET
 foreach ($symbols as $symbol) {
     if ($symbol->updateHistory())
         echoPre('[Ok]      '.$symbol->getName());
-    Process::dispatchSignals();                                                         // check for Ctrl-C
+    Process::dispatchSignals();                                                         // process Ctrl-C
 }
 exit(0);
-
-
-// --- functions ------------------------------------------------------------------------------------------------------------
 
 
 /**
