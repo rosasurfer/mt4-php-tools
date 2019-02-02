@@ -12,15 +12,18 @@ use rosasurfer\exception\UnimplementedFeatureException;
 
 use rosasurfer\rt\Rost;
 
-use const rosasurfer\rt\PERIOD_D1;
-use const rosasurfer\rt\PERIOD_H1;
-use const rosasurfer\rt\PERIOD_H4;
+use function rosasurfer\rt\periodDescription;
+use function rosasurfer\rt\timeframeDescription;
+
 use const rosasurfer\rt\PERIOD_M1;
+use const rosasurfer\rt\PERIOD_M5;
 use const rosasurfer\rt\PERIOD_M15;
 use const rosasurfer\rt\PERIOD_M30;
-use const rosasurfer\rt\PERIOD_M5;
-use const rosasurfer\rt\PERIOD_MN1;
+use const rosasurfer\rt\PERIOD_H1;
+use const rosasurfer\rt\PERIOD_H4;
+use const rosasurfer\rt\PERIOD_D1;
 use const rosasurfer\rt\PERIOD_W1;
+use const rosasurfer\rt\PERIOD_MN1;
 
 
 /**
@@ -315,7 +318,7 @@ class HistoryFile extends Object {
         $this->hFile     = fOpen($fileName, 'r+b');               // FILE_READ|FILE_WRITE
         $this->hstHeader = new HistoryHeader(fRead($this->hFile, HistoryHeader::SIZE));
 
-        if (!strCompareI($this->fileName, $this->getSymbol().$this->getTimeframe().'.hst')) throw new MetaTraderException('filename.mis-match: File name/symbol mis-match of "'.$fileName.'": header="'.$this->getSymbol().','.Rost::periodDescription($this->getTimeframe()).'"');
+        if (!strCompareI($this->fileName, $this->getSymbol().$this->getTimeframe().'.hst')) throw new MetaTraderException('filename.mis-match: File name/symbol mis-match of "'.$fileName.'": header="'.$this->getSymbol().','.timeframeDescription($this->getTimeframe()).'"');
         $barSize = $this->getVersion()==400 ? MT4::HISTORY_BAR_400_SIZE : MT4::HISTORY_BAR_401_SIZE;
         if ($trailing=($fileSize-HistoryHeader::SIZE) % $barSize)                           throw new MetaTraderException('filesize.trailing: Corrupted file "'.$fileName.'": '.$trailing.' trailing bytes');
 
@@ -1286,7 +1289,7 @@ class HistoryFile extends Object {
      * Nur zum Debuggen
      */
     public function showMetaData($showStored=true, $showFull=true, $showFile=true) {
-        $Pxx = Rost::periodDescription($this->period);
+        $Pxx = periodDescription($this->period);
 
         ($showStored || $showFull || $showFile) && echoPre(NL);
         if ($showStored) {

@@ -9,8 +9,9 @@ use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 use rosasurfer\log\Logger;
 
-use rosasurfer\rt\Rost;
 use rosasurfer\rt\metatrader\MT4;
+
+use function rosasurfer\rt\timeframeDescription;
 
 use const rosasurfer\rt\PERIOD_M1;
 use const rosasurfer\rt\PERIOD_M5;
@@ -430,10 +431,10 @@ class HistorySet extends Object {
                         echoPre($bars);
                     }
                 }
-                echoPre(get_class($file).'['. str_pad(Rost::timeframeDescription($file->getTimeframe()), 3, ' ', STR_PAD_RIGHT).'] => '.str_pad($size, 5, ' ', STR_PAD_LEFT).' bar'.pluralize($size, ' ').$firstBar.($size>1? $lastBar:''));
+                echoPre(get_class($file).'['. str_pad(timeframeDescription($file->getTimeframe()), 3, ' ', STR_PAD_RIGHT).'] => '.str_pad($size, 5, ' ', STR_PAD_LEFT).' bar'.pluralize($size, ' ').$firstBar.($size>1? $lastBar:''));
             }
             else {
-                echoPre('HistoryFile['. str_pad(Rost::timeframeDescription($timeframe), 3, ' ', STR_PAD_RIGHT).'] => mull');
+                echoPre('HistoryFile['. str_pad(timeframeDescription($timeframe), 3, ' ', STR_PAD_RIGHT).'] => mull');
             }
         }
         echoPre(NL);

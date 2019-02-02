@@ -321,6 +321,84 @@ function isWeekend($time) {
 
 
 /**
+ * Return a string representation of a period identifier.
+ *
+ * @param  int $value - period identifier (number of minutes per bar)
+ *
+ * @return string
+ */
+function periodToStr($value) {
+    if (!is_int($value)) throw new IllegalTypeException('Illegal type of parameter $value: '.getType($value));
+
+    switch ($value) {
+        case PERIOD_TICKS: return 'PERIOD_TICKS';       //      0 = no period
+        case PERIOD_M1   : return 'PERIOD_M1';          //      1 = 1 minute
+        case PERIOD_M5   : return 'PERIOD_M5';          //      5 = 5 minutes
+        case PERIOD_M15  : return 'PERIOD_M15';         //     15 = 15 minutes
+        case PERIOD_M30  : return 'PERIOD_M30';         //     30 = 30 minutes
+        case PERIOD_H1   : return 'PERIOD_H1';          //     60 = 1 hour
+        case PERIOD_H4   : return 'PERIOD_H4';          //    240 = 4 hour
+        case PERIOD_D1   : return 'PERIOD_D1';          //   1440 = 1 day
+        case PERIOD_W1   : return 'PERIOD_W1';          //  10080 = 1 week
+        case PERIOD_MN1  : return 'PERIOD_MN1';         //  43200 = 1 month
+        case PERIOD_Q1   : return 'PERIOD_Q1';          // 129600 = 1 quarter (3 months)
+    }
+    return (string) $value;
+}
+
+
+/**
+ * Return a human-readable description of a period identifier.
+ *
+ * @param  int $value - period identifier (number of minutes per bar)
+ *
+ * @return string
+ */
+function periodDescription($value) {
+    if (!is_int($value)) throw new IllegalTypeException('Illegal type of parameter $value: '.getType($value));
+
+    switch ($value) {
+        case PERIOD_TICKS: return 'ticks';              //      0 = no period
+        case PERIOD_M1   : return 'M1';                 //      1 = 1 minute
+        case PERIOD_M5   : return 'M5';                 //      5 = 5 minutes
+        case PERIOD_M15  : return 'M15';                //     15 = 15 minutes
+        case PERIOD_M30  : return 'M30';                //     30 = 30 minutes
+        case PERIOD_H1   : return 'H1';                 //     60 = 1 hour
+        case PERIOD_H4   : return 'H4';                 //    240 = 4 hour
+        case PERIOD_D1   : return 'D1';                 //   1440 = 1 day
+        case PERIOD_W1   : return 'W1';                 //  10080 = 1 week
+        case PERIOD_MN1  : return 'MN1';                //  43200 = 1 month
+        case PERIOD_Q1   : return 'Q1';                 // 129600 = 1 quarter (3 months)
+    }
+    return (string) $value;
+}
+
+
+/**
+ * Alias of periodToStr()
+ *
+ * @param  int $timeframe
+ *
+ * @return string
+ */
+function timeframeToStr($timeframe) {
+    return periodToStr($timeframe);
+}
+
+
+/**
+ * Alias of periodDescription()
+ *
+ * @param  int $timeframe
+ *
+ * @return string
+ */
+function timeframeDescription($timeframe) {
+    return periodDescription($timeframe);
+}
+
+
+/**
  * Return a nicely formatted time range description.
  *
  * @param  string $startTime
