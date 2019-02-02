@@ -815,16 +815,17 @@ function help($message = null) {
     $self = baseName($_SERVER['PHP_SELF']);
 
 echo <<<HELP
- Update the M1 history of the specified symbols with data from Dukascopy.
+Update the M1 history of the specified symbols with data from Dukascopy.
 
- Syntax:  $self [SYMBOL ...]
+ Syntax:   $self [SYMBOL ...]
 
-   SYMBOL    One or more symbols to update. Without a symbol all defined symbols are updated.
+   SYMBOL  One or more symbols to update. Without a symbol all defined symbols are updated.
 
-   Options:  -v    Verbose output.
-             -vv   More verbose output.
-             -vvv  Very verbose output.
-             -h    This help screen.
+ Options:  -h    This help screen.
+           -v    Verbose output.
+           -vv   More verbose output.
+           -vvv  Very verbose output.
+
 
 
 HELP;

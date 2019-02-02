@@ -59,7 +59,7 @@ function help($message = null) {
 echo <<<HELP
 Update the M1 history of the specified synthetic symbols.
 
- Syntax:   $self [options] [SYMBOL...]
+ Usage:    $self [options] [SYMBOL...]
 
    SYMBOL  The symbols to update. Without an argument all synthetic symbols marked for automatic update are processed.
 
