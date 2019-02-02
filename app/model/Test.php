@@ -526,7 +526,7 @@ class Test extends RosatraderModel {
         if ($id <= 0)     throw new InvalidArgumentException('Invalid parameter $id: '.$id.' (not positive)');
 
         $this->reportingId = $id;
-        $this->isPersistent() && $this->modified();
+        $this->modified();
         return $this;
     }
 
