@@ -9,6 +9,7 @@ use rosasurfer\process\Process;
 use rosasurfer\rt\FXT;
 use rosasurfer\rt\Rost;
 use rosasurfer\rt\RT;
+use rosasurfer\rt\dukascopy\Dukascopy;
 use rosasurfer\rt\synthetic\DefaultSynthesizer;
 use rosasurfer\rt\synthetic\SynthesizerInterface as Synthesizer;
 
@@ -17,6 +18,7 @@ use function rosasurfer\rt\isGoodFriday;
 use function rosasurfer\rt\isHoliday;
 use function rosasurfer\rt\isWeekend;
 
+use const rosasurfer\rt\PERIOD_M1;
 
 /**
  * Represents a Rosatrader symbol.
@@ -211,7 +213,7 @@ class RosaSymbol extends RosatraderModel {
      * @return bool
      */
     public function isForex() {
-        return $this->type === self::TYPE_FOREX;
+        return ($this->type === self::TYPE_FOREX);
     }
 
 
@@ -221,7 +223,7 @@ class RosaSymbol extends RosatraderModel {
      * @return bool
      */
     public function isMetal() {
-        return $this->type === self::TYPE_METAL;
+        return ($this->type === self::TYPE_METAL);
     }
 
 
@@ -231,7 +233,7 @@ class RosaSymbol extends RosatraderModel {
      * @return bool
      */
     public function isSynthetic() {
-        return $this->type === self::TYPE_SYNTHETIC;
+        return ($this->type === self::TYPE_SYNTHETIC);
     }
 
 
@@ -382,7 +384,7 @@ class RosaSymbol extends RosatraderModel {
 
 
     /**
-     * Update the symbol's history (at the moment only M1 history is updated).
+     * Update the symbol's history.
      *
      * @return bool - success status
      */
@@ -393,7 +395,6 @@ class RosaSymbol extends RosatraderModel {
         echoPre('[Info]    '.$this->name.'  updating M1 history '.($updatedTo ? 'since '.gmDate('D, d-M-Y', $updatedTo) : 'from start'));
 
         if ($this->isSynthetic()) {
-            /** @var Synthesizer $synthesizer */
             $synthesizer = $this->getSynthesizer();
 
             for ($day=$updateFrom; $day < $today; $day+=1*DAY) {
@@ -410,11 +411,9 @@ class RosaSymbol extends RosatraderModel {
 
                 if (!$this->historyM1Start)
                     $this->historyM1Start = gmDate('Y-m-d H:i:s', $day);
-                $this->historyM1End = gmDate('Y-m-d H:i:s', $day);                  // update the database
-                $this->modified();
-                $this->save();
-
-                Process::dispatchSignals();                                         // check for Ctrl-C
+                $this->historyM1End = gmDate('Y-m-d H:i:s', $day);
+                $this->modified()->save();                                          // update the database
+                Process::dispatchSignals();                                         // process signals
             }
         }
         else {

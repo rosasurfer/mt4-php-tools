@@ -68,7 +68,7 @@ $barBuffer = [];
 // -- start -----------------------------------------------------------------------------------------------------------------
 
 
-// (1) parse and validate CLI arguments
+// parse and validate CLI arguments
 /** @var string[] $args */
 $args = array_slice($_SERVER['argv'], 1);
 
@@ -89,19 +89,18 @@ foreach ($args as $i => $arg) {
     $symbol = RosaSymbol::dao()->findByName($arg);
     if (!$symbol)                       exit(1|stderror('error: unknown symbol "'.$args[$i].'"'));
     if (!$symbol->getDukascopySymbol()) exit(1|stderror('error: no Dukascopy mapping found for symbol "'.$args[$i].'"'));
-    $symbols[$symbol->getName()] = $symbol;                                         // using the name as index removes duplicates
+    $symbols[$symbol->getName()] = $symbol;                                             // using the name as index removes duplicates
 }
-if (!$symbols) {
-    $symbols = RosaSymbol::dao()->findAllDukascopyMappedByAutoUpdate(true);         // if none specified auto-update all
-}
+$symbols = $symbols ?: RosaSymbol::dao()->findAllDukascopyMappedByAutoUpdate(true);     // if none is specified update all marked ones
+!$symbols && echoPre('No Dukascopy mapped instruments for auto-update found.');
 
 
-// (2) update instruments
+// update instruments
 foreach ($symbols as $symbol) {
-    updateSymbol($symbol) || exit(1);
+  //if ($symbol->updateHistory()) echoPre('[Ok]      '.$symbol->getName());
+    if (updateSymbol($symbol))    echoPre('[Ok]      '.$symbol->getName());
+    Process::dispatchSignals();                                                         // process Ctrl-C
 }
-
-!$symbols && echoPre('no Dukascopy mapped instruments for auto-update found');
 exit(0);
 
 
@@ -804,7 +803,7 @@ function showBarBuffer() {
 
 
 /**
- * Hilfefunktion: Zeigt die Syntax des Aufrufs an.
+ * Help
  *
  * @param  string $message [optional] - zusaetzlich zur Syntax anzuzeigende Message (default: keine)
  */

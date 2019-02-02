@@ -12,7 +12,7 @@ require(dirName(realPath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');
 
 
-// (1) parse and validate CLI arguments
+// parse and validate CLI arguments
 /** @var string[] $args */
 $args = array_slice($_SERVER['argv'], 1);
 
@@ -33,10 +33,10 @@ foreach ($args as $i => $arg) {
     $symbols[$symbol->getName()] = $symbol;                                             // using the name as index removes duplicates
 }
 $symbols = $symbols ?: RosaSymbol::dao()->findAllByType(RosaSymbol::TYPE_SYNTHETIC);    // if none is specified update all synthetics
-!$symbols && echoPre('no synthetic instruments found');
+!$symbols && echoPre('No synthetic instruments found.');
 
 
-// (2) update instruments
+// update instruments
 foreach ($symbols as $symbol) {
     if ($symbol->updateHistory())
         echoPre('[Ok]      '.$symbol->getName());
@@ -46,7 +46,7 @@ exit(0);
 
 
 /**
- * Hilfefunktion: Zeigt die Syntax des Aufrufs an.
+ * Help
  *
  * @param  string $message [optional] - zusaetzlich zur Syntax anzuzeigende Message (default: keine)
  */

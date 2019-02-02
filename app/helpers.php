@@ -36,17 +36,18 @@ const TIMEZONE_ID_GLOBALPRIME      =  9;
 const TIMEZONE_ID_GMT              = 10;
 
 
-// period identifiers
-const PERIOD_M1  =      1;                  // 1 minute
-const PERIOD_M5  =      5;                  // 5 minutes
-const PERIOD_M15 =     15;                  // 15 minutes
-const PERIOD_M30 =     30;                  // 30 minutes
-const PERIOD_H1  =     60;                  // 1 hour
-const PERIOD_H4  =    240;                  // 4 hours
-const PERIOD_D1  =   1440;                  // daily
-const PERIOD_W1  =  10080;                  // weekly
-const PERIOD_MN1 =  43200;                  // monthly
-const PERIOD_Q1  = 129600;                  // a quarter (3 months)
+// period/timeframe identifiers
+const PERIOD_TICKS =      0;                // tick data (no period)
+const PERIOD_M1    =      1;                // 1 minute
+const PERIOD_M5    =      5;                // 5 minutes
+const PERIOD_M15   =     15;                // 15 minutes
+const PERIOD_M30   =     30;                // 30 minutes
+const PERIOD_H1    =     60;                // 1 hour
+const PERIOD_H4    =    240;                // 4 hours
+const PERIOD_D1    =   1440;                // daily
+const PERIOD_W1    =  10080;                // weekly
+const PERIOD_MN1   =  43200;                // monthly
+const PERIOD_Q1    = 129600;                // a quarter (3 months)
 
 
 // operation types
