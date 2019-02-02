@@ -397,7 +397,7 @@ function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=f
 
 
     // (1) Standard-Browser simulieren
-    $userAgent = Application::getConfig()['rt.useragent'];
+    $userAgent = Application::getConfig()['rt.http.useragent'];
     $request = HttpRequest::create()
                                  ->setUrl($url)
                                  ->setHeader('User-Agent'     , $userAgent                                                       )

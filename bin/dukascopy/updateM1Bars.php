@@ -61,12 +61,7 @@ date_default_timezone_set('GMT');
 // -- configuration ---------------------------------------------------------------------------------------------------------
 
 
-$verbose = 0;                                               // output verbosity
-
-$storeCompressedDukaFiles   = false;                        // whether to keep downloaded Dukascopy files
-$storeDecompressedDukaFiles = false;                        // whether to keep decompressed Dukascopy files
-$storeUncompressedRTFiles   = true;                         // whether to store uncompressed history files
-
+$verbose   = 0;                                             // output verbosity
 $barBuffer = [];
 
 
@@ -140,8 +135,7 @@ function updateSymbol(RosaSymbol $symbol) {
 
     echoPre('[Info]    '.$symbolName);
 
-
-    // (1) Pruefen, ob sich der Startzeitpunkt der History des Symbols geaendert hat
+    // Pruefen, ob sich der Startzeitpunkt der History des Symbols geaendert hat
     if (array_search($symbolName, ['USDNOK', 'USDSEK', 'USDSGD', 'USDZAR', 'XAUUSD']) === false) {
         $content = downloadData($symbolName, $day=$startTime-1*DAY, $type='bid', $quiet=true, $saveData=false, $saveError=false);
         if (strLen($content)) {
@@ -149,11 +143,10 @@ function updateSymbol(RosaSymbol $symbol) {
         }
     }
 
-
-    // (2) Gesamte Zeitspanne inklusive Wochenenden tageweise durchlaufen, um von vorherigen Durchlaufen ggf. vorhandene
-    //     Zwischendateien finden und loeschen zu koennen.
+    // Gesamte Zeitspanne inklusive Wochenenden tageweise durchlaufen, um von vorherigen Durchlaufen ggf. vorhandene
+    // Zwischendateien finden und loeschen zu koennen.
     static $lastMonth=-1;
-    $today = ($today=time()) - $today%DAY;                  // 00:00 GMT aktueller Tag
+    $today = ($today=time()) - $today%DAY;                              // 00:00 GMT aktueller Tag
 
     for ($day=$startTime; $day < $today; $day+=1*DAY) {
         $month = (int) gmDate('m', $day);
@@ -163,7 +156,7 @@ function updateSymbol(RosaSymbol $symbol) {
         }
         if (!checkHistory($symbolName, $day)) return false;
 
-        Process::dispatchSignals();                         // check for Ctrl-C
+        Process::dispatchSignals();                                     // check for Ctrl-C
     }
 
     echoPre('[Ok]      '.$symbolName);
@@ -181,10 +174,15 @@ function updateSymbol(RosaSymbol $symbol) {
  */
 function checkHistory($symbol, $day) {
     if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
-    $shortDate = gmDate('D, d-M-Y', $day);
+    global $verbose, $barBuffer;
 
-    global $verbose, $storeCompressedDukaFiles, $storeDecompressedDukaFiles, $storeUncompressedRTFiles, $barBuffer;
-    $day -= $day%DAY;                                               // 00:00 GMT
+    $config           = Application::getConfig();
+    $keepDownloads    = $config['rt.dukascopy.keep-downloads'];
+    $keepDecompressed = $config['rt.dukascopy.keep-decompressed'];
+    $compressHistory  = $config['rt.history.compress'];
+
+    $shortDate = gmDate('D, d-M-Y', $day);
+    $day      -= $day%DAY;                                              // 00:00 GMT
 
     // (1) nur an Wochentagen: pruefen, ob die RT-History existiert und ggf. aktualisieren
     if (!isWeekend($day)) {
@@ -193,11 +191,11 @@ function checkHistory($symbol, $day) {
             if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'  Rosatrader history file found: '.Rost::relativePath($file));
         }
         // ...oder die unkomprimierte RT-Datei gespeichert wird und existiert
-        else if ($storeUncompressedRTFiles && is_file($file=getVar('rtFile.raw', $symbol, $day))) {
+        else if (!$compressHistory && is_file($file=getVar('rtFile.raw', $symbol, $day))) {
             if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'  Rosatrader history file found: '.Rost::relativePath($file));
         }
         // andererseits History aktualisieren
-        else if (!updateHistory($symbol, $day)) {                   // da 00:00, kann der GMT- als FXT-Timestamp uebergeben werden
+        else if (!updateHistory($symbol, $day)) {                       // da 00:00, kann der GMT- als FXT-Timestamp uebergeben werden
             return false;
         }
     }
@@ -208,12 +206,12 @@ function checkHistory($symbol, $day) {
     $shortDatePrev = gmDate('D, d-M-Y', $previousDay);
 
     // Dukascopy-Downloads (gepackt) des Vortages
-    if (!$storeCompressedDukaFiles) {
+    if (!$keepDownloads) {
         if (is_file($file=getVar('dukaFile.compressed', $symbol, $previousDay, 'bid'))) unlink($file);
         if (is_file($file=getVar('dukaFile.compressed', $symbol, $previousDay, 'ask'))) unlink($file);
     }
     // dekomprimierte Dukascopy-Daten des Vortages
-    if (!$storeDecompressedDukaFiles) {
+    if (!$keepDecompressed) {
         if (is_file($file=getVar('dukaFile.raw', $symbol, $previousDay, 'bid'))) unlink($file);
         if (is_file($file=getVar('dukaFile.raw', $symbol, $previousDay, 'ask'))) unlink($file);
     }
@@ -252,8 +250,8 @@ function checkHistory($symbol, $day) {
  */
 function updateHistory($symbol, $day) {
     if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
-    $shortDate = gmDate('D, d-M-Y', $day);
     global $barBuffer;
+    $shortDate = gmDate('D, d-M-Y', $day);
 
     // Bid- und Ask-Daten im Barbuffer suchen und ggf. laden
     $types = ['bid', 'ask'];
@@ -283,8 +281,11 @@ function updateHistory($symbol, $day) {
  */
 function loadHistory($symbol, $day, $type) {
     if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
-    $shortDate = gmDate('D, d-M-Y', $day);
-    global $barBuffer, $storeCompressedDukaFiles; $barBuffer[$type];
+    global $barBuffer; $barBuffer[$type];
+
+    $config        = Application::getConfig();
+    $keepDownloads = $config['rt.dukascopy.keep-downloads'];
+    $shortDate     = gmDate('D, d-M-Y', $day);
 
     // Fuer jeden Forex-Tag werden die GMT-Dukascopy-Daten des vorherigen und des aktuellen Tages benoetigt.
     // Die Daten werden jeweils in folgender Reihenfolge gesucht:
@@ -316,7 +317,7 @@ function loadHistory($symbol, $day, $type) {
     }
     // ggf. Dukascopy-Datei herunterladen und verarbeiten
     if (!$previousDayData) {
-        $data = downloadData($symbol, $previousDay, $type, false, $storeCompressedDukaFiles);
+        $data = downloadData($symbol, $previousDay, $type, false, $keepDownloads);
         if (!$data)                                                                // bei HTTP status 404 (file not found) Abbruch
             return false;
         if (!processCompressedDukascopyBarData($data, $symbol, $previousDay, $type))
@@ -346,7 +347,7 @@ function loadHistory($symbol, $day, $type) {
     // ggf. Dukascopy-Datei herunterladen und verarbeiten
     if (!$currentDayData) {
         static $yesterday; if (!$yesterday) $yesterday=($today=time()) - $today%DAY - 1*DAY;    // 00:00 GMT gestriger Tag
-        $saveFile = ($storeCompressedDukaFiles || $currentDay==$yesterday);                     // beim letzten Durchlauf immer speichern
+        $saveFile = ($keepDownloads || $currentDay==$yesterday);                                // beim letzten Durchlauf immer speichern
 
         $data = downloadData($symbol, $currentDay, $type, false, $saveFile);
         if (!$data)                                                                             // HTTP status 404 (file not found) => Abbruch
@@ -438,7 +439,7 @@ function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $save
     if (!$quiet) echoPre('[Info]    '.$shortDate.'  downloading: '.$url);
 
     // (1) Standard-Browser simulieren
-    $userAgent = Application::getConfig()['rt.useragent'];
+    $userAgent = Application::getConfig()['rt.http.useragent'];
     $request = HttpRequest::create()
                           ->setUrl($url)
                           ->setHeader('User-Agent'     , $userAgent                                                       )
@@ -518,8 +519,8 @@ function processCompressedDukascopyBarFile($file, $symbol, $day, $type) {
 function processCompressedDukascopyBarData($data, $symbol, $day, $type) {
     if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
 
-    global $storeDecompressedDukaFiles;
-    $saveAs = $storeDecompressedDukaFiles ? getVar('dukaFile.raw', $symbol, $day, $type) : null;
+    $keepFiles = Application::getConfig()['rt.dukascopy.keep-decompressed'];
+    $saveAs = $keepFiles ? getVar('dukaFile.raw', $symbol, $day, $type) : null;
 
     $rawData = Dukascopy::decompressHistoryData($data, $saveAs);
     return processRawDukascopyBarData($rawData, $symbol, $day, $type);
@@ -625,9 +626,8 @@ function processRawDukascopyBarData($data, $symbol, $day, $type) {
  */
 function saveBars($symbol, $day) {
     if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
+    global $barBuffer;
     $shortDate = gmDate('D, d-M-Y', $day);
-    global $barBuffer, $storeUncompressedRTFiles;
-
 
     // (1) gepufferte Datenreihe nochmal pruefen
     $errorMsg = null;
@@ -640,7 +640,6 @@ function saveBars($symbol, $day) {
         showBarBuffer();
         throw new RuntimeException($errorMsg);
     }
-
 
     // (2) Bars in Binaerstring umwandeln
     $data = null;
@@ -660,9 +659,9 @@ function saveBars($symbol, $day) {
                                 $bar['ticks'   ]);
     }
 
-
     // (3) binaere Daten ggf. unkomprimiert speichern
-    if ($storeUncompressedRTFiles) {
+    $compressHistory = Application::getConfig()['rt.history.compress'];
+    if (!$compressHistory) {
         if (is_file($file=getVar('rtFile.raw', $symbol, $day))) {
             echoPre('[Error]   '.$symbol.' history for '.$shortDate.' already exists');
             return false;
@@ -675,9 +674,9 @@ function saveBars($symbol, $day) {
         rename($tmpFile, $file);                                       // So kann eine existierende Datei niemals korrupt sein.
     }
 
-
     // (4) binaere Daten ggf. komprimieren und speichern
-
+    if ($compressHistory) {
+    }
     return true;
 }
 
