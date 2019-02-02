@@ -2,8 +2,6 @@
 <?php
 /**
  * Update the M1 history of synthetic Rosatrader instruments.
- *
- * @see  https://github.com/rosasurfer/mt4-tools/blob/master/app/lib/synthetic/README.md
  */
 namespace rosasurfer\rt\update_synthetics_m1;
 

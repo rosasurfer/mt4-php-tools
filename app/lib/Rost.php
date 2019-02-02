@@ -161,7 +161,7 @@ class Rost extends StaticClass {
 
 
     /**
-     * Whether or not an integer is a valid order type.
+     * Whether an integer is a valid order type.
      *
      * @param  int $integer
      *
@@ -174,7 +174,7 @@ class Rost extends StaticClass {
 
 
     /**
-     * Whether or not an integer is a long order type.
+     * Whether an integer is a long order type.
      *
      * @param  int $integer
      *
@@ -193,7 +193,7 @@ class Rost extends StaticClass {
 
 
     /**
-     * Whether or not an integer is a short order type.
+     * Whether an integer is a short order type.
      *
      * @param  int $integer
      *

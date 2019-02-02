@@ -41,7 +41,7 @@ class HistoryFile extends Object {
     /** @var string - full server directory name */
     protected $serverDirectory;
 
-    /** @var bool - whether or not the history file is closed and all instance resources are released */
+    /** @var bool - whether the history file is closed and all instance resources are released */
     protected $closed = false;
 
 
@@ -163,7 +163,7 @@ class HistoryFile extends Object {
 
 
     /**
-     * Whether or not the history file is closed and all instance resources are released.
+     * Whether the history file is closed and all instance resources are released.
      *
      * @return bool
      */

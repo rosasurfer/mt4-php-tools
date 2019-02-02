@@ -400,7 +400,7 @@ class MT4 extends StaticClass {
 
 
     /**
-     * Whether or not the specified value is a Strategy Tester bar model identifier.
+     * Whether the specified value is a Strategy Tester bar model identifier.
      *
      * @param  mixed $value
      *

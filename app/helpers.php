@@ -390,7 +390,7 @@ function prettyRecoveryTime($duration) {
  * User-land implementation of PECL::stats_standard_deviation()
  *
  * @param  array $values
- * @param  bool  $sample [optional] - whether or not the values represent just a sample
+ * @param  bool  $sample [optional] - whether the values represent just a sample
  *                                    (default: total population)
  * @return float - standard deviation
  */
@@ -426,7 +426,7 @@ function stats_standard_deviation(array $values, $sample = false) {
  * @param  array $returns
  * @param  bool  $growth  [optional] - whether the returns are growth rates or absolute values
  *                                     (default: absolute values)
- * @param  bool  $sample  [optional] - whether or not the values represent just a sample
+ * @param  bool  $sample  [optional] - whether the values represent just a sample
  *                                     (default: total population)
  *
  * @return float - over-simplified and non-normalized Sharpe ratio
@@ -456,7 +456,7 @@ function stats_sharpe_ratio(array $returns, $growth=false, $sample=false) {
  * @param  array $returns
  * @param  bool  $growth [optional] - whether the returns are growth rates or absolute values
  *                                    (default: absolute values)
- * @param  bool  $sample [optional] - whether or not the values represent just a sample
+ * @param  bool  $sample [optional] - whether the values represent just a sample
  *                                    (default: total population)
  *
  * @return float - over-simplified and non-normalized Sortino ratio

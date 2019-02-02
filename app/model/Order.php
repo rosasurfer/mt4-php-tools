@@ -200,7 +200,7 @@ class Order extends RosatraderModel {
 
 
     /**
-     * Whether or not this order ticket represents a position and not a pending order.
+     * Whether this order ticket represents a position and not a pending order.
      *
      * @return bool
      */
@@ -210,7 +210,7 @@ class Order extends RosatraderModel {
 
 
     /**
-     * Whether or not this ticket is closed.
+     * Whether this ticket is closed.
      *
      * @return bool
      */
@@ -220,7 +220,7 @@ class Order extends RosatraderModel {
 
 
     /**
-     * Whether or not this ticket represents a closed position.
+     * Whether this ticket represents a closed position.
      *
      * @return bool
      */
