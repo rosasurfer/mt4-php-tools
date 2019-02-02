@@ -6,4 +6,4 @@
 [![PHPStan Code Quality](https://img.shields.io/badge/PHPStan-level_7-brightgreen.svg?style=flat)](https://github.com/phpstan/phpstan)
 
 
-This project is part of the [MetaTrader 4 development framework](https://github.com/rosasurfer/mt4-mql).
+This project accompanies the [MetaTrader 4 development framework](https://github.com/rosasurfer/mt4-mql).
