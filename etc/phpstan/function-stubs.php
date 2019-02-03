@@ -35,6 +35,47 @@ namespace rosasurfer\rt\generate_pl_series {
 }
 
 
+namespace rosasurfer\rt\history {
+
+    /**
+     * @param  string $message [optional]
+     */
+    function help($message=null) {}
+}
+
+
+namespace rosasurfer\rt\logwatch {
+
+    /**
+     * @param  string $message [optional]
+     */
+    function help($message = null) {}
+
+    /**
+     * @param  string $entry
+     */
+    function processEntry($entry) {}
+}
+
+
+namespace rosasurfer\rt\update_synthetics_m1 {
+
+    /**
+     * @param  string $message [optional]
+     */
+    function help($message=null) {}
+}
+
+
+namespace rosasurfer\rt\dukascopy\status {
+
+    /**
+     * @param  string|null $message
+     */
+    function help($message=null) {}
+}
+
+
 namespace rosasurfer\rt\dukascopy\update_m1_bars {
 
     use rosasurfer\rt\model\RosaSymbol;
@@ -283,38 +324,6 @@ namespace rosasurfer\rt\dukascopy\update_tickdata {
 }
 
 
-namespace rosasurfer\rt\history {
-
-    /**
-     * @param  string $message [optional]
-     */
-    function help($message=null) {}
-}
-
-
-namespace rosasurfer\rt\update_synthetics_m1 {
-
-    /**
-     * @param  string $message [optional]
-     */
-    function help($message=null) {}
-}
-
-
-namespace rosasurfer\rt\logwatch {
-
-    /**
-     * @param  string $message [optional]
-     */
-    function help($message = null) {}
-
-    /**
-     * @param  string $entry
-     */
-    function processEntry($entry) {}
-}
-
-
 namespace rosasurfer\rt\metatrader\create_history {
 
     use rosasurfer\rt\model\RosaSymbol;
@@ -379,6 +388,24 @@ namespace rosasurfer\rt\metatrader\find_offset {
 }
 
 
+namespace rosasurfer\rt\metatrader\import_test {
+
+    /**
+     * @param  string $message [optional]
+     */
+    function help($message = null) {}
+
+    /**
+     * @param  string[] $files
+     *
+     * @return bool
+     */
+    function processTestFiles(array $files) {
+        return false;
+    }
+}
+
+
 namespace rosasurfer\rt\metatrader\list_symbols {
 
     /**
@@ -417,24 +444,6 @@ namespace rosasurfer\rt\metatrader\list_symbols {
      * @return bool
      */
     function printData(array $files, array $fields, array $data, array $options) {
-        return false;
-    }
-}
-
-
-namespace rosasurfer\rt\metatrader\import_test {
-
-    /**
-     * @param  string $message [optional]
-     */
-    function help($message = null) {}
-
-    /**
-     * @param  string[] $files
-     *
-     * @return bool
-     */
-    function processTestFiles(array $files) {
         return false;
     }
 }

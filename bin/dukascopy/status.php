@@ -1,12 +1,12 @@
 #!/usr/bin/env php
 <?php
 /**
- * Command line tool for processing Rosatrader history.
+ * Command line tool for manipulating the status of Dukascopy symbols.
  */
-namespace rosasurfer\rt\history;
+namespace rosasurfer\rt\dukascopy\status;
 
 use rosasurfer\process\Process;
-use rosasurfer\rt\model\RosaSymbol;
+use rosasurfer\rt\model\DukascopySymbol;
 
 require(dirName(realPath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');
@@ -24,27 +24,26 @@ foreach ($args as $i => $arg) {
 
 // parse command
 $cmd = array_shift($args);
-if (!in_array($cmd, ['status', 'synchronize', 'refresh'])) exit(1|help());
+if (!in_array($cmd, ['show', 'synchronize'])) exit(1|help());
 
-/** @var RosaSymbol[] $symbols */
+/** @var DukascopySymbol[] $symbols */
 $symbols = [];
 
 // parse symbols
 foreach ($args as $i => $arg) {
-    /** @var RosaSymbol $symbol */
-    $symbol = RosaSymbol::dao()->findByName($arg);
-    if (!$symbol) exit(1|stderror('error: unknown Rosatrader symbol "'.$args[$i].'"'));
+    /** @var DukascopySymbol $symbol */
+    $symbol = DukascopySymbol::dao()->findByName($arg);
+    if (!$symbol) exit(1|stderror('error: untracked Dukascopy symbol "'.$args[$i].'"'));
     $symbols[$symbol->getName()] = $symbol;                             // using the name as index removes duplicates
 }                                                                       // if none was specified process all
-$symbols = $symbols ?: RosaSymbol::dao()->findAll('select * from :RosaSymbol order by name');
-!$symbols && echoPre('No Rosatrader instruments found.');
+$symbols = $symbols ?: DukascopySymbol::dao()->findAll('select * from :DukascopySymbol order by name');
+!$symbols && echoPre('No Dukascopy instruments found.');
 
 
 // process instruments
 foreach ($symbols as $symbol) {
-    if ($cmd == 'status'     ) $symbol->showHistoryStatus();
-    if ($cmd == 'synchronize') $symbol->synchronizeHistory();
-    if ($cmd == 'refresh'    ) $symbol->refreshHistory();
+    if ($cmd == 'show'       ) $symbol->showHistoryStatus();
+  //if ($cmd == 'synchronize') $symbol->synchronizeHistoryStatus();
     Process::dispatchSignals();                                         // process Ctrl-C
 }
 exit(0);
@@ -62,22 +61,18 @@ function help($message = null) {
     $self = baseName($_SERVER['PHP_SELF']);
 
 echo <<<HELP
-Process the history of the specified Rosatrader symbols.
+Manipulate the history status of the specified Dukascopy symbols.
 
 Syntax:  $self <command> [options] [SYMBOL...]
 
  Commands:
-   status       Show history status information.
-   synchronize  Synchronize existing history files with the database.
-   refresh      Discard the existing history and reload/recreate it.
+   show         Show local history status information.
+   synchronize  Synchronize local history status with current data from Dukascopy.
 
  Options:
    -h           This help screen.
-   -v           Verbose output.
-   -vv          More verbose output.
-   -vvv         Very verbose output.
 
- SYMBOL         The symbols to process. Without a symbol all symbols are processed.
+ SYMBOL         The Dukascopy symbols to process. Without a symbol all locally tracked symbols are processed.
 
 
 HELP;

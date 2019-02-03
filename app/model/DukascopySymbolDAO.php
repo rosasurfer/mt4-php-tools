@@ -53,7 +53,6 @@ class DukascopySymbolDAO extends DAO {
         if (!is_string($name)) throw new IllegalTypeException('Illegal type of parameter $name: '.getType($name));
 
         $name = $this->escapeLiteral($name);
-
         $sql = 'select *
                    from :DukascopySymbol
                    where name = '.$name;

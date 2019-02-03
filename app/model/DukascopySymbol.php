@@ -100,6 +100,35 @@ class DukascopySymbol extends RosatraderModel {
 
 
     /**
+     * Show history status information.
+     *
+     * @param  bool $local [optional] - whether to show local or remotely fetched history status
+     *                                  (default: local)
+     *
+     * @return bool - success status
+     */
+    public function showHistoryStatus($local = true) {
+        if (!is_bool($local)) throw new IllegalTypeException('Illegal type of parameter $local: '.getType($local));
+
+        if ($local) {
+            $start = $this->getHistoryM1Start('D, d-M-Y H:i');
+            $end   = $this->getHistoryM1End('D, d-M-Y H:i');
+
+            if (!$start && !$end) {
+                echoPre('[Info]    '.$this->name.'  available history unknown');
+            }
+            else {
+                $start && echoPre('[Info]    '.$this->name.'  history starts '.$start.' FXT');
+                $end   && echoPre('[Info]    '.$this->name.'  history ends   '.$end.' FXT');
+            }
+        }
+        else {
+        }
+        return true;
+    }
+
+
+    /**
      * Refresh the start times of the available tick and M1 history.
      *
      * @return bool - whether at least one of the starttimes have changed
