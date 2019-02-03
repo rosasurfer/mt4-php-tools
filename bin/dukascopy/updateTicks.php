@@ -358,9 +358,7 @@ function saveTicks($symbol, $gmtHour, $fxtHour, array $ticks) {
         }
         mkDirWritable(dirName($file));
         $tmpFile = tempNam(dirName($file), baseName($file));
-        $hFile   = fOpen($tmpFile, 'wb');
-        fWrite($hFile, $data);
-        fClose($hFile);
+        file_put_contents($tmpFile, $data);
         rename($tmpFile, $file);            // So kann eine existierende Datei niemals korrupt sein.
     }
 
@@ -434,9 +432,7 @@ function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=f
         if ($saveData) {
             mkDirWritable(getVar('rtDir', $symbol, $gmtHour));
             $tmpFile = tempNam(dirName($file=getVar('dukaFile.compressed', $symbol, $gmtHour)), baseName($file));
-            $hFile   = fOpen($tmpFile, 'wb');
-            fWrite($hFile, $content);
-            fClose($hFile);
+            file_put_contents($tmpFile, $content);
             if (is_file($file)) unlink($file);
             rename($tmpFile, $file);                                       // So kann eine existierende Datei niemals korrupt sein.
         }

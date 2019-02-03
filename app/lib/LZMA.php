@@ -32,9 +32,7 @@ class LZMA extends StaticClass {
         // decodiert.
 
         $tmpFile = tempNam(null, 'php');
-        $hFile   = fOpen($tmpFile, 'wb');
-        fWrite($hFile, $data);
-        fClose($hFile);
+        file_put_contents($tmpFile, $data);
 
         $content = self::decompressFile($tmpFile);
         unlink($tmpFile);

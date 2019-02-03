@@ -97,8 +97,8 @@ $symbols = $symbols ?: RosaSymbol::dao()->findAllDukascopyMappedByAutoUpdate(tru
 
 // update instruments
 foreach ($symbols as $symbol) {
-  //if ($symbol->updateHistory()) echoPre('[Ok]      '.$symbol->getName());
-    if (updateSymbol($symbol))    echoPre('[Ok]      '.$symbol->getName());
+  //$symbol->updateHistory();
+    updateSymbol($symbol);
     Process::dispatchSignals();                                                         // process Ctrl-C
 }
 exit(0);
@@ -475,9 +475,7 @@ function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $save
         if ($saveData) {
             mkDirWritable(getVar('rtDir', $symbol, $day, $type));
             $tmpFile = tempNam(dirName($file=getVar('dukaFile.compressed', $symbol, $day, $type)), baseName($file));
-            $hFile   = fOpen($tmpFile, 'wb');
-            fWrite($hFile, $response->getContent());
-            fClose($hFile);
+            file_put_contents($tmpFile, $response->getContent());
             if (is_file($file)) unlink($file);
             rename($tmpFile, $file);                                       // So kann eine existierende Datei niemals korrupt sein.
         }
@@ -667,9 +665,7 @@ function saveBars($symbol, $day) {
         }
         mkDirWritable(dirName($file));
         $tmpFile = tempNam(dirName($file), baseName($file));
-        $hFile   = fOpen($tmpFile, 'wb');
-        fWrite($hFile, $data);
-        fClose($hFile);
+        file_put_contents($tmpFile, $data);
         rename($tmpFile, $file);                                       // So kann eine existierende Datei niemals korrupt sein.
     }
 

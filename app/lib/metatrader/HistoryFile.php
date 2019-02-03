@@ -1272,16 +1272,14 @@ class HistoryFile extends Object {
     private function writeHistoryHeader() {
         fSeek($this->hFile, 0);
         $format  = HistoryHeader::packFormat();
-        $written = fWrite($this->hFile, pack($format, $this->hstHeader->getFormat(),           // V
-                                                                     $this->hstHeader->getCopyright(),        // a64
-                                                                     $this->hstHeader->getSymbol(),           // a12
-                                                                     $this->hstHeader->getPeriod(),           // V
-                                                                     $this->hstHeader->getDigits(),           // V
-                                                                     $this->hstHeader->getSyncMarker(),       // V
-                                                                     $this->hstHeader->getLastSyncTime()));   // V
-                                                                                                                            // x52
-        //if ($this->period==PERIOD_M1 && $this->hstHeader->getLastSyncTime()) $this->showMetaData();
-        return $written;
+        $written = fWrite($this->hFile, pack($format, $this->hstHeader->getFormat(),            // V
+                                                      $this->hstHeader->getCopyright(),         // a64
+                                                      $this->hstHeader->getSymbol(),            // a12
+                                                      $this->hstHeader->getPeriod(),            // V
+                                                      $this->hstHeader->getDigits(),            // V
+                                                      $this->hstHeader->getSyncMarker(),        // V
+                                                      $this->hstHeader->getLastSyncTime()));    // V
+        return $written;                                                                        // x52
     }
 
 

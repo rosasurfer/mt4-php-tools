@@ -261,9 +261,7 @@ function saveBars($symbol, $day, array $bars, $partial = false) {
             return false(echoPre('[Error]   PL series '.$symbol.' for '.gmDate('D, d-M-Y', $day).' already exists'));
         mkDirWritable(dirName($file));
         $tmpFile = tempNam(dirName($file), baseName($file));
-        $hFile   = fOpen($tmpFile, 'wb');
-        fWrite($hFile, $data);
-        fClose($hFile);
+        file_put_contents($tmpFile, $data);
         rename($tmpFile, $file);
     }
     return true;

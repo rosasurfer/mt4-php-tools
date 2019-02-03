@@ -124,11 +124,8 @@ class RT extends StaticClass {
         $file = $dir.'/M1.bin';
         mkDirWritable(dirName($file));
         $tmpFile = tempNam(dirName($file), baseName($file));
-        $hFile   = fOpen($tmpFile, 'wb');
-        fWrite($hFile, $data);
-        fClose($hFile);
+        file_put_contents($tmpFile, $data);
         rename($tmpFile, $file);                                // this way an existing file can't be corrupt
-
         return true;
     }
 }

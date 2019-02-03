@@ -1,7 +1,7 @@
 <?php
 namespace rosasurfer\rt\dukascopy;
 
-use rosasurfer\core\StaticClass;
+use rosasurfer\core\Object;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
@@ -15,7 +15,9 @@ use const rosasurfer\rt\DUKASCOPY_TICK_SIZE;
 
 
 /**
- * Functionality for processing Dukascopy data
+ * Dukascopy
+ *
+ * Functionality related to downloading and processing Dukascopy history data.
  *
  *
  * struct big-endian DUKASCOPY_BAR {    // -- offset --- size --- description -----------------------------------------------
@@ -37,7 +39,7 @@ use const rosasurfer\rt\DUKASCOPY_TICK_SIZE;
  * };                                   // ----------------------------------------------------------------------------------
  *                                      //               = 20
  */
-class Dukascopy extends StaticClass {
+class Dukascopy extends Object {
 
 
     /**
@@ -61,9 +63,7 @@ class Dukascopy extends StaticClass {
         if (isSet($saveAs)) {
             mkDirWritable(dirName($saveAs));
             $tmpFile = tempNam(dirName($saveAs), baseName($saveAs));
-            $hFile   = fOpen($tmpFile, 'wb');
-            fWrite($hFile, $rawData);
-            fClose($hFile);
+            file_put_contents($tmpFile, $rawData);
             if (is_file($saveAs)) unlink($saveAs);
             rename($tmpFile, $saveAs);
         }

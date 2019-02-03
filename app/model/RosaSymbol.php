@@ -20,6 +20,7 @@ use function rosasurfer\rt\isWeekend;
 
 use const rosasurfer\rt\PERIOD_M1;
 
+
 /**
  * Represents a Rosatrader symbol.
  *
@@ -29,7 +30,7 @@ use const rosasurfer\rt\PERIOD_M1;
  * @method int             getDigits()          Return the number of fractional digits of symbol prices.
  * @method bool            isAutoUpdate()       Whether automatic history updates are enabled.
  * @method string          getFormula()         Return a synthetic instrument's calculation formula (LaTeX).
- * @method DukascopySymbol getDukascopySymbol() Return the Dukascopy symbol mapped to this RosaTrader symbol.
+ * @method DukascopySymbol getDukascopySymbol() Return the {@link DukascopySymbol} mapped to this RosaTrader symbol.
  */
 class RosaSymbol extends RosatraderModel {
 
@@ -366,9 +367,9 @@ class RosaSymbol extends RosatraderModel {
             $this->historyM1End = $endDate ? gmDate('Y-m-d H:i:s', $endDate) : null;
             $this->modified();
         }
-        if ($this->isModified()) $this->save();
-        else                     echoPre('[Info]    '.$this->name.'  '.($errors ? 'done':'ok'));
+        $this->save();
 
+        echoPre('[Info]    '.$this->name.'  '.($errors ? 'done':'ok'));
         return true;
     }
 
@@ -379,6 +380,7 @@ class RosaSymbol extends RosatraderModel {
      * @return bool - success status
      */
     public function refreshHistory() {
+        throw new UnimplementedFeatureException(__METHOD__.'() not implemented');
         return false;
     }
 
@@ -394,32 +396,32 @@ class RosaSymbol extends RosatraderModel {
         $today      = ($today=fxTime()) - $today%DAY;                               // 00:00 FXT of the current day
         echoPre('[Info]    '.$this->name.'  updating M1 history '.($updatedTo ? 'since '.gmDate('D, d-M-Y', $updatedTo) : 'from start'));
 
-        if ($this->isSynthetic()) {
-            $synthesizer = $this->getSynthesizer();
+        /** @var Synthesizer     $synthesizer */
+        /** @var DukascopySymbol $dukaSymbol  */
+        $synthesizer = $dukaSymbol = null;
 
-            for ($day=$updateFrom; $day < $today; $day+=1*DAY) {
-                if ($day && !$this->isTradingDay($day))                             // skip non-trading days
-                    continue;
+        if      ($this->isSynthetic())                       $synthesizer = $this->getSynthesizer();
+        else if (!$dukaSymbol = $this->getDukascopySymbol()) return false(echoPre('[Error]   '.$this->name.'  Dukascopy mapping not found'));
 
-                $bars = $synthesizer->calculateQuotes($day);
-                if (!$bars) return false(echoPre('[Error]   '.$this->name.'  M1 history sources'.($day ? ' for '.gmDate('D, d-M-Y', $day) : '').' not available'));
-                if (!$day) {
-                    $opentime = $bars[0]['time'];                                   // if $day is zero (complete update since start)
-                    $day = $opentime - $opentime%DAY;                               // adjust it to the first available history
-                }
-                RT::saveM1Bars($bars, $this);                                       // store the quotes
-
-                if (!$this->historyM1Start)
-                    $this->historyM1Start = gmDate('Y-m-d H:i:s', $day);
-                $this->historyM1End = gmDate('Y-m-d H:i:s', $day);
-                $this->modified()->save();                                          // update the database
-                Process::dispatchSignals();                                         // process signals
+        for ($day=$updateFrom; $day < $today; $day+=1*DAY) {
+            if ($day && !$this->isTradingDay($day))                             // skip non-trading days
+                continue;
+            $bars = $this->isSynthetic() ? $synthesizer->calculateQuotes($day) : $dukaSymbol->getHistory(PERIOD_M1, $day);
+            if (!$bars) return false(echoPre('[Error]   '.$this->name.'  M1 history sources'.($day ? ' for '.gmDate('D, d-M-Y', $day) : '').' not available'));
+            if (!$day) {
+                $opentime = $bars[0]['time'];                                   // if $day was zero (full update since start)
+                $day = $opentime - $opentime%DAY;                               // adjust it to the first available history
             }
+            RT::saveM1Bars($bars, $this);                                       // store the quotes
+
+            if (!$this->historyM1Start)                                         // update metadata *after* history was successfully saved
+                $this->historyM1Start = gmDate('Y-m-d H:i:s', $day);
+            $this->historyM1End = gmDate('Y-m-d H:i:s', $day);
+            $this->modified()->save();                                          // update the database
+            Process::dispatchSignals();                                         // process signals
         }
-        else {
-            // request price updates from a mapped symbol's data source
-            throw new UnimplementedFeatureException('RosaSymbol::updateHistory() not yet implemented for regular instruments ('.$this->name.')');
-        }
+
+        echoPre('[Ok]      '.$this->name);
         return true;
     }
 
