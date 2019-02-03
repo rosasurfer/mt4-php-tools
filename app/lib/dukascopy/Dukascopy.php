@@ -148,7 +148,7 @@ class Dukascopy extends Object {
      * Parse a file with Dukascopy bar data and convert it to a data array.
      *
      * @param  string $fileName - name of file with Dukascopy bar data
-     * @param  string $symbol   - meta infos for generating a more readable error message (the Dukascopy data can contain errors)
+     * @param  string $symbol   - meta infos for generating better error messages (Dukascopy data may contain errors)
      * @param  string $type     - ...
      * @param  int    $time     - ...
      *
