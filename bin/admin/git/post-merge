@@ -76,7 +76,7 @@ function check_lockfile() {
     if [[ -f "$LOCKFILE" && $(echo "$CHANGED_FILES" | grep -Fx "$LOCKFILE") ]]; then
         echo " * changes detected in $LOCKFILE"
         echo " * running composer install"
-        COMPOSER_ALLOW_SUPERUSER=1 $COMPOSER install --ignore-platform-reqs --no-dev
+        COMPOSER_ALLOW_SUPERUSER=1 $COMPOSER install --ignore-platform-reqs --no-dev --no-suggest
     else
         COMPOSER_ALLOW_SUPERUSER=1 $COMPOSER dump-autoload
     fi
