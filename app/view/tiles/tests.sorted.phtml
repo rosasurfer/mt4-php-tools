@@ -1,9 +1,9 @@
 <?php
 use rosasurfer\ministruts\Request;
 
-use rosasurfer\rt\Rost;
 use rosasurfer\rt\model\Test;
 
+use function rosasurfer\rt\periodDescription;
 use function rosasurfer\rt\prettyTimeRange;
 
 /** @var Request $request */
@@ -43,7 +43,7 @@ foreach ($tests as $test) {
     $strategy        = $test->getStrategy();
     $report          = $test->getReportingSymbol();
     $symbol          = $test->getSymbol();
-    $period          = Rost::periodDescription($test->getTimeframe());
+    $period          = periodDescription($test->getTimeframe());
     $timeRange       = prettyTimeRange($test->getStartTime(), $test->getEndTime());
     $numTrades       = $test->getStats()->getTrades();
     $avgPips         = $test->getStats()->getAvgPips();
