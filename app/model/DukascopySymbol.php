@@ -4,6 +4,8 @@ namespace rosasurfer\rt\model;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\UnimplementedFeatureException;
 
+use rosasurfer\rt\dukascopy\Dukascopy;
+
 use function rosasurfer\rt\periodToStr;
 
 use const rosasurfer\rt\PERIOD_M1;
@@ -123,6 +125,12 @@ class DukascopySymbol extends RosatraderModel {
             }
         }
         else {
+            echoPre('[Info]    '.$this->name.'  fetching remote history status');
+
+            /** @var Dukascopy $dukascopy */
+            $dukascopy = $this->di()['dukascopy'];
+            $historyStart = $dukascopy->fetchHistoryStart($this->name);
+            echoPre('$historyStart: '.$historyStart);
         }
         return true;
     }

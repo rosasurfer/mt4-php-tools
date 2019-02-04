@@ -6,6 +6,8 @@ use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 use rosasurfer\log\Logger;
+use rosasurfer\net\http\HttpRequest;
+use rosasurfer\net\http\HttpResponse;
 
 use rosasurfer\rt\LZMA;
 use rosasurfer\rt\model\DukascopySymbol;
@@ -40,6 +42,84 @@ use const rosasurfer\rt\DUKASCOPY_TICK_SIZE;
  *                                      //               = 20
  */
 class Dukascopy extends Object {
+
+
+    /** @var HttpClient */
+    protected $httpClient;
+
+
+    /**
+     * Resolve and return a Dukascopy specific HTTP client. The instance is kept in memory to enable "keep-alive" connections.
+     *
+     * @return HttpClient
+     */
+    protected function getHttpClient() {
+        if (!$this->httpClient) {
+            $options = [];
+            $options[CURLOPT_SSL_VERIFYPEER] = false;       // suppress SSL certificate validation errors
+            //$options[CURLOPT_VERBOSE     ] = true;
+            $this->httpClient = new HttpClient($options);
+        }
+        return $this->httpClient;
+    }
+
+
+    /**
+     * Fetch history start infos for the specified symbol.
+     *
+     * @param  string $symbol
+     *
+     * @return int - FXT timestamp or 0 (zero) if history status information is not available
+     */
+    public function fetchHistoryStart($symbol) {
+        $data = $this->downloadHistoryStart($symbol);
+        echoPre($data);
+        return 0;
+    }
+
+
+    /**
+     * Laedt eine Dukascopy-M1-Datei und gibt ihren Inhalt zurueck.
+     *
+     * @param  string $symbol
+     *
+     * @return string - downloaded content or an empty string on download errors
+     */
+    protected function downloadHistoryStart($symbol) {
+        $client = $this->getHttpClient();
+
+        $url = 'http://datafeed.dukascopy.com/datafeed/'.$symbol.'/metadata/HistoryStart.bi5';
+
+        $request  = new HttpRequest($url);
+        $response = $client->send($request);
+        $status   = $response->getStatus();
+        if ($status!=200 && $status!=404) throw new RuntimeException('Unexpected HTTP status '.$status.' ('.HttpResponse::$sc[$status].') for url "'.$url.'"'.NL.printPretty($response, true));
+
+        // treat an empty response as error 404
+        $content = $response->getContent();
+        if (!strLen($content))
+            $status = 404;
+        if ($status == 404) echoPre('[Error]   URL not found (404): '.$url);
+
+        return ($status==200) ? $response->getContent() : '';
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     /**

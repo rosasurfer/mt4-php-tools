@@ -12,6 +12,9 @@ require(dirName(realPath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');
 
 
+$remote = false;
+
+
 // parse and validate CLI arguments
 /** @var string[] $args */
 $args = array_slice($_SERVER['argv'], 1);
@@ -19,6 +22,7 @@ $args = array_slice($_SERVER['argv'], 1);
 // parse options
 foreach ($args as $i => $arg) {
     if ($arg == '-h')   exit(1|help());
+    if ($arg == '-r')   $remote = true;
     if ($arg[0] == '-') unset($args[$i]);                               // drop unknown options
 }
 
@@ -42,7 +46,7 @@ $symbols = $symbols ?: DukascopySymbol::dao()->findAll('select * from :Dukascopy
 
 // process instruments
 foreach ($symbols as $symbol) {
-    if ($cmd == 'show'       ) $symbol->showHistoryStatus();
+    if ($cmd == 'show'       ) $symbol->showHistoryStatus(!$remote);
   //if ($cmd == 'synchronize') $symbol->synchronizeHistoryStatus();
     Process::dispatchSignals();                                         // process Ctrl-C
 }
