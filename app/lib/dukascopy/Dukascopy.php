@@ -6,7 +6,6 @@ use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 use rosasurfer\log\Logger;
-use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
 
 use rosasurfer\rt\LZMA;
