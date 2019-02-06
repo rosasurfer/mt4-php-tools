@@ -176,9 +176,9 @@ function checkHistory($symbol, $day) {
     global $verbose, $barBuffer;
 
     $config           = Application::getConfig();
-    $keepDownloads    = $config['rt.dukascopy.keep-downloads'];
-    $keepDecompressed = $config['rt.dukascopy.keep-decompressed'];
-    $compressHistory  = $config['rt.history.compress'];
+    $keepDownloads    = $config->getBool('rt.dukascopy.keep-downloads');
+    $keepDecompressed = $config->getBool('rt.dukascopy.keep-decompressed');
+    $compressHistory  = $config->getBool('rt.history.compress');
 
     $shortDate = gmDate('D, d-M-Y', $day);
     $day      -= $day%DAY;                                              // 00:00 GMT
@@ -283,7 +283,7 @@ function loadHistory($symbol, $day, $type) {
     global $barBuffer; $barBuffer[$type];
 
     $config        = Application::getConfig();
-    $keepDownloads = $config['rt.dukascopy.keep-downloads'];
+    $keepDownloads = $config->getBool('rt.dukascopy.keep-downloads');
     $shortDate     = gmDate('D, d-M-Y', $day);
 
     // Fuer jeden Forex-Tag werden die GMT-Dukascopy-Daten des vorherigen und des aktuellen Tages benoetigt.
@@ -516,7 +516,7 @@ function processCompressedDukascopyBarFile($file, $symbol, $day, $type) {
 function processCompressedDukascopyBarData($data, $symbol, $day, $type) {
     if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
 
-    $keepFiles = Application::getConfig()['rt.dukascopy.keep-decompressed'];
+    $keepFiles = Application::getConfig()->getBool('rt.dukascopy.keep-decompressed');
     $saveAs = $keepFiles ? getVar('dukaFile.raw', $symbol, $day, $type) : null;
 
     $rawData = Dukascopy::decompressHistoryData($data, $saveAs);
@@ -657,7 +657,7 @@ function saveBars($symbol, $day) {
     }
 
     // (3) binaere Daten ggf. unkomprimiert speichern
-    $compressHistory = Application::getConfig()['rt.history.compress'];
+    $compressHistory = Application::getConfig()->getBool('rt.history.compress');
     if (!$compressHistory) {
         if (is_file($file=getVar('rtFile.raw', $symbol, $day))) {
             echoPre('[Error]   '.$symbol.' history for '.$shortDate.' already exists');
