@@ -31,8 +31,6 @@ parameters:
 
     ignoreErrors:
         # intentionally ignore the following issues
-        - '/Call to ((static )?method|function) [^ ]+\(\) with incorrect case:/'                                    # We prefer camel-case standards.
-        - '/Class stdClass referenced with incorrect case: StdClass\b/'                                             # - dito -
         - '/Array \(([^ ]+)\[\]\) does not accept (\1\|)?null\b/'                                                   # NULL is a value (not a type) and can always be assigned.
         - '/Array \(array<([^ ]+)>\) does not accept (\1\|)?null\b/'                                                # - dito -
         - '/(Static )?property [^ ]+ \(([^ ]+)\) does not accept (\2\|)?null\b/i'                                   # - dito -

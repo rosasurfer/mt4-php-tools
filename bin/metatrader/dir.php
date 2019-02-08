@@ -12,7 +12,7 @@ use rosasurfer\rt\model\Order;
 
 use function rosasurfer\rt\periodDescription;
 
-require(dirName(realPath(__FILE__)).'/../../app/init.php');
+require(dirname(realpath(__FILE__)).'/../../app/init.php');
 
 
 // -- Start -----------------------------------------------------------------------------------------------------------------
@@ -31,7 +31,7 @@ foreach ($args as $arg) {
     if (file_exists($value)) {
         // explizites Argument oder Argument von Shell expandiert
         if (is_file($value)) {                                      // existierende Datei beliebigen Typs (alle werden analysiert)
-            $expandedArgs[] = dirName($value).'/'.baseName($value);  // durch dirName() haben wir immer ein Verzeichnis fuer die Ausgabe (ggf. '.')
+            $expandedArgs[] = dirname($value).'/'.basename($value);  // durch dirname() haben wir immer ein Verzeichnis fuer die Ausgabe (ggf. '.')
             continue;
         }
         // Verzeichnis, Glob-Pattern bereitstellen (siehe unten)
@@ -40,22 +40,22 @@ foreach ($args as $arg) {
     else {
         // Argument existiert nicht, Wildcards expandieren und Ergebnisse pruefen (z.B. unter Windows)
         strEndsWith($value, ['/', '\\']) && ($value.='*');
-        $dirName  = dirName($value);
-        $baseName = baseName($value); strEndsWith($baseName, '*') && ($baseName.='.hst');
+        $dirName  = dirname($value);
+        $basename = basename($value); strEndsWith($basename, '*') && ($basename.='.hst');
 
-        // um Gross-/Kleinschreibung von Symbolen ignorieren zu koennen, wird $baseName modifiziert
-        $len = strLen($baseName); $s = ''; $inBrace = $inBracket = false;
+        // um Gross-/Kleinschreibung von Symbolen ignorieren zu koennen, wird $basename modifiziert
+        $len = strlen($basename); $s = ''; $inBrace = $inBracket = false;
         for ($i=0; $i < $len; $i++) {
-            $char = $baseName[$i];                                   // angegebene Expansion-Pattern werden beruecksichtigt: {a,b,c}, [0-9] etc.
+            $char = $basename[$i];                                   // angegebene Expansion-Pattern werden beruecksichtigt: {a,b,c}, [0-9] etc.
             if ($inBrace  ) { $inBrace   = ($char!='}'); $s .= $char; continue; }
             if ($inBracket) { $inBracket = ($char!=']'); $s .= $char; continue; }
             if (($inBrace=($char=='{')) || ($inBracket=($char=='[')) || !ctype_alpha($char)) {
                 $s .= $char;
                 continue;
             }
-            $s .= '['.strToUpper($char).strToLower($char).']';
+            $s .= '['.strtoupper($char).strtolower($char).']';
         }
-        $globPattern = $dirName.'/'.$s;                             // $baseName=eu*.hst  =>  $s=[Ee][Uu]*.[Hh][Ss][Tt]
+        $globPattern = $dirName.'/'.$s;                             // $basename=eu*.hst  =>  $s=[Ee][Uu]*.[Hh][Ss][Tt]
     }
 
     // Glob-Pattern einlesen und gefundene Dateien speichern
@@ -74,8 +74,8 @@ $bars    = $barsFrom = $barsTo = $errors = [];
 $dirName = $lastDir = null;
 
 foreach ($expandedArgs as $fileName) {
-    $dirName  = dirName($fileName);
-    $baseName = baseName($fileName);
+    $dirName  = dirname($fileName);
+    $basename = basename($fileName);
     if ($dirName!=$lastDir && $files) {                            // bei jedem neuen Verzeichnis vorherige angesammelte Daten anzeigen
         showDirResults($dirName, $files, $formats, $symbols, $symbolsU, $periods, $digits, $syncMarkers, $lastSyncTimes, $bars, $barsFrom, $barsTo, $errors);
         $files   = [];
@@ -85,14 +85,14 @@ foreach ($expandedArgs as $fileName) {
     $lastDir = $dirName;
 
     // Daten auslesen und fuer Anzeige zwischenspeichern
-    $files[]  = $baseName;
-    $fileSize = fileSize($fileName);
+    $files[]  = $basename;
+    $fileSize = filesize($fileName);
 
     if ($fileSize < HistoryHeader::SIZE) {
         // Fehlermeldung zwischenspeichern
         $formats      [] = null;
-        $symbols      [] = ($name=strLeftTo($baseName, '.hst'));
-        $symbolsU     [] = strToUpper($name);
+        $symbols      [] = ($name=strLeftTo($basename, '.hst'));
+        $symbolsU     [] = strtoupper($name);
         $periods      [] = null;
         $digits       [] = null;
         $syncMarkers  [] = null;
@@ -104,18 +104,18 @@ foreach ($expandedArgs as $fileName) {
         continue;
     }
 
-    $hFile = fOpen($fileName, 'rb');
+    $hFile = fopen($fileName, 'rb');
     try {
-        $header = new HistoryHeader(fRead($hFile, HistoryHeader::SIZE));
+        $header = new HistoryHeader(fread($hFile, HistoryHeader::SIZE));
 
         // Daten zwischenspeichern
         $formats      [] =            $header->getFormat();
         $symbols      [] =            $header->getSymbol();
-        $symbolsU     [] = strToUpper($header->getSymbol());
+        $symbolsU     [] = strtoupper($header->getSymbol());
         $periods      [] =            $header->getPeriod();
         $digits       [] =            $header->getDigits();
-        $syncMarkers  [] =            $header->getSyncMarker()   ? gmDate('Y.m.d H:i:s', $header->getSyncMarker()  ) : null;
-        $lastSyncTimes[] =            $header->getLastSyncTime() ? gmDate('Y.m.d H:i:s', $header->getLastSyncTime()) : null;
+        $syncMarkers  [] =            $header->getSyncMarker()   ? gmdate('Y.m.d H:i:s', $header->getSyncMarker()  ) : null;
+        $lastSyncTimes[] =            $header->getLastSyncTime() ? gmdate('Y.m.d H:i:s', $header->getLastSyncTime()) : null;
 
         $barVersion = $header->getFormat();
         $barSize    = ($barVersion==400) ? MT4::HISTORY_BAR_400_SIZE : MT4::HISTORY_BAR_401_SIZE;
@@ -123,22 +123,22 @@ foreach ($expandedArgs as $fileName) {
 
         $barFrom = $barTo = [];
         if ($iBars) {
-            $barFrom  = unpack(MT4::BAR_getUnpackFormat($barVersion), fRead($hFile, $barSize));
+            $barFrom  = unpack(MT4::BAR_getUnpackFormat($barVersion), fread($hFile, $barSize));
             if ($iBars > 1) {
-                fSeek($hFile, HistoryHeader::SIZE + $barSize*($iBars-1));
-                $barTo = unpack(MT4::BAR_getUnpackFormat($barVersion), fRead($hFile, $barSize));
+                fseek($hFile, HistoryHeader::SIZE + $barSize*($iBars-1));
+                $barTo = unpack(MT4::BAR_getUnpackFormat($barVersion), fread($hFile, $barSize));
             }
         }
 
         $bars    [] = $iBars;
-        $barsFrom[] = $barFrom ? gmDate('Y.m.d H:i:s', $barFrom['time']) : null;
-        $barsTo  [] = $barTo   ? gmDate('Y.m.d H:i:s', $barTo  ['time']) : null;
+        $barsFrom[] = $barFrom ? gmdate('Y.m.d H:i:s', $barFrom['time']) : null;
+        $barsTo  [] = $barTo   ? gmdate('Y.m.d H:i:s', $barTo  ['time']) : null;
 
-        if (!strCompareI($baseName, $header->getSymbol().$header->getPeriod().'.hst')) {
-            $formats [sizeOf($formats )-1] = null;
-            $symbols [sizeOf($symbols )-1] = ($name=strLeftTo($baseName, '.hst'));
-            $symbolsU[sizeOf($symbolsU)-1] = strToUpper($name);
-            $periods [sizeOf($periods )-1] = null;
+        if (!strCompareI($basename, $header->getSymbol().$header->getPeriod().'.hst')) {
+            $formats [sizeof($formats )-1] = null;
+            $symbols [sizeof($symbols )-1] = ($name=strLeftTo($basename, '.hst'));
+            $symbolsU[sizeof($symbolsU)-1] = strtoupper($name);
+            $periods [sizeof($periods )-1] = null;
             $error = 'file name/data mis-match: data='.$header->getSymbol().','.periodDescription($header->getPeriod());
         }
         else {
@@ -152,8 +152,8 @@ foreach ($expandedArgs as $fileName) {
 
         // Fehlermeldung zwischenspeichern
         $formats      [] = null;
-        $symbols      [] = ($name=strLeftTo($baseName, '.hst'));
-        $symbolsU     [] = strToUpper($name);
+        $symbols      [] = ($name=strLeftTo($basename, '.hst'));
+        $symbolsU     [] = strtoupper($name);
         $periods      [] = null;
         $digits       [] = null;
         $syncMarkers  [] = null;
@@ -163,7 +163,7 @@ foreach ($expandedArgs as $fileName) {
         $barsTo       [] = null;
         $errors       [] = $ex->getMessage();
     }
-    fClose($hFile);
+    fclose($hFile);
 }
 
 // abschliessende Ausgabe fuer das letzte Verzeichnis
@@ -233,10 +233,10 @@ function showDirResults($dirName, array $files, array $formats, array $symbols, 
  * @param  string $message [optional] - zusaetzlich zur Syntax anzuzeigende Message (default: keine)
  */
 function help($message = null) {
-    if (isSet($message))
+    if (isset($message))
         echo $message.NL.NL;
 
-    $self = baseName($_SERVER['PHP_SELF']);
+    $self = basename($_SERVER['PHP_SELF']);
 
 echo <<<HELP
 

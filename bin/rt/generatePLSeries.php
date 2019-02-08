@@ -20,7 +20,7 @@ use rosasurfer\rt\model\Test;
 
 use function rosasurfer\rt\isWeekend;
 
-require(dirName(realPath(__FILE__)).'/../../app/init.php');
+require(dirname(realpath(__FILE__)).'/../../app/init.php');
 
 
 // --- Configuration --------------------------------------------------------------------------------------------------------
@@ -38,7 +38,7 @@ $args = array_slice($_SERVER['argv'], 1);
 foreach ($args as $i => $arg) {
     if ($arg == '-h') exit(1|help());           // help
 }
-(sizeOf($args) != 1) && exit(1|help());
+(sizeof($args) != 1) && exit(1|help());
 
 // the only argument must be a test report symbol
 $value = array_shift($args);
@@ -56,27 +56,27 @@ foreach ($trades as $trade) {                                           // atm: 
     $symbol = $trade->getSymbol();
 
     // separate trades into deals
-    $openDeal         = new \StdClass();
+    $openDeal         = new \stdClass();
     $openDeal->type   = 'open';
     $openDeal->ticket = $trade->getTicket();
-    $openDeal->time   = strToTime($trade->getOpenTime().' GMT');        // FXT timestamp
+    $openDeal->time   = strtotime($trade->getOpenTime().' GMT');        // FXT timestamp
     $openDeal->lots   = $trade->getLots() * (strCompareI($trade->getType(), 'buy') ? 1 : -1);
     $openDeal->price  = $trade->getOpenPrice();
 
-    $closeDeal         = new \StdClass();
+    $closeDeal         = new \stdClass();
     $closeDeal->type   = 'close';
     $closeDeal->ticket = $trade->getTicket();
-    $closeDeal->time   = strToTime($trade->getCloseTime().' GMT');      // FXT timestamp
+    $closeDeal->time   = strtotime($trade->getCloseTime().' GMT');      // FXT timestamp
     $closeDeal->lots   = -$openDeal->lots;
     $closeDeal->price  = $trade->getClosePrice();
 
     $deals[] = $openDeal;
     $deals[] = $closeDeal;
 }
-uSort($deals, function(\StdClass $a, \StdClass $b) {
+usort($deals, function(\stdClass $a, \stdClass $b) {
     if ($a->time < $b->time)  return -1;
     if ($a->time > $b->time)  return +1;
-    if ($a->type != $b->type) return strCmp($a->type, $b->type);        // 'open' > 'close'
+    if ($a->type != $b->type) return strcmp($a->type, $b->type);        // 'open' > 'close'
     return $a->ticket > $b->ticket ? +1 : -1;
 });
 $deals = array_values($deals);
@@ -86,13 +86,13 @@ $deals = array_values($deals);
 $firstDeal = reset($deals);
 if      (is_file(getVar('rtFile.compressed', $symbol, $firstDeal->time))) {}
 else if (is_file(getVar('rtFile.raw'       , $symbol, $firstDeal->time))) {}
-else     exit(1|echoPre('[Error]   '.$symbol.'  Rosatrader price history for '.gmDate('D, d-M-Y', $firstDeal->time).' not found'));
+else     exit(1|echoPre('[Error]   '.$symbol.'  Rosatrader price history for '.gmdate('D, d-M-Y', $firstDeal->time).' not found'));
 
 $lastDeal = end($deals);
 if      (is_file(getVar('rtFile.compressed', $symbol, $lastDeal->time))) {}
 else if (is_file(getVar('rtFile.raw'       , $symbol, $lastDeal->time))) {}
-else     exit(1|echoPre('[Error]   '.$symbol.'  Rosatrader price history for '.gmDate('D, d-M-Y', $lastDeal->time).' not found'));
-echoPre('[Info]    Processing '.sizeof($trades).' trades of test '.$test->getReportingSymbol().' ('.gmDate('d.m.Y', $firstDeal->time).' - '.gmDate('d.m.Y', $lastDeal->time).')');
+else     exit(1|echoPre('[Error]   '.$symbol.'  Rosatrader price history for '.gmdate('D, d-M-Y', $lastDeal->time).' not found'));
+echoPre('[Info]    Processing '.sizeof($trades).' trades of test '.$test->getReportingSymbol().' ('.gmdate('d.m.Y', $firstDeal->time).' - '.gmdate('d.m.Y', $lastDeal->time).')');
 
 
 // (4) calculate total position and price at each deal time
@@ -129,10 +129,10 @@ $totalPL        = $pl = $lastPositionPrice = 0;
 $prevMonth      = -1;
 
 for ($day=$firstDealDay; $day <= $lastDealDay; $day+=1*DAY) {
-    $shortDate = gmDate('D, d-M-Y', $day);
-    $month     = (int) gmDate('m', $day);
+    $shortDate = gmdate('D, d-M-Y', $day);
+    $month     = (int) gmdate('m', $day);
     if ($month != $prevMonth) {
-        echoPre('[Info]    '.gmDate('M-Y', $day));
+        echoPre('[Info]    '.gmdate('M-Y', $day));
         $prevMonth = $month;
     }
     if (isWeekend($day))                                            // skip non-trading days
@@ -148,13 +148,13 @@ for ($day=$firstDealDay; $day <= $lastDealDay; $day+=1*DAY) {
     if ($day == $firstDealDay) {                                    // drop leading bars of the first trading day
         $offset = (int)($firstDeal->time % DAY / MINUTES);
         array_splice($bars, 0, $offset);
-        if (($barTime=reset($bars)['time']) != $firstDeal->time) throw new RuntimeException('Unexpected Rosatrader price bar for '.gmDate('D, d-M-Y H:i:s', $firstDeal->time).' at offset '.$offset.' (found '.gmDate('H:i:s', $barTime).')');
+        if (($barTime=reset($bars)['time']) != $firstDeal->time) throw new RuntimeException('Unexpected Rosatrader price bar for '.gmdate('D, d-M-Y H:i:s', $firstDeal->time).' at offset '.$offset.' (found '.gmdate('H:i:s', $barTime).')');
         $partial = true;
     }
     else if ($day == $lastDealDay) {                                // drop trailing bars of the last trading day
         $offset = (int)($lastDeal->time % DAY / MINUTES);
         array_splice($bars, $offset+1);
-        if (($barTime=end($bars)['time']) != $lastDeal->time)    throw new RuntimeException('Unexpected Rosatrader price bar for '.gmDate('D, d-M-Y H:i:s', $lastDeal->time).' at offset '.$offset.' (found '.gmDate('H:i:s', $barTime).')');
+        if (($barTime=end($bars)['time']) != $lastDeal->time)    throw new RuntimeException('Unexpected Rosatrader price bar for '.gmdate('D, d-M-Y H:i:s', $lastDeal->time).' at offset '.$offset.' (found '.gmdate('H:i:s', $barTime).')');
         $partial = true;
     }
 
@@ -221,14 +221,14 @@ exit(0);
  * @return bool - success status
  */
 function saveBars($symbol, $day, array $bars, $partial = false) {
-    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
-    $shortDate = gmDate('D, d-M-Y', $day);
+    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.gettype($day));
+    $shortDate = gmdate('D, d-M-Y', $day);
 
     // re-check the bars
     if (!$partial) {
-        if (sizeOf($bars) != 1*DAY/MINUTES)                  throw new RuntimeException('Invalid number of bars for '.$shortDate.': '.sizeOf($bars));
-        if ($bars[   0]['time']%DAYS != 0)                   throw new RuntimeException('Invalid start bar for '.$shortDate.': '.gmDate('d-M-Y H:i:s', $bars[0]['time']));
-        if ($bars[1439]['time']%DAYS != 23*HOURS+59*MINUTES) throw new RuntimeException('Invalid end bar for '.$shortDate.':'.gmDate('d-M-Y H:i:s', end($bars)['time']));
+        if (sizeof($bars) != 1*DAY/MINUTES)                  throw new RuntimeException('Invalid number of bars for '.$shortDate.': '.sizeof($bars));
+        if ($bars[   0]['time']%DAYS != 0)                   throw new RuntimeException('Invalid start bar for '.$shortDate.': '.gmdate('d-M-Y H:i:s', $bars[0]['time']));
+        if ($bars[1439]['time']%DAYS != 23*HOURS+59*MINUTES) throw new RuntimeException('Invalid end bar for '.$shortDate.':'.gmdate('d-M-Y H:i:s', end($bars)['time']));
     }
 
     // convert bars into a binary string
@@ -246,10 +246,10 @@ function saveBars($symbol, $day, array $bars, $partial = false) {
     static $isLittleEndian = null; is_null($isLittleEndian) && $isLittleEndian=isLittleEndian();
     if (!$isLittleEndian) {
         $time  =        substr($data,  0, 4);
-        $open  = strRev(substr($data,  4, 8));
-        $high  = strRev(substr($data, 20, 8));
-        $low   = strRev(substr($data, 12, 8));
-        $close = strRev(substr($data, 28, 8));
+        $open  = strrev(substr($data,  4, 8));
+        $high  = strrev(substr($data, 20, 8));
+        $low   = strrev(substr($data, 12, 8));
+        $close = strrev(substr($data, 28, 8));
         $data  = $time.$open.$high.$low.$close;
     }
 
@@ -258,9 +258,9 @@ function saveBars($symbol, $day, array $bars, $partial = false) {
     // write binary data
     if ($saveRawRTData) {
         if (is_file($file=getVar('rtFile.pl.raw', $symbol, $day)))
-            return false(echoPre('[Error]   PL series '.$symbol.' for '.gmDate('D, d-M-Y', $day).' already exists'));
-        mkDirWritable(dirName($file));
-        $tmpFile = tempNam(dirName($file), baseName($file));
+            return false(echoPre('[Error]   PL series '.$symbol.' for '.gmdate('D, d-M-Y', $day).' already exists'));
+        mkDirWritable(dirname($file));
+        $tmpFile = tempnam(dirname($file), basename($file));
         file_put_contents($tmpFile, $data);
         rename($tmpFile, $file);
     }
@@ -283,16 +283,16 @@ function getVar($id, $symbol=null, $time=null) {
     if (array_key_exists(($key=$id.'|'.$symbol.'|'.$time), $varCache))
         return $varCache[$key];
 
-    if (!is_string($id))                       throw new IllegalTypeException('Illegal type of parameter $id: '.getType($id));
-    if (isSet($symbol) && !is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
-    if (isSet($time) && !is_int($time))        throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+    if (!is_string($id))                       throw new IllegalTypeException('Illegal type of parameter $id: '.gettype($id));
+    if (isset($symbol) && !is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.gettype($symbol));
+    if (isset($time) && !is_int($time))        throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
 
     $self = __FUNCTION__;
     static $dataDir; !$dataDir && $dataDir = Application::getConfig()['app.dir.data'];
 
     if ($id == 'rtDirDate') {                   // $yyyy/$mm/$dd                                                // local path date
         if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
-        $result = gmDate('Y/m/d', $time);
+        $result = gmdate('Y/m/d', $time);
     }
     else if ($id == 'rtDir') {                  // $dataDir/history/rosatrader/$type/$symbol/$rtDirDate         // local directory
         $type      = RosaSymbol::dao()->getByName($symbol)->getType();
@@ -322,7 +322,7 @@ function getVar($id, $symbol=null, $time=null) {
 
     $varCache[$key] = $result;
     (sizeof($varCache) > ($maxEntries=2048)) && echoPre('cache limit of '.$maxEntries.' entries hit')           // ~200KB
-                                               |echoPre('memory used: '.strLen(serialize($varCache)).' bytes')
+                                               |echoPre('memory used: '.strlen(serialize($varCache)).' bytes')
                                                |exit(1);
     return $result;
 }
@@ -336,7 +336,7 @@ function getVar($id, $symbol=null, $time=null) {
 function help($message = null) {
     if (is_null($message))
         $message = 'Generate a profit/loss timeseries for the trade history of a specified test.';
-    $self = baseName($_SERVER['PHP_SELF']);
+    $self = basename($_SERVER['PHP_SELF']);
 
 echo <<<HELP
 $message

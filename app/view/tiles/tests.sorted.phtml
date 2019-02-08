@@ -19,7 +19,7 @@ $tests = Test::dao()->findAll('select * from :Test order by strategy, created, r
 <?}?>
 
 
-Found <?=$size=sizeOf($tests)?> test<?=pluralize($size)?>
+Found <?=$size=sizeof($tests)?> test<?=pluralize($size)?>
 
 <table id="testTable" class="tablesorter">
 <thead>

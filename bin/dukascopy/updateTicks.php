@@ -55,7 +55,7 @@ use function rosasurfer\rt\fxtStrToTime;
 use function rosasurfer\rt\fxtTimezoneOffset;
 use function rosasurfer\rt\isWeekend;
 
-require(dirName(realPath(__FILE__)).'/../../app/init.php');
+require(dirname(realpath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');
 
 
@@ -176,22 +176,22 @@ function updateSymbol(RosaSymbol $symbol) {
  * @return bool - Erfolgsstatus
  */
 function checkHistory($symbol, $gmtHour, $fxtHour) {
-    if (!is_int($gmtHour)) throw new IllegalTypeException('Illegal type of parameter $gmtHour: '.getType($gmtHour));
-    if (!is_int($fxtHour)) throw new IllegalTypeException('Illegal type of parameter $fxtHour: '.getType($fxtHour));
-    $shortDate = gmDate('D, d-M-Y H:i', $fxtHour);
+    if (!is_int($gmtHour)) throw new IllegalTypeException('Illegal type of parameter $gmtHour: '.gettype($gmtHour));
+    if (!is_int($fxtHour)) throw new IllegalTypeException('Illegal type of parameter $fxtHour: '.gettype($fxtHour));
+    $shortDate = gmdate('D, d-M-Y H:i', $fxtHour);
 
     global $verbose, $saveCompressedDukascopyFiles, $saveRawDukascopyFiles, $saveRawRTData;
     static $lastDay=-1, $lastMonth=-1;
 
     // (1) nur an Handelstagen pruefen, ob die RT-History existiert und ggf. aktualisieren
     if (!isWeekend($fxtHour)) {
-        $day = (int) gmDate('d', $fxtHour);
+        $day = (int) gmdate('d', $fxtHour);
         if ($day != $lastDay) {
-            if ($verbose > 1) echoPre('[Info]    '.gmDate('d-M-Y', $fxtHour));
+            if ($verbose > 1) echoPre('[Info]    '.gmdate('d-M-Y', $fxtHour));
             else {
-                $month = (int) gmDate('m', $fxtHour);
+                $month = (int) gmdate('m', $fxtHour);
                 if ($month != $lastMonth) {
-                    if ($verbose > 0) echoPre('[Info]    '.gmDate('M-Y', $fxtHour));
+                    if ($verbose > 0) echoPre('[Info]    '.gmdate('M-Y', $fxtHour));
                     $lastMonth = $month;
                 }
             }
@@ -228,10 +228,10 @@ function checkHistory($symbol, $gmtHour, $fxtHour) {
         if (is_file($file=getVar('dukaFile.raw', $symbol, $gmtHour))) unlink($file);
     }
     // Dukascopy-Downloadverzeichnis der aktuellen Stunde, wenn es leer ist
-    if (is_dir($dir=getVar('rtDir', $symbol, $gmtHour))) @rmDir($dir);
+    if (is_dir($dir=getVar('rtDir', $symbol, $gmtHour))) @rmdir($dir);
     // lokales Historyverzeichnis der aktuellen Stunde, wenn Wochenende und es leer ist
     if (isWeekend($fxtHour)) {
-        if (is_dir($dir=getVar('rtDir', $symbol, $fxtHour))) @rmDir($dir);
+        if (is_dir($dir=getVar('rtDir', $symbol, $fxtHour))) @rmdir($dir);
     }
 
     return true;
@@ -249,9 +249,9 @@ function checkHistory($symbol, $gmtHour, $fxtHour) {
  * @return bool - Erfolgsstatus
  */
 function updateTicks($symbol, $gmtHour, $fxtHour) {
-    if (!is_int($gmtHour)) throw new IllegalTypeException('Illegal type of parameter $gmtHour: '.getType($gmtHour));
-    if (!is_int($fxtHour)) throw new IllegalTypeException('Illegal type of parameter $fxtHour: '.getType($fxtHour));
-    $shortDate = gmDate('D, d-M-Y H:i', $fxtHour);
+    if (!is_int($gmtHour)) throw new IllegalTypeException('Illegal type of parameter $gmtHour: '.gettype($gmtHour));
+    if (!is_int($fxtHour)) throw new IllegalTypeException('Illegal type of parameter $fxtHour: '.gettype($fxtHour));
+    $shortDate = gmdate('D, d-M-Y H:i', $fxtHour);
 
     // Tickdaten laden
     $ticks = loadTicks($symbol, $gmtHour, $fxtHour);
@@ -274,9 +274,9 @@ function updateTicks($symbol, $gmtHour, $fxtHour) {
  * @return array[]|bool - Array mit Tickdaten oder FALSE in case of errors
  */
 function loadTicks($symbol, $gmtHour, $fxtHour) {
-    if (!is_int($gmtHour)) throw new IllegalTypeException('Illegal type of parameter $gmtHour: '.getType($gmtHour));
-    if (!is_int($fxtHour)) throw new IllegalTypeException('Illegal type of parameter $fxtHour: '.getType($fxtHour));
-    $shortDate = gmDate('D, d-M-Y H:i', $fxtHour);
+    if (!is_int($gmtHour)) throw new IllegalTypeException('Illegal type of parameter $gmtHour: '.gettype($gmtHour));
+    if (!is_int($fxtHour)) throw new IllegalTypeException('Illegal type of parameter $fxtHour: '.gettype($fxtHour));
+    $shortDate = gmdate('D, d-M-Y H:i', $fxtHour);
 
     // Die Tickdaten der Handelsstunde werden in folgender Reihenfolge gesucht:
     //  - in bereits dekomprimierten Dukascopy-Dateien
@@ -326,9 +326,9 @@ function loadTicks($symbol, $gmtHour, $fxtHour) {
  * @return bool - Erfolgsstatus
  */
 function saveTicks($symbol, $gmtHour, $fxtHour, array $ticks) {
-    if (!is_int($gmtHour)) throw new IllegalTypeException('Illegal type of parameter $gmtHour: '.getType($gmtHour));
-    if (!is_int($fxtHour)) throw new IllegalTypeException('Illegal type of parameter $fxtHour: '.getType($fxtHour));
-    $shortDate = gmDate('D, d-M-Y H:i', $fxtHour);
+    if (!is_int($gmtHour)) throw new IllegalTypeException('Illegal type of parameter $gmtHour: '.gettype($gmtHour));
+    if (!is_int($fxtHour)) throw new IllegalTypeException('Illegal type of parameter $fxtHour: '.gettype($fxtHour));
+    $shortDate = gmdate('D, d-M-Y H:i', $fxtHour);
     global $saveRawRTData;
 
 
@@ -337,8 +337,8 @@ function saveTicks($symbol, $gmtHour, $fxtHour, array $ticks) {
     $size = sizeof($ticks);
     $fromHour = ($time=$ticks[      0]['time_fxt']) - $time%HOUR;
     $toHour   = ($time=$ticks[$size-1]['time_fxt']) - $time%HOUR;
-    if ($fromHour != $fxtHour) throw new RuntimeException('Ticks for '.$shortDate.' do not match the specified hour: $tick[0]=\''.gmDate('d-M-Y H:i:s \F\X\T', $ticks[0]['time_fxt']).'\'');
-    if ($fromHour != $toHour)  throw new RuntimeException('Ticks for '.$shortDate.' span multiple hours from=\''.gmDate('d-M-Y H:i:s \F\X\T', $ticks[0]['time_fxt']).'\' to=\''.gmDate('d-M-Y H:i:s \F\X\T', $ticks[$size-1]['time_fxt']).'\'');
+    if ($fromHour != $fxtHour) throw new RuntimeException('Ticks for '.$shortDate.' do not match the specified hour: $tick[0]=\''.gmdate('d-M-Y H:i:s \F\X\T', $ticks[0]['time_fxt']).'\'');
+    if ($fromHour != $toHour)  throw new RuntimeException('Ticks for '.$shortDate.' span multiple hours from=\''.gmdate('d-M-Y H:i:s \F\X\T', $ticks[0]['time_fxt']).'\' to=\''.gmdate('d-M-Y H:i:s \F\X\T', $ticks[$size-1]['time_fxt']).'\'');
 
 
     // (2) Ticks binaer packen
@@ -356,8 +356,8 @@ function saveTicks($symbol, $gmtHour, $fxtHour, array $ticks) {
             echoPre('[Error]   '.$symbol.' ticks for '.$shortDate.' already exists');
             return false;
         }
-        mkDirWritable(dirName($file));
-        $tmpFile = tempNam(dirName($file), baseName($file));
+        mkDirWritable(dirname($file));
+        $tmpFile = tempnam(dirname($file), basename($file));
         file_put_contents($tmpFile, $data);
         rename($tmpFile, $file);            // So kann eine existierende Datei niemals korrupt sein.
     }
@@ -382,14 +382,14 @@ function saveTicks($symbol, $gmtHour, $fxtHour, array $ticks) {
  * @return string - Content der heruntergeladenen Datei oder Leerstring, wenn die Resource nicht gefunden wurde (404-Fehler).
  */
 function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=false, $saveError=true) {
-    if (!is_int($gmtHour))    throw new IllegalTypeException('Illegal type of parameter $gmtHour: '.getType($gmtHour));
-    if (!is_int($fxtHour))    throw new IllegalTypeException('Illegal type of parameter $fxtHour: '.getType($fxtHour));
-    if (!is_bool($quiet))     throw new IllegalTypeException('Illegal type of parameter $quiet: '.getType($quiet));
-    if (!is_bool($saveData))  throw new IllegalTypeException('Illegal type of parameter $saveData: '.getType($saveData));
-    if (!is_bool($saveError)) throw new IllegalTypeException('Illegal type of parameter $saveError: '.getType($saveError));
+    if (!is_int($gmtHour))    throw new IllegalTypeException('Illegal type of parameter $gmtHour: '.gettype($gmtHour));
+    if (!is_int($fxtHour))    throw new IllegalTypeException('Illegal type of parameter $fxtHour: '.gettype($fxtHour));
+    if (!is_bool($quiet))     throw new IllegalTypeException('Illegal type of parameter $quiet: '.gettype($quiet));
+    if (!is_bool($saveData))  throw new IllegalTypeException('Illegal type of parameter $saveData: '.gettype($saveData));
+    if (!is_bool($saveError)) throw new IllegalTypeException('Illegal type of parameter $saveError: '.gettype($saveError));
     global$verbose;
 
-    $shortDate = gmDate('D, d-M-Y H:i', $fxtHour);
+    $shortDate = gmdate('D, d-M-Y H:i', $fxtHour);
     $url       = getVar('dukaUrl', $symbol, $gmtHour);
     if (!$quiet && $verbose > 1) echoPre('[Info]    '.$shortDate.'  downloading: '.$url);
 
@@ -423,7 +423,7 @@ function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=f
 
 
     // (3) Download-Success: 200 und Datei ist nicht leer
-    if ($status==200 && strLen($content)) {
+    if ($status==200 && strlen($content)) {
         // vorhandene Fehlerdateien loeschen (haben FXT-Namen)
         if (is_file($file=getVar('dukaFile.404',   $symbol, $fxtHour))) unlink($file);
         if (is_file($file=getVar('dukaFile.empty', $symbol, $fxtHour))) unlink($file);
@@ -431,7 +431,7 @@ function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=f
         // ist das Flag $saveData gesetzt, Content speichern
         if ($saveData) {
             mkDirWritable(getVar('rtDir', $symbol, $gmtHour));
-            $tmpFile = tempNam(dirName($file=getVar('dukaFile.compressed', $symbol, $gmtHour)), baseName($file));
+            $tmpFile = tempnam(dirname($file=getVar('dukaFile.compressed', $symbol, $gmtHour)), basename($file));
             file_put_contents($tmpFile, $content);
             if (is_file($file)) unlink($file);
             rename($tmpFile, $file);                                       // So kann eine existierende Datei niemals korrupt sein.
@@ -443,8 +443,8 @@ function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=f
     else {
         if ($saveError) {                                                 // Fehlerdatei unter FXT-Namen speichern
             $file = getVar($status==404 ? 'dukaFile.404':'dukaFile.empty', $symbol, $fxtHour);
-            mkDirWritable(dirName($file));
-            fClose(fOpen($file, 'wb'));
+            mkDirWritable(dirname($file));
+            fclose(fopen($file, 'wb'));
         }
 
         if (!$quiet) {
@@ -465,11 +465,11 @@ function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=f
  * @return array[] - Array mit Tickdaten
  */
 function loadCompressedDukascopyTickFile($file, $symbol, $gmtHour, $fxtHour) {
-    if (!is_string($file)) throw new IllegalTypeException('Illegal type of parameter $file: '.getType($file));
-    if (!is_int($fxtHour)) throw new IllegalTypeException('Illegal type of parameter $fxtHour: '.getType($fxtHour));
+    if (!is_string($file)) throw new IllegalTypeException('Illegal type of parameter $file: '.gettype($file));
+    if (!is_int($fxtHour)) throw new IllegalTypeException('Illegal type of parameter $fxtHour: '.gettype($fxtHour));
 
     global $verbose;
-    if ($verbose > 0) echoPre('[Info]    '.gmDate('D, d-M-Y H:i', $fxtHour).'  Dukascopy compressed tick file: '.Rost::relativePath($file));
+    if ($verbose > 0) echoPre('[Info]    '.gmdate('D, d-M-Y H:i', $fxtHour).'  Dukascopy compressed tick file: '.Rost::relativePath($file));
 
     return loadCompressedDukascopyTickData(file_get_contents($file), $symbol, $gmtHour, $fxtHour);
 }
@@ -481,7 +481,7 @@ function loadCompressedDukascopyTickFile($file, $symbol, $gmtHour, $fxtHour) {
  * @return array[] - Array mit Tickdaten
  */
 function loadCompressedDukascopyTickData($data, $symbol, $gmtHour, $fxtHour) {
-    if (!is_int($gmtHour)) throw new IllegalTypeException('Illegal type of parameter $gmtHour: '.getType($gmtHour));
+    if (!is_int($gmtHour)) throw new IllegalTypeException('Illegal type of parameter $gmtHour: '.gettype($gmtHour));
 
     global $saveRawDukascopyFiles;
     $saveAs = $saveRawDukascopyFiles ? getVar('dukaFile.raw', $symbol, $gmtHour) : null;
@@ -497,11 +497,11 @@ function loadCompressedDukascopyTickData($data, $symbol, $gmtHour, $fxtHour) {
  * @return array[] - Array mit Tickdaten
  */
 function loadRawDukascopyTickFile($file, $symbol, $gmtHour, $fxtHour) {
-    if (!is_string($file)) throw new IllegalTypeException('Illegal type of parameter $file: '.getType($file));
-    if (!is_int($fxtHour)) throw new IllegalTypeException('Illegal type of parameter $fxtHour: '.getType($fxtHour));
+    if (!is_string($file)) throw new IllegalTypeException('Illegal type of parameter $file: '.gettype($file));
+    if (!is_int($fxtHour)) throw new IllegalTypeException('Illegal type of parameter $fxtHour: '.gettype($fxtHour));
 
     global $verbose;
-    if ($verbose > 0) echoPre('[Info]    '.gmDate('D, d-M-Y H:i', $fxtHour).'  Dukascopy uncompressed tick file: '.Rost::relativePath($file));
+    if ($verbose > 0) echoPre('[Info]    '.gmdate('D, d-M-Y H:i', $fxtHour).'  Dukascopy uncompressed tick file: '.Rost::relativePath($file));
 
     return loadRawDukascopyTickData(file_get_contents($file), $symbol, $gmtHour, $fxtHour);
 }
@@ -513,9 +513,9 @@ function loadRawDukascopyTickFile($file, $symbol, $gmtHour, $fxtHour) {
  * @return array[] - Array mit Tickdaten
  */
 function loadRawDukascopyTickData($data, $symbol, $gmtHour, $fxtHour) {
-    if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
-    if (!is_int($gmtHour)) throw new IllegalTypeException('Illegal type of parameter $gmtHour: '.getType($gmtHour));
-    if (!is_int($fxtHour)) throw new IllegalTypeException('Illegal type of parameter $fxtHour: '.getType($fxtHour));
+    if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.gettype($data));
+    if (!is_int($gmtHour)) throw new IllegalTypeException('Illegal type of parameter $gmtHour: '.gettype($gmtHour));
+    if (!is_int($fxtHour)) throw new IllegalTypeException('Illegal type of parameter $fxtHour: '.gettype($fxtHour));
 
     // Ticks einlesen
     $ticks = Dukascopy::readTickData($data);
@@ -551,16 +551,16 @@ function getVar($id, $symbol=null, $time=null) {
     if (array_key_exists(($key=$id.'|'.$symbol.'|'.$time), $varCache))
         return $varCache[$key];
 
-    if (!is_string($id))                       throw new IllegalTypeException('Illegal type of parameter $id: '.getType($id));
-    if (isSet($symbol) && !is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
-    if (isSet($time) && !is_int($time))        throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+    if (!is_string($id))                       throw new IllegalTypeException('Illegal type of parameter $id: '.gettype($id));
+    if (isset($symbol) && !is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.gettype($symbol));
+    if (isset($time) && !is_int($time))        throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
 
     static $dataDir; !$dataDir && $dataDir = Application::getConfig()['app.dir.data'];
     $self = __FUNCTION__;
 
     if ($id == 'rtDirDate') {                   // $yyyy/$mmL/$dd                                               // lokales Pfad-Datum
         if (!$time)   throw new InvalidArgumentException('Invalid parameter $time: '.$time);
-        $result = gmDate('Y/m/d', $time);
+        $result = gmdate('Y/m/d', $time);
     }
     else if ($id == 'rtDir') {                  // $dataDir/history/rosatrader/$type/$symbol/$rtDirDate         // lokales Verzeichnis
         $type      = RosaSymbol::dao()->getByName($symbol)->getType();
@@ -569,45 +569,45 @@ function getVar($id, $symbol=null, $time=null) {
     }
     else if ($id == 'rtFile.raw') {             // $rtDir/${hour}h_ticks.bin                                    // lokale Datei ungepackt
         $rtDir  = $self('rtDir', $symbol, $time);
-        $hour   = gmDate('H', $time);
+        $hour   = gmdate('H', $time);
         $result = $rtDir.'/'.$hour.'h_ticks.bin';
     }
     else if ($id == 'rtFile.compressed') {      // $rtDir/${hour}h_ticks.rar                                    // lokale Datei gepackt
         $rtDir  = $self('rtDir', $symbol, $time);
-        $hour   = gmDate('H', $time);
+        $hour   = gmdate('H', $time);
         $result = $rtDir.'/'.$hour.'h_ticks.rar';
     }
     else if ($id == 'dukaFile.raw') {           // $rtDir/${hour}h_ticks.bin                                    // Dukascopy-Datei ungepackt
         $rtDir  = $self('rtDir', $symbol, $time);
-        $hour   = gmDate('H', $time);
+        $hour   = gmdate('H', $time);
         $result = $rtDir.'/'.$hour.'h_ticks.bin';
     }
     else if ($id == 'dukaFile.compressed') {    // $rtDir/${hour}h_ticks.bi5                                    // Dukascopy-Datei gepackt
         $rtDir  = $self('rtDir', $symbol, $time);
-        $hour   = gmDate('H', $time);
+        $hour   = gmdate('H', $time);
         $result = $rtDir.'/'.$hour.'h_ticks.bi5';
     }
     else if ($id == 'dukaUrlDate') {            // $yyyy/$mmD/$dd                                               // Dukascopy-URL-Datum
         if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
-        $yyyy   = gmDate('Y', $time);
-        $mmD    = strRight((string)(gmDate('m', $time)+99), 2);  // Januar = 00
-        $dd     = gmDate('d', $time);
+        $yyyy   = gmdate('Y', $time);
+        $mmD    = strRight((string)(gmdate('m', $time)+99), 2);  // Januar = 00
+        $dd     = gmdate('d', $time);
         $result = $yyyy.'/'.$mmD.'/'.$dd;
     }
     else if ($id == 'dukaUrl') {                // http://datafeed.dukascopy.com/datafeed/$symbol/$dukaUrlDate/${hour}h_ticks.bi5
         if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
         $dukaUrlDate = $self('dukaUrlDate', null, $time);
-        $hour        = gmDate('H', $time);
+        $hour        = gmdate('H', $time);
         $result      = 'http://datafeed.dukascopy.com/datafeed/'.$symbol.'/'.$dukaUrlDate.'/'.$hour.'h_ticks.bi5';
     }
     else if ($id == 'dukaFile.404') {           // $rtDir/${hour}h_ticks.404                                    // Download-Fehler 404
         $rtDir  = $self('rtDir', $symbol, $time);
-        $hour   = gmDate('H', $time);
+        $hour   = gmdate('H', $time);
         $result = $rtDir.'/'.$hour.'h_ticks.404';
     }
     else if ($id == 'dukaFile.empty') {         // $rtDir/${hour}h_ticks.na                                     // Download-Fehler leerer Response
         $rtDir  = $self('rtDir', $symbol, $time);
-        $hour   = gmDate('H', $time);
+        $hour   = gmdate('H', $time);
         $result = $rtDir.'/'.$hour.'h_ticks.na';
     }
     else {
@@ -627,10 +627,10 @@ function getVar($id, $symbol=null, $time=null) {
  * @param  string $message [optional] - zusaetzlich zur Syntax anzuzeigende Message (default: keine)
  */
 function help($message = null) {
-    if (isSet($message))
+    if (isset($message))
         echo $message.NL.NL;
 
-    $self = baseName($_SERVER['PHP_SELF']);
+    $self = basename($_SERVER['PHP_SELF']);
 
 echo <<<HELP
 

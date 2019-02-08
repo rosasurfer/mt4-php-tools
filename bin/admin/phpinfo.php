@@ -5,7 +5,7 @@
  */
 use rosasurfer\util\PHP;
 
-require(dirName(realPath(__FILE__)).'/../../app/init.php');
+require(dirname(realpath(__FILE__)).'/../../app/init.php');
 
-PHP::phpInfo();
+PHP::phpinfo();
 echo PHP_EOL.'loaded php.ini: "'.php_ini_loaded_file().'"'.PHP_EOL;

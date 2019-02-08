@@ -95,8 +95,8 @@ class Statistic extends RosatraderModel {
 
         // calculate statistics
         $trades       = $test->getTrades();                                 // TODO: order by closeTime
-        $numTrades    = sizeOf($trades);
-        $testDuration = (strToTime($test->getEndTime().' GMT') - strToTime($test->getStartTime().' GMT'))/DAYS;
+        $numTrades    = sizeof($trades);
+        $testDuration = (strtotime($test->getEndTime().' GMT') - strtotime($test->getStartTime().' GMT'))/DAYS;
         $tradesPerDay = $testDuration ? round($numTrades/($testDuration * 5/7), 1) : 0;
 
         $minDuration = PHP_INT_MAX;
@@ -113,15 +113,15 @@ class Statistic extends RosatraderModel {
 
         /** @var Order $trade */
         foreach ($trades as $trade) {
-            $tsOpen  = strToTime($trade->getOpenTime() .' GMT');            // $ts => timestamp
-            $tsClose = strToTime($trade->getCloseTime().' GMT');
+            $tsOpen  = strtotime($trade->getOpenTime() .' GMT');            // $ts => timestamp
+            $tsClose = strtotime($trade->getCloseTime().' GMT');
 
             $duration    = $tsClose - $tsOpen;
             $minDuration = min($minDuration, $duration);
             $maxDuration = max($maxDuration, $duration);
             $sumDuration += ($tsClose - $tsOpen);
 
-            $type       = strToLower($trade->getType());
+            $type       = strtolower($trade->getType());
             $openPrice  = $trade->getOpenPrice();
             $closePrice = $trade->getClosePrice();
 

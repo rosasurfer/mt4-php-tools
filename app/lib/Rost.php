@@ -106,13 +106,13 @@ class Rost extends StaticClass {
      * @param  string $message  - Nachricht
      */
     public static function sendSMS($receiver, $message) {
-        if (!is_string($receiver))   throw new IllegalTypeException('Illegal type of parameter $receiver: '.getType($receiver));
+        if (!is_string($receiver))   throw new IllegalTypeException('Illegal type of parameter $receiver: '.gettype($receiver));
         $receiver = trim($receiver);
-        if (strStartsWith($receiver, '+' )) $receiver = subStr($receiver, 1);
-        if (strStartsWith($receiver, '00')) $receiver = subStr($receiver, 2);
+        if (strStartsWith($receiver, '+' )) $receiver = substr($receiver, 1);
+        if (strStartsWith($receiver, '00')) $receiver = substr($receiver, 2);
         if (!ctype_digit($receiver)) throw new InvalidArgumentException('Invalid argument $receiver: "'.$receiver.'"');
 
-        if (!is_string($message))    throw new IllegalTypeException('Illegal type of parameter $message: '.getType($message));
+        if (!is_string($message))    throw new IllegalTypeException('Illegal type of parameter $message: '.gettype($message));
         $message = trim($message);
         if ($message == '')          throw new InvalidArgumentException('Invalid argument $message: "'.$message.'"');
 
@@ -120,7 +120,7 @@ class Rost extends StaticClass {
         $username = $config['username'];
         $password = $config['password'];
         $api_id   = $config['api_id'  ];
-        $message  = urlEncode($message);
+        $message  = urlencode($message);
         $url      = 'https://api.clickatell.com/http/sendmsg?user='.$username.'&password='.$password.'&api_id='.$api_id.'&to='.$receiver.'&text='.$message;
 
         // HTTP-Request erzeugen und ausfuehren
@@ -141,7 +141,7 @@ class Rost extends StaticClass {
      * @return string - Beschreibung
      */
     public static function operationTypeDescription($type) {
-        if (!is_int($type)) throw new IllegalTypeException('Illegal type of parameter $type: '.getType($type));
+        if (!is_int($type)) throw new IllegalTypeException('Illegal type of parameter $type: '.gettype($type));
 
         static $operationTypes = [
             OP_BUY       => 'Buy'       ,
@@ -153,7 +153,7 @@ class Rost extends StaticClass {
             OP_BALANCE   => 'Balance'   ,
             OP_CREDIT    => 'Credit'    ,
         ];
-        if (isSet($operationTypes[$type]))
+        if (isset($operationTypes[$type]))
             return $operationTypes[$type];
 
         throw new InvalidArgumentException('Invalid parameter $type: '.$type.' (not an operation type)');
@@ -243,7 +243,7 @@ class Rost extends StaticClass {
     public static function strToOrderType($value) {
         if (is_string($value)) {
             if (!strIsNumeric($value)) {
-                $value = strToUpper($value);
+                $value = strtoupper($value);
                 if (strStartsWith($value, 'OP_'))
                     $value = strRight($value, -3);
                 switch ($value) {
@@ -270,7 +270,7 @@ class Rost extends StaticClass {
             }
             return -1;
         }
-        throw new IllegalTypeException('Illegal type of parameter $value: '.getType($value));
+        throw new IllegalTypeException('Illegal type of parameter $value: '.gettype($value));
     }
 
 
@@ -284,9 +284,9 @@ class Rost extends StaticClass {
      * @return array - ROST_PRICE_BAR-Daten
      */
     public static function readBarData($data, $symbol) {
-        if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
+        if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.gettype($data));
 
-        $lenData = strLen($data); if ($lenData % self::BAR_SIZE) throw new RuntimeException('Odd length of passed '.$symbol.' data: '.$lenData.' (not an even Rost::BAR_SIZE)');
+        $lenData = strlen($data); if ($lenData % self::BAR_SIZE) throw new RuntimeException('Odd length of passed '.$symbol.' data: '.$lenData.' (not an even Rost::BAR_SIZE)');
         $bars = [];
 
         for ($offset=0; $offset < $lenData; $offset += self::BAR_SIZE) {
@@ -305,7 +305,7 @@ class Rost extends StaticClass {
      * @return array - ROST_PRICE_BAR-Daten
      */
     public static function readBarFile($fileName, $symbol) {
-        if (!is_string($fileName)) throw new IllegalTypeException('Illegal type of parameter $fileName: '.getType($fileName));
+        if (!is_string($fileName)) throw new IllegalTypeException('Illegal type of parameter $fileName: '.gettype($fileName));
         return self::readBarData(file_get_contents($fileName), $symbol);
     }
 
@@ -331,11 +331,11 @@ class Rost extends StaticClass {
      * @return int - Offset oder -1, wenn der Offset ausserhalb der Arraygrenzen liegt
      */
     public static function findTimeOffset(array $series, $time) {
-        if (!is_int($time))              throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+        if (!is_int($time))              throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
         $size = sizeof($series); if (!$size) return -1;
-        if (!is_array($series[0]))       throw new IllegalTypeException('Illegal type of element $series[0]: '.getType($series[0]));
-        if (!isSet($series[0]['time']))  throw new InvalidArgumentException('Invalid parameter $series[0]: '.getType($series[0].' (no index "time")'));
-        if (!is_int($series[0]['time'])) throw new IllegalTypeException('Illegal type of element $series[0][time]: '.getType($series[0]['time']));
+        if (!is_array($series[0]))       throw new IllegalTypeException('Illegal type of element $series[0]: '.gettype($series[0]));
+        if (!isset($series[0]['time']))  throw new InvalidArgumentException('Invalid parameter $series[0]: '.gettype($series[0].' (no index "time")'));
+        if (!is_int($series[0]['time'])) throw new IllegalTypeException('Illegal type of element $series[0][time]: '.gettype($series[0]['time']));
 
         $i     = -1;
         $iFrom =  0;
@@ -370,11 +370,11 @@ class Rost extends StaticClass {
      * @return int - Offset oder -1, wenn keine solche Bar existiert
      */
     public static function findBarOffset(array $bars, $period, $time) {
-        if (!is_int($period))              throw new IllegalTypeException('Illegal type of parameter $period: '.getType($period));
+        if (!is_int($period))              throw new IllegalTypeException('Illegal type of parameter $period: '.gettype($period));
         if (!MT4::isStdTimeframe($period)) throw new InvalidArgumentException('Invalid parameter $period: '.$period.' (not a standard timeframe)');
-        if (!is_int($time))                throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+        if (!is_int($time))                throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
 
-        $size = sizeOf($bars);
+        $size = sizeof($bars);
         if (!$size)
             return -1;
 
@@ -412,11 +412,11 @@ class Rost extends StaticClass {
      * @return int - Offset oder -1, wenn keine solche Bar existiert (der Zeitpunkt ist aelter als die aelteste Bar)
      */
     public static function findBarOffsetPrevious(array $bars, $period, $time) {
-        if (!is_int($period))              throw new IllegalTypeException('Illegal type of parameter $period: '.getType($period));
+        if (!is_int($period))              throw new IllegalTypeException('Illegal type of parameter $period: '.gettype($period));
         if (!MT4::isStdTimeframe($period)) throw new InvalidArgumentException('Invalid parameter $period: '.$period.' (not a standard timeframe)');
-        if (!is_int($time))                throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+        if (!is_int($time))                throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
 
-        $size = sizeOf($bars);
+        $size = sizeof($bars);
         if (!$size)
             return -1;
 
@@ -442,11 +442,11 @@ class Rost extends StaticClass {
      * @return int - Offset oder -1, wenn keine solche Bar existiert (der Zeitpunkt ist juenger als das Ende der juengsten Bar)
      */
     public static function findBarOffsetNext(array $bars, $period, $time) {
-        if (!is_int($period))              throw new IllegalTypeException('Illegal type of parameter $period: '.getType($period));
+        if (!is_int($period))              throw new IllegalTypeException('Illegal type of parameter $period: '.gettype($period));
         if (!MT4::isStdTimeframe($period)) throw new InvalidArgumentException('Invalid parameter $period: '.$period.' (not a standard timeframe)');
-        if (!is_int($time))                throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+        if (!is_int($time))                throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
 
-        $size = sizeOf($bars);
+        $size = sizeof($bars);
         if (!$size)
             return -1;
 
@@ -479,8 +479,8 @@ class Rost extends StaticClass {
      * @return int - Zeit
      */
     public static function periodCloseTime($time, $period) {
-        if (!is_int($time))                throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
-        if (!is_int($period))              throw new IllegalTypeException('Illegal type of parameter $period: '.getType($period));
+        if (!is_int($time))                throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
+        if (!is_int($period))              throw new IllegalTypeException('Illegal type of parameter $period: '.gettype($period));
         if (!MT4::isStdTimeframe($period)) throw new InvalidArgumentException('Invalid parameter $period: '.$period.' (not a standard timeframe)');
 
         if ($period <= PERIOD_D1) {
@@ -488,14 +488,14 @@ class Rost extends StaticClass {
             $closeTime = $openTime + $period*MINUTES;
         }
         else if ($period == PERIOD_W1) {
-            $dow       = (int) gmDate('w', $time);
+            $dow       = (int) gmdate('w', $time);
             $openTime  = $time - $time%DAY - (($dow+6)%7)*DAYS;         // 00:00, Montag
             $closeTime = $openTime + 1*WEEK;                            // 00:00, naechster Montag
         }
         else /*PERIOD_MN1*/ {
-            $m         = (int) gmDate('m', $time);
-            $y         = (int) gmDate('Y', $time);
-            $closeTime = gmMkTime(0, 0, 0, $m+1, 1, $y);                // 00:00, 1. des naechsten Monats
+            $m         = (int) gmdate('m', $time);
+            $y         = (int) gmdate('Y', $time);
+            $closeTime = gmmktime(0, 0, 0, $m+1, 1, $y);                // 00:00, 1. des naechsten Monats
         }
 
         return $closeTime;
@@ -520,15 +520,15 @@ class Rost extends StaticClass {
         if (array_key_exists(($key=$id.'|'.$symbol.'|'.$time), $varCache))
             return $varCache[$key];
 
-        if (!is_string($id))                       throw new IllegalTypeException('Illegal type of parameter $id: '.getType($id));
-        if (isSet($symbol) && !is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
-        if (isSet($time) && !is_int($time))        throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+        if (!is_string($id))                       throw new IllegalTypeException('Illegal type of parameter $id: '.gettype($id));
+        if (isset($symbol) && !is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.gettype($symbol));
+        if (isset($time) && !is_int($time))        throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
 
         static $dataDir; !$dataDir && $dataDir = self::di()['config']['app.dir.data'];
 
         if ($id == 'rtDirDate') {                       // $yyyy/$mm/$dd                                                // lokales Pfad-Datum
             if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
-            $result = gmDate('Y/m/d', $time);
+            $result = gmdate('Y/m/d', $time);
         }
         else if ($id == 'rtDir') {                      // $dataDir/history/rosatrader/$type/$symbol/$rtDirDate         // lokales Verzeichnis
             if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
@@ -561,16 +561,16 @@ class Rost extends StaticClass {
      * @return string
      */
     public static function relativePath($path) {
-        if (!is_string($path)) throw new IllegalTypeException('Illegal type of parameter $path: '.getType($path));
+        if (!is_string($path)) throw new IllegalTypeException('Illegal type of parameter $path: '.gettype($path));
         $_path = str_replace('\\', '/', $path);
 
         static $root, $realRoot, $data, $realData;
         if (!$root) {
             $config   = self::di()['config'];
             $root     = str_replace('\\', '/', $config['app.dir.root'].'/');
-            $realRoot = str_replace('\\', '/', realPath($root).'/');
+            $realRoot = str_replace('\\', '/', realpath($root).'/');
             $data     = str_replace('\\', '/', $config['app.dir.data'].'/');
-            $realData = str_replace('\\', '/', realPath($data).'/');
+            $realData = str_replace('\\', '/', realpath($data).'/');
         }
 
         if (strStartsWith($_path, $root))     return               strRightFrom($_path, $root);

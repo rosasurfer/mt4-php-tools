@@ -8,7 +8,7 @@ namespace rosasurfer\rt\metatrader\import_test;
 use rosasurfer\util\PHP;
 use rosasurfer\rt\model\Test;
 
-require(dirName(realPath(__FILE__)).'/../../app/init.php');
+require(dirname(realpath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');
 
 
@@ -30,7 +30,7 @@ foreach ($args as $i => $arg) {
     if ($arg == '-h')   exit(1|help());                                             // help
     if ($arg == '-v') { $verbose = max($verbose, 1); unset($args[$i]); continue; }  // verbose output
 }
-!sizeOf($args) && exit(1|help());
+!sizeof($args) && exit(1|help());
 
 // (1.1) remaining arguments must be files
 $files = [];
@@ -41,7 +41,7 @@ foreach ($args as $arg) {
     if (file_exists($value)) {                                              // explicite or shell expanded argument
         if (!is_file($value))
             continue;
-        $file = pathInfo(realPath($value));
+        $file = pathinfo(realpath($value));
         if ($file['extension']=='ini' || $file['extension']=='log') {
             $files[$file['filename']] = $file['dirname'];
         }
@@ -51,7 +51,7 @@ foreach ($args as $arg) {
         $entries = glob($value, GLOB_NOESCAPE|GLOB_BRACE|GLOB_ERR);
         foreach ($entries as $entry) {
             if (is_file($entry)) {
-                $file = pathInfo(realPath($entries));
+                $file = pathinfo(realpath($entries));
                 if ($file['extension']=='ini' || $file['extension']=='log') {
                     $files[$file['filename']] = $file['dirname'];
                 }
@@ -151,7 +151,7 @@ function processTestFiles(array $files) {
 function help($message = null) {
     if (is_null($message))
         $message = 'Import test logs into the database.';
-    $self = baseName($_SERVER['PHP_SELF']);
+    $self = basename($_SERVER['PHP_SELF']);
 
 echo <<<HELP
 $message

@@ -7,7 +7,7 @@ namespace rosasurfer\rt\metatrader\create_tickfile;
 
 use rosasurfer\rt\metatrader\MT4;
 
-require(dirName(realPath(__FILE__)).'/../../app/init.php');
+require(dirname(realpath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');
 
 
@@ -37,7 +37,7 @@ foreach ($args as $i => $arg) {
 
     // -s=SYMBOL
     if (strStartsWith($arg, '-s=')) {
-        if (isSet($options['symbol'])) exit(1|help('invalid/multiple symbol arguments: -s='.$arg));
+        if (isset($options['symbol'])) exit(1|help('invalid/multiple symbol arguments: -s='.$arg));
         $value = $arg = strRight($arg, -3);
         if (strIsQuoted($value))
             $value = strLeft(strRight($value, -1), 1);
@@ -48,7 +48,7 @@ foreach ($args as $i => $arg) {
 
     // -p=PERIOD
     if (strStartsWith($arg, '-p=')) {
-        if (isSet($options['period'])) exit(1|help('invalid/multiple period arguments: -p='.$arg));
+        if (isset($options['period'])) exit(1|help('invalid/multiple period arguments: -p='.$arg));
         $value = $arg = strRight($arg, -3);
         if (strIsQuoted($value))
             $value = strLeft(strRight($value, -1), 1);
@@ -64,39 +64,39 @@ foreach ($args as $i => $arg) {
 
     // -from=DATE
     if (strStartsWith($arg, '-from=')) {
-        if (isSet($options['startDate'])) exit(1|help('invalid/multiple start date arguments: -from='.$arg));
+        if (isset($options['startDate'])) exit(1|help('invalid/multiple start date arguments: -from='.$arg));
         $value = $arg = strRight($arg, -6);
         if (strIsQuoted($value))
             $value = strLeft(strRight($value, -1), 1);
         $timestamp = is_datetime($value, ['Y-m-d', 'Y.m.d', 'd.m.Y', 'd/m/Y']);
         if (!is_int($timestamp) || $timestamp < 0) exit(1|help('invalid start date: '.$arg));
         $options['startDate'] = $timestamp;
-        if (isSet($options['endDate']) && $options['startDate'] > $options['endDate']) {
-            exit(1|help('start date/end date mis-match: '.gmDate('Y.m.d', $options['startDate']).' > '.gmDate('Y.m.d', $options['endDate'])));
+        if (isset($options['endDate']) && $options['startDate'] > $options['endDate']) {
+            exit(1|help('start date/end date mis-match: '.gmdate('Y.m.d', $options['startDate']).' > '.gmdate('Y.m.d', $options['endDate'])));
         }
         continue;
     }
 
     // -to=DATE
     if (strStartsWith($arg, '-to=')) {
-        if (isSet($options['endDate'])) exit(1|help('invalid/multiple end date arguments: -to='.$arg));
+        if (isset($options['endDate'])) exit(1|help('invalid/multiple end date arguments: -to='.$arg));
         $value = $arg = strRight($arg, -4);
         if (strIsQuoted($value))
             $value = strLeft(strRight($value, -1), 1);
         $timestamp = is_datetime($value, ['Y-m-d', 'Y.m.d', 'd.m.Y', 'd/m/Y']);
         if (!is_int($timestamp) || $timestamp<=0) exit(1|help('invalid end date: '.$arg));
         $options['endDate'] = $timestamp;
-        if (isSet($options['startDate']) && $options['startDate'] > $options['endDate']) {
-            exit(1|help('start date/end date mis-match: '.gmDate('Y.m.d', $options['startDate']).' > '.gmDate('Y.m.d', $options['endDate'])));
+        if (isset($options['startDate']) && $options['startDate'] > $options['endDate']) {
+            exit(1|help('start date/end date mis-match: '.gmdate('Y.m.d', $options['startDate']).' > '.gmdate('Y.m.d', $options['endDate'])));
         }
         continue;
     }
 
     // -model=TYPE
     if (strStartsWith($arg, '-model=')) {
-        if (isSet($options['model'])) exit(1|help('invalid/multiple model arguments: -model='.$arg));
+        if (isset($options['model'])) exit(1|help('invalid/multiple model arguments: -model='.$arg));
         $arg   = strRight($arg, -7);
-        $value = strToUpper($arg);
+        $value = strtoupper($arg);
         if (strIsQuoted($value))
             $value = strLeft(strRight($value, -1), 1);
         if     (strStartsWith('REALTICKS',      $value)) $options['model'] = 'REALTICKS';
@@ -108,7 +108,7 @@ foreach ($args as $i => $arg) {
 
     // -spread=PIPS
     if (strStartsWith($arg, '-spread=')) {
-        if (isSet($options['spread'])) exit(1|help('invalid/multiple spread arguments: -spread='.$arg));
+        if (isset($options['spread'])) exit(1|help('invalid/multiple spread arguments: -spread='.$arg));
         $value = $arg = strRight($arg, -8);
         if (strIsQuoted($value))
             $value = strLeft(strRight($value, -1), 1);
@@ -121,12 +121,12 @@ foreach ($args as $i => $arg) {
         continue;
     }
 }
-if (!isSet($options['symbol'   ])) exit(1|help('missing symbol argument'));
-if (!isSet($options['period'   ])) exit(1|help('missing period argument'));
-if (!isSet($options['startDate'])) $options['startDate'] = 0;
-if (!isSet($options['endDate'  ])) $options['endDate'  ] = 0;
-if (!isSet($options['model'    ])) $options['model'    ] = 'REALTICKS';
-if (!isSet($options['spread'   ])) $options['spread'   ] = 0;
+if (!isset($options['symbol'   ])) exit(1|help('missing symbol argument'));
+if (!isset($options['period'   ])) exit(1|help('missing period argument'));
+if (!isset($options['startDate'])) $options['startDate'] = 0;
+if (!isset($options['endDate'  ])) $options['endDate'  ] = 0;
+if (!isset($options['model'    ])) $options['model'    ] = 'REALTICKS';
+if (!isset($options['spread'   ])) $options['spread'   ] = 0;
 
 
 echoPre($options);
@@ -144,7 +144,7 @@ exit(0);
 function help($message = null) {
     if (is_null($message))
         $message = 'Generates a MetaTrader Strategy Tester tick file for the specified symbol and timeframe.';
-    $self = baseName($_SERVER['PHP_SELF']);
+    $self = basename($_SERVER['PHP_SELF']);
 
 echo <<<HELP
 $message

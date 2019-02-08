@@ -36,7 +36,7 @@ class ViewTestActionForm extends ActionForm {
      * @return Test|null - Test instance or NULL if an associated test was not found
      */
     public function getTest() {
-        if (!isSet($this->test) && is_int($this->id)) {
+        if (!isset($this->test) && is_int($this->id)) {
             $this->test = Test::dao()->findById($this->id) ?: false;
         }
         return is_bool($this->test) ? null : $this->test;
@@ -58,7 +58,7 @@ class ViewTestActionForm extends ActionForm {
         $request = $this->request;
         $id = $this->id;
 
-        if     (!strLen($id))      $request->setActionError('id', 'Invalid test id.');
+        if     (!strlen($id))      $request->setActionError('id', 'Invalid test id.');
         elseif (!strIsDigits($id)) $request->setActionError('id', 'Invalid test id.');
         else {
             $this->id = (int) $id;

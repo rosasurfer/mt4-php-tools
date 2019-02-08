@@ -91,8 +91,8 @@ class Test extends RosatraderModel {
      * @return self
      */
     public static function create($configFile, $resultsFile) {
-        if (!is_string($configFile))  throw new IllegalTypeException('Illegal type of parameter $configFile: '.getType($configFile));
-        if (!is_string($resultsFile)) throw new IllegalTypeException('Illegal type of parameter $resultsFile: '.getType($resultsFile));
+        if (!is_string($configFile))  throw new IllegalTypeException('Illegal type of parameter $configFile: '.gettype($configFile));
+        if (!is_string($resultsFile)) throw new IllegalTypeException('Illegal type of parameter $resultsFile: '.gettype($resultsFile));
 
         $test          = new self();
         $test->created = date('Y-m-d H:i:s');
@@ -100,82 +100,82 @@ class Test extends RosatraderModel {
 
         // (1) parse the test results file
         PHP::ini_set('auto_detect_line_endings', 1);
-        $hFile = fOpen($resultsFile, 'rb');
+        $hFile = fopen($resultsFile, 'rb');
         $i = 0;
 
-        while (($line=fGets($hFile)) !== false) {
+        while (($line=fgets($hFile)) !== false) {
             $i++;
-            if (!strLen($line=trim($line))) continue;
+            if (!strlen($line=trim($line))) continue;
 
             if (!$test->startTime) {
                 // first line: test properties
                 $properties = self::parseTestProperties($line);
 
                 $time = $properties['time'];                  // GMT timestamp
-                if (!is_int($time))                           throw new IllegalTypeException('Illegal type of property "time": '.getType($time));
+                if (!is_int($time))                           throw new IllegalTypeException('Illegal type of property "time": '.gettype($time));
                 if ($time <= 0)                               throw new InvalidArgumentException('Invalid property "time": '.$time.' (not positive)');
-                $test->created = gmDate('Y-m-d H:i:s', $time);
+                $test->created = gmdate('Y-m-d H:i:s', $time);
 
                 $strategy = $properties['strategy'];
-                if (!is_string($strategy))                    throw new IllegalTypeException('Illegal type of property "strategy": '.getType($strategy));
+                if (!is_string($strategy))                    throw new IllegalTypeException('Illegal type of property "strategy": '.gettype($strategy));
                 if ($strategy != trim($strategy))             throw new InvalidArgumentException('Invalid property "strategy": "'.$strategy.'" (format violation)');
-                if (!strLen($strategy))                       throw new InvalidArgumentException('Invalid property "strategy": "'.$strategy.'" (length violation)');
-                if (strLen($strategy) > Windows::MAX_PATH)    throw new InvalidArgumentException('Invalid property "strategy": "'.$strategy.'" (length violation)');
+                if (!strlen($strategy))                       throw new InvalidArgumentException('Invalid property "strategy": "'.$strategy.'" (length violation)');
+                if (strlen($strategy) > Windows::MAX_PATH)    throw new InvalidArgumentException('Invalid property "strategy": "'.$strategy.'" (length violation)');
                 $test->strategy = $strategy;
 
                 $reportingId = $properties['reportingId'];
-                if (!is_int($reportingId))                    throw new IllegalTypeException('Illegal type of property "reportingId": '.getType($reportingId));
+                if (!is_int($reportingId))                    throw new IllegalTypeException('Illegal type of property "reportingId": '.gettype($reportingId));
                 if ($reportingId <= 0)                        throw new InvalidArgumentException('Invalid property "reportingId": '.$reportingId.' (not positive)');
                 $test->reportingId = $reportingId;
 
                 $symbol = $properties['reportingSymbol'];
-                if (!is_string($symbol))                      throw new IllegalTypeException('Illegal type of property "reportingSymbol": '.getType($symbol));
+                if (!is_string($symbol))                      throw new IllegalTypeException('Illegal type of property "reportingSymbol": '.gettype($symbol));
                 if ($symbol != trim($symbol))                 throw new InvalidArgumentException('Invalid property "reportingSymbol": "'.$symbol.'" (format violation)');
-                if (!strLen($symbol))                         throw new InvalidArgumentException('Invalid property "reportingSymbol": "'.$symbol.'" (length violation)');
-                if (strLen($symbol) > MT4::MAX_SYMBOL_LENGTH) throw new InvalidArgumentException('Invalid property "reportingSymbol": "'.$symbol.'" (length violation)');
+                if (!strlen($symbol))                         throw new InvalidArgumentException('Invalid property "reportingSymbol": "'.$symbol.'" (length violation)');
+                if (strlen($symbol) > MT4::MAX_SYMBOL_LENGTH) throw new InvalidArgumentException('Invalid property "reportingSymbol": "'.$symbol.'" (length violation)');
                 $test->reportingSymbol = $symbol;
 
                 $symbol = $properties['symbol'];
-                if (!is_string($symbol))                      throw new IllegalTypeException('Illegal type of property "symbol": '.getType($symbol));
+                if (!is_string($symbol))                      throw new IllegalTypeException('Illegal type of property "symbol": '.gettype($symbol));
                 if ($symbol != trim($symbol))                 throw new InvalidArgumentException('Invalid property "symbol": "'.$symbol.'" (format violation)');
-                if (!strLen($symbol))                         throw new InvalidArgumentException('Invalid property "symbol": "'.$symbol.'" (length violation)');
-                if (strLen($symbol) > MT4::MAX_SYMBOL_LENGTH) throw new InvalidArgumentException('Invalid property "symbol": "'.$symbol.'" (length violation)');
+                if (!strlen($symbol))                         throw new InvalidArgumentException('Invalid property "symbol": "'.$symbol.'" (length violation)');
+                if (strlen($symbol) > MT4::MAX_SYMBOL_LENGTH) throw new InvalidArgumentException('Invalid property "symbol": "'.$symbol.'" (length violation)');
                 $test->symbol = $symbol;
 
                 $timeframe = $properties['timeframe'];
-                if (!is_int($timeframe))                      throw new IllegalTypeException('Illegal type of property "timeframe": '.getType($timeframe));
+                if (!is_int($timeframe))                      throw new IllegalTypeException('Illegal type of property "timeframe": '.gettype($timeframe));
                 if (!MT4::isStdTimeframe($timeframe))         throw new InvalidArgumentException('Invalid property "timeframe": '.$timeframe.' (not a timeframe)');
                 $test->timeframe = $timeframe;
 
                 $startTime = $properties['startTime'];        // FXT timestamp
-                if (!is_int($startTime))                      throw new IllegalTypeException('Illegal type of property "startTime": '.getType($startTime));
+                if (!is_int($startTime))                      throw new IllegalTypeException('Illegal type of property "startTime": '.gettype($startTime));
                 if ($startTime <= 0)                          throw new InvalidArgumentException('Invalid property "startTime": '.$startTime.' (not positive)');
-                $test->startTime = gmDate('Y-m-d H:i:s', $startTime);
+                $test->startTime = gmdate('Y-m-d H:i:s', $startTime);
 
                 $endTime = $properties['endTime'];            // FXT timestamp
-                if (!is_int($endTime))                        throw new IllegalTypeException('Illegal type of property "endTime": '.getType($endTime));
+                if (!is_int($endTime))                        throw new IllegalTypeException('Illegal type of property "endTime": '.gettype($endTime));
                 if ($endTime <= 0)                            throw new InvalidArgumentException('Invalid property "endTime": '.$endTime.' (not positive)');
                 if ($startTime > $endTime)                    throw new InvalidArgumentException('Invalid properties "startTime|endTime": '.$startTime.'|'.$endTime.' (mis-match)');
-                $test->endTime = gmDate('Y-m-d H:i:s', $endTime);
+                $test->endTime = gmdate('Y-m-d H:i:s', $endTime);
 
                 $barModel = $properties['barModel'];
-                if (!is_int($barModel))                       throw new IllegalTypeException('Illegal type of property "barModel": '.getType($barModel));
+                if (!is_int($barModel))                       throw new IllegalTypeException('Illegal type of property "barModel": '.gettype($barModel));
                 if (!MT4::isBarModel($barModel))              throw new InvalidArgumentException('Invalid property "barModel": '.$barModel.' (not a bar model)');
                 $test->barModel = MT4::barModelDescription($barModel);
 
                 $spread = $properties['spread'];
-                if (!is_float($spread))                       throw new IllegalTypeException('Illegal type of property "spread": '.getType($spread));
+                if (!is_float($spread))                       throw new IllegalTypeException('Illegal type of property "spread": '.gettype($spread));
                 if ($spread < 0)                              throw new InvalidArgumentException('Invalid property "spread": '.$spread.' (not non-negative)');
                 if ($spread != round($spread, 1))             throw new InvalidArgumentException('Invalid property "spread": '.$spread.' (illegal)');
                 $test->spread = $spread;
 
                 $bars = $properties['bars'];
-                if (!is_int($bars))                           throw new IllegalTypeException('Illegal type of property "bars": '.getType($bars));
+                if (!is_int($bars))                           throw new IllegalTypeException('Illegal type of property "bars": '.gettype($bars));
                 if ($bars <= 0)                               throw new InvalidArgumentException('Invalid property "bars": '.$bars.' (not positive)');
                 $test->bars = $bars;
 
                 $ticks = $properties['ticks'];
-                if (!is_int($ticks))                          throw new IllegalTypeException('Illegal type of property "ticks": '.getType($ticks));
+                if (!is_int($ticks))                          throw new IllegalTypeException('Illegal type of property "ticks": '.gettype($ticks));
                 if ($ticks <= 0)                              throw new InvalidArgumentException('Invalid property "ticks": '.$ticks.' (not positive)');
                 $test->ticks = $ticks;
 
@@ -192,14 +192,14 @@ class Test extends RosatraderModel {
                 $test->trades[] = $order;
             }
         }
-        fClose($hFile);
+        fclose($hFile);
 
 
         // (2) parse the test config file
         $content = normalizeEOL(file_get_contents($configFile));
                                                                         // increase RegExp limit if needed
         static $pcreLimit = null; !$pcreLimit && $pcreLimit = ini_get_int('pcre.backtrack_limit');
-        if (strLen($content) > $pcreLimit) PHP::ini_set('pcre.backtrack_limit', $pcreLimit = strLen($content));
+        if (strlen($content) > $pcreLimit) PHP::ini_set('pcre.backtrack_limit', $pcreLimit = strlen($content));
 
         // tradeDirections
         $pattern = '|^\s*<common\s*>\s*\n(?:.*\n)*(\s*positions\s*=\s*(.+)\s*\n)(?:.*\n)*\s*</common>|imU';
@@ -213,9 +213,9 @@ class Test extends RosatraderModel {
         $params = explode(NL, trim($matches[1]));
 
         foreach ($params as $i => $line) {
-            if (strLen($line = trim($line))) {
+            if (strlen($line = trim($line))) {
                 $values = explode('=', $line, 2);
-                if (sizeOf($values) < 2) throw new IllegalArgumentException('Illegal input parameter "'.$params[$i].'" in test config file "'.$configFile.'"');
+                if (sizeof($values) < 2) throw new IllegalArgumentException('Illegal input parameter "'.$params[$i].'" in test config file "'.$configFile.'"');
                 if (strContains($values[0], ','))
                     continue;
                 $test->strategyParameters[] = StrategyParameter::create($test, $values[0], $values[1]);
@@ -244,7 +244,7 @@ class Test extends RosatraderModel {
      * @return int
      */
     public function countTrades() {
-        return sizeOf($this->getTrades());
+        return sizeof($this->getTrades());
     }
 
 
@@ -256,7 +256,7 @@ class Test extends RosatraderModel {
      * @return mixed[] - associative array with parsed properties
      */
     private static function parseTestProperties($values) {
-        if (!is_string($values)) throw new IllegalTypeException('Illegal type of parameter $values: '.getType($values));
+        if (!is_string($values)) throw new IllegalTypeException('Illegal type of parameter $values: '.gettype($values));
         $valuesOrig = $values;
         $values     = trim($values);
         $properties = [];
@@ -264,7 +264,7 @@ class Test extends RosatraderModel {
         $oldTimezone = date_default_timezone_get();
         try {                                                          // increase RegExp limit if needed
             static $pcreLimit = null; !$pcreLimit && $pcreLimit = ini_get_int('pcre.backtrack_limit');
-            if (strLen($values) > $pcreLimit) PHP::ini_set('pcre.backtrack_limit', $pcreLimit=strLen($values));
+            if (strlen($values) > $pcreLimit) PHP::ini_set('pcre.backtrack_limit', $pcreLimit=strlen($values));
 
             // test={id=0, time="Tue, 10-Jan-2017 23:36:38", strategy="MyFX Example MA", reportingId=2, reportingSymbol="MyFXExa.002", symbol="EURUSD", timeframe=PERIOD_M1, startTime="Tue, 01-Dec-2015 00:03:00", endTime="Thu, 31-Dec-2015 23:58:59", barModel=0, spread=0.1, bars=31535, ticks=31536, accountDeposit=100000.00, accountCurrency="USD", tradeDirections=0, visualMode=FALSE, duration=1.544 s, orders=1451}
             if (!strStartsWith($values, 'test=')) throw new InvalidArgumentException('Unsupported test properties format: "'.$valuesOrig.'"');
@@ -272,7 +272,7 @@ class Test extends RosatraderModel {
 
             // {id=0, time="Tue, 10-Jan-2017 23:36:38", strategy="MyFX Example MA", reportingId=2, reportingSymbol="MyFXExa.002", symbol="EURUSD", timeframe=PERIOD_M1, startTime="Tue, 01-Dec-2015 00:03:00", endTime="Thu, 31-Dec-2015 23:58:59", barModel=0, spread=0.1, bars=31535, ticks=31536, accountDeposit=100000.00, accountCurrency="USD", tradeDirections=0, visualMode=FALSE, duration=1.544 s, orders=1451}
             if (!strStartsWith($values, '{') || !strEndsWith($values, '}')) throw new InvalidArgumentException('Unsupported test properties format: "'.$valuesOrig.'"');
-            $values = ', '.trim(subStr($values, 1, strLen($values)-2)).', ';
+            $values = ', '.trim(substr($values, 1, strlen($values)-2)).', ';
             // ', id=0, time="Tue, 10-Jan-2017 23:36:38", strategy="MyFX Example MA", reportingId=2, reportingSymbol="MyFXExa.002", symbol="EURUSD", timeframe=PERIOD_M1, startTime="Tue, 01-Dec-2015 00:03:00", endTime="Thu, 31-Dec-2015 23:58:59", barModel=0, spread=0.1, bars=31535, ticks=31536, accountDeposit=100000.00, accountCurrency="USD", tradeDirections=0, visualMode=FALSE, duration=1.544 s, orders=1451, '
 
             // id
@@ -286,7 +286,7 @@ class Test extends RosatraderModel {
             if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal test properties ("time" invalid or not found): "'.$valuesOrig.'"');
 
             date_default_timezone_set(ini_get('date.timezone'));
-            if (!$time = strToTime($matches[1][0]))                              throw new IllegalArgumentException('Illegal test property "time": "'.$matches[1][0].'"');
+            if (!$time = strtotime($matches[1][0]))                              throw new IllegalArgumentException('Illegal test property "time": "'.$matches[1][0].'"');
             $properties['time'] = $time;
             if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal test properties (multiple "time" occurrences): "'.$valuesOrig.'"');
 
@@ -325,7 +325,7 @@ class Test extends RosatraderModel {
             $pattern = '/, *startTime *= *"([^"]+)" *,/i';
             if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal test properties ("startTime" invalid or not found): "'.$valuesOrig.'"');
             date_default_timezone_set('GMT');
-            if (!$time = strToTime($matches[1][0]))                              throw new IllegalArgumentException('Illegal test property "startTime": "'.$matches[1][0].'"');
+            if (!$time = strtotime($matches[1][0]))                              throw new IllegalArgumentException('Illegal test property "startTime": "'.$matches[1][0].'"');
             $properties['startTime'] = $time;
             if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal test properties (multiple "startTime" occurrences): "'.$valuesOrig.'"');
 
@@ -333,7 +333,7 @@ class Test extends RosatraderModel {
             $pattern = '/, *endTime *= *"([^"]+)" *,/i';
             if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal test properties ("endTime" invalid or not found): "'.$valuesOrig.'"');
             date_default_timezone_set('GMT');
-            if (!$time = strToTime($matches[1][0]))                              throw new IllegalArgumentException('Illegal test property "endTime": "'.$matches[1][0].'"');
+            if (!$time = strtotime($matches[1][0]))                              throw new IllegalArgumentException('Illegal test property "endTime": "'.$matches[1][0].'"');
             $properties['endTime'] = $time;
             if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal test properties (multiple "endTime" occurrences): "'.$valuesOrig.'"');
 
@@ -377,13 +377,13 @@ class Test extends RosatraderModel {
      * @return mixed[] - associative array with parsed properties
      */
     private static function parseOrderProperties($values) {
-        if (!is_string($values)) throw new IllegalTypeException('Illegal type of parameter $values: '.getType($values));
+        if (!is_string($values)) throw new IllegalTypeException('Illegal type of parameter $values: '.gettype($values));
         $valuesOrig = $values;
         $values     = trim($values);
         $properties = [];
                                                                                             // increase RegExp limit if needed
         static $pcreLimit = null; !$pcreLimit && $pcreLimit = ini_get_int('pcre.backtrack_limit');
-        if (strLen($values) > $pcreLimit) PHP::ini_set('pcre.backtrack_limit', $pcreLimit=strLen($values));
+        if (strlen($values) > $pcreLimit) PHP::ini_set('pcre.backtrack_limit', $pcreLimit=strlen($values));
 
         // order.0={id=0, ticket=1, type=OP_SELL, lots=0.10, symbol="EURUSD", openPrice=1.05669, openTime="Tue, 01-Dec-2015 00:22:00", stopLoss=0, takeProfit=0, closePrice=1.05685, closeTime="Tue, 01-Dec-2015 00:29:00", commission=-0.43, swap=0.00, profit=-1.60, magicNumber=0, comment=""}
         if (!strStartsWith($values, 'order.')) throw new InvalidArgumentException('Unsupported order properties format: "'.$valuesOrig.'"');
@@ -392,11 +392,11 @@ class Test extends RosatraderModel {
         // 0={id=0, ticket=1, type=OP_SELL, lots=0.10, symbol="EURUSD", openPrice=1.05669, openTime="Tue, 01-Dec-2015 00:22:00", stopLoss=0, takeProfit=0, closePrice=1.05685, closeTime="Tue, 01-Dec-2015 00:29:00", commission=-0.43, swap=0.00, profit=-1.60, magicNumber=0, comment=""}
         $prefix = strLeftTo($values, '=', 1, false, null);
         if (!strIsDigits($prefix)) throw new InvalidArgumentException('Unsupported order properties format: "'.$valuesOrig.'"');
-        $values = trim(substr($values, strLen($prefix)+1));
+        $values = trim(substr($values, strlen($prefix)+1));
 
         // {id=0, ticket=1, type=OP_SELL, lots=0.10, symbol="EURUSD", openPrice=1.05669, openTime="Tue, 01-Dec-2015 00:22:00", stopLoss=0, takeProfit=0, closePrice=1.05685, closeTime="Tue, 01-Dec-2015 00:29:00", commission=-0.43, swap=0.00, profit=-1.60, magicNumber=0, comment=""}
         if (!strStartsWith($values, '{') || !strEndsWith($values, '}')) throw new InvalidArgumentException('Unsupported order properties format: "'.$valuesOrig.'"');
-        $values = ', '.trim(subStr($values, 1, strLen($values)-2)).', ';
+        $values = ', '.trim(substr($values, 1, strlen($values)-2)).', ';
         // ', id=0, ticket=1, type=OP_SELL, lots=0.10, symbol="EURUSD", openPrice=1.05669, openTime="Tue, 01-Dec-2015 00:22:00", stopLoss=0, takeProfit=0, closePrice=1.05685, closeTime="Tue, 01-Dec-2015 00:29:00", commission=-0.43, swap=0.00, profit=-1.60, magicNumber=0, comment="", '
 
         // id
@@ -441,7 +441,7 @@ class Test extends RosatraderModel {
         // openTime (FXT)
         $pattern = '/, *openTime *= *"([^"]+)" *,/i';
         if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal order properties ("openTime" invalid or not found): "'.$valuesOrig.'"');
-        if (!$time = strToTime($matches[1][0]))                              throw new IllegalArgumentException('Illegal order property "openTime": "'.$matches[1][0].'"');
+        if (!$time = strtotime($matches[1][0]))                              throw new IllegalArgumentException('Illegal order property "openTime": "'.$matches[1][0].'"');
         $properties['openTime'] = $time;
         if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal order properties (multiple "openTime" occurrences): "'.$valuesOrig.'"');
 
@@ -473,7 +473,7 @@ class Test extends RosatraderModel {
             if ($time != '0')                                                 throw new IllegalArgumentException('Illegal order property "closeTime": "'.$matches[1][0].'"');
             $time = 0;
         }
-        else if (!$time = strToTime(subStr($time, 1, strLen($time)-2)))      throw new IllegalArgumentException('Illegal order property "closeTime": "'.$matches[1][0].'"');
+        else if (!$time = strtotime(substr($time, 1, strlen($time)-2)))      throw new IllegalArgumentException('Illegal order property "closeTime": "'.$matches[1][0].'"');
         $properties['closeTime'] = $time;
         if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal order properties (multiple "closeTime" occurrences): "'.$valuesOrig.'"');
 
@@ -522,7 +522,7 @@ class Test extends RosatraderModel {
      * @return $this
      */
     public function setReportingId($id) {
-        if (!is_int($id)) throw new IllegalTypeException('Illegal type of parameter $id: '.getType($id));
+        if (!is_int($id)) throw new IllegalTypeException('Illegal type of parameter $id: '.gettype($id));
         if ($id <= 0)     throw new InvalidArgumentException('Invalid parameter $id: '.$id.' (not positive)');
 
         $this->reportingId = $id;

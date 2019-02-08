@@ -54,7 +54,7 @@ use function rosasurfer\rt\fxtStrToTime;
 use function rosasurfer\rt\fxtTimezoneOffset;
 use function rosasurfer\rt\isWeekend;
 
-require(dirName(realPath(__FILE__)).'/../../app/init.php');
+require(dirname(realpath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');
 
 
@@ -137,7 +137,7 @@ function updateSymbol(RosaSymbol $symbol) {
     // Pruefen, ob sich der Startzeitpunkt der History des Symbols geaendert hat
     if (array_search($symbolName, ['USDNOK', 'USDSEK', 'USDSGD', 'USDZAR', 'XAUUSD']) === false) {
         $content = downloadData($symbolName, $day=$startTime-1*DAY, $type='bid', $quiet=true, $saveData=false, $saveError=false);
-        if (strLen($content)) {
+        if (strlen($content)) {
             echoPre('[Notice]  '.$symbolName.' M1 history was extended. Please update the history start time.');
         }
     }
@@ -148,9 +148,9 @@ function updateSymbol(RosaSymbol $symbol) {
     $today = ($today=time()) - $today%DAY;                              // 00:00 GMT aktueller Tag
 
     for ($day=$startTime; $day < $today; $day+=1*DAY) {
-        $month = (int) gmDate('m', $day);
+        $month = (int) gmdate('m', $day);
         if ($month != $lastMonth) {
-            if ($verbose > 0) echoPre('[Info]    '.gmDate('M-Y', $day).'  checking for existing history files');
+            if ($verbose > 0) echoPre('[Info]    '.gmdate('M-Y', $day).'  checking for existing history files');
             $lastMonth = $month;
         }
         if (!checkHistory($symbolName, $day)) return false;
@@ -172,7 +172,7 @@ function updateSymbol(RosaSymbol $symbol) {
  * @return bool - Erfolgsstatus
  */
 function checkHistory($symbol, $day) {
-    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
+    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.gettype($day));
     global $verbose, $barBuffer;
 
     $config           = Application::getConfig();
@@ -180,7 +180,7 @@ function checkHistory($symbol, $day) {
     $keepDecompressed = $config->getBool('rt.dukascopy.keep-decompressed');
     $compressHistory  = $config->getBool('rt.history.compress');
 
-    $shortDate = gmDate('D, d-M-Y', $day);
+    $shortDate = gmdate('D, d-M-Y', $day);
     $day      -= $day%DAY;                                              // 00:00 GMT
 
     // (1) nur an Wochentagen: pruefen, ob die RT-History existiert und ggf. aktualisieren
@@ -202,7 +202,7 @@ function checkHistory($symbol, $day) {
 
     // (2) an allen Tagen: nicht mehr benoetigte Dateien, Verzeichnisse und Barbuffer-Daten loeschen
     $previousDay   = $day - 1*DAY;
-    $shortDatePrev = gmDate('D, d-M-Y', $previousDay);
+    $shortDatePrev = gmdate('D, d-M-Y', $previousDay);
 
     // Dukascopy-Downloads (gepackt) des Vortages
     if (!$keepDownloads) {
@@ -217,11 +217,11 @@ function checkHistory($symbol, $day) {
 
     // lokales Historyverzeichnis des Vortages, wenn Wochenende und es leer ist
     if (isWeekend($previousDay)) {
-        if (is_dir($dir=getVar('rtDir', $symbol, $previousDay))) @rmDir($dir);
+        if (is_dir($dir=getVar('rtDir', $symbol, $previousDay))) @rmdir($dir);
     }
     // lokales Historyverzeichnis des aktuellen Tages, wenn Wochenende und es leer ist
     if (isWeekend($day)) {
-        if (is_dir($dir=getVar('rtDir', $symbol, $day))) @rmDir($dir);
+        if (is_dir($dir=getVar('rtDir', $symbol, $day))) @rmdir($dir);
     }
 
     // Barbuffer-Daten des Vortages
@@ -248,14 +248,14 @@ function checkHistory($symbol, $day) {
  * @return bool - Erfolgsstatus
  */
 function updateHistory($symbol, $day) {
-    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
+    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.gettype($day));
     global $barBuffer;
-    $shortDate = gmDate('D, d-M-Y', $day);
+    $shortDate = gmdate('D, d-M-Y', $day);
 
     // Bid- und Ask-Daten im Barbuffer suchen und ggf. laden
     $types = ['bid', 'ask'];
     foreach ($types as $type) {
-        if (!isSet($barBuffer[$type][$shortDate]) || sizeOf($barBuffer[$type][$shortDate])!=1*DAY/MINUTES)
+        if (!isset($barBuffer[$type][$shortDate]) || sizeof($barBuffer[$type][$shortDate])!=1*DAY/MINUTES)
             if (!loadHistory($symbol, $day, $type)) return false;
     }
 
@@ -279,12 +279,12 @@ function updateHistory($symbol, $day) {
  * @return bool - Erfolgsstatus
  */
 function loadHistory($symbol, $day, $type) {
-    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
+    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.gettype($day));
     global $barBuffer; $barBuffer[$type];
 
     $config        = Application::getConfig();
     $keepDownloads = $config->getBool('rt.dukascopy.keep-downloads');
-    $shortDate     = gmDate('D, d-M-Y', $day);
+    $shortDate     = gmdate('D, d-M-Y', $day);
 
     // Fuer jeden Forex-Tag werden die GMT-Dukascopy-Daten des vorherigen und des aktuellen Tages benoetigt.
     // Die Daten werden jeweils in folgender Reihenfolge gesucht:
@@ -299,7 +299,7 @@ function loadHistory($symbol, $day, $type) {
 
     // (1) Daten des vorherigen Tages suchen bzw. bereitstellen
     // im Buffer nachschauen
-    if (!$previousDayData && isSet($barBuffer[$type][$shortDate])) {              // Beginnen die Daten im Buffer mit 00:00, liegt
+    if (!$previousDayData && isset($barBuffer[$type][$shortDate])) {              // Beginnen die Daten im Buffer mit 00:00, liegt
         $previousDayData = ($barBuffer[$type][$shortDate][0]['delta_fxt'] == 0);   // der Teil des vorherigen GMT-Tags dort schon bereit.
     }
     // dekomprimierte Dukascopy-Datei suchen und verarbeiten
@@ -327,8 +327,8 @@ function loadHistory($symbol, $day, $type) {
 
     // (2) Daten des aktuellen Tages suchen bzw.bereitstellen
     // im Buffer nachschauen
-    if (!$currentDayData && isSet($barBuffer[$type][$shortDate])) {               // Enden die Daten im Buffer mit 23:59, liegt
-        $size = sizeOf($barBuffer[$type][$shortDate]);                             // der Teil des aktuellen GMT-Tags dort schon bereit.
+    if (!$currentDayData && isset($barBuffer[$type][$shortDate])) {               // Enden die Daten im Buffer mit 23:59, liegt
+        $size = sizeof($barBuffer[$type][$shortDate]);                             // der Teil des aktuellen GMT-Tags dort schon bereit.
         $currentDayData = ($barBuffer[$type][$shortDate][$size-1]['delta_fxt'] == 23*HOURS+59*MINUTES);
     }
     // dekomprimierte Dukascopy-Datei suchen und verarbeiten
@@ -368,15 +368,15 @@ function loadHistory($symbol, $day, $type) {
  * @return bool - Erfolgsstatus
  */
 function mergeHistory($symbol, $day) {
-    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
-    $shortDate = gmDate('D, d-M-Y', $day);
+    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.gettype($day));
+    $shortDate = gmdate('D, d-M-Y', $day);
     global $barBuffer;
 
 
     // (1) beide Datenreihen nochmal pruefen
     $types = ['bid', 'ask'];
     foreach ($types as $type) {
-        if (!isSet($barBuffer[$type][$shortDate]) || ($size=sizeOf($barBuffer[$type][$shortDate]))!=1*DAY/MINUTES)
+        if (!isset($barBuffer[$type][$shortDate]) || ($size=sizeof($barBuffer[$type][$shortDate]))!=1*DAY/MINUTES)
             throw new RuntimeException('Unexpected number of Rosatrader '.$type.' bars for '.$shortDate.' in bar buffer: '.$size.' ('.($size > 1*DAY/MINUTES ? 'more':'less').' then a day)');
     }
 
@@ -428,12 +428,12 @@ function mergeHistory($symbol, $day) {
  * @return string - Content der heruntergeladenen Datei oder Leerstring, wenn die Resource nicht gefunden wurde (404-Fehler).
  */
 function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $saveError=true) {
-    if (!is_int($day))        throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
-    if (!is_bool($quiet))     throw new IllegalTypeException('Illegal type of parameter $quiet: '.getType($quiet));
-    if (!is_bool($saveData))  throw new IllegalTypeException('Illegal type of parameter $saveData: '.getType($saveData));
-    if (!is_bool($saveError)) throw new IllegalTypeException('Illegal type of parameter $saveError: '.getType($saveError));
+    if (!is_int($day))        throw new IllegalTypeException('Illegal type of parameter $day: '.gettype($day));
+    if (!is_bool($quiet))     throw new IllegalTypeException('Illegal type of parameter $quiet: '.gettype($quiet));
+    if (!is_bool($saveData))  throw new IllegalTypeException('Illegal type of parameter $saveData: '.gettype($saveData));
+    if (!is_bool($saveError)) throw new IllegalTypeException('Illegal type of parameter $saveError: '.gettype($saveError));
 
-    $shortDate = gmDate('D, d-M-Y', $day);
+    $shortDate = gmdate('D, d-M-Y', $day);
     $url       = getVar('dukaUrl', $symbol, $day, $type);
     if (!$quiet) echoPre('[Info]    '.$shortDate.'  downloading: '.$url);
 
@@ -462,7 +462,7 @@ function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $save
 
     // eine leere Antwort ist moeglich und wird wie ein 404-Fehler behandelt
     $content = $response->getContent();
-    if (!strLen($content))
+    if (!strlen($content))
         $status = 404;
 
 
@@ -474,7 +474,7 @@ function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $save
         // ist das Flag $saveData gesetzt, Content speichern
         if ($saveData) {
             mkDirWritable(getVar('rtDir', $symbol, $day, $type));
-            $tmpFile = tempNam(dirName($file=getVar('dukaFile.compressed', $symbol, $day, $type)), baseName($file));
+            $tmpFile = tempnam(dirname($file=getVar('dukaFile.compressed', $symbol, $day, $type)), basename($file));
             file_put_contents($tmpFile, $response->getContent());
             if (is_file($file)) unlink($file);
             rename($tmpFile, $file);                                       // So kann eine existierende Datei niemals korrupt sein.
@@ -488,8 +488,8 @@ function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $save
             echoPre('[Error]   '.$shortDate.'  url not found (404): '.$url);
 
         if ($saveError) {
-            mkDirWritable(dirName($file=getVar('dukaFile.404', $symbol, $day, $type)));
-            fClose(fOpen($file, 'wb'));
+            mkDirWritable(dirname($file=getVar('dukaFile.404', $symbol, $day, $type)));
+            fclose(fopen($file, 'wb'));
         }
     }
     return ($status==200) ? $response->getContent() : '';
@@ -500,11 +500,11 @@ function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $save
  * @return bool - Erfolgsstatus
  */
 function processCompressedDukascopyBarFile($file, $symbol, $day, $type) {
-    if (!is_string($file)) throw new IllegalTypeException('Illegal type of parameter $file: '.getType($file));
-    if (!is_int($day))     throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
+    if (!is_string($file)) throw new IllegalTypeException('Illegal type of parameter $file: '.gettype($file));
+    if (!is_int($day))     throw new IllegalTypeException('Illegal type of parameter $day: '.gettype($day));
 
     global $verbose;
-    if ($verbose > 0) echoPre('[Info]    '.gmDate('D, d-M-Y', $day).'  Dukascopy compressed bar file: '.Rost::relativePath($file));
+    if ($verbose > 0) echoPre('[Info]    '.gmdate('D, d-M-Y', $day).'  Dukascopy compressed bar file: '.Rost::relativePath($file));
 
     return processCompressedDukascopyBarData(file_get_contents($file), $symbol, $day, $type);
 }
@@ -514,7 +514,7 @@ function processCompressedDukascopyBarFile($file, $symbol, $day, $type) {
  * @return bool - Erfolgsstatus
  */
 function processCompressedDukascopyBarData($data, $symbol, $day, $type) {
-    if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
+    if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.gettype($data));
 
     $keepFiles = Application::getConfig()->getBool('rt.dukascopy.keep-decompressed');
     $saveAs = $keepFiles ? getVar('dukaFile.raw', $symbol, $day, $type) : null;
@@ -528,11 +528,11 @@ function processCompressedDukascopyBarData($data, $symbol, $day, $type) {
  * @return bool - Erfolgsstatus
  */
 function processRawDukascopyBarFile($file, $symbol, $day, $type) {
-    if (!is_string($file)) throw new IllegalTypeException('Illegal type of parameter $file: '.getType($file));
-    if (!is_int($day))     throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
+    if (!is_string($file)) throw new IllegalTypeException('Illegal type of parameter $file: '.gettype($file));
+    if (!is_int($day))     throw new IllegalTypeException('Illegal type of parameter $day: '.gettype($day));
 
     global $verbose;
-    if ($verbose > 0) echoPre('[Info]    '.gmDate('D, d-M-Y', $day).'  Dukascopy uncompressed bar file: '.Rost::relativePath($file));
+    if ($verbose > 0) echoPre('[Info]    '.gmdate('D, d-M-Y', $day).'  Dukascopy uncompressed bar file: '.Rost::relativePath($file));
 
     return processRawDukascopyBarData(file_get_contents($file), $symbol, $day, $type);
 }
@@ -542,16 +542,16 @@ function processRawDukascopyBarFile($file, $symbol, $day, $type) {
  * @return bool - Erfolgsstatus
  */
 function processRawDukascopyBarData($data, $symbol, $day, $type) {
-    if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
-    if (!is_int($day))     throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
-    if (!is_string($type)) throw new IllegalTypeException('Illegal type of parameter $type: '.getType($type));
-    $shortDate = gmDate('D, d-M-Y', $day);
+    if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.gettype($data));
+    if (!is_int($day))     throw new IllegalTypeException('Illegal type of parameter $day: '.gettype($day));
+    if (!is_string($type)) throw new IllegalTypeException('Illegal type of parameter $type: '.gettype($type));
+    $shortDate = gmdate('D, d-M-Y', $day);
 
     global $barBuffer; $barBuffer[$type];
 
     // (1) Bars einlesen
     $bars = Dukascopy ::readBarData($data, $symbol, $type, $day);
-    $size = sizeOf($bars); if ($size != 1*DAY/MINUTES) throw new RuntimeException('Unexpected number of Dukascopy bars in '.getVar('dukaName', null, null, $type).': '.$size.' ('.($size > 1*DAY/MINUTES ? 'more':'less').' then a day)');
+    $size = sizeof($bars); if ($size != 1*DAY/MINUTES) throw new RuntimeException('Unexpected number of Dukascopy bars in '.getVar('dukaName', null, null, $type).': '.$size.' ('.($size > 1*DAY/MINUTES ? 'more':'less').' then a day)');
 
 
     // (2) Timestamps und FXT-Daten zu den Bars hinzufuegen
@@ -575,21 +575,21 @@ function processRawDukascopyBarData($data, $symbol, $day, $type) {
         $firstBar = $bars[$newDayOffset];
         if ($lastBar['lots']/*|| !$firstBar['lots']*/) {
             echoPre('[Warn]    '.$shortDate.'   lots mis-match during DST change.');
-            echoPre('Day of DST change ('.gmDate('D, d-M-Y', $lastBar['time_fxt']).') ended with:');
+            echoPre('Day of DST change ('.gmdate('D, d-M-Y', $lastBar['time_fxt']).') ended with:');
             echoPre($bars[$newDayOffset-1]);
-            echoPre('Day after DST change ('.gmDate('D, d-M-Y', $firstBar['time_fxt']).') started with:');
+            echoPre('Day after DST change ('.gmdate('D, d-M-Y', $firstBar['time_fxt']).') started with:');
             echoPre($bars[$newDayOffset]);
         }
     }
     $bars1      = array_slice($bars, 0, $newDayOffset);
     $bars2      = array_slice($bars, $newDayOffset);
 
-    $shortDate1 = gmDate('D, d-M-Y', $bars1[0]['time_fxt']-$bars1[0]['delta_fxt']);
-    $shortDate2 = gmDate('D, d-M-Y', $bars2[0]['time_fxt']-$bars2[0]['delta_fxt']);
+    $shortDate1 = gmdate('D, d-M-Y', $bars1[0]['time_fxt']-$bars1[0]['delta_fxt']);
+    $shortDate2 = gmdate('D, d-M-Y', $bars2[0]['time_fxt']-$bars2[0]['delta_fxt']);
 
-    if (isSet($barBuffer[$type][$shortDate1])) {
+    if (isset($barBuffer[$type][$shortDate1])) {
         // Sicherstellen, dass die Daten zu mergender Bars nahtlos ineinander uebergehen.
-        $lastBarTime = $barBuffer[$type][$shortDate1][sizeOf($barBuffer[$type][$shortDate1])-1]['time_fxt'];
+        $lastBarTime = $barBuffer[$type][$shortDate1][sizeof($barBuffer[$type][$shortDate1])-1]['time_fxt'];
         $nextBarTime = $bars1[0]['time_fxt'];
         if ($lastBarTime + 1*MINUTE != $nextBarTime) throw new RuntimeException('Bar time mis-match, bars to merge: "'.getVar('dukaName', null, null, $type).'", $lastBarTime='.$lastBarTime.', $nextBarTime='.$nextBarTime);
         $barBuffer[$type][$shortDate1] = array_merge($barBuffer[$type][$shortDate1], $bars1);
@@ -598,9 +598,9 @@ function processRawDukascopyBarData($data, $symbol, $day, $type) {
         $barBuffer[$type][$shortDate1] = $bars1;
     }
 
-    if (isSet($barBuffer[$type][$shortDate2])) {
+    if (isset($barBuffer[$type][$shortDate2])) {
         // Sicherstellen, dass die Daten zu mergender Bars nahtlos ineinander uebergehen.
-        $lastBarTime = $barBuffer[$type][$shortDate2][sizeOf($barBuffer[$type][$shortDate2])-1]['time_fxt'];
+        $lastBarTime = $barBuffer[$type][$shortDate2][sizeof($barBuffer[$type][$shortDate2])-1]['time_fxt'];
         $nextBarTime = $bars2[0]['time_fxt'];
         if ($lastBarTime + 1*MINUTE != $nextBarTime) throw new RuntimeException('Bar time mis-match, bars to merge: "'.getVar('dukaName', null, null, $type).'", $lastBarTime='.$lastBarTime.', $nextBarTime='.$nextBarTime);
         $barBuffer[$type][$shortDate2] = array_merge($barBuffer[$type][$shortDate2], $bars2);
@@ -622,17 +622,17 @@ function processRawDukascopyBarData($data, $symbol, $day, $type) {
  * @return bool - Erfolgsstatus
  */
 function saveBars($symbol, $day) {
-    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
+    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.gettype($day));
     global $barBuffer;
-    $shortDate = gmDate('D, d-M-Y', $day);
+    $shortDate = gmdate('D, d-M-Y', $day);
 
     // (1) gepufferte Datenreihe nochmal pruefen
     $errorMsg = null;
-    if (!$errorMsg && !isSet($barBuffer['avg'][$shortDate]))                                    $errorMsg = 'No "avg" bars of '.$shortDate.' in buffer';
-    if (!$errorMsg && ($size=sizeOf($barBuffer['avg'][$shortDate]))!=1*DAY/MINUTES)             $errorMsg = 'Invalid number of "avg" bars for '.$shortDate.' in buffer: '.$size;
+    if (!$errorMsg && !isset($barBuffer['avg'][$shortDate]))                                    $errorMsg = 'No "avg" bars of '.$shortDate.' in buffer';
+    if (!$errorMsg && ($size=sizeof($barBuffer['avg'][$shortDate]))!=1*DAY/MINUTES)             $errorMsg = 'Invalid number of "avg" bars for '.$shortDate.' in buffer: '.$size;
     if (!$errorMsg && $barBuffer['avg'][$shortDate][0      ]['delta_fxt']!=0                  ) $errorMsg = 'No beginning "avg" bars for '.$shortDate.' in buffer, first bar:'.NL.printPretty($barBuffer['avg'][$shortDate][0], true);
     if (!$errorMsg && $barBuffer['avg'][$shortDate][$size-1]['delta_fxt']!=23*HOURS+59*MINUTES) $errorMsg = 'No ending "avg" bars for '.$shortDate.' in buffer, last bar:'.NL.printPretty($barBuffer['avg'][$shortDate][$size-1], true);
-    if (!$errorMsg && ($size=sizeOf(array_keys($barBuffer['avg']))) > 1)                        $errorMsg = 'Invalid bar buffer state: found more then one "avg" data series ('.$size.')';
+    if (!$errorMsg && ($size=sizeof(array_keys($barBuffer['avg']))) > 1)                        $errorMsg = 'Invalid bar buffer state: found more then one "avg" data series ('.$size.')';
     if ($errorMsg) {
         showBarBuffer();
         throw new RuntimeException($errorMsg);
@@ -646,7 +646,7 @@ function saveBars($symbol, $day) {
             $bar['open' ] < $bar['low' ] ||          // aus (H >= O && O >= L) folgt (H >= L)
             $bar['close'] > $bar['high'] ||          // nicht mit min()/max(), da nicht performant
             $bar['close'] < $bar['low' ] ||
-           !$bar['ticks']) throw new RuntimeException('Illegal data for Rosatrader price bar of '.gmDate('D, d-M-Y H:i:s', $bar['time_fxt']).": O=$bar[open] H=$bar[high] L=$bar[low] C=$bar[close] V=$bar[ticks]");
+           !$bar['ticks']) throw new RuntimeException('Illegal data for Rosatrader price bar of '.gmdate('D, d-M-Y H:i:s', $bar['time_fxt']).": O=$bar[open] H=$bar[high] L=$bar[low] C=$bar[close] V=$bar[ticks]");
 
         $data .= pack('VVVVVV', $bar['time_fxt'],
                                 $bar['open'    ],
@@ -663,8 +663,8 @@ function saveBars($symbol, $day) {
             echoPre('[Error]   '.$symbol.' history for '.$shortDate.' already exists');
             return false;
         }
-        mkDirWritable(dirName($file));
-        $tmpFile = tempNam(dirName($file), baseName($file));
+        mkDirWritable(dirname($file));
+        $tmpFile = tempnam(dirname($file), basename($file));
         file_put_contents($tmpFile, $data);
         rename($tmpFile, $file);                                       // So kann eine existierende Datei niemals korrupt sein.
     }
@@ -695,14 +695,14 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
     if (array_key_exists(($key=$id.'|'.$symbol.'|'.$time.'|'.$type), $varCache))
         return $varCache[$key];
 
-    if (!is_string($id))                       throw new IllegalTypeException('Illegal type of parameter $id: '.getType($id));
-    if (isSet($symbol) && !is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
-    if (isSet($time)) {
-        if (!is_int($time))                    throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+    if (!is_string($id))                       throw new IllegalTypeException('Illegal type of parameter $id: '.gettype($id));
+    if (isset($symbol) && !is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.gettype($symbol));
+    if (isset($time)) {
+        if (!is_int($time))                    throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
         if ($time % DAY)                       throw new InvalidArgumentException('Invalid parameter $time: '.$time.' (not 00:00)');
     }
-    if (isSet($type)) {
-        if (!is_string($type))                 throw new IllegalTypeException('Illegal type of parameter $type: '.getType($type));
+    if (isset($type)) {
+        if (!is_string($type))                 throw new IllegalTypeException('Illegal type of parameter $type: '.gettype($type));
         if ($type!='bid' && $type!='ask')      throw new InvalidArgumentException('Invalid parameter $type: "'.$type.'"');
     }
 
@@ -711,7 +711,7 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
 
     if ($id == 'rtDirDate') {                   // $yyyy/$mmL/$dd                                       // lokales Pfad-Datum
         if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
-        $result = gmDate('Y/m/d', $time);
+        $result = gmdate('Y/m/d', $time);
     }
     else if ($id == 'rtDir') {                  // $dataDir/history/rosatrader/$type/$symbol/$dateL     // lokales Verzeichnis
         $type   = RosaSymbol::dao()->getByName($symbol)->getType();
@@ -742,9 +742,9 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
     }
     else if ($id == 'dukaUrlDate') {            // $yyyy/$mmD/$dd                                       // Dukascopy-URL-Datum
         if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
-        $yyyy   = gmDate('Y', $time);
-        $mmD    = strRight((string)(gmDate('m', $time)+99), 2);  // Januar = 00
-        $dd     = gmDate('d', $time);
+        $yyyy   = gmdate('Y', $time);
+        $mmD    = strRight((string)(gmdate('m', $time)+99), 2);  // Januar = 00
+        $dd     = gmdate('d', $time);
         $result = $yyyy.'/'.$mmD.'/'.$dd;
     }
     else if ($id == 'dukaUrl') {                // http://datafeed.dukascopy.com/datafeed/$symbol/$dateD/$dukaName.bi5
@@ -785,13 +785,13 @@ function showBarBuffer() {
         }
         foreach ($days as $day => $bars) {
             if (!is_array($bars)) {
-                echoPre('barBuffer['.$type.']['.(is_int($day) ? gmDate('D, d-M-Y', $day):$day).'] => '.(is_null($bars) ? 'null':$bars));
+                echoPre('barBuffer['.$type.']['.(is_int($day) ? gmdate('D, d-M-Y', $day):$day).'] => '.(is_null($bars) ? 'null':$bars));
                 continue;
             }
-            $size = sizeOf($bars);
-            $firstBar = $size ? gmDate('H:i', $bars[0      ]['time_fxt']):null;
-            $lastBar  = $size ? gmDate('H:i', $bars[$size-1]['time_fxt']):null;
-            echoPre('barBuffer['.$type.']['.(is_int($day) ? gmDate('D, d-M-Y', $day):$day).'] => '.str_pad($size, 4, ' ', STR_PAD_LEFT).' bar'.pluralize($size).($firstBar?'  '.$firstBar:'').($size>1?'-'.$lastBar:''));
+            $size = sizeof($bars);
+            $firstBar = $size ? gmdate('H:i', $bars[0      ]['time_fxt']):null;
+            $lastBar  = $size ? gmdate('H:i', $bars[$size-1]['time_fxt']):null;
+            echoPre('barBuffer['.$type.']['.(is_int($day) ? gmdate('D, d-M-Y', $day):$day).'] => '.str_pad($size, 4, ' ', STR_PAD_LEFT).' bar'.pluralize($size).($firstBar?'  '.$firstBar:'').($size>1?'-'.$lastBar:''));
         }
     }
     echoPre(NL);
@@ -804,10 +804,10 @@ function showBarBuffer() {
  * @param  string $message [optional] - zusaetzlich zur Syntax anzuzeigende Message (default: keine)
  */
 function help($message = null) {
-    if (isSet($message))
+    if (isset($message))
         echo $message.NL.NL;
 
-    $self = baseName($_SERVER['PHP_SELF']);
+    $self = basename($_SERVER['PHP_SELF']);
 
 echo <<<HELP
 Update the M1 history of the specified symbols with data from Dukascopy.

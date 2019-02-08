@@ -18,7 +18,7 @@ class Validator extends \rosasurfer\util\Validator {
      * @return bool
      */
     public static function isOperationType($type) {
-        return (is_int($type) && isSet(ViewHelper::$operationTypes[$type]));
+        return (is_int($type) && isset(ViewHelper::$operationTypes[$type]));
     }
 
 
@@ -54,6 +54,6 @@ class Validator extends \rosasurfer\util\Validator {
      * @return bool
      */
     public static function isInstrument($string) {
-        return (is_string($string) && isSet(ViewHelper::$instruments[$string]));
+        return (is_string($string) && isset(ViewHelper::$instruments[$string]));
     }
 }

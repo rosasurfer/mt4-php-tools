@@ -21,7 +21,7 @@ use rosasurfer\rt\model\RosaSymbol;
 use function rosasurfer\rt\fxTime;
 use function rosasurfer\rt\isWeekend;
 
-require(dirName(realPath(__FILE__)).'/../../app/init.php');
+require(dirname(realpath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');
 
 
@@ -92,10 +92,10 @@ function createHistory(RosaSymbol $symbol) {
 
     // Gesamte Zeitspanne tageweise durchlaufen
     for ($day=$startDay, $lastMonth=-1; $day < $today; $day+=1*DAY) {
-        $shortDate = gmDate('D, d-M-Y', $day);
-        $month     = (int) gmDate('m', $day);
+        $shortDate = gmdate('D, d-M-Y', $day);
+        $month     = (int) gmdate('m', $day);
         if ($month != $lastMonth) {
-            echoPre('[Info]    '.gmDate('M-Y', $day));
+            echoPre('[Info]    '.gmdate('M-Y', $day));
             $lastMonth = $month;
         }
 
@@ -138,16 +138,16 @@ function getVar($id, $symbol=null, $time=null) {
     if (array_key_exists(($key=$id.'|'.$symbol.'|'.$time), $varCache))
         return $varCache[$key];
 
-    if (!is_string($id))                       throw new IllegalTypeException('Illegal type of parameter $id: '.getType($id));
-    if (isSet($symbol) && !is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
-    if (isSet($time) && !is_int($time))        throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+    if (!is_string($id))                       throw new IllegalTypeException('Illegal type of parameter $id: '.gettype($id));
+    if (isset($symbol) && !is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.gettype($symbol));
+    if (isset($time) && !is_int($time))        throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
 
     $self = __FUNCTION__;
     static $dataDir; !$dataDir && $dataDir = Application::getConfig()['app.dir.data'];
 
     if ($id == 'rtDirDate') {                   // $yyyy/$mm/$dd                                                // lokales Pfad-Datum
         if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
-        $result = gmDate('Y/m/d', $time);
+        $result = gmdate('Y/m/d', $time);
     }
     else if ($id == 'rtDir') {                  // $dataDir/history/rosatrader/$type/$symbol/$rtDirDate         // lokales Verzeichnis
         $type      = RosaSymbol::dao()->getByName($symbol)->getType();
@@ -179,10 +179,10 @@ function getVar($id, $symbol=null, $time=null) {
  * @param  string $message [optional] - zusaetzlich zur Syntax anzuzeigende Message (default: keine)
  */
 function help($message = null) {
-    if (isSet($message))
+    if (isset($message))
         echo $message.NL.NL;
 
-    $self = baseName($_SERVER['PHP_SELF']);
+    $self = basename($_SERVER['PHP_SELF']);
 
 echo <<<HELP
 

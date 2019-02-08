@@ -34,7 +34,7 @@ class RT extends StaticClass {
      * </pre>
      */
     public static function readBarFile($fileName, RosaSymbol $symbol) {
-        if (!is_string($fileName)) throw new IllegalTypeException('Illegal type of parameter $fileName: '.getType($fileName));
+        if (!is_string($fileName)) throw new IllegalTypeException('Illegal type of parameter $fileName: '.gettype($fileName));
         return self::readBarData(file_get_contents($fileName), $symbol);
     }
 
@@ -59,9 +59,9 @@ class RT extends StaticClass {
      * </pre>
      */
     public static function readBarData($data, RosaSymbol $symbol) {
-        if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
+        if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.gettype($data));
 
-        $lenData = strLen($data); if ($lenData % Rost::BAR_SIZE) throw new RuntimeException('Odd length of passed '.$symbol->getName().' data: '.$lenData.' (not an even Rost::BAR_SIZE)');
+        $lenData = strlen($data); if ($lenData % Rost::BAR_SIZE) throw new RuntimeException('Odd length of passed '.$symbol->getName().' data: '.$lenData.' (not an even Rost::BAR_SIZE)');
         $bars  = [];
         $point = $symbol->getPoint();
 
@@ -88,10 +88,10 @@ class RT extends StaticClass {
     public static function saveM1Bars(array $bars, RosaSymbol $symbol) {
         // validate bar range
         $opentime = $bars[0]['time'];
-        if ($opentime % DAY)                                   throw new RuntimeException('Invalid daily M1 data, first bar opentime: '.gmDate('D, d-M-Y H:i:s', $opentime));
+        if ($opentime % DAY)                                   throw new RuntimeException('Invalid daily M1 data, first bar opentime: '.gmdate('D, d-M-Y H:i:s', $opentime));
         $day = $opentime - $opentime%DAY;
-        if (($size=sizeOf($bars)) != DAY/MINUTES)              throw new RuntimeException('Invalid number of M1 bars for '.gmDate('D, d-M-Y', $day).': '.$size);
-        if ($bars[$size-1]['time']%DAY != 23*HOURS+59*MINUTES) throw new RuntimeException('Invalid daily M1 data, last bar opentime: '.gmDate('D, d-M-Y H:i:s', $bars[$size-1]['time']));
+        if (($size=sizeof($bars)) != DAY/MINUTES)              throw new RuntimeException('Invalid number of M1 bars for '.gmdate('D, d-M-Y', $day).': '.$size);
+        if ($bars[$size-1]['time']%DAY != 23*HOURS+59*MINUTES) throw new RuntimeException('Invalid daily M1 data, last bar opentime: '.gmdate('D, d-M-Y H:i:s', $bars[$size-1]['time']));
 
         $point = $symbol->getPoint();
 
@@ -102,7 +102,7 @@ class RT extends StaticClass {
                 $bar['open' ] < $bar['low' ] ||
                 $bar['close'] > $bar['high'] ||
                 $bar['close'] < $bar['low' ] ||
-               !$bar['ticks']) throw new RuntimeException('Illegal M1 bar data for '.gmDate('D, d-M-Y H:i:s', $bar['time']).":  O=$bar[open]  H=$bar[high]  L=$bar[low]  C=$bar[close]  V=$bar[ticks]");
+               !$bar['ticks']) throw new RuntimeException('Illegal M1 bar data for '.gmdate('D, d-M-Y H:i:s', $bar['time']).":  O=$bar[open]  H=$bar[high]  L=$bar[low]  C=$bar[close]  V=$bar[ticks]");
 
             $data .= pack('VVVVVV', $bar['time' ],
                          (int)round($bar['open' ]/$point),      // storing price values in points saves 40% place
@@ -115,15 +115,15 @@ class RT extends StaticClass {
         // delete existing files
         $dataDir  = self::di()['config']['app.dir.data'];
         $dataDir .= '/history/rosatrader/'.$symbol->getType().'/'.$symbol->getName();
-        $dir      = $dataDir.'/'.gmDate('Y/m/d', $day);
+        $dir      = $dataDir.'/'.gmdate('Y/m/d', $day);
         $msg      = '[Info]    '.$symbol->getName().'  deleting existing M1 file: ';
         is_file($file=$dir.'/M1.bin'    ) && true(echoPre($msg.Rost::relativePath($file))) && unlink($file);
         is_file($file=$dir.'/M1.bin.rar') && true(echoPre($msg.Rost::relativePath($file))) && unlink($file);
 
         // write data to new file
         $file = $dir.'/M1.bin';
-        mkDirWritable(dirName($file));
-        $tmpFile = tempNam(dirName($file), baseName($file));
+        mkDirWritable(dirname($file));
+        $tmpFile = tempnam(dirname($file), basename($file));
         file_put_contents($tmpFile, $data);
         rename($tmpFile, $file);                                // this way an existing file can't be corrupt
         return true;

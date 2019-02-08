@@ -96,7 +96,7 @@ class Dukascopy extends Object {
 
         // treat an empty response as error 404
         $content = $response->getContent();
-        if (!strLen($content))
+        if (!strlen($content))
             $status = 404;
         if ($status == 404) echoPre('[Error]   URL not found (404): '.$url);
 
@@ -131,17 +131,17 @@ class Dukascopy extends Object {
      * @return string - decompressed data string
      */
     public static function decompressHistoryData($data, $saveAs = null) {
-        if (!is_string($data))       throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
-        if (isSet($saveAs)) {
-            if (!is_string($saveAs)) throw new IllegalTypeException('Illegal type of parameter $saveAs: '.getType($saveAs));
-            if (!strLen($saveAs))    throw new InvalidArgumentException('Invalid parameter $saveAs: ""');
+        if (!is_string($data))       throw new IllegalTypeException('Illegal type of parameter $data: '.gettype($data));
+        if (isset($saveAs)) {
+            if (!is_string($saveAs)) throw new IllegalTypeException('Illegal type of parameter $saveAs: '.gettype($saveAs));
+            if (!strlen($saveAs))    throw new InvalidArgumentException('Invalid parameter $saveAs: ""');
         }
 
         $rawData = LZMA::decompressData($data);
 
-        if (isSet($saveAs)) {
-            mkDirWritable(dirName($saveAs));
-            $tmpFile = tempNam(dirName($saveAs), baseName($saveAs));
+        if (isset($saveAs)) {
+            mkDirWritable(dirname($saveAs));
+            $tmpFile = tempnam(dirname($saveAs), basename($saveAs));
             file_put_contents($tmpFile, $rawData);
             if (is_file($saveAs)) unlink($saveAs);
             rename($tmpFile, $saveAs);
@@ -160,7 +160,7 @@ class Dukascopy extends Object {
      * @return string - decompressed file content
      */
     public static function decompressHistoryFile($compressedFile, $saveAs = null) {
-        if (!is_string($compressedFile)) throw new IllegalTypeException('Illegal type of parameter $compressedFile: '.getType($compressedFile));
+        if (!is_string($compressedFile)) throw new IllegalTypeException('Illegal type of parameter $compressedFile: '.gettype($compressedFile));
         return self::decompressHistoryData(file_get_contents($compressedFile), $saveAs);
     }
 
@@ -182,8 +182,8 @@ class Dukascopy extends Object {
         $digits     = $dukaSymbol->getDigits();
         $divider    = pow(10, $digits);
 
-        if (!is_string($data))                        throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
-        $lenData = strLen($data);
+        if (!is_string($data))                        throw new IllegalTypeException('Illegal type of parameter $data: '.gettype($data));
+        $lenData = strlen($data);
         if (!$lenData || $lenData%DUKASCOPY_BAR_SIZE) throw new RuntimeException('Odd length of passed '.$symbol.' '.$type.' data: '.$lenData.' (not an even DUKASCOPY_BAR_SIZE)');
 
         $offset  = 0;
@@ -197,8 +197,8 @@ class Dukascopy extends Object {
         while ($offset < $lenData) {
             $i++;
             $bars[] = unpack("@$offset/NtimeDelta/Nopen/Nclose/Nlow/Nhigh", $data);
-            $s      = subStr($data, $offset+20, 4);
-            $lots   = unpack('f', $isLittleEndian ? strRev($s) : $s);   // manually reverse on little-endian machines
+            $s      = substr($data, $offset+20, 4);
+            $lots   = unpack('f', $isLittleEndian ? strrev($s) : $s);   // manually reverse on little-endian machines
             $bars[$i]['lots'] = round($lots[1], 2);
             $offset += DUKASCOPY_BAR_SIZE;
 
@@ -213,7 +213,7 @@ class Dukascopy extends Object {
                 $L = number_format($bars[$i]['low'  ]/$divider, $digits);
                 $C = number_format($bars[$i]['close']/$divider, $digits);
 
-                Logger::log("Illegal ".$symbol." $type data for bar[$i] of ".gmDate('D, d-M-Y H:i:s', $time).": O=$O H=$H L=$L C=$C, adjusting high/low...", L_WARN);
+                Logger::log("Illegal ".$symbol." $type data for bar[$i] of ".gmdate('D, d-M-Y H:i:s', $time).": O=$O H=$H L=$L C=$C, adjusting high/low...", L_WARN);
 
                 $bars[$i]['high'] = max($bars[$i]['open'], $bars[$i]['high'], $bars[$i]['low'], $bars[$i]['close']);
                 $bars[$i]['low' ] = min($bars[$i]['open'], $bars[$i]['high'], $bars[$i]['low'], $bars[$i]['close']);
@@ -234,7 +234,7 @@ class Dukascopy extends Object {
      * @return array - DUKASCOPY_BAR[] data
      */
     public static function readBarFile($fileName, $symbol, $type, $time) {
-        if (!is_string($fileName)) throw new IllegalTypeException('Illegal type of parameter $fileName: '.getType($fileName));
+        if (!is_string($fileName)) throw new IllegalTypeException('Illegal type of parameter $fileName: '.gettype($fileName));
         return self::readBarData(file_get_contents($fileName), $symbol, $type, $time);
     }
 
@@ -247,9 +247,9 @@ class Dukascopy extends Object {
      * @return array - DUKASCOPY_TICK[] data
      */
     public static function readTickData($data) {
-        if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
+        if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.gettype($data));
 
-        $lenData = strLen($data); if (!$lenData || $lenData%DUKASCOPY_TICK_SIZE) throw new RuntimeException('Odd length of passed data: '.$lenData.' (not an even DUKASCOPY_TICK_SIZE)');
+        $lenData = strlen($data); if (!$lenData || $lenData%DUKASCOPY_TICK_SIZE) throw new RuntimeException('Odd length of passed data: '.$lenData.' (not an even DUKASCOPY_TICK_SIZE)');
         $offset  = 0;
         $ticks   = [];
         $i       = -1;
@@ -261,9 +261,9 @@ class Dukascopy extends Object {
         while ($offset < $lenData) {
             $i++;
             $ticks[] = unpack("@$offset/NtimeDelta/Nask/Nbid", $data);
-            $s1      = subStr($data, $offset+12, 4);
-            $s2      = subStr($data, $offset+16, 4);
-            $size    = unpack('fask/fbid', $isLittleEndian ? strRev($s1).strRev($s2) : $s1.$s2);    // manually reverse
+            $s1      = substr($data, $offset+12, 4);
+            $s2      = substr($data, $offset+16, 4);
+            $size    = unpack('fask/fbid', $isLittleEndian ? strrev($s1).strrev($s2) : $s1.$s2);    // manually reverse
             $ticks[$i]['askSize'] = round($size['ask'], 2);                                         // on little-endian machines
             $ticks[$i]['bidSize'] = round($size['bid'], 2);
             $offset += DUKASCOPY_TICK_SIZE;
@@ -280,7 +280,7 @@ class Dukascopy extends Object {
      * @return array - DUKASCOPY_TICK[] data
      */
     public static function readTickFile($fileName) {
-        if (!is_string($fileName)) throw new IllegalTypeException('Illegal type of parameter $fileName: '.getType($fileName));
+        if (!is_string($fileName)) throw new IllegalTypeException('Illegal type of parameter $fileName: '.gettype($fileName));
         return self::readTickData(file_get_contents($fileName));
     }
 }

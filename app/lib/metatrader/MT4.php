@@ -211,7 +211,7 @@ class MT4 extends StaticClass {
             foreach ($lines as $i => &$line) {
                 $line = strLeftTo($line, '//');                             // Kommentare entfernen
                 $line = strRightFrom(trim($line), ' ', -1);                 // Format-Code entfernen
-                if (!strLen($line) || strStartsWith($line, '_alignment'))   // Leerzeilen und Alignment-Felder loeschen
+                if (!strlen($line) || strStartsWith($line, '_alignment'))   // Leerzeilen und Alignment-Felder loeschen
                     unset($lines[$i]);
             }; unset($line);
             $fields = array_values($lines);                                // Indizes neuordnen
@@ -253,7 +253,7 @@ class MT4 extends StaticClass {
      * @return string - pack()-Formatstring
      */
     public static function BAR_getPackFormat($version) {
-        if (!is_int($version))              throw new IllegalTypeException('Illegal type of parameter $version: '.getType($version));
+        if (!is_int($version))              throw new IllegalTypeException('Illegal type of parameter $version: '.gettype($version));
         if ($version!=400 && $version!=401) throw new MetaTraderException('version.unsupported: Invalid parameter $version: '.$version.' (must be 400 or 401)');
 
         static $format_400 = null;
@@ -270,7 +270,7 @@ class MT4 extends StaticClass {
             foreach ($values as $i => &$value) {
                 $value = trim($value);
                 $value = strLeftTo($value, ' ');                         // dem Code folgende Bezeichner entfernen
-                if (!strLen($value))
+                if (!strlen($value))
                     unset($values[$i]);
             }; unset($value);
             $format = join('', $values);
@@ -288,7 +288,7 @@ class MT4 extends StaticClass {
      * @return string - unpack()-Formatstring
      */
     public static function BAR_getUnpackFormat($version) {
-        if (!is_int($version))              throw new IllegalTypeException('Illegal type of parameter $version: '.getType($version));
+        if (!is_int($version))              throw new IllegalTypeException('Illegal type of parameter $version: '.gettype($version));
         if ($version!=400 && $version!=401) throw new MetaTraderException('version.unsupported: Invalid parameter $version: '.$version.' (must be 400 or 401)');
 
         static $format_400 = null;
@@ -338,7 +338,7 @@ class MT4 extends StaticClass {
             $open  < $low  ||                  // aus (H >= O && O >= L) folgt (H >= L)
             $close > $high ||
             $close < $low  ||
-           !$ticks) throw new RuntimeException('Illegal history bar of '.gmDate('D, d-M-Y', $time).": O=$open H=$high L=$low C=$close V=$ticks");
+           !$ticks) throw new RuntimeException('Illegal history bar of '.gmdate('D, d-M-Y', $time).": O=$open H=$high L=$low C=$close V=$ticks");
 
         // Bardaten in Binaerstring umwandeln
         $data = pack('Vddddd', $time,    // V
@@ -352,14 +352,14 @@ class MT4 extends StaticClass {
         static $isLittleEndian = null; is_null($isLittleEndian) && $isLittleEndian=isLittleEndian();
         if (!$isLittleEndian) {
             $time  =        substr($data,  0, 4);
-            $open  = strRev(substr($data,  4, 8));
-            $low   = strRev(substr($data, 12, 8));
-            $high  = strRev(substr($data, 20, 8));
-            $close = strRev(substr($data, 28, 8));
-            $ticks = strRev(substr($data, 36, 8));
+            $open  = strrev(substr($data,  4, 8));
+            $low   = strrev(substr($data, 12, 8));
+            $high  = strrev(substr($data, 20, 8));
+            $close = strrev(substr($data, 28, 8));
+            $ticks = strrev(substr($data, 36, 8));
             $data  = $time.$open.$low.$high.$close.$ticks;
         }
-        return fWrite($hFile, $data);
+        return fwrite($hFile, $data);
     }
 
 
@@ -370,7 +370,7 @@ class MT4 extends StaticClass {
      */
     public static function isValidSymbol($string) {
         static $pattern = '/^[a-z0-9_.#&\'~-]+$/i';
-        return is_string($string) && strLen($string) && strLen($string) <= self::MAX_SYMBOL_LENGTH && preg_match($pattern, $string);
+        return is_string($string) && strlen($string) && strlen($string) <= self::MAX_SYMBOL_LENGTH && preg_match($pattern, $string);
     }
 
 
@@ -456,7 +456,7 @@ class MT4 extends StaticClass {
     public static function strToTimeframe($value) {
         if (is_string($value)) {
             if (!strIsNumeric($value)) {
-                $value = strToUpper($value);
+                $value = strtoupper($value);
                 if (strStartsWith($value, 'PERIOD_'))
                     $value = strRight($value, -7);
                 switch ($value) {
@@ -491,7 +491,7 @@ class MT4 extends StaticClass {
             }
             return 0;
         }
-        throw new IllegalTypeException('Illegal type of parameter $value: '.getType($value));
+        throw new IllegalTypeException('Illegal type of parameter $value: '.gettype($value));
     }
 
 
@@ -517,7 +517,7 @@ class MT4 extends StaticClass {
     public static function strToBarModel($value) {
         if (is_string($value)) {
             if (!strIsNumeric($value)) {
-                $value = strToUpper($value);
+                $value = strtoupper($value);
                 if (strStartsWith($value, 'BARMODEL_'))
                     $value = strRight($value, -10);
                 switch ($value) {
@@ -538,7 +538,7 @@ class MT4 extends StaticClass {
             }
             return -1;
         }
-        throw new IllegalTypeException('Illegal type of parameter $value: '.getType($value));
+        throw new IllegalTypeException('Illegal type of parameter $value: '.gettype($value));
     }
 
 
@@ -552,7 +552,7 @@ class MT4 extends StaticClass {
     public static function strToTradeDirection($value) {
         if (is_string($value)) {
             if (!strIsNumeric($value)) {
-                $value = strToUpper($value);
+                $value = strtoupper($value);
                 if (strStartsWith($value, 'TRADE_DIRECTIONS_'))
                     $value = strRight($value, -17);
                 switch ($value) {
@@ -573,7 +573,7 @@ class MT4 extends StaticClass {
             }
             return -1;
         }
-        throw new IllegalTypeException('Illegal type of parameter $value: '.getType($value));
+        throw new IllegalTypeException('Illegal type of parameter $value: '.gettype($value));
     }
 
 

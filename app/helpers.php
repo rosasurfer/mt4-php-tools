@@ -92,12 +92,12 @@ const DUKASCOPY_TICK_SIZE = 20;
  */
 function fxTime($unixTime = null) {
     if (!func_num_args()) $unixTime = time();
-    else if (!is_int($unixTime)) throw new IllegalTypeException('Illegal type of parameter $unixTime: '.getType($unixTime));
+    else if (!is_int($unixTime)) throw new IllegalTypeException('Illegal type of parameter $unixTime: '.gettype($unixTime));
 
     try {
         $currentTZ = date_default_timezone_get();
         date_default_timezone_set('America/New_York');
-        $offset = iDate('Z', $unixTime);
+        $offset = idate('Z', $unixTime);
         return $unixTime + $offset + 7*HOURS;
     }
     finally { date_default_timezone_set($currentTZ); }
@@ -122,14 +122,14 @@ function fxTime($unixTime = null) {
  */
 function unixTime($fxTime = null) {
     if (!func_num_args()) $fxTime = fxTime();
-    else if (!is_int($fxTime)) throw new IllegalTypeException('Illegal type of parameter $fxTime: '.getType($fxTime));
+    else if (!is_int($fxTime)) throw new IllegalTypeException('Illegal type of parameter $fxTime: '.gettype($fxTime));
 
     try {
         $currentTZ = date_default_timezone_get();
         date_default_timezone_set('America/New_York');
-        $offset1  = iDate('Z', $fxTime);
+        $offset1  = idate('Z', $fxTime);
         $unixTime = $fxTime - $offset1 - 7*HOURS;
-        if ($offset1 != ($offset2=iDate('Z', $unixTime)))       // detect and handle a DST change between EasternTime
+        if ($offset1 != ($offset2=idate('Z', $unixTime)))       // detect and handle a DST change between EasternTime
             $unixTime = $fxTime - $offset2 - 7*HOURS;           // and EasternTime+0700
         return $unixTime;
     }
@@ -146,9 +146,9 @@ function unixTime($fxTime = null) {
  * @return string - formatted string
  */
 function fxDate($format, $unixTime = null) {
-    if (!is_string($format))     throw new IllegalTypeException('Illegal type of parameter $format: '.getType($format));
+    if (!is_string($format))     throw new IllegalTypeException('Illegal type of parameter $format: '.gettype($format));
     if (func_num_args() < 2)     $unixTime = time();
-    else if (!is_int($unixTime)) throw new IllegalTypeException('Illegal type of parameter $unixTime: '.getType($unixTime));
+    else if (!is_int($unixTime)) throw new IllegalTypeException('Illegal type of parameter $unixTime: '.gettype($unixTime));
 
     try {
         $currentTZ = date_default_timezone_get();
@@ -162,19 +162,19 @@ function fxDate($format, $unixTime = null) {
 /**
  * Parst die String-Repraesentation einer FXT-Zeit in einen GMT-Timestamp.
  *
- * @param  string $time - FXT-Zeit in einem der Funktion strToTime() verstaendlichen Format
+ * @param  string $time - FXT-Zeit in einem der Funktion strtotime() verstaendlichen Format
  *
  * @return int - Unix-Timestamp
  *
- * TODO:  Funktion unnoetig: strToTime() ueberladen und um Erkennung der FXT-Zeitzone erweitern
+ * TODO:  Funktion unnoetig: strtotime() ueberladen und um Erkennung der FXT-Zeitzone erweitern
  */
 function fxtStrToTime($time) {
-    if (!is_string($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+    if (!is_string($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
 
     $currentTZ = date_default_timezone_get();
     try {
         date_default_timezone_set('America/New_York');
-        $unixTime = strToTime($time);
+        $unixTime = strtotime($time);
         if ($unixTime === false) throw new InvalidArgumentException('Invalid argument $time: "'.$time.'"');
         return $unixTime - 7*HOURS;
     }
@@ -202,7 +202,7 @@ function fxtStrToTime($time) {
  */
 function fxtTimezoneOffset($time=null, &$prevTransition=[], &$nextTransition=[]) {
     if (is_null($time)) $time = time();
-    else if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+    else if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
 
     static $transitions = null;
     if (!$transitions) {
@@ -218,7 +218,7 @@ function fxtTimezoneOffset($time=null, &$prevTransition=[], &$nextTransition=[])
         }
     }
 
-    $transSize = sizeOf($transitions);
+    $transSize = sizeof($transitions);
     $argsSize  = func_num_args();
 
     // $prevTransition definieren
@@ -269,12 +269,12 @@ function fxtTimezoneOffset($time=null, &$prevTransition=[], &$nextTransition=[])
  * @return bool
  */
 function isGoodFriday($time) {
-    if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+    if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
 
-    $dow = (int) gmDate('w', $time);
+    $dow = (int) gmdate('w', $time);
     if ($dow == FRIDAY) {
-        $year       = gmDate('Y', $time);
-        $spring     = strToTime($year.'-03-21 GMT');
+        $year       = gmdate('Y', $time);
+        $spring     = strtotime($year.'-03-21 GMT');
         $easter     = $spring + easter_days($year)*DAYS;
         $goodFriday = $easter - 2*DAYS;
         $time      -= $time%DAY;
@@ -292,10 +292,10 @@ function isGoodFriday($time) {
  * @return bool
  */
 function isHoliday($time) {
-    if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+    if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
 
-    $m   = (int) gmDate('n', $time);            // month
-    $dom = (int) gmDate('j', $time);            // day of month
+    $m   = (int) gmdate('n', $time);            // month
+    $dom = (int) gmdate('j', $time);            // day of month
 
     if ($dom==1 && $m==1)                       // 1. January
         return true;
@@ -313,9 +313,9 @@ function isHoliday($time) {
  * @return bool
  */
 function isWeekend($time) {
-    if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+    if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
 
-    $dow = (int) gmDate('w', $time);
+    $dow = (int) gmdate('w', $time);
     return ($dow==SATURDAY || $dow==SUNDAY);
 }
 
@@ -328,7 +328,7 @@ function isWeekend($time) {
  * @return string
  */
 function periodToStr($value) {
-    if (!is_int($value)) throw new IllegalTypeException('Illegal type of parameter $value: '.getType($value));
+    if (!is_int($value)) throw new IllegalTypeException('Illegal type of parameter $value: '.gettype($value));
 
     switch ($value) {
         case PERIOD_TICKS: return 'PERIOD_TICKS';       //      0 = no period
@@ -355,7 +355,7 @@ function periodToStr($value) {
  * @return string
  */
 function periodDescription($value) {
-    if (!is_int($value)) throw new IllegalTypeException('Illegal type of parameter $value: '.getType($value));
+    if (!is_int($value)) throw new IllegalTypeException('Illegal type of parameter $value: '.gettype($value));
 
     switch ($value) {
         case PERIOD_TICKS: return 'ticks';              //      0 = no period
@@ -415,9 +415,9 @@ function prettyTimeRange($startTime, $endTime) {
 
     $range = null;
 
-    if (iDate('Y', $startTimestamp) == iDate('Y', $endTimestamp)) {
-        if (iDate('m', $startTimestamp) == iDate('m', $endTimestamp)) {
-            if (iDate('d', $startTimestamp) == iDate('d', $endTimestamp)) {
+    if (idate('Y', $startTimestamp) == idate('Y', $endTimestamp)) {
+        if (idate('m', $startTimestamp) == idate('m', $endTimestamp)) {
+            if (idate('d', $startTimestamp) == idate('d', $endTimestamp)) {
                  $range = $startDate->format('d.m.Y H:i').'-'.$endDate->format('H:i');
             }
             else $range = $startDate->format('d.').'-'.$endDate->format('d.m.Y');
@@ -476,7 +476,7 @@ function prettyRecoveryTime($duration) {
 function stats_standard_deviation(array $values, $sample = false) {
     if (function_exists('stats_standard_deviation')) {
         $result = \stats_standard_deviation($values, $sample);
-        if (!is_float($result)) throw new RuntimeException('stats_standard_deviation returned an error: '.$result.' ('.getType($result).')');
+        if (!is_float($result)) throw new RuntimeException('stats_standard_deviation returned an error: '.$result.' ('.gettype($result).')');
         return $result;
     }
 
@@ -589,7 +589,7 @@ function stats_calmar_ratio($from, $to, array $values) {
             $maxDrawdown = $drawdown;                   // TODO: that's maxDD of balance, not of equity
     }
 
-    $months = (strToTime($to) - strToTime($from))/MONTHS;
+    $months = (strtotime($to) - strtotime($from))/MONTHS;
     $normalizedProfit = $total / $months;               // average profit per month (absolute)
 
     if ($maxDrawdown == 0)

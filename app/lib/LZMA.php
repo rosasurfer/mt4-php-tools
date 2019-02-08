@@ -24,14 +24,14 @@ class LZMA extends StaticClass {
      * @return string - unkompromierter String
      */
     public static function decompressData($data) {
-        if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
-        if (!strLen($data))    throw new InvalidArgumentException('Invalid parameter $data: "" (not compressed)');
+        if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.gettype($data));
+        if (!strlen($data))    throw new InvalidArgumentException('Invalid parameter $data: "" (not compressed)');
 
         // Unter Windows blockiert das Schreiben nach STDIN bei Datenmengen ab 8193 Bytes, stream_set_blocking() scheint dort
         // jedoch nicht zu funktionieren (Windows 7). Daher wird der String in eine temporaere Datei geschrieben und diese
         // decodiert.
 
-        $tmpFile = tempNam(null, 'php');
+        $tmpFile = tempnam(null, 'php');
         file_put_contents($tmpFile, $data);
 
         $content = self::decompressFile($tmpFile);
@@ -49,9 +49,9 @@ class LZMA extends StaticClass {
      * @return string - unkomprimierter Dateiinhalt
      */
     public static function decompressFile($file) {
-        if (!is_string($file)) throw new IllegalTypeException('Illegal type of parameter $file: '.getType($file));
+        if (!is_string($file)) throw new IllegalTypeException('Illegal type of parameter $file: '.gettype($file));
         if (!is_file($file))   throw new FileNotFoundException('File not found "'.$file.'"');
-        if (!fileSize($file))  throw new InvalidArgumentException('Invalid file "'.$file.'" (not compressed)');
+        if (!filesize($file))  throw new InvalidArgumentException('Invalid file "'.$file.'" (not compressed)');
 
         $cmd     = self::getDecompressFileCmd();
         $file    = str_replace('/', DIRECTORY_SEPARATOR, str_replace('\\', '/', $file));
@@ -59,7 +59,7 @@ class LZMA extends StaticClass {
         $stderr  = null;
         $stdout  = PHP::execProcess($cmdLine, $stderr);
 
-        if (!strLen($stdout)) throw new RuntimeException('Decoding of file "'.$file.'" failed (decoded size=0),'.NL.'STDERR: '.$stderr);
+        if (!strlen($stdout)) throw new RuntimeException('Decoding of file "'.$file.'" failed (decoded size=0),'.NL.'STDERR: '.$stderr);
 
         return $stdout;
     }

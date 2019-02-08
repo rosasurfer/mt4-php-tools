@@ -10,7 +10,7 @@ use rosasurfer\rt\metatrader\HistoryHeader;
 use rosasurfer\rt\metatrader\MetaTraderException;
 use rosasurfer\rt\metatrader\MT4;
 
-require(dirName(realPath(__FILE__)).'/../../app/init.php');
+require(dirname(realpath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');
 
 
@@ -30,19 +30,19 @@ $args = array_slice($_SERVER['argv'], 1);
 
 // (1.1) Optionen parsen
 foreach ($args as $i => $arg) {
-    $arg = strToLower($arg);
+    $arg = strtolower($arg);
     if ($arg == '-h')   exit(1|help());                                     // Hilfe
     if ($arg == '-c') { $byteOffset=true; unset($args[$i]); continue; }     // -c: byte offset
     if ($arg == '-q') { $quietMode =true; unset($args[$i]); continue; }     // -q: quiet mode
 }
 
 // (1.2) Das verbleibende erste Argument muss ein Zeitpunkt sein.
-(sizeOf($args) < 2) && exit(1|help());
+(sizeof($args) < 2) && exit(1|help());
 $sTime = $arg = array_shift($args);
 
 if (strIsQuoted($sTime)) $sTime = trim(strLeft(strRight($sTime, -1), -1));
 !is_datetime($sTime, ['Y-m-d', 'Y-m-d H:i', 'Y-m-d H:i:s']) && exit(1|echoPre('invalid argument datetime = '.$arg));
-$datetime = strToTime($sTime.' GMT');
+$datetime = strtotime($sTime.' GMT');
 
 // (1.2) Das verbleibende zweite Argument muss ein History-File sein.
 $fileName = array_shift($args);
@@ -50,12 +50,12 @@ $fileName = array_shift($args);
 
 
 // (2) Datei oeffnen und Header auslesen
-$fileSize = fileSize($fileName);
+$fileSize = filesize($fileName);
 ($fileSize < HistoryHeader::SIZE) && exit(1|echoPre('invalid or unknown history file format: file size of "'.$fileName.'" < MinFileSize ('.HistoryHeader::SIZE.')'));
-$hFile  = fOpen($fileName, 'rb');
+$hFile  = fopen($fileName, 'rb');
 $header = null;
 try {
-    $header = new HistoryHeader(fRead($hFile, HistoryHeader::SIZE));
+    $header = new HistoryHeader(fread($hFile, HistoryHeader::SIZE));
 }
 catch (MetaTraderException $ex) {
     if (strStartsWith($ex->getMessage(), 'version.unsupported'))
@@ -80,10 +80,10 @@ if (!$bars) {
     $i = -1;                      // Datei enthaelt keine Bars
 }
 else {
-    $barFrom = unpack($barFormat, fRead($hFile, $barSize));
+    $barFrom = unpack($barFormat, fread($hFile, $barSize));
     $iFrom   = 0;
-    fSeek($hFile, HistoryHeader::SIZE + $barSize*($bars-1));
-    $barTo   = unpack($barFormat, fRead($hFile, $barSize));
+    fseek($hFile, HistoryHeader::SIZE + $barSize*($bars-1));
+    $barTo   = unpack($barFormat, fread($hFile, $barSize));
     $iTo     = $bars-1;
 }
 
@@ -105,8 +105,8 @@ while ($i != -1) {
 
     $halfSize = (int) ceil($bars/2);
     $iMid     = $iFrom + $halfSize - 1;
-    fSeek($hFile, HistoryHeader::SIZE + $iMid*$barSize);
-    $barMid   = unpack($barFormat, fRead($hFile, $barSize));
+    fseek($hFile, HistoryHeader::SIZE + $iMid*$barSize);
+    $barMid   = unpack($barFormat, fread($hFile, $barSize));
     if ($barMid['time'] <= $datetime) { $barFrom = $barMid; $iFrom = $iMid; }
     else                              { $barTo   = $barMid; $iTo   = $iMid; }
     $bars = $iTo - $iFrom + 1;
@@ -134,10 +134,10 @@ exit(0);
  * @param  string $message [optional] - zusaetzlich zur Syntax anzuzeigende Message (default: keine)
  */
 function help($message = null) {
-    if (isSet($message))
+    if (isset($message))
         echo $message.NL.NL;
 
-    $self = baseName($_SERVER['PHP_SELF']);
+    $self = basename($_SERVER['PHP_SELF']);
 
 echo <<<HELP
 Returns the offset of the first bar in a MetaTrader history file at or after a specified time or -1 if no such bar is found.

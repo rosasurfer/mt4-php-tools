@@ -8,7 +8,7 @@ namespace rosasurfer\rt\history;
 use rosasurfer\process\Process;
 use rosasurfer\rt\model\RosaSymbol;
 
-require(dirName(realPath(__FILE__)).'/../../app/init.php');
+require(dirname(realpath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');
 
 
@@ -56,10 +56,10 @@ exit(0);
  * @param  string $message [optional] - additional message to display (default: none)
  */
 function help($message = null) {
-    if (isSet($message))
+    if (isset($message))
         echo $message.NL.NL;
 
-    $self = baseName($_SERVER['PHP_SELF']);
+    $self = basename($_SERVER['PHP_SELF']);
 
 echo <<<HELP
 Process the history of the specified Rosatrader symbols.

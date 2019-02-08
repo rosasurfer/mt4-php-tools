@@ -30,9 +30,9 @@ abstract class RosatraderModel extends PersistableObject {
      * @return string - creation time
      */
     public function getCreated($format = 'Y-m-d H:i:s') {
-        if (!isSet($this->created) || $format=='Y-m-d H:i:s')
+        if (!isset($this->created) || $format=='Y-m-d H:i:s')
             return $this->created;
-        return date($format, strToTime($this->created));
+        return date($format, strtotime($this->created));
     }
 
 
@@ -44,9 +44,9 @@ abstract class RosatraderModel extends PersistableObject {
      * @return string|null - last modification time or NULL if the instance hasn't been modified yet
      */
     public function getModified($format = 'Y-m-d H:i:s') {
-        if (!isSet($this->modified) || $format=='Y-m-d H:i:s')
+        if (!isset($this->modified) || $format=='Y-m-d H:i:s')
             return $this->modified;
-        return date($format, strToTime($this->modified));
+        return date($format, strtotime($this->modified));
     }
 
 
@@ -56,7 +56,7 @@ abstract class RosatraderModel extends PersistableObject {
      * {@inheritdoc}
      */
     protected function beforeUpdate() {
-        $this->modified = gmDate('Y-m-d H:i:s');
+        $this->modified = gmdate('Y-m-d H:i:s');
         return parent::beforeUpdate();
     }
 }

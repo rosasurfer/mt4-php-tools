@@ -103,9 +103,9 @@ class RosaSymbol extends RosatraderModel {
      * @return string - start time based on an FXT timestamp
      */
     public function getHistoryTicksStart($format = 'Y-m-d H:i:s') {
-        if (!isSet($this->historyTicksStart) || $format=='Y-m-d H:i:s')
+        if (!isset($this->historyTicksStart) || $format=='Y-m-d H:i:s')
             return $this->historyTicksStart;
-        return gmDate($format, strToTime($this->historyTicksStart.' GMT'));
+        return gmdate($format, strtotime($this->historyTicksStart.' GMT'));
     }
 
 
@@ -117,9 +117,9 @@ class RosaSymbol extends RosatraderModel {
      * @return string - end time based on an FXT timestamp
      */
     public function getHistoryTicksEnd($format = 'Y-m-d H:i:s') {
-        if (!isSet($this->historyTicksEnd) || $format=='Y-m-d H:i:s')
+        if (!isset($this->historyTicksEnd) || $format=='Y-m-d H:i:s')
             return $this->historyTicksEnd;
-        return gmDate($format, strToTime($this->historyTicksEnd.' GMT'));
+        return gmdate($format, strtotime($this->historyTicksEnd.' GMT'));
     }
 
 
@@ -131,9 +131,9 @@ class RosaSymbol extends RosatraderModel {
      * @return string - start time based on an FXT timestamp
      */
     public function getHistoryM1Start($format = 'Y-m-d H:i:s') {
-        if (!isSet($this->historyM1Start) || $format=='Y-m-d H:i:s')
+        if (!isset($this->historyM1Start) || $format=='Y-m-d H:i:s')
             return $this->historyM1Start;
-        return gmDate($format, strToTime($this->historyM1Start.' GMT'));
+        return gmdate($format, strtotime($this->historyM1Start.' GMT'));
     }
 
 
@@ -145,9 +145,9 @@ class RosaSymbol extends RosatraderModel {
      * @return string - end time based on an FXT timestamp
      */
     public function getHistoryM1End($format = 'Y-m-d H:i:s') {
-        if (!isSet($this->historyM1End) || $format=='Y-m-d H:i:s')
+        if (!isset($this->historyM1End) || $format=='Y-m-d H:i:s')
             return $this->historyM1End;
-        return gmDate($format, strToTime($this->historyM1End.' GMT'));
+        return gmdate($format, strtotime($this->historyM1End.' GMT'));
     }
 
 
@@ -159,9 +159,9 @@ class RosaSymbol extends RosatraderModel {
      * @return string - start time based on an FXT timestamp
      */
     public function getHistoryD1Start($format = 'Y-m-d H:i:s') {
-        if (!isSet($this->historyD1Start) || $format=='Y-m-d H:i:s')
+        if (!isset($this->historyD1Start) || $format=='Y-m-d H:i:s')
             return $this->historyD1Start;
-        return gmDate($format, strToTime($this->historyD1Start.' GMT'));
+        return gmdate($format, strtotime($this->historyD1Start.' GMT'));
     }
 
 
@@ -173,9 +173,9 @@ class RosaSymbol extends RosatraderModel {
      * @return string - end time based on an FXT timestamp
      */
     public function getHistoryD1End($format = 'Y-m-d H:i:s') {
-        if (!isSet($this->historyD1End) || $format=='Y-m-d H:i:s')
+        if (!isset($this->historyD1End) || $format=='Y-m-d H:i:s')
             return $this->historyD1End;
-        return gmDate($format, strToTime($this->historyD1End.' GMT'));
+        return gmdate($format, strtotime($this->historyD1End.' GMT'));
     }
 
 
@@ -200,7 +200,7 @@ class RosaSymbol extends RosatraderModel {
     public function getHistoryM1($fxDay) {
         $dataDir  = $this->di()['config']['app.dir.data'];
         $dataDir .= '/history/rosatrader/'.$this->type.'/'.$this->name;
-        $dir      = $dataDir.'/'.gmDate('Y/m/d', $fxDay);
+        $dir      = $dataDir.'/'.gmdate('Y/m/d', $fxDay);
 
         if (is_file($file=$dir.'/M1.bin') || is_file($file.='.rar'))
             return RT::readBarFile($file, $this);
@@ -246,7 +246,7 @@ class RosaSymbol extends RosatraderModel {
      * @return bool
      */
     public function isTradingDay($time) {
-        if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+        if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
 
         return (!isWeekend($time) && !$this->isHoliday($time));
     }
@@ -260,7 +260,7 @@ class RosaSymbol extends RosatraderModel {
      * @return bool
      */
     public function isHoliday($time) {
-        if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+        if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
 
         if (isHoliday($time))                           // check for common Holidays
             return true;
@@ -313,7 +313,7 @@ class RosaSymbol extends RosatraderModel {
                 $days = glob($month.'/[0-9][0-9]', GLOB_ONLYDIR|GLOB_NOESCAPE|GLOB_ERR) ?: [];
                 foreach ($days as $day) {
                     if (is_file($file=$day.'/M1.bin') || is_file($file.='.rar')) {
-                        $startDate = strToTime(strRight($day, 10).' GMT');
+                        $startDate = strtotime(strRight($day, 10).' GMT');
                         break 3;
                     }
                 }
@@ -326,14 +326,14 @@ class RosaSymbol extends RosatraderModel {
             $delMsg = '[Info]    '.$this->name.'  deleting obsolete M1 file: ';
 
             $missMsg = function($missing) {
-                if ($misses = sizeOf($missing)) {
+                if ($misses = sizeof($missing)) {
                     ($misses > 2) && echoPre('[Error]   '.$this->name.'  ...');
-                    echoPre('[Error]   '.$this->name.'  '.($misses > 2 ? $misses : '').' missing history file'.($misses==2 ? ' for':'s until').' '.gmDate('D, Y-m-d', last($missing)));
+                    echoPre('[Error]   '.$this->name.'  '.($misses > 2 ? $misses : '').' missing history file'.($misses==2 ? ' for':'s until').' '.gmdate('D, Y-m-d', last($missing)));
                 }
             };
 
             for ($day=$startDate; $day < $today; $day+=1*DAY) {
-                $dir = $dataDir.'/'.gmDate('Y/m/d', $day);
+                $dir = $dataDir.'/'.gmdate('Y/m/d', $day);
 
                 if ($this->isTradingDay($day)) {
                     if (is_file($file=$dir.'/M1.bin') || is_file($file.='.rar')) {
@@ -344,7 +344,7 @@ class RosaSymbol extends RosatraderModel {
                         }
                     }
                     else {
-                        !$missing && echoPre('[Error]   '.$this->name.'  missing history file for '.gmDate('D, Y-m-d', $day));
+                        !$missing && echoPre('[Error]   '.$this->name.'  missing history file for '.gmdate('D, Y-m-d', $day));
                         $errors = (bool)$missing[] = $day;
                     }
                 }
@@ -358,13 +358,13 @@ class RosaSymbol extends RosatraderModel {
 
         // update the database
         if ($startDate != $this->getHistoryM1Start('U')) {
-            echoPre('[Info]    '.$this->name.'  updating start time to '.($startDate ? gmDate('Y-m-d', $startDate) : '(empty)'));
-            $this->historyM1Start = $startDate ? gmDate('Y-m-d H:i:s', $startDate) : null;
+            echoPre('[Info]    '.$this->name.'  updating start time to '.($startDate ? gmdate('Y-m-d', $startDate) : '(empty)'));
+            $this->historyM1Start = $startDate ? gmdate('Y-m-d H:i:s', $startDate) : null;
             $this->modified();
         }
         if ($endDate != $this->getHistoryM1End('U')) {
-            echoPre('[Info]    '.$this->name.'  updating end time to '.($endDate ? gmDate('Y-m-d', $endDate) : '(empty)'));
-            $this->historyM1End = $endDate ? gmDate('Y-m-d H:i:s', $endDate) : null;
+            echoPre('[Info]    '.$this->name.'  updating end time to '.($endDate ? gmdate('Y-m-d', $endDate) : '(empty)'));
+            $this->historyM1End = $endDate ? gmdate('Y-m-d H:i:s', $endDate) : null;
             $this->modified();
         }
         $this->save();
@@ -394,7 +394,7 @@ class RosaSymbol extends RosatraderModel {
         $updatedTo  = (int) $this->getHistoryM1End('U');                            // 00:00 FXT of the last existing day
         $updateFrom = $updatedTo ? $updatedTo - $updatedTo%DAY + 1*DAY : 0;         // 00:00 FXT of the first day to update
         $today      = ($today=fxTime()) - $today%DAY;                               // 00:00 FXT of the current day
-        echoPre('[Info]    '.$this->name.'  updating M1 history '.($updatedTo ? 'since '.gmDate('D, d-M-Y', $updatedTo) : 'from start'));
+        echoPre('[Info]    '.$this->name.'  updating M1 history '.($updatedTo ? 'since '.gmdate('D, d-M-Y', $updatedTo) : 'from start'));
 
         /** @var Synthesizer     $synthesizer */
         /** @var DukascopySymbol $dukaSymbol  */
@@ -407,7 +407,7 @@ class RosaSymbol extends RosatraderModel {
             if ($day && !$this->isTradingDay($day))                             // skip non-trading days
                 continue;
             $bars = $this->isSynthetic() ? $synthesizer->calculateQuotes($day) : $dukaSymbol->getHistory(PERIOD_M1, $day);
-            if (!$bars) return false(echoPre('[Error]   '.$this->name.'  M1 history sources'.($day ? ' for '.gmDate('D, d-M-Y', $day) : '').' not available'));
+            if (!$bars) return false(echoPre('[Error]   '.$this->name.'  M1 history sources'.($day ? ' for '.gmdate('D, d-M-Y', $day) : '').' not available'));
             if (!$day) {
                 $opentime = $bars[0]['time'];                                   // if $day was zero (full update since start)
                 $day = $opentime - $opentime%DAY;                               // adjust it to the first available history
@@ -415,8 +415,8 @@ class RosaSymbol extends RosatraderModel {
             RT::saveM1Bars($bars, $this);                                       // store the quotes
 
             if (!$this->historyM1Start)                                         // update metadata *after* history was successfully saved
-                $this->historyM1Start = gmDate('Y-m-d H:i:s', $day);
-            $this->historyM1End = gmDate('Y-m-d H:i:s', $day);
+                $this->historyM1Start = gmdate('Y-m-d H:i:s', $day);
+            $this->historyM1End = gmdate('Y-m-d H:i:s', $day);
             $this->modified()->save();                                          // update the database
             Process::dispatchSignals();                                         // process signals
         }

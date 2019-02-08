@@ -35,7 +35,7 @@ class NZDFXI extends AbstractSynthesizer {
      * {@inheritdoc}
      */
     public function calculateQuotes($day) {
-        if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.getType($day));
+        if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.gettype($day));
 
         if (!$symbols = $this->loadComponents(first($this->components)))
             return [];
@@ -47,7 +47,7 @@ class NZDFXI extends AbstractSynthesizer {
             return [];
 
         // calculate quotes
-        echoPre('[Info]    '.$this->symbolName.'  calculating M1 history for '.gmDate('D, d-M-Y', $day));
+        echoPre('[Info]    '.$this->symbolName.'  calculating M1 history for '.gmdate('D, d-M-Y', $day));
         $NZDUSD = $quotes['NZDUSD'];
         $USDLFX = $quotes['USDLFX'];
 

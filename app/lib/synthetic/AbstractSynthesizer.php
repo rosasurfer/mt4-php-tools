@@ -59,7 +59,7 @@ abstract class AbstractSynthesizer extends Object implements SynthesizerInterfac
     protected function loadComponents(array $names) {
         $symbols = [];
         foreach ($names as $name) {
-            if (isSet($this->loadedSymbols[$name])) {
+            if (isset($this->loadedSymbols[$name])) {
                 $symbol = $this->loadedSymbols[$name];
             }
             else if (!$symbol = RosaSymbol::dao()->findByName($name)) {
@@ -89,7 +89,7 @@ abstract class AbstractSynthesizer extends Object implements SynthesizerInterfac
             }
             $day = max($day, $historyStart);
         }
-        echoPre('[Info]    '.$this->symbolName.'  available M1 history for all sources starts at '.gmDate('D, d-M-Y', $day));
+        echoPre('[Info]    '.$this->symbolName.'  available M1 history for all sources starts at '.gmdate('D, d-M-Y', $day));
         return $day;
     }
 
@@ -107,7 +107,7 @@ abstract class AbstractSynthesizer extends Object implements SynthesizerInterfac
         foreach ($symbols as $symbol) {
             $name = $symbol->getName();
             if (!$quotes[$name] = $symbol->getHistoryM1($day)) {
-                echoPre('[Error]   '.$this->symbolName.'  required '.$name.' history for '.gmDate('D, d-M-Y', $day).' not available');
+                echoPre('[Error]   '.$this->symbolName.'  required '.$name.' history for '.gmdate('D, d-M-Y', $day).' not available');
                 return [];
             }
         }

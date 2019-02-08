@@ -84,23 +84,23 @@ class HistoryHeader extends Object {
      * @param  int    $lastSyncTime
      */
     private function __construct_1($format, $copyright, $symbol, $period, $digits, $syncMarker, $lastSyncTime) {
-        if (!is_int($format))                         throw new IllegalTypeException('Illegal type of parameter $format: '.getType($format));
+        if (!is_int($format))                         throw new IllegalTypeException('Illegal type of parameter $format: '.gettype($format));
         if ($format!=400 && $format!=401)             throw new MetaTraderException('version.unsupported: Invalid parameter $format: '.$format.' (can be 400 or 401)');
-        if (!isSet($copyright)) $copyright = '';
-        if (!is_string($copyright))                   throw new IllegalTypeException('Illegal type of parameter $copyright: '.getType($copyright));
+        if (!isset($copyright)) $copyright = '';
+        if (!is_string($copyright))                   throw new IllegalTypeException('Illegal type of parameter $copyright: '.gettype($copyright));
         $copyright = strLeft($copyright, 63);
-        if (!is_string($symbol))                      throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
-        if (!strLen($symbol))                         throw new InvalidArgumentException('Invalid parameter $symbol: ""');
-        if (strLen($symbol) > MT4::MAX_SYMBOL_LENGTH) throw new InvalidArgumentException('Invalid parameter $symbol: "'.$symbol.'" (max '.MT4::MAX_SYMBOL_LENGTH.' characters)');
-        if (!is_int($period))                         throw new IllegalTypeException('Illegal type of parameter $period: '.getType($period));
+        if (!is_string($symbol))                      throw new IllegalTypeException('Illegal type of parameter $symbol: '.gettype($symbol));
+        if (!strlen($symbol))                         throw new InvalidArgumentException('Invalid parameter $symbol: ""');
+        if (strlen($symbol) > MT4::MAX_SYMBOL_LENGTH) throw new InvalidArgumentException('Invalid parameter $symbol: "'.$symbol.'" (max '.MT4::MAX_SYMBOL_LENGTH.' characters)');
+        if (!is_int($period))                         throw new IllegalTypeException('Illegal type of parameter $period: '.gettype($period));
         if ($period <= 0)                             throw new InvalidArgumentException('Invalid parameter $period: '.$period);
-        if (!is_int($digits))                         throw new IllegalTypeException('Illegal type of parameter $digits: '.getType($digits));
+        if (!is_int($digits))                         throw new IllegalTypeException('Illegal type of parameter $digits: '.gettype($digits));
         if ($digits < 0)                              throw new InvalidArgumentException('Invalid parameter $digits: '.$digits);
-        if (!isSet($syncMarker)) $syncMarker = 0;
-        if (!is_int($syncMarker))                     throw new IllegalTypeException('Illegal type of parameter $syncMarker: '.getType($syncMarker));
+        if (!isset($syncMarker)) $syncMarker = 0;
+        if (!is_int($syncMarker))                     throw new IllegalTypeException('Illegal type of parameter $syncMarker: '.gettype($syncMarker));
         if ($syncMarker < 0)                          throw new InvalidArgumentException('Invalid parameter $syncMarker: '.$syncMarker);
-        if (!isSet($lastSyncTime)) $lastSyncTime = 0;
-        if (!is_int($lastSyncTime))                   throw new IllegalTypeException('Illegal type of parameter $lastSyncTime: '.getType($lastSyncTime));
+        if (!isset($lastSyncTime)) $lastSyncTime = 0;
+        if (!is_int($lastSyncTime))                   throw new IllegalTypeException('Illegal type of parameter $lastSyncTime: '.gettype($lastSyncTime));
         if ($lastSyncTime < 0)                        throw new InvalidArgumentException('Invalid parameter $lastSyncTime: '.$lastSyncTime);
 
         // Daten speichern
@@ -122,8 +122,8 @@ class HistoryHeader extends Object {
      * @param  string $data - gespeichertes struct HISTORY_HEADER
      */
     private function __construct_2($data) {
-        if (!is_string($data))                                throw new IllegalTypeException('Illegal type of parameter $data: '.getType($data));
-        if (strLen($data) != self::SIZE)                      throw new InvalidArgumentException('Invalid length of parameter $data: '.strLen($data).' (not '.__CLASS__.'::SIZE)');
+        if (!is_string($data))                                throw new IllegalTypeException('Illegal type of parameter $data: '.gettype($data));
+        if (strlen($data) != self::SIZE)                      throw new InvalidArgumentException('Invalid length of parameter $data: '.strlen($data).' (not '.__CLASS__.'::SIZE)');
 
         $header = unpack(self::unpackFormat(), $data);
         if ($header['format']!=400 && $header['format']!=401) throw new MetaTraderException('version.unsupported: Invalid or unsupported history format version: '.$header['format']);
@@ -145,7 +145,7 @@ class HistoryHeader extends Object {
      * @param  int $time
      */
     public function setLastSyncTime($time) {
-        if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+        if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
         if ($time < 0)      throw new InvalidArgumentException('Invalid parameter $time: '.$time);
 
         $this->lastSyncTime = $time;
@@ -171,7 +171,7 @@ class HistoryHeader extends Object {
             foreach ($values as $i => &$value) {
                 $value = trim($value);
                 $value = strLeftTo($value, ' ');                         // dem Code folgende Bezeichner entfernen
-                if (!strLen($value))
+                if (!strlen($value))
                     unset($values[$i]);
             }; unset($value);
             $format = join('', $values);

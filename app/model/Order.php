@@ -97,53 +97,53 @@ class Order extends RosatraderModel {
 
 
         $id = $properties['id'];
-        if (!is_int($id))                                     throw new IllegalTypeException('Illegal type of property order.id: '.getType($id));
+        if (!is_int($id))                                     throw new IllegalTypeException('Illegal type of property order.id: '.gettype($id));
         if ($id)                                              throw new InvalidArgumentException('Invalid property order.id: '.$id.' (not zero)');
         $order->id = null;
 
         $ticket = $properties['ticket'];
-        if (!is_int($ticket))                                 throw new IllegalTypeException('Illegal type of property order.ticket: '.getType($ticket));
+        if (!is_int($ticket))                                 throw new IllegalTypeException('Illegal type of property order.ticket: '.gettype($ticket));
         if ($ticket <= 0)                                     throw new InvalidArgumentException('Invalid property order.ticket: '.$ticket.' (not positive)');
         $order->ticket = $ticket;
 
         $type = $properties['type'];
-        if (!is_int($type))                                   throw new IllegalTypeException('Illegal type of property order['.$ticket.'].type: '.getType($type));
+        if (!is_int($type))                                   throw new IllegalTypeException('Illegal type of property order['.$ticket.'].type: '.gettype($type));
         if (!Rost::isOrderType($type))                        throw new InvalidArgumentException('Invalid property order['.$ticket.'].type: '.$type.' (not an order type)');
         $order->type = Rost::orderTypeDescription($type);
 
         $lots = $properties['lots'];
-        if (!is_float($lots))                                 throw new IllegalTypeException('Illegal type of property order['.$ticket.'].lots: '.getType($lots));
+        if (!is_float($lots))                                 throw new IllegalTypeException('Illegal type of property order['.$ticket.'].lots: '.gettype($lots));
         if ($lots <= 0)                                       throw new InvalidArgumentException('Invalid property order['.$ticket.'].lots: '.$lots.' (not positive)');
         if ($lots != round($lots, 2))                         throw new InvalidArgumentException('Invalid property order['.$ticket.'].lots: '.$lots.' (lot step violation)');
         $order->lots = $lots;
 
         $symbol = $properties['symbol'];
-        if (!is_string($symbol))                              throw new IllegalTypeException('Illegal type of property order['.$ticket.'].symbol: '.getType($symbol));
+        if (!is_string($symbol))                              throw new IllegalTypeException('Illegal type of property order['.$ticket.'].symbol: '.gettype($symbol));
         if ($symbol != trim($symbol))                         throw new InvalidArgumentException('Invalid property order['.$ticket.'].symbol: "'.$symbol.'" (format violation)');
-        if (!strLen($symbol))                                 throw new InvalidArgumentException('Invalid property order['.$ticket.'].symbol: "'.$symbol.'" (length violation)');
-        if (strLen($symbol) > MT4::MAX_SYMBOL_LENGTH)         throw new InvalidArgumentException('Invalid property order['.$ticket.'].symbol: "'.$symbol.'" (length violation)');
+        if (!strlen($symbol))                                 throw new InvalidArgumentException('Invalid property order['.$ticket.'].symbol: "'.$symbol.'" (length violation)');
+        if (strlen($symbol) > MT4::MAX_SYMBOL_LENGTH)         throw new InvalidArgumentException('Invalid property order['.$ticket.'].symbol: "'.$symbol.'" (length violation)');
         $order->symbol = $symbol;
 
         $openPrice = $properties['openPrice'];
-        if (!is_float($openPrice))                            throw new IllegalTypeException('Illegal type of property order['.$ticket.'].openPrice: '.getType($openPrice));
+        if (!is_float($openPrice))                            throw new IllegalTypeException('Illegal type of property order['.$ticket.'].openPrice: '.gettype($openPrice));
         $openPrice = round($openPrice, 5);
         if ($openPrice <= 0)                                  throw new InvalidArgumentException('Invalid property order['.$ticket.'].openPrice: '.$openPrice.' (not positive)');
         $order->openPrice = $openPrice;
 
         $openTime = $properties['openTime'];                  // FXT timestamp
-        if (!is_int($openTime))                               throw new IllegalTypeException('Illegal type of property order['.$ticket.'].openTime: '.getType($openTime));
+        if (!is_int($openTime))                               throw new IllegalTypeException('Illegal type of property order['.$ticket.'].openTime: '.gettype($openTime));
         if ($openTime <= 0)                                   throw new InvalidArgumentException('Invalid property order['.$ticket.'].openTime: '.$openTime.' (not positive)');
         if (isWeekend($openTime))                             throw new InvalidArgumentException('Invalid property order['.$ticket.'].openTime: '.$openTime.' (not a weekday)');
-        $order->openTime = gmDate('Y-m-d H:i:s', $openTime);
+        $order->openTime = gmdate('Y-m-d H:i:s', $openTime);
 
         $stopLoss = $properties['stopLoss'];
-        if (!is_float($stopLoss))                             throw new IllegalTypeException('Illegal type of property order['.$ticket.'].stopLoss: '.getType($stopLoss));
+        if (!is_float($stopLoss))                             throw new IllegalTypeException('Illegal type of property order['.$ticket.'].stopLoss: '.gettype($stopLoss));
         $stopLoss = round($stopLoss, 5);
         if ($stopLoss < 0)                                    throw new InvalidArgumentException('Invalid property order['.$ticket.'].stopLoss: '.$stopLoss.' (not non-negative)');
         $order->stopLoss = !$stopLoss ? null : $stopLoss;
 
         $takeProfit = $properties['takeProfit'];
-        if (!is_float($takeProfit))                           throw new IllegalTypeException('Illegal type of property order['.$ticket.'].takeProfit: '.getType($takeProfit));
+        if (!is_float($takeProfit))                           throw new IllegalTypeException('Illegal type of property order['.$ticket.'].takeProfit: '.gettype($takeProfit));
         $takeProfit = round($takeProfit, 5);
         if ($takeProfit < 0)                                  throw new InvalidArgumentException('Invalid property order['.$ticket.'].takeProfit: '.$takeProfit.' (not non-negative)');
         $order->takeProfit = !$takeProfit ? null : $takeProfit;
@@ -156,13 +156,13 @@ class Order extends RosatraderModel {
         }
 
         $closePrice = $properties['closePrice'];
-        if (!is_float($closePrice))                           throw new IllegalTypeException('Illegal type of property order['.$ticket.'].closePrice: '.getType($closePrice));
+        if (!is_float($closePrice))                           throw new IllegalTypeException('Illegal type of property order['.$ticket.'].closePrice: '.gettype($closePrice));
         $closePrice = round($closePrice, 5);
         if ($closePrice < 0)                                  throw new InvalidArgumentException('Invalid property order['.$ticket.'].closePrice: '.$closePrice.' (not non-negative)');
         $order->closePrice = !$closePrice ? null : $closePrice;
 
         $closeTime = $properties['closeTime'];                // FXT timestamp
-        if (!is_int($closeTime))                              throw new IllegalTypeException('Illegal type of property order['.$ticket.'].closeTime: '.getType($closeTime));
+        if (!is_int($closeTime))                              throw new IllegalTypeException('Illegal type of property order['.$ticket.'].closeTime: '.gettype($closeTime));
         if ($closeTime < 0)                                   throw new InvalidArgumentException('Invalid property order['.$ticket.'].closeTime: '.$closeTime.' (not positive)');
         if      ($closeTime && !$closePrice)                  throw new InvalidArgumentException('Invalid properties order['.$ticket.'].closePrice|closeTime: '.$closePrice.'|'.$closeTime.' (mis-match)');
         else if (!$closeTime && $closePrice)                  throw new InvalidArgumentException('Invalid properties order['.$ticket.'].closePrice|closeTime: '.$closePrice.'|'.$closeTime.' (mis-match)');
@@ -170,30 +170,30 @@ class Order extends RosatraderModel {
             if (isWeekend($closeTime))                        throw new InvalidArgumentException('Invalid property order['.$ticket.'].closeTime: '.$closeTime.' (not a weekday)');
             if ($closeTime < $openTime)                       throw new InvalidArgumentException('Invalid properties order['.$ticket.'].openTime|closeTime: '.$openTime.'|'.$closeTime.' (mis-match)');
         }
-        $order->closeTime = !$closeTime ? null : gmDate('Y-m-d H:i:s', $closeTime);
+        $order->closeTime = !$closeTime ? null : gmdate('Y-m-d H:i:s', $closeTime);
 
         $commission = $properties['commission'];
-        if (!is_float($commission))                           throw new IllegalTypeException('Illegal type of property order['.$ticket.'].commission: '.getType($commission));
+        if (!is_float($commission))                           throw new IllegalTypeException('Illegal type of property order['.$ticket.'].commission: '.gettype($commission));
         $order->commission = round($commission, 2);
 
         $swap = $properties['swap'];
-        if (!is_float($swap))                                 throw new IllegalTypeException('Illegal type of property order['.$ticket.'].swap: '.getType($swap));
+        if (!is_float($swap))                                 throw new IllegalTypeException('Illegal type of property order['.$ticket.'].swap: '.gettype($swap));
         $order->swap = round($swap, 2);
 
         $profit = $properties['profit'];
-        if (!is_float($profit))                               throw new IllegalTypeException('Illegal type of property order['.$ticket.'].profit: '.getType($profit));
+        if (!is_float($profit))                               throw new IllegalTypeException('Illegal type of property order['.$ticket.'].profit: '.gettype($profit));
         $order->profit = round($profit, 2);
 
         $magicNumber = $properties['magicNumber'];
-        if (!is_int($magicNumber))                            throw new IllegalTypeException('Illegal type of property order['.$ticket.'].magicNumber: '.getType($magicNumber));
+        if (!is_int($magicNumber))                            throw new IllegalTypeException('Illegal type of property order['.$ticket.'].magicNumber: '.gettype($magicNumber));
         if ($magicNumber < 0)                                 throw new InvalidArgumentException('Invalid property order['.$ticket.'].magicNumber: '.$magicNumber.' (not non-negative)');
         $order->magicNumber = !$magicNumber ? null : $magicNumber;
 
         $comment = $properties['comment'];
-        if (!is_string($comment))                             throw new IllegalTypeException('Illegal type of property order['.$ticket.'].comment: '.getType($comment));
+        if (!is_string($comment))                             throw new IllegalTypeException('Illegal type of property order['.$ticket.'].comment: '.gettype($comment));
         $comment = trim($comment);
-        if (strLen($comment) > MT4::MAX_ORDER_COMMENT_LENGTH) throw new InvalidArgumentException('Invalid property order['.$ticket.'].comment: "'.$comment.'" (length violation)');
-        $order->comment = strLen($comment) ? $comment : null;
+        if (strlen($comment) > MT4::MAX_ORDER_COMMENT_LENGTH) throw new InvalidArgumentException('Invalid property order['.$ticket.'].comment: "'.$comment.'" (length violation)');
+        $order->comment = strlen($comment) ? $comment : null;
 
         return $order;
     }

@@ -301,22 +301,22 @@ class HistoryFile extends Object {
      * @param  string $fileName - MT4 history file name
      */
     private function __construct1($fileName) {
-        if (!is_string($fileName)) throw new IllegalTypeException('Illegal type of parameter $fileName: '.getType($fileName));
+        if (!is_string($fileName)) throw new IllegalTypeException('Illegal type of parameter $fileName: '.gettype($fileName));
         if (!is_file($fileName))   throw new FileNotFoundException('Invalid parameter $fileName: "'.$fileName.'" (file not found)');
 
         // resolve directory, file and server name
-        $realName              = realPath($fileName);
-        $this->fileName        = baseName($realName);
+        $realName              = realpath($fileName);
+        $this->fileName        = basename($realName);
         $this->serverDirectory = dirname ($realName);
-        $this->serverName      = baseName($this->serverDirectory);
+        $this->serverName      = basename($this->serverDirectory);
 
         // validate the file size
-        $fileSize = fileSize($fileName);
-        if ($fileSize < HistoryHeader::SIZE) throw new MetaTraderException('filesize.insufficient: Invalid or unsupported format of "'.$fileName.'": fileSize='.$fileSize.' (minFileSize='.HistoryHeader::SIZE.')');
+        $fileSize = filesize($fileName);
+        if ($fileSize < HistoryHeader::SIZE) throw new MetaTraderException('filesize.insufficient: Invalid or unsupported format of "'.$fileName.'": filesize='.$fileSize.' (minFileSize='.HistoryHeader::SIZE.')');
 
         // open file and read/validate the header
-        $this->hFile     = fOpen($fileName, 'r+b');               // FILE_READ|FILE_WRITE
-        $this->hstHeader = new HistoryHeader(fRead($this->hFile, HistoryHeader::SIZE));
+        $this->hFile     = fopen($fileName, 'r+b');               // FILE_READ|FILE_WRITE
+        $this->hstHeader = new HistoryHeader(fread($this->hFile, HistoryHeader::SIZE));
 
         if (!strCompareI($this->fileName, $this->getSymbol().$this->getTimeframe().'.hst')) throw new MetaTraderException('filename.mis-match: File name/symbol mis-match of "'.$fileName.'": header="'.$this->getSymbol().','.timeframeDescription($this->getTimeframe()).'"');
         $barSize = $this->getVersion()==400 ? MT4::HISTORY_BAR_400_SIZE : MT4::HISTORY_BAR_401_SIZE;
@@ -339,23 +339,23 @@ class HistoryFile extends Object {
      * @param  string $serverDirectory - full server directory (storage location)
      */
     private function __construct2($symbol, $timeframe, $digits, $format, $serverDirectory) {
-        if (!is_string($symbol))                      throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
-        if (!strLen($symbol))                         throw new InvalidArgumentException('Invalid parameter $symbol: ""');
-        if (strLen($symbol) > MT4::MAX_SYMBOL_LENGTH) throw new InvalidArgumentException('Invalid parameter $symbol: "'.$symbol.'" (max '.MT4::MAX_SYMBOL_LENGTH.' characters)');
-        if (!is_int($timeframe))                      throw new IllegalTypeException('Illegal type of parameter $timeframe: '.getType($timeframe));
+        if (!is_string($symbol))                      throw new IllegalTypeException('Illegal type of parameter $symbol: '.gettype($symbol));
+        if (!strlen($symbol))                         throw new InvalidArgumentException('Invalid parameter $symbol: ""');
+        if (strlen($symbol) > MT4::MAX_SYMBOL_LENGTH) throw new InvalidArgumentException('Invalid parameter $symbol: "'.$symbol.'" (max '.MT4::MAX_SYMBOL_LENGTH.' characters)');
+        if (!is_int($timeframe))                      throw new IllegalTypeException('Illegal type of parameter $timeframe: '.gettype($timeframe));
         if (!MT4::isStdTimeframe($timeframe))         throw new InvalidArgumentException('Invalid parameter $timeframe: '.$timeframe.' (not a MetaTrader standard timeframe)');
-        if (!is_string($serverDirectory))             throw new IllegalTypeException('Illegal type of parameter $serverDirectory: '.getType($serverDirectory));
+        if (!is_string($serverDirectory))             throw new IllegalTypeException('Illegal type of parameter $serverDirectory: '.gettype($serverDirectory));
         if (!is_dir($serverDirectory))                throw new InvalidArgumentException('Directory "'.$serverDirectory.'" not found');
 
         $this->hstHeader       = new HistoryHeader($format, null, $symbol, $timeframe, $digits, null, null);
-        $this->serverDirectory = realPath($serverDirectory);
-        $this->serverName      = baseName($this->serverDirectory);
+        $this->serverDirectory = realpath($serverDirectory);
+        $this->serverName      = basename($this->serverDirectory);
         $this->fileName        = $symbol.$timeframe.'.hst';
 
         // rewrite history file and header
         mkDirWritable($this->serverDirectory);
         $fileName    = $this->serverDirectory.'/'.$this->fileName;
-        $this->hFile = fOpen($fileName, 'wb');                      // FILE_WRITE
+        $this->hFile = fopen($fileName, 'wb');                      // FILE_WRITE
         $this->writeHistoryHeader();
 
         // read and initialize the file's metadata
@@ -375,14 +375,14 @@ class HistoryFile extends Object {
         $this->pointsPerUnit = pow(10, $this->getDigits());
         $this->pointSize     = 1/$this->pointsPerUnit;
 
-        $fileSize = fileSize($this->serverDirectory.'/'.$this->fileName);
+        $fileSize = filesize($this->serverDirectory.'/'.$this->fileName);
         if ($fileSize > HistoryHeader::SIZE) {
             $bars    = ($fileSize-HistoryHeader::SIZE) / $this->barSize;
-            fFlush($this->hFile);
-            $barFrom = $barTo = unpack($this->barUnpackFormat, fRead($this->hFile, $this->barSize));
+            fflush($this->hFile);
+            $barFrom = $barTo = unpack($this->barUnpackFormat, fread($this->hFile, $this->barSize));
             if ($bars > 1) {
-                fSeek($this->hFile, HistoryHeader::SIZE + ($bars-1)*$this->barSize);
-                $barTo = unpack($this->barUnpackFormat, fRead($this->hFile, $this->barSize));
+                fseek($this->hFile, HistoryHeader::SIZE + ($bars-1)*$this->barSize);
+                $barTo = unpack($this->barUnpackFormat, fread($this->hFile, $this->barSize));
             }
             $from_offset    = 0;
             $from_openTime  = $barFrom['time'];
@@ -449,7 +449,7 @@ class HistoryFile extends Object {
         // close the file
         if (is_resource($this->hFile)) {
             $hTmp=$this->hFile; $this->hFile=null;
-            fClose($hTmp);
+            fclose($hTmp);
         }
         return $this->closed=true;
     }
@@ -462,7 +462,7 @@ class HistoryFile extends Object {
      */
     public function setBarBufferSize($size) {
         if ($this->closed)  throw new IllegalStateException('Cannot process a closed '.__CLASS__);
-        if (!is_int($size)) throw new IllegalTypeException('Illegal type of parameter $size: '.getType($size));
+        if (!is_int($size)) throw new IllegalTypeException('Illegal type of parameter $size: '.gettype($size));
         if ($size < 0)      throw new InvalidArgumentException('Invalid parameter $size: '.$size);
 
         $this->barBufferSize = $size;
@@ -482,7 +482,7 @@ class HistoryFile extends Object {
      * @see  HistoryFile::getHistoryBar()
      */
     public function getBar($offset) {
-        if (!is_int($offset)) throw new IllegalTypeException('Illegal type of parameter $offset: '.getType($offset));
+        if (!is_int($offset)) throw new IllegalTypeException('Illegal type of parameter $offset: '.gettype($offset));
         if ($offset < 0)      throw new InvalidArgumentException('Invalid parameter $offset: '.$offset);
 
         if ($offset >= $this->full_bars)                                        // bar[$offset] does not exist
@@ -491,9 +491,9 @@ class HistoryFile extends Object {
         if ($offset > $this->stored_to_offset)                                  // bar[$offset] is a buffered bar (ROST_PRICE_BAR)
             return $this->barBuffer[$offset-$this->stored_to_offset-1];
 
-        fFlush($this->hFile);
-        fSeek($this->hFile, HistoryHeader::SIZE + $offset*$this->barSize);      // bar[$offset] is a stored bar (HISTORY_BAR)
-        return unpack($this->barUnpackFormat, fRead($this->hFile, $this->barSize));
+        fflush($this->hFile);
+        fseek($this->hFile, HistoryHeader::SIZE + $offset*$this->barSize);      // bar[$offset] is a stored bar (HISTORY_BAR)
+        return unpack($this->barUnpackFormat, fread($this->hFile, $this->barSize));
     }
 
 
@@ -507,7 +507,7 @@ class HistoryFile extends Object {
      *               has to be expanded.
      */
     public function findTimeOffset($time) {
-        if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+        if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
 
         $size    = $this->full_bars; if (!$size)                 return -1;
         $iFrom   = 0;
@@ -546,9 +546,9 @@ class HistoryFile extends Object {
      * @return int - offset or -1 if no such bar exists
      */
     public function findBarOffset($time) {
-        if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+        if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
 
-        $size = sizeOf($this->full_bars);
+        $size = sizeof($this->full_bars);
         if (!$size)
             return -1;
 
@@ -590,7 +590,7 @@ class HistoryFile extends Object {
      * @return int - offset oder -1 if no such bar exists (i.e. time is older than the oldest bar)
      */
     public function findBarOffsetPrevious($time) {
-        if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+        if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
 
         $size = $this->full_bars;
         if (!$size)
@@ -617,7 +617,7 @@ class HistoryFile extends Object {
      * @return int - offset or -1 if no such bar exists (i.e. time is younger than the youngest bar)
      */
     public function findBarOffsetNext($time) {
-        if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+        if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
 
         $size = $this->full_bars;
         if (!$size)
@@ -673,8 +673,8 @@ class HistoryFile extends Object {
      * </pre>
      */
     public function spliceBars($offset, $length=0, array $replace=[]) {
-        if (!is_int($offset)) throw new IllegalTypeException('Illegal type of parameter $offset: '.getType($offset));
-        if (!is_int($length)) throw new IllegalTypeException('Illegal type of parameter $length: '.getType($length));
+        if (!is_int($offset)) throw new IllegalTypeException('Illegal type of parameter $offset: '.gettype($offset));
+        if (!is_int($length)) throw new IllegalTypeException('Illegal type of parameter $length: '.gettype($length));
 
         // determine absolute start offset: max. value for appending is one position after history end
         if ($offset >= 0) {
@@ -717,7 +717,7 @@ class HistoryFile extends Object {
         else {
             $hstFromBar = $this->getBar($fromOffset);
             $hstToBar   = $this->getBar($toOffset);
-            echoPre(__METHOD__.'()  replacing '.$length.' bar(s) from offset '.$fromOffset.' ('.gmDate('d-M-Y H:i:s', $hstFromBar['time']).') to offset '.$toOffset.' ('.gmDate('d-M-Y H:i:s', $hstToBar['time']).') with '.($size=sizeOf($replace)).' bars from '.gmDate('d-M-Y H:i:s', $replace[0]['time']).' to '.gmDate('d-M-Y H:i:s', $replace[$size-1]['time']));
+            echoPre(__METHOD__.'()  replacing '.$length.' bar(s) from offset '.$fromOffset.' ('.gmdate('d-M-Y H:i:s', $hstFromBar['time']).') to offset '.$toOffset.' ('.gmdate('d-M-Y H:i:s', $hstToBar['time']).') with '.($size=sizeof($replace)).' bars from '.gmdate('d-M-Y H:i:s', $replace[0]['time']).' to '.gmdate('d-M-Y H:i:s', $replace[$size-1]['time']));
             $this->removeBars($fromOffset, $length);
             $this->insertBars($fromOffset, $replace);
         }
@@ -738,8 +738,8 @@ class HistoryFile extends Object {
      *                                  the end of the history. <br>
      */
     public function removeBars($offset, $length=0) {
-        if (!is_int($offset)) throw new IllegalTypeException('Illegal type of parameter $offset: '.getType($offset));
-        if (!is_int($length)) throw new IllegalTypeException('Illegal type of parameter $length: '.getType($length));
+        if (!is_int($offset)) throw new IllegalTypeException('Illegal type of parameter $offset: '.gettype($offset));
+        if (!is_int($length)) throw new IllegalTypeException('Illegal type of parameter $length: '.gettype($length));
 
         // determine absolute start offset: max. value for appending is one position after history end
         if ($offset >= 0) {
@@ -773,7 +773,7 @@ class HistoryFile extends Object {
 
         $hstFromBar = $this->getBar($fromOffset);
         $hstToBar   = $this->getBar($toOffset);
-        echoPre(__METHOD__.'()  removing '.$length.' bar(s) from offset '.$fromOffset.' ('.gmDate('d-M-Y H:i:s', $hstFromBar['time']).') to offset '.$toOffset.' ('.gmDate('d-M-Y H:i:s', $hstToBar['time']).')');
+        echoPre(__METHOD__.'()  removing '.$length.' bar(s) from offset '.$fromOffset.' ('.gmdate('d-M-Y H:i:s', $hstFromBar['time']).') to offset '.$toOffset.' ('.gmdate('d-M-Y H:i:s', $hstToBar['time']).')');
     }
 
 
@@ -787,7 +787,7 @@ class HistoryFile extends Object {
      * @param  array $bars - bars to insert (ROST_PRICE_BAR[])
      */
     public function insertBars($offset, array $bars) {
-        if (!is_int($offset)) throw new IllegalTypeException('Illegal type of parameter $offset: '.getType($offset));
+        if (!is_int($offset)) throw new IllegalTypeException('Illegal type of parameter $offset: '.gettype($offset));
 
         // determine absolute start offset: max. value for appending is one position after history end
         if ($offset >= 0) {
@@ -803,7 +803,7 @@ class HistoryFile extends Object {
         }
 
         $hstFromBar = $this->getBar($fromOffset);
-        echoPre(__METHOD__.'()  inserting '.($size=sizeOf($bars)).' bar(s) from '.gmDate('d-M-Y H:i:s', $bars[0]['time']).' to '.gmDate('d-M-Y H:i:s', $bars[$size-1]['time']).' at offset '.$fromOffset.' ('.gmDate('d-M-Y H:i:s', $hstFromBar['time']).')');
+        echoPre(__METHOD__.'()  inserting '.($size=sizeof($bars)).' bar(s) from '.gmdate('d-M-Y H:i:s', $bars[0]['time']).' to '.gmdate('d-M-Y H:i:s', $bars[$size-1]['time']).' at offset '.$fromOffset.' ('.gmdate('d-M-Y H:i:s', $hstFromBar['time']).')');
 
         /*
         $array = [0, 1, 2, 3, 4, 5];
@@ -1013,10 +1013,10 @@ class HistoryFile extends Object {
     private function appendToM1(array $bars) {
         if ($this->closed)                             throw new IllegalStateException('Cannot process a closed '.__CLASS__);
         if (!$bars) return;
-        if ($bars[0]['time'] <= $this->lastM1DataTime) throw new IllegalStateException('Cannot append bar(s) of '.gmDate('D, d-M-Y H:i:s', $bars[0]['time']).' to history ending at '.gmDate('D, d-M-Y H:i:s', $this->lastM1DataTime));
+        if ($bars[0]['time'] <= $this->lastM1DataTime) throw new IllegalStateException('Cannot append bar(s) of '.gmdate('D, d-M-Y H:i:s', $bars[0]['time']).' to history ending at '.gmdate('D, d-M-Y H:i:s', $this->lastM1DataTime));
 
         $this->barBuffer = array_merge($this->barBuffer, $bars);
-        $bufferSize      = sizeOf($this->barBuffer);
+        $bufferSize      = sizeof($this->barBuffer);
 
         if (!$this->full_bars) {                                          // History ist noch leer
             $this->full_from_offset    = 0;
@@ -1028,7 +1028,7 @@ class HistoryFile extends Object {
         $this->full_to_openTime  = $this->barBuffer[$bufferSize-1]['time'];
         $this->full_to_closeTime = $this->barBuffer[$bufferSize-1]['time'] + 1*MINUTE;
 
-        $this->lastM1DataTime    = $bars[sizeOf($bars)-1]['time'];
+        $this->lastM1DataTime    = $bars[sizeof($bars)-1]['time'];
         $this->full_lastSyncTime = $this->lastM1DataTime + 1*MINUTE;
 
         if ($bufferSize > $this->barBufferSize)
@@ -1044,10 +1044,10 @@ class HistoryFile extends Object {
     private function appendToTimeframe(array $bars) {
         if ($this->closed)                             throw new IllegalStateException('Cannot process a closed '.__CLASS__);
         if (!$bars) return;
-        if ($bars[0]['time'] <= $this->lastM1DataTime) throw new IllegalStateException('Cannot append bar(s) of '.gmDate('D, d-M-Y H:i:s', $bars[0]['time']).' to history ending at '.gmDate('D, d-M-Y H:i:s', $this->lastM1DataTime));
+        if ($bars[0]['time'] <= $this->lastM1DataTime) throw new IllegalStateException('Cannot append bar(s) of '.gmdate('D, d-M-Y H:i:s', $bars[0]['time']).' to history ending at '.gmdate('D, d-M-Y H:i:s', $this->lastM1DataTime));
 
         $currentBar = null;
-        $bufferSize = sizeOf($this->barBuffer);
+        $bufferSize = sizeof($this->barBuffer);
         if ($bufferSize)
             $currentBar = &$this->barBuffer[$bufferSize-1];
 
@@ -1096,10 +1096,10 @@ class HistoryFile extends Object {
     private function appendToW1(array $bars) {
         if ($this->closed)                             throw new IllegalStateException('Cannot process a closed '.__CLASS__);
         if (!$bars) return;
-        if ($bars[0]['time'] <= $this->lastM1DataTime) throw new IllegalStateException('Cannot append bar(s) of '.gmDate('D, d-M-Y H:i:s', $bars[0]['time']).' to history ending at '.gmDate('D, d-M-Y H:i:s', $this->lastM1DataTime));
+        if ($bars[0]['time'] <= $this->lastM1DataTime) throw new IllegalStateException('Cannot append bar(s) of '.gmdate('D, d-M-Y H:i:s', $bars[0]['time']).' to history ending at '.gmdate('D, d-M-Y H:i:s', $this->lastM1DataTime));
 
         $currentBar = null;
-        $bufferSize =  sizeOf($this->barBuffer);
+        $bufferSize =  sizeof($this->barBuffer);
         if ($bufferSize)
             $currentBar = &$this->barBuffer[$bufferSize-1];
 
@@ -1113,7 +1113,7 @@ class HistoryFile extends Object {
             }
             else {
                 // neue Bar beginnen
-                $dow                = (int) gmDate('w', $bar['time']);            // 00:00, Montag
+                $dow                = (int) gmdate('w', $bar['time']);            // 00:00, Montag
                 $openTime           =  $bar['time'] - $bar['time']%DAY - (($dow+6)%7)*DAYS;
                 $this->barBuffer[]  =  $bar;
                 $currentBar         = &$this->barBuffer[$bufferSize++];
@@ -1149,10 +1149,10 @@ class HistoryFile extends Object {
     private function appendToMN1(array $bars) {
         if ($this->closed)                             throw new IllegalStateException('Cannot process a closed '.__CLASS__);
         if (!$bars) return;
-        if ($bars[0]['time'] <= $this->lastM1DataTime) throw new IllegalStateException('Cannot append bar(s) of '.gmDate('D, d-M-Y H:i:s', $bars[0]['time']).' to history ending at '.gmDate('D, d-M-Y H:i:s', $this->lastM1DataTime));
+        if ($bars[0]['time'] <= $this->lastM1DataTime) throw new IllegalStateException('Cannot append bar(s) of '.gmdate('D, d-M-Y H:i:s', $bars[0]['time']).' to history ending at '.gmdate('D, d-M-Y H:i:s', $this->lastM1DataTime));
 
         $currentBar = null;
-        $bufferSize =  sizeOf($this->barBuffer);
+        $bufferSize =  sizeof($this->barBuffer);
         if ($bufferSize)
             $currentBar = &$this->barBuffer[$bufferSize-1];
 
@@ -1166,14 +1166,14 @@ class HistoryFile extends Object {
             }
             else {
                 // neue Bar beginnen
-                $dom = (int) gmDate('d', $bar['time']);
-                $m   = (int) gmDate('m', $bar['time']);
-                $y   = (int) gmDate('Y', $bar['time']);                           // 00:00, 1. des Monats
+                $dom = (int) gmdate('d', $bar['time']);
+                $m   = (int) gmdate('m', $bar['time']);
+                $y   = (int) gmdate('Y', $bar['time']);                           // 00:00, 1. des Monats
                 $openTime           =  $bar['time'] - $bar['time']%DAYS - ($dom-1)*DAYS;
                 $this->barBuffer[]  =  $bar;
                 $currentBar         = &$this->barBuffer[$bufferSize++];
                 $currentBar['time'] =  $openTime;
-                $closeTime          =  gmMkTime(0, 0, 0, $m+1, 1, $y);            // 00:00, 1. des naechsten Monats
+                $closeTime          =  gmmktime(0, 0, 0, $m+1, 1, $y);            // 00:00, 1. des naechsten Monats
 
                 // Metadaten aktualisieren
                 if (!$this->full_bars) {                                          // History ist noch leer
@@ -1205,16 +1205,16 @@ class HistoryFile extends Object {
      */
     public function flush($count=PHP_INT_MAX) {
         if ($this->closed)   throw new IllegalStateException('Cannot process a closed '.__CLASS__);
-        if (!is_int($count)) throw new IllegalTypeException('Illegal type of parameter $count: '.getType($count));
+        if (!is_int($count)) throw new IllegalTypeException('Illegal type of parameter $count: '.gettype($count));
         if ($count < 0)      throw new InvalidArgumentException('Invalid parameter $count: '.$count);
 
-        $bufferSize = sizeOf($this->barBuffer);
+        $bufferSize = sizeof($this->barBuffer);
         $todo       = min($bufferSize, $count);
         if (!$todo) return 0;
 
 
         // (1) FilePointer setzen
-        fSeek($this->hFile, HistoryHeader::SIZE + ($this->stored_to_offset+1)*$this->barSize);
+        fseek($this->hFile, HistoryHeader::SIZE + ($this->stored_to_offset+1)*$this->barSize);
 
 
         // (2) Bars schreiben
@@ -1231,7 +1231,7 @@ class HistoryFile extends Object {
             if ($i+1 == $todo)
                 break;
         }
-        //if ($this->period==PERIOD_M1) echoPre(__METHOD__.'()  wrote '.$todo.' bars, lastBar.time='.gmDate('D, d-M-Y H:i:s', $this->barBuffer[$todo-1]['time']));
+        //if ($this->period==PERIOD_M1) echoPre(__METHOD__.'()  wrote '.$todo.' bars, lastBar.time='.gmdate('D, d-M-Y H:i:s', $this->barBuffer[$todo-1]['time']));
 
 
         // (3) Metadaten aktualisieren
@@ -1270,9 +1270,9 @@ class HistoryFile extends Object {
      * @return int - Anzahl der geschriebenen Bytes
      */
     private function writeHistoryHeader() {
-        fSeek($this->hFile, 0);
+        fseek($this->hFile, 0);
         $format  = HistoryHeader::packFormat();
-        $written = fWrite($this->hFile, pack($format, $this->hstHeader->getFormat(),            // V
+        $written = fwrite($this->hFile, pack($format, $this->hstHeader->getFormat(),            // V
                                                       $this->hstHeader->getCopyright(),         // a64
                                                       $this->hstHeader->getSymbol(),            // a12
                                                       $this->hstHeader->getPeriod(),            // V
@@ -1293,28 +1293,28 @@ class HistoryFile extends Object {
         if ($showStored) {
             echoPre($Pxx.'::stored_bars           = '. $this->stored_bars);
             echoPre($Pxx.'::stored_from_offset    = '. $this->stored_from_offset);
-            echoPre($Pxx.'::stored_from_openTime  = '.($this->stored_from_openTime  ? gmDate('D, d-M-Y H:i:s', $this->stored_from_openTime ) : 0));
-            echoPre($Pxx.'::stored_from_closeTime = '.($this->stored_from_closeTime ? gmDate('D, d-M-Y H:i:s', $this->stored_from_closeTime) : 0));
+            echoPre($Pxx.'::stored_from_openTime  = '.($this->stored_from_openTime  ? gmdate('D, d-M-Y H:i:s', $this->stored_from_openTime ) : 0));
+            echoPre($Pxx.'::stored_from_closeTime = '.($this->stored_from_closeTime ? gmdate('D, d-M-Y H:i:s', $this->stored_from_closeTime) : 0));
             echoPre($Pxx.'::stored_to_offset      = '. $this->stored_to_offset);
-            echoPre($Pxx.'::stored_to_openTime    = '.($this->stored_to_openTime    ? gmDate('D, d-M-Y H:i:s', $this->stored_to_openTime   ) : 0));
-            echoPre($Pxx.'::stored_to_closeTime   = '.($this->stored_to_closeTime   ? gmDate('D, d-M-Y H:i:s', $this->stored_to_closeTime  ) : 0));
-            echoPre($Pxx.'::stored_lastSyncTime   = '.($this->stored_lastSyncTime   ? gmDate('D, d-M-Y H:i:s', $this->stored_lastSyncTime  ) : 0));
+            echoPre($Pxx.'::stored_to_openTime    = '.($this->stored_to_openTime    ? gmdate('D, d-M-Y H:i:s', $this->stored_to_openTime   ) : 0));
+            echoPre($Pxx.'::stored_to_closeTime   = '.($this->stored_to_closeTime   ? gmdate('D, d-M-Y H:i:s', $this->stored_to_closeTime  ) : 0));
+            echoPre($Pxx.'::stored_lastSyncTime   = '.($this->stored_lastSyncTime   ? gmdate('D, d-M-Y H:i:s', $this->stored_lastSyncTime  ) : 0));
         }
         if ($showFull) {
             $showStored && echoPre(NL);
             echoPre($Pxx.'::full_bars             = '. $this->full_bars);
             echoPre($Pxx.'::full_from_offset      = '. $this->full_from_offset);
-            echoPre($Pxx.'::full_from_openTime    = '.($this->full_from_openTime    ? gmDate('D, d-M-Y H:i:s', $this->full_from_openTime   ) : 0));
-            echoPre($Pxx.'::full_from_closeTime   = '.($this->full_from_closeTime   ? gmDate('D, d-M-Y H:i:s', $this->full_from_closeTime  ) : 0));
+            echoPre($Pxx.'::full_from_openTime    = '.($this->full_from_openTime    ? gmdate('D, d-M-Y H:i:s', $this->full_from_openTime   ) : 0));
+            echoPre($Pxx.'::full_from_closeTime   = '.($this->full_from_closeTime   ? gmdate('D, d-M-Y H:i:s', $this->full_from_closeTime  ) : 0));
             echoPre($Pxx.'::full_to_offset        = '. $this->full_to_offset);
-            echoPre($Pxx.'::full_to_openTime      = '.($this->full_to_openTime      ? gmDate('D, d-M-Y H:i:s', $this->full_to_openTime     ) : 0));
-            echoPre($Pxx.'::full_to_closeTime     = '.($this->full_to_closeTime     ? gmDate('D, d-M-Y H:i:s', $this->full_to_closeTime    ) : 0));
-            echoPre($Pxx.'::full_lastSyncTime     = '.($this->full_lastSyncTime     ? gmDate('D, d-M-Y H:i:s', $this->full_lastSyncTime    ) : 0));
+            echoPre($Pxx.'::full_to_openTime      = '.($this->full_to_openTime      ? gmdate('D, d-M-Y H:i:s', $this->full_to_openTime     ) : 0));
+            echoPre($Pxx.'::full_to_closeTime     = '.($this->full_to_closeTime     ? gmdate('D, d-M-Y H:i:s', $this->full_to_closeTime    ) : 0));
+            echoPre($Pxx.'::full_lastSyncTime     = '.($this->full_lastSyncTime     ? gmdate('D, d-M-Y H:i:s', $this->full_lastSyncTime    ) : 0));
         }
         if ($showFile) {
             ($showStored || $showFull) && echoPre(NL);
-            echoPre($Pxx.'::lastM1DataTime        = '.($this->lastM1DataTime        ? gmDate('D, d-M-Y H:i:s', $this->lastM1DataTime       ) : 0));
-            echoPre($Pxx.'::fp                    = '.($fp=fTell($this->hFile)).' (bar offset '.(($fp-HistoryHeader::SIZE)/$this->barSize).')');
+            echoPre($Pxx.'::lastM1DataTime        = '.($this->lastM1DataTime        ? gmdate('D, d-M-Y H:i:s', $this->lastM1DataTime       ) : 0));
+            echoPre($Pxx.'::fp                    = '.($fp=ftell($this->hFile)).' (bar offset '.(($fp-HistoryHeader::SIZE)/$this->barSize).')');
         }
     }
 }

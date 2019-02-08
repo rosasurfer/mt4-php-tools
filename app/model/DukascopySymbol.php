@@ -53,9 +53,9 @@ class DukascopySymbol extends RosatraderModel {
      * @return string - start time based on an FXT timestamp
      */
     public function getHistoryTicksStart($format = 'Y-m-d H:i:s') {
-        if (!isSet($this->historyTicksStart) || $format=='Y-m-d H:i:s')
+        if (!isset($this->historyTicksStart) || $format=='Y-m-d H:i:s')
             return $this->historyTicksStart;
-        return gmDate($format, strToTime($this->historyTicksStart.' GMT'));
+        return gmdate($format, strtotime($this->historyTicksStart.' GMT'));
     }
 
 
@@ -67,9 +67,9 @@ class DukascopySymbol extends RosatraderModel {
      * @return string - end time based on an FXT timestamp
      */
     public function getHistoryTicksEnd($format = 'Y-m-d H:i:s') {
-        if (!isSet($this->historyTicksEnd) || $format=='Y-m-d H:i:s')
+        if (!isset($this->historyTicksEnd) || $format=='Y-m-d H:i:s')
             return $this->historyTicksEnd;
-        return gmDate($format, strToTime($this->historyTicksEnd.' GMT'));
+        return gmdate($format, strtotime($this->historyTicksEnd.' GMT'));
     }
 
 
@@ -81,9 +81,9 @@ class DukascopySymbol extends RosatraderModel {
      * @return string - start time based on an FXT timestamp
      */
     public function getHistoryM1Start($format = 'Y-m-d H:i:s') {
-        if (!isSet($this->historyM1Start) || $format=='Y-m-d H:i:s')
+        if (!isset($this->historyM1Start) || $format=='Y-m-d H:i:s')
             return $this->historyM1Start;
-        return gmDate($format, strToTime($this->historyM1Start.' GMT'));
+        return gmdate($format, strtotime($this->historyM1Start.' GMT'));
     }
 
 
@@ -95,9 +95,9 @@ class DukascopySymbol extends RosatraderModel {
      * @return string - end time based on an FXT timestamp
      */
     public function getHistoryM1End($format = 'Y-m-d H:i:s') {
-        if (!isSet($this->historyM1End) || $format=='Y-m-d H:i:s')
+        if (!isset($this->historyM1End) || $format=='Y-m-d H:i:s')
             return $this->historyM1End;
-        return gmDate($format, strToTime($this->historyM1End.' GMT'));
+        return gmdate($format, strtotime($this->historyM1End.' GMT'));
     }
 
 
@@ -110,7 +110,7 @@ class DukascopySymbol extends RosatraderModel {
      * @return bool - success status
      */
     public function showHistoryStatus($local = true) {
-        if (!is_bool($local)) throw new IllegalTypeException('Illegal type of parameter $local: '.getType($local));
+        if (!is_bool($local)) throw new IllegalTypeException('Illegal type of parameter $local: '.gettype($local));
 
         if ($local) {
             $start = $this->getHistoryM1Start('D, d-M-Y H:i');
@@ -171,11 +171,11 @@ class DukascopySymbol extends RosatraderModel {
      * </pre>
      */
     public function getHistory($period, $time) {
-        if (!is_int($period))     throw new IllegalTypeException('Illegal type of parameter $period: '.getType($period));
-        if (!is_int($time))       throw new IllegalTypeException('Illegal type of parameter $time: '.getType($time));
+        if (!is_int($period))     throw new IllegalTypeException('Illegal type of parameter $period: '.gettype($period));
+        if (!is_int($time))       throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
         if ($period != PERIOD_M1) throw new UnimplementedFeatureException(__METHOD__.'('.periodToStr($period).') not implemented');
 
-        echoPre('[Info]    '.$this->name.'  getting M1 history'.($time ? ' for '.gmDate('D, d-M-Y', $time) : ' since start'));
+        echoPre('[Info]    '.$this->name.'  getting M1 history'.($time ? ' for '.gmdate('D, d-M-Y', $time) : ' since start'));
 
         // determine needed files
         // load remote files

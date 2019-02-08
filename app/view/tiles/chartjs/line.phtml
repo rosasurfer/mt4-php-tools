@@ -38,7 +38,7 @@ var chart = new Chart('canvas', {
             pointRadius:     0,
             data: [
                 <?foreach ($trades as $i => $trade) {
-                    $time   = gmDate(DATE_ISO8601, strToTime($trade->getCloseTime().' GMT'));   // '2014-09-08T08:02:17-05:00' (ISO 8601)
+                    $time   = gmdate(DATE_ISO8601, strtotime($trade->getCloseTime().' GMT'));   // '2014-09-08T08:02:17-05:00' (ISO 8601)
                     $profit = $trade->getProfit();
                     if ($i++) echo ','.NL;
                     echo '{x: "'.$time.'", y: '.$profit.'}';

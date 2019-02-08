@@ -12,7 +12,7 @@ use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\net\mail\Mailer;
 use rosasurfer\util\PHP;
 
-require(dirName(realPath(__FILE__)).'/../../../app/init.php');
+require(dirname(realpath(__FILE__)).'/../../../app/init.php');
 !CLI && exit(1|stderror('error: This script must be executed from a command line interface.'));
 
 
@@ -54,10 +54,10 @@ if (empty($errorLog) || $errorLog=='syslog') {              // errors are logged
 // (2) check log file for existence and process it
 if (!is_file    ($errorLog)) { $quiet || echoPre('error log empty: '       .$errorLog); exit(0); }
 if (!is_writable($errorLog)) {          stderror('cannot access log file: '.$errorLog); exit(1); }
-$errorLog = realPath($errorLog);
+$errorLog = realpath($errorLog);
 
 // rename the file; we don't want to lock it cause doing so could block the main app
-$tempName = tempNam(dirName($errorLog), baseName($errorLog).'.');
+$tempName = tempnam(dirname($errorLog), basename($errorLog).'.');
 if (!rename($errorLog, $tempName)) {
     stderror('cannot rename log file: '  .$errorLog);
     exit(1);
@@ -65,10 +65,10 @@ if (!rename($errorLog, $tempName)) {
 
 // read the log file line by line
 PHP::ini_set('auto_detect_line_endings', 1);
-$hFile = fOpen($tempName, 'rb');
+$hFile = fopen($tempName, 'rb');
 $line  = $entry = '';
 $i = 0;
-while (($line=fGets($hFile)) !== false) {
+while (($line=fgets($hFile)) !== false) {
     $i++;
     $line = trim($line, "\r\n");                // PHP doesn't correctly handle EOL_NETSCAPE which is error_log() standard on Windows
     if (strStartsWith($line, '[')) {            // lines starting with a bracket "[" are considered the start of an entry
@@ -80,7 +80,7 @@ while (($line=fGets($hFile)) !== false) {
 processEntry($entry);                           // process the last entry (if any)
 
 // delete the processed file
-fClose($hFile);
+fclose($hFile);
 unlink($tempName);
 
 
@@ -98,9 +98,9 @@ exit(0);
  * @param  string $entry - a single log entry
  */
 function processEntry($entry) {
-    if (!is_string($entry)) throw new IllegalTypeException('Illegal type of parameter $entry: '.getType($entry));
+    if (!is_string($entry)) throw new IllegalTypeException('Illegal type of parameter $entry: '.gettype($entry));
     $entry = trim($entry);
-    if (!strLen($entry)) return;
+    if (!strlen($entry)) return;
 
     $config = Application::getConfig();
     $receivers = [];
@@ -112,16 +112,16 @@ function processEntry($entry) {
             }
         }
     }                                                               // without receivers mail is sent to the system user
-    !$receivers && $receivers[] = strToLower(get_current_user().'@localhost');
+    !$receivers && $receivers[] = strtolower(get_current_user().'@localhost');
 
-    $subject = strTok($entry, "\r\n");                              // that's CR or LF, not CRLF
+    $subject = strtok($entry, "\r\n");                              // that's CR or LF, not CRLF
     $message = $entry;
     $sender  = null;
     $headers = [];
 
     static $mailer; if (!$mailer) {
         $options = [];
-        if (strLen($name = $config->get('log.mail.profile', ''))) {
+        if (strlen($name = $config->get('log.mail.profile', ''))) {
             $options = $config->get('mail.profile.'.$name, []);
             $sender  = $config->get('mail.profile.'.$name.'.from', null);
             $headers = $config->get('mail.profile.'.$name.'.headers', []);
@@ -130,7 +130,7 @@ function processEntry($entry) {
     }
 
     global $quiet;
-    $quiet || echoPre(subStr($subject, 0, 80).'...');
+    $quiet || echoPre(substr($subject, 0, 80).'...');
 
     foreach ($receivers as $receiver) {
         $mailer->sendMail($sender, $receiver, $subject, $message, $headers);
@@ -144,10 +144,10 @@ function processEntry($entry) {
  * @param  string $message [optional] - additional message to display (default: none)
  */
 function help($message = null) {
-    if (isSet($message))
+    if (isset($message))
         echo $message.NL;
 
-    $self = baseName($_SERVER['PHP_SELF']);
+    $self = basename($_SERVER['PHP_SELF']);
 
 echo <<<HELP
 

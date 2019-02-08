@@ -59,7 +59,7 @@ class TestDAO extends DAO {
      * @return Test|null - instance or NULL if no such instance was found
      */
     public function findById($id) {
-        if (!is_int($id)) throw new IllegalTypeException('Illegal type of parameter $id: '.getType($id));
+        if (!is_int($id)) throw new IllegalTypeException('Illegal type of parameter $id: '.gettype($id));
         if ($id < 1)      throw new InvalidArgumentException('Invalid argument $id: '.$id);
 
         $sql = 'select *
@@ -77,7 +77,7 @@ class TestDAO extends DAO {
      * @return Test|null - Test instance or NULL if no such instance exists
      */
     public function findByReportingSymbol($symbol) {
-        if (!is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
+        if (!is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.gettype($symbol));
 
         $symbol = $this->escapeLiteral($symbol);
 

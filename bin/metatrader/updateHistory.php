@@ -16,7 +16,7 @@ use rosasurfer\rt\model\RosaSymbol;
 use function rosasurfer\rt\fxTime;
 use function rosasurfer\rt\isWeekend;
 
-require(dirName(realPath(__FILE__)).'/../../app/init.php');
+require(dirname(realpath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');
 
 
@@ -82,7 +82,7 @@ function updateHistory(RosaSymbol $symbol) {
 
     // HistorySet oeffnen bzw. neues Set erstellen
     if ($history = HistorySet::get($symbolName, $directory)) {
-        if ($verbose) echoPre('[Info]    lastSyncTime: '.(($lastSyncTime=$history->getLastSyncTime()) ? gmDate('D, d-M-Y H:i:s', $lastSyncTime) : 0));
+        if ($verbose) echoPre('[Info]    lastSyncTime: '.(($lastSyncTime=$history->getLastSyncTime()) ? gmdate('D, d-M-Y H:i:s', $lastSyncTime) : 0));
     }
     !$history && $history=HistorySet::create($symbolName, $symbolDigits, $format=400, $directory);
 
@@ -93,10 +93,10 @@ function updateHistory(RosaSymbol $symbol) {
     $lastMonth = -1;
 
     for ($day=$startDay; $day < $today; $day+=1*DAY) {
-        $shortDate = gmDate('D, d-M-Y', $day);
-        $month     = (int) gmDate('m', $day);
+        $shortDate = gmdate('D, d-M-Y', $day);
+        $month     = (int) gmdate('m', $day);
         if ($month != $lastMonth) {
-            echoPre('[Info]    '.gmDate('M-Y', $day));
+            echoPre('[Info]    '.gmdate('M-Y', $day));
             $lastMonth = $month;
         }
         if (!isWeekend($day)) {                                                                     // nur an Handelstagen
@@ -128,7 +128,7 @@ function updateHistory(RosaSymbol $symbol) {
 function help($message = null) {
     if (is_null($message))
         $message = 'Updates the MetaTrader history of the specified symbols.';
-    $self = baseName($_SERVER['PHP_SELF']);
+    $self = basename($_SERVER['PHP_SELF']);
 
 echo <<<HELP
 $message

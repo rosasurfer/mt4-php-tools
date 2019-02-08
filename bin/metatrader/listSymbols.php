@@ -9,7 +9,7 @@ namespace rosasurfer\rt\metatrader\list_symbols;
 
 use rosasurfer\rt\metatrader\MT4;
 
-require(dirName(realPath(__FILE__)).'/../../app/init.php');
+require(dirname(realpath(__FILE__)).'/../../app/init.php');
 
 
 // -- Konfiguration ---------------------------------------------------------------------------------------------------------
@@ -54,7 +54,7 @@ foreach ($args as $i => $arg) {
                 $files[] = $entry;              // nur Dateien uebernehmen
             }
             !$files && exit(1|stderror('file(s) not found: '.$arg.($matchesDir ? ' (enter a trailing slash "/" to search directories)':'')));
-            uSort($files, 'compareFileNames');  // Datei-/Verzeichnisnamen lassen sich mit den existierenden Funktionen nicht natuerlich sortieren
+            usort($files, 'compareFileNames');  // Datei-/Verzeichnisnamen lassen sich mit den existierenden Funktionen nicht natuerlich sortieren
         }
         continue;
     }
@@ -79,8 +79,8 @@ foreach ($args as $i => $arg) {
 
     // include specific field
     if (strStartsWith($arg, '+')) {
-        $key = subStr($arg, 1);
-        if (!strLen($key)) exit(1|help('invalid field specifier: '.$arg));
+        $key = substr($arg, 1);
+        if (!strlen($key)) exit(1|help('invalid field specifier: '.$arg));
         unset($fieldArgs['-'.$key]);                                            // drops element if it exists
         if (!in_array('++', $fieldArgs) && !in_array('+'.$key, $fieldArgs))
             $fieldArgs[] = '+'.$key;
@@ -89,8 +89,8 @@ foreach ($args as $i => $arg) {
 
     // exclude specific field
     if (strStartsWith($arg, '-')) {
-        $key = subStr($arg, 1);
-        if (!strLen($key)) exit(1|help('invalid field specifier: '.$arg));
+        $key = substr($arg, 1);
+        if (!strlen($key)) exit(1|help('invalid field specifier: '.$arg));
         unset($fieldArgs['+'.$key]);                                            // drops element if it exists
         if (in_array('++', $fieldArgs) && !in_array('-'.$key, $fieldArgs))
             $fieldArgs[] = '-'.$key;
@@ -105,11 +105,11 @@ foreach ($args as $i => $arg) {
 // (2) ggf. verfuegbare Felder anzeigen und danach abbrechen
 $allFields = MT4::SYMBOL_getFields();               // TODO: Feld 'leverage' dynamisch hinzufuegen
                                                     //       array_splice($fields, array_search('marginDivider', $fields)+1, 0, ['leverage']);
-if (isSet($options['listFields'])) {
+if (isset($options['listFields'])) {
     echoPre($s='Symbol fields:');
-    echoPre(str_repeat('-', strLen($s)));
+    echoPre(str_repeat('-', strlen($s)));
     foreach ($allFields as $field) {
-        echoPre(ucFirst($field));
+        echoPre(ucfirst($field));
     }
     exit(0);
 }
@@ -138,15 +138,15 @@ foreach ($fieldArgs as $arg) {
         continue;
     }
     if ($arg[0] == '+') {
-        $name = strToLower(strRight($arg, -1));
-        if (isSet($allFieldsLower[$name])) {
+        $name = strtolower(strRight($arg, -1));
+        if (isset($allFieldsLower[$name])) {
             $realName = $allFields[$allFieldsLower[$name]];
             $usedFields[$realName] = $realName;                                  // real-name => print-name    Feld ON
         }
     }
     else if ($arg[0] == '-') {
-        $name = strToLower(strRight($arg, -1));
-        if (isSet($allFieldsLower[$name])) {
+        $name = strtolower(strRight($arg, -1));
+        if (isset($allFieldsLower[$name])) {
             $realName = $allFields[$allFieldsLower[$name]];
             $usedFields[$realName] = null;                                       // real-name => (null)        Feld OFF
         }
@@ -160,8 +160,8 @@ foreach ($usedFields as $name => $value) {
         continue;
     }
     $usedFields[$name] = null;
-    $usedFields[$name]['printName'] = ucFirst($value);                         // [real-name][printName] => print-name
-    $usedFields[$name]['length'   ] = strLen($value);                          // [real-name][length]    => (int)
+    $usedFields[$name]['printName'] = ucfirst($value);                         // [real-name][printName] => print-name
+    $usedFields[$name]['length'   ] = strlen($value);                          // [real-name][length]    => (int)
 }
 
 
@@ -190,7 +190,7 @@ exit(0);
  */
 function collectData($file, array &$fields, array &$data, array $options) {
     // (1) Dateigroesse pruefen
-    $fileSize = fileSize($file);
+    $fileSize = filesize($file);
     if ($fileSize < MT4::SYMBOL_SIZE) {
         $data[$file]['meta:error'] = 'invalid or unsupported format, file size ('.$fileSize.') < MinFileSize ('.MT4::SYMBOL_SIZE.')';
         return true;
@@ -200,38 +200,38 @@ function collectData($file, array &$fields, array &$data, array $options) {
 
 
     // (2) Laenge des laengsten Dateinamens speichern
-    $data['meta:maxFileLength'] = max(strLen($file), isSet($data['meta:maxFileLength']) ? $data['meta:maxFileLength'] : 0);
+    $data['meta:maxFileLength'] = max(strlen($file), isset($data['meta:maxFileLength']) ? $data['meta:maxFileLength'] : 0);
 
 
     // (3) Anzahl der Symbole ermitteln und speichern
     $symbolsSize = (int)($fileSize/MT4::SYMBOL_SIZE);
     $data[$file]['meta:symbolsSize'] = $symbolsSize;
-    if (isSet($options['countSymbols']))                                             // Die Meta-Daten liegen in derselben Arrayebene wie
+    if (isset($options['countSymbols']))                                             // Die Meta-Daten liegen in derselben Arrayebene wie
         return true;                           // ggf. sofort zurueckkehren            // die Symboldaten und muessen Namen haben, die mit den
                                                                                                                 // Feldnamen der Symbole nicht kollidieren koennen.
 
     // (4) Daten auslesen
-    $hFile   = fOpen($file, 'rb');
+    $hFile   = fopen($file, 'rb');
     $symbols = [];
     for ($i=0; $i < $symbolsSize; $i++) {
-        $symbols[] = unpack(MT4::SYMBOL_getUnpackFormat(), fRead($hFile, MT4::SYMBOL_SIZE));
+        $symbols[] = unpack(MT4::SYMBOL_getUnpackFormat(), fread($hFile, MT4::SYMBOL_SIZE));
     }
-    fClose($hFile);
+    fclose($hFile);
 
 
     // (5) Daten auslesen und maximale Feldlaengen speichern
     $values = $lengths = [];
     foreach ($symbols as $i => $symbol) {
         foreach ($fields as $name => $v) {
-            $value = isSet($symbol[$name]) ? $symbol[$name] : '?';                     // typenlose Felder (x) werden markiert
+            $value = isset($symbol[$name]) ? $symbol[$name] : '?';                     // typenlose Felder (x) werden markiert
             if (is_float($value) && ($e=(int) strRightFrom($s=(string)$value, 'E-'))) {
                 $decimals = strLeftTo(strRightFrom($s, '.'), 'E');
-                $decimals = ($decimals=='0' ? 0 : strLen($decimals)) + $e;
+                $decimals = ($decimals=='0' ? 0 : strlen($decimals)) + $e;
                 if ($decimals <= 14)                                                    // ab 15 Dezimalstellen wissenschaftliche Anzeige
                     $value = numf($value, $decimals);
             }
             $values[$name][]         = $value;                                         // real-name[n]      => value
-            $fields[$name]['length'] = max(strLen($value), $fields[$name]['length']);  // real-name[length] => (int)
+            $fields[$name]['length'] = max(strlen($value), $fields[$name]['length']);  // real-name[length] => (int)
         }
     }
     $data[$file] = array_merge($data[$file], $values);
@@ -258,16 +258,16 @@ function printData(array $files, array $fields, array $data, array $options) {
         $tableHeader .= str_pad($value['printName'], $value['length'], ' ',  STR_PAD_RIGHT).'  ';
     }
     $tableHeader  = strLeft($tableHeader, -2);
-    $countSymbols = isSet($options['countSymbols']);
-    $sizeFiles    = sizeOf($files);
+    $countSymbols = isset($options['countSymbols']);
+    $sizeFiles    = sizeof($files);
 
 
     foreach ($files as $i => $file) {
         // (2) Table-Header ausgeben
         $symbolsSize    = $data[$file]['meta:symbolsSize'];
         $sizeMsg        = $symbolsSize.' symbol'.pluralize($symbolsSize);
-        $tableSeparator = str_repeat('-', max(strLen($file), strLen($tableHeader), strLen($tableSeparator)));
-        $fileSeparator  = str_repeat('=', strLen($tableSeparator));
+        $tableSeparator = str_repeat('-', max(strlen($file), strlen($tableHeader), strlen($tableSeparator)));
+        $fileSeparator  = str_repeat('=', strlen($tableSeparator));
 
         if ($countSymbols) {
             echoPre(str_pad($file.':', $data['meta:maxFileLength']+1, ' ',  STR_PAD_RIGHT).' '.$symbolsSize.' symbols');
@@ -311,12 +311,12 @@ function printData(array $files, array $fields, array $data, array $options) {
 function compareFileNames($fileA, $fileB) {
     if ($fileA === $fileB)
         return 0;
-    $lenA = strLen($fileA);
-    $lenB = strLen($fileB);
+    $lenA = strlen($fileA);
+    $lenB = strlen($fileB);
 
     // beide Strings haben eine Laenge > 0
-    $fileALower = strToLower(str_replace('\\', '/', $fileA));
-    $fileBLower = strToLower(str_replace('\\', '/', $fileB));
+    $fileALower = strtolower(str_replace('\\', '/', $fileA));
+    $fileBLower = strtolower(str_replace('\\', '/', $fileB));
     $len = min($lenA, $lenB);
 
     for ($i=0; $i < $len; $i++) {
@@ -345,7 +345,7 @@ function compareFileNames($fileA, $fileB) {
 function help($message = null) {
     if (is_null($message))
         $message = 'List symbol metadata contained in MetaTrader "symbols.raw" files.';
-    $self = baseName($_SERVER['PHP_SELF']);
+    $self = basename($_SERVER['PHP_SELF']);
 
 echo <<<HELP
 $message

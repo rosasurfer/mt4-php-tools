@@ -107,23 +107,23 @@ class HistorySet extends Object {
      * @param  string $serverDirectory - Serververzeichnis der Historydateien des Sets
      */
     private function __construct_1($symbol, $digits, $format, $serverDirectory) {
-        if (!is_string($symbol))                      throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
-        if (!strLen($symbol))                         throw new InvalidArgumentException('Invalid parameter $symbol: ""');
-        if (strLen($symbol) > MT4::MAX_SYMBOL_LENGTH) throw new InvalidArgumentException('Invalid parameter $symbol: "'.$symbol.'" (max '.MT4::MAX_SYMBOL_LENGTH.' characters)');
-        if (!is_int($digits))                         throw new IllegalTypeException('Illegal type of parameter $digits: '.getType($digits));
+        if (!is_string($symbol))                      throw new IllegalTypeException('Illegal type of parameter $symbol: '.gettype($symbol));
+        if (!strlen($symbol))                         throw new InvalidArgumentException('Invalid parameter $symbol: ""');
+        if (strlen($symbol) > MT4::MAX_SYMBOL_LENGTH) throw new InvalidArgumentException('Invalid parameter $symbol: "'.$symbol.'" (max '.MT4::MAX_SYMBOL_LENGTH.' characters)');
+        if (!is_int($digits))                         throw new IllegalTypeException('Illegal type of parameter $digits: '.gettype($digits));
         if ($digits < 0)                              throw new InvalidArgumentException('Invalid parameter $digits: '.$digits);
-        if (!is_string($serverDirectory))             throw new IllegalTypeException('Illegal type of parameter $serverDirectory: '.getType($serverDirectory));
+        if (!is_string($serverDirectory))             throw new IllegalTypeException('Illegal type of parameter $serverDirectory: '.gettype($serverDirectory));
         if (!is_dir($serverDirectory))                throw new InvalidArgumentException('Directory "'.$serverDirectory.'" not found');
 
         $this->symbol          = $symbol;
         $this->digits          = $digits;
-        $this->serverDirectory = realPath($serverDirectory);
-        $this->serverName      = baseName($this->serverDirectory);
+        $this->serverDirectory = realpath($serverDirectory);
+        $this->serverName      = basename($this->serverDirectory);
 
         // offene Sets durchsuchen und Sets desselben Symbols schliessen
-        $symbolUpper = strToUpper($this->symbol);
+        $symbolUpper = strtoupper($this->symbol);
         foreach (self::$instances as $instance) {
-            if (!$instance->isClosed() && $symbolUpper==strToUpper($instance->getSymbol()) && $this->serverDirectory==$instance->getServerDirectory())
+            if (!$instance->isClosed() && $symbolUpper==strtoupper($instance->getSymbol()) && $this->serverDirectory==$instance->getServerDirectory())
                 $instance->close();
         }
 
@@ -148,13 +148,13 @@ class HistorySet extends Object {
         $this->symbol          =          $file->getSymbol();
         $this->digits          =          $file->getDigits();
         $this->serverName      =          $file->getServerName();
-        $this->serverDirectory = realPath($file->getServerDirectory());
+        $this->serverDirectory = realpath($file->getServerDirectory());
 
         $this->historyFiles[$file->getTimeframe()] = $file;
 
-        $symbolUpper = strToUpper($this->symbol);
+        $symbolUpper = strtoupper($this->symbol);
         foreach (self::$instances as $instance) {
-            if (!$instance->isClosed() && $symbolUpper==strToUpper($instance->getSymbol()) && $this->serverDirectory==$instance->getServerDirectory())
+            if (!$instance->isClosed() && $symbolUpper==strtoupper($instance->getSymbol()) && $this->serverDirectory==$instance->getServerDirectory())
                 throw new RuntimeException('Multiple open HistorySets for "'.$this->serverName.'::'.$this->symbol.'"');
         }
 
@@ -286,16 +286,16 @@ class HistorySet extends Object {
      *                gefundenen Dateien korrupt sind.
      */
     public static function get($symbol, $serverDirectory) {
-        if (!is_string($symbol))          throw new IllegalTypeException('Illegal type of parameter $symbol: '.getType($symbol));
-        if (!strLen($symbol))             throw new InvalidArgumentException('Invalid parameter $symbol: ""');
-        if (!is_string($serverDirectory)) throw new IllegalTypeException('Illegal type of parameter $serverDirectory: '.getType($serverDirectory));
+        if (!is_string($symbol))          throw new IllegalTypeException('Illegal type of parameter $symbol: '.gettype($symbol));
+        if (!strlen($symbol))             throw new InvalidArgumentException('Invalid parameter $symbol: ""');
+        if (!is_string($serverDirectory)) throw new IllegalTypeException('Illegal type of parameter $serverDirectory: '.gettype($serverDirectory));
         if (!is_dir($serverDirectory))    throw new InvalidArgumentException('Directory "'.$serverDirectory.'" not found');
 
         // existierende Instanzen durchsuchen und bei Erfolg die entsprechende Instanz zurueckgeben
-        $symbolUpper     = strToUpper($symbol);
-        $serverDirectory = realPath($serverDirectory);
+        $symbolUpper     = strtoupper($symbol);
+        $serverDirectory = realpath($serverDirectory);
         foreach (self::$instances as $instance) {
-            if (!$instance->isClosed() && $symbolUpper==strToUpper($instance->getSymbol()) && $serverDirectory==$instance->getServerDirectory())
+            if (!$instance->isClosed() && $symbolUpper==strtoupper($instance->getSymbol()) && $serverDirectory==$instance->getServerDirectory())
                 return $instance;
         }
 
@@ -330,7 +330,7 @@ class HistorySet extends Object {
      * @return HistoryFile
      */
     private function getFile($timeframe) {
-        if (!isSet($this->historyFiles[$timeframe])) {
+        if (!isset($this->historyFiles[$timeframe])) {
             $fileName = $this->serverDirectory.'/'.$this->symbol.$timeframe.'.hst';
 
             $file = null;
@@ -419,12 +419,12 @@ class HistorySet extends Object {
         foreach ($this->historyFiles as $timeframe => $file) {
             if ($file) {
                 $bars = $file->barBuffer;
-                $size = sizeOf($bars);
+                $size = sizeof($bars);
                 $firstBar = $lastBar = null;
                 if ($size) {
-                    if (isSet($bars[0]['time']) && $bars[$size-1]['time']) {
-                        $firstBar = '  from='.gmDate('d-M-Y H:i', $bars[0      ]['time']);
-                        $lastBar  = '  to='  .gmDate('d-M-Y H:i', $bars[$size-1]['time']);
+                    if (isset($bars[0]['time']) && $bars[$size-1]['time']) {
+                        $firstBar = '  from='.gmdate('d-M-Y H:i', $bars[0      ]['time']);
+                        $lastBar  = '  to='  .gmdate('d-M-Y H:i', $bars[$size-1]['time']);
                     }
                     else {
                         $firstBar = $lastBar = '  invalid';

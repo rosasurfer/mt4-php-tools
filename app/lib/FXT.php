@@ -20,10 +20,10 @@ class FXT extends StaticClass {
      * @return string - formatted string
      */
     public static function fxDate($format, $fxTime = null) {
-        if (!is_string($format))   throw new IllegalTypeException('Illegal type of parameter $format: '.getType($format));
+        if (!is_string($format))   throw new IllegalTypeException('Illegal type of parameter $format: '.gettype($format));
         if (func_num_args() < 2)   $fxTime = fxTime();
-        else if (!is_int($fxTime)) throw new IllegalTypeException('Illegal type of parameter $fxTime: '.getType($fxTime));
+        else if (!is_int($fxTime)) throw new IllegalTypeException('Illegal type of parameter $fxTime: '.gettype($fxTime));
 
-        return gmDate($format, $fxTime);
+        return gmdate($format, $fxTime);
     }
 }

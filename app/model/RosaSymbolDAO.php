@@ -57,7 +57,7 @@ class RosaSymbolDAO extends DAO {
      * @return RosaSymbol|null
      */
     public function findByName($name) {
-        if (!is_string($name)) throw new IllegalTypeException('Illegal type of parameter $name: '.getType($name));
+        if (!is_string($name)) throw new IllegalTypeException('Illegal type of parameter $name: '.gettype($name));
 
         $name = $this->escapeLiteral($name);
         $sql = 'select *
@@ -77,7 +77,7 @@ class RosaSymbolDAO extends DAO {
      * @throws NoSuchRecordException if no such instance was found
      */
     public function getByName($name) {
-        if (!is_string($name)) throw new IllegalTypeException('Illegal type of parameter $name: '.getType($name));
+        if (!is_string($name)) throw new IllegalTypeException('Illegal type of parameter $name: '.gettype($name));
 
         $name = $this->escapeLiteral($name);
         $sql = 'select *
@@ -95,7 +95,7 @@ class RosaSymbolDAO extends DAO {
      * @return RosaSymbol[] - symbol instances sorted ascending by name
      */
     public function findAllByAutoUpdate($status) {
-        if (!is_bool($status)) throw new IllegalTypeException('Illegal type of parameter $status: '.getType($status));
+        if (!is_bool($status)) throw new IllegalTypeException('Illegal type of parameter $status: '.gettype($status));
 
         $status = $this->escapeLiteral($status);
         $sql = 'select *
@@ -128,7 +128,7 @@ class RosaSymbolDAO extends DAO {
      * @return RosaSymbol[] - symbol instances sorted ascending by name
      */
     public function findAllDukascopyMappedByAutoUpdate($status) {
-        if (!is_bool($status)) throw new IllegalTypeException('Illegal type of parameter $status: '.getType($status));
+        if (!is_bool($status)) throw new IllegalTypeException('Illegal type of parameter $status: '.gettype($status));
 
         $status = $this->escapeLiteral($status);
         $sql = 'select r.*
@@ -148,7 +148,7 @@ class RosaSymbolDAO extends DAO {
      * @return RosaSymbol[] - symbol instances sorted ascending by name
      */
     public function findAllByType($type) {
-        if (!is_string($type)) throw new IllegalTypeException('Illegal type of parameter $type: '.getType($type));
+        if (!is_string($type)) throw new IllegalTypeException('Illegal type of parameter $type: '.gettype($type));
 
         $type = $this->escapeLiteral($type);
         $sql = 'select *
