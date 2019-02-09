@@ -9,6 +9,7 @@ use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 use rosasurfer\exception\UnimplementedFeatureException;
+use rosasurfer\file\FileSystem as FS;
 
 use rosasurfer\rt\Rost;
 
@@ -353,7 +354,7 @@ class HistoryFile extends Object {
         $this->fileName        = $symbol.$timeframe.'.hst';
 
         // rewrite history file and header
-        mkDirWritable($this->serverDirectory);
+        FS::mkDir($this->serverDirectory);
         $fileName    = $this->serverDirectory.'/'.$this->fileName;
         $this->hFile = fopen($fileName, 'wb');                      // FILE_WRITE
         $this->writeHistoryHeader();

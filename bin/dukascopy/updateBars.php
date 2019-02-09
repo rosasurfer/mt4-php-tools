@@ -39,6 +39,7 @@ use rosasurfer\Application;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
+use rosasurfer\file\FileSystem as FS;
 use rosasurfer\net\http\CurlHttpClient;
 use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
@@ -439,22 +440,21 @@ function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $save
 
     // (1) Standard-Browser simulieren
     $userAgent = Application::getConfig()['rt.http.useragent'];
-    $request = HttpRequest::create()
-                          ->setUrl($url)
-                          ->setHeader('User-Agent'     , $userAgent                                                       )
-                          ->setHeader('Accept'         , 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
-                          ->setHeader('Accept-Language', 'en-us'                                                          )
-                          ->setHeader('Accept-Charset' , 'ISO-8859-1,utf-8;q=0.7,*;q=0.7'                                 )
-                          ->setHeader('Connection'     , 'keep-alive'                                                     )
-                          ->setHeader('Cache-Control'  , 'max-age=0'                                                      )
-                          ->setHeader('Referer'        , 'https://www.dukascopy.com/swiss/english/marketwatch/historical/');
+    $request = (new HttpRequest($url))
+               ->setHeader('User-Agent'     , $userAgent                                                       )
+               ->setHeader('Accept'         , 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
+               ->setHeader('Accept-Language', 'en-us'                                                          )
+               ->setHeader('Accept-Charset' , 'ISO-8859-1,utf-8;q=0.7,*;q=0.7'                                 )
+               ->setHeader('Connection'     , 'keep-alive'                                                     )
+               ->setHeader('Cache-Control'  , 'max-age=0'                                                      )
+               ->setHeader('Referer'        , 'https://www.dukascopy.com/swiss/english/marketwatch/historical/');
     $options[CURLOPT_SSL_VERIFYPEER] = false;                           // falls HTTPS verwendet wird
     //$options[CURLOPT_VERBOSE     ] = true;
 
 
     // (2) HTTP-Request abschicken und auswerten
     static $client;
-    !$client && $client = CurlHttpClient::create($options);             // Instanz fuer KeepAlive-Connections wiederverwenden
+    !$client && $client = new CurlHttpClient($options);                 // Instanz fuer KeepAlive-Connections wiederverwenden
 
     $response = $client->send($request);                                // TODO: CURL-Fehler wie bei SimpleTrader behandeln
     $status   = $response->getStatus();
@@ -473,7 +473,7 @@ function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $save
 
         // ist das Flag $saveData gesetzt, Content speichern
         if ($saveData) {
-            mkDirWritable(getVar('rtDir', $symbol, $day, $type));
+            FS::mkDir(getVar('rtDir', $symbol, $day, $type));
             $tmpFile = tempnam(dirname($file=getVar('dukaFile.compressed', $symbol, $day, $type)), basename($file));
             file_put_contents($tmpFile, $response->getContent());
             if (is_file($file)) unlink($file);
@@ -488,7 +488,7 @@ function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $save
             echoPre('[Error]   '.$shortDate.'  url not found (404): '.$url);
 
         if ($saveError) {
-            mkDirWritable(dirname($file=getVar('dukaFile.404', $symbol, $day, $type)));
+            FS::mkDir(dirname($file=getVar('dukaFile.404', $symbol, $day, $type)));
             fclose(fopen($file, 'wb'));
         }
     }
@@ -663,7 +663,7 @@ function saveBars($symbol, $day) {
             echoPre('[Error]   '.$symbol.' history for '.$shortDate.' already exists');
             return false;
         }
-        mkDirWritable(dirname($file));
+        FS::mkDir(dirname($file));
         $tmpFile = tempnam(dirname($file), basename($file));
         file_put_contents($tmpFile, $data);
         rename($tmpFile, $file);                                       // So kann eine existierende Datei niemals korrupt sein.

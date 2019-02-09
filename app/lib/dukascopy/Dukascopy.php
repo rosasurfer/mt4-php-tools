@@ -5,6 +5,7 @@ use rosasurfer\core\Object;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
+use rosasurfer\file\FileSystem as FS;
 use rosasurfer\log\Logger;
 use rosasurfer\net\http\HttpResponse;
 
@@ -140,7 +141,7 @@ class Dukascopy extends Object {
         $rawData = LZMA::decompressData($data);
 
         if (isset($saveAs)) {
-            mkDirWritable(dirname($saveAs));
+            FS::mkDir(dirname($saveAs));
             $tmpFile = tempnam(dirname($saveAs), basename($saveAs));
             file_put_contents($tmpFile, $rawData);
             if (is_file($saveAs)) unlink($saveAs);

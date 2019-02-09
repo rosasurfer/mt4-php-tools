@@ -4,6 +4,7 @@ namespace rosasurfer\rt;
 use rosasurfer\core\StaticClass;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\RuntimeException;
+use rosasurfer\file\FileSystem as FS;
 
 use rosasurfer\rt\model\RosaSymbol;
 
@@ -122,7 +123,7 @@ class RT extends StaticClass {
 
         // write data to new file
         $file = $dir.'/M1.bin';
-        mkDirWritable(dirname($file));
+        FS::mkDir(dirname($file));
         $tmpFile = tempnam(dirname($file), basename($file));
         file_put_contents($tmpFile, $data);
         rename($tmpFile, $file);                                // this way an existing file can't be corrupt

@@ -13,6 +13,7 @@ use rosasurfer\Application;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
+use rosasurfer\file\FileSystem as FS;
 
 use rosasurfer\rt\Rost;
 use rosasurfer\rt\model\RosaSymbol;
@@ -259,7 +260,7 @@ function saveBars($symbol, $day, array $bars, $partial = false) {
     if ($saveRawRTData) {
         if (is_file($file=getVar('rtFile.pl.raw', $symbol, $day)))
             return false(echoPre('[Error]   PL series '.$symbol.' for '.gmdate('D, d-M-Y', $day).' already exists'));
-        mkDirWritable(dirname($file));
+        FS::mkDir(dirname($file));
         $tmpFile = tempnam(dirname($file), basename($file));
         file_put_contents($tmpFile, $data);
         rename($tmpFile, $file);
