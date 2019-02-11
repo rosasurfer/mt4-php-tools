@@ -439,22 +439,21 @@ function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $save
 
     // (1) Standard-Browser simulieren
     $userAgent = Application::getConfig()['rt.http.useragent'];
-    $request = HttpRequest::create()
-                          ->setUrl($url)
-                          ->setHeader('User-Agent'     , $userAgent                                                       )
-                          ->setHeader('Accept'         , 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
-                          ->setHeader('Accept-Language', 'en-us'                                                          )
-                          ->setHeader('Accept-Charset' , 'ISO-8859-1,utf-8;q=0.7,*;q=0.7'                                 )
-                          ->setHeader('Connection'     , 'keep-alive'                                                     )
-                          ->setHeader('Cache-Control'  , 'max-age=0'                                                      )
-                          ->setHeader('Referer'        , 'https://www.dukascopy.com/swiss/english/marketwatch/historical/');
+    $request = (new HttpRequest($url))
+               ->setHeader('User-Agent'     , $userAgent                                                       )
+               ->setHeader('Accept'         , 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
+               ->setHeader('Accept-Language', 'en-us'                                                          )
+               ->setHeader('Accept-Charset' , 'ISO-8859-1,utf-8;q=0.7,*;q=0.7'                                 )
+               ->setHeader('Connection'     , 'keep-alive'                                                     )
+               ->setHeader('Cache-Control'  , 'max-age=0'                                                      )
+               ->setHeader('Referer'        , 'https://www.dukascopy.com/swiss/english/marketwatch/historical/');
     $options[CURLOPT_SSL_VERIFYPEER] = false;                           // falls HTTPS verwendet wird
     //$options[CURLOPT_VERBOSE     ] = true;
 
 
     // (2) HTTP-Request abschicken und auswerten
     static $client;
-    !$client && $client = CurlHttpClient::create($options);             // Instanz fuer KeepAlive-Connections wiederverwenden
+    !$client && $client = new CurlHttpClient($options);                 // Instanz fuer KeepAlive-Connections wiederverwenden
 
     $response = $client->send($request);                                // TODO: CURL-Fehler wie bei SimpleTrader behandeln
     $status   = $response->getStatus();
@@ -550,7 +549,7 @@ function processRawDukascopyBarData($data, $symbol, $day, $type) {
     global $barBuffer; $barBuffer[$type];
 
     // (1) Bars einlesen
-    $bars = Dukascopy ::readBarData($data, $symbol, $type, $day);
+    $bars = Dukascopy::readBarData($data, $symbol, $type, $day);
     $size = sizeof($bars); if ($size != 1*DAY/MINUTES) throw new RuntimeException('Unexpected number of Dukascopy bars in '.getVar('dukaName', null, null, $type).': '.$size.' ('.($size > 1*DAY/MINUTES ? 'more':'less').' then a day)');
 
 

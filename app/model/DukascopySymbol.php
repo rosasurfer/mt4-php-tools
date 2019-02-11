@@ -106,7 +106,6 @@ class DukascopySymbol extends RosatraderModel {
      *
      * @param  bool $local [optional] - whether to show local or remotely fetched history status
      *                                  (default: local)
-     *
      * @return bool - success status
      */
     public function showHistoryStatus($local = true) {

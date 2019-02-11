@@ -40,7 +40,7 @@ use const rosasurfer\rt\DUKASCOPY_TICK_SIZE;
  * };                                   // ----------------------------------------------------------------------------------
  *                                      //               = 20
  */
-class Dukascopy extends Object {
+class Dukascopy extends Object implements IDukascopyService {
 
 
     /** @var HttpClient */
@@ -73,6 +73,11 @@ class Dukascopy extends Object {
     public function fetchHistoryStart($symbol) {
         $data = $this->downloadHistoryStart($symbol);
         echoPre($data);
+
+        // decompress data
+        // interpret data
+        // return data in defined format
+
         return 0;
     }
 

@@ -47,7 +47,7 @@ use rosasurfer\process\Process;
 use rosasurfer\rt\LZMA;
 use rosasurfer\rt\Rost;
 use rosasurfer\rt\dukascopy\Dukascopy;
-use rosasurfer\rt\dukascopy\DukascopyException;
+use rosasurfer\rt\dukascopy\exception\DukascopyException;
 use rosasurfer\rt\model\DukascopySymbol;
 use rosasurfer\rt\model\RosaSymbol;
 
@@ -396,30 +396,29 @@ function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=f
 
     // (1) Standard-Browser simulieren
     $userAgent = Application::getConfig()['rt.http.useragent'];
-    $request = HttpRequest::create()
-                                 ->setUrl($url)
-                                 ->setHeader('User-Agent'     , $userAgent                                                       )
-                                 ->setHeader('Accept'         , 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
-                                 ->setHeader('Accept-Language', 'en-us'                                                          )
-                                 ->setHeader('Accept-Charset' , 'ISO-8859-1,utf-8;q=0.7,*;q=0.7'                                 )
-                                 ->setHeader('Connection'     , 'keep-alive'                                                     )
-                                 ->setHeader('Cache-Control'  , 'max-age=0'                                                      )
-                                 ->setHeader('Referer'        , 'http://www.dukascopy.com/free/candelabrum/'                     );
-    $options[CURLOPT_SSL_VERIFYPEER] = false;                            // falls HTTPS verwendet wird
+    $request = (new HttpRequest($url))
+               ->setHeader('User-Agent'     , $userAgent                                                       )
+               ->setHeader('Accept'         , 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
+               ->setHeader('Accept-Language', 'en-us'                                                          )
+               ->setHeader('Accept-Charset' , 'ISO-8859-1,utf-8;q=0.7,*;q=0.7'                                 )
+               ->setHeader('Connection'     , 'keep-alive'                                                     )
+               ->setHeader('Cache-Control'  , 'max-age=0'                                                      )
+               ->setHeader('Referer'        , 'http://www.dukascopy.com/free/candelabrum/'                     );
+    $options[CURLOPT_SSL_VERIFYPEER] = false;                           // falls HTTPS verwendet wird
     //$options[CURLOPT_VERBOSE     ] = true;
 
 
     // (2) HTTP-Request abschicken und auswerten
     static $httpClient = null;
-    !$httpClient && $httpClient=CurlHttpClient::create($options);        // Instanz fuer KeepAlive-Connections wiederverwenden
+    !$httpClient && $httpClient = new CurlHttpClient($options);         // Instanz fuer KeepAlive-Connections wiederverwenden
 
-    $response = $httpClient->send($request);                             // TODO: CURL-Fehler wie bei SimpleTrader behandeln
+    $response = $httpClient->send($request);                            // TODO: CURL-Fehler wie bei SimpleTrader behandeln
     $status   = $response->getStatus();
     if ($status!=200 && $status!=404) throw new RuntimeException('Unexpected HTTP status '.$status.' ('.HttpResponse::$sc[$status].') for url "'.$url.'"'.NL.printPretty($response, true));
 
     // eine leere Antwort ist moeglich und wird als Fehler behandelt
     $content = $response->getContent();
-    if ($status == 404) $content = '';                                   // moeglichen Content eines 404-Fehlers zuruecksetzen
+    if ($status == 404) $content = '';                                  // moeglichen Content eines 404-Fehlers zuruecksetzen
 
 
     // (3) Download-Success: 200 und Datei ist nicht leer
@@ -486,7 +485,7 @@ function loadCompressedDukascopyTickData($data, $symbol, $gmtHour, $fxtHour) {
     global $saveRawDukascopyFiles;
     $saveAs = $saveRawDukascopyFiles ? getVar('dukaFile.raw', $symbol, $gmtHour) : null;
 
-    $rawData = Dukascopy ::decompressHistoryData($data, $saveAs);
+    $rawData = Dukascopy::decompressHistoryData($data, $saveAs);
     return loadRawDukascopyTickData($rawData, $symbol, $gmtHour, $fxtHour);
 }
 
