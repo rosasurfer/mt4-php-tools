@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3c6dc834c0541e4356868b0f5fc6c113",
+    "content-hash": "7775599b272cb0b6971259745fd4d340",
     "packages": [
         {
             "name": "rosasurfer/ministruts",
@@ -67,6 +67,7 @@
     "prefer-lowest": false,
     "platform": {
         "php": ">=5.6",
+        "ext-bcmath": "*",
         "ext-stats": "*"
     },
     "platform-dev": []
