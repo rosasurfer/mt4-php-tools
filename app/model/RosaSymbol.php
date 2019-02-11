@@ -185,7 +185,7 @@ class RosaSymbol extends RosatraderModel {
      * @param  int $fxDay - FXT timestamp
      *
      * @return array[] - If history for the specified day is not available an empty array is returned. Otherwise a timeseries
-     *                   array is returned with each element describing a M1 bar as following:
+     *                   array is returned with each element describing a M1 bar as follows:
      * <pre>
      * Array [
      *     'time'  => (int),            // bar open time in FXT

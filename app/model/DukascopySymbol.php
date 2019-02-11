@@ -157,7 +157,7 @@ class DukascopySymbol extends RosatraderModel {
      * @param  int $time   - FXT timestamp, if 0 (zero) the oldest available history for the period is returned
      *
      * @return array[] - If the specified history is not available an empty array is returned. Otherwise a timeseries array
-     *                   is returned with each element describing a single bar as following:
+     *                   is returned with each element describing a single bar as follows:
      * <pre>
      * Array [
      *     'time'  => (int),            // bar open time in FXT
