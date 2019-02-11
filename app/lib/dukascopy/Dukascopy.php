@@ -2,6 +2,7 @@
 namespace rosasurfer\rt\dukascopy;
 
 use rosasurfer\core\Object;
+use rosasurfer\exception\IllegalArgumentException;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
@@ -11,8 +12,11 @@ use rosasurfer\net\http\HttpResponse;
 use rosasurfer\rt\LZMA;
 use rosasurfer\rt\model\DukascopySymbol;
 
+use function rosasurfer\rt\periodToStr;
+
 use const rosasurfer\rt\DUKASCOPY_BAR_SIZE;
 use const rosasurfer\rt\DUKASCOPY_TICK_SIZE;
+use const rosasurfer\rt\PERIOD_M1;
 
 
 /**
@@ -64,30 +68,37 @@ class Dukascopy extends Object implements IDukascopyService {
 
 
     /**
-     * Fetch history start infos for the specified symbol.
+     * Fetch history start for the specified symbol from Dukascopy.
      *
      * @param  string $symbol
      *
-     * @return int - FXT timestamp or 0 (zero) if history status information is not available
+     * @return int - FXT timestamp or 0 (zero) if history start info is not available
      */
     public function fetchHistoryStart($symbol) {
         $data = $this->downloadHistoryStart($symbol);
-        echoPre($data);
+        //$root = $this->di()['config']['app.dir.root'];
+        //$data = file_get_contents($root.'/bin/dukascopy/HistoryStart.AUDUSD.bi5');
 
-        // decompress data
-        // interpret data
-        // return data in defined format
-
+        if (strlen($data)) {
+            $times = $this->readHistoryStart($data);
+            $dates = [];
+            foreach ($times as $timeframe => $time) {
+                $datetime = \DateTime::createFromFormat(is_int($time) ? 'U':'U.u', is_int($time) ? (string)$time : number_format($time, 6, '.', ''));
+                $dates[periodToStr($timeframe)] = $datetime->format('D, d-M-Y H:i:s'.(is_int($time) ? '':'.u'));
+            }
+            echoPre($dates);
+            return $times[PERIOD_M1];
+        }
         return 0;
     }
 
 
     /**
-     * Laedt eine Dukascopy-M1-Datei und gibt ihren Inhalt zurueck.
+     * Load history start data for the specified symbol.
      *
      * @param  string $symbol
      *
-     * @return string - downloaded content or an empty string on download errors
+     * @return string - raw binary history start data or an empty string in case of errors
      */
     protected function downloadHistoryStart($symbol) {
         $client = $this->getHttpClient();
@@ -107,23 +118,6 @@ class Dukascopy extends Object implements IDukascopyService {
 
         return ($status==200) ? $response->getContent() : '';
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     /**
@@ -171,14 +165,14 @@ class Dukascopy extends Object implements IDukascopyService {
 
 
     /**
-     * Parse a string with Dukascopy bar data and convert it to a data array.
+     * Parse a string with Dukascopy bar data and convert it to a timeseries array.
      *
      * @param  string $data   - string with Dukascopy bar data
      * @param  string $symbol - Dukascopy symbol
-     * @param  string $type   - meta infos for generating better error messages (Dukascopy data may contain errors)
+     * @param  string $type   - meta info for error message generation
      * @param  int    $time   - ditto
      *
-     * @return array - DUKASCOPY_BAR[] data
+     * @return array[] - DUKASCOPY_BAR[] data as a timeseries array
      */
     public static function readBarData($data, $symbol, $type, $time) {
         /** @var DukascopySymbol $dukaSymbol */
@@ -197,14 +191,12 @@ class Dukascopy extends Object implements IDukascopyService {
 
         static $isLittleEndian = null; is_null($isLittleEndian) && $isLittleEndian=isLittleEndian();
 
-        // pack/unpack don't support explicit big-endian floats, on little-endian machines the byte order
-        // of field "lots" has to be reversed manually
         while ($offset < $lenData) {
             $i++;
             $bars[] = unpack("@$offset/NtimeDelta/Nopen/Nclose/Nlow/Nhigh", $data);
             $s      = substr($data, $offset+20, 4);
-            $lots   = unpack('f', $isLittleEndian ? strrev($s) : $s);   // manually reverse on little-endian machines
-            $bars[$i]['lots'] = round($lots[1], 2);
+            $lots   = unpack('f', $isLittleEndian ? strrev($s) : $s);   // unpack doesn't support explicit big-endian floats, on little-endian
+            $bars[$i]['lots'] = round($lots[1], 2);                     // machines the byte order of field "lots" must be reversed manually
             $offset += DUKASCOPY_BAR_SIZE;
 
             // validate bar data
@@ -261,7 +253,7 @@ class Dukascopy extends Object implements IDukascopyService {
 
         static $isLittleEndian = null; is_null($isLittleEndian) && $isLittleEndian=isLittleEndian();
 
-        // pack/unpack don't support explicit big-endian floats, on little-endian machines the byte order
+        // unpack doesn't support explicit big-endian floats, on little-endian machines the byte order
         // of fields "bidSize" and "askSize" has to be reversed manually
         while ($offset < $lenData) {
             $i++;
@@ -287,5 +279,69 @@ class Dukascopy extends Object implements IDukascopyService {
     public static function readTickFile($fileName) {
         if (!is_string($fileName)) throw new IllegalTypeException('Illegal type of parameter $fileName: '.gettype($fileName));
         return self::readTickData(file_get_contents($fileName));
+    }
+
+
+    /**
+     * Parse a string with a symbol's history start data.
+     *
+     * @param  string $data - raw binary data
+     *
+     * @return array - array with variable number of elements each describing history start of a single timeframe
+     *                 as follows:
+     * <pre>
+     * Array [
+     *     '{timeframe-id}' => {timestamp},     // e.g.: 'PERIOD_M1'    => Sun, 03-Aug-2003 21:00:00
+     *     '{timeframe-id}' => {timestamp},     //       'PERIOD_TICKS' => Sun, 03-Aug-2003 21:00:05.044
+     *     ...                                  //
+     * ]
+     * </pre>
+     */
+    public static function readHistoryStart($data) {
+        if (!is_string($data))          throw new IllegalTypeException('Illegal type of parameter $data: '.gettype($data));
+        $lenData = strlen($data);
+        if (!$lenData || $lenData % 16) throw new IllegalArgumentException('Illegal length of history start data: '.$lenData);
+
+        $times = [];
+
+        if (PHP_INT_SIZE == 8) {                // 64-bit integers
+            $offset = 0;
+            $i      = -1;
+            while ($offset < $lenData) {
+                ++$i;
+                $record = unpack("@$offset/J2", $data);
+                $timeframe = $record[1] / 1000 / MINUTES;
+                if (!is_int($timeframe) || (string)$timeframe==periodToStr($timeframe)) throw new InvalidArgumentException('Unknown Dukascopy history timeframe identifier: '.$record[1]);
+                $record[1] = $timeframe;
+                if ($record[2] < 0) throw new \RangeException('Invalid Java timestamp: '.sprintf('%u', $record[2]).' (out of range)');
+                if ($record[2] % 1000) $record[2] = round($record[2]/1000, 3);
+                else                   $record[2] = (int)($record[2]/1000);
+                $times[$record[1]] = $record[2];
+                $offset += 16;
+            }
+        }
+        else {                                  // 32-bit integers: 64-bit format codes are not supported
+            $offset = 0;
+            $i      = -1;
+            while ($offset < $lenData) {
+                ++$i;
+                $ints = unpack("@$offset/N4", $data);
+                $record = [];
+                foreach ($ints as $i => $int) {
+                    $int = sprintf('%u', $int);
+                    if ($i % 2) $record[($i+1)/2] = bcmul($int, '4294967296', 0);   // 2 ^ 32
+                    else        $record[ $i=$i/2] = bcadd($record[$i], $int, 0);
+                }
+                /** @var int $timeframe */
+                $timeframe = ((int) bcdiv($record[1], '1000', 0)) / MINUTES;
+                if (!is_int($timeframe) || (string)$timeframe==periodToStr($timeframe)) throw new InvalidArgumentException('Unknown Dukascopy history timeframe identifier: '.$record[1]);
+                $record[1] = $timeframe;
+                if (!bcmod($record[2], '1000')) $record[2] =   (int) bcdiv($record[2], '1000', 0);
+                else                            $record[2] = (float) bcdiv($record[2], '1000', 3);
+                $times[$record[1]] = $record[2];
+                $offset += 16;
+            }
+        }
+        return $times;
     }
 }
