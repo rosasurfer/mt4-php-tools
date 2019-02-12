@@ -81,12 +81,14 @@ class Dukascopy extends Object implements IDukascopyService {
 
         if (strlen($data)) {
             $times = $this->readHistoryStart($data);
+
             $dates = [];
             foreach ($times as $timeframe => $time) {
                 $datetime = \DateTime::createFromFormat(is_int($time) ? 'U':'U.u', is_int($time) ? (string)$time : number_format($time, 6, '.', ''));
                 $dates[periodToStr($timeframe)] = $datetime->format('D, d-M-Y H:i:s'.(is_int($time) ? '':'.u'));
             }
             echoPre($dates);
+
             return $times[PERIOD_M1];
         }
         return 0;
@@ -342,6 +344,7 @@ class Dukascopy extends Object implements IDukascopyService {
                 $offset += 16;
             }
         }
+        ksort($times);
         return $times;
     }
 }
