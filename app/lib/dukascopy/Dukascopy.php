@@ -44,7 +44,7 @@ use const rosasurfer\rt\PERIOD_M1;
  * };                                   // ----------------------------------------------------------------------------------
  *                                      //               = 20
  */
-class Dukascopy extends Object implements IDukascopyService {
+class Dukascopy extends Object {
 
 
     /** @var HttpClient */
