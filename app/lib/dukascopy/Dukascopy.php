@@ -22,10 +22,17 @@ use const rosasurfer\rt\PERIOD_M1;
 /**
  * Dukascopy
  *
- * Functionality related to downloading and processing Dukascopy history data.
+ * Functionality for downloading and processing Dukascopy history data.
  *
  *
- * struct big-endian DUKASCOPY_BAR {    // -- offset --- size --- description -----------------------------------------------
+ * // big-endian
+ * struct DUKASCOPY_HISTORYSTART {      // -- offset --- size --- description -----------------------------------------------
+ *     uint64 timeframe;                //         0        8     period length in minutes as a Java timestamp (msec)
+ *     uint64 time;                     //         8        8     start time as a Java timestamp (msec)
+ * };                                   // ----------------------------------------------------------------------------------
+ *                                      //               = 16
+ * // big-endian
+ * struct DUKASCOPY_BAR {               // -- offset --- size --- description -----------------------------------------------
  *     uint  timeDelta;                 //         0        4     time difference in seconds since 00:00 GMT
  *     uint  open;                      //         4        4     in point
  *     uint  close;                     //         8        4     in point
@@ -34,9 +41,9 @@ use const rosasurfer\rt\PERIOD_M1;
  *     float volume;                    //        20        4
  * };                                   // ----------------------------------------------------------------------------------
  *                                      //               = 24
- *
- * struct big-endian DUKASCOPY_TICK {   // -- offset --- size --- description -----------------------------------------------
- *     uint  timeDelta;                 //         0        4     time difference in milliseconds since start of the hour
+ * // big-endian
+ * struct DUKASCOPY_TICK {              // -- offset --- size --- description -----------------------------------------------
+ *     uint  timeDelta;                 //         0        4     time difference in msec since start of the hour
  *     uint  ask;                       //         4        4     in point
  *     uint  bid;                       //         8        4     in point
  *     float askSize;                   //        12        4     cumulated ask size in lot (min. 1)
@@ -103,12 +110,10 @@ class Dukascopy extends Object {
      * @return string - raw binary history start data or an empty string in case of errors
      */
     protected function downloadHistoryStart($symbol) {
-        $client = $this->getHttpClient();
-
         $url = 'http://datafeed.dukascopy.com/datafeed/'.$symbol.'/metadata/HistoryStart.bi5';
 
         $request  = new HttpRequest($url);
-        $response = $client->send($request);
+        $response = $this->getHttpClient()->send($request);
         $status   = $response->getStatus();
         if ($status!=200 && $status!=404) throw new RuntimeException('Unexpected HTTP status '.$status.' ('.HttpResponse::$sc[$status].') for url "'.$url.'"'.NL.printPretty($response, true));
 
@@ -285,17 +290,18 @@ class Dukascopy extends Object {
 
 
     /**
-     * Parse a string with a symbol's history start data.
+     * Parse a string with a single symbol's history start records.
      *
-     * @param  string $data - raw binary data
+     * @param  string $data - binary data
      *
      * @return array - array with variable number of elements each describing history start of a single timeframe
      *                 as follows:
      * <pre>
      * Array [
-     *     '{timeframe-id}' => {timestamp},     // e.g.: 'PERIOD_M1'    => Sun, 03-Aug-2003 21:00:00
-     *     '{timeframe-id}' => {timestamp},     //       'PERIOD_TICKS' => Sun, 03-Aug-2003 21:00:05.044
-     *     ...                                  //
+     *     {timeframe-id} => {timestamp},       // e.g.: PERIOD_TICKS => Mon, 04-Aug-2003 10:03:02.837,
+     *     {timeframe-id} => {timestamp},       //       PERIOD_M1    => Mon, 04-Aug-2003 10:03:00,
+     *     {timeframe-id} => {timestamp},       //       PERIOD_H1    => Mon, 04-Aug-2003 10:00:00,
+     *     ...                                  //       PERIOD_D1    => Mon, 25-Nov-1991 00:00:00,
      * ]
      * </pre>
      */
