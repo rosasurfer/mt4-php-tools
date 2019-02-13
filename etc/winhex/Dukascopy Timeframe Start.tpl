@@ -8,28 +8,23 @@
 // };                                   // ----------------------------------------------------------------------------------
 //                                      //               = 16
 
-template    "Dukascopy Timeframe Start"
-description "Files 'HistoryStart.bi5'"
+template    "Dukascopy History Start (single)"
+description "Files 'HistoryStart.bi5' (single symbol)"
 
 applies_to  file
 big-endian
 
 begin
-    endsection
+    int64         "Period (msec)"
+    JavaDateTime  "Start Time"
 
     int64         "Period (msec)"
-    JavaDateTime  "Time"
-    endsection
+    JavaDateTime  "Start Time"
 
     int64         "Period (msec)"
-    JavaDateTime  "Time"
-    endsection
+    JavaDateTime  "Start Time"
 
     int64         "Period (msec)"
-    JavaDateTime  "Time"
-    endsection
-
-    int64         "Period (msec)"
-    JavaDateTime  "Time"
+    JavaDateTime  "Start Time"
     endsection
 end
