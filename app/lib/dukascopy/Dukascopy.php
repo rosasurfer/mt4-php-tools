@@ -28,13 +28,13 @@ use const rosasurfer\rt\PERIOD_M1;
  *
  * // big-endian
  * struct DUKASCOPY_HISTORY_START {     // -- offset --- size --- description ---------------------------------------
- *     char     start;                  //         0        1     symbol start marker (always NULL)
- *     char     length;                 //         1        1     length of the following symbol name
- *     char     symbol[length];         //         2 {length}     symbol name (no terminating NULL character)
- *     uint64   count;                  //  variable        8     number of timeframe start records to follow
- *     {record-1};                      //  variable       16     struct DUKASCOPY_TIMEFRAME_START
+ *     char      start;                 //         0        1     symbol start marker (always NULL)
+ *     char      length;                //         1        1     length of the following symbol name
+ *     char      symbol[length];        //         2 {length}     symbol name (no terminating NULL character)
+ *     uint64    count;                 //  variable        8     number of timeframe start records to follow
+ *     {record};                        //  variable       16     struct DUKASCOPY_TIMEFRAME_START
  *     ...                              //  variable       16     struct DUKASCOPY_TIMEFRAME_START
- *     {record-count};                  //  variable       16     struct DUKASCOPY_TIMEFRAME_START
+ *     {record};                        //  variable       16     struct DUKASCOPY_TIMEFRAME_START
  * };                                   // ----------------------------------------------------------------------------------
  *                                      //                = 2 + {length} + {count}*16
  *
@@ -107,7 +107,7 @@ class Dukascopy extends Object {
             $dates = [];
             foreach ($times as $timeframe => $time) {
                 $datetime = \DateTime::createFromFormat(is_int($time) ? 'U':'U.u', is_int($time) ? (string)$time : number_format($time, 6, '.', ''));
-                $dates[periodToStr($timeframe)] = $datetime->format('D, d-M-Y H:i:s'.(is_int($time) ? '':'.u'));
+                $dates[str_pad(periodToStr($timeframe), 12)] = $datetime->format('D, d-M-Y H:i:s'.(is_int($time) ? '':'.u'));
             }
             echoPre($dates);
 
@@ -141,16 +141,17 @@ class Dukascopy extends Object {
      */
     public function fetchHistoryStarts() {
         $data = $this->downloadHistoryStarts();
+        //$data = file_get_contents($this->di()['config']['app.dir.root'].'/bin/dukascopy/HistoryStart.All.bi5');
 
         if (strlen($data)) {
             $symbols = $this->readHistoryStarts($data);
 
             $results = [];
-            foreach ($symbols as $name => $times) {
+            foreach ($symbols as $name => $timeframes) {
                 $dates = [];
-                foreach ($times as $timeframe => $time) {
+                foreach ($timeframes as $timeframe => $time) {
                     $datetime = \DateTime::createFromFormat(is_int($time) ? 'U':'U.u', is_int($time) ? (string)$time : number_format($time, 6, '.', ''));
-                    $dates[periodToStr($timeframe)] = $datetime->format('D, d-M-Y H:i:s'.(is_int($time) ? '':'.u'));
+                    $dates[str_pad(periodToStr($timeframe), 12)] = $datetime->format('D, d-M-Y H:i:s'.(is_int($time) ? '':'.u'));
                 }
                 $results[$name] = $dates;
             }
@@ -394,48 +395,15 @@ class Dukascopy extends Object {
         $lenData = strlen($data);
         if (!$lenData || $lenData % 16) throw new IllegalArgumentException('Illegal length of history start data: '.$lenData);
 
-        $times = [];
+        $timeframes = [];
+        $offset     = 0;
 
-        if (PHP_INT_SIZE == 8) {                // 64-bit integers
-            $offset = 0;
-            $i      = -1;
-            while ($offset < $lenData) {
-                ++$i;
-                $record = unpack("@$offset/J2", $data);
-                $timeframe = $record[1] / 1000 / MINUTES;
-                if (!is_int($timeframe) || (string)$timeframe==periodToStr($timeframe)) throw new InvalidArgumentException('Unknown Dukascopy history timeframe identifier: '.$record[1]);
-                $record[1] = $timeframe;
-                if ($record[2] < 0) throw new \RangeException('Invalid Java timestamp: '.sprintf('%u', $record[2]).' (out of range)');
-                if ($record[2] % 1000) $record[2] = round($record[2]/1000, 3);
-                else                   $record[2] = (int)($record[2]/1000);
-                $times[$record[1]] = $record[2];
-                $offset += 16;
-            }
+        while ($offset < $lenData) {
+            $timeframes += self::readHistoryStartRecord($data, $offset);
+            $offset += 16;
         }
-        else {                                  // 32-bit integers: 64-bit format codes are not supported
-            $offset = 0;
-            $i      = -1;
-            while ($offset < $lenData) {
-                ++$i;
-                $ints = unpack("@$offset/N4", $data);
-                $record = [];
-                foreach ($ints as $i => $int) {
-                    $int = sprintf('%u', $int);
-                    if ($i % 2) $record[($i+1)/2] = bcmul($int, '4294967296', 0);   // 2 ^ 32
-                    else        $record[ $i=$i/2] = bcadd($record[$i], $int, 0);
-                }
-                /** @var int $timeframe */
-                $timeframe = ((int) bcdiv($record[1], '1000', 0)) / MINUTES;
-                if (!is_int($timeframe) || (string)$timeframe==periodToStr($timeframe)) throw new InvalidArgumentException('Unknown Dukascopy history timeframe identifier: '.$record[1]);
-                $record[1] = $timeframe;
-                if (!bcmod($record[2], '1000')) $record[2] =   (int) bcdiv($record[2], '1000', 0);
-                else                            $record[2] = (float) bcdiv($record[2], '1000', 3);
-                $times[$record[1]] = $record[2];
-                $offset += 16;
-            }
-        }
-        ksort($times);
-        return $times;
+        ksort($timeframes);
+        return $timeframes;
     }
 
 
@@ -460,8 +428,8 @@ class Dukascopy extends Object {
         $lenData = strlen($data);
         if (!$lenData)         throw new IllegalArgumentException('Illegal length of history start data: '.$lenData);
 
+        $symbols = [];
         $start   = $length = $symbol = $high = $count = null;
-        $results = [];
         $offset  = 0;
 
         while ($offset < $lenData) {
@@ -474,16 +442,19 @@ class Dukascopy extends Object {
             if ($count != 4)                throw new RuntimeException('Unexpected data format in DUKASCOPY_HISTORY_START at offset '.($offset+$length+1).': count='.$count);
             $offset += $length + 8;
 
-            $records = [];
+            $timeframes = [];
             while ($count) {
-                $records += self::readHistoryStartRecord($data, $offset);
+                $timeframes += self::readHistoryStartRecord($data, $offset);
                 $offset += 16;
                 $count--;
             }
-            ksort($records);
-            $results[$symbol] = $records;
+            if ($timeframes) {                                                  // skip symbols without history
+                ksort($timeframes);
+                $symbols[$symbol] = $timeframes;
+            }
         }
-        return $results;
+        ksort($symbols);
+        return $symbols;
     }
 
 
@@ -493,7 +464,8 @@ class Dukascopy extends Object {
      * @param  string $data   - binary data
      * @param  int    $offset - offset
      *
-     * @return array - a key-value pair [{timeframe-id} => {timestamp}]
+     * @return array - a key-value pair [{timeframe-id} => {timestamp}] or an empty array if history of the given timeframe
+     *                 is not available
      */
     protected static function readHistoryStartRecord($data, $offset) {
         // check if 64-bit format codes are supported
@@ -503,6 +475,8 @@ class Dukascopy extends Object {
             if (!is_int($timeframe) || (string)$timeframe==periodToStr($timeframe)) throw new RuntimeException('Unexpected Dukascopy history timeframe identifier: '.$record[1]);
             $record[1] = $timeframe;
             if ($record[2] < 0) throw new \RangeException('Invalid Java timestamp: '.sprintf('%u', $record[2]).' (out of range)');
+            if ($record[2] == PHP_INT_MAX)
+                return [];                                                      // history not available
             if ($record[2] % 1000) $record[2] = round($record[2]/1000, 3);
             else                   $record[2] = (int)($record[2]/1000);
         }
@@ -519,6 +493,8 @@ class Dukascopy extends Object {
             $timeframe = ((int) bcdiv($record[1], '1000', 0)) / MINUTES;
             if (!is_int($timeframe) || (string)$timeframe==periodToStr($timeframe)) throw new RuntimeException('Unexpected Dukascopy history timeframe identifier: '.$record[1]);
             $record[1] = $timeframe;
+            if ($record[2] == '9223372036854775807')                            // history not available
+                return [];
             if (!bcmod($record[2], '1000')) $record[2] =   (int) bcdiv($record[2], '1000', 0);
             else                            $record[2] = (float) bcdiv($record[2], '1000', 3);
         }
