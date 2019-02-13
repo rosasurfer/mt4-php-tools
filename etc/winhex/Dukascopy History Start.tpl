@@ -6,7 +6,7 @@
 //     char      start;                 //         0        1     symbol start marker (always NULL)
 //     char      length;                //         1        1     length of the following symbol name
 //     char      symbol[length];        //         2 {length}     symbol name (no terminating NULL character)
-//     uint64    count;                 //  variable        8     number of timeframe start records to follow
+//     int64    count;                  //  variable        8     number of timeframe start records to follow
 //     {record};                        //  variable       16     struct DUKASCOPY_TIMEFRAME_START
 //     ...                              //  variable       16     struct DUKASCOPY_TIMEFRAME_START
 //     {record};                        //  variable       16     struct DUKASCOPY_TIMEFRAME_START

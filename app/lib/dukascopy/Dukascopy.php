@@ -27,11 +27,11 @@ use const rosasurfer\rt\PERIOD_M1;
  *
  *
  * // big-endian
- * struct DUKASCOPY_HISTORY_START {     // -- offset --- size --- description ---------------------------------------
+ * struct DUKASCOPY_HISTORY_START {     // -- offset --- size --- description -----------------------------------------------
  *     char      start;                 //         0        1     symbol start marker (always NULL)
  *     char      length;                //         1        1     length of the following symbol name
  *     char      symbol[length];        //         2 {length}     symbol name (no terminating NULL character)
- *     uint64    count;                 //  variable        8     number of timeframe start records to follow
+ *     int64     count;                 //  variable        8     number of timeframe start records to follow
  *     {record};                        //  variable       16     struct DUKASCOPY_TIMEFRAME_START
  *     ...                              //  variable       16     struct DUKASCOPY_TIMEFRAME_START
  *     {record};                        //  variable       16     struct DUKASCOPY_TIMEFRAME_START
@@ -40,8 +40,8 @@ use const rosasurfer\rt\PERIOD_M1;
  *
  * // big-endian
  * struct DUKASCOPY_TIMEFRAME_START {   // -- offset --- size --- description -----------------------------------------------
- *     uint64 timeframe;                //         0        8     period length in minutes as a Java timestamp (msec)
- *     uint64 time;                     //         8        8     start time as a Java timestamp (msec)
+ *     int64 timeframe;                 //         0        8     period length in minutes as a Java timestamp (msec)
+ *     int64 time;                      //         8        8     start time as a Java timestamp (msec), PHP_INT_MAX = n/a
  * };                                   // ----------------------------------------------------------------------------------
  *                                      //               = 16
  *

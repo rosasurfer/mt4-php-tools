@@ -3,8 +3,8 @@
 //
 //
 // struct DUKASCOPY_TIMEFRAME_START {   // -- offset --- size --- description -----------------------------------------------
-//     uint64 timeframe;                //         0        8     period length in minutes as a Java timestamp (msec)
-//     uint64 time;                     //         8        8     start time as a Java timestamp (msec)
+//     int64 timeframe;                 //         0        8     period length in minutes as a Java timestamp (msec)
+//     int64 time;                      //         8        8     start time as a Java timestamp (msec), PHP_INT_MAX = n/a
 // };                                   // ----------------------------------------------------------------------------------
 //                                      //               = 16
 
