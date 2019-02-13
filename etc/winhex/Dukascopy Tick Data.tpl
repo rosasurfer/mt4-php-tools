@@ -2,8 +2,8 @@
 // Dukascopy structure DUKASCOPY_TICK (file format "{Hour}h_ticks.bin")
 //
 //
-// struct big-endian DUKASCOPY_TICK {   // -- offset --- size --- description -----------------------------------------------
-//     uint  timeDelta;                 //         0        4     time difference in milliseconds since start of the hour
+// struct DUKASCOPY_TICK {              // -- offset --- size --- description -----------------------------------------------
+//     uint  timeDelta;                 //         0        4     time difference in msec since start of the hour
 //     uint  ask;                       //         4        4     in points
 //     uint  bid;                       //         8        4     in points
 //     float askSize;                   //        12        4     cumulated ask size in lots (min. 1)
@@ -19,16 +19,16 @@ big-endian
 multiple
 
 begin
-   { endsection
-      uint32   "TimeDelta (millisec)"
-      move  4
-      uint32   "Bid"
-      move -8
-      uint32   "Ask"
-      move  8
-      float    "BidSize"
-      move -8
-      float    "AskSize"
-      move  4
-   }[32]
+    { endsection
+        uint32   "TimeDelta (msec)"
+        move  4
+        uint32   "Bid"
+        move -8
+        uint32   "Ask"
+        move  8
+        float    "BidSize"
+        move -8
+        float    "AskSize"
+        move  4
+    }[32]
 end

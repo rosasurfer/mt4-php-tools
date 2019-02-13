@@ -27,19 +27,19 @@ use const rosasurfer\rt\PERIOD_M1;
  *
  *
  * // big-endian
- * struct DUKASCOPY_SYMBOLSTARTTIMES {  // -- offset --- size --- description ---------------------------------------
+ * struct DUKASCOPY_HISTORY_START {     // -- offset --- size --- description ---------------------------------------
  *     char     start;                  //         0        1     symbol start marker (always NULL)
  *     char     length;                 //         1        1     length of the following symbol name
  *     char     symbol[length];         //         2 {length}     symbol name (no terminating NULL character)
- *     uint64   count;                  //  variable        8     number of history start records to follow
- *     {record-1};                      //  variable       16     struct DUKASCOPY_HISTORYSTART
- *     ...                              //  variable       16     struct DUKASCOPY_HISTORYSTART
- *     {record-count};                  //  variable       16     struct DUKASCOPY_HISTORYSTART
+ *     uint64   count;                  //  variable        8     number of timeframe start records to follow
+ *     {record-1};                      //  variable       16     struct DUKASCOPY_TIMEFRAME_START
+ *     ...                              //  variable       16     struct DUKASCOPY_TIMEFRAME_START
+ *     {record-count};                  //  variable       16     struct DUKASCOPY_TIMEFRAME_START
  * };                                   // ----------------------------------------------------------------------------------
  *                                      //                = 2 + {length} + {count}*16
  *
  * // big-endian
- * struct DUKASCOPY_HISTORYSTART {      // -- offset --- size --- description -----------------------------------------------
+ * struct DUKASCOPY_TIMEFRAME_START {   // -- offset --- size --- description -----------------------------------------------
  *     uint64 timeframe;                //         0        8     period length in minutes as a Java timestamp (msec)
  *     uint64 time;                     //         8        8     start time as a Java timestamp (msec)
  * };                                   // ----------------------------------------------------------------------------------
@@ -466,12 +466,12 @@ class Dukascopy extends Object {
 
         while ($offset < $lenData) {
             extract(unpack("@$offset/Cstart/Clength", $data));
-            if ($start)                     throw new RuntimeException('Unexpected data format in DUKASCOPY_SYMBOLSTARTTIMES at offset '.$offset.': start='.$start);
+            if ($start)                     throw new RuntimeException('Unexpected data format in DUKASCOPY_HISTORY_START at offset '.$offset.': start='.$start);
             $offset += 2;
             extract(unpack("@$offset/A${length}symbol/Nhigh/Ncount", $data));
-            if (strlen($symbol) != $length) throw new RuntimeException('Unexpected data format in DUKASCOPY_SYMBOLSTARTTIMES at offset '.$offset.': symbol="'.$symbol.'"  length='.$length);
-            if ($high)                      throw new RuntimeException('Unexpected data format in DUKASCOPY_SYMBOLSTARTTIMES at offset '.($offset+$length).': highInt='.$high);
-            if ($count != 4)                throw new RuntimeException('Unexpected data format in DUKASCOPY_SYMBOLSTARTTIMES at offset '.($offset+$length+1).': count='.$count);
+            if (strlen($symbol) != $length) throw new RuntimeException('Unexpected data format in DUKASCOPY_HISTORY_START at offset '.$offset.': symbol="'.$symbol.'"  length='.$length);
+            if ($high)                      throw new RuntimeException('Unexpected data format in DUKASCOPY_HISTORY_START at offset '.($offset+$length).': highInt='.$high);
+            if ($count != 4)                throw new RuntimeException('Unexpected data format in DUKASCOPY_HISTORY_START at offset '.($offset+$length+1).': count='.$count);
             $offset += $length + 8;
 
             $records = [];
@@ -488,7 +488,7 @@ class Dukascopy extends Object {
 
 
     /**
-     * Parse a DUKASCOPY_HISTORYSTART record at the given offset of a binary string.
+     * Parse a DUKASCOPY_TIMEFRAME_START record at the given offset of a binary string.
      *
      * @param  string $data   - binary data
      * @param  int    $offset - offset
