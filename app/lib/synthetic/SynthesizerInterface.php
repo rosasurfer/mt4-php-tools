@@ -59,7 +59,7 @@ interface SynthesizerInterface {
      *                    available day of the instrument are calculated.
      *
      * @return array[] - If history for the specified day is not available an empty array is returned. Otherwise a timeseries
-     *                   array is returned with each element describing a single bar as following:
+     *                   array is returned with each element describing a single bar as follows:
      * <pre>
      * Array [
      *     'time'  => (int),            // bar open time in FXT

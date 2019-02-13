@@ -124,12 +124,12 @@ class Rost extends StaticClass {
         $url      = 'https://api.clickatell.com/http/sendmsg?user='.$username.'&password='.$password.'&api_id='.$api_id.'&to='.$receiver.'&text='.$message;
 
         // HTTP-Request erzeugen und ausfuehren
-        $request  = HttpRequest ::create()->setUrl($url);
+        $request  = new HttpRequest($url);
         $options[CURLOPT_SSL_VERIFYPEER] = false;                // das SSL-Zertifikat kann nicht pruefbar oder ungueltig sein
-        $response = CurlHttpClient ::create($options)->send($request);
+        $response = (new CurlHttpClient($options))->send($request);
         $status   = $response->getStatus();
         $content  = $response->getContent();
-        if ($status != 200) throw new RuntimeException('Unexpected HTTP status code from api.clickatell.com: '.$status.' ('.HttpResponse ::$sc[$status].')');
+        if ($status != 200) throw new RuntimeException('Unexpected HTTP status code from api.clickatell.com: '.$status.' ('.HttpResponse::$sc[$status].')');
     }
 
 

@@ -42,6 +42,9 @@ parameters:
         - "/Casting to (bool|int|float|string) something that's already (bool|int|float|string)/"                   # PHPStan contradicts itself by treating NULL as a value.
         - '/Strict comparison using [=!]== between (int|string) and null will always evaluate to (true|false)\b/'
 
+        # PHPdoc bug
+        - '/Parameter #1 \$arg of function extract is passed by reference, so it expects variables only\b/'
+
         # false positives since v0.9
         - '/PHPDoc tag @param for parameter \$[^ ]+ with type array(<[^ |]+(\|[^ |]+)?>)? is not subtype of native type array<int, mixed>/'
 

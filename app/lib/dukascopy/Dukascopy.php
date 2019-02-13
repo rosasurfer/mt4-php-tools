@@ -2,6 +2,7 @@
 namespace rosasurfer\rt\dukascopy;
 
 use rosasurfer\core\Object;
+use rosasurfer\exception\IllegalArgumentException;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
@@ -12,17 +13,40 @@ use rosasurfer\net\http\HttpResponse;
 use rosasurfer\rt\LZMA;
 use rosasurfer\rt\model\DukascopySymbol;
 
+use function rosasurfer\rt\periodToStr;
+
 use const rosasurfer\rt\DUKASCOPY_BAR_SIZE;
 use const rosasurfer\rt\DUKASCOPY_TICK_SIZE;
+use const rosasurfer\rt\PERIOD_M1;
 
 
 /**
  * Dukascopy
  *
- * Functionality related to downloading and processing Dukascopy history data.
+ * Functionality for downloading and processing Dukascopy history data.
  *
  *
- * struct big-endian DUKASCOPY_BAR {    // -- offset --- size --- description -----------------------------------------------
+ * // big-endian
+ * struct DUKASCOPY_SYMBOLSTARTTIMES {  // -- offset --- size --- description ---------------------------------------
+ *     char     start;                  //         0        1     symbol start marker (always NULL)
+ *     char     length;                 //         1        1     length of the following symbol name
+ *     char     symbol[length];         //         2 {length}     symbol name (no terminating NULL character)
+ *     uint64   count;                  //  variable        8     number of history start records to follow
+ *     {record-1};                      //  variable       16     struct DUKASCOPY_HISTORYSTART
+ *     ...                              //  variable       16     struct DUKASCOPY_HISTORYSTART
+ *     {record-count};                  //  variable       16     struct DUKASCOPY_HISTORYSTART
+ * };                                   // ----------------------------------------------------------------------------------
+ *                                      //                = 2 + {length} + {count}*16
+ *
+ * // big-endian
+ * struct DUKASCOPY_HISTORYSTART {      // -- offset --- size --- description -----------------------------------------------
+ *     uint64 timeframe;                //         0        8     period length in minutes as a Java timestamp (msec)
+ *     uint64 time;                     //         8        8     start time as a Java timestamp (msec)
+ * };                                   // ----------------------------------------------------------------------------------
+ *                                      //               = 16
+ *
+ * // big-endian
+ * struct DUKASCOPY_BAR {               // -- offset --- size --- description -----------------------------------------------
  *     uint  timeDelta;                 //         0        4     time difference in seconds since 00:00 GMT
  *     uint  open;                      //         4        4     in point
  *     uint  close;                     //         8        4     in point
@@ -32,8 +56,9 @@ use const rosasurfer\rt\DUKASCOPY_TICK_SIZE;
  * };                                   // ----------------------------------------------------------------------------------
  *                                      //               = 24
  *
- * struct big-endian DUKASCOPY_TICK {   // -- offset --- size --- description -----------------------------------------------
- *     uint  timeDelta;                 //         0        4     time difference in milliseconds since start of the hour
+ * // big-endian
+ * struct DUKASCOPY_TICK {              // -- offset --- size --- description -----------------------------------------------
+ *     uint  timeDelta;                 //         0        4     time difference in msec since start of the hour
  *     uint  ask;                       //         4        4     in point
  *     uint  bid;                       //         8        4     in point
  *     float askSize;                   //        12        4     cumulated ask size in lot (min. 1)
@@ -65,33 +90,91 @@ class Dukascopy extends Object {
 
 
     /**
-     * Fetch history start infos for the specified symbol.
+     * Fetch history start for the specified symbol from Dukascopy.
      *
      * @param  string $symbol
      *
-     * @return int - FXT timestamp or 0 (zero) if history status information is not available
+     * @return int - FXT timestamp or 0 (zero) if history start info is not available
      */
     public function fetchHistoryStart($symbol) {
         $data = $this->downloadHistoryStart($symbol);
-        echoPre($data);
+        //$root = $this->di()['config']['app.dir.root'];
+        //$data = file_get_contents($root.'/bin/dukascopy/HistoryStart.AUDUSD.bi5');
+
+        if (strlen($data)) {
+            $times = $this->readHistoryStart($data);
+
+            $dates = [];
+            foreach ($times as $timeframe => $time) {
+                $datetime = \DateTime::createFromFormat(is_int($time) ? 'U':'U.u', is_int($time) ? (string)$time : number_format($time, 6, '.', ''));
+                $dates[periodToStr($timeframe)] = $datetime->format('D, d-M-Y H:i:s'.(is_int($time) ? '':'.u'));
+            }
+            echoPre($dates);
+
+            return $times[PERIOD_M1];
+        }
         return 0;
     }
 
 
     /**
-     * Laedt eine Dukascopy-M1-Datei und gibt ihren Inhalt zurueck.
+     * Fetch history start times from Dukascopy for all available symbols. Returns a list of arrays with history start times
+     * for each available symbol.
+     *
+     * @return array[] - list of arrays in a format as follows:
+     *
+     * <pre>
+     * Array [
+     *     {symbol} => Array [
+     *         {timeframe-id} => {timestamp},       // e.g.: PERIOD_TICKS => Mon, 04-Aug-2003 10:03:02.837,
+     *         {timeframe-id} => {timestamp},       //       PERIOD_M1    => Mon, 04-Aug-2003 10:03:00,
+     *         {timeframe-id} => {timestamp},       //       PERIOD_H1    => Mon, 04-Aug-2003 10:00:00,
+     *         ...                                  //       PERIOD_D1    => Mon, 25-Nov-1991 00:00:00,
+     *     ],
+     *     {symbol} => Array [
+     *         {timeframe-id} => {timestamp},
+     *         ...
+     *     ],
+     *     ...
+     * ]
+     * </pre>
+     */
+    public function fetchHistoryStarts() {
+        $data = $this->downloadHistoryStarts();
+
+        if (strlen($data)) {
+            $symbols = $this->readHistoryStarts($data);
+
+            $results = [];
+            foreach ($symbols as $name => $times) {
+                $dates = [];
+                foreach ($times as $timeframe => $time) {
+                    $datetime = \DateTime::createFromFormat(is_int($time) ? 'U':'U.u', is_int($time) ? (string)$time : number_format($time, 6, '.', ''));
+                    $dates[periodToStr($timeframe)] = $datetime->format('D, d-M-Y H:i:s'.(is_int($time) ? '':'.u'));
+                }
+                $results[$name] = $dates;
+            }
+            echoPre($results);
+            echoPre(sizeof($results).' symbols');
+
+            return $symbols;
+        }
+        return [];
+    }
+
+
+    /**
+     * Download history start data for the specified symbol.
      *
      * @param  string $symbol
      *
-     * @return string - downloaded content or an empty string on download errors
+     * @return string - binary history start data or an empty string in case of errors
      */
     protected function downloadHistoryStart($symbol) {
-        $client = $this->getHttpClient();
-
         $url = 'http://datafeed.dukascopy.com/datafeed/'.$symbol.'/metadata/HistoryStart.bi5';
 
         $request  = new HttpRequest($url);
-        $response = $client->send($request);
+        $response = $this->getHttpClient()->send($request);
         $status   = $response->getStatus();
         if ($status!=200 && $status!=404) throw new RuntimeException('Unexpected HTTP status '.$status.' ('.HttpResponse::$sc[$status].') for url "'.$url.'"'.NL.printPretty($response, true));
 
@@ -105,21 +188,27 @@ class Dukascopy extends Object {
     }
 
 
+    /**
+     * Download all available history start data.
+     *
+     * @return string - binary history start data or an empty string in case of errors
+     */
+    protected function downloadHistoryStarts() {
+        $url = 'http://datafeed.dukascopy.com/datafeed/metadata/HistoryStart.bi5';
 
+        $request  = new HttpRequest($url);
+        $response = $this->getHttpClient()->send($request);
+        $status   = $response->getStatus();
+        if ($status!=200 && $status!=404) throw new RuntimeException('Unexpected HTTP status '.$status.' ('.HttpResponse::$sc[$status].') for url "'.$url.'"'.NL.printPretty($response, true));
 
+        // treat an empty response as error 404
+        $content = $response->getContent();
+        if (!strlen($content))
+            $status = 404;
+        if ($status == 404) echoPre('[Error]   URL not found (404): '.$url);
 
-
-
-
-
-
-
-
-
-
-
-
-
+        return ($status==200) ? $response->getContent() : '';
+    }
 
 
     /**
@@ -167,14 +256,14 @@ class Dukascopy extends Object {
 
 
     /**
-     * Parse a string with Dukascopy bar data and convert it to a data array.
+     * Parse a string with Dukascopy bar data and convert it to a timeseries array.
      *
      * @param  string $data   - string with Dukascopy bar data
      * @param  string $symbol - Dukascopy symbol
-     * @param  string $type   - meta infos for generating better error messages (Dukascopy data may contain errors)
+     * @param  string $type   - meta info for error message generation
      * @param  int    $time   - ditto
      *
-     * @return array - DUKASCOPY_BAR[] data
+     * @return array[] - DUKASCOPY_BAR[] data as a timeseries array
      */
     public static function readBarData($data, $symbol, $type, $time) {
         /** @var DukascopySymbol $dukaSymbol */
@@ -193,14 +282,12 @@ class Dukascopy extends Object {
 
         static $isLittleEndian = null; is_null($isLittleEndian) && $isLittleEndian=isLittleEndian();
 
-        // pack/unpack don't support explicit big-endian floats, on little-endian machines the byte order
-        // of field "lots" has to be reversed manually
         while ($offset < $lenData) {
             $i++;
             $bars[] = unpack("@$offset/NtimeDelta/Nopen/Nclose/Nlow/Nhigh", $data);
             $s      = substr($data, $offset+20, 4);
-            $lots   = unpack('f', $isLittleEndian ? strrev($s) : $s);   // manually reverse on little-endian machines
-            $bars[$i]['lots'] = round($lots[1], 2);
+            $lots   = unpack('f', $isLittleEndian ? strrev($s) : $s);   // unpack doesn't support explicit big-endian floats, on little-endian
+            $bars[$i]['lots'] = round($lots[1], 2);                     // machines the byte order of field "lots" must be reversed manually
             $offset += DUKASCOPY_BAR_SIZE;
 
             // validate bar data
@@ -257,7 +344,7 @@ class Dukascopy extends Object {
 
         static $isLittleEndian = null; is_null($isLittleEndian) && $isLittleEndian=isLittleEndian();
 
-        // pack/unpack don't support explicit big-endian floats, on little-endian machines the byte order
+        // unpack doesn't support explicit big-endian floats, on little-endian machines the byte order
         // of fields "bidSize" and "askSize" has to be reversed manually
         while ($offset < $lenData) {
             $i++;
@@ -283,5 +370,158 @@ class Dukascopy extends Object {
     public static function readTickFile($fileName) {
         if (!is_string($fileName)) throw new IllegalTypeException('Illegal type of parameter $fileName: '.gettype($fileName));
         return self::readTickData(file_get_contents($fileName));
+    }
+
+
+    /**
+     * Parse a string with a single symbol's history start records.
+     *
+     * @param  string $data - binary data
+     *
+     * @return array - array with variable number of elements each describing history start of a single timeframe
+     *                 as follows:
+     * <pre>
+     * Array [
+     *     {timeframe-id} => {timestamp},       // e.g.: PERIOD_TICKS => Mon, 04-Aug-2003 10:03:02.837,
+     *     {timeframe-id} => {timestamp},       //       PERIOD_M1    => Mon, 04-Aug-2003 10:03:00,
+     *     {timeframe-id} => {timestamp},       //       PERIOD_H1    => Mon, 04-Aug-2003 10:00:00,
+     *     ...                                  //       PERIOD_D1    => Mon, 25-Nov-1991 00:00:00,
+     * ]
+     * </pre>
+     */
+    public static function readHistoryStart($data) {
+        if (!is_string($data))          throw new IllegalTypeException('Illegal type of parameter $data: '.gettype($data));
+        $lenData = strlen($data);
+        if (!$lenData || $lenData % 16) throw new IllegalArgumentException('Illegal length of history start data: '.$lenData);
+
+        $times = [];
+
+        if (PHP_INT_SIZE == 8) {                // 64-bit integers
+            $offset = 0;
+            $i      = -1;
+            while ($offset < $lenData) {
+                ++$i;
+                $record = unpack("@$offset/J2", $data);
+                $timeframe = $record[1] / 1000 / MINUTES;
+                if (!is_int($timeframe) || (string)$timeframe==periodToStr($timeframe)) throw new InvalidArgumentException('Unknown Dukascopy history timeframe identifier: '.$record[1]);
+                $record[1] = $timeframe;
+                if ($record[2] < 0) throw new \RangeException('Invalid Java timestamp: '.sprintf('%u', $record[2]).' (out of range)');
+                if ($record[2] % 1000) $record[2] = round($record[2]/1000, 3);
+                else                   $record[2] = (int)($record[2]/1000);
+                $times[$record[1]] = $record[2];
+                $offset += 16;
+            }
+        }
+        else {                                  // 32-bit integers: 64-bit format codes are not supported
+            $offset = 0;
+            $i      = -1;
+            while ($offset < $lenData) {
+                ++$i;
+                $ints = unpack("@$offset/N4", $data);
+                $record = [];
+                foreach ($ints as $i => $int) {
+                    $int = sprintf('%u', $int);
+                    if ($i % 2) $record[($i+1)/2] = bcmul($int, '4294967296', 0);   // 2 ^ 32
+                    else        $record[ $i=$i/2] = bcadd($record[$i], $int, 0);
+                }
+                /** @var int $timeframe */
+                $timeframe = ((int) bcdiv($record[1], '1000', 0)) / MINUTES;
+                if (!is_int($timeframe) || (string)$timeframe==periodToStr($timeframe)) throw new InvalidArgumentException('Unknown Dukascopy history timeframe identifier: '.$record[1]);
+                $record[1] = $timeframe;
+                if (!bcmod($record[2], '1000')) $record[2] =   (int) bcdiv($record[2], '1000', 0);
+                else                            $record[2] = (float) bcdiv($record[2], '1000', 3);
+                $times[$record[1]] = $record[2];
+                $offset += 16;
+            }
+        }
+        ksort($times);
+        return $times;
+    }
+
+
+    /**
+     * Parse a string with history start records of multiple symbols.
+     *
+     * @param  string $data - binary data
+     *
+     * @return array - array with variable number of elements each describing history start of a single timeframe
+     *                 as follows:
+     * <pre>
+     * Array [
+     *     {timeframe-id} => {timestamp},       // e.g.: PERIOD_TICKS => Mon, 04-Aug-2003 10:03:02.837,
+     *     {timeframe-id} => {timestamp},       //       PERIOD_M1    => Mon, 04-Aug-2003 10:03:00,
+     *     {timeframe-id} => {timestamp},       //       PERIOD_H1    => Mon, 04-Aug-2003 10:00:00,
+     *     ...                                  //       PERIOD_D1    => Mon, 25-Nov-1991 00:00:00,
+     * ]
+     * </pre>
+     */
+    public static function readHistoryStarts($data) {
+        if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.gettype($data));
+        $lenData = strlen($data);
+        if (!$lenData)         throw new IllegalArgumentException('Illegal length of history start data: '.$lenData);
+
+        $start   = $length = $symbol = $high = $count = null;
+        $results = [];
+        $offset  = 0;
+
+        while ($offset < $lenData) {
+            extract(unpack("@$offset/Cstart/Clength", $data));
+            if ($start)                     throw new RuntimeException('Unexpected data format in DUKASCOPY_SYMBOLSTARTTIMES at offset '.$offset.': start='.$start);
+            $offset += 2;
+            extract(unpack("@$offset/A${length}symbol/Nhigh/Ncount", $data));
+            if (strlen($symbol) != $length) throw new RuntimeException('Unexpected data format in DUKASCOPY_SYMBOLSTARTTIMES at offset '.$offset.': symbol="'.$symbol.'"  length='.$length);
+            if ($high)                      throw new RuntimeException('Unexpected data format in DUKASCOPY_SYMBOLSTARTTIMES at offset '.($offset+$length).': highInt='.$high);
+            if ($count != 4)                throw new RuntimeException('Unexpected data format in DUKASCOPY_SYMBOLSTARTTIMES at offset '.($offset+$length+1).': count='.$count);
+            $offset += $length + 8;
+
+            $records = [];
+            while ($count) {
+                $records += self::readHistoryStartRecord($data, $offset);
+                $offset += 16;
+                $count--;
+            }
+            ksort($records);
+            $results[$symbol] = $records;
+        }
+        return $results;
+    }
+
+
+    /**
+     * Parse a DUKASCOPY_HISTORYSTART record at the given offset of a binary string.
+     *
+     * @param  string $data   - binary data
+     * @param  int    $offset - offset
+     *
+     * @return array - a key-value pair [{timeframe-id} => {timestamp}]
+     */
+    protected static function readHistoryStartRecord($data, $offset) {
+        // check if 64-bit format codes are supported
+        if (PHP_INT_SIZE == 8) {
+            $record = unpack("@$offset/J2", $data);
+            $timeframe = $record[1] / 1000 / MINUTES;
+            if (!is_int($timeframe) || (string)$timeframe==periodToStr($timeframe)) throw new RuntimeException('Unexpected Dukascopy history timeframe identifier: '.$record[1]);
+            $record[1] = $timeframe;
+            if ($record[2] < 0) throw new \RangeException('Invalid Java timestamp: '.sprintf('%u', $record[2]).' (out of range)');
+            if ($record[2] % 1000) $record[2] = round($record[2]/1000, 3);
+            else                   $record[2] = (int)($record[2]/1000);
+        }
+        else {
+            // 32-bit integers: 64-bit format codes are not supported
+            $ints = unpack("@$offset/N4", $data);
+            $record = [];
+            foreach ($ints as $i => $int) {
+                $int = sprintf('%u', $int);
+                if ($i % 2) $record[($i+1)/2] = bcmul($int, '4294967296', 0);   // 2 ^ 32
+                else        $record[ $i=$i/2] = bcadd($record[$i], $int, 0);
+            }
+            /** @var int $timeframe */
+            $timeframe = ((int) bcdiv($record[1], '1000', 0)) / MINUTES;
+            if (!is_int($timeframe) || (string)$timeframe==periodToStr($timeframe)) throw new RuntimeException('Unexpected Dukascopy history timeframe identifier: '.$record[1]);
+            $record[1] = $timeframe;
+            if (!bcmod($record[2], '1000')) $record[2] =   (int) bcdiv($record[2], '1000', 0);
+            else                            $record[2] = (float) bcdiv($record[2], '1000', 3);
+        }
+        return [$record[1] => $record[2]];
     }
 }

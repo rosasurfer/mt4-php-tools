@@ -21,7 +21,7 @@ class RT extends StaticClass {
      * @param  string     $fileName - file name
      * @param  RosaSymbol $symbol   - instrument the data belongs to
      *
-     * @return array[] - array with each element describing a bar as following:
+     * @return array[] - array with each element describing a bar as follows:
      *
      * <pre>
      * Array [
@@ -46,7 +46,7 @@ class RT extends StaticClass {
      * @param  string     $data
      * @param  RosaSymbol $symbol - instrument the data belongs to
      *
-     * @return array[] - array with each element describing a bar as following:
+     * @return array[] - array with each element describing a bar as follows:
      *
      * <pre>
      * Array [

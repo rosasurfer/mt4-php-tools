@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3c6dc834c0541e4356868b0f5fc6c113",
+    "content-hash": "7775599b272cb0b6971259745fd4d340",
     "packages": [
         {
             "name": "rosasurfer/ministruts",
@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/rosasurfer/ministruts.git",
-                "reference": "e6ff063707a92cc1f35e44f388d63e02c3a03f09"
+                "reference": "6800e0d7afbf45211d3b2ddb612b05fe9c10ff18"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/e6ff063707a92cc1f35e44f388d63e02c3a03f09",
-                "reference": "e6ff063707a92cc1f35e44f388d63e02c3a03f09",
+                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/6800e0d7afbf45211d3b2ddb612b05fe9c10ff18",
+                "reference": "6800e0d7afbf45211d3b2ddb612b05fe9c10ff18",
                 "shasum": ""
             },
             "require": {
@@ -54,7 +54,7 @@
                 "source": "https://github.com/rosasurfer/ministruts",
                 "issues": "https://github.com/rosasurfer/ministruts/issues"
             },
-            "time": "2019-02-09T14:55:42+00:00"
+            "time": "2019-02-13T18:52:12+00:00"
         }
     ],
     "packages-dev": [],
@@ -67,6 +67,7 @@
     "prefer-lowest": false,
     "platform": {
         "php": ">=5.6",
+        "ext-bcmath": "*",
         "ext-stats": "*"
     },
     "platform-dev": []

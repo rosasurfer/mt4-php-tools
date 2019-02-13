@@ -5,14 +5,16 @@
  */
 namespace rosasurfer\rt\dukascopy\status;
 
+use rosasurfer\Application;
 use rosasurfer\process\Process;
+use rosasurfer\rt\dukascopy\Dukascopy;
 use rosasurfer\rt\model\DukascopySymbol;
 
 require(dirname(realpath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');
 
 
-$remote = false;
+$showLocal = true;
 
 
 // parse and validate CLI arguments
@@ -22,7 +24,7 @@ $args = array_slice($_SERVER['argv'], 1);
 // parse options
 foreach ($args as $i => $arg) {
     if ($arg == '-h')   exit(1|help());
-    if ($arg == '-r')   $remote = true;
+    if ($arg == '-r')   $showLocal = false;
     if ($arg[0] == '-') unset($args[$i]);                               // drop unknown options
 }
 
@@ -37,18 +39,24 @@ $symbols = [];
 foreach ($args as $i => $arg) {
     /** @var DukascopySymbol $symbol */
     $symbol = DukascopySymbol::dao()->findByName($arg);
-    if (!$symbol) exit(1|stderror('error: untracked Dukascopy symbol "'.$args[$i].'"'));
+    if (!$symbol) exit(1|stderror('error: unknown or untracked Dukascopy symbol "'.$args[$i].'"'));
     $symbols[$symbol->getName()] = $symbol;                             // using the name as index removes duplicates
-}                                                                       // if none was specified process all
-$symbols = $symbols ?: DukascopySymbol::dao()->findAll('select * from :DukascopySymbol order by name');
-!$symbols && echoPre('No Dukascopy instruments found.');
-
+}
 
 // process instruments
-foreach ($symbols as $symbol) {
-    if ($cmd == 'show'       ) $symbol->showHistoryStatus(!$remote);
-  //if ($cmd == 'synchronize') $symbol->synchronizeHistoryStatus();
-    Process::dispatchSignals();                                         // process Ctrl-C
+if ($symbols || $showLocal) {
+    !$symbols && $symbols = DukascopySymbol::dao()->findAll('select * from :DukascopySymbol order by name');
+    foreach ($symbols as $symbol) {
+        if ($cmd == 'show') $symbol->showHistoryStatus($showLocal);
+        Process::dispatchSignals();                                     // process Ctrl-C
+    }
+    !$symbols && echoPre('No Dukascopy instruments found.');
+}
+else {
+    echoPre('[Info]    fetching history start times of all available symbols');
+    /** @var Dukascopy $dukascopy */
+    $dukascopy = Application::getDi()['dukascopy'];
+    $starttimes = $dukascopy->fetchHistoryStarts();
 }
 exit(0);
 
@@ -70,10 +78,11 @@ Manipulate the history status of the specified Dukascopy symbols.
 Syntax:  $self <command> [options] [SYMBOL...]
 
  Commands:
-   show         Show local history status information.
+   show         Show available history start times.
    synchronize  Synchronize local history status with current data from Dukascopy.
 
  Options:
+   -r           Show remote instead of local history start times.
    -h           This help screen.
 
  SYMBOL         The Dukascopy symbols to process. Without a symbol all locally tracked symbols are processed.

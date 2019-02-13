@@ -11,17 +11,15 @@
  *
  *
  * Website:       https://www.dukascopy.com/swiss/english/marketwatch/historical/
- *                https://www.dukascopy.com/free/candelabrum/                                       (inactive)
  *
- * Instruments:   https://www.dukascopy.com/free/candelabrum/data.json                              (inactive)
+ * History start: http://datafeed.dukascopy.com/datafeed/metadata/HistoryStart.bi5
+ *                http://datafeed.dukascopy.com/datafeed/AUDUSD/metadata/HistoryStart.bi5
  *
- * History start: http://datafeed.dukascopy.com/datafeed/metadata/HistoryStart.bi5                  (big-endian)
- *                http://datafeed.dukascopy.com/datafeed/AUDUSD/metadata/HistoryStart.bi5           (big-endian)
+ * Quotes:        One file per calendar day (January = 00) since history start. During trade breaks the last close price
+ *                (OHLC) and a volume of zero (V=0) are indicated:
  *
- * Prices:        One file per calendar day (January = 00) since history start. During trade breaks
- *                the last close price (OHLC) and a volume of zero (V=0) are indicated:
- *                - http://datafeed.dukascopy.com/datafeed/GBPUSD/2013/00/10/BID_candles_min_1.bi5  (LZMA-compressed, DUKASCOPY_BAR[])
- *                - http://datafeed.dukascopy.com/datafeed/GBPUSD/2013/11/31/ASK_candles_min_1.bi5
+ *                http://datafeed.dukascopy.com/datafeed/GBPUSD/2013/00/10/BID_candles_min_1.bi5
+ *                http://datafeed.dukascopy.com/datafeed/GBPUSD/2013/11/31/ASK_candles_min_1.bi5
  *
  *          +------------++------------+------------+------------+------------+------------++------------+------------++------------+
  * GMT:     |   Sunday   ||   Monday   |  Tuesday   | Wednesday  |  Thursday  |   Friday   ||  Saturday  |   Sunday   ||   Monday   |
@@ -45,7 +43,6 @@ use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
 use rosasurfer\process\Process;
 
-use rosasurfer\rt\LZMA;
 use rosasurfer\rt\Rost;
 use rosasurfer\rt\dukascopy\Dukascopy;
 use rosasurfer\rt\model\DukascopySymbol;
@@ -550,7 +547,7 @@ function processRawDukascopyBarData($data, $symbol, $day, $type) {
     global $barBuffer; $barBuffer[$type];
 
     // (1) Bars einlesen
-    $bars = Dukascopy ::readBarData($data, $symbol, $type, $day);
+    $bars = Dukascopy::readBarData($data, $symbol, $type, $day);
     $size = sizeof($bars); if ($size != 1*DAY/MINUTES) throw new RuntimeException('Unexpected number of Dukascopy bars in '.getVar('dukaName', null, null, $type).': '.$size.' ('.($size > 1*DAY/MINUTES ? 'more':'less').' then a day)');
 
 

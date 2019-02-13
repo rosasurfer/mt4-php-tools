@@ -48,7 +48,7 @@ use rosasurfer\process\Process;
 use rosasurfer\rt\LZMA;
 use rosasurfer\rt\Rost;
 use rosasurfer\rt\dukascopy\Dukascopy;
-use rosasurfer\rt\dukascopy\DukascopyException;
+use rosasurfer\rt\dukascopy\exception\DukascopyException;
 use rosasurfer\rt\model\DukascopySymbol;
 use rosasurfer\rt\model\RosaSymbol;
 
@@ -486,7 +486,7 @@ function loadCompressedDukascopyTickData($data, $symbol, $gmtHour, $fxtHour) {
     global $saveRawDukascopyFiles;
     $saveAs = $saveRawDukascopyFiles ? getVar('dukaFile.raw', $symbol, $gmtHour) : null;
 
-    $rawData = Dukascopy ::decompressHistoryData($data, $saveAs);
+    $rawData = Dukascopy::decompressHistoryData($data, $saveAs);
     return loadRawDukascopyTickData($rawData, $symbol, $gmtHour, $fxtHour);
 }
 
