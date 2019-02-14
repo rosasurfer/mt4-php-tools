@@ -8,9 +8,9 @@ use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 use rosasurfer\file\FileSystem as FS;
 use rosasurfer\log\Logger;
-use rosasurfer\net\http\HttpResponse;
 
 use rosasurfer\rt\LZMA;
+use rosasurfer\rt\dukascopy\HttpClient as DukascopyClient;
 use rosasurfer\rt\model\DukascopySymbol;
 
 use function rosasurfer\rt\periodToStr;
@@ -74,16 +74,13 @@ class Dukascopy extends Object {
 
 
     /**
-     * Resolve and return a Dukascopy specific HTTP client. The instance is kept in memory to enable "keep-alive" connections.
+     * Return a Dukascopy specific HTTP client. The instance is kept to enable "keep-alive" connections.
      *
      * @return HttpClient
      */
     protected function getHttpClient() {
         if (!$this->httpClient) {
-            $options = [];
-            $options[CURLOPT_SSL_VERIFYPEER] = false;       // suppress SSL certificate validation errors
-            //$options[CURLOPT_VERBOSE     ] = true;
-            $this->httpClient = new HttpClient($options);
+            $this->httpClient = new DukascopyClient();
         }
         return $this->httpClient;
     }
@@ -97,12 +94,12 @@ class Dukascopy extends Object {
      * @return int - FXT timestamp or 0 (zero) if history start info is not available
      */
     public function fetchHistoryStart($symbol) {
-        $data = $this->downloadHistoryStart($symbol);
+        $data = $this->getHttpClient()->downloadHistoryStart($symbol);
         //$root = $this->di()['config']['app.dir.root'];
         //$data = file_get_contents($root.'/bin/dukascopy/HistoryStart.AUDUSD.bi5');
 
         if (strlen($data)) {
-            $times = $this->readHistoryStart($data);
+            $times = $this->readHistoryStartSection($data);
 
             $dates = [];
             foreach ($times as $timeframe => $time) {
@@ -140,7 +137,7 @@ class Dukascopy extends Object {
      * </pre>
      */
     public function fetchHistoryStarts() {
-        $data = $this->downloadHistoryStarts();
+        $data = $this->getHttpClient()->downloadHistoryStart();
         //$data = file_get_contents($this->di()['config']['app.dir.root'].'/bin/dukascopy/HistoryStart.All.bi5');
 
         if (strlen($data)) {
@@ -161,54 +158,6 @@ class Dukascopy extends Object {
             return $symbols;
         }
         return [];
-    }
-
-
-    /**
-     * Download history start data for the specified symbol.
-     *
-     * @param  string $symbol
-     *
-     * @return string - binary history start data or an empty string in case of errors
-     */
-    protected function downloadHistoryStart($symbol) {
-        $url = 'http://datafeed.dukascopy.com/datafeed/'.$symbol.'/metadata/HistoryStart.bi5';
-
-        $request  = new HttpRequest($url);
-        $response = $this->getHttpClient()->send($request);
-        $status   = $response->getStatus();
-        if ($status!=200 && $status!=404) throw new RuntimeException('Unexpected HTTP status '.$status.' ('.HttpResponse::$sc[$status].') for url "'.$url.'"'.NL.printPretty($response, true));
-
-        // treat an empty response as error 404
-        $content = $response->getContent();
-        if (!strlen($content))
-            $status = 404;
-        if ($status == 404) echoPre('[Error]   URL not found (404): '.$url);
-
-        return ($status==200) ? $response->getContent() : '';
-    }
-
-
-    /**
-     * Download all available history start data.
-     *
-     * @return string - binary history start data or an empty string in case of errors
-     */
-    protected function downloadHistoryStarts() {
-        $url = 'http://datafeed.dukascopy.com/datafeed/metadata/HistoryStart.bi5';
-
-        $request  = new HttpRequest($url);
-        $response = $this->getHttpClient()->send($request);
-        $status   = $response->getStatus();
-        if ($status!=200 && $status!=404) throw new RuntimeException('Unexpected HTTP status '.$status.' ('.HttpResponse::$sc[$status].') for url "'.$url.'"'.NL.printPretty($response, true));
-
-        // treat an empty response as error 404
-        $content = $response->getContent();
-        if (!strlen($content))
-            $status = 404;
-        if ($status == 404) echoPre('[Error]   URL not found (404): '.$url);
-
-        return ($status==200) ? $response->getContent() : '';
     }
 
 
@@ -375,55 +324,27 @@ class Dukascopy extends Object {
 
 
     /**
-     * Parse a string with a single symbol's history start records.
-     *
-     * @param  string $data - binary data
-     *
-     * @return array - array with variable number of elements each describing history start of a single timeframe
-     *                 as follows:
-     * <pre>
-     * Array [
-     *     {timeframe-id} => {timestamp},       // e.g.: PERIOD_TICKS => Mon, 04-Aug-2003 10:03:02.837,
-     *     {timeframe-id} => {timestamp},       //       PERIOD_M1    => Mon, 04-Aug-2003 10:03:00,
-     *     {timeframe-id} => {timestamp},       //       PERIOD_H1    => Mon, 04-Aug-2003 10:00:00,
-     *     ...                                  //       PERIOD_D1    => Mon, 25-Nov-1991 00:00:00,
-     * ]
-     * </pre>
-     */
-    public static function readHistoryStart($data) {
-        if (!is_string($data))          throw new IllegalTypeException('Illegal type of parameter $data: '.gettype($data));
-        $lenData = strlen($data);
-        if (!$lenData || $lenData % 16) throw new IllegalArgumentException('Illegal length of history start data: '.$lenData);
-
-        $timeframes = [];
-        $offset     = 0;
-
-        while ($offset < $lenData) {
-            $timeframes += self::readHistoryStartRecord($data, $offset);
-            $offset += 16;
-        }
-        ksort($timeframes);
-        return $timeframes;
-    }
-
-
-    /**
      * Parse a string with history start records of multiple symbols.
      *
      * @param  string $data - binary data
      *
-     * @return array - array with variable number of elements each describing history start of a single timeframe
-     *                 as follows:
+     * @return array[] - associative list of arrays with variable number of elements each describing a symbol's history start
+     *                   of a single timeframe as follows:
      * <pre>
-     * Array [
-     *     {timeframe-id} => {timestamp},       // e.g.: PERIOD_TICKS => Mon, 04-Aug-2003 10:03:02.837,
-     *     {timeframe-id} => {timestamp},       //       PERIOD_M1    => Mon, 04-Aug-2003 10:03:00,
-     *     {timeframe-id} => {timestamp},       //       PERIOD_H1    => Mon, 04-Aug-2003 10:00:00,
-     *     ...                                  //       PERIOD_D1    => Mon, 25-Nov-1991 00:00:00,
-     * ]
+     * Array (
+     *     [{symbol}] => [
+     *         [{timeframe-id}] => [{timestamp}],           // e.g.: PERIOD_TICKS => Mon, 04-Aug-2003 10:03:02.837,
+     *         [{timeframe-id}] => [{timestamp}],           //       PERIOD_M1    => Mon, 04-Aug-2003 10:03:00,
+     *         [{timeframe-id}] => [{timestamp}],           //       PERIOD_H1    => Mon, 04-Aug-2003 10:00:00,
+     *         [{timeframe-id}] => [{timestamp}],           //       PERIOD_D1    => Mon, 25-Nov-1991 00:00:00,
+     *     ],
+     *     [{symbol}] => [
+     *         ...
+     *     ],
+     * )
      * </pre>
      */
-    public static function readHistoryStarts($data) {
+    protected function readHistoryStarts($data) {
         if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.gettype($data));
         $lenData = strlen($data);
         if (!$lenData)         throw new IllegalArgumentException('Illegal length of history start data: '.$lenData);
@@ -442,19 +363,52 @@ class Dukascopy extends Object {
             if ($count != 4)                throw new RuntimeException('Unexpected data format in DUKASCOPY_HISTORY_START at offset '.($offset+$length+1).': count='.$count);
             $offset += $length + 8;
 
-            $timeframes = [];
-            while ($count) {
-                $timeframes += self::readHistoryStartRecord($data, $offset);
-                $offset += 16;
-                $count--;
-            }
+            $timeframes = $this->readHistoryStartSection($data, $offset, $count);
             if ($timeframes) {                                                  // skip symbols without history
                 ksort($timeframes);
                 $symbols[$symbol] = $timeframes;
             }
+            $offset += $count*16;
         }
         ksort($symbols);
         return $symbols;
+    }
+
+
+    /**
+     * Parse a binary string with a history start section (consecutive history start records).
+     *
+     * @param  string $data              - binary data
+     * @param  int    $offset [optional] - string offset to start     (default: 0)
+     * @param  int    $count  [optional] - number of records to parse (default: until the end of the string)
+     *
+     * @return array - array with variable number of elements each describing history start of a single timeframe
+     *                 as follows:
+     * <pre>
+     * Array (
+     *     [{timeframe-id}] => [{timestamp}],               // e.g.: PERIOD_TICKS => Mon, 04-Aug-2003 10:03:02.837,
+     *     [{timeframe-id}] => [{timestamp}],               //       PERIOD_M1    => Mon, 04-Aug-2003 10:03:00,
+     *     [{timeframe-id}] => [{timestamp}],               //       PERIOD_H1    => Mon, 04-Aug-2003 10:00:00,
+     *     ...                                              //       PERIOD_D1    => Mon, 25-Nov-1991 00:00:00,
+     * )
+     * </pre>
+     */
+    protected function readHistoryStartSection($data, $offset = 0, $count = null) {
+        $lenData = strlen($data);
+        if (!is_int($offset) || $offset < 0)    throw new IllegalArgumentException('Invalid parameter $offset: '.$offset.' ('.gettype($offset).')');
+        if ($offset >= $lenData)                throw new IllegalArgumentException('Invalid parameters, mis-matching $offset/$lenData: '.$offset.'/'.$lenData);
+        if (!isset($count)) $count = PHP_INT_MAX;
+        elseif (!is_int($count) || $count <= 0) throw new IllegalArgumentException('Invalid parameter $count: '.$count.' ('.gettype($count).')');
+
+        $timeframes = [];
+
+        while ($offset < $lenData && $count) {
+            $timeframes += $this->readHistoryStartRecord($data, $offset);
+            $offset += 16;
+            $count--;
+        }
+        ksort($timeframes);
+        return $timeframes;
     }
 
 
@@ -467,16 +421,17 @@ class Dukascopy extends Object {
      * @return array - a key-value pair [{timeframe-id} => {timestamp}] or an empty array if history of the given timeframe
      *                 is not available
      */
-    protected static function readHistoryStartRecord($data, $offset) {
-        // check if 64-bit format codes are supported
+    protected function readHistoryStartRecord($data, $offset) {
+        // check platform
         if (PHP_INT_SIZE == 8) {
+            // 64-bit integers and format codes are supported
             $record = unpack("@$offset/J2", $data);
             $timeframe = $record[1] / 1000 / MINUTES;
             if (!is_int($timeframe) || (string)$timeframe==periodToStr($timeframe)) throw new RuntimeException('Unexpected Dukascopy history timeframe identifier: '.$record[1]);
             $record[1] = $timeframe;
             if ($record[2] < 0) throw new \RangeException('Invalid Java timestamp: '.sprintf('%u', $record[2]).' (out of range)');
             if ($record[2] == PHP_INT_MAX)
-                return [];                                                      // history not available
+                return [];                                                      // int64_max: no history available
             if ($record[2] % 1000) $record[2] = round($record[2]/1000, 3);
             else                   $record[2] = (int)($record[2]/1000);
         }
@@ -493,7 +448,7 @@ class Dukascopy extends Object {
             $timeframe = ((int) bcdiv($record[1], '1000', 0)) / MINUTES;
             if (!is_int($timeframe) || (string)$timeframe==periodToStr($timeframe)) throw new RuntimeException('Unexpected Dukascopy history timeframe identifier: '.$record[1]);
             $record[1] = $timeframe;
-            if ($record[2] == '9223372036854775807')                            // history not available
+            if ($record[2] == '9223372036854775807')                            // int64_max: no history available
                 return [];
             if (!bcmod($record[2], '1000')) $record[2] =   (int) bcdiv($record[2], '1000', 0);
             else                            $record[2] = (float) bcdiv($record[2], '1000', 3);
