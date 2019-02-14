@@ -95,8 +95,7 @@ class Dukascopy extends Object {
      */
     public function fetchHistoryStart($symbol) {
         $data = $this->getHttpClient()->downloadHistoryStart($symbol);
-        //$root = $this->di()['config']['app.dir.root'];
-        //$data = file_get_contents($root.'/bin/dukascopy/HistoryStart.AUDUSD.bi5');
+        //$data = file_get_contents($this->di()['config']['app.dir.root'].'/bin/dukascopy/HistoryStart.AUDUSD.bi5');
 
         if (strlen($data)) {
             $times = $this->readHistoryStartSection($data);
@@ -121,19 +120,18 @@ class Dukascopy extends Object {
      * @return array[] - list of arrays in a format as follows:
      *
      * <pre>
-     * Array [
-     *     {symbol} => Array [
-     *         {timeframe-id} => {timestamp},       // e.g.: PERIOD_TICKS => Mon, 04-Aug-2003 10:03:02.837,
-     *         {timeframe-id} => {timestamp},       //       PERIOD_M1    => Mon, 04-Aug-2003 10:03:00,
-     *         {timeframe-id} => {timestamp},       //       PERIOD_H1    => Mon, 04-Aug-2003 10:00:00,
-     *         ...                                  //       PERIOD_D1    => Mon, 25-Nov-1991 00:00:00,
+     * Array (
+     *     [{symbol}] => [
+     *         [{timeframe-id}] => [{timestamp}],           // e.g.: PERIOD_TICKS => Mon, 04-Aug-2003 10:03:02.837,
+     *         [{timeframe-id}] => [{timestamp}],           //       PERIOD_M1    => Mon, 04-Aug-2003 10:03:00,
+     *         [{timeframe-id}] => [{timestamp}],           //       PERIOD_H1    => Mon, 04-Aug-2003 10:00:00,
+     *         [{timeframe-id}] => [{timestamp}],           //       PERIOD_D1    => Mon, 25-Nov-1991 00:00:00,
      *     ],
-     *     {symbol} => Array [
-     *         {timeframe-id} => {timestamp},
+     *     [{symbol}] => [
      *         ...
      *     ],
      *     ...
-     * ]
+     * )
      * </pre>
      */
     public function fetchHistoryStarts() {
@@ -341,6 +339,7 @@ class Dukascopy extends Object {
      *     [{symbol}] => [
      *         ...
      *     ],
+     *     ...
      * )
      * </pre>
      */
