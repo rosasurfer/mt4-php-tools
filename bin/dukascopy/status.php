@@ -30,7 +30,7 @@ foreach ($args as $i => $arg) {
 
 // parse command
 $cmd = array_shift($args);
-if (!in_array($cmd, ['show', 'synchronize'])) exit(1|help());
+if (!in_array($cmd, ['show', 'pull'])) exit(1|help());
 
 /** @var DukascopySymbol[] $symbols */
 $symbols = [];
@@ -73,13 +73,13 @@ function help($message = null) {
     $self = basename($_SERVER['PHP_SELF']);
 
 echo <<<HELP
-Manipulate the history status of the specified Dukascopy symbols.
+Process the history status of the specified Dukascopy symbols.
 
 Syntax:  $self <command> [options] [SYMBOL...]
 
  Commands:
    show         Show available history start times.
-   synchronize  Synchronize local history status with current data from Dukascopy.
+   pull         Synchronize local history status with current data from Dukascopy.
 
  Options:
    -r           Show remote instead of local history start times.

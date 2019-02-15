@@ -18,7 +18,7 @@
         "php":                   ">=5.6",
         "ext-bcmath":            "*",
         "ext-stats":             "*",
-        "rosasurfer/ministruts": "^0.9@dev"
+        "rosasurfer/ministruts": "dev-development"
     },
     "autoload": {
         "classmap": ["app/"],
