@@ -4,11 +4,11 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "da76bb3d44ffedd2a006bc090e1cf2d6",
+    "content-hash": "edfab43c01201829f731562438537204",
     "packages": [
         {
             "name": "rosasurfer/ministruts",
-            "version": "dev-development",
+            "version": "dev-feature-console",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rosasurfer/ministruts.git",
