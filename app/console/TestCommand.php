@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\rt\view;
+namespace rosasurfer\rt\console;
 
 use rosasurfer\console\Command;
 
@@ -12,8 +12,10 @@ class TestCommand extends Command {
 
     /**
      * {@inheritdoc}
+     *
+     * @return int - execution status code: 0 (zero) for "success"
      */
-    public function execute($input, $output) {
+    public function execute($input) {
         echo 'Hello world!';
         return 0;
     }
