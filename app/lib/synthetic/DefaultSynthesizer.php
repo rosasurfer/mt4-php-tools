@@ -1,7 +1,7 @@
 <?php
 namespace rosasurfer\rt\lib\synthetic;
 
-use rosasurfer\rt\synthetic\SynthesizerInterface as Synthesizer;
+use rosasurfer\rt\lib\synthetic\SynthesizerInterface as Synthesizer;
 
 
 /**
