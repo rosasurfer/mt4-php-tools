@@ -4,11 +4,11 @@
  * Gibt den Offset der ersten Bar einer MetaTrader-Historydatei zurueck, die am oder nach dem angegebenen Zeitpunkt beginnt
  * oder -1, wenn keine solche Bar existiert.
  */
-namespace rosasurfer\rt\metatrader\find_offset;
+namespace rosasurfer\rt\bin\metatrader\find_offset;
 
-use rosasurfer\rt\metatrader\HistoryHeader;
-use rosasurfer\rt\metatrader\MetaTraderException;
-use rosasurfer\rt\metatrader\MT4;
+use rosasurfer\rt\lib\metatrader\HistoryHeader;
+use rosasurfer\rt\lib\metatrader\MetaTraderException;
+use rosasurfer\rt\lib\metatrader\MT4;
 
 require(dirname(realpath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');

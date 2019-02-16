@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\rt\synthetic;
+namespace rosasurfer\rt\lib\synthetic;
 
 use rosasurfer\rt\synthetic\SynthesizerInterface as Synthesizer;
 

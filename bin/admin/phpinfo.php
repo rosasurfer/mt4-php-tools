@@ -3,6 +3,8 @@
 /**
  * Command line version of phpInfo()
  */
+namespace rosasurfer\rt\bin\admin;
+
 use rosasurfer\util\PHP;
 
 require(dirname(realpath(__FILE__)).'/../../app/init.php');

@@ -6,12 +6,12 @@ use rosasurfer\exception\RuntimeException;
 use rosasurfer\exception\UnimplementedFeatureException;
 use rosasurfer\process\Process;
 
-use rosasurfer\rt\FXT;
-use rosasurfer\rt\Rost;
-use rosasurfer\rt\RT;
-use rosasurfer\rt\dukascopy\Dukascopy;
-use rosasurfer\rt\synthetic\DefaultSynthesizer;
-use rosasurfer\rt\synthetic\SynthesizerInterface as Synthesizer;
+use rosasurfer\rt\lib\FXT;
+use rosasurfer\rt\lib\Rost;
+use rosasurfer\rt\lib\RT;
+use rosasurfer\rt\lib\dukascopy\Dukascopy;
+use rosasurfer\rt\lib\synthetic\DefaultSynthesizer;
+use rosasurfer\rt\lib\synthetic\SynthesizerInterface as Synthesizer;
 
 use function rosasurfer\rt\fxTime;
 use function rosasurfer\rt\isGoodFriday;

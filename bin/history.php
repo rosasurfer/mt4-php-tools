@@ -3,7 +3,7 @@
 /**
  * Command line tool for processing Rosatrader history.
  */
-namespace rosasurfer\rt\history;
+namespace rosasurfer\rt\bin\history;
 
 use rosasurfer\process\Process;
 use rosasurfer\rt\model\RosaSymbol;

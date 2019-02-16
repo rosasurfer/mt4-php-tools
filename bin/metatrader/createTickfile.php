@@ -3,9 +3,9 @@
 /**
  * Erzeugt eine FXT-Tickdatei fuer den Strategy Tester.
  */
-namespace rosasurfer\rt\metatrader\create_tickfile;
+namespace rosasurfer\rt\bin\metatrader\create_tickfile;
 
-use rosasurfer\rt\metatrader\MT4;
+use rosasurfer\rt\lib\metatrader\MT4;
 
 require(dirname(realpath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');

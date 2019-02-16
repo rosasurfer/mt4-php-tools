@@ -1,7 +1,9 @@
 <?php
-namespace rosasurfer\rt;
+namespace rosasurfer\rt\lib;
 
 use rosasurfer\rt\view\ViewHelper;
+
+use const rosasurfer\rt\OP_CREDIT;
 
 
 /**

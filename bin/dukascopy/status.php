@@ -3,11 +3,12 @@
 /**
  * Command line tool for manipulating the status of Dukascopy symbols.
  */
-namespace rosasurfer\rt\dukascopy\status;
+namespace rosasurfer\rt\bin\dukascopy\status;
 
 use rosasurfer\Application;
 use rosasurfer\process\Process;
-use rosasurfer\rt\dukascopy\Dukascopy;
+
+use rosasurfer\rt\lib\dukascopy\Dukascopy;
 use rosasurfer\rt\model\DukascopySymbol;
 
 require(dirname(realpath(__FILE__)).'/../../app/init.php');

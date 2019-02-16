@@ -4,7 +4,7 @@ namespace rosasurfer\rt\model;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\UnimplementedFeatureException;
 
-use rosasurfer\rt\dukascopy\Dukascopy;
+use rosasurfer\rt\lib\dukascopy\Dukascopy;
 
 use function rosasurfer\rt\periodToStr;
 

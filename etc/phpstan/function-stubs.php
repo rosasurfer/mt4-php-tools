@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace rosasurfer\rt\generate_pl_series {
+namespace rosasurfer\rt\bin\generate_pl_series {
 
     const PIP   = 0; const PIPS   = PIP;
     const POINT = 0; const POINTS = POINT;
@@ -35,7 +35,7 @@ namespace rosasurfer\rt\generate_pl_series {
 }
 
 
-namespace rosasurfer\rt\history {
+namespace rosasurfer\rt\bin\history {
 
     /**
      * @param  string $message [optional]
@@ -44,7 +44,7 @@ namespace rosasurfer\rt\history {
 }
 
 
-namespace rosasurfer\rt\logwatch {
+namespace rosasurfer\rt\bin\admin\logwatch {
 
     /**
      * @param  string $message [optional]
@@ -58,7 +58,7 @@ namespace rosasurfer\rt\logwatch {
 }
 
 
-namespace rosasurfer\rt\update_synthetics_m1 {
+namespace rosasurfer\rt\bin\update_synthetics_m1 {
 
     /**
      * @param  string $message [optional]
@@ -67,7 +67,7 @@ namespace rosasurfer\rt\update_synthetics_m1 {
 }
 
 
-namespace rosasurfer\rt\dukascopy\status {
+namespace rosasurfer\rt\bin\dukascopy\status {
 
     /**
      * @param  string|null $message
@@ -76,7 +76,7 @@ namespace rosasurfer\rt\dukascopy\status {
 }
 
 
-namespace rosasurfer\rt\dukascopy\update_m1_bars {
+namespace rosasurfer\rt\bin\dukascopy\update_m1_bars {
 
     use rosasurfer\rt\model\RosaSymbol;
 
@@ -206,7 +206,7 @@ namespace rosasurfer\rt\dukascopy\update_m1_bars {
 }
 
 
-namespace rosasurfer\rt\dukascopy\update_tickdata {
+namespace rosasurfer\rt\bin\dukascopy\update_tickdata {
 
     use rosasurfer\rt\model\RosaSymbol;
 
@@ -324,7 +324,7 @@ namespace rosasurfer\rt\dukascopy\update_tickdata {
 }
 
 
-namespace rosasurfer\rt\metatrader\create_history {
+namespace rosasurfer\rt\bin\metatrader\create_history {
 
     use rosasurfer\rt\model\RosaSymbol;
 
@@ -355,7 +355,7 @@ namespace rosasurfer\rt\metatrader\create_history {
 }
 
 
-namespace rosasurfer\rt\metatrader\create_tickfile {
+namespace rosasurfer\rt\bin\metatrader\create_tickfile {
 
     /**
      * @param  string $message [optional]
@@ -364,7 +364,7 @@ namespace rosasurfer\rt\metatrader\create_tickfile {
 }
 
 
-namespace rosasurfer\rt\metatrader\dir {
+namespace rosasurfer\rt\bin\metatrader\dir {
 
     /**
      * @param  string $dirName
@@ -379,7 +379,7 @@ namespace rosasurfer\rt\metatrader\dir {
 }
 
 
-namespace rosasurfer\rt\metatrader\find_offset {
+namespace rosasurfer\rt\bin\metatrader\find_offset {
 
     /**
      * @param  string $message [optional]
@@ -388,7 +388,7 @@ namespace rosasurfer\rt\metatrader\find_offset {
 }
 
 
-namespace rosasurfer\rt\metatrader\import_test {
+namespace rosasurfer\rt\bin\metatrader\import_test {
 
     /**
      * @param  string $message [optional]
@@ -406,7 +406,7 @@ namespace rosasurfer\rt\metatrader\import_test {
 }
 
 
-namespace rosasurfer\rt\metatrader\list_symbols {
+namespace rosasurfer\rt\bin\metatrader\list_symbols {
 
     /**
      * @param  string $file
@@ -449,7 +449,7 @@ namespace rosasurfer\rt\metatrader\list_symbols {
 }
 
 
-namespace rosasurfer\rt\metatrader\update_history {
+namespace rosasurfer\rt\bin\metatrader\update_history {
 
     use rosasurfer\rt\model\RosaSymbol;
 

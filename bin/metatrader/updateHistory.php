@@ -3,14 +3,14 @@
 /**
  * Aktualisiert die MetaTrader-History der angegebenen Instrumente im globalen MT4-Serververzeichnis.
  */
-namespace rosasurfer\rt\metatrader\update_history;
+namespace rosasurfer\rt\bin\metatrader\update_history;
 
 use rosasurfer\Application;
 use rosasurfer\process\Process;
 
-use rosasurfer\rt\Rost;
-use rosasurfer\rt\metatrader\HistorySet;
-use rosasurfer\rt\metatrader\MT4;
+use rosasurfer\rt\lib\Rost;
+use rosasurfer\rt\lib\metatrader\HistorySet;
+use rosasurfer\rt\lib\metatrader\MT4;
 use rosasurfer\rt\model\RosaSymbol;
 
 use function rosasurfer\rt\fxTime;

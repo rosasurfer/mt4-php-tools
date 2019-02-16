@@ -3,11 +3,11 @@
 /**
  * Verzeichnislisting fuer MetaTrader-Historydateien
  */
-namespace rosasurfer\rt\metatrader\dir;
+namespace rosasurfer\rt\bin\metatrader\dir;
 
-use rosasurfer\rt\metatrader\HistoryHeader;
-use rosasurfer\rt\metatrader\MetaTraderException;
-use rosasurfer\rt\metatrader\MT4;
+use rosasurfer\rt\lib\metatrader\HistoryHeader;
+use rosasurfer\rt\lib\metatrader\MetaTraderException;
+use rosasurfer\rt\lib\metatrader\MT4;
 use rosasurfer\rt\model\Order;
 
 use function rosasurfer\rt\periodDescription;

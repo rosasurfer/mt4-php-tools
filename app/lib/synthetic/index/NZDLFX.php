@@ -1,7 +1,7 @@
 <?php
-namespace rosasurfer\rt\synthetic\index;
+namespace rosasurfer\rt\lib\synthetic\index;
 
-use rosasurfer\rt\synthetic\SynthesizerInterface as Synthesizer;
+use rosasurfer\rt\lib\synthetic\SynthesizerInterface as Synthesizer;
 
 
 /**

@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\rt;
+namespace rosasurfer\rt\lib;
 
 use rosasurfer\core\StaticClass;
 use rosasurfer\exception\FileNotFoundException;
@@ -76,26 +76,26 @@ class LZMA extends StaticClass {
         if (!$cmd) {
             $output = $error = null;
 
-            !$cmd && exec('lzmadec -V 2> '.NUL_DEVICE, $output, $error);                            // search lzmadec in PATH
+            !$cmd && exec('lzmadec -V 2> '.NUL_DEVICE, $output, $error);                                // search lzmadec in PATH
             !$cmd && !$error && ($cmd='lzmadec "%s"');
 
-            !$cmd && exec('lzma -V 2> '.NUL_DEVICE, $output, $error);                               // search lzma in PATH
+            !$cmd && exec('lzma -V 2> '.NUL_DEVICE, $output, $error);                                   // search lzma in PATH
             !$cmd && !$error && ($cmd='lzma -dc "%s"');
 
-            !$cmd && exec('xz -V 2> '.NUL_DEVICE, $output, $error);                                 // search xz in PATH
+            !$cmd && exec('xz -V 2> '.NUL_DEVICE, $output, $error);                                     // search xz in PATH
             !$cmd && !$error && ($cmd='xz -dc "%s"');
 
-            !$cmd && exec('xzdec -V 2> '.NUL_DEVICE, $output, $error);                              // search xzdec in PATH
+            !$cmd && exec('xzdec -V 2> '.NUL_DEVICE, $output, $error);                                  // search xzdec in PATH
             !$cmd && !$error && ($cmd='xzdec "%s"');
 
             if (!$cmd && WINDOWS) {
                 $appRoot = str_replace('\\', '/', self::di()['config']['app.dir.root']);
 
-                !$cmd && exec('"'.$appRoot.'/bin/xz/lzmadec" -V 2> '.NUL_DEVICE, $output, $error);  // search lzmadec in project
-                !$cmd && !$error && ($cmd='"'.$appRoot.'/bin/xz/lzmadec" "%s"');
+                !$cmd && exec('"'.$appRoot.'/bin/win32/lzmadec" -V 2> '.NUL_DEVICE, $output, $error);   // search lzmadec in project
+                !$cmd && !$error && ($cmd='"'.$appRoot.'/bin/win32/lzmadec" "%s"');
 
-                !$cmd && exec('"'.$appRoot.'/bin/xz/xz" -V 2> '.NUL_DEVICE, $output, $error);       // search xz in project
-                !$cmd && !$error && ($cmd='"'.$appRoot.'/bin/xz/xz" -dc "%s"');
+                !$cmd && exec('"'.$appRoot.'/bin/win32/xz" -V 2> '.NUL_DEVICE, $output, $error);        // search xz in project
+                !$cmd && !$error && ($cmd='"'.$appRoot.'/bin/win32/xz" -dc "%s"');
             }
             if (!$cmd) throw new InfrastructureException('No LZMA decoder found.');
         }

@@ -7,8 +7,8 @@ use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\util\PHP;
 use rosasurfer\util\Windows;
 
-use rosasurfer\rt\Rost;
-use rosasurfer\rt\metatrader\MT4;
+use rosasurfer\rt\lib\Rost;
+use rosasurfer\rt\lib\metatrader\MT4;
 
 use const rosasurfer\rt\BARMODEL_BAROPEN;
 use const rosasurfer\rt\OP_SELL;

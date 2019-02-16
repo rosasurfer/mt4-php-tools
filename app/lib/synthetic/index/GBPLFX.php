@@ -1,10 +1,10 @@
 <?php
-namespace rosasurfer\rt\synthetic\index;
+namespace rosasurfer\rt\lib\synthetic\index;
 
 use rosasurfer\exception\IllegalTypeException;
 
-use rosasurfer\rt\synthetic\AbstractSynthesizer;
-use rosasurfer\rt\synthetic\SynthesizerInterface as Synthesizer;
+use rosasurfer\rt\lib\synthetic\AbstractSynthesizer;
+use rosasurfer\rt\lib\synthetic\SynthesizerInterface as Synthesizer;
 
 
 /**
