@@ -11,10 +11,7 @@ use rosasurfer\rt\console\TestCommand;
 /** @var Application $app */
 $app = require(dirname(realpath(__FILE__)).'/../app/init.php');
 
-$app->addCommand($c = new TestCommand());
-
-echoPre($app);
-
+$app->addCommand(new TestCommand());
 $status = $app->run();
-exit($status);
 
+exit($status);
