@@ -7,7 +7,7 @@
  * TODO: link the PL series to the originating trade history
  * TODO: check and confirm over/rewriting of existing PL series
  */
-namespace rosasurfer\rt\generate_pl_series;
+namespace rosasurfer\rt\bin\generate_pl_series;
 
 use rosasurfer\Application;
 use rosasurfer\exception\IllegalTypeException;
@@ -15,7 +15,7 @@ use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 use rosasurfer\file\FileSystem as FS;
 
-use rosasurfer\rt\Rost;
+use rosasurfer\rt\lib\Rost;
 use rosasurfer\rt\model\RosaSymbol;
 use rosasurfer\rt\model\Test;
 

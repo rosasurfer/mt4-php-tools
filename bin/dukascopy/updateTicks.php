@@ -32,7 +32,7 @@
  *
  * TODO: check info from Zorro forum:  http://www.opserver.de/ubb7/ubbthreads.php?ubb=showflat&Number=463361#Post463345
  */
-namespace rosasurfer\rt\dukascopy\update_tickdata;
+namespace rosasurfer\rt\bin\dukascopy\update_tickdata;
 
 use rosasurfer\Application;
 use rosasurfer\exception\IllegalTypeException;
@@ -45,10 +45,10 @@ use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
 use rosasurfer\process\Process;
 
-use rosasurfer\rt\LZMA;
-use rosasurfer\rt\Rost;
-use rosasurfer\rt\dukascopy\Dukascopy;
-use rosasurfer\rt\dukascopy\exception\DukascopyException;
+use rosasurfer\rt\lib\LZMA;
+use rosasurfer\rt\lib\Rost;
+use rosasurfer\rt\lib\dukascopy\Dukascopy;
+use rosasurfer\rt\lib\dukascopy\exception\DukascopyException;
 use rosasurfer\rt\model\DukascopySymbol;
 use rosasurfer\rt\model\RosaSymbol;
 

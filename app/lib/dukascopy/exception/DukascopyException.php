@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\rt\dukascopy\exception;
+namespace rosasurfer\rt\lib\dukascopy\exception;
 
 use rosasurfer\exception\RuntimeException;
 

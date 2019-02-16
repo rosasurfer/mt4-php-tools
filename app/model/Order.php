@@ -4,8 +4,8 @@ namespace rosasurfer\rt\model;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 
-use rosasurfer\rt\Rost;
-use rosasurfer\rt\metatrader\MT4;
+use rosasurfer\rt\lib\Rost;
+use rosasurfer\rt\lib\metatrader\MT4;
 
 use function rosasurfer\rt\isWeekend;
 

@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\rt\dukascopy;
+namespace rosasurfer\rt\lib\dukascopy;
 
 use rosasurfer\core\Object;
 use rosasurfer\exception\IllegalArgumentException;
@@ -9,8 +9,8 @@ use rosasurfer\exception\RuntimeException;
 use rosasurfer\file\FileSystem as FS;
 use rosasurfer\log\Logger;
 
-use rosasurfer\rt\LZMA;
-use rosasurfer\rt\dukascopy\HttpClient as DukascopyClient;
+use rosasurfer\rt\lib\LZMA;
+use rosasurfer\rt\lib\dukascopy\HttpClient as DukascopyClient;
 use rosasurfer\rt\model\DukascopySymbol;
 
 use function rosasurfer\rt\periodToStr;

@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\rt\metatrader;
+namespace rosasurfer\rt\lib\metatrader;
 
 use rosasurfer\core\Object;
 use rosasurfer\debug\ErrorHandler;
@@ -9,7 +9,7 @@ use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
 use rosasurfer\log\Logger;
 
-use rosasurfer\rt\metatrader\MT4;
+use rosasurfer\rt\lib\metatrader\MT4;
 
 use function rosasurfer\rt\timeframeDescription;
 

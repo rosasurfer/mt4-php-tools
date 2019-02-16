@@ -3,7 +3,7 @@
 /**
  * Import test results into the database.
  */
-namespace rosasurfer\rt\metatrader\import_test;
+namespace rosasurfer\rt\bin\metatrader\import_test;
 
 use rosasurfer\util\PHP;
 use rosasurfer\rt\model\Test;

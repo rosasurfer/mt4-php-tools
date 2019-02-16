@@ -3,7 +3,7 @@
 /**
  * Update the M1 history of synthetic Rosatrader instruments.
  */
-namespace rosasurfer\rt\update_synthetics_m1;
+namespace rosasurfer\rt\bin\update_synthetics_m1;
 
 use rosasurfer\process\Process;
 use rosasurfer\rt\model\RosaSymbol;

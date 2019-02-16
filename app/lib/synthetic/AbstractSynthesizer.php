@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\rt\synthetic;
+namespace rosasurfer\rt\lib\synthetic;
 
 use rosasurfer\core\Object;
 use rosasurfer\rt\model\RosaSymbol;

@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\rt\metatrader;
+namespace rosasurfer\rt\lib\metatrader;
 
 use rosasurfer\exception\RuntimeException;
 

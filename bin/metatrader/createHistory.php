@@ -5,7 +5,7 @@
  * Speichert diese MetaTrader-History im globalen MT4-Serververzeichnis. Vorhandene Historydateien werden ueberschrieben.
  * Um vorhandene Historydateien zu aktualisieren, ist "updateHistory.php" zu benutzen.
  */
-namespace rosasurfer\rt\metatrader\create_history;
+namespace rosasurfer\rt\bin\metatrader\create_history;
 
 use rosasurfer\Application;
 use rosasurfer\exception\IllegalTypeException;
@@ -13,9 +13,9 @@ use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\process\Process;
 use rosasurfer\util\PHP;
 
-use rosasurfer\rt\Rost;
-use rosasurfer\rt\metatrader\HistorySet;
-use rosasurfer\rt\metatrader\MT4;
+use rosasurfer\rt\lib\Rost;
+use rosasurfer\rt\lib\metatrader\HistorySet;
+use rosasurfer\rt\lib\metatrader\MT4;
 use rosasurfer\rt\model\RosaSymbol;
 
 use function rosasurfer\rt\fxTime;

@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\rt\metatrader;
+namespace rosasurfer\rt\lib\metatrader;
 
 use rosasurfer\core\Object;
 use rosasurfer\debug\ErrorHandler;
@@ -11,7 +11,7 @@ use rosasurfer\exception\RuntimeException;
 use rosasurfer\exception\UnimplementedFeatureException;
 use rosasurfer\file\FileSystem as FS;
 
-use rosasurfer\rt\Rost;
+use rosasurfer\rt\lib\Rost;
 
 use function rosasurfer\rt\periodDescription;
 use function rosasurfer\rt\timeframeDescription;

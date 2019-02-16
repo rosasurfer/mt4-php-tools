@@ -1,5 +1,5 @@
 <?php
-namespace rosasurfer\rt;
+namespace rosasurfer\rt\lib;
 
 use rosasurfer\core\StaticClass;
 use rosasurfer\exception\IllegalTypeException;
@@ -10,8 +10,19 @@ use rosasurfer\net\http\CurlHttpClient;
 use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
 
-use rosasurfer\rt\metatrader\MT4;
+use rosasurfer\rt\lib\metatrader\MT4;
 use rosasurfer\rt\model\RosaSymbol;
+
+use const rosasurfer\rt\OP_BALANCE;
+use const rosasurfer\rt\OP_BUY;
+use const rosasurfer\rt\OP_BUYLIMIT;
+use const rosasurfer\rt\OP_BUYSTOP;
+use const rosasurfer\rt\OP_CREDIT;
+use const rosasurfer\rt\OP_SELL;
+use const rosasurfer\rt\OP_SELLLIMIT;
+use const rosasurfer\rt\OP_SELLSTOP;
+use const rosasurfer\rt\PERIOD_D1;
+use const rosasurfer\rt\PERIOD_W1;
 
 
 /**

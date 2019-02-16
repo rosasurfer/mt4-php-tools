@@ -1,8 +1,10 @@
 <?php
-namespace rosasurfer\rt;
+namespace rosasurfer\rt\lib;
 
 use rosasurfer\core\StaticClass;
 use rosasurfer\exception\IllegalTypeException;
+
+use function rosasurfer\rt\fxTime;
 
 
 /**

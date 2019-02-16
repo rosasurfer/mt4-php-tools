@@ -1,11 +1,11 @@
 <?php
-namespace rosasurfer\rt\dukascopy;
+namespace rosasurfer\rt\lib\dukascopy;
 
 use rosasurfer\exception\RuntimeException;
 use rosasurfer\net\http\CurlHttpClient;
 use rosasurfer\net\http\HttpResponse;
 
-use rosasurfer\rt\dukascopy\HttpRequest as DukascopyRequest;
+use rosasurfer\rt\lib\dukascopy\HttpRequest as DukascopyRequest;
 
 
 /**
