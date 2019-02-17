@@ -77,7 +77,7 @@ class Rost extends StaticClass {
         static $addresses = null;
 
         if (is_null($addresses)) {
-            $values = self::di()['config']->get('mail.signalreceivers', '');
+            $values = self::di('config')->get('mail.signalreceivers', '');
             foreach (explode(',', $values) as $address) {
                 if ($address=trim($address))
                     $addresses[] = $address;
@@ -98,7 +98,7 @@ class Rost extends StaticClass {
         static $numbers = null;
 
         if (is_null($numbers)) {
-            $values = self::di()['config']->get('sms.signalreceivers', '');
+            $values = self::di('config')->get('sms.signalreceivers', '');
             foreach (explode(',', $values) as $number) {
                 if ($number=trim($number))
                     $numbers[] = $number;
@@ -127,7 +127,7 @@ class Rost extends StaticClass {
         $message = trim($message);
         if ($message == '')          throw new InvalidArgumentException('Invalid argument $message: "'.$message.'"');
 
-        $config   = self::di()['config']['sms.clickatell'];
+        $config   = self::di('config')['sms.clickatell'];
         $username = $config['username'];
         $password = $config['password'];
         $api_id   = $config['api_id'  ];
@@ -535,7 +535,7 @@ class Rost extends StaticClass {
         if (isset($symbol) && !is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.gettype($symbol));
         if (isset($time) && !is_int($time))        throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
 
-        static $dataDir; !$dataDir && $dataDir = self::di()['config']['app.dir.data'];
+        static $dataDir; !$dataDir && $dataDir = self::di('config')['app.dir.data'];
 
         if ($id == 'rtDirDate') {                       // $yyyy/$mm/$dd                                                // lokales Pfad-Datum
             if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
@@ -577,7 +577,7 @@ class Rost extends StaticClass {
 
         static $root, $realRoot, $data, $realData;
         if (!$root) {
-            $config   = self::di()['config'];
+            $config   = self::di('config');
             $root     = str_replace('\\', '/', $config['app.dir.root'].'/');
             $realRoot = str_replace('\\', '/', realpath($root).'/');
             $data     = str_replace('\\', '/', $config['app.dir.data'].'/');

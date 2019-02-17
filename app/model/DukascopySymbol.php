@@ -127,7 +127,7 @@ class DukascopySymbol extends RosatraderModel {
             echoPre('[Info]    '.$this->name.'  fetching remote history status');
 
             /** @var Dukascopy $dukascopy */
-            $dukascopy = $this->di()['dukascopy'];
+            $dukascopy = $this->di('dukascopy');
             $historyStart = $dukascopy->fetchHistoryStart($this->name);
             echoPre('$historyStart: '.$historyStart);
         }

@@ -114,7 +114,7 @@ class RT extends StaticClass {
         }
 
         // delete existing files
-        $dataDir  = self::di()['config']['app.dir.data'];
+        $dataDir  = self::di('config')['app.dir.data'];
         $dataDir .= '/history/rosatrader/'.$symbol->getType().'/'.$symbol->getName();
         $dir      = $dataDir.'/'.gmdate('Y/m/d', $day);
         $msg      = '[Info]    '.$symbol->getName().'  deleting existing M1 file: ';

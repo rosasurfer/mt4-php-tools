@@ -198,7 +198,7 @@ class RosaSymbol extends RosatraderModel {
      * </pre>
      */
     public function getHistoryM1($fxDay) {
-        $dataDir  = $this->di()['config']['app.dir.data'];
+        $dataDir  = $this->di('config')['app.dir.data'];
         $dataDir .= '/history/rosatrader/'.$this->type.'/'.$this->name;
         $dir      = $dataDir.'/'.gmdate('Y/m/d', $fxDay);
 
@@ -296,7 +296,7 @@ class RosaSymbol extends RosatraderModel {
      * @return bool - success status
      */
     public function synchronizeHistory() {
-        $dataDir  = $this->di()['config']['app.dir.data'];
+        $dataDir  = $this->di('config')['app.dir.data'];
         $dataDir .= '/history/rosatrader/'.$this->type.'/'.$this->name;
 
         echoPre('[Info]    '.$this->name.'  synchronizing history');

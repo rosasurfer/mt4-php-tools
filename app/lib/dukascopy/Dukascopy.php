@@ -95,7 +95,7 @@ class Dukascopy extends Object {
      */
     public function fetchHistoryStart($symbol) {
         $data = $this->getHttpClient()->downloadHistoryStart($symbol);
-        //$data = file_get_contents($this->di()['config']['app.dir.root'].'/bin/dukascopy/HistoryStart.AUDUSD.bi5');
+        //$data = file_get_contents($this->di('config')['app.dir.root'].'/bin/dukascopy/HistoryStart.AUDUSD.bi5');
 
         if (strlen($data)) {
             $times = $this->readHistoryStartSection($data);
@@ -136,7 +136,7 @@ class Dukascopy extends Object {
      */
     public function fetchHistoryStarts() {
         $data = $this->getHttpClient()->downloadHistoryStart();
-        //$data = file_get_contents($this->di()['config']['app.dir.root'].'/bin/dukascopy/HistoryStart.All.bi5');
+        //$data = file_get_contents($this->di('config')['app.dir.root'].'/bin/dukascopy/HistoryStart.All.bi5');
 
         if (strlen($data)) {
             $symbols = $this->readHistoryStarts($data);

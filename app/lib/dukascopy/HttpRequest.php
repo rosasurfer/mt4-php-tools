@@ -21,7 +21,7 @@ class HttpRequest extends \rosasurfer\net\http\HttpRequest {
         parent::__construct($url);
 
         // emulate a standard web browser
-        $this->setHeader('User-Agent'     ,  $this->di()['config']['rt.http.useragent']                      )
+        $this->setHeader('User-Agent'     ,  $this->di('config')['rt.http.useragent']                        )
              ->setHeader('Accept'         , 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
              ->setHeader('Accept-Language', 'en-us'                                                          )
              ->setHeader('Accept-Charset' , 'ISO-8859-1,utf-8;q=0.7,*;q=0.7'                                 )

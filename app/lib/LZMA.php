@@ -89,7 +89,7 @@ class LZMA extends StaticClass {
             !$cmd && !$error && ($cmd='xzdec "%s"');
 
             if (!$cmd && WINDOWS) {
-                $appRoot = str_replace('\\', '/', self::di()['config']['app.dir.root']);
+                $appRoot = str_replace('\\', '/', self::di('config')['app.dir.root']);
 
                 !$cmd && exec('"'.$appRoot.'/bin/win32/lzmadec" -V 2> '.NUL_DEVICE, $output, $error);   // search lzmadec in project
                 !$cmd && !$error && ($cmd='"'.$appRoot.'/bin/win32/lzmadec" "%s"');
