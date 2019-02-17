@@ -1,6 +1,7 @@
 <?php
 namespace rosasurfer\rt\lib;
 
+use rosasurfer\config\ConfigInterface;
 use rosasurfer\core\StaticClass;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
@@ -77,9 +78,12 @@ class Rost extends StaticClass {
         static $addresses = null;
 
         if (is_null($addresses)) {
-            $values = self::di('config')->get('mail.signalreceivers', '');
+            /** @var ConfigInterface $config */
+            $config = self::di('config');
+            $values = $config->get('mail.signalreceivers', '');
+
             foreach (explode(',', $values) as $address) {
-                if ($address=trim($address))
+                if ($address = trim($address))
                     $addresses[] = $address;
             }
             if (!$addresses)
@@ -98,7 +102,10 @@ class Rost extends StaticClass {
         static $numbers = null;
 
         if (is_null($numbers)) {
-            $values = self::di('config')->get('sms.signalreceivers', '');
+            /** @var ConfigInterface $config */
+            $config = self::di('config');
+            $values = $config->get('sms.signalreceivers', '');
+
             foreach (explode(',', $values) as $number) {
                 if ($number=trim($number))
                     $numbers[] = $number;
