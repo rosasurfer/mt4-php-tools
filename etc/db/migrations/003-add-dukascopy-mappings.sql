@@ -5,8 +5,7 @@ begin;
 
 
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- alter Instruments to ProjectSymbols
--- ProjectSymbols
+-- Instruments: migrate to ProjectSymbols
 create table t_projectsymbol (                                             -- project instruments
    id                integer        not null,
    created           text[datetime] not null default (datetime('now')),    -- GMT
@@ -25,6 +24,7 @@ create table t_projectsymbol (                                             -- pr
    constraint fk_projectsymbol_type foreign key (type) references enum_instrumenttype(type) on delete restrict on update cascade,
    constraint u_name unique (name)
 );
+
 create index i_projectsymbol_type on t_projectsymbol(type);
 
 create trigger tr_projectsymbol_before_update before update on t_projectsymbol
@@ -42,7 +42,7 @@ drop table if exists t_instrument;
 
 
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- add DukascopySymbols
+-- DukascopySymbols
 create table t_dukascopysymbol (                                           -- Dukascopy instruments
    id                integer        not null,
    created           text[datetime] not null default (datetime('now')),    -- GMT

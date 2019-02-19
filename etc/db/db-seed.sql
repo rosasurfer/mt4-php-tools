@@ -72,12 +72,12 @@ insert into tmp_symbol (name, digits, historystart_ticks, historystart_m1) value
    ('USDZAR', 5, '1997-10-13 21:00:00', '1997-10-14 03:00:00'),                           -- FXT   TODO: M1 start is 13.11.1997
    ('XAUUSD', 3, '2003-05-05 03:00:00', '1999-09-02 03:00:00');                           -- FXT   TODO: M1 start is 01.09.1999
 
-insert into t_dukascopysymbol (name, digits, historystart_ticks, historyend_ticks, historystart_m1, historyend_m1, rosasymbol_id)
+insert into t_dukascopysymbol (name, digits, historystart_ticks, historystart_m1, historystart_h1, historystart_d1, rosasymbol_id)
 select tmp.name,
        tmp.digits,
        tmp.historystart_ticks,
-       null,
        tmp.historystart_m1,
+       null,
        null,
        r.id
    from tmp_symbol tmp

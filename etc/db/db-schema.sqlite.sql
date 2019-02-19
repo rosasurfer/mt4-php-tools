@@ -1,10 +1,9 @@
 /*
 Created     16.01.2017
-Modified    05.01.2019
+Modified    20.01.2019
 Project     Rosatrader
 Model       Rosatrader
 Author      Peter Walther
-Version     0.2
 Database    SQLite3
 */
 
@@ -102,9 +101,9 @@ create table t_dukascopysymbol (                                           -- Du
    name               text(11)       not null collate nocase,              -- Dukascopy instrument identifier (the actual symbol)
    digits             integer        not null,                             -- decimal digits
    historystart_ticks text[datetime],                                      -- start of available history (FXT)
-   historyend_ticks   text[datetime],                                      -- end of available history (FXT)
    historystart_m1    text[datetime],                                      -- start of available history (FXT)
-   historyend_m1      text[datetime],                                      -- end of available history (FXT)
+   historystart_h1    text[datetime],                                      -- start of available history (FXT)
+   historystart_d1    text[datetime],                                      -- start of available history (FXT)
    rosasymbol_id      integer,
    primary key (id),
    constraint fk_dukascopysymbol_rosasymbol foreign key (rosasymbol_id) references t_rosasymbol (id) on delete restrict on update cascade

@@ -5,8 +5,7 @@ begin;
 
 
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- add instrument columns
--- Instruments
+-- Instruments: add columns
 alter table  t_instrument rename to t_instrument_old_20181219;
 drop index   if exists i_instrument_type;
 drop trigger if exists tr_instrument_before_update;
@@ -29,6 +28,7 @@ create table t_instrument (
    constraint fk_instrument_type foreign key (type) references enum_instrumenttype(type) on delete restrict on update cascade,
    constraint u_symbol           unique (symbol)
 );
+
 insert into t_instrument (id, created, modified, type, symbol, description, digits, hst_tick_from, hst_m1_from, hst_d1_from)
 select id, created, modified, type, symbol, description, digits, historystart_ticks, historystart_m1, historystart_d1
    from t_instrument_old_20181219;

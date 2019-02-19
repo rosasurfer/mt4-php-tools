@@ -30,10 +30,10 @@ class DukascopySymbolDAO extends DAO {
 
                 ['name'=>'name',                                              'type'=>STRING,                ],         // db:text
                 ['name'=>'digits',                                            'type'=>INT,                   ],         // db:int
-                ['name'=>'historyTicksStart', 'column'=>'historystart_ticks', 'type'=>STRING,                ],         // db:text[datetime] FXT
-                ['name'=>'historyTicksEnd',   'column'=>'historyend_ticks',   'type'=>STRING,                ],         // db:text[datetime] FXT
-                ['name'=>'historyM1Start',    'column'=>'historystart_m1',    'type'=>STRING,                ],         // db:text[datetime] FXT
-                ['name'=>'historyM1End',      'column'=>'historyend_m1',      'type'=>STRING,                ],         // db:text[datetime] FXT
+                ['name'=>'historyStartTicks', 'column'=>'historystart_ticks', 'type'=>STRING,                ],         // db:text[datetime] FXT
+                ['name'=>'historyStartM1',    'column'=>'historystart_m1',    'type'=>STRING,                ],         // db:text[datetime] FXT
+                ['name'=>'historyStartH1',    'column'=>'historystart_h1',    'type'=>STRING,                ],         // db:text[datetime] FXT
+                ['name'=>'historyStartD1',    'column'=>'historystart_d1',    'type'=>STRING,                ],         // db:text[datetime] FXT
             ],
             'relations' => [
                 ['name'=>'rosaSymbol', 'assoc'=>'one-to-one', 'type'=>RosaSymbol::class, 'column'=>'rosasymbol_id'],    // db:int

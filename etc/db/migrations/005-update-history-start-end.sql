@@ -5,9 +5,7 @@ begin;
 
 
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- alter RosaSymbols
--- add columns "autoupdate", "formula"
--- rename columns "history_*"
+-- RosaSymbols: add columns "autoupdate" and "formula", rename columns "history_*"
 alter table t_rosasymbol rename to t_rosasymbol_old_20181228;
 drop index   if exists i_rosasymbol_type;
 drop trigger if exists tr_rosasymbol_before_update;
@@ -32,6 +30,7 @@ create table t_rosasymbol (                                                -- Ro
    constraint fk_rosasymbol_type foreign key (type) references enum_instrumenttype(type) on delete restrict on update cascade,
    constraint u_name unique (name)
 );
+
 insert into t_rosasymbol (id, created, modified, type, name, description, digits, historystart_ticks, historyend_ticks, historystart_m1, historyend_m1, historystart_d1, historyend_d1)
 select id, created, modified, type, name, description, digits, history_tick_from, history_tick_to, history_M1_from, history_M1_to, history_D1_from, history_D1_to
    from t_rosasymbol_old_20181228;
@@ -48,8 +47,7 @@ drop table if exists t_rosasymbol_old_20181228;
 
 
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- alter DukascopySymbols
--- rename columns "history_*"
+-- DukascopySymbols: rename columns "history_*"
 alter table t_dukascopysymbol rename to t_dukascopysymbol_old_20181228;
 drop trigger if exists tr_dukascopysymbol_before_update;
 
@@ -69,6 +67,7 @@ create table t_dukascopysymbol (                                           -- Du
    constraint u_name       unique (name)
    constraint u_rosasymbol unique (rosasymbol_id)
 );
+
 insert into t_dukascopysymbol (id, created, modified, name, digits, historystart_ticks, historyend_ticks, historystart_m1, historyend_m1, rosasymbol_id)
 select id, created, modified, name, digits, history_tick_from, history_tick_to, history_M1_from, history_M1_to, rosasymbol_id
    from t_dukascopysymbol_old_20181228;

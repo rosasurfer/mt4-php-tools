@@ -5,8 +5,7 @@ begin;
 
 
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- fix conditional operators in trigger definitions
--- Instruments
+-- Instruments: fix conditions in trigger definitions
 drop trigger if exists tr_instrument_before_update;
 drop trigger if exists tr_instrument_after_update;
 
@@ -18,7 +17,7 @@ end;
 
 
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- Tests
+-- Tests: fix conditions in trigger definitions
 drop trigger if exists tr_test_before_update;
 drop trigger if exists tr_test_after_update;
 
@@ -30,7 +29,7 @@ end;
 
 
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- Orders
+-- Orders: fix conditions in trigger definitions
 drop trigger if exists tr_order_before_update;
 drop trigger if exists tr_order_after_update;
 

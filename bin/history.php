@@ -8,7 +8,7 @@ namespace rosasurfer\rt\bin\history;
 use rosasurfer\process\Process;
 use rosasurfer\rt\model\RosaSymbol;
 
-require(dirname(realpath(__FILE__)).'/../../app/init.php');
+require(dirname(realpath(__FILE__)).'/../app/init.php');
 date_default_timezone_set('GMT');
 
 

@@ -5,8 +5,7 @@ begin;
 
 
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- alter ProjectSymbols to RosaSymbols
--- RosaSymbols
+-- ProjectSymbols: migrate to RosaSymbols
 create table t_rosasymbol (                                                -- Rosatrader instruments
    id                integer        not null,
    created           text[datetime] not null default (datetime('now')),    -- GMT
@@ -42,7 +41,7 @@ drop table if exists t_projectsymbol;
 
 
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- update DukascopySymbol
+-- DukascopySymbols
 alter table t_dukascopysymbol rename to t_dukascopysymbol_old_20181220;
 drop trigger if exists tr_dukascopysymbol_before_update;
 
@@ -62,6 +61,7 @@ create table t_dukascopysymbol (                                           -- Du
    constraint u_name       unique (name)
    constraint u_rosasymbol unique (rosasymbol_id)
 );
+
 insert into t_dukascopysymbol (id, created, modified, name, digits, history_tick_from, history_tick_to, history_M1_from, history_M1_to, rosasymbol_id)
 select id, created, modified, name, digits, history_tick_from, history_tick_to, history_M1_from, history_M1_to, projectsymbol_id
    from t_dukascopysymbol_old_20181220;

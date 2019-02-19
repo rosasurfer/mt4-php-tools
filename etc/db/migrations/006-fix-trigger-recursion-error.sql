@@ -4,9 +4,8 @@ pragma recursive_triggers = on;
 begin;
 
 
--- fix error "too many levels of trigger recursion"
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- RosaSymbols
+-- RosaSymbols: fix error "too many levels of trigger recursion"
 drop trigger if exists tr_rosasymbol_before_update;
 drop trigger if exists tr_rosasymbol_after_update;
 
