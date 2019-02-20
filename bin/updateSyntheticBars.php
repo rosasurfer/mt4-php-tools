@@ -38,8 +38,7 @@ $symbols = $symbols ?: RosaSymbol::dao()->findAllByType(RosaSymbol::TYPE_SYNTHET
 
 // update instruments
 foreach ($symbols as $symbol) {
-    if ($symbol->updateHistory())
-        echoPre('[Ok]      '.$symbol->getName());
+    $symbol->updateHistory();
     Process::dispatchSignals();                                                         // process Ctrl-C
 }
 exit(0);
