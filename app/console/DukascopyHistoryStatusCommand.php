@@ -6,29 +6,26 @@ use rosasurfer\console\input\Input;
 
 
 /**
- * TestCommand
+ * DukascopyHistoryStatusCommand
  */
-class TestCommand extends Command {
+class DukascopyHistoryStatusCommand extends Command {
 
 
     /** @var string */
     const DOCOPT = <<<'DOCOPT'
-Process FILE and optionally apply correction to either left-hand or right-hand side.
 
-Usage: rt command command <arg1> ARG2
-       rt [-rh] [--quiet=<x>...] [FILE...]
-       rt (--left | --right) CORRECTION FILE
+Show or update Dukascopy history status (history start times per timeframe).
+
+Usage:
+  rt.dukascopy.status [-r | -u] [-h] [SYMBOL ...]
 
 Arguments:
-  FILE         optional input file
-  CORRECTION   correction angle, needs FILE, --left or --right to be present
+  SYMBOL        Optional Dukascopy symbols to process (default: all symbols).
 
 Options:
-  -h --help
-  -q --quiet=<x>  quiet mode
-  -r --report     make report
-  --left          use left-hand side
-  --right         use right-hand side
+   -r --remote  Show remote instead of local history status (connects to Dukascopy).
+   -u --update  Update the local history status with remote data (connects to Dukascopy).
+   -h --help    This help screen.
 
 DOCOPT;
 
@@ -50,8 +47,10 @@ DOCOPT;
      * @return int - execution status code: 0 (zero) for "success"
      */
     protected function execute(Input $input) {
+        date_default_timezone_set('GMT');
+
         echoPre($input->getDocoptResult());
-        //var_dump($input->getDocoptResult());
+
         return 0;
     }
 }
