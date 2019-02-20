@@ -40,7 +40,7 @@ $symbols = [];
 foreach ($args as $i => $arg) {
     /** @var DukascopySymbol $symbol */
     $symbol = DukascopySymbol::dao()->findByName($arg);
-    if (!$symbol) exit(1|stderror('error: unknown or untracked Dukascopy symbol "'.$args[$i].'"'));
+    if (!$symbol) exit(1|stderr('error: unknown or untracked Dukascopy symbol "'.$args[$i].'"'));
     $symbols[$symbol->getName()] = $symbol;                             // using the name as index removes duplicates
 }
 

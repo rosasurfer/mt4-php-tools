@@ -28,8 +28,8 @@ $symbols = [];
 foreach ($args as $i => $arg) {
     /** @var RosaSymbol $symbol */
     $symbol = RosaSymbol::dao()->findByName($arg);
-    if (!$symbol)                exit(1|stderror('error: unknown symbol "'.$args[$i].'"'));
-    if (!$symbol->isSynthetic()) exit(1|stderror('error: not a synthetic instrument "'.$symbol->getName().'"'));
+    if (!$symbol)                exit(1|stderr('error: unknown symbol "'.$args[$i].'"'));
+    if (!$symbol->isSynthetic()) exit(1|stderr('error: not a synthetic instrument "'.$symbol->getName().'"'));
     $symbols[$symbol->getName()] = $symbol;                                             // using the name as index removes duplicates
 }
 $symbols = $symbols ?: RosaSymbol::dao()->findAllByType(RosaSymbol::TYPE_SYNTHETIC);    // if none is specified update all synthetics

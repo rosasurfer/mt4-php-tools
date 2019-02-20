@@ -13,7 +13,7 @@ use rosasurfer\net\mail\Mailer;
 use rosasurfer\util\PHP;
 
 require(dirname(realpath(__FILE__)).'/../../../app/init.php');
-!CLI && exit(1|stderror('error: This script must be executed from a command line interface.'));
+!CLI && exit(1|stderr('error: This script must be executed from a command line interface.'));
 
 
 // --- Configuration --------------------------------------------------------------------------------------------------------
@@ -33,7 +33,7 @@ foreach ($args as $i => $arg) {
     if ($arg == '-h') { help(); exit(0);                           }    // help
     if ($arg == '-q') { $quiet = true; unset($args[$i]); continue; }    // quiet mode
 
-    stderror('invalid argument: '.$arg);
+    stderr('invalid argument: '.$arg);
     !$quiet && help();
     exit(1);
 }
@@ -53,13 +53,13 @@ if (empty($errorLog) || $errorLog=='syslog') {              // errors are logged
 
 // (2) check log file for existence and process it
 if (!is_file    ($errorLog)) { $quiet || echoPre('error log empty: '       .$errorLog); exit(0); }
-if (!is_writable($errorLog)) {          stderror('cannot access log file: '.$errorLog); exit(1); }
+if (!is_writable($errorLog)) {            stderr('cannot access log file: '.$errorLog); exit(1); }
 $errorLog = realpath($errorLog);
 
 // rename the file; we don't want to lock it cause doing so could block the main app
 $tempName = tempnam(dirname($errorLog), basename($errorLog).'.');
 if (!rename($errorLog, $tempName)) {
-    stderror('cannot rename log file: '  .$errorLog);
+    stderr('cannot rename log file: '  .$errorLog);
     exit(1);
 }
 

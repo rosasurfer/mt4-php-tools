@@ -33,7 +33,7 @@ $symbols = [];
 foreach ($args as $i => $arg) {
     /** @var RosaSymbol $symbol */
     $symbol = RosaSymbol::dao()->findByName($arg);
-    if (!$symbol) exit(1|stderror('error: unknown Rosatrader symbol "'.$args[$i].'"'));
+    if (!$symbol) exit(1|stderr('error: unknown Rosatrader symbol "'.$args[$i].'"'));
     $symbols[$symbol->getName()] = $symbol;                             // using the name as index removes duplicates
 }                                                                       // if none was specified process all
 $symbols = $symbols ?: RosaSymbol::dao()->findAll('select * from :RosaSymbol order by name');

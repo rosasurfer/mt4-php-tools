@@ -92,8 +92,8 @@ $symbols = [];
 foreach ($args as $i => $arg) {
     /** @var RosaSymbol $symbol */
     $symbol = RosaSymbol::dao()->findByName($arg);
-    if (!$symbol)                       exit(1|stderror('error: unknown symbol "'.$args[$i].'"'));
-    if (!$symbol->getDukascopySymbol()) exit(1|stderror('error: no Dukascopy mapping found for symbol "'.$args[$i].'"'));
+    if (!$symbol)                       exit(1|stderr('error: unknown symbol "'.$args[$i].'"'));
+    if (!$symbol->getDukascopySymbol()) exit(1|stderr('error: no Dukascopy mapping found for symbol "'.$args[$i].'"'));
     $symbols[$symbol->getName()] = $symbol;                                         // using the name as index removes duplicates
 }
 $symbols = $symbols ?: RosaSymbol::dao()->findAllDukascopyMapped();                 // ohne Angabe werden alle Instrumente verarbeitet

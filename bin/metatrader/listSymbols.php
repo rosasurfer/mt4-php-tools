@@ -36,12 +36,12 @@ foreach ($args as $arg) {
 foreach ($args as $i => $arg) {
     // -f=FILE
     if (strStartsWith($arg, '-f=')) {
-        if ($files) exit(1|stderror('invalid/multiple file arguments: -f='.$arg));
+        if ($files) exit(1|stderr('invalid/multiple file arguments: -f='.$arg));
         $value = $arg = strRight($arg, -3);
         strIsQuoted($value) && ($value=strLeft(strRight($value, -1), 1));
 
         if (file_exists($value)) {              // existierende Datei oder Verzeichnis
-            is_dir($value) && !is_file(($value.=(strEndsWith($value, '/') ? '':'/').'symbols.raw')) && exit(1|stderror('file not found: '.$value));
+            is_dir($value) && !is_file(($value.=(strEndsWith($value, '/') ? '':'/').'symbols.raw')) && exit(1|stderr('file not found: '.$value));
             $files[] = $value;
         }
         else {                                  // Argument existiert nicht, Wildcards expandieren und Ergebnisse pruefen (z.B. unter Windows)
@@ -53,7 +53,7 @@ foreach ($args as $i => $arg) {
                     continue;
                 $files[] = $entry;              // nur Dateien uebernehmen
             }
-            !$files && exit(1|stderror('file(s) not found: '.$arg.($matchesDir ? ' (enter a trailing slash "/" to search directories)':'')));
+            !$files && exit(1|stderr('file(s) not found: '.$arg.($matchesDir ? ' (enter a trailing slash "/" to search directories)':'')));
             usort($files, 'compareFileNames');  // Datei-/Verzeichnisnamen lassen sich mit den existierenden Funktionen nicht natuerlich sortieren
         }
         continue;
