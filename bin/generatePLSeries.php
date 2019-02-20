@@ -21,7 +21,7 @@ use rosasurfer\rt\model\Test;
 
 use function rosasurfer\rt\isWeekend;
 
-require(dirname(realpath(__FILE__)).'/../../app/init.php');
+require(dirname(realpath(__FILE__)).'/../app/init.php');
 
 
 // --- Configuration --------------------------------------------------------------------------------------------------------
