@@ -2,7 +2,8 @@
 namespace rosasurfer\rt\console;
 
 use rosasurfer\console\Command;
-use rosasurfer\console\input\Input;
+use rosasurfer\console\Input;
+use rosasurfer\console\Output;
 
 
 /**
@@ -46,7 +47,7 @@ DOCOPT;
      *
      * @return int - execution status code: 0 (zero) for "success"
      */
-    protected function execute(Input $input) {
+    protected function execute(Input $input, Output $output) {
         date_default_timezone_set('GMT');
 
         echoPre($input->getDocoptResult());
