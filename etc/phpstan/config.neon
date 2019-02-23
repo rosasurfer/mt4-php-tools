@@ -65,6 +65,10 @@ services: # Services must be loaded via cmd line option --autoload-file as they 
             - phpstan.broker.dynamicMethodReturnTypeExtension
             - phpstan.broker.dynamicStaticMethodReturnTypeExtension
     -
+        class: rosasurfer\phpstan\Di_Set_ReturnType
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+    -
         class: rosasurfer\phpstan\PersistableObject_Dao_ReturnType
         tags:
             - phpstan.broker.dynamicMethodReturnTypeExtension
