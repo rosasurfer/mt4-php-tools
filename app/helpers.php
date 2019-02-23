@@ -358,7 +358,7 @@ function periodDescription($value) {
     if (!is_int($value)) throw new IllegalTypeException('Illegal type of parameter $value: '.gettype($value));
 
     switch ($value) {
-        case PERIOD_TICKS: return 'ticks';              //      0 = no period
+        case PERIOD_TICKS: return 'TICK';               //      0 = no period
         case PERIOD_M1   : return 'M1';                 //      1 = 1 minute
         case PERIOD_M5   : return 'M5';                 //      5 = 5 minutes
         case PERIOD_M15  : return 'M15';                //     15 = 15 minutes

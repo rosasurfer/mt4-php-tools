@@ -18,6 +18,7 @@ use function rosasurfer\rt\periodToStr;
 use const rosasurfer\rt\DUKASCOPY_BAR_SIZE;
 use const rosasurfer\rt\DUKASCOPY_TICK_SIZE;
 use const rosasurfer\rt\PERIOD_M1;
+use rosasurfer\console\Output;
 
 
 /**
@@ -40,8 +41,8 @@ use const rosasurfer\rt\PERIOD_M1;
  *
  * // big-endian
  * struct DUKASCOPY_TIMEFRAME_START {   // -- offset --- size --- description -----------------------------------------------
- *     int64 timeframe;                 //         0        8     period length in minutes as a Java timestamp (msec)
- *     int64 time;                      //         8        8     start time as a Java timestamp (msec), PHP_INT_MAX = n/a
+ *     int64 timeframe;                 //         0        8     period length in minutes as a Java timestamp (msec); 0|-1 = PERIOD_TICK
+ *     int64 time;                      //         8        8     start time as a Java timestamp (msec); PHP_INT_MAX = n/a
  * };                                   // ----------------------------------------------------------------------------------
  *                                      //               = 16
  *
@@ -72,6 +73,15 @@ class Dukascopy extends Object {
     /** @var HttpClient */
     protected $httpClient;
 
+    /** @var array[] - internal cache for single fetched history start data */
+    protected $historyStarts;
+
+    /** @var array[] - internal cache for all fetched history start data */
+    protected $allHistoryStarts;
+
+    /** @var array - symbol mapping from lower-case to Dukascopy name */
+    protected $symbolMapping;
+
 
     /**
      * Return a Dukascopy specific HTTP client. The instance is kept to enable "keep-alive" connections.
@@ -91,24 +101,33 @@ class Dukascopy extends Object {
      *
      * @param  string $symbol
      *
-     * @return int - FXT timestamp or 0 (zero) if history start info is not available
+     * @return array - history start times per timeframe or an empty value in case of errors
+     *
+     * <pre>
+     * Array (
+     *     [{timeframe-id}] => [{timestamp}],               // e.g.: PERIOD_TICKS => Mon, 04-Aug-2003 10:03:02.837,
+     *     [{timeframe-id}] => [{timestamp}],               //       PERIOD_M1    => Mon, 04-Aug-2003 10:03:00,
+     *     [{timeframe-id}] => [{timestamp}],               //       PERIOD_H1    => Mon, 04-Aug-2003 10:00:00,
+     *     ...                                              //       PERIOD_D1    => Mon, 25-Nov-1991 00:00:00,
+     * )
+     * </pre>
      */
     public function fetchHistoryStart($symbol) {
+        $symbolU = strtoupper($symbol);
+
+        if (isset($this->allHistoryStarts[$symbolU]))
+            return $this->allHistoryStarts[$symbolU];
+        if (isset($this->historyStarts[$symbolU]))
+            return $this->historyStarts[$symbolU];
+
+        /** @var Output $output */
+        $output = $this->di(Output::class);
+        $output->out('[Info]    '.$symbol.'  fetching remote history status from Dukascopy...');
+
         $data = $this->getHttpClient()->downloadHistoryStart($symbol);
-
-        if (strlen($data)) {
-            $times = $this->readHistoryStartSection($data);
-
-            $dates = [];
-            foreach ($times as $timeframe => $time) {
-                $datetime = \DateTime::createFromFormat(is_int($time) ? 'U':'U.u', is_int($time) ? (string)$time : number_format($time, 6, '.', ''));
-                $dates[str_pad(periodToStr($timeframe), 12)] = $datetime->format('D, d-M-Y H:i:s'.(is_int($time) ? '':'.u'));
-            }
-            //echoPre($dates);
-
-            return $times[PERIOD_M1];
-        }
-        return 0;
+        if (strlen($data))
+            return $this->historyStarts[$symbolU] = $this->readHistoryStartSection($data);
+        return [];
     }
 
 
@@ -134,26 +153,16 @@ class Dukascopy extends Object {
      * </pre>
      */
     public function fetchHistoryStarts() {
+        if ($this->allHistoryStarts)
+            return $this->allHistoryStarts;
+
+        /** @var Output $output */
+        $output = $this->di(Output::class);
+        $output->out('[Info]    fetching history start times from Dukascopy...');
+
         $data = $this->getHttpClient()->downloadHistoryStart();
-
-        if (strlen($data)) {
-            $symbols = $this->readHistoryStarts($data);
-
-            /*
-            $results = [];
-            foreach ($symbols as $name => $timeframes) {
-                $dates = [];
-                foreach ($timeframes as $timeframe => $time) {
-                    $datetime = \DateTime::createFromFormat(is_int($time) ? 'U':'U.u', is_int($time) ? (string)$time : number_format($time, 6, '.', ''));
-                    $dates[str_pad(periodToStr($timeframe), 12)] = $datetime->format('D, d-M-Y H:i:s'.(is_int($time) ? '':'.u'));
-                }
-                $results[$name] = $dates;
-            }
-            echoPre($results);
-            echoPre(sizeof($results).' symbols');
-            */
-            return $symbols;
-        }
+        if (strlen($data))
+            return $this->allHistoryStarts = $this->readHistoryStarts($data);
         return [];
     }
 
@@ -364,7 +373,7 @@ class Dukascopy extends Object {
             $timeframes = $this->readHistoryStartSection($data, $offset, $count);
             if ($timeframes) {                                                  // skip symbols without history
                 ksort($timeframes);
-                $symbols[$symbol] = $timeframes;
+                $symbols[strtoupper($symbol)] = $timeframes;
             }
             $offset += $count*16;
         }
@@ -424,8 +433,10 @@ class Dukascopy extends Object {
         if (PHP_INT_SIZE == 8) {
             // 64-bit integers and format codes are supported
             $record = unpack("@$offset/J2", $data);
+            if ($record[1] == -1)                                               // uint64_max: sometimes used as tickdata identifier
+                $record[1] = 0;
             $timeframe = $record[1] / 1000 / MINUTES;
-            if (!is_int($timeframe) || (string)$timeframe==periodToStr($timeframe)) throw new RuntimeException('Unexpected Dukascopy history timeframe identifier: '.$record[1]);
+            if (!is_int($timeframe) || (string)$timeframe==periodToStr($timeframe)) throw new RuntimeException('Unexpected Dukascopy timeframe identifier: '.$record[1]);
             $record[1] = $timeframe;
             if ($record[2] < 0) throw new \RangeException('Invalid Java timestamp: '.sprintf('%u', $record[2]).' (out of range)');
             if ($record[2] == PHP_INT_MAX)
@@ -442,9 +453,11 @@ class Dukascopy extends Object {
                 if ($i % 2) $record[($i+1)/2] = bcmul($int, '4294967296', 0);   // 2 ^ 32
                 else        $record[ $i=$i/2] = bcadd($record[$i], $int, 0);
             }
+            if ($record[1] == '18446744073709551615')                           // uint64_max: sometimes used as tickdata identifier
+                $record[1] = '0';
             /** @var int $timeframe */
             $timeframe = ((int) bcdiv($record[1], '1000', 0)) / MINUTES;
-            if (!is_int($timeframe) || (string)$timeframe==periodToStr($timeframe)) throw new RuntimeException('Unexpected Dukascopy history timeframe identifier: '.$record[1]);
+            if (!is_int($timeframe) || (string)$timeframe==periodToStr($timeframe)) throw new RuntimeException('Unexpected Dukascopy timeframe identifier: '.$record[1]);
             $record[1] = $timeframe;
             if ($record[2] == '9223372036854775807')                            // int64_max: no history available
                 return [];

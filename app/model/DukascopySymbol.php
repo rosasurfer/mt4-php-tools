@@ -10,6 +10,7 @@ use function rosasurfer\rt\periodToStr;
 
 use const rosasurfer\rt\PERIOD_M1;
 use rosasurfer\console\Output;
+use function rosasurfer\rt\periodDescription;
 
 
 /**
@@ -121,22 +122,28 @@ class DukascopySymbol extends RosatraderModel {
             $startD1    = $this->getHistoryStartD1   ('D, d-M-Y H:i \F\X\T');
 
             if (!$startTicks && !$startM1 && !$startH1 && !$startD1) {
-                $output->stdout('[Info]    '.$this->name.'  local Dukascopy history status not available');
+                $output->out('[Info]    '.$this->name.'  local Dukascopy status not available');
             }
             else {
-                $startTicks && $output->stdout('[Info]    '.$this->name.'  Dukascopy TICK history starts '.$startTicks.' (local data)');
-                $startM1    && $output->stdout('[Info]    '.$this->name.'  Dukascopy M1   history starts '.$startM1   .' (local data)');
-                $startH1    && $output->stdout('[Info]    '.$this->name.'  Dukascopy H1   history starts '.$startH1   .' (local data)');
-                $startD1    && $output->stdout('[Info]    '.$this->name.'  Dukascopy D1   history starts '.$startD1   .' (local data)');
+                $startTicks && $output->out('[Info]    '.$this->name.'  Dukascopy TICK history starts '.$startTicks.' (local)');
+                $startM1    && $output->out('[Info]    '.$this->name.'  Dukascopy M1   history starts '.$startM1   .' (local)');
+                $startH1    && $output->out('[Info]    '.$this->name.'  Dukascopy H1   history starts '.$startH1   .' (local)');
+                $startD1    && $output->out('[Info]    '.$this->name.'  Dukascopy D1   history starts '.$startD1   .' (local)');
             }
         }
         else {
-            echoPre('[Info]    '.$this->name.'  fetching remote history status');
-
             /** @var Dukascopy $dukascopy */
             $dukascopy = $this->di(Dukascopy::class);
             $historyStart = $dukascopy->fetchHistoryStart($this->name);
-            echoPre('$historyStart: '.$historyStart);
+
+            foreach ($historyStart as $timeframe => $time) {
+                $period     = periodDescription($timeframe);
+                $datetime   = \DateTime::createFromFormat(is_int($time) ? 'U':'U.u', is_int($time) ? (string)$time : number_format($time, 6, '.', ''));
+                $formatted  = $datetime->format('D, d-M-Y H:i'.(is_int($time) ? '':':s.u'));
+                is_float($time) && $formatted = strLeft($formatted, -3);
+                $formatted .= ' FXT';
+                $output->out('[Info]    '.$this->name.'  Dukascopy '.str_pad($period, 4).' history starts '.$formatted);
+            }
         }
         return true;
     }
