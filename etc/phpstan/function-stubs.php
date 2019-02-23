@@ -67,15 +67,6 @@ namespace rosasurfer\rt\bin\update_synthetics_m1 {
 }
 
 
-namespace rosasurfer\rt\bin\dukascopy\status {
-
-    /**
-     * @param  string|null $message
-     */
-    function help($message=null) {}
-}
-
-
 namespace rosasurfer\rt\bin\dukascopy\update_m1_bars {
 
     use rosasurfer\rt\model\RosaSymbol;

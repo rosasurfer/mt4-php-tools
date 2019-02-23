@@ -9,6 +9,7 @@ use rosasurfer\rt\lib\dukascopy\Dukascopy;
 use function rosasurfer\rt\periodToStr;
 
 use const rosasurfer\rt\PERIOD_M1;
+use rosasurfer\console\Output;
 
 
 /**
@@ -110,6 +111,8 @@ class DukascopySymbol extends RosatraderModel {
      */
     public function showHistoryStatus($local = true) {
         if (!is_bool($local)) throw new IllegalTypeException('Illegal type of parameter $local: '.gettype($local));
+        /** @var Output $output */
+        $output = $this->di(Output::class);
 
         if ($local) {
             $startTicks = $this->getHistoryStartTicks('D, d-M-Y H:i \F\X\T');
@@ -118,20 +121,20 @@ class DukascopySymbol extends RosatraderModel {
             $startD1    = $this->getHistoryStartD1   ('D, d-M-Y H:i \F\X\T');
 
             if (!$startTicks && !$startM1 && !$startH1 && !$startD1) {
-                echoPre('[Info]    '.$this->name.'  available history unknown');
+                $output->stdout('[Info]    '.$this->name.'  local Dukascopy history status not available');
             }
             else {
-                echoPre('[Info]    '.$this->name.'  tick history '.($startTicks ? 'starts '.$startTicks : 'not available'));
-                echoPre('[Info]    '.$this->name.'  M1   history '.($startM1    ? 'starts '.$startM1    : 'not available'));
-                echoPre('[Info]    '.$this->name.'  H1   history '.($startH1    ? 'starts '.$startH1    : 'not available'));
-                echoPre('[Info]    '.$this->name.'  D1   history '.($startD1    ? 'starts '.$startD1    : 'not available'));
+                $startTicks && $output->stdout('[Info]    '.$this->name.'  Dukascopy TICK history starts '.$startTicks.' (local data)');
+                $startM1    && $output->stdout('[Info]    '.$this->name.'  Dukascopy M1   history starts '.$startM1   .' (local data)');
+                $startH1    && $output->stdout('[Info]    '.$this->name.'  Dukascopy H1   history starts '.$startH1   .' (local data)');
+                $startD1    && $output->stdout('[Info]    '.$this->name.'  Dukascopy D1   history starts '.$startD1   .' (local data)');
             }
         }
         else {
             echoPre('[Info]    '.$this->name.'  fetching remote history status');
 
             /** @var Dukascopy $dukascopy */
-            $dukascopy = $this->di('dukascopy');
+            $dukascopy = $this->di(Dukascopy::class);
             $historyStart = $dukascopy->fetchHistoryStart($this->name);
             echoPre('$historyStart: '.$historyStart);
         }

@@ -71,7 +71,7 @@ else                      /*401*/{ $barSize = MT4::HISTORY_BAR_401_SIZE; $barFor
 $i = 0;
 $allBars = $bars = ($fileSize-HistoryHeader::SIZE)/$barSize;
 if (!is_int($bars)) {
-    echoPre('unexpected EOF of "'.$fileName.'"');;
+    echoPre('unexpected EOF of "'.$fileName.'"');
     $allBars = $bars = (int) $bars;
 }
 $barFrom = $barTo = [];

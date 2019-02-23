@@ -1,6 +1,7 @@
 <?php
 namespace rosasurfer\rt\lib\dukascopy;
 
+use rosasurfer\console\Output;
 use rosasurfer\exception\RuntimeException;
 use rosasurfer\net\http\CurlHttpClient;
 use rosasurfer\net\http\HttpResponse;
@@ -34,7 +35,7 @@ class HttpClient extends CurlHttpClient {
     /**
      * Download history start data for the specified symbol.
      *
-     * @param  string $symbol [optional] - symbol (default: history for all symbols)
+     * @param  string $symbol [optional] - symbol (default: download data for all symbols)
      *
      * @return string - binary history start data or an empty string in case of errors
      */
@@ -52,7 +53,7 @@ class HttpClient extends CurlHttpClient {
         $content = $response->getContent();
         if (!strlen($content))
             $status = 404;
-        if ($status == 404) echoPre('[Error]   URL not found (404): '.$url);
+        if ($status == 404) $this->di(Output::class)->stderr('[Error]   URL not found (404): '.$url);
 
         return ($status==200) ? $response->getContent() : '';
     }

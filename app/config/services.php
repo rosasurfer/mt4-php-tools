@@ -1,9 +1,12 @@
 <?php
+use rosasurfer\rt\lib\dukascopy\Dukascopy;
+
+
 /**
  * Service configuration
  *
  * @see  https://github.com/rosasurfer/ministruts/blob/master/src/di/README.md
  */
 return [
-    'dukascopy' => rosasurfer\rt\lib\dukascopy\Dukascopy::class,
+    Dukascopy::class => Dukascopy::class,
 ];

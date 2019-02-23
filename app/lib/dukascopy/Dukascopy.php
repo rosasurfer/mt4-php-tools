@@ -95,7 +95,6 @@ class Dukascopy extends Object {
      */
     public function fetchHistoryStart($symbol) {
         $data = $this->getHttpClient()->downloadHistoryStart($symbol);
-        //$data = file_get_contents($this->di('config')['app.dir.root'].'/bin/dukascopy/HistoryStart.AUDUSD.bi5');
 
         if (strlen($data)) {
             $times = $this->readHistoryStartSection($data);
@@ -105,7 +104,7 @@ class Dukascopy extends Object {
                 $datetime = \DateTime::createFromFormat(is_int($time) ? 'U':'U.u', is_int($time) ? (string)$time : number_format($time, 6, '.', ''));
                 $dates[str_pad(periodToStr($timeframe), 12)] = $datetime->format('D, d-M-Y H:i:s'.(is_int($time) ? '':'.u'));
             }
-            echoPre($dates);
+            //echoPre($dates);
 
             return $times[PERIOD_M1];
         }
@@ -136,11 +135,11 @@ class Dukascopy extends Object {
      */
     public function fetchHistoryStarts() {
         $data = $this->getHttpClient()->downloadHistoryStart();
-        //$data = file_get_contents($this->di('config')['app.dir.root'].'/bin/dukascopy/HistoryStart.All.bi5');
 
         if (strlen($data)) {
             $symbols = $this->readHistoryStarts($data);
 
+            /*
             $results = [];
             foreach ($symbols as $name => $timeframes) {
                 $dates = [];
@@ -152,7 +151,7 @@ class Dukascopy extends Object {
             }
             echoPre($results);
             echoPre(sizeof($results).' symbols');
-
+            */
             return $symbols;
         }
         return [];
