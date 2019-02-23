@@ -2,10 +2,9 @@
 namespace rosasurfer\rt\console;
 
 use rosasurfer\console\Command;
-use rosasurfer\process\Process;
 
-use rosasurfer\rt\model\DukascopySymbol;
 use rosasurfer\rt\lib\dukascopy\Dukascopy;
+use rosasurfer\rt\model\DukascopySymbol;
 
 
 /**
@@ -71,11 +70,10 @@ DOCOPT;
             foreach ($symbols as $symbol) {
                 $this->out($separator);
                 $symbol->showHistoryStatus(!$remote);
-                Process::dispatchSignals();
             }
             $this->out($separator);
         }
-        return $this->errorStatus;
+        return $this->errorStatus = 0;
     }
 
 
@@ -101,13 +99,9 @@ DOCOPT;
         }
 
         if (!$symbols) {
-            foreach (DukascopySymbol::dao()->findAll('select * from :DukascopySymbol order by name') as $symbol) {
-                $symbols[$symbol->getName()] = $symbol;
-            }
-            if (!$symbols) {
+            if (!$symbols = DukascopySymbol::dao()->findAll('select * from :DukascopySymbol order by name')) {
                 $this->out('No tracked Dukascopy symbols found.');
                 $this->errorStatus = 0;
-                return [];
             }
         }
         return $symbols;
