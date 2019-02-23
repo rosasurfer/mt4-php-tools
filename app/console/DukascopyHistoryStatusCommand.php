@@ -50,8 +50,6 @@ DOCOPT;
      * @return int - execution status code: 0 (zero) for "success"
      */
     protected function execute() {
-        date_default_timezone_set('GMT');
-
         $symbols = $this->resolveSymbols();
         if (!$symbols)
             return $this->errorStatus;
@@ -68,7 +66,8 @@ DOCOPT;
         if ($update) {
         }
         else {
-            $separator = '----------------------------------------------------------------------------------';
+            $this->out('[Info]    Displaying '.($remote ? 'remote':'local').' Dukascopy history status');
+            $separator = '---------------------------------------------------------------------------------';
             foreach ($symbols as $symbol) {
                 $this->out($separator);
                 $symbol->showHistoryStatus(!$remote);

@@ -86,13 +86,13 @@ const DUKASCOPY_TICK_SIZE = 20;
  * Convert a Unix timestamp (seconds since 1970-01-01 00:00 GMT) to an FXT timestamp (seconds since 1970-01-01 00:00 FXT).
  * Without a parameter the function returns the current FXT timestamp.
  *
- * @param  int $unixTime [optional] - timestamp (default: the current time)
- *
- * @return int - FXT timestamp
+ * @param  int|float $unixTime [optional] - timestamp with support for microseconds
+ *                                          (default: the current time)
+ * @return int|float - FXT timestamp
  */
 function fxTime($unixTime = null) {
-    if (!func_num_args()) $unixTime = time();
-    else if (!is_int($unixTime)) throw new IllegalTypeException('Illegal type of parameter $unixTime: '.gettype($unixTime));
+    if      (!func_num_args())                           $unixTime = time();
+    else if (!is_int($unixTime) && !is_float($unixTime)) throw new IllegalTypeException('Illegal type of parameter $unixTime: '.gettype($unixTime));
 
     try {
         $currentTZ = date_default_timezone_get();
@@ -116,13 +116,13 @@ function fxTime($unixTime = null) {
  * Convert an FXT timestamp (seconds since 1970-01-01 00:00 FXT) to a Unix timestamp (seconds since 1970-01-01 00:00 GMT).
  * Without a parameter the function returns the current Unix timestamp (as the PHP function <tt>time()</tt>).
  *
- * @param  int $fxTime [optional] - timestamp (default: the current time)
- *
+ * @param  int|float $fxTime [optional] - timestamp with support for microseconds
+ *                                        (default: the current time)
  * @return int - Unix timestamp
  */
 function unixTime($fxTime = null) {
-    if (!func_num_args()) $fxTime = fxTime();
-    else if (!is_int($fxTime)) throw new IllegalTypeException('Illegal type of parameter $fxTime: '.gettype($fxTime));
+    if      (!func_num_args())                       $fxTime = fxTime();
+    else if (!is_int($fxTime) && !is_float($fxTime)) throw new IllegalTypeException('Illegal type of parameter $fxTime: '.gettype($fxTime));
 
     try {
         $currentTZ = date_default_timezone_get();

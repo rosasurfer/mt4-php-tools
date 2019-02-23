@@ -125,10 +125,10 @@ class DukascopySymbol extends RosatraderModel {
                 $output->out('[Info]    '.$this->name.'  local Dukascopy status not available');
             }
             else {
-                $startTicks && $output->out('[Info]    '.$this->name.'  Dukascopy TICK history starts '.$startTicks.' (local)');
-                $startM1    && $output->out('[Info]    '.$this->name.'  Dukascopy M1   history starts '.$startM1   .' (local)');
-                $startH1    && $output->out('[Info]    '.$this->name.'  Dukascopy H1   history starts '.$startH1   .' (local)');
-                $startD1    && $output->out('[Info]    '.$this->name.'  Dukascopy D1   history starts '.$startD1   .' (local)');
+                $startTicks && $output->out('[Info]    '.$this->name.'  Dukascopy TICK history starts '.$startTicks);
+                $startM1    && $output->out('[Info]    '.$this->name.'  Dukascopy M1   history starts '.$startM1   );
+                $startH1    && $output->out('[Info]    '.$this->name.'  Dukascopy H1   history starts '.$startH1   );
+                $startD1    && $output->out('[Info]    '.$this->name.'  Dukascopy D1   history starts '.$startD1   );
             }
         }
         else {

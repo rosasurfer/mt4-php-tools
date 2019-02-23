@@ -19,6 +19,7 @@ use const rosasurfer\rt\DUKASCOPY_BAR_SIZE;
 use const rosasurfer\rt\DUKASCOPY_TICK_SIZE;
 use const rosasurfer\rt\PERIOD_M1;
 use rosasurfer\console\Output;
+use function rosasurfer\rt\fxTime;
 
 
 /**
@@ -158,7 +159,7 @@ class Dukascopy extends Object {
 
         /** @var Output $output */
         $output = $this->di(Output::class);
-        $output->out('[Info]    fetching history start times from Dukascopy...');
+        $output->out('[Info]    Fetching history start times from Dukascopy...');
 
         $data = $this->getHttpClient()->downloadHistoryStart();
         if (strlen($data))
@@ -464,6 +465,6 @@ class Dukascopy extends Object {
             if (!bcmod($record[2], '1000')) $record[2] =   (int) bcdiv($record[2], '1000', 0);
             else                            $record[2] = (float) bcdiv($record[2], '1000', 3);
         }
-        return [$record[1] => $record[2]];
+        return [$record[1] => fxTime($record[2])];
     }
 }
