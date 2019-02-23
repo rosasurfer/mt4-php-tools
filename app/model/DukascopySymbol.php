@@ -1,16 +1,20 @@
 <?php
 namespace rosasurfer\rt\model;
 
+use rosasurfer\console\Output;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\UnimplementedFeatureException;
 
+use rosasurfer\rt\lib\FXT;
 use rosasurfer\rt\lib\dukascopy\Dukascopy;
 
+use function rosasurfer\rt\periodDescription;
 use function rosasurfer\rt\periodToStr;
 
+use const rosasurfer\rt\PERIOD_TICKS;
 use const rosasurfer\rt\PERIOD_M1;
-use rosasurfer\console\Output;
-use function rosasurfer\rt\periodDescription;
+use const rosasurfer\rt\PERIOD_H1;
+use const rosasurfer\rt\PERIOD_D1;
 
 
 /**
@@ -50,7 +54,7 @@ class DukascopySymbol extends RosatraderModel {
     /**
      * Return the start time of the symbol's available tick history (FXT).
      *
-     * @param  string $format [optional] - format as used for <tt>date($format, $timestamp)</tt>
+     * @param  string $format [optional] - format as accepted by <tt>date($format, $timestamp)</tt>
      *
      * @return string - start time based on an FXT timestamp
      */
@@ -64,7 +68,7 @@ class DukascopySymbol extends RosatraderModel {
     /**
      * Return the start time of the symbol's available M1 history (FXT).
      *
-     * @param  string $format [optional] - format as used for <tt>date($format, $timestamp)</tt>
+     * @param  string $format [optional] - format as accepted by <tt>date($format, $timestamp)</tt>
      *
      * @return string - start time based on an FXT timestamp
      */
@@ -78,7 +82,7 @@ class DukascopySymbol extends RosatraderModel {
     /**
      * Return the start time of the symbol's available H1 history (FXT).
      *
-     * @param  string $format [optional] - format as used for <tt>date($format, $timestamp)</tt>
+     * @param  string $format [optional] - format as accepted by <tt>date($format, $timestamp)</tt>
      *
      * @return string - start time based on an FXT timestamp
      */
@@ -92,7 +96,7 @@ class DukascopySymbol extends RosatraderModel {
     /**
      * Return the start time of the symbol's available D1 history (FXT).
      *
-     * @param  string $format [optional] - format as used for <tt>date($format, $timestamp)</tt>
+     * @param  string $format [optional] - format as accepted by <tt>date($format, $timestamp)</tt>
      *
      * @return string - start time based on an FXT timestamp
      */
@@ -116,10 +120,10 @@ class DukascopySymbol extends RosatraderModel {
         $output = $this->di(Output::class);
 
         if ($local) {
-            $startTicks = $this->getHistoryStartTicks('D, d-M-Y H:i \F\X\T');
-            $startM1    = $this->getHistoryStartM1   ('D, d-M-Y H:i \F\X\T');
-            $startH1    = $this->getHistoryStartH1   ('D, d-M-Y H:i \F\X\T');
-            $startD1    = $this->getHistoryStartD1   ('D, d-M-Y H:i \F\X\T');
+            $startTicks = $this->getHistoryStartTicks('D, d-M-Y H:i:s \F\X\T');
+            $startM1    = $this->getHistoryStartM1   ('D, d-M-Y H:i:s \F\X\T');
+            $startH1    = $this->getHistoryStartH1   ('D, d-M-Y H:i:s \F\X\T');
+            $startD1    = $this->getHistoryStartD1   ('D, d-M-Y H:i:s \F\X\T');
 
             if (!$startTicks && !$startM1 && !$startH1 && !$startD1) {
                 $output->out('[Info]    '.$this->name.'  local Dukascopy status not available');
@@ -150,12 +154,44 @@ class DukascopySymbol extends RosatraderModel {
 
 
     /**
-     * Refresh the start times of the available tick and M1 history.
+     * Update history start times.
      *
-     * @return bool - whether at least one of the starttimes have changed
+     * @param  array $times - array with start times per timeframe
+     *
+     * @return bool - whether at least one of the start times have changed
      */
-    public function refreshHistoryStart() {
-        return true;
+    public function updateHistoryStart(array $times) {
+        /** @var Output $output */
+        $output = $this->di(Output::class);
+
+        $localTime = $this->historyStartTicks;
+        $remoteTime = isSet($times[PERIOD_TICKS]) ? FXT::fxDate('Y-m-d H:i:s', (int)$times[PERIOD_TICKS]) : null;
+        if ($localTime !== $remoteTime) {
+            $this->historyStartTicks = $remoteTime;
+            $this->modified() && $output->out('[Info]    '.$this->getName().'  TICK history start changed: '.($remoteTime ?: 'n/a'));
+        }
+
+        $localTime = $this->historyStartM1;
+        $remoteTime = isSet($times[PERIOD_M1]) ? FXT::fxDate('Y-m-d H:i:s', (int)$times[PERIOD_M1]) : null;
+        if ($localTime !== $remoteTime) {
+            $this->historyStartM1 = $remoteTime;
+            $this->modified() && $output->out('[Info]    '.$this->getName().'  M1   history start changed: '.($remoteTime ?: 'n/a'));
+        }
+
+        $localTime = $this->historyStartH1;
+        $remoteTime = isSet($times[PERIOD_H1]) ? FXT::fxDate('Y-m-d H:i:s', (int)$times[PERIOD_H1]) : null;
+        if ($localTime !== $remoteTime) {
+            $this->historyStartH1 = $remoteTime;
+            $this->modified() && $output->out('[Info]    '.$this->getName().'  H1   history start changed: '.($remoteTime ?: 'n/a'));
+        }
+
+        $localTime = $this->historyStartD1;
+        $remoteTime = isSet($times[PERIOD_D1]) ? FXT::fxDate('Y-m-d H:i:s', (int)$times[PERIOD_D1]) : null;
+        if ($localTime !== $remoteTime) {
+            $this->historyStartD1 = $remoteTime;
+            $this->modified() && $output->out('[Info]    '.$this->getName().'  D1   history start changed: '.($remoteTime ?: 'n/a'));
+        }
+        return $this->isModified();
     }
 
 

@@ -34,7 +34,7 @@ interface SynthesizerInterface {
      * Return the consolidated start time of an instrument's tick history. This is the latest history start time of all the
      * subcomponents the instrument needs for calculation.
      *
-     * @param  string $format [optional] - format as used for <tt>date($format, $timestamp)</tt>
+     * @param  string $format [optional] - format as accepted by <tt>date($format, $timestamp)</tt>
      *
      * @return string - start time based on an FXT timestamp
      */
@@ -45,7 +45,7 @@ interface SynthesizerInterface {
      * Return the consolidated start time of an instrument's M1 history. This is the latest history start time of all the
      * subcomponents the instrument needs for calculation.
      *
-     * @param  string $format [optional] - format as used for <tt>date($format, $timestamp)</tt>
+     * @param  string $format [optional] - format as accepted by <tt>date($format, $timestamp)</tt>
      *
      * @return string - start time based on an FXT timestamp
      */

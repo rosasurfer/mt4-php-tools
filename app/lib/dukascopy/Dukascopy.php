@@ -20,6 +20,7 @@ use function rosasurfer\rt\periodToStr;
 use const rosasurfer\rt\DUKASCOPY_BAR_SIZE;
 use const rosasurfer\rt\DUKASCOPY_TICK_SIZE;
 use const rosasurfer\rt\PERIOD_M1;
+use const rosasurfer\rt\PERIOD_D1;
 
 
 /**
@@ -465,6 +466,10 @@ class Dukascopy extends Object {
             if (!bcmod($record[2], '1000')) $record[2] =   (int) bcdiv($record[2], '1000', 0);
             else                            $record[2] = (float) bcdiv($record[2], '1000', 3);
         }
-        return [$record[1] => fxTime($record[2])];
+
+        if ($record[1] == PERIOD_D1) $record[2] -= ($record[2] % DAY);
+        else                         $record[2]  = fxTime($record[2]);
+
+        return [$record[1] => $record[2]];
     }
 }

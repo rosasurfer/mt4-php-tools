@@ -16,7 +16,7 @@ class FXT extends StaticClass {
     /**
      * Format an FXT timestamp and return an FXT representation.
      *
-     * @param  string $format            - format string as used for <tt>date($format, $timestamp)</tt>
+     * @param  string $format            - format as accepted by <tt>date($format, $timestamp)</tt>
      * @param  int    $fxTime [optional] - timestamp (default: the current time)
      *
      * @return string - formatted string

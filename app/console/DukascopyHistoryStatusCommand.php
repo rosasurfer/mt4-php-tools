@@ -55,24 +55,36 @@ DOCOPT;
 
         $remote = $this->input->getOption('--remote');
         $update = $this->input->getOption('--update');
+        $remoteTimes = [];
 
         if ($remote || $update) {
             /** @var Dukascopy $dukascopy */
             $dukascopy = $this->di(Dukascopy::class);
-            $dukascopy->fetchHistoryStarts();
+            $remoteTimes = $dukascopy->fetchHistoryStarts();
         }
 
         if ($update) {
-        }
-        else {
-            $this->out('[Info]    Displaying '.($remote ? 'remote':'local').' Dukascopy history status');
-            $separator = '---------------------------------------------------------------------------------';
+            $this->out('[Info]    Updating history start times');
+            $this->out($separator='-----------------------------------------------------------------');
+            $i = 0;
             foreach ($symbols as $symbol) {
-                $this->out($separator);
-                $symbol->showHistoryStatus(!$remote);
+                if ($symbol->updateHistoryStart($remoteTimes[$symbol->getName()])) {
+                    $symbol->save();
+                    $this->out($separator);
+                    $i++;
+                }
             }
-            $this->out($separator);
+            !$i && $this->out('[Info]    All locally tracked symbols up-to-date');
+            return $this->errorStatus = 0;
         }
+
+        $this->out('[Info]    Displaying '.($remote ? 'remote':'local').' Dukascopy history status');
+        $separator = '---------------------------------------------------------------------------------';
+        foreach ($symbols as $symbol) {
+            $this->out($separator);
+            $symbol->showHistoryStatus(!$remote);
+        }
+        $this->out($separator);
         return $this->errorStatus = 0;
     }
 
