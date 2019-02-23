@@ -80,7 +80,7 @@ DOCOPT;
 
 
     /**
-     * Resolve the symbols to process:
+     * Resolve the symbols to process.
      *
      * @return DukascopySymbol[]
      */

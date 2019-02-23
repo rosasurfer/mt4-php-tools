@@ -97,7 +97,7 @@ function fxTime($unixTime = null) {
     try {
         $currentTZ = date_default_timezone_get();
         date_default_timezone_set('America/New_York');
-        $offset = idate('Z', $unixTime);
+        $offset = idate('Z', (int)$unixTime);
         return $unixTime + $offset + 7*HOURS;
     }
     finally { date_default_timezone_set($currentTZ); }
@@ -127,9 +127,9 @@ function unixTime($fxTime = null) {
     try {
         $currentTZ = date_default_timezone_get();
         date_default_timezone_set('America/New_York');
-        $offset1  = idate('Z', $fxTime);
+        $offset1  = idate('Z', (int)$fxTime);
         $unixTime = $fxTime - $offset1 - 7*HOURS;
-        if ($offset1 != ($offset2=idate('Z', $unixTime)))       // detect and handle a DST change between EasternTime
+        if ($offset1 != ($offset2=idate('Z', (int)$unixTime)))  // detect and handle a DST change between EasternTime
             $unixTime = $fxTime - $offset2 - 7*HOURS;           // and EasternTime+0700
         return $unixTime;
     }

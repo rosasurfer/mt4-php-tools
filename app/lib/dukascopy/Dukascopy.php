@@ -1,6 +1,7 @@
 <?php
 namespace rosasurfer\rt\lib\dukascopy;
 
+use rosasurfer\console\Output;
 use rosasurfer\core\Object;
 use rosasurfer\exception\IllegalArgumentException;
 use rosasurfer\exception\IllegalTypeException;
@@ -13,13 +14,12 @@ use rosasurfer\rt\lib\LZMA;
 use rosasurfer\rt\lib\dukascopy\HttpClient as DukascopyClient;
 use rosasurfer\rt\model\DukascopySymbol;
 
+use function rosasurfer\rt\fxTime;
 use function rosasurfer\rt\periodToStr;
 
 use const rosasurfer\rt\DUKASCOPY_BAR_SIZE;
 use const rosasurfer\rt\DUKASCOPY_TICK_SIZE;
 use const rosasurfer\rt\PERIOD_M1;
-use rosasurfer\console\Output;
-use function rosasurfer\rt\fxTime;
 
 
 /**
@@ -123,7 +123,7 @@ class Dukascopy extends Object {
 
         /** @var Output $output */
         $output = $this->di(Output::class);
-        $output->out('[Info]    '.$symbol.'  fetching remote history status from Dukascopy...');
+        $output->out('[Info]    '.$symbol.'  fetching history start times from Dukascopy...');
 
         $data = $this->getHttpClient()->downloadHistoryStart($symbol);
         if (strlen($data))
