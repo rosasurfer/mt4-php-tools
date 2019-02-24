@@ -64,7 +64,7 @@ DOCOPT;
         }
 
         if ($update) {
-            $this->out('[Info]    Updating history start times');
+            $this->out('[Info]    Updating history start times...');
             $this->out($separator='-----------------------------------------------------------------');
             $i = 0;
             foreach ($symbols as $symbol) {
