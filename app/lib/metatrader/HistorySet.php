@@ -75,23 +75,13 @@ class HistorySet extends Object {
      * new HistorySet(RosaSymbol $symbol, int $format, string $serverDirectory)
      * </pre>
      *
-     * @param  RosaSymbol|HistoryFile $arg1
-     * @param  int                    $format
-     * @param  string                 $serverDirectory
+     * @param  array ...$params
      */
-    private function __construct($arg1, $format=null, $serverDirectory=null) {
-        $argc = func_num_args();
-        if ($argc == 1) {
-            /** @var HistoryFile $file */
-            $file = $arg1;
-            $this->__construct1($file);
-        }
-        else if ($argc == 3) {
-            /** @var RosaSymbol $symbol */
-            $symbol = $arg1;
-            $this->__construct2($symbol, $format, $serverDirectory);
-        }
-        else throw new InvalidArgumentException('Invalid number of arguments: '.$argc);
+    private function __construct(...$params) {
+        $argc = sizeof($params);
+        if      ($argc == 1) $this->__construct1(...$params);
+        else if ($argc == 3) $this->__construct2(...$params);
+        else                 throw new InvalidArgumentException('Invalid number of arguments: '.$argc);
     }
 
 
