@@ -138,24 +138,30 @@ function unixTime($fxTime = null) {
 
 
 /**
- * Format a Unix timestamp and return an FXT representation.
+ * Format a timestamp and return an FXT representation. This function works exactly as <tt>gmdate()</tt> except that the
+ * applied timezone is FXT.
  *
- * @param  string $format              - format as accepted by <tt>date($format, $timestamp)</tt>
- * @param  int    $unixTime [optional] - timestamp (default: the current time)
+ * @param  string $format             - format as accepted by <tt>date($format, $timestamp)</tt>
+ * @param  int    $time    [optional] - timestamp (default: the current time)
+ * @param  bool   $fxtTime [optional] - whether the timestamp is an FXT timestamp (default: GMT)
  *
  * @return string - formatted string
  */
-function fxDate($format, $unixTime = null) {
-    if (!is_string($format))     throw new IllegalTypeException('Illegal type of parameter $format: '.gettype($format));
-    if (func_num_args() < 2)     $unixTime = time();
-    else if (!is_int($unixTime)) throw new IllegalTypeException('Illegal type of parameter $unixTime: '.gettype($unixTime));
+function fxDate($format, $time=null, $fxtTime=false) {
+    if (isset($time)) {
+        if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
+    }
+    else {
+        $time = $fxtTime ? fxTime() : time();
+    }
+    if ($fxtTime) return gmdate($format, $time);
 
     try {
-        $currentTZ = date_default_timezone_get();
+        $timezone = date_default_timezone_get();
         date_default_timezone_set('America/New_York');
-        return date($format, $unixTime+7*HOURS);
+        return date($format, $time+7*HOURS);
     }
-    finally { date_default_timezone_set($currentTZ); }
+    finally { date_default_timezone_set($timezone); }
 }
 
 

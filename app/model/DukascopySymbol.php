@@ -5,7 +5,6 @@ use rosasurfer\console\Output;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\UnimplementedFeatureException;
 
-use rosasurfer\rt\lib\FXT;
 use rosasurfer\rt\lib\dukascopy\Dukascopy;
 
 use function rosasurfer\rt\periodDescription;
@@ -15,6 +14,7 @@ use const rosasurfer\rt\PERIOD_TICKS;
 use const rosasurfer\rt\PERIOD_M1;
 use const rosasurfer\rt\PERIOD_H1;
 use const rosasurfer\rt\PERIOD_D1;
+use function rosasurfer\rt\fxDate;
 
 
 /**
@@ -165,7 +165,7 @@ class DukascopySymbol extends RosatraderModel {
         $output = $this->di(Output::class);
 
         $localTime = $this->historyStartTicks;
-        $remoteTime = isset($times[PERIOD_TICKS]) ? FXT::fxDate('Y-m-d H:i:s', (int)$times[PERIOD_TICKS]) : null;
+        $remoteTime = isset($times[PERIOD_TICKS]) ? fxDate('Y-m-d H:i:s', (int)$times[PERIOD_TICKS], true) : null;
         if ($localTime !== $remoteTime) {
             $this->historyStartTicks = $remoteTime;
             $this->modified();
@@ -173,7 +173,7 @@ class DukascopySymbol extends RosatraderModel {
         }
 
         $localTime = $this->historyStartM1;
-        $remoteTime = isset($times[PERIOD_M1]) ? FXT::fxDate('Y-m-d H:i:s', (int)$times[PERIOD_M1]) : null;
+        $remoteTime = isset($times[PERIOD_M1]) ? fxDate('Y-m-d H:i:s', (int)$times[PERIOD_M1], true) : null;
         if ($localTime !== $remoteTime) {
             $this->historyStartM1 = $remoteTime;
             $this->modified();
@@ -181,7 +181,7 @@ class DukascopySymbol extends RosatraderModel {
         }
 
         $localTime = $this->historyStartH1;
-        $remoteTime = isset($times[PERIOD_H1]) ? FXT::fxDate('Y-m-d H:i:s', (int)$times[PERIOD_H1]) : null;
+        $remoteTime = isset($times[PERIOD_H1]) ? fxDate('Y-m-d H:i:s', (int)$times[PERIOD_H1], true) : null;
         if ($localTime !== $remoteTime) {
             $this->historyStartH1 = $remoteTime;
             $this->modified();
@@ -189,7 +189,7 @@ class DukascopySymbol extends RosatraderModel {
         }
 
         $localTime = $this->historyStartD1;
-        $remoteTime = isset($times[PERIOD_D1]) ? FXT::fxDate('Y-m-d H:i:s', (int)$times[PERIOD_D1]) : null;
+        $remoteTime = isset($times[PERIOD_D1]) ? fxDate('Y-m-d H:i:s', (int)$times[PERIOD_D1], true) : null;
         if ($localTime !== $remoteTime) {
             $this->historyStartD1 = $remoteTime;
             $this->modified();
