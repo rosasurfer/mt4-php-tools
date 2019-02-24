@@ -7,7 +7,6 @@ use rosasurfer\exception\RuntimeException;
 use rosasurfer\exception\UnimplementedFeatureException;
 use rosasurfer\process\Process;
 
-use rosasurfer\rt\lib\FXT;
 use rosasurfer\rt\lib\Rost;
 use rosasurfer\rt\lib\RT;
 use rosasurfer\rt\lib\dukascopy\Dukascopy;
