@@ -16,7 +16,7 @@ class DukascopyHistoryStatusCommand extends Command {
     /** @var string */
     const DOCOPT = <<<'DOCOPT'
 
-Show or update Dukascopy history status (history start times per timeframe).
+Show or update Dukascopy history start times.
 
 Usage:
   rt.dukascopy.status [-r | -u] [-h] [SYMBOL ...]
@@ -25,8 +25,8 @@ Arguments:
   SYMBOL        The Dukascopy symbols to process (default: all tracked symbols).
 
 Options:
-   -r --remote  Show remote instead of local history status (connects to Dukascopy).
-   -u --update  Update local history status (connects to Dukascopy).
+   -r --remote  Show remote instead of local history start times (connects to Dukascopy).
+   -u --update  Update local history start times (connects to Dukascopy).
    -h --help    This help screen.
 
 DOCOPT;
