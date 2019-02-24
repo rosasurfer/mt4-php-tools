@@ -7,14 +7,14 @@ use rosasurfer\exception\UnimplementedFeatureException;
 
 use rosasurfer\rt\lib\dukascopy\Dukascopy;
 
+use function rosasurfer\rt\fxDate;
 use function rosasurfer\rt\periodDescription;
 use function rosasurfer\rt\periodToStr;
 
-use const rosasurfer\rt\PERIOD_TICKS;
+use const rosasurfer\rt\PERIOD_TICK;
 use const rosasurfer\rt\PERIOD_M1;
 use const rosasurfer\rt\PERIOD_H1;
 use const rosasurfer\rt\PERIOD_D1;
-use function rosasurfer\rt\fxDate;
 
 
 /**
@@ -165,7 +165,7 @@ class DukascopySymbol extends RosatraderModel {
         $output = $this->di(Output::class);
 
         $localTime = $this->historyStartTick;
-        $remoteTime = isset($times[PERIOD_TICKS]) ? fxDate('Y-m-d H:i:s', (int)$times[PERIOD_TICKS], true) : null;
+        $remoteTime = isset($times[PERIOD_TICK]) ? fxDate('Y-m-d H:i:s', (int)$times[PERIOD_TICK], true) : null;
         if ($localTime !== $remoteTime) {
             $this->historyStartTick = $remoteTime;
             $this->modified();
@@ -203,7 +203,7 @@ class DukascopySymbol extends RosatraderModel {
      * Get the history for the specified period and time.
      *
      * @param  int $period - timeframe identifier:
-     *                       PERIOD_TICKS:           returns the history for one hour
+     *                       PERIOD_TICK:            returns the history for one hour
      *                       PERIOD_M1 to PERIOD_D1: returns the history for one day
      *                       PERIOD_W1:              returns the history for one week
      *                       PERIOD_MN1:             returns the history for one month

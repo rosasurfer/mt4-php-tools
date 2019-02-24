@@ -30,7 +30,7 @@ use const rosasurfer\rt\PERIOD_M1;
  * @method int             getDigits()          Return the number of fractional digits of symbol prices.
  * @method bool            isAutoUpdate()       Whether automatic history updates are enabled.
  * @method string          getFormula()         Return a synthetic instrument's calculation formula (LaTeX).
- * @method DukascopySymbol getDukascopySymbol() Return the {@link DukascopySymbol} mapped to this RosaTrader symbol.
+ * @method DukascopySymbol getDukascopySymbol() Return the {@link DukascopySymbol} mapped to this Rosatrader symbol.
  */
 class RosaSymbol extends RosatraderModel {
 
@@ -81,7 +81,7 @@ class RosaSymbol extends RosatraderModel {
     /** @var string - end time of the available D1 history (FXT) */
     protected $historyEndD1;
 
-    /** @var DukascopySymbol [transient] - the Dukascopy symbol mapped to this RosaTrader symbol */
+    /** @var DukascopySymbol [transient] - the Dukascopy symbol mapped to this Rosatrader symbol */
     protected $dukascopySymbol;
 
 

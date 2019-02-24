@@ -107,10 +107,10 @@ class Dukascopy extends Object {
      *
      * <pre>
      * Array (
-     *     [{timeframe-id}] => [{timestamp}],               // e.g.: PERIOD_TICKS => Mon, 04-Aug-2003 10:03:02.837,
-     *     [{timeframe-id}] => [{timestamp}],               //       PERIOD_M1    => Mon, 04-Aug-2003 10:03:00,
-     *     [{timeframe-id}] => [{timestamp}],               //       PERIOD_H1    => Mon, 04-Aug-2003 10:00:00,
-     *     ...                                              //       PERIOD_D1    => Mon, 25-Nov-1991 00:00:00,
+     *     [{timeframe-id}] => [{timestamp}],               // e.g.: PERIOD_TICK => Mon, 04-Aug-2003 10:03:02.837,
+     *     [{timeframe-id}] => [{timestamp}],               //       PERIOD_M1   => Mon, 04-Aug-2003 10:03:00,
+     *     [{timeframe-id}] => [{timestamp}],               //       PERIOD_H1   => Mon, 04-Aug-2003 10:00:00,
+     *     ...                                              //       PERIOD_D1   => Mon, 25-Nov-1991 00:00:00,
      * )
      * </pre>
      */
@@ -142,10 +142,10 @@ class Dukascopy extends Object {
      * <pre>
      * Array (
      *     [{symbol}] => [
-     *         [{timeframe-id}] => [{timestamp}],           // e.g.: PERIOD_TICKS => Mon, 04-Aug-2003 10:03:02.837,
-     *         [{timeframe-id}] => [{timestamp}],           //       PERIOD_M1    => Mon, 04-Aug-2003 10:03:00,
-     *         [{timeframe-id}] => [{timestamp}],           //       PERIOD_H1    => Mon, 04-Aug-2003 10:00:00,
-     *         [{timeframe-id}] => [{timestamp}],           //       PERIOD_D1    => Mon, 25-Nov-1991 00:00:00,
+     *         [{timeframe-id}] => [{timestamp}],           // e.g.: PERIOD_TICK => Mon, 04-Aug-2003 10:03:02.837,
+     *         [{timeframe-id}] => [{timestamp}],           //       PERIOD_M1   => Mon, 04-Aug-2003 10:03:00,
+     *         [{timeframe-id}] => [{timestamp}],           //       PERIOD_H1   => Mon, 04-Aug-2003 10:00:00,
+     *         [{timeframe-id}] => [{timestamp}],           //       PERIOD_D1   => Mon, 25-Nov-1991 00:00:00,
      *     ],
      *     [{symbol}] => [
      *         ...
@@ -341,10 +341,10 @@ class Dukascopy extends Object {
      * <pre>
      * Array (
      *     [{symbol}] => [
-     *         [{timeframe-id}] => [{timestamp}],           // e.g.: PERIOD_TICKS => Mon, 04-Aug-2003 10:03:02.837,
-     *         [{timeframe-id}] => [{timestamp}],           //       PERIOD_M1    => Mon, 04-Aug-2003 10:03:00,
-     *         [{timeframe-id}] => [{timestamp}],           //       PERIOD_H1    => Mon, 04-Aug-2003 10:00:00,
-     *         [{timeframe-id}] => [{timestamp}],           //       PERIOD_D1    => Mon, 25-Nov-1991 00:00:00,
+     *         [{timeframe-id}] => [{timestamp}],           // e.g.: PERIOD_TICK => Mon, 04-Aug-2003 10:03:02.837,
+     *         [{timeframe-id}] => [{timestamp}],           //       PERIOD_M1   => Mon, 04-Aug-2003 10:03:00,
+     *         [{timeframe-id}] => [{timestamp}],           //       PERIOD_H1   => Mon, 04-Aug-2003 10:00:00,
+     *         [{timeframe-id}] => [{timestamp}],           //       PERIOD_D1   => Mon, 25-Nov-1991 00:00:00,
      *     ],
      *     [{symbol}] => [
      *         ...
@@ -395,10 +395,10 @@ class Dukascopy extends Object {
      *                 as follows:
      * <pre>
      * Array (
-     *     [{timeframe-id}] => [{timestamp}],               // e.g.: PERIOD_TICKS => Mon, 04-Aug-2003 10:03:02.837,
-     *     [{timeframe-id}] => [{timestamp}],               //       PERIOD_M1    => Mon, 04-Aug-2003 10:03:00,
-     *     [{timeframe-id}] => [{timestamp}],               //       PERIOD_H1    => Mon, 04-Aug-2003 10:00:00,
-     *     ...                                              //       PERIOD_D1    => Mon, 25-Nov-1991 00:00:00,
+     *     [{timeframe-id}] => [{timestamp}],               // e.g.: PERIOD_TICK => Mon, 04-Aug-2003 10:03:02.837,
+     *     [{timeframe-id}] => [{timestamp}],               //       PERIOD_M1   => Mon, 04-Aug-2003 10:03:00,
+     *     [{timeframe-id}] => [{timestamp}],               //       PERIOD_H1   => Mon, 04-Aug-2003 10:00:00,
+     *     ...                                              //       PERIOD_D1   => Mon, 25-Nov-1991 00:00:00,
      * )
      * </pre>
      */

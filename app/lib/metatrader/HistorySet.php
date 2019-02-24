@@ -11,8 +11,6 @@ use rosasurfer\log\Logger;
 
 use rosasurfer\rt\lib\metatrader\MT4;
 
-use function rosasurfer\rt\timeframeDescription;
-
 use const rosasurfer\rt\PERIOD_M1;
 use const rosasurfer\rt\PERIOD_M5;
 use const rosasurfer\rt\PERIOD_M15;
@@ -81,19 +79,19 @@ class HistorySet extends Object {
         if ($argc == 4) {
             /** @var string */
             $symbol = $arg1;
-            $this->__construct_1($symbol, $digits, $format, $serverDirectory);
+            $this->__construct1($symbol, $digits, $format, $serverDirectory);
         }
         else if ($argc == 1) {
             /** @var HistoryFile */
             $file = $arg1;
-            $this->__construct_2($file);
+            $this->__construct2($file);
         }
         else throw new InvalidArgumentException('Invalid number of arguments: '.$argc);
     }
 
 
     /**
-     * Constructor 1
+     * Constructor
      *
      * Erzeugt eine neue Instanz und legt alle Historydateien neu an. Vorhandene Daten werden geloescht. Mehrfachaufrufe
      * dieser Funktion fuer dasselbe Symbol desselben Servers geben jeweils eine neue Instanz zurueck, weitere existierende
@@ -106,7 +104,7 @@ class HistorySet extends Object {
      *                          401: MetaTrader  > Build 509
      * @param  string $serverDirectory - Serververzeichnis der Historydateien des Sets
      */
-    private function __construct_1($symbol, $digits, $format, $serverDirectory) {
+    private function __construct1($symbol, $digits, $format, $serverDirectory) {
         if (!is_string($symbol))                      throw new IllegalTypeException('Illegal type of parameter $symbol: '.gettype($symbol));
         if (!strlen($symbol))                         throw new InvalidArgumentException('Invalid parameter $symbol: ""');
         if (strlen($symbol) > MT4::MAX_SYMBOL_LENGTH) throw new InvalidArgumentException('Invalid parameter $symbol: "'.$symbol.'" (max '.MT4::MAX_SYMBOL_LENGTH.' characters)');
@@ -138,13 +136,13 @@ class HistorySet extends Object {
 
 
     /**
-     * Constructor 2
+     * Constructor
      *
      * Erzeugt eine neue Instanz. Vorhandene Daten werden nicht geloescht.
      *
      * @param  HistoryFile $file - existierende History-Datei
      */
-    private function __construct_2(HistoryFile $file) {
+    private function __construct2(HistoryFile $file) {
         $this->symbol          =          $file->getSymbol();
         $this->digits          =          $file->getDigits();
         $this->serverName      =          $file->getServerName();
@@ -188,8 +186,6 @@ class HistorySet extends Object {
      * Sorgt bei Zerstoerung der Instanz dafuer, dass alle gehaltenen Resourcen freigegeben werden.
      */
     public function __destruct() {
-        // Attempting to throw an exception from a destructor during script shutdown causes a fatal error.
-        // @see http://php.net/manual/en/language.oop5.decon.php
         try {
             $this->close();
         }
@@ -235,7 +231,7 @@ class HistorySet extends Object {
      * @return bool
      */
     public function isClosed() {
-        return (bool)$this->closed;
+        return (bool) $this->closed;
     }
 
 
@@ -249,9 +245,9 @@ class HistorySet extends Object {
             return false;
 
         foreach ($this->historyFiles as $file) {
-            $file && !$file->isClosed() && $file->close();
+            $file && $file->close();
         }
-        return $this->closed=true;
+        return $this->closed = true;
     }
 
 
@@ -292,17 +288,16 @@ class HistorySet extends Object {
         if (!is_dir($serverDirectory))    throw new InvalidArgumentException('Directory "'.$serverDirectory.'" not found');
 
         // existierende Instanzen durchsuchen und bei Erfolg die entsprechende Instanz zurueckgeben
-        $symbolUpper     = strtoupper($symbol);
+        $symbolU = strtoupper($symbol);
         $serverDirectory = realpath($serverDirectory);
         foreach (self::$instances as $instance) {
-            if (!$instance->isClosed() && $symbolUpper==strtoupper($instance->getSymbol()) && $serverDirectory==$instance->getServerDirectory())
+            if (!$instance->isClosed() && strtoupper($instance->getSymbol()==$symbolU) && $serverDirectory==$instance->getServerDirectory())
                 return $instance;
         }
 
         // das erste existierende HistoryFile an den Constructor uebergeben, das Set liest die weiteren dann selbst ein
         /** @var HistorySet $set */
-        $set  = null;
-        $file = null;
+        $set = $file = null;
 
         foreach (MT4::$timeframes as $timeframe) {
             $fileName = $serverDirectory.'/'.$symbol.$timeframe.'.hst';
@@ -408,35 +403,5 @@ class HistorySet extends Object {
 
         $historyM1 = $this->getFile(PERIOD_M1);
         $historyM1->synchronize($bars);
-    }
-
-
-    /**
-     * Nur zum Debuggen
-     */
-    public function showBuffer() {
-        echoPre(NL);
-        foreach ($this->historyFiles as $timeframe => $file) {
-            if ($file) {
-                $bars = $file->barBuffer;
-                $size = sizeof($bars);
-                $firstBar = $lastBar = null;
-                if ($size) {
-                    if (isset($bars[0]['time']) && $bars[$size-1]['time']) {
-                        $firstBar = '  from='.gmdate('d-M-Y H:i', $bars[0      ]['time']);
-                        $lastBar  = '  to='  .gmdate('d-M-Y H:i', $bars[$size-1]['time']);
-                    }
-                    else {
-                        $firstBar = $lastBar = '  invalid';
-                        echoPre($bars);
-                    }
-                }
-                echoPre(get_class($file).'['. str_pad(timeframeDescription($file->getTimeframe()), 3, ' ', STR_PAD_RIGHT).'] => '.str_pad($size, 5, ' ', STR_PAD_LEFT).' bar'.pluralize($size, ' ').$firstBar.($size>1? $lastBar:''));
-            }
-            else {
-                echoPre('HistoryFile['. str_pad(timeframeDescription($timeframe), 3, ' ', STR_PAD_RIGHT).'] => mull');
-            }
-        }
-        echoPre(NL);
     }
 }

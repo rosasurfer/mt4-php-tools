@@ -25,7 +25,7 @@ Commands:
   create      Create a new MetaTrader history set (all standard timeframes).
 
 Arguments:
-  SYMBOL      RosaTrader symbol to use for history processing.
+  SYMBOL      Rosatrader symbol to use for history processing.
 
 Options:
    -h --help  This help screen.
@@ -67,7 +67,7 @@ DOCOPT;
         $name = $this->input->getArgument('SYMBOL');
 
         if (!$symbol = RosaSymbol::dao()->findByName($name)) {
-            $this->error('Unknown RosaTrader symbol "'.$name.'"');
+            $this->error('Unknown Rosatrader symbol "'.$name.'"');
             $this->errorStatus = 1;
         }
         return $symbol;
