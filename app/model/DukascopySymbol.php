@@ -165,31 +165,35 @@ class DukascopySymbol extends RosatraderModel {
         $output = $this->di(Output::class);
 
         $localTime = $this->historyStartTicks;
-        $remoteTime = isSet($times[PERIOD_TICKS]) ? FXT::fxDate('Y-m-d H:i:s', (int)$times[PERIOD_TICKS]) : null;
+        $remoteTime = isset($times[PERIOD_TICKS]) ? FXT::fxDate('Y-m-d H:i:s', (int)$times[PERIOD_TICKS]) : null;
         if ($localTime !== $remoteTime) {
             $this->historyStartTicks = $remoteTime;
-            $this->modified() && $output->out('[Info]    '.$this->getName().'  TICK history start changed: '.($remoteTime ?: 'n/a'));
+            $this->modified();
+            $output->out('[Info]    '.$this->getName().'  TICK history start changed: '.($remoteTime ?: 'n/a'));
         }
 
         $localTime = $this->historyStartM1;
-        $remoteTime = isSet($times[PERIOD_M1]) ? FXT::fxDate('Y-m-d H:i:s', (int)$times[PERIOD_M1]) : null;
+        $remoteTime = isset($times[PERIOD_M1]) ? FXT::fxDate('Y-m-d H:i:s', (int)$times[PERIOD_M1]) : null;
         if ($localTime !== $remoteTime) {
             $this->historyStartM1 = $remoteTime;
-            $this->modified() && $output->out('[Info]    '.$this->getName().'  M1   history start changed: '.($remoteTime ?: 'n/a'));
+            $this->modified();
+            $output->out('[Info]    '.$this->getName().'  M1   history start changed: '.($remoteTime ?: 'n/a'));
         }
 
         $localTime = $this->historyStartH1;
-        $remoteTime = isSet($times[PERIOD_H1]) ? FXT::fxDate('Y-m-d H:i:s', (int)$times[PERIOD_H1]) : null;
+        $remoteTime = isset($times[PERIOD_H1]) ? FXT::fxDate('Y-m-d H:i:s', (int)$times[PERIOD_H1]) : null;
         if ($localTime !== $remoteTime) {
             $this->historyStartH1 = $remoteTime;
-            $this->modified() && $output->out('[Info]    '.$this->getName().'  H1   history start changed: '.($remoteTime ?: 'n/a'));
+            $this->modified();
+            $output->out('[Info]    '.$this->getName().'  H1   history start changed: '.($remoteTime ?: 'n/a'));
         }
 
         $localTime = $this->historyStartD1;
-        $remoteTime = isSet($times[PERIOD_D1]) ? FXT::fxDate('Y-m-d H:i:s', (int)$times[PERIOD_D1]) : null;
+        $remoteTime = isset($times[PERIOD_D1]) ? FXT::fxDate('Y-m-d H:i:s', (int)$times[PERIOD_D1]) : null;
         if ($localTime !== $remoteTime) {
             $this->historyStartD1 = $remoteTime;
-            $this->modified() && $output->out('[Info]    '.$this->getName().'  D1   history start changed: '.($remoteTime ?: 'n/a'));
+            $this->modified();
+            $output->out('[Info]    '.$this->getName().'  D1   history start changed: '.($remoteTime ?: 'n/a'));
         }
         return $this->isModified();
     }
