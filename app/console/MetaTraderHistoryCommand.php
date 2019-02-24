@@ -2,6 +2,7 @@
 namespace rosasurfer\rt\console;
 
 use rosasurfer\console\Command;
+use rosasurfer\rt\model\RosaSymbol;
 
 
 /**
@@ -49,7 +50,27 @@ DOCOPT;
      * @return int - execution status code: 0 (zero) for "success"
      */
     protected function execute() {
-        //echoPre($this->input->getDocoptResult());
+        $symbol = $this->resolveSymbol();
+        if (!$symbol)
+            return $this->errorStatus;
+
+        echoPre($this->input->getDocoptResult());
         return $this->errorStatus = 0;
+    }
+
+
+    /**
+     * Resolve the symbol to process.
+     *
+     * @return RosaSymbol|null
+     */
+    protected function resolveSymbol() {
+        $name = $this->input->getArgument('SYMBOL');
+
+        if (!$symbol = RosaSymbol::dao()->findByName($name)) {
+            $this->error('Unknown RosaTrader symbol "'.$name.'"');
+            $this->errorStatus = 1;
+        }
+        return $symbol;
     }
 }

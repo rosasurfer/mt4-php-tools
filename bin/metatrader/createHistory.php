@@ -25,26 +25,9 @@ require(dirname(realpath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');
 
 
-// -- Konfiguration ---------------------------------------------------------------------------------------------------------
-
-
-$verbose = 0;                                                                       // output verbosity
-
-
-// -- Start -----------------------------------------------------------------------------------------------------------------
-
-
 // (1) Befehlszeilenargumente einlesen und validieren
 /** @var string[] $args */
 $args = array_slice($_SERVER['argv'], 1);
-
-// Optionen parsen
-foreach ($args as $i => $arg) {
-    if ($arg == '-h'  )   exit(1|help());                                            // Hilfe
-    if ($arg == '-v'  ) { $verbose = max($verbose, 1); unset($args[$i]); continue; } // verbose output
-    if ($arg == '-vv' ) { $verbose = max($verbose, 2); unset($args[$i]); continue; } // more verbose output
-    if ($arg == '-vvv') { $verbose = max($verbose, 3); unset($args[$i]); continue; } // very verbose output
-}
 
 /** @var RosaSymbol[] $symbols */
 $symbols = [];
@@ -64,9 +47,6 @@ foreach ($symbols as $symbol) {
     createHistory($symbol) || exit(1);
 }
 exit(0);
-
-
-// --- Funktionen -----------------------------------------------------------------------------------------------------------
 
 
 /**
@@ -170,24 +150,4 @@ function getVar($id, $symbol=null, $time=null) {
     (sizeof($varCache) > ($maxSize=128)) && array_shift($varCache) /*&& echoPre('cache size limit of '.$maxSize.' hit')*/;
 
     return $result;
-}
-
-
-/**
- * Hilfefunktion: Zeigt die Syntax des Aufrufs an.
- *
- * @param  string $message [optional] - zusaetzlich zur Syntax anzuzeigende Message (default: keine)
- */
-function help($message = null) {
-    if (isset($message))
-        echo $message.NL.NL;
-
-    $self = basename($_SERVER['PHP_SELF']);
-
-echo <<<HELP
-
-  Syntax:  $self [symbol ...]
-
-
-HELP;
 }

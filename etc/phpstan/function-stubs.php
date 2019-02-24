@@ -338,11 +338,6 @@ namespace rosasurfer\rt\bin\metatrader\create_history {
     function getVar($id, $symbol=null, $time=null) {
         return '';
     }
-
-    /**
-     * @param  string $message
-     */
-    function help($message=null) {}
 }
 
 
