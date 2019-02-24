@@ -1,6 +1,7 @@
 <?php
 namespace rosasurfer\rt\model;
 
+use rosasurfer\console\Output;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\RuntimeException;
 use rosasurfer\exception\UnimplementedFeatureException;
@@ -276,11 +277,13 @@ class RosaSymbol extends RosatraderModel {
      * @return bool - success status
      */
     public function showHistoryStatus() {
-        $start = $this->getHistoryM1Start('D, d-M-Y');
-        $end   = $this->getHistoryM1End  ('D, d-M-Y');
+        /** @var Output $output */
+        $output = $this->di(Output::class);
+        $start  = $this->getHistoryM1Start('D, d-M-Y');
+        $end    = $this->getHistoryM1End  ('D, d-M-Y');
 
-        if ($start) echoPre('[Info]    '.str_pad($this->name, 6).'  M1 local history from '.$start.' to '.$end);
-        else        echoPre('[Info]    '.str_pad($this->name, 6).'  M1 local history empty');
+        if ($start) $output->out('[Info]    '.str_pad($this->name, 6).'  M1 local history from '.$start.' to '.$end);
+        else        $output->out('[Info]    '.str_pad($this->name, 6).'  M1 local history empty');
         return true;
     }
 
@@ -291,10 +294,12 @@ class RosaSymbol extends RosatraderModel {
      * @return bool - success status
      */
     public function synchronizeHistory() {
+        /** @var Output $output */
+        $output   = $this->di(Output::class);
         $dataDir  = $this->di('config')['app.dir.data'];
         $dataDir .= '/history/rosatrader/'.$this->type.'/'.$this->name;
 
-        echoPre('[Info]    '.$this->name.'  synchronizing history');
+        $output->out('[Info]    '.$this->name.'  synchronizing history');
 
         $startDate = $endDate = null;
         $errors  = false;
@@ -320,10 +325,10 @@ class RosaSymbol extends RosatraderModel {
             $today  = ($today=fxTime()) - $today%DAY;                                   // 00:00 FXT of the current day
             $delMsg = '[Info]    '.$this->name.'  deleting obsolete M1 file: ';
 
-            $missMsg = function($missing) {
+            $missMsg = function($missing) use ($output) {
                 if ($misses = sizeof($missing)) {
-                    ($misses > 2) && echoPre('[Error]   '.$this->name.'  ...');
-                    echoPre('[Error]   '.$this->name.'  '.($misses > 2 ? $misses : '').' missing history file'.($misses==2 ? ' for':'s until').' '.gmdate('D, Y-m-d', last($missing)));
+                    ($misses > 2) && $output->out('[Error]   '.$this->name.'  ...');
+                    $output->out('[Error]   '.$this->name.'  '.($misses > 2 ? $misses : '').' missing history file'.($misses==2 ? ' for':'s until').' '.gmdate('D, Y-m-d', last($missing)));
                 }
             };
 
@@ -339,13 +344,13 @@ class RosaSymbol extends RosatraderModel {
                         }
                     }
                     else {
-                        !$missing && echoPre('[Error]   '.$this->name.'  missing history file for '.gmdate('D, Y-m-d', $day));
+                        !$missing && $output->out('[Error]   '.$this->name.'  missing history file for '.gmdate('D, Y-m-d', $day));
                         $errors = (bool)$missing[] = $day;
                     }
                 }
                 else {
-                    is_file($file=$dir.'/M1.bin'    ) && true(echoPre($delMsg.Rost::relativePath($file))) && unlink($file);
-                    is_file($file=$dir.'/M1.bin.rar') && true(echoPre($delMsg.Rost::relativePath($file))) && unlink($file);
+                    is_file($file=$dir.'/M1.bin'    ) && true($output->out($delMsg.Rost::relativePath($file))) && unlink($file);
+                    is_file($file=$dir.'/M1.bin.rar') && true($output->out($delMsg.Rost::relativePath($file))) && unlink($file);
                 }
             }
             $missing && $missMsg($missing);
@@ -353,18 +358,18 @@ class RosaSymbol extends RosatraderModel {
 
         // update the database
         if ($startDate != $this->getHistoryM1Start('U')) {
-            echoPre('[Info]    '.$this->name.'  updating start time to '.($startDate ? gmdate('Y-m-d', $startDate) : '(empty)'));
+            $output->out('[Info]    '.$this->name.'  updating start time to '.($startDate ? gmdate('Y-m-d', $startDate) : '(empty)'));
             $this->historyM1Start = $startDate ? gmdate('Y-m-d H:i:s', $startDate) : null;
             $this->modified();
         }
         if ($endDate != $this->getHistoryM1End('U')) {
-            echoPre('[Info]    '.$this->name.'  updating end time to '.($endDate ? gmdate('Y-m-d', $endDate) : '(empty)'));
+            $output->out('[Info]    '.$this->name.'  updating end time to '.($endDate ? gmdate('Y-m-d', $endDate) : '(empty)'));
             $this->historyM1End = $endDate ? gmdate('Y-m-d H:i:s', $endDate) : null;
             $this->modified();
         }
         $this->save();
 
-        echoPre('[Info]    '.$this->name.'  '.($errors ? 'done':'ok'));
+        $output->out('[Info]    '.$this->name.'  '.($errors ? 'done':'ok'));
         return true;
     }
 
@@ -386,23 +391,25 @@ class RosaSymbol extends RosatraderModel {
      * @return bool - success status
      */
     public function updateHistory() {
+        /** @var Output $output */
+        $output     = $this->di(Output::class);
         $updatedTo  = (int) $this->getHistoryM1End('U');                        // 00:00 FXT of the last existing day
         $updateFrom = $updatedTo ? $updatedTo - $updatedTo%DAY + 1*DAY : 0;     // 00:00 FXT of the first day to update
         $today      = ($today=fxTime()) - $today%DAY;                           // 00:00 FXT of the current day
-        echoPre('[Info]    '.$this->name.'  updating M1 history '.($updatedTo ? 'since '.gmdate('D, d-M-Y', $updatedTo) : 'from start'));
+        $output->out('[Info]    '.$this->name.'  updating M1 history '.($updatedTo ? 'since '.gmdate('D, d-M-Y', $updatedTo) : 'from start'));
 
         /** @var Synthesizer     $synthesizer */
         /** @var DukascopySymbol $dukaSymbol  */
         $synthesizer = $dukaSymbol = null;
 
         if      ($this->isSynthetic())                       $synthesizer = $this->getSynthesizer();
-        else if (!$dukaSymbol = $this->getDukascopySymbol()) return false(echoPre('[Error]   '.$this->name.'  Dukascopy mapping not found'));
+        else if (!$dukaSymbol = $this->getDukascopySymbol()) return false($output->error('[Error]   '.$this->name.'  Dukascopy mapping not found'));
 
         for ($day=$updateFrom; $day < $today; $day+=1*DAY) {
             if ($day && !$this->isTradingDay($day))                             // skip non-trading days
                 continue;
             $bars = $this->isSynthetic() ? $synthesizer->calculateQuotes($day) : $dukaSymbol->getHistory(PERIOD_M1, $day);
-            if (!$bars) return false(echoPre('[Error]   '.$this->name.'  M1 history sources'.($day ? ' for '.gmdate('D, d-M-Y', $day) : '').' not available'));
+            if (!$bars) return false($output->error('[Error]   '.$this->name.'  M1 history sources'.($day ? ' for '.gmdate('D, d-M-Y', $day) : '').' not available'));
             if (!$day) {
                 $opentime = $bars[0]['time'];                                   // if $day was zero (full update since start)
                 $day = $opentime - $opentime%DAY;                               // adjust it to the first available history
@@ -416,7 +423,7 @@ class RosaSymbol extends RosatraderModel {
             Process::dispatchSignals();                                         // process signals
         }
 
-        echoPre('[Ok]      '.$this->name);
+        $output->out('[Ok]      '.$this->name);
         return true;
     }
 
