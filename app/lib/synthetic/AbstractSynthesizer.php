@@ -36,7 +36,7 @@ abstract class AbstractSynthesizer extends Object implements SynthesizerInterfac
     /**
      * {@inheritdoc}
      */
-    public function getHistoryTicksStart($format = 'Y-m-d H:i:s') {
+    public function getHistoryStartTick($format = 'Y-m-d H:i:s') {
         return '0';
     }
 
@@ -44,7 +44,7 @@ abstract class AbstractSynthesizer extends Object implements SynthesizerInterfac
     /**
      * {@inheritdoc}
      */
-    public function getHistoryM1Start($format = 'Y-m-d H:i:s') {
+    public function getHistoryStartM1($format = 'Y-m-d H:i:s') {
         return '0';
     }
 
@@ -79,10 +79,10 @@ abstract class AbstractSynthesizer extends Object implements SynthesizerInterfac
      *
      * @return int - history start time for all symbols (FXT) or 0 (zero) if no common history is available
      */
-    protected function findCommonHistoryM1Start(array $symbols) {
+    protected function findCommonHistoryStartM1(array $symbols) {
         $day = 0;
         foreach ($symbols as $symbol) {
-            $historyStart = (int) $symbol->getHistoryM1Start('U');      // 00:00 FXT of the first stored day
+            $historyStart = (int) $symbol->getHistoryStartM1('U');      // 00:00 FXT of the first stored day
             if (!$historyStart) {
                 echoPre('[Error]   '.$this->symbolName.'  required M1 history for '.$symbol->getName().' not available');
                 return 0;                                               // no history stored

@@ -98,7 +98,7 @@ DOCOPT;
      */
     protected function resolveSymbols() {
         /** @var array $args */
-        $args = $this->input->getArgument('SYMBOL');
+        $args = $this->input->getArguments('SYMBOL');
         $symbols = [];
 
         foreach ($args as $name) {

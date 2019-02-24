@@ -15,7 +15,7 @@ class DefaultSynthesizer extends AbstractSynthesizer {
     /**
      * {@inheritdoc}
      */
-    public function getHistoryTicksStart($format = 'Y-m-d H:i:s') {
+    public function getHistoryStartTick($format = 'Y-m-d H:i:s') {
         return '0';
     }
 
@@ -23,7 +23,7 @@ class DefaultSynthesizer extends AbstractSynthesizer {
     /**
      * {@inheritdoc}
      */
-    public function getHistoryM1Start($format = 'Y-m-d H:i:s') {
+    public function getHistoryStartM1($format = 'Y-m-d H:i:s') {
         return '0';
     }
 

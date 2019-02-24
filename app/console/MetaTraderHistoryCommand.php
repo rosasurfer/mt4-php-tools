@@ -54,7 +54,6 @@ DOCOPT;
         if (!$symbol)
             return $this->errorStatus;
 
-        echoPre($this->input->getDocoptResult());
         return $this->errorStatus = 0;
     }
 

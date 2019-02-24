@@ -36,7 +36,7 @@ class DukascopySymbol extends RosatraderModel {
     protected $digits;
 
     /** @var string - start time of the available tick history (FXT) */
-    protected $historyStartTicks;
+    protected $historyStartTick;
 
     /** @var string - start time of the available M1 history (FXT) */
     protected $historyStartM1;
@@ -58,10 +58,10 @@ class DukascopySymbol extends RosatraderModel {
      *
      * @return string - start time based on an FXT timestamp
      */
-    public function getHistoryStartTicks($format = 'Y-m-d H:i:s') {
-        if (!isset($this->historyStartTicks) || $format=='Y-m-d H:i:s')
-            return $this->historyStartTicks;
-        return gmdate($format, strtotime($this->historyStartTicks.' GMT'));
+    public function getHistoryStartTick($format = 'Y-m-d H:i:s') {
+        if (!isset($this->historyStartTick) || $format=='Y-m-d H:i:s')
+            return $this->historyStartTick;
+        return gmdate($format, strtotime($this->historyStartTick.' GMT'));
     }
 
 
@@ -120,19 +120,19 @@ class DukascopySymbol extends RosatraderModel {
         $output = $this->di(Output::class);
 
         if ($local) {
-            $startTicks = $this->getHistoryStartTicks('D, d-M-Y H:i:s \F\X\T');
-            $startM1    = $this->getHistoryStartM1   ('D, d-M-Y H:i:s \F\X\T');
-            $startH1    = $this->getHistoryStartH1   ('D, d-M-Y H:i:s \F\X\T');
-            $startD1    = $this->getHistoryStartD1   ('D, d-M-Y H:i:s \F\X\T');
+            $startTick = $this->getHistoryStartTick('D, d-M-Y H:i:s \F\X\T');
+            $startM1   = $this->getHistoryStartM1  ('D, d-M-Y H:i:s \F\X\T');
+            $startH1   = $this->getHistoryStartH1  ('D, d-M-Y H:i:s \F\X\T');
+            $startD1   = $this->getHistoryStartD1  ('D, d-M-Y H:i:s \F\X\T');
 
-            if (!$startTicks && !$startM1 && !$startH1 && !$startD1) {
+            if (!$startTick && !$startM1 && !$startH1 && !$startD1) {
                 $output->out('[Info]    '.$this->name.'  local Dukascopy status not available');
             }
             else {
-                $startTicks && $output->out('[Info]    '.$this->name.'  Dukascopy TICK history starts '.$startTicks);
-                $startM1    && $output->out('[Info]    '.$this->name.'  Dukascopy M1   history starts '.$startM1   );
-                $startH1    && $output->out('[Info]    '.$this->name.'  Dukascopy H1   history starts '.$startH1   );
-                $startD1    && $output->out('[Info]    '.$this->name.'  Dukascopy D1   history starts '.$startD1   );
+                $startTick && $output->out('[Info]    '.$this->name.'  Dukascopy TICK history starts '.$startTick);
+                $startM1   && $output->out('[Info]    '.$this->name.'  Dukascopy M1   history starts '.$startM1  );
+                $startH1   && $output->out('[Info]    '.$this->name.'  Dukascopy H1   history starts '.$startH1  );
+                $startD1   && $output->out('[Info]    '.$this->name.'  Dukascopy D1   history starts '.$startD1  );
             }
         }
         else {
@@ -164,10 +164,10 @@ class DukascopySymbol extends RosatraderModel {
         /** @var Output $output */
         $output = $this->di(Output::class);
 
-        $localTime = $this->historyStartTicks;
+        $localTime = $this->historyStartTick;
         $remoteTime = isset($times[PERIOD_TICKS]) ? fxDate('Y-m-d H:i:s', (int)$times[PERIOD_TICKS], true) : null;
         if ($localTime !== $remoteTime) {
-            $this->historyStartTicks = $remoteTime;
+            $this->historyStartTick = $remoteTime;
             $this->modified();
             $output->out('[Info]    '.$this->getName().'  TICK history start changed: '.($remoteTime ?: 'n/a'));
         }

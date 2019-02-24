@@ -37,7 +37,7 @@ class EURLFX extends AbstractSynthesizer {
 
         if (!$symbols = $this->loadComponents(first($this->components)))
             return [];
-        if (!$day && !($day = $this->findCommonHistoryM1Start($symbols)))   // if no day was specified find the oldest available history
+        if (!$day && !($day = $this->findCommonHistoryStartM1($symbols)))   // if no day was specified find the oldest available history
             return [];
         if (!$this->symbol->isTradingDay($day))                             // skip non-trading days
             return [];

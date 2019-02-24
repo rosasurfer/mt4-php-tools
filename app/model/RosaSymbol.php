@@ -64,22 +64,22 @@ class RosaSymbol extends RosatraderModel {
     protected $formula;
 
     /** @var string - start time of the available tick history (FXT) */
-    protected $historyTicksStart;
+    protected $historyStartTick;
 
     /** @var string - end time of the available tick history (FXT) */
-    protected $historyTicksEnd;
+    protected $historyEndTick;
 
     /** @var string - start time of the available M1 history (FXT) */
-    protected $historyM1Start;
+    protected $historyStartM1;
 
     /** @var string - end time of the available M1 history (FXT) */
-    protected $historyM1End;
+    protected $historyEndM1;
 
     /** @var string - start time of the available D1 history (FXT) */
-    protected $historyD1Start;
+    protected $historyStartD1;
 
     /** @var string - end time of the available D1 history (FXT) */
-    protected $historyD1End;
+    protected $historyEndD1;
 
     /** @var DukascopySymbol [transient] - the Dukascopy symbol mapped to this RosaTrader symbol */
     protected $dukascopySymbol;
@@ -102,10 +102,10 @@ class RosaSymbol extends RosatraderModel {
      *
      * @return string - start time based on an FXT timestamp
      */
-    public function getHistoryTicksStart($format = 'Y-m-d H:i:s') {
-        if (!isset($this->historyTicksStart) || $format=='Y-m-d H:i:s')
-            return $this->historyTicksStart;
-        return gmdate($format, strtotime($this->historyTicksStart.' GMT'));
+    public function getHistoryStartTick($format = 'Y-m-d H:i:s') {
+        if (!isset($this->historyStartTick) || $format=='Y-m-d H:i:s')
+            return $this->historyStartTick;
+        return gmdate($format, strtotime($this->historyStartTick.' GMT'));
     }
 
 
@@ -116,10 +116,10 @@ class RosaSymbol extends RosatraderModel {
      *
      * @return string - end time based on an FXT timestamp
      */
-    public function getHistoryTicksEnd($format = 'Y-m-d H:i:s') {
-        if (!isset($this->historyTicksEnd) || $format=='Y-m-d H:i:s')
-            return $this->historyTicksEnd;
-        return gmdate($format, strtotime($this->historyTicksEnd.' GMT'));
+    public function getHistoryEndTick($format = 'Y-m-d H:i:s') {
+        if (!isset($this->historyEndTick) || $format=='Y-m-d H:i:s')
+            return $this->historyEndTick;
+        return gmdate($format, strtotime($this->historyEndTick.' GMT'));
     }
 
 
@@ -130,10 +130,10 @@ class RosaSymbol extends RosatraderModel {
      *
      * @return string - start time based on an FXT timestamp
      */
-    public function getHistoryM1Start($format = 'Y-m-d H:i:s') {
-        if (!isset($this->historyM1Start) || $format=='Y-m-d H:i:s')
-            return $this->historyM1Start;
-        return gmdate($format, strtotime($this->historyM1Start.' GMT'));
+    public function getHistoryStartM1($format = 'Y-m-d H:i:s') {
+        if (!isset($this->historyStartM1) || $format=='Y-m-d H:i:s')
+            return $this->historyStartM1;
+        return gmdate($format, strtotime($this->historyStartM1.' GMT'));
     }
 
 
@@ -144,10 +144,10 @@ class RosaSymbol extends RosatraderModel {
      *
      * @return string - end time based on an FXT timestamp
      */
-    public function getHistoryM1End($format = 'Y-m-d H:i:s') {
-        if (!isset($this->historyM1End) || $format=='Y-m-d H:i:s')
-            return $this->historyM1End;
-        return gmdate($format, strtotime($this->historyM1End.' GMT'));
+    public function getHistoryEndM1($format = 'Y-m-d H:i:s') {
+        if (!isset($this->historyEndM1) || $format=='Y-m-d H:i:s')
+            return $this->historyEndM1;
+        return gmdate($format, strtotime($this->historyEndM1.' GMT'));
     }
 
 
@@ -158,10 +158,10 @@ class RosaSymbol extends RosatraderModel {
      *
      * @return string - start time based on an FXT timestamp
      */
-    public function getHistoryD1Start($format = 'Y-m-d H:i:s') {
-        if (!isset($this->historyD1Start) || $format=='Y-m-d H:i:s')
-            return $this->historyD1Start;
-        return gmdate($format, strtotime($this->historyD1Start.' GMT'));
+    public function getHistoryStartD1($format = 'Y-m-d H:i:s') {
+        if (!isset($this->historyStartD1) || $format=='Y-m-d H:i:s')
+            return $this->historyStartD1;
+        return gmdate($format, strtotime($this->historyStartD1.' GMT'));
     }
 
 
@@ -172,10 +172,10 @@ class RosaSymbol extends RosatraderModel {
      *
      * @return string - end time based on an FXT timestamp
      */
-    public function getHistoryD1End($format = 'Y-m-d H:i:s') {
-        if (!isset($this->historyD1End) || $format=='Y-m-d H:i:s')
-            return $this->historyD1End;
-        return gmdate($format, strtotime($this->historyD1End.' GMT'));
+    public function getHistoryEndD1($format = 'Y-m-d H:i:s') {
+        if (!isset($this->historyEndD1) || $format=='Y-m-d H:i:s')
+            return $this->historyEndD1;
+        return gmdate($format, strtotime($this->historyEndD1.' GMT'));
     }
 
 
@@ -278,8 +278,8 @@ class RosaSymbol extends RosatraderModel {
     public function showHistoryStatus() {
         /** @var Output $output */
         $output = $this->di(Output::class);
-        $start  = $this->getHistoryM1Start('D, d-M-Y');
-        $end    = $this->getHistoryM1End  ('D, d-M-Y');
+        $start  = $this->getHistoryStartM1('D, d-M-Y');
+        $end    = $this->getHistoryEndM1  ('D, d-M-Y');
 
         if ($start) $output->out('[Info]    '.str_pad($this->name, 6).'  M1 local history from '.$start.' to '.$end);
         else        $output->out('[Info]    '.str_pad($this->name, 6).'  M1 local history empty');
@@ -356,14 +356,14 @@ class RosaSymbol extends RosatraderModel {
         }
 
         // update the database
-        if ($startDate != $this->getHistoryM1Start('U')) {
+        if ($startDate != $this->getHistoryStartM1('U')) {
             $output->out('[Info]    '.$this->name.'  updating start time to '.($startDate ? gmdate('Y-m-d', $startDate) : '(empty)'));
-            $this->historyM1Start = $startDate ? gmdate('Y-m-d H:i:s', $startDate) : null;
+            $this->historyStartM1 = $startDate ? gmdate('Y-m-d H:i:s', $startDate) : null;
             $this->modified();
         }
-        if ($endDate != $this->getHistoryM1End('U')) {
+        if ($endDate != $this->getHistoryEndM1('U')) {
             $output->out('[Info]    '.$this->name.'  updating end time to '.($endDate ? gmdate('Y-m-d', $endDate) : '(empty)'));
-            $this->historyM1End = $endDate ? gmdate('Y-m-d H:i:s', $endDate) : null;
+            $this->historyEndM1 = $endDate ? gmdate('Y-m-d H:i:s', $endDate) : null;
             $this->modified();
         }
         $this->save();
@@ -392,7 +392,7 @@ class RosaSymbol extends RosatraderModel {
     public function updateHistory() {
         /** @var Output $output */
         $output     = $this->di(Output::class);
-        $updatedTo  = (int) $this->getHistoryM1End('U');                        // 00:00 FXT of the last existing day
+        $updatedTo  = (int) $this->getHistoryEndM1('U');                        // 00:00 FXT of the last existing day
         $updateFrom = $updatedTo ? $updatedTo - $updatedTo%DAY + 1*DAY : 0;     // 00:00 FXT of the first day to update
         $today      = ($today=fxTime()) - $today%DAY;                           // 00:00 FXT of the current day
         $output->out('[Info]    '.$this->name.'  updating M1 history '.($updatedTo ? 'since '.gmdate('D, d-M-Y', $updatedTo) : 'from start'));
@@ -415,9 +415,9 @@ class RosaSymbol extends RosatraderModel {
             }
             RT::saveM1Bars($bars, $this);                                       // store the quotes
 
-            if (!$this->historyM1Start)                                         // update metadata *after* history was successfully saved
-                $this->historyM1Start = gmdate('Y-m-d H:i:s', $day);
-            $this->historyM1End = gmdate('Y-m-d H:i:s', $day);
+            if (!$this->historyStartM1)                                         // update metadata *after* history was successfully saved
+                $this->historyStartM1 = gmdate('Y-m-d H:i:s', $day);
+            $this->historyEndM1 = gmdate('Y-m-d H:i:s', $day);
             $this->modified()->save();                                          // update the database
             Process::dispatchSignals();                                         // process signals
         }

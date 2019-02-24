@@ -24,28 +24,15 @@ use function rosasurfer\rt\isWeekend;
 require(dirname(realpath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');
 
-
-// (1) Befehlszeilenargumente einlesen und validieren
 /** @var string[] $args */
 $args = array_slice($_SERVER['argv'], 1);
 
-/** @var RosaSymbol[] $symbols */
-$symbols = [];
-
-// Symbole parsen
-foreach ($args as $i => $arg) {
-    /** @var RosaSymbol $symbol */
-    $symbol = RosaSymbol::dao()->findByName($arg);
-    if (!$symbol) exit(1|stderr('error: unknown symbol "'.$args[$i].'"'));
-    $symbols[$symbol->getName()] = $symbol;                                         // using the name as index removes duplicates
+/** @var RosaSymbol $symbol */
+if (!$symbol = RosaSymbol::dao()->findByName(first($args))) {
+    exit(stderr('error: unknown symbol "'.first($args).'"'));
 }
-$symbols = $symbols ?: RosaSymbol::dao()->findAll();                                // ohne Angabe werden alle Instrumente verarbeitet
 
-
-// (2) History erstellen
-foreach ($symbols as $symbol) {
-    createHistory($symbol) || exit(1);
-}
+createHistory($symbol);
 exit(0);
 
 
@@ -60,7 +47,7 @@ function createHistory(RosaSymbol $symbol) {
     $symbolName   = $symbol->getName();
     $symbolDigits = $symbol->getDigits();
 
-    $startDay  = (int)$symbol->getHistoryM1Start('U');                              // FXT
+    $startDay  = (int)$symbol->getHistoryStartM1('U');                              // FXT
     $startDay -= $startDay%DAY;                                                     // 00:00 FXT Starttag
     $today     = ($today=fxTime()) - $today%DAY;                                    // 00:00 FXT aktueller Tag
 

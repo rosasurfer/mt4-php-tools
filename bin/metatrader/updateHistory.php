@@ -87,7 +87,7 @@ function updateHistory(RosaSymbol $symbol) {
     !$history && $history=HistorySet::create($symbolName, $symbolDigits, $format=400, $directory);
 
     // History beginnend mit dem letzten synchronisierten Tag aktualisieren
-    $startTime = $lastSyncTime ?: (int)$symbol->getHistoryM1Start('U');                             // FXT
+    $startTime = $lastSyncTime ?: (int)$symbol->getHistoryStartM1('U');                             // FXT
     $startDay  = $startTime - $startTime%DAY;                                                       // 00:00 FXT der Startzeit
     $today     = ($time=fxTime()) - $time%DAY;                                                      // 00:00 FXT des aktuellen Tages
     $lastMonth = -1;

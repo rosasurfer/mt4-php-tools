@@ -38,7 +38,7 @@ interface SynthesizerInterface {
      *
      * @return string - start time based on an FXT timestamp
      */
-    public function getHistoryTicksStart($format = 'Y-m-d H:i:s');
+    public function getHistoryStartTick($format = 'Y-m-d H:i:s');
 
 
     /**
@@ -49,7 +49,7 @@ interface SynthesizerInterface {
      *
      * @return string - start time based on an FXT timestamp
      */
-    public function getHistoryM1Start($format = 'Y-m-d H:i:s');
+    public function getHistoryStartM1($format = 'Y-m-d H:i:s');
 
 
     /**
