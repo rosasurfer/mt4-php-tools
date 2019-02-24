@@ -313,7 +313,10 @@ class HistoryFile extends Object {
 
         // validate the file size
         $fileSize = filesize($fileName);
-        if ($fileSize < HistoryHeader::SIZE) throw new MetaTraderException('filesize.insufficient: Invalid or unsupported format of "'.$fileName.'": filesize='.$fileSize.' (minFileSize='.HistoryHeader::SIZE.')');
+        if ($fileSize < HistoryHeader::SIZE) throw new MetaTraderException(
+            'Invalid or unsupported format of "'.$fileName.'": filesize='.$fileSize.' (minFileSize='.HistoryHeader::SIZE.')',
+            MetaTraderException::ERR_FILESIZE_INSUFFICIENT
+        );
 
         // open file and read/validate the header
         $this->hFile     = fopen($fileName, 'r+b');               // FILE_READ|FILE_WRITE

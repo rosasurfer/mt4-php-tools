@@ -20,11 +20,15 @@ use const rosasurfer\rt\PERIOD_H4;
 use const rosasurfer\rt\PERIOD_D1;
 use const rosasurfer\rt\PERIOD_W1;
 use const rosasurfer\rt\PERIOD_MN1;
+use rosasurfer\rt\model\RosaSymbol;
 
 
 /**
- * Ein HistorySet zur Verwaltung der MetaTrader-History eines Instruments. Die Formate der einzelnen Dateien
- * eines HistorySets koennen gemischt sein.
+ * HistorySet
+ *
+ * Represents a set of {@link HistoryFile}s for all nine MetaTrader standard timeframes. Data formats in a set may be mixed,
+ * e.g. a set may contain some history files with format HISTORY_BAR_400 (until terminal build 509) and some with format
+ * HISTORY_BAR_401 (since terminal build > 509).
  */
 class HistorySet extends Object {
 
@@ -35,16 +39,16 @@ class HistorySet extends Object {
     /** @var int */
     protected $digits;
 
-    /** @var string - einfacher Servername */
+    /** @var string - short server name */
     protected $serverName;
 
-    /** @var string - vollstaendiger Verzeichnisname */
+    /** @var string - full path of the server directory */
     protected $serverDirectory;
 
-    /** @var bool - ob das Set geschlossen und seine Resourcen freigegeben sind */
+    /** @var bool - whether the set is closed and resources are disposed */
     protected $closed = false;
 
-    /** @var HistoryFile[] */
+    /** @var HistoryFile[] - all history files a set manages */
     protected $historyFiles = [
         PERIOD_M1  => null,
         PERIOD_M5  => null,
@@ -57,102 +61,59 @@ class HistorySet extends Object {
         PERIOD_MN1 => null
     ];
 
-    /** @var HistorySet[] - alle Instanzen dieser Klasse */
+    /** @var HistorySet[] - all instances of this class */
     private static $instances = [];
 
 
     /**
-     * Ueberladener Constructor.
+     * Overloaded constructor
      *
-     * Signaturen:
+     * <pre>
+     * Signatures:
      * -----------
-     * new HistorySet(string $symbol, int $digits, int $format, string $serverDirectory)
      * new HistorySet(HistoryFile $file)
+     * new HistorySet(RosaSymbol $symbol, int $format, string $serverDirectory)
+     * </pre>
      *
-     * @param  HistoryFile|string $arg1
-     * @param  int                $digits
-     * @param  int                $format
-     * @param  string             $serverDirectory
+     * @param  RosaSymbol|HistoryFile $arg1
+     * @param  int                    $format
+     * @param  string                 $serverDirectory
      */
-    private function __construct($arg1, $digits=null, $format=null, $serverDirectory=null) {
+    private function __construct($arg1, $format=null, $serverDirectory=null) {
         $argc = func_num_args();
-        if ($argc == 4) {
-            /** @var string */
-            $symbol = $arg1;
-            $this->__construct1($symbol, $digits, $format, $serverDirectory);
-        }
-        else if ($argc == 1) {
-            /** @var HistoryFile */
+        if ($argc == 1) {
+            /** @var HistoryFile $file */
             $file = $arg1;
-            $this->__construct2($file);
+            $this->__construct1($file);
+        }
+        else if ($argc == 3) {
+            /** @var RosaSymbol $symbol */
+            $symbol = $arg1;
+            $this->__construct2($symbol, $format, $serverDirectory);
         }
         else throw new InvalidArgumentException('Invalid number of arguments: '.$argc);
     }
 
 
     /**
-     * Constructor
-     *
-     * Erzeugt eine neue Instanz und legt alle Historydateien neu an. Vorhandene Daten werden geloescht. Mehrfachaufrufe
-     * dieser Funktion fuer dasselbe Symbol desselben Servers geben jeweils eine neue Instanz zurueck, weitere existierende
-     * Instanzen werden als ungueltig markiert.
-     *
-     * @param  string $symbol - Symbol der HistorySet-Daten
-     * @param  int    $digits - Digits der Datenreihe
-     * @param  int    $format - Speicherformat der Datenreihen:
-     *                          400: MetaTrader <= Build 509
-     *                          401: MetaTrader  > Build 509
-     * @param  string $serverDirectory - Serververzeichnis der Historydateien des Sets
-     */
-    private function __construct1($symbol, $digits, $format, $serverDirectory) {
-        if (!is_string($symbol))                      throw new IllegalTypeException('Illegal type of parameter $symbol: '.gettype($symbol));
-        if (!strlen($symbol))                         throw new InvalidArgumentException('Invalid parameter $symbol: ""');
-        if (strlen($symbol) > MT4::MAX_SYMBOL_LENGTH) throw new InvalidArgumentException('Invalid parameter $symbol: "'.$symbol.'" (max '.MT4::MAX_SYMBOL_LENGTH.' characters)');
-        if (!is_int($digits))                         throw new IllegalTypeException('Illegal type of parameter $digits: '.gettype($digits));
-        if ($digits < 0)                              throw new InvalidArgumentException('Invalid parameter $digits: '.$digits);
-        if (!is_string($serverDirectory))             throw new IllegalTypeException('Illegal type of parameter $serverDirectory: '.gettype($serverDirectory));
-        if (!is_dir($serverDirectory))                throw new InvalidArgumentException('Directory "'.$serverDirectory.'" not found');
-
-        $this->symbol          = $symbol;
-        $this->digits          = $digits;
-        $this->serverDirectory = realpath($serverDirectory);
-        $this->serverName      = basename($this->serverDirectory);
-
-        // offene Sets durchsuchen und Sets desselben Symbols schliessen
-        $symbolUpper = strtoupper($this->symbol);
-        foreach (self::$instances as $instance) {
-            if (!$instance->isClosed() && $symbolUpper==strtoupper($instance->getSymbol()) && $this->serverDirectory==$instance->getServerDirectory())
-                $instance->close();
-        }
-
-        // alle HistoryFiles zuruecksetzen
-        foreach ($this->historyFiles as $timeframe => &$file) {
-            $file = new HistoryFile($symbol, $timeframe, $digits, $format, $serverDirectory);
-        }; unset($file);
-
-        // Instanz speichern
-        self::$instances[] = $this;
-    }
-
-
-    /**
-     * Constructor
+     * Overloaded constructor
      *
      * Erzeugt eine neue Instanz. Vorhandene Daten werden nicht geloescht.
      *
      * @param  HistoryFile $file - existierende History-Datei
      */
-    private function __construct2(HistoryFile $file) {
-        $this->symbol          =          $file->getSymbol();
-        $this->digits          =          $file->getDigits();
-        $this->serverName      =          $file->getServerName();
+    private function __construct1(HistoryFile $file) {
+        $this->symbol          = $file->getSymbol();
+        $this->digits          = $file->getDigits();
+        $this->serverName      = $file->getServerName();
         $this->serverDirectory = realpath($file->getServerDirectory());
 
         $this->historyFiles[$file->getTimeframe()] = $file;
 
-        $symbolUpper = strtoupper($this->symbol);
+        $symbolU = strtoupper($this->symbol);
+
         foreach (self::$instances as $instance) {
-            if (!$instance->isClosed() && $symbolUpper==strtoupper($instance->getSymbol()) && $this->serverDirectory==$instance->getServerDirectory())
+            if (!$instance->isClosed() && strtoupper($instance->getSymbol()==$symbolU) && $instance->getServerDirectory()==$this->serverDirectory)
                 throw new RuntimeException('Multiple open HistorySets for "'.$this->serverName.'::'.$this->symbol.'"');
         }
 
@@ -165,7 +126,7 @@ class HistorySet extends Object {
                         $file = new HistoryFile($fileName);
                     }
                     catch (MetaTraderException $ex) {
-                        if (strStartsWith($ex->getMessage(), 'filesize.insufficient')) {
+                        if ($ex->getCode() == $ex::ERR_FILESIZE_INSUFFICIENT) {
                             Logger::log($ex->getMessage(), L_WARN);            // eine zu kurze Datei wird spaeter ueberschrieben
                             continue;
                         }
@@ -176,6 +137,47 @@ class HistorySet extends Object {
             }
         }; unset($file);
 
+        self::$instances[] = $this;
+    }
+
+
+    /**
+     * Overloaded constructor
+     *
+     * Erzeugt eine neue Instanz und legt alle Historydateien neu an. Vorhandene Daten werden geloescht. Mehrfachaufrufe
+     * dieser Funktion fuer dasselbe Symbol desselben Servers geben jeweils eine neue Instanz zurueck, weitere existierende
+     * Instanzen werden als ungueltig markiert.
+     *
+     * @param  RosaSymbol $symbol          - Symbol der HistorySet-Daten
+     * @param  int        $format          - Speicherformat der Datenreihen:
+     *                                       400: MetaTrader <= Build 509
+     *                                       401: MetaTrader  > Build 509
+     * @param  string     $serverDirectory - Serververzeichnis der Historydateien des Sets
+     */
+    private function __construct2(RosaSymbol $symbol, $format, $serverDirectory) {
+        if (!is_string($serverDirectory)) throw new IllegalTypeException('Illegal type of parameter $serverDirectory: '.gettype($serverDirectory));
+        if (!is_dir($serverDirectory))    throw new InvalidArgumentException('Directory "'.$serverDirectory.'" not found');
+
+        $this->symbol          = $symbol->getName();
+        $this->digits          = $symbol->getDigits();
+        $this->serverDirectory = realpath($serverDirectory);
+        $this->serverName      = basename($this->serverDirectory);
+
+        // offene Sets durchsuchen und Sets desselben Symbols schliessen
+        $symbolU = strtoupper($this->symbol);
+
+        foreach (self::$instances as $set) {
+            if (strtoupper($set->getSymbol()==$symbolU) && $set->getServerDirectory()==$serverDirectory) {
+                $set->close();
+            }
+        }
+
+        // alle HistoryFiles initialisieren
+        foreach ($this->historyFiles as $timeframe => &$file) {
+            $file = new HistoryFile($this->symbol, $timeframe, $this->digits, $format, $serverDirectory);
+        }; unset($file);
+
+        // Instanz speichern
         self::$instances[] = $this;
     }
 
@@ -192,6 +194,72 @@ class HistorySet extends Object {
         catch (\Exception $ex) {
             throw ErrorHandler::handleDestructorException($ex);
         }
+    }
+
+
+    /**
+     * Erzeugt eine neue Instanz und legt alle Historydateien neu an. Vorhandene Daten werden geloescht. Mehrfachaufrufe
+     * dieser Funktion fuer dasselbe Symbol desselben Servers geben jeweils eine neue Instanz zurueck, weitere existierende
+     * Instanzen werden als ungueltig markiert.
+     *
+     * @param  string $symbol - Symbol der HistorySet-Daten
+     * @param  int    $digits - Digits der Datenreihe
+     * @param  int    $format - Speicherformat der Datenreihen:
+     *                          400: MetaTrader <= Build 509
+     *                          401: MetaTrader  > Build 509
+     * @param  string $serverDirectory - Serververzeichnis der Historydateien des Sets
+     */
+    public static function create($symbol, $digits, $format, $serverDirectory) {
+        return new static($symbol, $digits, $format, $serverDirectory);
+    }
+
+
+    /**
+     * Oeffentlicher Zugriff auf constructor 2
+     *
+     * Gibt eine Instanz fuer bereits vorhandene Historydateien zurueck. Vorhandene Daten werden nicht geloescht. Es muss mindestens
+     * ein HistoryFile des Symbols existieren. Nicht existierende HistoryFiles werden beim Speichern der ersten hinzugefuegten
+     * Daten angelegt. Mehrfachaufrufe dieser Funktion fuer dasselbe Symbol desselben Servers geben dieselbe Instanz zurueck.
+     *
+     * @param  string $symbol          - Symbol der Historydateien
+     * @param  string $serverDirectory - Serververzeichnis, in dem die Historydateien gespeichert sind
+     *
+     * @return self - Instanz oder NULL, wenn keine entsprechenden Historydateien gefunden wurden oder die
+     *                gefundenen Dateien korrupt sind.
+     */
+    public static function get($symbol, $serverDirectory) {
+        if (!is_string($symbol))          throw new IllegalTypeException('Illegal type of parameter $symbol: '.gettype($symbol));
+        if (!strlen($symbol))             throw new InvalidArgumentException('Invalid parameter $symbol: ""');
+        if (!is_string($serverDirectory)) throw new IllegalTypeException('Illegal type of parameter $serverDirectory: '.gettype($serverDirectory));
+        if (!is_dir($serverDirectory))    throw new InvalidArgumentException('Directory "'.$serverDirectory.'" not found');
+
+        // existierende Instanzen durchsuchen und bei Erfolg die entsprechende Instanz zurueckgeben
+        $symbolU = strtoupper($symbol);
+        $serverDirectory = realpath($serverDirectory);
+        foreach (self::$instances as $instance) {
+            if (!$instance->isClosed() && strtoupper($instance->getSymbol()==$symbolU) && $serverDirectory==$instance->getServerDirectory())
+                return $instance;
+        }
+
+        // das erste existierende HistoryFile an den Constructor uebergeben, das Set liest die weiteren dann selbst ein
+        /** @var HistorySet $set */
+        $set = $file = null;
+
+        foreach (MT4::$timeframes as $timeframe) {
+            $fileName = $serverDirectory.'/'.$symbol.$timeframe.'.hst';
+            if (is_file($fileName)) {
+                try {
+                    $file = new HistoryFile($fileName);
+                }
+                catch (MetaTraderException $ex) {
+                    Logger::log($ex->getMessage(), L_WARN);
+                    continue;
+                }
+                $set = new static($file);
+                break;
+            }
+        }
+        return $set;
     }
 
 
@@ -252,72 +320,6 @@ class HistorySet extends Object {
 
 
     /**
-     * Erzeugt eine neue Instanz und legt alle Historydateien neu an. Vorhandene Daten werden geloescht. Mehrfachaufrufe
-     * dieser Funktion fuer dasselbe Symbol desselben Servers geben jeweils eine neue Instanz zurueck, weitere existierende
-     * Instanzen werden als ungueltig markiert.
-     *
-     * @param  string $symbol - Symbol der HistorySet-Daten
-     * @param  int    $digits - Digits der Datenreihe
-     * @param  int    $format - Speicherformat der Datenreihen:
-     *                          400: MetaTrader <= Build 509
-     *                          401: MetaTrader  > Build 509
-     * @param  string $serverDirectory - Serververzeichnis der Historydateien des Sets
-     */
-    public static function create($symbol, $digits, $format, $serverDirectory) {
-        return new static($symbol, $digits, $format, $serverDirectory);
-    }
-
-
-    /**
-     * Oeffentlicher Zugriff auf Constructor 2
-     *
-     * Gibt eine Instanz fuer bereits vorhandene Historydateien zurueck. Vorhandene Daten werden nicht geloescht. Es muss mindestens
-     * ein HistoryFile des Symbols existieren. Nicht existierende HistoryFiles werden beim Speichern der ersten hinzugefuegten
-     * Daten angelegt. Mehrfachaufrufe dieser Funktion fuer dasselbe Symbol desselben Servers geben dieselbe Instanz zurueck.
-     *
-     * @param  string $symbol          - Symbol der Historydateien
-     * @param  string $serverDirectory - Serververzeichnis, in dem die Historydateien gespeichert sind
-     *
-     * @return self - Instanz oder NULL, wenn keine entsprechenden Historydateien gefunden wurden oder die
-     *                gefundenen Dateien korrupt sind.
-     */
-    public static function get($symbol, $serverDirectory) {
-        if (!is_string($symbol))          throw new IllegalTypeException('Illegal type of parameter $symbol: '.gettype($symbol));
-        if (!strlen($symbol))             throw new InvalidArgumentException('Invalid parameter $symbol: ""');
-        if (!is_string($serverDirectory)) throw new IllegalTypeException('Illegal type of parameter $serverDirectory: '.gettype($serverDirectory));
-        if (!is_dir($serverDirectory))    throw new InvalidArgumentException('Directory "'.$serverDirectory.'" not found');
-
-        // existierende Instanzen durchsuchen und bei Erfolg die entsprechende Instanz zurueckgeben
-        $symbolU = strtoupper($symbol);
-        $serverDirectory = realpath($serverDirectory);
-        foreach (self::$instances as $instance) {
-            if (!$instance->isClosed() && strtoupper($instance->getSymbol()==$symbolU) && $serverDirectory==$instance->getServerDirectory())
-                return $instance;
-        }
-
-        // das erste existierende HistoryFile an den Constructor uebergeben, das Set liest die weiteren dann selbst ein
-        /** @var HistorySet $set */
-        $set = $file = null;
-
-        foreach (MT4::$timeframes as $timeframe) {
-            $fileName = $serverDirectory.'/'.$symbol.$timeframe.'.hst';
-            if (is_file($fileName)) {
-                try {
-                    $file = new HistoryFile($fileName);
-                }
-                catch (MetaTraderException $ex) {
-                    Logger::log($ex->getMessage(), L_WARN);
-                    continue;
-                }
-                $set = new static($file);
-                break;
-            }
-        }
-        return $set;
-    }
-
-
-    /**
      * Gibt das HistoryFile des angegebenen Timeframes zurueck. Existiert es nicht, wird es erzeugt.
      *
      * @param  int $timeframe
@@ -334,7 +336,7 @@ class HistorySet extends Object {
                     $file = new HistoryFile($fileName);
                 }
                 catch (MetaTraderException $ex) {
-                    if (!strStartsWith($ex->getMessage(), 'filesize.insufficient')) throw $ex;
+                    if ($ex->getCode() != $ex::ERR_FILESIZE_INSUFFICIENT) throw $ex;
                     Logger::log($ex->getMessage(), L_WARN);                     // eine zu kurze Datei wird mit einer neuen Datei ueberschrieben
                 }
                 if ($file->getDigits() != $this->getDigits()) throw new RuntimeException('Digits mis-match in "'.$fileName.'": file.digits='.$file->getDigits().' instead of set.digits='.$this->getDigits());
