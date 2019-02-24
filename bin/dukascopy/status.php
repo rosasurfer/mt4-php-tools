@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 /**
- * Console application for displaying and updating Dukascopy history status.
+ * Console application for displaying and updating Dukascopy history start times.
  */
 use rosasurfer\Application;
 use rosasurfer\rt\console\DukascopyHistoryStatusCommand;

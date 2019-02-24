@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 /**
- * Command line tool for processing Rosatrader history.
+ * Console application for processing Rosatrader history.
  */
 namespace rosasurfer\rt\bin\history;
 
