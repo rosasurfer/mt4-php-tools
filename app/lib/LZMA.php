@@ -66,7 +66,7 @@ class LZMA extends StaticClass {
 
 
     /**
-     * Sucht einen verfuegbaren LZMA-Decoder und gibt die Befehlszeile zum Dekomprimieren einer Datei nach STDOUT zurueck.
+     * Search an available LZMA decoder and return the command to decompress a file to STDOUT.
      *
      * @return string
      */
@@ -76,28 +76,28 @@ class LZMA extends StaticClass {
         if (!$cmd) {
             $output = $error = null;
 
-            !$cmd && exec('lzmadec -V 2> '.NUL_DEVICE, $output, $error);                                // search lzmadec in PATH
-            !$cmd && !$error && ($cmd='lzmadec "%s"');
+            exec('lzmadec -V 2> '.NUL_DEVICE, $output, $error);                                 // search lzmadec in PATH
+            if (!$error) return $cmd = 'lzmadec "%s"';
 
-            !$cmd && exec('lzma -V 2> '.NUL_DEVICE, $output, $error);                                   // search lzma in PATH
-            !$cmd && !$error && ($cmd='lzma -dc "%s"');
+            exec('lzma -V 2> '.NUL_DEVICE, $output, $error);                                    // search lzma in PATH
+            if (!$error) return $cmd = 'lzma -dc "%s"';
 
-            !$cmd && exec('xz -V 2> '.NUL_DEVICE, $output, $error);                                     // search xz in PATH
-            !$cmd && !$error && ($cmd='xz -dc "%s"');
+            exec('xz -V 2> '.NUL_DEVICE, $output, $error);                                      // search xz in PATH
+            if (!$error) return $cmd = 'xz -dc "%s"';
 
-            !$cmd && exec('xzdec -V 2> '.NUL_DEVICE, $output, $error);                                  // search xzdec in PATH
-            !$cmd && !$error && ($cmd='xzdec "%s"');
+            exec('xzdec -V 2> '.NUL_DEVICE, $output, $error);                                   // search xzdec in PATH
+            if (!$error) return $cmd = 'xzdec "%s"';
 
-            if (!$cmd && WINDOWS) {
+            if (WINDOWS) {
                 $appRoot = str_replace('\\', '/', self::di('config')['app.dir.root']);
 
-                !$cmd && exec('"'.$appRoot.'/bin/win32/lzmadec" -V 2> '.NUL_DEVICE, $output, $error);   // search lzmadec in project
-                !$cmd && !$error && ($cmd='"'.$appRoot.'/bin/win32/lzmadec" "%s"');
+                exec('"'.$appRoot.'/bin/win32/lzmadec" -V 2> '.NUL_DEVICE, $output, $error);    // search lzmadec in project
+                if (!$error) return $cmd = '"'.$appRoot.'/bin/win32/lzmadec" "%s"';
 
-                !$cmd && exec('"'.$appRoot.'/bin/win32/xz" -V 2> '.NUL_DEVICE, $output, $error);        // search xz in project
-                !$cmd && !$error && ($cmd='"'.$appRoot.'/bin/win32/xz" -dc "%s"');
+                exec('"'.$appRoot.'/bin/win32/xz" -V 2> '.NUL_DEVICE, $output, $error);         // search xz in project
+                if (!$error) return $cmd = '"'.$appRoot.'/bin/win32/xz" -dc "%s"';
             }
-            if (!$cmd) throw new InfrastructureException('No LZMA decoder found.');
+            throw new InfrastructureException('No LZMA decoder found.');
         }
         return $cmd;
     }
