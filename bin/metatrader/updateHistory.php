@@ -72,10 +72,8 @@ exit(0);
  * @return bool - Erfolgsstatus
  */
 function updateHistory(RosaSymbol $symbol) {
-    $symbolName   = $symbol->getName();
-    $symbolDigits = $symbol->getDigits();
-
     global $verbose;
+    $symbolName   = $symbol->getName();
     $directory    = Application::getConfig()['app.dir.data'].'/history/mt4/XTrade-Testhistory';
     $lastSyncTime = null;
     echoPre('[Info]    '.$symbolName);
@@ -84,7 +82,7 @@ function updateHistory(RosaSymbol $symbol) {
     if ($history = HistorySet::get($symbolName, $directory)) {
         if ($verbose) echoPre('[Info]    lastSyncTime: '.(($lastSyncTime=$history->getLastSyncTime()) ? gmdate('D, d-M-Y H:i:s', $lastSyncTime) : 0));
     }
-    !$history && $history=HistorySet::create($symbolName, $symbolDigits, $format=400, $directory);
+    !$history && $history=HistorySet::create($symbol, $format=400, $directory);
 
     // History beginnend mit dem letzten synchronisierten Tag aktualisieren
     $startTime = $lastSyncTime ?: (int)$symbol->getHistoryStartM1('U');                             // FXT

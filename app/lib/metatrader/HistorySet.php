@@ -202,15 +202,14 @@ class HistorySet extends Object {
      * dieser Funktion fuer dasselbe Symbol desselben Servers geben jeweils eine neue Instanz zurueck, weitere existierende
      * Instanzen werden als ungueltig markiert.
      *
-     * @param  string $symbol - Symbol der HistorySet-Daten
-     * @param  int    $digits - Digits der Datenreihe
-     * @param  int    $format - Speicherformat der Datenreihen:
-     *                          400: MetaTrader <= Build 509
-     *                          401: MetaTrader  > Build 509
-     * @param  string $serverDirectory - Serververzeichnis der Historydateien des Sets
+     * @param  RosaSymbol $symbol          - Symbol der HistorySet-Daten
+     * @param  int        $format          - Speicherformat der Datenreihen:
+     *                                       400: MetaTrader <= Build 509
+     *                                       401: MetaTrader  > Build 509
+     * @param  string     $serverDirectory - Serververzeichnis der Historydateien des Sets
      */
-    public static function create($symbol, $digits, $format, $serverDirectory) {
-        return new static($symbol, $digits, $format, $serverDirectory);
+    public static function create($symbol, $format, $serverDirectory) {
+        return new static($symbol, $format, $serverDirectory);
     }
 
 
@@ -243,7 +242,7 @@ class HistorySet extends Object {
 
         // das erste existierende HistoryFile an den Constructor uebergeben, das Set liest die weiteren dann selbst ein
         /** @var HistorySet $set */
-        $set = $file = null;
+        $set = null;
 
         foreach (MT4::$timeframes as $timeframe) {
             $fileName = $serverDirectory.'/'.$symbol.$timeframe.'.hst';

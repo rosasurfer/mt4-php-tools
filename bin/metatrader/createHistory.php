@@ -44,17 +44,15 @@ exit(0);
  * @return bool - Erfolgsstatus
  */
 function createHistory(RosaSymbol $symbol) {
-    $symbolName   = $symbol->getName();
-    $symbolDigits = $symbol->getDigits();
-
-    $startDay  = (int)$symbol->getHistoryStartM1('U');                              // FXT
-    $startDay -= $startDay%DAY;                                                     // 00:00 FXT Starttag
-    $today     = ($today=fxTime()) - $today%DAY;                                    // 00:00 FXT aktueller Tag
+    $symbolName = $symbol->getName();
+    $startDay   = (int)$symbol->getHistoryStartM1('U');                             // FXT
+    $startDay  -= $startDay%DAY;                                                    // 00:00 FXT Starttag
+    $today      = ($today=fxTime()) - $today%DAY;                                   // 00:00 FXT aktueller Tag
 
 
     // MT4-HistorySet erzeugen
     $directory = Application::getConfig()['app.dir.data'].'/history/mt4/XTrade-Testhistory';
-    $hstSet = HistorySet::create($symbolName, $symbolDigits, $format=400, $directory);
+    $hstSet = HistorySet::create($symbol, $format=400, $directory);
 
 
     // Gesamte Zeitspanne tageweise durchlaufen
