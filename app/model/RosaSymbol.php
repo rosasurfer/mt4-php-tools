@@ -279,8 +279,8 @@ class RosaSymbol extends RosatraderModel {
         $start = $this->getHistoryM1Start('D, d-M-Y');
         $end   = $this->getHistoryM1End  ('D, d-M-Y');
 
-        if ($start) echoPre('[Info]    '.str_pad($this->name, 6).'  M1 history from '.$start.' FXT to '.$end.' FXT');
-        else        echoPre('[Info]    '.str_pad($this->name, 6).'  M1 history empty');
+        if ($start) echoPre('[Info]    '.str_pad($this->name, 6).'  M1 local history from '.$start.' to '.$end);
+        else        echoPre('[Info]    '.str_pad($this->name, 6).'  M1 local history empty');
         return true;
     }
 
