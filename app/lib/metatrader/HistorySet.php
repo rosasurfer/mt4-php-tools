@@ -144,8 +144,10 @@ class HistorySet extends Object {
      * @param  string     $serverDirectory - Serververzeichnis der Historydateien des Sets
      */
     protected function __construct2(RosaSymbol $symbol, $format, $serverDirectory) {
-        if (!is_string($serverDirectory)) throw new IllegalTypeException('Illegal type of parameter $serverDirectory: '.gettype($serverDirectory));
-        if (!is_dir($serverDirectory))    throw new InvalidArgumentException('Directory "'.$serverDirectory.'" not found');
+        assert(is_string($serverDirectory));
+        assert(is_dir($serverDirectory));
+        //if (!is_string($serverDirectory)) throw new IllegalTypeException('Illegal type of parameter $serverDirectory: '.gettype($serverDirectory));
+        //if (!is_dir($serverDirectory))    throw new InvalidArgumentException('Directory "'.$serverDirectory.'" not found');
 
         $this->symbol          = $symbol->getName();
         $this->digits          = $symbol->getDigits();
@@ -214,10 +216,14 @@ class HistorySet extends Object {
      *                     gefundenen Dateien korrupt sind.
      */
     public static function open($symbol, $serverDirectory) {
-        if (!is_string($symbol))          throw new IllegalTypeException('Illegal type of parameter $symbol: '.gettype($symbol));
-        if (!strlen($symbol))             throw new InvalidArgumentException('Invalid parameter $symbol: ""');
-        if (!is_string($serverDirectory)) throw new IllegalTypeException('Illegal type of parameter $serverDirectory: '.gettype($serverDirectory));
-        if (!is_dir($serverDirectory))    throw new InvalidArgumentException('Directory "'.$serverDirectory.'" not found');
+        assert(is_string($symbol));
+        assert(strlen($symbol));
+        assert(is_string($serverDirectory));
+        assert(is_dir($serverDirectory));
+        //if (!is_string($symbol))          throw new IllegalTypeException('Illegal type of parameter $symbol: '.gettype($symbol));
+        //if (!strlen($symbol))             throw new InvalidArgumentException('Invalid parameter $symbol: ""');
+        //if (!is_string($serverDirectory)) throw new IllegalTypeException('Illegal type of parameter $serverDirectory: '.gettype($serverDirectory));
+        //if (!is_dir($serverDirectory))    throw new InvalidArgumentException('Directory "'.$serverDirectory.'" not found');
         $serverDirectory = realpath($serverDirectory);
 
         // existierende Instanzen durchsuchen und bei Erfolg die entsprechende Instanz zurueckgeben
@@ -353,7 +359,8 @@ class HistorySet extends Object {
      * @return bool - Erfolgsstatus
      */
     public function appendBars(array $bars) {
-        if ($this->closed) throw new IllegalStateException('Cannot process a closed '.__CLASS__);
+        assert(!$this->closed);
+        //if ($this->closed) throw new IllegalStateException('Cannot process a closed '.__CLASS__);
         if (!$bars) return false;
 
         foreach ($this->historyFiles as $timeframe => $file) {
@@ -372,7 +379,8 @@ class HistorySet extends Object {
      * @param  int[][] $bars - ROST_PRICE_BAR Daten der Periode M1
      */
     public function synchronize(array $bars) {
-        if ($this->closed) throw new IllegalStateException('Cannot process a closed '.__CLASS__);
+        assert(!$this->closed);
+        //if ($this->closed) throw new IllegalStateException('Cannot process a closed '.__CLASS__);
         if (!$bars) return;
 
         $historyM1 = $this->getFile(PERIOD_M1);
