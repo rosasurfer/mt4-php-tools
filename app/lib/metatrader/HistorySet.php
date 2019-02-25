@@ -221,16 +221,16 @@ class HistorySet extends Object {
         $serverDirectory = realpath($serverDirectory);
 
         // existierende Instanzen durchsuchen und bei Erfolg die entsprechende Instanz zurueckgeben
-        $thisId = strtolower($serverDirectory.':'.$symbol);
+        $openId = strtolower($serverDirectory.':'.$symbol);
+
         foreach (self::$instances as $id => $set) {
-            if ($id==$thisId && !$set->closed)
+            if ($id==$openId && !$set->closed)
                 return $set;
         }
 
         // das erste existierende HistoryFile an den Constructor uebergeben, das Set liest die weiteren dann selbst ein
         foreach (MT4::$timeframes as $timeframe) {
-            $fileName = $serverDirectory.'/'.$symbol.$timeframe.'.hst';
-            if (is_file($fileName)) {
+            if (is_file($fileName = $serverDirectory.'/'.$symbol.$timeframe.'.hst')) {
                 try {
                     return new static(new HistoryFile($fileName));
                 }
