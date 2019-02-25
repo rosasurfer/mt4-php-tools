@@ -232,13 +232,11 @@ class HistorySet extends Object {
             $fileName = $serverDirectory.'/'.$symbol.$timeframe.'.hst';
             if (is_file($fileName)) {
                 try {
-                    $file = new HistoryFile($fileName);
+                    return new static(new HistoryFile($fileName));
                 }
                 catch (MetaTraderException $ex) {
-                    Logger::log($ex->getMessage(), L_WARN);
-                    continue;
+                    Logger::log($ex, L_WARN);
                 }
-                return new static($file);
             }
         }
         return null;
