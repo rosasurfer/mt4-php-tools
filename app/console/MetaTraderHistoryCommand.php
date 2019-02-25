@@ -54,6 +54,14 @@ DOCOPT;
         if (!$symbol)
             return $this->errorStatus;
 
+        $starttime = (int) $symbol->getHistoryStartM1('U');
+        $endtime   = (int) $symbol->getHistoryEndM1('U');
+
+        $this->out('from: '.$symbol->getHistoryStartM1());
+        $this->out('to:   '.$symbol->getHistoryEndM1());
+
+        // create new HistorySet
+
         return $this->errorStatus = 0;
     }
 

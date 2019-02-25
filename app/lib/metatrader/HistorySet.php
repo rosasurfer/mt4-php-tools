@@ -27,8 +27,8 @@ use rosasurfer\rt\model\RosaSymbol;
  * HistorySet
  *
  * Represents a set of {@link HistoryFile}s for all nine MetaTrader standard timeframes. Data formats in a set may be mixed,
- * e.g. a set may contain some history files with format HISTORY_BAR_400 (until terminal build 509) and some with format
- * HISTORY_BAR_401 (since terminal build > 509).
+ * e.g. a set may contain files in format HISTORY_BAR_400 (until terminal build 509) and files in format HISTORY_BAR_401
+ * (since terminal build > 509).
  */
 class HistorySet extends Object {
 
@@ -77,7 +77,7 @@ class HistorySet extends Object {
      *
      * @param  array ...$params
      */
-    private function __construct(...$params) {
+    protected function __construct(...$params) {
         $argc = sizeof($params);
         if      ($argc == 1) $this->__construct1(...$params);
         else if ($argc == 3) $this->__construct2(...$params);
@@ -92,7 +92,7 @@ class HistorySet extends Object {
      *
      * @param  HistoryFile $file - existierende History-Datei
      */
-    private function __construct1(HistoryFile $file) {
+    protected function __construct1(HistoryFile $file) {
         $this->symbol          = $file->getSymbol();
         $this->digits          = $file->getDigits();
         $this->serverName      = $file->getServerName();
@@ -103,7 +103,7 @@ class HistorySet extends Object {
         $symbolU = strtoupper($this->symbol);
 
         foreach (self::$instances as $instance) {
-            if (!$instance->isClosed() && strtoupper($instance->getSymbol()==$symbolU) && $instance->getServerDirectory()==$this->serverDirectory)
+            if (!$instance->closed && strtoupper($instance->getSymbol()==$symbolU) && $instance->getServerDirectory()==$this->serverDirectory)
                 throw new RuntimeException('Multiple open HistorySets for "'.$this->serverName.'::'.$this->symbol.'"');
         }
 
@@ -144,7 +144,7 @@ class HistorySet extends Object {
      *                                       401: MetaTrader  > Build 509
      * @param  string     $serverDirectory - Serververzeichnis der Historydateien des Sets
      */
-    private function __construct2(RosaSymbol $symbol, $format, $serverDirectory) {
+    protected function __construct2(RosaSymbol $symbol, $format, $serverDirectory) {
         if (!is_string($serverDirectory)) throw new IllegalTypeException('Illegal type of parameter $serverDirectory: '.gettype($serverDirectory));
         if (!is_dir($serverDirectory))    throw new InvalidArgumentException('Directory "'.$serverDirectory.'" not found');
 
@@ -199,7 +199,7 @@ class HistorySet extends Object {
      * @param  string     $serverDirectory - Serververzeichnis der Historydateien des Sets
      */
     public static function create($symbol, $format, $serverDirectory) {
-        return new static($symbol, $format, $serverDirectory);
+        return new self($symbol, $format, $serverDirectory);
     }
 
 
@@ -216,7 +216,7 @@ class HistorySet extends Object {
      * @return self - Instanz oder NULL, wenn keine entsprechenden Historydateien gefunden wurden oder die
      *                gefundenen Dateien korrupt sind.
      */
-    public static function get($symbol, $serverDirectory) {
+    public static function open($symbol, $serverDirectory) {
         if (!is_string($symbol))          throw new IllegalTypeException('Illegal type of parameter $symbol: '.gettype($symbol));
         if (!strlen($symbol))             throw new InvalidArgumentException('Invalid parameter $symbol: ""');
         if (!is_string($serverDirectory)) throw new IllegalTypeException('Illegal type of parameter $serverDirectory: '.gettype($serverDirectory));
@@ -226,7 +226,7 @@ class HistorySet extends Object {
         $symbolU = strtoupper($symbol);
         $serverDirectory = realpath($serverDirectory);
         foreach (self::$instances as $instance) {
-            if (!$instance->isClosed() && strtoupper($instance->getSymbol()==$symbolU) && $serverDirectory==$instance->getServerDirectory())
+            if (!$instance->closed && strtoupper($instance->getSymbol()==$symbolU) && $serverDirectory==$instance->getServerDirectory())
                 return $instance;
         }
 
@@ -285,20 +285,12 @@ class HistorySet extends Object {
 
 
     /**
-     * @return bool
-     */
-    public function isClosed() {
-        return (bool) $this->closed;
-    }
-
-
-    /**
      * Schliesst dieses HistorySet. Gibt alle Resourcen dieser Instanz frei. Nach dem Aufruf kann die Instanz nicht mehr verwendet werden.
      *
      * @return bool - Erfolgsstatus; FALSE, wenn die Instanz bereits geschlossen war
      */
     public function close() {
-        if ($this->isClosed())
+        if ($this->closed)
             return false;
 
         foreach ($this->historyFiles as $file) {

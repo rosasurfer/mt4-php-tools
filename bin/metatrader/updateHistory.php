@@ -74,15 +74,18 @@ exit(0);
 function updateHistory(RosaSymbol $symbol) {
     global $verbose;
     $symbolName   = $symbol->getName();
-    $directory    = Application::getConfig()['app.dir.data'].'/history/mt4/XTrade-Testhistory';
+    $config       = Application::getConfig();
+    $directory    = $config['app.dir.data'].'/history/mt4/'.$config['rt.metatrader.server-name'];
     $lastSyncTime = null;
     echoPre('[Info]    '.$symbolName);
 
     // HistorySet oeffnen bzw. neues Set erstellen
-    if ($history = HistorySet::get($symbolName, $directory)) {
+    if ($history = HistorySet::open($symbolName, $directory)) {
         if ($verbose) echoPre('[Info]    lastSyncTime: '.(($lastSyncTime=$history->getLastSyncTime()) ? gmdate('D, d-M-Y H:i:s', $lastSyncTime) : 0));
     }
-    !$history && $history=HistorySet::create($symbol, $format=400, $directory);
+    else {
+        $history = HistorySet::create($symbol, $format=400, $directory);
+    }
 
     // History beginnend mit dem letzten synchronisierten Tag aktualisieren
     $startTime = $lastSyncTime ?: (int)$symbol->getHistoryStartM1('U');                             // FXT
