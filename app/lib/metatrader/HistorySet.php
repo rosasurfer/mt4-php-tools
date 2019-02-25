@@ -10,6 +10,7 @@ use rosasurfer\exception\RuntimeException;
 use rosasurfer\log\Logger;
 
 use rosasurfer\rt\lib\metatrader\MT4;
+use rosasurfer\rt\model\RosaSymbol;
 
 use const rosasurfer\rt\PERIOD_M1;
 use const rosasurfer\rt\PERIOD_M5;
@@ -20,7 +21,6 @@ use const rosasurfer\rt\PERIOD_H4;
 use const rosasurfer\rt\PERIOD_D1;
 use const rosasurfer\rt\PERIOD_W1;
 use const rosasurfer\rt\PERIOD_MN1;
-use rosasurfer\rt\model\RosaSymbol;
 
 
 /**
@@ -48,7 +48,7 @@ class HistorySet extends Object {
     /** @var bool - whether the set is closed and resources are disposed */
     protected $closed = false;
 
-    /** @var HistoryFile[] - all history files a set manages */
+    /** @var HistoryFile[] - the history files of the set */
     protected $historyFiles = [
         PERIOD_M1  => null,
         PERIOD_M5  => null,
@@ -98,14 +98,13 @@ class HistorySet extends Object {
         $this->serverName      = $file->getServerName();
         $this->serverDirectory = realpath($file->getServerDirectory());
 
-        $this->historyFiles[$file->getTimeframe()] = $file;
+        $thisId = strtolower($this->serverDirectory.':'.$this->symbol);
 
-        $symbolU = strtoupper($this->symbol);
-
-        foreach (self::$instances as $instance) {
-            if (!$instance->closed && strtoupper($instance->getSymbol()==$symbolU) && $instance->getServerDirectory()==$this->serverDirectory)
-                throw new RuntimeException('Multiple open HistorySets for "'.$this->serverName.'::'.$this->symbol.'"');
+        foreach (self::$instances as $id => $set) {
+            if ($id==$thisId && !$set->closed) throw new RuntimeException('Multiple open HistorySets for "'.$this->serverName.':'.$this->symbol.'"');
         }
+
+        $this->historyFiles[$file->getTimeframe()] = $file;
 
         // alle uebrigen existierenden HistoryFiles oeffnen und validieren (nicht existierende Dateien werden erst bei Bedarf erstellt)
         foreach ($this->historyFiles as $timeframe => &$file) {
@@ -127,7 +126,7 @@ class HistorySet extends Object {
             }
         }; unset($file);
 
-        self::$instances[] = $this;
+        self::$instances[$thisId] = $this;
     }
 
 
@@ -153,13 +152,11 @@ class HistorySet extends Object {
         $this->serverDirectory = realpath($serverDirectory);
         $this->serverName      = basename($this->serverDirectory);
 
-        // offene Sets durchsuchen und Sets desselben Symbols schliessen
-        $symbolU = strtoupper($this->symbol);
+        $thisId = strtolower($this->serverDirectory.':'.$this->symbol);
 
-        foreach (self::$instances as $set) {
-            if (strtoupper($set->getSymbol()==$symbolU) && $set->getServerDirectory()==$serverDirectory) {
-                $set->close();
-            }
+        // offene Sets durchsuchen und Sets desselben Symbols schliessen
+        foreach (self::$instances as $id => $set) {
+            if ($id == $thisId) $set->close();
         }
 
         // alle HistoryFiles initialisieren
@@ -168,7 +165,7 @@ class HistorySet extends Object {
         }; unset($file);
 
         // Instanz speichern
-        self::$instances[] = $this;
+        self::$instances[$thisId] = $this;
     }
 
 
@@ -213,27 +210,24 @@ class HistorySet extends Object {
      * @param  string $symbol          - Symbol der Historydateien
      * @param  string $serverDirectory - Serververzeichnis, in dem die Historydateien gespeichert sind
      *
-     * @return self - Instanz oder NULL, wenn keine entsprechenden Historydateien gefunden wurden oder die
-     *                gefundenen Dateien korrupt sind.
+     * @return self|null - Instanz oder NULL, wenn keine entsprechenden Historydateien gefunden wurden oder die
+     *                     gefundenen Dateien korrupt sind.
      */
     public static function open($symbol, $serverDirectory) {
         if (!is_string($symbol))          throw new IllegalTypeException('Illegal type of parameter $symbol: '.gettype($symbol));
         if (!strlen($symbol))             throw new InvalidArgumentException('Invalid parameter $symbol: ""');
         if (!is_string($serverDirectory)) throw new IllegalTypeException('Illegal type of parameter $serverDirectory: '.gettype($serverDirectory));
         if (!is_dir($serverDirectory))    throw new InvalidArgumentException('Directory "'.$serverDirectory.'" not found');
+        $serverDirectory = realpath($serverDirectory);
 
         // existierende Instanzen durchsuchen und bei Erfolg die entsprechende Instanz zurueckgeben
-        $symbolU = strtoupper($symbol);
-        $serverDirectory = realpath($serverDirectory);
-        foreach (self::$instances as $instance) {
-            if (!$instance->closed && strtoupper($instance->getSymbol()==$symbolU) && $serverDirectory==$instance->getServerDirectory())
-                return $instance;
+        $thisId = strtolower($serverDirectory.':'.$symbol);
+        foreach (self::$instances as $id => $set) {
+            if ($id==$thisId && !$set->closed)
+                return $set;
         }
 
         // das erste existierende HistoryFile an den Constructor uebergeben, das Set liest die weiteren dann selbst ein
-        /** @var HistorySet $set */
-        $set = null;
-
         foreach (MT4::$timeframes as $timeframe) {
             $fileName = $serverDirectory.'/'.$symbol.$timeframe.'.hst';
             if (is_file($fileName)) {
@@ -244,11 +238,10 @@ class HistorySet extends Object {
                     Logger::log($ex->getMessage(), L_WARN);
                     continue;
                 }
-                $set = new static($file);
-                break;
+                return new static($file);
             }
         }
-        return $set;
+        return null;
     }
 
 
