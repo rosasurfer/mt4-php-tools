@@ -8,7 +8,7 @@ namespace rosasurfer\rt\bin\history;
 use rosasurfer\process\Process;
 use rosasurfer\rt\model\RosaSymbol;
 
-require(dirname(realpath(__FILE__)).'/../app/init.php');
+require(dirname(realpath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');
 
 
@@ -44,7 +44,6 @@ $symbols = $symbols ?: RosaSymbol::dao()->findAll('select * from :RosaSymbol ord
 foreach ($symbols as $symbol) {
     if ($cmd == 'status'     ) $symbol->showHistoryStatus();
     if ($cmd == 'synchronize') $symbol->synchronizeHistory();
-    if ($cmd == 'refresh'    ) $symbol->refreshHistory();
     Process::dispatchSignals();                                         // process Ctrl-C
 }
 exit(0);
@@ -69,7 +68,6 @@ Syntax:  $self <command> [options] [SYMBOL...]
  Commands:
    status       Show history status information.
    synchronize  Synchronize start/end times in the database with the files in the file system.
-   refresh      Discard existing history and reload/recreate it.
 
  Options:
    -h           This help screen.
@@ -78,7 +76,6 @@ Syntax:  $self <command> [options] [SYMBOL...]
    -vvv         Very verbose output.
 
  SYMBOL         The symbols to process. Without a symbol all symbols are processed.
-
 
 HELP;
 }

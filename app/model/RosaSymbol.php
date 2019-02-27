@@ -4,7 +4,6 @@ namespace rosasurfer\rt\model;
 use rosasurfer\console\Output;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\RuntimeException;
-use rosasurfer\exception\UnimplementedFeatureException;
 use rosasurfer\process\Process;
 
 use rosasurfer\rt\lib\Rost;
@@ -371,17 +370,6 @@ class RosaSymbol extends RosatraderModel {
         $output->out('[Info]    '.$this->name.'  '.($errors ? 'done':'ok'));
         $output->out('---------------------------------------------------------------------------------');
         return true;
-    }
-
-
-    /**
-     * Discard existing history and reload or recreate it.
-     *
-     * @return bool - success status
-     */
-    public function refreshHistory() {
-        throw new UnimplementedFeatureException(__METHOD__.'() not implemented');
-        return false;
     }
 
 
