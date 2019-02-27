@@ -19,13 +19,13 @@ class MetaTraderHistoryCommand extends Command {
 Create, update or show status information about MetaTrader history files.
 
 Usage:
-  rt.metatrader.history  create SYMBOL [options]
+  rt-metatrader-history  create SYMBOL [options]
 
 Commands:
   create      Create a new MetaTrader history set (all standard timeframes).
 
 Arguments:
-  SYMBOL      The symbol to process.
+  SYMBOL      The symbol to process history for.
 
 Options:
    -h --help  This help screen.
