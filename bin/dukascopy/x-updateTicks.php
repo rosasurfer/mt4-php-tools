@@ -256,12 +256,10 @@ function updateTicks($symbol, $gmtHour, $fxtHour) {
 
     // Tickdaten laden
     $ticks = loadTicks($symbol, $gmtHour, $fxtHour);
-    if (!is_array($ticks)) return false;
+    if (!$ticks) return false;
 
     // Tickdaten speichern
-    if (!saveTicks($symbol, $gmtHour, $fxtHour, $ticks)) return false;
-
-    return true;
+    return saveTicks($symbol, $gmtHour, $fxtHour, $ticks);
 }
 
 
@@ -272,7 +270,7 @@ function updateTicks($symbol, $gmtHour, $fxtHour) {
  * @param  int    $gmtHour - GMT-Timestamp der zu ladenden Stunde
  * @param  int    $fxtHour - FXT-Timestamp der zu ladenden Stunde
  *
- * @return array[]|bool - Array mit Tickdaten oder FALSE in case of errors
+ * @return array[] - Array mit Tickdaten oder an empty value in case of errors
  */
 function loadTicks($symbol, $gmtHour, $fxtHour) {
     if (!is_int($gmtHour)) throw new IllegalTypeException('Illegal type of parameter $gmtHour: '.gettype($gmtHour));
@@ -291,7 +289,7 @@ function loadTicks($symbol, $gmtHour, $fxtHour) {
     if (!$ticks) {
         if (is_file($file=getVar('dukaFile.raw', $symbol, $gmtHour))) {
             $ticks = loadRawDukascopyTickFile($file, $symbol, $gmtHour, $fxtHour);
-            if (!$ticks) return false;
+            if (!$ticks) return [];
         }
     }
 
@@ -299,19 +297,17 @@ function loadTicks($symbol, $gmtHour, $fxtHour) {
     if (!$ticks) {
         if (is_file($file=getVar('dukaFile.compressed', $symbol, $gmtHour))) {
             $ticks = loadCompressedDukascopyTickFile($file, $symbol, $gmtHour, $fxtHour);
-            if (!$ticks) return false;
+            if (!$ticks) return [];
         }
     }
 
     // ggf. Dukascopy-Datei herunterladen und Ticks laden
     if (!$ticks) {
         $data = downloadTickdata($symbol, $gmtHour, $fxtHour, false, $saveCompressedDukascopyFiles);
-        if (!$data) return false;
+        if (!$data) return [];
 
         $ticks = loadCompressedDukascopyTickData($data, $symbol, $gmtHour, $fxtHour);
-        if (!$ticks) return false;
     }
-
     return $ticks;
 }
 

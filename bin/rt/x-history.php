@@ -18,13 +18,13 @@ $args = array_slice($_SERVER['argv'], 1);
 
 // parse options
 foreach ($args as $i => $arg) {
-    if ($arg == '-h')   exit(1|help());
+    if ($arg == '-h')   exit(1);
     if ($arg[0] == '-') unset($args[$i]);                               // drop unknown options
 }
 
 // parse command
 $cmd = array_shift($args);
-if (!in_array($cmd, ['status', 'synchronize', 'refresh'])) exit(1|help());
+if (!in_array($cmd, ['status', 'synchronize'])) exit(1);
 
 /** @var RosaSymbol[] $symbols */
 $symbols = [];
@@ -47,35 +47,3 @@ foreach ($symbols as $symbol) {
     Process::dispatchSignals();                                         // process Ctrl-C
 }
 exit(0);
-
-
-/**
- * Help
- *
- * @param  string $message [optional] - additional message to display (default: none)
- */
-function help($message = null) {
-    if (isset($message))
-        echo $message.NL.NL;
-
-    $self = basename($_SERVER['PHP_SELF']);
-
-echo <<<HELP
-Process the history of the specified Rosatrader symbols.
-
-Syntax:  $self <command> [options] [SYMBOL...]
-
- Commands:
-   status       Show history status information.
-   synchronize  Synchronize start/end times in the database with the files in the file system.
-
- Options:
-   -h           This help screen.
-   -v           Verbose output.
-   -vv          More verbose output.
-   -vvv         Very verbose output.
-
- SYMBOL         The symbols to process. Without a symbol all symbols are processed.
-
-HELP;
-}
