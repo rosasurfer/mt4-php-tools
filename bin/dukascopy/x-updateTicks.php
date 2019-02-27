@@ -270,7 +270,7 @@ function updateTicks($symbol, $gmtHour, $fxtHour) {
  * @param  int    $gmtHour - GMT-Timestamp der zu ladenden Stunde
  * @param  int    $fxtHour - FXT-Timestamp der zu ladenden Stunde
  *
- * @return array[] - Array mit Tickdaten oder an empty value in case of errors
+ * @return array - Array mit Tickdaten oder an empty value in case of errors
  */
 function loadTicks($symbol, $gmtHour, $fxtHour) {
     if (!is_int($gmtHour)) throw new IllegalTypeException('Illegal type of parameter $gmtHour: '.gettype($gmtHour));
@@ -474,7 +474,7 @@ function loadCompressedDukascopyTickFile($file, $symbol, $gmtHour, $fxtHour) {
 /**
  * Laedt die in einem komprimierten String enthaltenen Dukascopy-Tickdaten.
  *
- * @return array[] - Array mit Tickdaten
+ * @return array - Array mit Tickdaten
  */
 function loadCompressedDukascopyTickData($data, $symbol, $gmtHour, $fxtHour) {
     if (!is_int($gmtHour)) throw new IllegalTypeException('Illegal type of parameter $gmtHour: '.gettype($gmtHour));
@@ -506,7 +506,7 @@ function loadRawDukascopyTickFile($file, $symbol, $gmtHour, $fxtHour) {
 /**
  * Laedt die in einem unkomprimierten String enthaltenen Dukascopy-Tickdaten.
  *
- * @return array[] - Array mit Tickdaten
+ * @return array - Array mit Tickdaten
  */
 function loadRawDukascopyTickData($data, $symbol, $gmtHour, $fxtHour) {
     if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.gettype($data));
