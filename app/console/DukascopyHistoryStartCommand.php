@@ -21,7 +21,7 @@ class DukascopyHistoryStartCommand extends Command {
 Show or update Dukascopy history start times.
 
 Usage:
-  rt.dukascopy.status [-r | -u] [-h] [SYMBOL ...]
+  rt.dukascopy.status  [-r | -u] [-h] [SYMBOL ...]
 
 Arguments:
   SYMBOL        The Dukascopy symbols to process (default: all tracked symbols).

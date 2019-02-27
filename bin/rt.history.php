@@ -68,7 +68,7 @@ Syntax:  $self <command> [options] [SYMBOL...]
 
  Commands:
    status       Show history status information.
-   synchronize  Synchronize database and existing history files in the file system.
+   synchronize  Synchronize start/end times in the database with the files in the file system.
    refresh      Discard existing history and reload/recreate it.
 
  Options:

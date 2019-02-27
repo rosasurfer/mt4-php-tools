@@ -288,7 +288,7 @@ class RosaSymbol extends RosatraderModel {
 
 
     /**
-     * Synchronize the history in the file system with the database.
+     * Synchronize start/end times in the database with the files in the file system.
      *
      * @return bool - success status
      */
@@ -369,6 +369,7 @@ class RosaSymbol extends RosatraderModel {
         $this->save();
 
         $output->out('[Info]    '.$this->name.'  '.($errors ? 'done':'ok'));
+        $output->out('---------------------------------------------------------------------------------');
         return true;
     }
 
