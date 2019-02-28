@@ -6,7 +6,6 @@ use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\RuntimeException;
 use rosasurfer\process\Process;
 
-use rosasurfer\rt\lib\Rost;
 use rosasurfer\rt\lib\RT;
 use rosasurfer\rt\lib\dukascopy\Dukascopy;
 use rosasurfer\rt\lib\synthetic\DefaultSynthesizer;
@@ -276,12 +275,13 @@ class RosaSymbol extends RosatraderModel {
      */
     public function showHistoryStatus() {
         /** @var Output $output */
-        $output = $this->di(Output::class);
-        $start  = $this->getHistoryStartM1('D, d-M-Y');
-        $end    = $this->getHistoryEndM1  ('D, d-M-Y');
+        $output     = $this->di(Output::class);
+        $start      = $this->getHistoryStartM1('D, d-M-Y');
+        $end        = $this->getHistoryEndM1  ('D, d-M-Y');
+        $paddedName = str_pad($this->name, 6);
 
-        if ($start) $output->out('[Info]    '.str_pad($this->name, 6).'  M1 local history from '.$start.' to '.$end);
-        else        $output->out('[Info]    '.str_pad($this->name, 6).'  M1 local history empty');
+        if ($start) $output->out('[Info]    '.$paddedName.'  M1 local history from '.$start.' to '.$end);
+        else        $output->out('[Info]    '.$paddedName.'  M1 local history empty');
         return true;
     }
 
@@ -293,15 +293,12 @@ class RosaSymbol extends RosatraderModel {
      */
     public function synchronizeHistory() {
         /** @var Output $output */
-        $output   = $this->di(Output::class);
-        $dataDir  = $this->di('config')['app.dir.data'];
-        $dataDir .= '/history/rosatrader/'.$this->type.'/'.$this->name;
-
-        $output->out('[Info]    '.$this->name.'  synchronizing history');
-
-        $startDate = $endDate = null;
-        $errors  = false;
-        $missing = [];
+        $output     = $this->di(Output::class);
+        $dataDir    = $this->di('config')['app.dir.data'];
+        $dataDir   .= '/history/rosatrader/'.$this->type.'/'.$this->name;
+        $paddedName = str_pad($this->name, 6);
+        $startDate  = $endDate = null;
+        $missing    = [];
 
         // find the oldest existing history file
         $years = glob($dataDir.'/[12][0-9][0-9][0-9]', GLOB_ONLYDIR|GLOB_NOESCAPE|GLOB_ERR) ?: [];
@@ -320,13 +317,17 @@ class RosaSymbol extends RosatraderModel {
 
         // iterate over the whole time range and check existing files
         if ($startDate) {                                                               // 00:00 FXT of the first day
-            $today  = ($today=fxTime()) - $today%DAY;                                   // 00:00 FXT of the current day
-            $delMsg = '[Info]    '.$this->name.'  deleting obsolete M1 file: ';
+            $today   = ($today=fxTime()) - $today%DAY;                                  // 00:00 FXT of the current day
+            $delMsg  = '[Info]    '.$paddedName.'  deleting obsolete M1 file: ';
+            $yestDay = fxTime() - fxTime()%DAY - DAY;
 
-            $missMsg = function($missing) use ($output) {
+            $missMsg = function($missing) use ($output, $paddedName, $yestDay) {
                 if ($misses = sizeof($missing)) {
-                    ($misses > 2) && $output->out('[Error]   '.$this->name.'  ...');
-                    $output->out('[Error]   '.$this->name.'  '.($misses > 2 ? $misses : '').' missing history file'.($misses==2 ? ' for':'s until').' '.gmdate('D, Y-m-d', last($missing)));
+                    $first     = first($missing);
+                    $last      = last($missing);
+                    $output->out('[Error]   '.$paddedName.'  '.$misses.' missing history file'.pluralize($misses)
+                                             .($misses==1 ? ' for '.gmdate('D, Y-m-d', $first)
+                                                          : ' from '.gmdate('D, Y-m-d', $first).' until '.($last==$yestDay? 'now' : gmdate('D, Y-m-d', $last))));
                 }
             };
 
@@ -342,13 +343,12 @@ class RosaSymbol extends RosatraderModel {
                         }
                     }
                     else {
-                        !$missing && $output->out('[Error]   '.$this->name.'  missing history file for '.gmdate('D, Y-m-d', $day));
-                        $errors = (bool)$missing[] = $day;
+                        $missing[] = $day;
                     }
                 }
                 else {
-                    is_file($file=$dir.'/M1.bin'    ) && true($output->out($delMsg.Rost::relativePath($file))) && unlink($file);
-                    is_file($file=$dir.'/M1.bin.rar') && true($output->out($delMsg.Rost::relativePath($file))) && unlink($file);
+                    is_file($file=$dir.'/M1.bin'    ) && true($output->out($delMsg.RT::relativePath($file))) && unlink($file);
+                    is_file($file=$dir.'/M1.bin.rar') && true($output->out($delMsg.RT::relativePath($file))) && unlink($file);
                 }
             }
             $missing && $missMsg($missing);
@@ -356,19 +356,19 @@ class RosaSymbol extends RosatraderModel {
 
         // update the database
         if ($startDate != $this->getHistoryStartM1('U')) {
-            $output->out('[Info]    '.$this->name.'  updating start time to '.($startDate ? gmdate('Y-m-d', $startDate) : '(empty)'));
+            $output->out('[Info]    '.$paddedName.'  updating start time to '.($startDate ? gmdate('Y-m-d', $startDate) : '(empty)'));
             $this->historyStartM1 = $startDate ? gmdate('Y-m-d H:i:s', $startDate) : null;
             $this->modified();
         }
         if ($endDate != $this->getHistoryEndM1('U')) {
-            $output->out('[Info]    '.$this->name.'  updating end time to '.($endDate ? gmdate('Y-m-d', $endDate) : '(empty)'));
+            $output->out('[Info]    '.$paddedName.'  updating end time to '.($endDate ? gmdate('Y-m-d', $endDate) : '(empty)'));
             $this->historyEndM1 = $endDate ? gmdate('Y-m-d H:i:s', $endDate) : null;
             $this->modified();
         }
         $this->save();
 
-        $output->out('[Info]    '.$this->name.'  '.($errors ? 'done':'ok'));
-        $output->out('---------------------------------------------------------------------------------');
+        !$missing && $output->out('[Info]    '.$paddedName.'  '.($startDate ? 'ok':'empty'));
+        $output->out('---------------------------------------------------------------------------------------');
         return true;
     }
 

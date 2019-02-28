@@ -569,33 +569,4 @@ class Rost extends StaticClass {
 
         return $result;
     }
-
-
-    /**
-     * Convert an absolute file path to a project-relative one.
-     *
-     * @param  string $path
-     *
-     * @return string
-     */
-    public static function relativePath($path) {
-        if (!is_string($path)) throw new IllegalTypeException('Illegal type of parameter $path: '.gettype($path));
-        $_path = str_replace('\\', '/', $path);
-
-        static $root, $realRoot, $data, $realData;
-        if (!$root) {
-            $config   = self::di('config');
-            $root     = str_replace('\\', '/', $config['app.dir.root'].'/');
-            $realRoot = str_replace('\\', '/', realpath($root).'/');
-            $data     = str_replace('\\', '/', $config['app.dir.data'].'/');
-            $realData = str_replace('\\', '/', realpath($data).'/');
-        }
-
-        if (strStartsWith($_path, $root))     return               strRightFrom($_path, $root);
-        if (strStartsWith($_path, $realRoot)) return               strRightFrom($_path, $realRoot);
-        if (strStartsWith($_path, $data))     return '{data-dir}/'.strRightFrom($_path, $data);
-        if (strStartsWith($_path, $realData)) return '{data-dir}/'.strRightFrom($_path, $realData);
-
-        return $path;
-    }
 }

@@ -97,7 +97,6 @@ DOCOPT;
      * @return DukascopySymbol[]
      */
     protected function resolveSymbols() {
-        /** @var array $args */
         $args = $this->input->getArguments('SYMBOL');
         $symbols = [];
 

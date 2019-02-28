@@ -13,23 +13,13 @@ date_default_timezone_set('GMT');
 
 
 // parse and validate CLI arguments
-/** @var string[] $args */
 $args = array_slice($_SERVER['argv'], 1);
-
-// parse options
-foreach ($args as $i => $arg) {
-    if ($arg == '-h')   exit(1);
-    if ($arg[0] == '-') unset($args[$i]);                               // drop unknown options
-}
-
-// parse command
-$cmd = array_shift($args);
+$cmd  = array_shift($args);
 if (!in_array($cmd, ['status', 'synchronize'])) exit(1);
+
 
 /** @var RosaSymbol[] $symbols */
 $symbols = [];
-
-// parse symbols
 foreach ($args as $i => $arg) {
     /** @var RosaSymbol $symbol */
     $symbol = RosaSymbol::dao()->findByName($arg);

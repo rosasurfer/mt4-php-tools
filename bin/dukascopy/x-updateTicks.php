@@ -46,7 +46,7 @@ use rosasurfer\net\http\HttpResponse;
 use rosasurfer\process\Process;
 
 use rosasurfer\rt\lib\LZMA;
-use rosasurfer\rt\lib\Rost;
+use rosasurfer\rt\lib\RT;
 use rosasurfer\rt\lib\dukascopy\Dukascopy;
 use rosasurfer\rt\lib\dukascopy\exception\DukascopyException;
 use rosasurfer\rt\model\DukascopySymbol;
@@ -201,11 +201,11 @@ function checkHistory($symbol, $gmtHour, $fxtHour) {
 
         // History ist ok, wenn entweder die komprimierte RT-Datei existiert...
         if (is_file($file=getVar('rtFile.compressed', $symbol, $fxtHour))) {
-            if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'  Rosatrader compressed tick file: '.Rost::relativePath($file));
+            if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'  Rosatrader compressed tick file: '.RT::relativePath($file));
         }
         // History ist ok, ...oder die unkomprimierte RT-Datei gespeichert wird und existiert
         else if ($saveRawRTData && is_file($file=getVar('rtFile.raw', $symbol, $fxtHour))) {
-            if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'  Rosatrader uncompressed tick file: '.Rost::relativePath($file));
+            if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'  Rosatrader uncompressed tick file: '.RT::relativePath($file));
         }
         // andererseits Tickdaten aktualisieren
         else {
@@ -466,7 +466,7 @@ function loadCompressedDukascopyTickFile($file, $symbol, $gmtHour, $fxtHour) {
     if (!is_int($fxtHour)) throw new IllegalTypeException('Illegal type of parameter $fxtHour: '.gettype($fxtHour));
 
     global $verbose;
-    if ($verbose > 0) echoPre('[Info]    '.gmdate('D, d-M-Y H:i', $fxtHour).'  Dukascopy compressed tick file: '.Rost::relativePath($file));
+    if ($verbose > 0) echoPre('[Info]    '.gmdate('D, d-M-Y H:i', $fxtHour).'  Dukascopy compressed tick file: '.RT::relativePath($file));
 
     return loadCompressedDukascopyTickData(file_get_contents($file), $symbol, $gmtHour, $fxtHour);
 }
@@ -498,7 +498,7 @@ function loadRawDukascopyTickFile($file, $symbol, $gmtHour, $fxtHour) {
     if (!is_int($fxtHour)) throw new IllegalTypeException('Illegal type of parameter $fxtHour: '.gettype($fxtHour));
 
     global $verbose;
-    if ($verbose > 0) echoPre('[Info]    '.gmdate('D, d-M-Y H:i', $fxtHour).'  Dukascopy uncompressed tick file: '.Rost::relativePath($file));
+    if ($verbose > 0) echoPre('[Info]    '.gmdate('D, d-M-Y H:i', $fxtHour).'  Dukascopy uncompressed tick file: '.RT::relativePath($file));
 
     return loadRawDukascopyTickData(file_get_contents($file), $symbol, $gmtHour, $fxtHour);
 }
