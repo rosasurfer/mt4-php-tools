@@ -321,7 +321,7 @@ class RosaSymbol extends RosatraderModel {
             $delMsg    = '[Info]    '.$paddedName.'  deleting non-trading day M1 file: ';
             $yesterDay = fxTime() - fxTime()%DAY - DAY;
 
-            $missMsg = function($missing) use ($output, $paddedName, $yestDay) {
+            $missMsg = function($missing) use ($output, $paddedName, $yesterDay) {
                 if ($misses = sizeof($missing)) {
                     $first     = first($missing);
                     $last      = last($missing);
