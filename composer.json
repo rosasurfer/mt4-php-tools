@@ -2,7 +2,6 @@
     "name":        "rosasurfer/mt4-tools",
     "description": "rosatrader - web and command line tools",
     "type":        "project",
-    "homepage":    "http://www.rosasurfer.com/",
     "license":     "WTFPL",
     "authors": [{
         "name":  "Peter Walther",
@@ -26,8 +25,5 @@
     },
     "scripts": {
         "post-install-cmd": "bash bin/admin/git/check-setup.sh post-checkout post-merge"
-    },
-    "support": {
-        "source": "https://github.com/rosasurfer/mt4-tools"
     }
 }

@@ -19,13 +19,13 @@ class MetaTraderHistoryCommand extends Command {
 Create, update or show status information about MetaTrader history files.
 
 Usage:
-  rt.metatrader.history create SYMBOL [options]
+  rt-metatrader-history  create SYMBOL [options]
 
 Commands:
   create      Create a new MetaTrader history set (all standard timeframes).
 
 Arguments:
-  SYMBOL      Rosatrader symbol to use for history processing.
+  SYMBOL      The symbol to process history for.
 
 Options:
    -h --help  This help screen.
@@ -47,12 +47,20 @@ DOCOPT;
     /**
      * {@inheritdoc}
      *
-     * @return int - execution status code: 0 (zero) for "success"
+     * @return int - execution status: 0 for "success"
      */
     protected function execute() {
         $symbol = $this->resolveSymbol();
         if (!$symbol)
             return $this->errorStatus;
+
+        $starttime = (int) $symbol->getHistoryStartM1('U');
+        $endtime   = (int) $symbol->getHistoryEndM1('U');
+
+        $this->out('from: '.$symbol->getHistoryStartM1());
+        $this->out('to:   '.$symbol->getHistoryEndM1());
+
+        // create new HistorySet
 
         return $this->errorStatus = 0;
     }

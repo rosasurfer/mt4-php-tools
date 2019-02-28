@@ -43,7 +43,7 @@ use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
 use rosasurfer\process\Process;
 
-use rosasurfer\rt\lib\Rost;
+use rosasurfer\rt\lib\RT;
 use rosasurfer\rt\lib\dukascopy\Dukascopy;
 use rosasurfer\rt\model\DukascopySymbol;
 use rosasurfer\rt\model\RosaSymbol;
@@ -185,11 +185,11 @@ function checkHistory($symbol, $day) {
     if (!isWeekend($day)) {
         // History ist ok, wenn entweder die komprimierte RT-Datei existiert...
         if (is_file($file=getVar('rtFile.compressed', $symbol, $day))) {
-            if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'  Rosatrader history file found: '.Rost::relativePath($file));
+            if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'  Rosatrader history file found: '.RT::relativePath($file));
         }
         // ...oder die unkomprimierte RT-Datei gespeichert wird und existiert
         else if (!$compressHistory && is_file($file=getVar('rtFile.raw', $symbol, $day))) {
-            if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'  Rosatrader history file found: '.Rost::relativePath($file));
+            if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'  Rosatrader history file found: '.RT::relativePath($file));
         }
         // andererseits History aktualisieren
         else if (!updateHistory($symbol, $day)) {                       // da 00:00, kann der GMT- als FXT-Timestamp uebergeben werden
@@ -501,7 +501,7 @@ function processCompressedDukascopyBarFile($file, $symbol, $day, $type) {
     if (!is_int($day))     throw new IllegalTypeException('Illegal type of parameter $day: '.gettype($day));
 
     global $verbose;
-    if ($verbose > 0) echoPre('[Info]    '.gmdate('D, d-M-Y', $day).'  Dukascopy compressed bar file: '.Rost::relativePath($file));
+    if ($verbose > 0) echoPre('[Info]    '.gmdate('D, d-M-Y', $day).'  Dukascopy compressed bar file: '.RT::relativePath($file));
 
     return processCompressedDukascopyBarData(file_get_contents($file), $symbol, $day, $type);
 }
@@ -529,7 +529,7 @@ function processRawDukascopyBarFile($file, $symbol, $day, $type) {
     if (!is_int($day))     throw new IllegalTypeException('Illegal type of parameter $day: '.gettype($day));
 
     global $verbose;
-    if ($verbose > 0) echoPre('[Info]    '.gmdate('D, d-M-Y', $day).'  Dukascopy uncompressed bar file: '.Rost::relativePath($file));
+    if ($verbose > 0) echoPre('[Info]    '.gmdate('D, d-M-Y', $day).'  Dukascopy uncompressed bar file: '.RT::relativePath($file));
 
     return processRawDukascopyBarData(file_get_contents($file), $symbol, $day, $type);
 }

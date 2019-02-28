@@ -51,8 +51,9 @@ function createHistory(RosaSymbol $symbol) {
 
 
     // MT4-HistorySet erzeugen
-    $directory = Application::getConfig()['app.dir.data'].'/history/mt4/XTrade-Testhistory';
-    $hstSet = HistorySet::create($symbol, $format=400, $directory);
+    $config    = Application::getConfig();
+    $directory = $config['app.dir.data'].'/history/mt4/'.$config['rt.metatrader.server-name'];
+    $hstSet    = HistorySet::create($symbol, $format=400, $directory);
 
 
     // Gesamte Zeitspanne tageweise durchlaufen
@@ -108,7 +109,8 @@ function getVar($id, $symbol=null, $time=null) {
     if (isset($time) && !is_int($time))        throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
 
     $self = __FUNCTION__;
-    static $dataDir; !$dataDir && $dataDir = Application::getConfig()['app.dir.data'];
+    static $dataDir;
+    $dataDir = $dataDir ?: Application::getConfig()['app.dir.data'];
 
     if ($id == 'rtDirDate') {                   // $yyyy/$mm/$dd                                                // lokales Pfad-Datum
         if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);

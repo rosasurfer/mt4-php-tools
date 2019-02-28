@@ -21,7 +21,7 @@ class DukascopyHistoryStartCommand extends Command {
 Show or update Dukascopy history start times.
 
 Usage:
-  rt.dukascopy.status [-r | -u] [-h] [SYMBOL ...]
+  rt-dukascopy-status  [-r | -u] [-h] [SYMBOL ...]
 
 Arguments:
   SYMBOL        The Dukascopy symbols to process (default: all tracked symbols).
@@ -48,7 +48,7 @@ DOCOPT;
     /**
      * {@inheritdoc}
      *
-     * @return int - execution status code: 0 (zero) for "success"
+     * @return int - execution status: 0 for "success"
      */
     protected function execute() {
         $symbols = $this->resolveSymbols();
@@ -97,7 +97,6 @@ DOCOPT;
      * @return DukascopySymbol[]
      */
     protected function resolveSymbols() {
-        /** @var array $args */
         $args = $this->input->getArguments('SYMBOL');
         $symbols = [];
 

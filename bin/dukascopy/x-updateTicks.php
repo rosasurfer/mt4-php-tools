@@ -46,7 +46,7 @@ use rosasurfer\net\http\HttpResponse;
 use rosasurfer\process\Process;
 
 use rosasurfer\rt\lib\LZMA;
-use rosasurfer\rt\lib\Rost;
+use rosasurfer\rt\lib\RT;
 use rosasurfer\rt\lib\dukascopy\Dukascopy;
 use rosasurfer\rt\lib\dukascopy\exception\DukascopyException;
 use rosasurfer\rt\model\DukascopySymbol;
@@ -201,11 +201,11 @@ function checkHistory($symbol, $gmtHour, $fxtHour) {
 
         // History ist ok, wenn entweder die komprimierte RT-Datei existiert...
         if (is_file($file=getVar('rtFile.compressed', $symbol, $fxtHour))) {
-            if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'  Rosatrader compressed tick file: '.Rost::relativePath($file));
+            if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'  Rosatrader compressed tick file: '.RT::relativePath($file));
         }
         // History ist ok, ...oder die unkomprimierte RT-Datei gespeichert wird und existiert
         else if ($saveRawRTData && is_file($file=getVar('rtFile.raw', $symbol, $fxtHour))) {
-            if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'  Rosatrader uncompressed tick file: '.Rost::relativePath($file));
+            if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'  Rosatrader uncompressed tick file: '.RT::relativePath($file));
         }
         // andererseits Tickdaten aktualisieren
         else {
@@ -255,13 +255,12 @@ function updateTicks($symbol, $gmtHour, $fxtHour) {
     $shortDate = gmdate('D, d-M-Y H:i', $fxtHour);
 
     // Tickdaten laden
+    /** @var array $ticks */
     $ticks = loadTicks($symbol, $gmtHour, $fxtHour);
-    if (!is_array($ticks)) return false;
+    if (!$ticks) return false;
 
     // Tickdaten speichern
-    if (!saveTicks($symbol, $gmtHour, $fxtHour, $ticks)) return false;
-
-    return true;
+    return saveTicks($symbol, $gmtHour, $fxtHour, $ticks);
 }
 
 
@@ -272,7 +271,7 @@ function updateTicks($symbol, $gmtHour, $fxtHour) {
  * @param  int    $gmtHour - GMT-Timestamp der zu ladenden Stunde
  * @param  int    $fxtHour - FXT-Timestamp der zu ladenden Stunde
  *
- * @return array[]|bool - Array mit Tickdaten oder FALSE in case of errors
+ * @return array - Array mit Tickdaten oder an empty value in case of errors
  */
 function loadTicks($symbol, $gmtHour, $fxtHour) {
     if (!is_int($gmtHour)) throw new IllegalTypeException('Illegal type of parameter $gmtHour: '.gettype($gmtHour));
@@ -291,7 +290,7 @@ function loadTicks($symbol, $gmtHour, $fxtHour) {
     if (!$ticks) {
         if (is_file($file=getVar('dukaFile.raw', $symbol, $gmtHour))) {
             $ticks = loadRawDukascopyTickFile($file, $symbol, $gmtHour, $fxtHour);
-            if (!$ticks) return false;
+            if (!$ticks) return [];
         }
     }
 
@@ -299,19 +298,17 @@ function loadTicks($symbol, $gmtHour, $fxtHour) {
     if (!$ticks) {
         if (is_file($file=getVar('dukaFile.compressed', $symbol, $gmtHour))) {
             $ticks = loadCompressedDukascopyTickFile($file, $symbol, $gmtHour, $fxtHour);
-            if (!$ticks) return false;
+            if (!$ticks) return [];
         }
     }
 
     // ggf. Dukascopy-Datei herunterladen und Ticks laden
     if (!$ticks) {
         $data = downloadTickdata($symbol, $gmtHour, $fxtHour, false, $saveCompressedDukascopyFiles);
-        if (!$data) return false;
+        if (!$data) return [];
 
         $ticks = loadCompressedDukascopyTickData($data, $symbol, $gmtHour, $fxtHour);
-        if (!$ticks) return false;
     }
-
     return $ticks;
 }
 
@@ -319,10 +316,10 @@ function loadTicks($symbol, $gmtHour, $fxtHour) {
 /**
  * Schreibt die Tickdaten einer Handelsstunde in die lokale RT-Tickdatei.
  *
- * @param  string  $symbol  - Symbol
- * @param  int     $gmtHour - GMT-Timestamp der Handelsstunde
- * @param  int     $fxtHour - FXT-Timestamp der Handelsstunde
- * @param  array[] $ticks   - zu speichernde Ticks
+ * @param  string $symbol  - Symbol
+ * @param  int    $gmtHour - GMT-Timestamp der Handelsstunde
+ * @param  int    $fxtHour - FXT-Timestamp der Handelsstunde
+ * @param  array  $ticks   - zu speichernde Ticks
  *
  * @return bool - Erfolgsstatus
  */
@@ -469,7 +466,7 @@ function loadCompressedDukascopyTickFile($file, $symbol, $gmtHour, $fxtHour) {
     if (!is_int($fxtHour)) throw new IllegalTypeException('Illegal type of parameter $fxtHour: '.gettype($fxtHour));
 
     global $verbose;
-    if ($verbose > 0) echoPre('[Info]    '.gmdate('D, d-M-Y H:i', $fxtHour).'  Dukascopy compressed tick file: '.Rost::relativePath($file));
+    if ($verbose > 0) echoPre('[Info]    '.gmdate('D, d-M-Y H:i', $fxtHour).'  Dukascopy compressed tick file: '.RT::relativePath($file));
 
     return loadCompressedDukascopyTickData(file_get_contents($file), $symbol, $gmtHour, $fxtHour);
 }
@@ -478,7 +475,7 @@ function loadCompressedDukascopyTickFile($file, $symbol, $gmtHour, $fxtHour) {
 /**
  * Laedt die in einem komprimierten String enthaltenen Dukascopy-Tickdaten.
  *
- * @return array[] - Array mit Tickdaten
+ * @return array - Array mit Tickdaten
  */
 function loadCompressedDukascopyTickData($data, $symbol, $gmtHour, $fxtHour) {
     if (!is_int($gmtHour)) throw new IllegalTypeException('Illegal type of parameter $gmtHour: '.gettype($gmtHour));
@@ -494,14 +491,14 @@ function loadCompressedDukascopyTickData($data, $symbol, $gmtHour, $fxtHour) {
 /**
  * Laedt die in einem unkomprimierten Dukascopy-Tickfile enthaltenen Ticks.
  *
- * @return array[] - Array mit Tickdaten
+ * @return array - Array mit Tickdaten
  */
 function loadRawDukascopyTickFile($file, $symbol, $gmtHour, $fxtHour) {
     if (!is_string($file)) throw new IllegalTypeException('Illegal type of parameter $file: '.gettype($file));
     if (!is_int($fxtHour)) throw new IllegalTypeException('Illegal type of parameter $fxtHour: '.gettype($fxtHour));
 
     global $verbose;
-    if ($verbose > 0) echoPre('[Info]    '.gmdate('D, d-M-Y H:i', $fxtHour).'  Dukascopy uncompressed tick file: '.Rost::relativePath($file));
+    if ($verbose > 0) echoPre('[Info]    '.gmdate('D, d-M-Y H:i', $fxtHour).'  Dukascopy uncompressed tick file: '.RT::relativePath($file));
 
     return loadRawDukascopyTickData(file_get_contents($file), $symbol, $gmtHour, $fxtHour);
 }
@@ -510,7 +507,7 @@ function loadRawDukascopyTickFile($file, $symbol, $gmtHour, $fxtHour) {
 /**
  * Laedt die in einem unkomprimierten String enthaltenen Dukascopy-Tickdaten.
  *
- * @return array[] - Array mit Tickdaten
+ * @return array - Array mit Tickdaten
  */
 function loadRawDukascopyTickData($data, $symbol, $gmtHour, $fxtHour) {
     if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.gettype($data));
