@@ -1,7 +1,7 @@
 <?php
 namespace rosasurfer\rt\lib\dukascopy;
 
-use rosasurfer\console\Output;
+use rosasurfer\console\io\Output;
 use rosasurfer\core\Object;
 use rosasurfer\exception\IllegalArgumentException;
 use rosasurfer\exception\IllegalTypeException;

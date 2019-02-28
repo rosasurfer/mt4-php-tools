@@ -1,7 +1,7 @@
 <?php
 namespace rosasurfer\rt\model;
 
-use rosasurfer\console\Output;
+use rosasurfer\console\io\Output;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\UnimplementedFeatureException;
 

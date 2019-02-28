@@ -58,8 +58,8 @@ DOCOPT;
             return $this->errorStatus;
 
         $cmd = null;
-        if ($this->input->getCommand('status'))      $cmd = 'status';
-        if ($this->input->getCommand('synchronize')) $cmd = 'synchronize';
+        if ($this->input->hasCommand('status'))      $cmd = 'status';
+        if ($this->input->hasCommand('synchronize')) $cmd = 'synchronize';
 
         $this->out('[Info]    '.($cmd=='status' ? 'Local history status' : 'Synchronizing history...'));
         $this->out($separator='---------------------------------------------------------------------------------------');

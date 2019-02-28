@@ -1,7 +1,7 @@
 <?php
 namespace rosasurfer\rt\lib\dukascopy;
 
-use rosasurfer\console\Output;
+use rosasurfer\console\io\Output;
 use rosasurfer\exception\RuntimeException;
 use rosasurfer\net\http\CurlHttpClient;
 use rosasurfer\net\http\HttpResponse;
