@@ -317,9 +317,9 @@ class RosaSymbol extends RosatraderModel {
 
         // iterate over the whole time range and check existing files
         if ($startDate) {                                                               // 00:00 FXT of the first day
-            $today   = ($today=fxTime()) - $today%DAY;                                  // 00:00 FXT of the current day
-            $delMsg  = '[Info]    '.$paddedName.'  deleting non-trading day M1 file: ';
-            $yestDay = fxTime() - fxTime()%DAY - DAY;
+            $today     = ($today=fxTime()) - $today%DAY;                                // 00:00 FXT of the current day
+            $delMsg    = '[Info]    '.$paddedName.'  deleting non-trading day M1 file: ';
+            $yesterDay = fxTime() - fxTime()%DAY - DAY;
 
             $missMsg = function($missing) use ($output, $paddedName, $yestDay) {
                 if ($misses = sizeof($missing)) {
@@ -327,7 +327,7 @@ class RosaSymbol extends RosatraderModel {
                     $last      = last($missing);
                     $output->out('[Error]   '.$paddedName.'  '.$misses.' missing history file'.pluralize($misses)
                                              .($misses==1 ? ' for '.gmdate('D, Y-m-d', $first)
-                                                          : ' from '.gmdate('D, Y-m-d', $first).' until '.($last==$yestDay? 'now' : gmdate('D, Y-m-d', $last))));
+                                                          : ' from '.gmdate('D, Y-m-d', $first).' until '.($last==$yesterDay? 'now' : gmdate('D, Y-m-d', $last))));
                 }
             };
 
