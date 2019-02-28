@@ -48,7 +48,7 @@ DOCOPT;
     /**
      * {@inheritdoc}
      *
-     * @return int - execution status code: 0 (zero) for "success"
+     * @return int - execution status: 0 for "success"
      */
     protected function execute() {
         $symbols = $this->resolveSymbols();

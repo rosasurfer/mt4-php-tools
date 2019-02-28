@@ -255,6 +255,7 @@ function updateTicks($symbol, $gmtHour, $fxtHour) {
     $shortDate = gmdate('D, d-M-Y H:i', $fxtHour);
 
     // Tickdaten laden
+    /** @var array $ticks */
     $ticks = loadTicks($symbol, $gmtHour, $fxtHour);
     if (!$ticks) return false;
 
@@ -315,10 +316,10 @@ function loadTicks($symbol, $gmtHour, $fxtHour) {
 /**
  * Schreibt die Tickdaten einer Handelsstunde in die lokale RT-Tickdatei.
  *
- * @param  string  $symbol  - Symbol
- * @param  int     $gmtHour - GMT-Timestamp der Handelsstunde
- * @param  int     $fxtHour - FXT-Timestamp der Handelsstunde
- * @param  array[] $ticks   - zu speichernde Ticks
+ * @param  string $symbol  - Symbol
+ * @param  int    $gmtHour - GMT-Timestamp der Handelsstunde
+ * @param  int    $fxtHour - FXT-Timestamp der Handelsstunde
+ * @param  array  $ticks   - zu speichernde Ticks
  *
  * @return bool - Erfolgsstatus
  */
@@ -490,7 +491,7 @@ function loadCompressedDukascopyTickData($data, $symbol, $gmtHour, $fxtHour) {
 /**
  * Laedt die in einem unkomprimierten Dukascopy-Tickfile enthaltenen Ticks.
  *
- * @return array[] - Array mit Tickdaten
+ * @return array - Array mit Tickdaten
  */
 function loadRawDukascopyTickFile($file, $symbol, $gmtHour, $fxtHour) {
     if (!is_string($file)) throw new IllegalTypeException('Illegal type of parameter $file: '.gettype($file));

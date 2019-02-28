@@ -35,15 +35,6 @@ namespace rosasurfer\rt\bin\generate_pl_series {
 }
 
 
-namespace rosasurfer\rt\bin\history {
-
-    /**
-     * @param  string $message [optional]
-     */
-    function help($message=null) {}
-}
-
-
 namespace rosasurfer\rt\bin\admin\logwatch {
 
     /**
