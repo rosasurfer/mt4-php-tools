@@ -25,22 +25,22 @@ class RosaSymbolDAO extends DAO {
             'table'      => 't_rosasymbol',
             'class'      => RosaSymbol::class,
             'properties' => [
-                ['name'=>'id',                                               'type'=>INT,    'primary'=>true],      // db:int
-                ['name'=>'created',                                          'type'=>STRING,                ],      // db:text[datetime] GMT
-                ['name'=>'modified',                                         'type'=>STRING, 'version'=>true],      // db:text[datetime] GMT
+                ['name'=>'id',                                              'type'=>INT,    'primary'=>true],   // db:int
+                ['name'=>'created',                                         'type'=>STRING,                ],   // db:text[datetime] GMT
+                ['name'=>'modified',                                        'type'=>STRING, 'version'=>true],   // db:text[datetime] GMT
 
-                ['name'=>'type',                                             'type'=>STRING,                ],      // db:text forex|metals|synthetic
-                ['name'=>'name',                                             'type'=>STRING,                ],      // db:text
-                ['name'=>'description',                                      'type'=>STRING,                ],      // db:text
-                ['name'=>'digits',                                           'type'=>INT,                   ],      // db:int
-                ['name'=>'autoUpdate',       'column'=>'autoupdate',         'type'=>BOOL,                  ],      // db:int[bool]
-                ['name'=>'formula',                                          'type'=>STRING,                ],      // db:text
-                ['name'=>'historyStartTick', 'column'=>'historystart_ticks', 'type'=>STRING,                ],      // db:text[datetime] FXT
-                ['name'=>'historyEndTick',   'column'=>'historyend_ticks',   'type'=>STRING,                ],      // db:text[datetime] FXT
-                ['name'=>'historyStartM1',   'column'=>'historystart_m1',    'type'=>STRING,                ],      // db:text[datetime] FXT
-                ['name'=>'historyEndM1',     'column'=>'historyend_m1',      'type'=>STRING,                ],      // db:text[datetime] FXT
-                ['name'=>'historyStartD1',   'column'=>'historystart_d1',    'type'=>STRING,                ],      // db:text[datetime] FXT
-                ['name'=>'historyEndD1',     'column'=>'historyend_d1',      'type'=>STRING,                ],      // db:text[datetime] FXT
+                ['name'=>'type',                                            'type'=>STRING,                ],   // db:text forex|metals|synthetic
+                ['name'=>'name',                                            'type'=>STRING,                ],   // db:text
+                ['name'=>'description',                                     'type'=>STRING,                ],   // db:text
+                ['name'=>'digits',                                          'type'=>INT,                   ],   // db:int
+                ['name'=>'autoUpdate',       'column'=>'autoupdate',        'type'=>BOOL,                  ],   // db:int[bool]
+                ['name'=>'formula',                                         'type'=>STRING,                ],   // db:text
+                ['name'=>'historyStartTick', 'column'=>'historystart_tick', 'type'=>STRING,                ],   // db:text[datetime] FXT
+                ['name'=>'historyEndTick',   'column'=>'historyend_tick',   'type'=>STRING,                ],   // db:text[datetime] FXT
+                ['name'=>'historyStartM1',   'column'=>'historystart_m1',   'type'=>STRING,                ],   // db:text[datetime] FXT
+                ['name'=>'historyEndM1',     'column'=>'historyend_m1',     'type'=>STRING,                ],   // db:text[datetime] FXT
+                ['name'=>'historyStartD1',   'column'=>'historystart_d1',   'type'=>STRING,                ],   // db:text[datetime] FXT
+                ['name'=>'historyEndD1',     'column'=>'historyend_d1',     'type'=>STRING,                ],   // db:text[datetime] FXT
             ],
             'relations' => [
                 ['name'=>'dukascopySymbol', 'assoc'=>'one-to-one', 'type'=>DukascopySymbol::class, 'ref-column'=>'rosasymbol_id'],  // db:int
