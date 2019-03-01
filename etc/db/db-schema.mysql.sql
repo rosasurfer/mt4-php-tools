@@ -1,9 +1,9 @@
 /*
 Created     16.01.2017
-Modified    30.12.2018
+Modified    01.03.2019
 Project     Rosatrader
 Model       Rosatrader
-Company     
+Company
 Author      Peter Walther
 Version     0.2
 Database    MySQL 5
@@ -25,13 +25,14 @@ create table t_rosasymbol (
    created timestamp not null default current_timestamp(),
    modified timestamp null default null,
    type enum('forex','metals','synthetic') not null,
+   group_ int unsigned not null,
    name varchar(11) not null,
    description varchar(63) not null,
    digits tinyint unsigned not null,
    autoupdate bool not null default 1,
    formula text,
-   historystart_ticks datetime,
-   historyend_ticks datetime,
+   historystart_tick datetime,
+   historyend_tick datetime,
    historystart_m1 datetime,
    historyend_m1 datetime,
    historystart_d1 datetime,
@@ -48,7 +49,7 @@ create table t_dukascopysymbol (
    modified timestamp null default null,
    name varchar(11) not null,
    digits tinyint unsigned not null,
-   historystart_ticks datetime,
+   historystart_tick datetime,
    historystart_m1 datetime,
    historystart_h1 datetime,
    historystart_d1 datetime,

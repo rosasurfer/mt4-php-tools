@@ -35,13 +35,13 @@
   <tr>
     <td class="tabdata" >     </td>    <td class="tabdata" > Digits    </td>    <td class="tabdata" > Tinyint    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> decimal digits    </td>  </tr>
   <tr>
-    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryStartTicks    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> start of available history (FXT)    </td>  </tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryStartTick    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> time of first available tick (FXT)    </td>  </tr>
   <tr>
-    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryStartM1    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> start of available history (FXT)    </td>  </tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryStartM1    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> minute of first available M1 history (FXT)    </td>  </tr>
   <tr>
-    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryStartH1    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> start of available history (FXT)    </td>  </tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryStartH1    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> minute of first available H1 history (FXT)    </td>  </tr>
   <tr>
-    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryStartD1    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> start of available history (FXT)    </td>  </tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryStartD1    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> day of first available D1 history (FXT)    </td>  </tr>
   <tr>
     <td class="tabdata" > FK    </td>    <td class="tabdata" > ID/RosaSymbol    </td>    <td class="tabdata" > Integer    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="3"> YES   </td>  </tr>
 </table>
@@ -205,6 +205,8 @@
   <tr>
     <td class="tabdata" >     </td>    <td class="tabdata" > Type    </td>    <td class="tabdata" > Enum    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> forex | metals | synthetic    </td>  </tr>
   <tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > Group    </td>    <td class="tabdata" > Integer    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> determines default view and sort order    </td>  </tr>
+  <tr>
     <td class="tabdata" >     </td>    <td class="tabdata" > Name    </td>    <td class="tabdata" > Varchar (11)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata"  colspan="2"> Rosatrader instrument identifier (the actual symbol)    </td>  </tr>
   <tr>
     <td class="tabdata" >     </td>    <td class="tabdata" > Description    </td>    <td class="tabdata" > Varchar (63)    </td>    <td class="tabdata" > YES    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> symbol description    </td>  </tr>
@@ -215,17 +217,17 @@
   <tr>
     <td class="tabdata" >     </td>    <td class="tabdata" > Formula    </td>    <td class="tabdata" > Text    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> LaTeX formula to calculate quotes (only if synthetic instrument)    </td>  </tr>
   <tr>
-    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryStartTicks    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> first day with stored history (FXT)    </td>  </tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryStartTick    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> time of first locally stored tick (FXT)    </td>  </tr>
   <tr>
-    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryEndTicks    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> last day with stored history (FXT)    </td>  </tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryEndTick    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> time of last locally stored tick (FXT)    </td>  </tr>
   <tr>
-    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryStartM1    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> first day with stored history (FXT)    </td>  </tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryStartM1    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> minute of first locally stored M1 bar (FXT)    </td>  </tr>
   <tr>
-    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryEndM1    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> last day with stored history (FXT)    </td>  </tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryEndM1    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> minute of last locally stored M1 bar (FXT)    </td>  </tr>
   <tr>
-    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryStartD1    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> first day with stored history (FXT)    </td>  </tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryStartD1    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> day of first locally stored D1 bar (FXT)    </td>  </tr>
   <tr>
-    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryEndD1    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> last day with stored history (FXT)   </td>  </tr>
+    <td class="tabdata" >     </td>    <td class="tabdata" > HistoryEndD1    </td>    <td class="tabdata" > Datetime    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata" > NO    </td>    <td class="tabdata"  colspan="2"> day of last locally stored D1 bar (FXT)   </td>  </tr>
 </table>
 
 <div class="caption2">Relationships</div>
