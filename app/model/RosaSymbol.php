@@ -23,10 +23,11 @@ use const rosasurfer\rt\PERIOD_M1;
  * Represents a Rosatrader symbol.
  *
  * @method string          getType()            Return the instrument type (forex|metals|synthetic).
+ * @method int             getGroup()           Return the symbol's group id.
  * @method string          getName()            Return the symbol name, i.e. the actual symbol.
  * @method string          getDescription()     Return the symbol description.
  * @method int             getDigits()          Return the number of fractional digits of symbol prices.
- * @method bool            isAutoUpdate()       Whether automatic history updates are enabled.
+ * @method int             getUpdateOrder()     Whether the symbols update order id.
  * @method string          getFormula()         Return a synthetic instrument's calculation formula (LaTeX).
  * @method DukascopySymbol getDukascopySymbol() Return the {@link DukascopySymbol} mapped to this Rosatrader symbol.
  */
@@ -46,6 +47,9 @@ class RosaSymbol extends RosatraderModel {
     /** @var string - instrument type (forex|metals|synthetic) */
     protected $type;
 
+    /** @var int - grouping id for view separation */
+    protected $group;
+
     /** @var string - symbol name */
     protected $name;
 
@@ -55,8 +59,8 @@ class RosaSymbol extends RosatraderModel {
     /** @var int - number of fractional digits of symbol prices */
     protected $digits;
 
-    /** @var bool - whether automatic history updates are enabled */
-    protected $autoUpdate;
+    /** @var int - on multi-symbol updates required symbols are updated before dependent ones */
+    protected $updateOrder = 9999;
 
     /** @var string - LaTeX formula for calculation of synthetic instruments */
     protected $formula;

@@ -1,9 +1,9 @@
 /*
 Created     16.01.2017
-Modified    01.03.2019
+Modified    02.03.2019
 Project     Rosatrader
 Model       Rosatrader
-Company
+Company     
 Author      Peter Walther
 Version     0.2
 Database    MySQL 5
@@ -25,11 +25,11 @@ create table t_rosasymbol (
    created timestamp not null default current_timestamp(),
    modified timestamp null default null,
    type enum('forex','metals','synthetic') not null,
-   group_ int unsigned not null,
+   groupid int unsigned not null,
    name varchar(11) not null,
    description varchar(63) not null,
    digits tinyint unsigned not null,
-   autoupdate bool not null default 1,
+   updateorder int default 9999,
    formula text,
    historystart_tick datetime,
    historyend_tick datetime,
@@ -154,6 +154,14 @@ create table t_order (
 -- trigger definitions
 delimiter //
 
+create trigger tr_rosasymbol_before_insert before insert on t_rosasymbol for each row
+begin
+   -- reset update order to "last" if empty or invalid
+   if (new.updateorder is null or new.updateorder < 1) then
+      set new.updateorder = 9999;
+   end if;
+end;//
+
 create trigger tr_rosasymbol_before_update before update on t_rosasymbol for each row
 begin
    -- update version timestamp if not yet done by the application layer
@@ -189,7 +197,7 @@ end;//
 delimiter ;
 
 
--- seed the database (skipped as seeding is DB specific now)
+-- seed the database (skipped as seeding now is DB specific)
 -- source db-seed.sql;
 
 commit;

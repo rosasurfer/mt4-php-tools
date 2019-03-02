@@ -89,8 +89,8 @@ foreach ($args as $i => $arg) {
     if (!$symbol->getDukascopySymbol()) exit(1|stderr('error: no Dukascopy mapping found for symbol "'.$args[$i].'"'));
     $symbols[$symbol->getName()] = $symbol;                                             // using the name as index removes duplicates
 }
-$symbols = $symbols ?: RosaSymbol::dao()->findAllDukascopyMappedByAutoUpdate(true);     // if none is specified update all marked ones
-!$symbols && echoPre('No Dukascopy mapped instruments for auto-update found.');
+$symbols = $symbols ?: RosaSymbol::dao()->findAllDukascopyMappedForUpdate();            // if none is specified update all
+!$symbols && echoPre('No Dukascopy mapped instruments found.');
 
 
 // update instruments

@@ -1,6 +1,6 @@
 /*
 Created     16.01.2017
-Modified    01.03.2019
+Modified    02.03.2019
 Project     Rosatrader
 Model       Main model
 Author      Peter Walther
@@ -69,11 +69,11 @@ create table t_rosasymbol (                                                -- Ro
    created            text[datetime] not null default (datetime('now')),   -- GMT
    modified           text[datetime],                                      -- GMT
    type               text[enum]     not null collate nocase,              -- forex|metals|synthetic
-   "group"            integer        not null,                             -- determines default view and sort order
+   groupid            integer        not null,                             -- determines default view and sort order
    name               text(11)       not null collate nocase,              -- Rosatrader instrument identifier (the actual symbol)
    description        text(63)       not null collate nocase,              -- symbol description
    digits             integer        not null,                             -- decimal digits
-   autoupdate         integer[bool]  not null default 1,                   -- whether automatic history updates are enabled
+   updateorder        integer        not null default 9999,                -- required symbols should be updated before dependent ones
    formula            text,                                                -- LaTeX formula to calculate quotes (only if synthetic instrument)
    historystart_tick  text[datetime],                                      -- time of first locally stored tick (FXT)
    historyend_tick    text[datetime],                                      -- time of last locally stored tick (FXT)
