@@ -306,32 +306,6 @@ namespace rosasurfer\rt\bin\dukascopy\update_tickdata {
 }
 
 
-namespace rosasurfer\rt\bin\metatrader\create_history {
-
-    use rosasurfer\rt\model\RosaSymbol;
-
-    /**
-     * @param  RosaSymbol $symbol
-     *
-     * @return bool
-     */
-    function createHistory(RosaSymbol $symbol) {
-        return false;
-    }
-
-    /**
-     * @param  string $id
-     * @param  string $symbol [optional]
-     * @param  int    $time   [optional]
-     *
-     * @return string
-     */
-    function getVar($id, $symbol=null, $time=null) {
-        return '';
-    }
-}
-
-
 namespace rosasurfer\rt\bin\metatrader\create_tickfile {
 
     /**
