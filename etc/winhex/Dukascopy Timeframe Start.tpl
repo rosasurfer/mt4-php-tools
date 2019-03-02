@@ -2,6 +2,7 @@
 // Dukascopy structure DUKASCOPY_TIMEFRAME_START (timeframe format in files "HistoryStart.bi5")
 //
 //
+// big-endian
 // struct DUKASCOPY_TIMEFRAME_START {   // -- offset --- size --- description -----------------------------------------------
 //     int64 timeframe;                 //         0        8     period length in minutes as a Java timestamp (msec)
 //     int64 time;                      //         8        8     start time as a Java timestamp (msec), PHP_INT_MAX = n/a

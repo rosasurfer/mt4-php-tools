@@ -2,6 +2,7 @@
 // Dukascopy structure DUKASCOPY_TICK (file format "{Hour}h_ticks.bin")
 //
 //
+// big-endian
 // struct DUKASCOPY_TICK {              // -- offset --- size --- description -----------------------------------------------
 //     uint  timeDelta;                 //         0        4     time difference in msec since start of the hour
 //     uint  ask;                       //         4        4     in points
