@@ -542,7 +542,7 @@ class Rost extends StaticClass {
         if (isset($symbol) && !is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.gettype($symbol));
         if (isset($time) && !is_int($time))        throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
 
-        static $dataDir; !$dataDir && $dataDir = self::di('config')['app.dir.data'];
+        static $storageDir; !$storageDir && $storageDir = self::di('config')['app.dir.storage'];
 
         if ($id == 'rtDirDate') {                       // $yyyy/$mm/$dd                                                // lokales Pfad-Datum
             if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
@@ -552,7 +552,7 @@ class Rost extends StaticClass {
             if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
             $type      = RosaSymbol::dao()->getByName($symbol)->getType();
             $rtDirDate = self::{__FUNCTION__}('rtDirDate', null, $time);
-            $result    = $dataDir.'/history/rosatrader/'.$type.'/'.$symbol.'/'.$rtDirDate;
+            $result    = $storageDir.'/history/rosatrader/'.$type.'/'.$symbol.'/'.$rtDirDate;
         }
         else if ($id == 'rtFile.M1.raw') {              // $rtDir/M1.bin                                                // RT-M1-Datei ungepackt
             $rtDir  = self::{__FUNCTION__}('rtDir' , $symbol, $time);

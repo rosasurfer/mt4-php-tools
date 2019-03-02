@@ -10,6 +10,7 @@ use rosasurfer\process\Process;
 
 use rosasurfer\rt\lib\Rost;
 use rosasurfer\rt\lib\metatrader\HistorySet;
+use rosasurfer\rt\lib\metatrader\MetaTrader;
 use rosasurfer\rt\lib\metatrader\MT4;
 use rosasurfer\rt\model\RosaSymbol;
 
@@ -75,7 +76,7 @@ function updateHistory(RosaSymbol $symbol) {
     global $verbose;
     $symbolName   = $symbol->getName();
     $config       = Application::getConfig();
-    $directory    = $config['app.dir.data'].'/history/mt4/'.$config['rt.metatrader.server-name'];
+    $directory    = $config['app.dir.storage'].'/history/mt4/'.$config['rt.metatrader.servername'];
     $lastSyncTime = null;
     echoPre('[Info]    '.$symbolName);
 
@@ -84,7 +85,9 @@ function updateHistory(RosaSymbol $symbol) {
         if ($verbose) echoPre('[Info]    lastSyncTime: '.(($lastSyncTime=$history->getLastSyncTime()) ? gmdate('D, d-M-Y H:i:s', $lastSyncTime) : 0));
     }
     else {
-        $history = HistorySet::create($symbol, $format=400, $directory);
+        /** @var MetaTrader $mt */
+        $mt = Application::getDi()[MetaTrader::class];
+        $history = $mt->createHistorySet($symbol);
     }
 
     // History beginnend mit dem letzten synchronisierten Tag aktualisieren

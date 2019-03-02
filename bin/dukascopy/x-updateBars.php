@@ -703,7 +703,7 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
         if ($type!='bid' && $type!='ask')      throw new InvalidArgumentException('Invalid parameter $type: "'.$type.'"');
     }
 
-    static $dataDir; !$dataDir && $dataDir = Application::getConfig()['app.dir.data'];
+    static $storageDir; $storageDir = $storageDir ?: Application::getConfig()['app.dir.storage'];
     $self = __FUNCTION__;
 
     if ($id == 'rtDirDate') {                   // $yyyy/$mmL/$dd                                       // lokales Pfad-Datum
@@ -713,7 +713,7 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
     else if ($id == 'rtDir') {                  // $dataDir/history/rosatrader/$type/$symbol/$dateL     // lokales Verzeichnis
         $type   = RosaSymbol::dao()->getByName($symbol)->getType();
         $dateL  = $self('rtDirDate', null, $time, null);
-        $result = $dataDir.'/history/rosatrader/'.$type.'/'.$symbol.'/'.$dateL;
+        $result = $storageDir.'/history/rosatrader/'.$type.'/'.$symbol.'/'.$dateL;
     }
     else if ($id == 'rtFile.raw') {             // $rtDir/M1.bin                                        // lokale Datei ungepackt
         $rtDir  = $self('rtDir', $symbol, $time, null);

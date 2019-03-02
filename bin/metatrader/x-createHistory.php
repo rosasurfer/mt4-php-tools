@@ -14,7 +14,7 @@ use rosasurfer\process\Process;
 use rosasurfer\util\PHP;
 
 use rosasurfer\rt\lib\Rost;
-use rosasurfer\rt\lib\metatrader\HistorySet;
+use rosasurfer\rt\lib\metatrader\MetaTrader;
 use rosasurfer\rt\lib\metatrader\MT4;
 use rosasurfer\rt\model\RosaSymbol;
 
@@ -49,12 +49,9 @@ function createHistory(RosaSymbol $symbol) {
     $startDay  -= $startDay%DAY;                                                    // 00:00 FXT Starttag
     $today      = ($today=fxTime()) - $today%DAY;                                   // 00:00 FXT aktueller Tag
 
-
-    // MT4-HistorySet erzeugen
-    $config    = Application::getConfig();
-    $directory = $config['app.dir.data'].'/history/mt4/'.$config['rt.metatrader.server-name'];
-    $hstSet    = HistorySet::create($symbol, $format=400, $directory);
-
+    /** @var MetaTrader $mt */
+    $mt = Application::getDi()[MetaTrader::class];
+    $hstSet = $mt->createHistorySet($symbol);
 
     // Gesamte Zeitspanne tageweise durchlaufen
     for ($day=$startDay, $lastMonth=-1; $day < $today; $day+=1*DAY) {
@@ -109,8 +106,8 @@ function getVar($id, $symbol=null, $time=null) {
     if (isset($time) && !is_int($time))        throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
 
     $self = __FUNCTION__;
-    static $dataDir;
-    $dataDir = $dataDir ?: Application::getConfig()['app.dir.data'];
+    static $storageDir;
+    $storageDir = $storageDir ?: Application::getConfig()['app.dir.storage'];
 
     if ($id == 'rtDirDate') {                   // $yyyy/$mm/$dd                                                // lokales Pfad-Datum
         if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
@@ -119,7 +116,7 @@ function getVar($id, $symbol=null, $time=null) {
     else if ($id == 'rtDir') {                  // $dataDir/history/rosatrader/$type/$symbol/$rtDirDate         // lokales Verzeichnis
         $type      = RosaSymbol::dao()->getByName($symbol)->getType();
         $rtDirDate = $self('rtDirDate', null, $time);
-        $result    = $dataDir.'/history/rosatrader/'.$type.'/'.$symbol.'/'.$rtDirDate;
+        $result    = $storageDir.'/history/rosatrader/'.$type.'/'.$symbol.'/'.$rtDirDate;
     }
     else if ($id == 'rtFile.raw') {             // $rtDir/M1.bin                                                // lokale Datei ungepackt
         $rtDir  = $self('rtDir' , $symbol, $time);

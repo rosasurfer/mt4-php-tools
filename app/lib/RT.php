@@ -114,10 +114,10 @@ class RT extends StaticClass {
         }
 
         // delete existing files
-        $dataDir  = self::di('config')['app.dir.data'];
-        $dataDir .= '/history/rosatrader/'.$symbol->getType().'/'.$symbol->getName();
-        $dir      = $dataDir.'/'.gmdate('Y/m/d', $day);
-        $msg      = '[Info]    '.$symbol->getName().'  deleting existing M1 file: ';
+        $storageDir  = self::di('config')['app.dir.storage'];
+        $storageDir .= '/history/rosatrader/'.$symbol->getType().'/'.$symbol->getName();
+        $dir         = $storageDir.'/'.gmdate('Y/m/d', $day);
+        $msg         = '[Info]    '.$symbol->getName().'  deleting existing M1 file: ';
         is_file($file=$dir.'/M1.bin'    ) && true(echoPre($msg.static::relativePath($file))) && unlink($file);
         is_file($file=$dir.'/M1.bin.rar') && true(echoPre($msg.static::relativePath($file))) && unlink($file);
 
@@ -142,19 +142,19 @@ class RT extends StaticClass {
         if (!is_string($path)) throw new IllegalTypeException('Illegal type of parameter $path: '.gettype($path));
         $_path = str_replace('\\', '/', $path);
 
-        static $root, $realRoot, $data, $realData;
+        static $root, $realRoot, $storage, $realStorage;
         if (!$root) {
-            $config   = self::di('config');
-            $root     = str_replace('\\', '/', $config['app.dir.root'].'/');
-            $realRoot = str_replace('\\', '/', realpath($root).'/');
-            $data     = str_replace('\\', '/', $config['app.dir.data'].'/');
-            $realData = str_replace('\\', '/', realpath($data).'/');
+            $config      = self::di('config');
+            $root        = str_replace('\\', '/', $config['app.dir.root'].'/');
+            $realRoot    = str_replace('\\', '/', realpath($root).'/');
+            $storage     = str_replace('\\', '/', $config['app.dir.storage'].'/');
+            $realStorage = str_replace('\\', '/', realpath($storage).'/');
         }
 
-        if (strStartsWith($_path, $root))     return               strRightFrom($_path, $root);
-        if (strStartsWith($_path, $realRoot)) return               strRightFrom($_path, $realRoot);
-        if (strStartsWith($_path, $data))     return '{data-dir}/'.strRightFrom($_path, $data);
-        if (strStartsWith($_path, $realData)) return '{data-dir}/'.strRightFrom($_path, $realData);
+        if (strStartsWith($_path, $root))        return               strRightFrom($_path, $root);
+        if (strStartsWith($_path, $realRoot))    return               strRightFrom($_path, $realRoot);
+        if (strStartsWith($_path, $storage))     return '{data-dir}/'.strRightFrom($_path, $storage);
+        if (strStartsWith($_path, $realStorage)) return '{data-dir}/'.strRightFrom($_path, $realStorage);
 
         return $path;
     }

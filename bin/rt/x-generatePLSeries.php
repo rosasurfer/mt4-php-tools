@@ -289,7 +289,7 @@ function getVar($id, $symbol=null, $time=null) {
     if (isset($time) && !is_int($time))        throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
 
     $self = __FUNCTION__;
-    static $dataDir; !$dataDir && $dataDir = Application::getConfig()['app.dir.data'];
+    static $storageDir; !$storageDir && $storageDir = Application::getConfig()['app.dir.storage'];
 
     if ($id == 'rtDirDate') {                   // $yyyy/$mm/$dd                                                // local path date
         if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
@@ -298,12 +298,12 @@ function getVar($id, $symbol=null, $time=null) {
     else if ($id == 'rtDir') {                  // $dataDir/history/rosatrader/$type/$symbol/$rtDirDate         // local directory
         $type      = RosaSymbol::dao()->getByName($symbol)->getType();
         $rtDirDate = $self('rtDirDate', null, $time);
-        $result    = $dataDir.'/history/rosatrader/'.$type.'/'.$symbol.'/'.$rtDirDate;
+        $result    = $storageDir.'/history/rosatrader/'.$type.'/'.$symbol.'/'.$rtDirDate;
     }
     else if ($id == 'rtDirPL') {                // $dataDir/stats/pl/$symbol/$rtDirDate                         // local directory
         if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
         $rtDirDate = $self('rtDirDate', null, $time);
-        $result    = $dataDir.'/stats/pl/'.$symbol.'/'.$rtDirDate;
+        $result    = $storageDir.'/stats/pl/'.$symbol.'/'.$rtDirDate;
     }
     else if ($id == 'rtFile.raw') {             // $rtDir/M1.bin                                                // local file uncompressed
         $rtDir  = $self('rtDir' , $symbol, $time);

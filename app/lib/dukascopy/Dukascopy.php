@@ -43,8 +43,8 @@ use const rosasurfer\rt\PERIOD_D1;
  *
  * // big-endian
  * struct DUKASCOPY_TIMEFRAME_START {   // -- offset --- size --- description -----------------------------------------------
- *     int64 timeframe;                 //         0        8     period length in minutes as a Java timestamp (msec); 0|-1 = PERIOD_TICK
- *     int64 time;                      //         8        8     start time as a Java timestamp (msec); PHP_INT_MAX = n/a
+ *     int64 timeframe;                 //         0        8     period length in minutes as a Java timestamp (msec): 0|-1 = PERIOD_TICK
+ *     int64 time;                      //         8        8     start time as a Java timestamp (msec): INT_MAX = n/a
  * };                                   // ----------------------------------------------------------------------------------
  *                                      //               = 16
  *

@@ -552,7 +552,8 @@ function getVar($id, $symbol=null, $time=null) {
     if (isset($symbol) && !is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.gettype($symbol));
     if (isset($time) && !is_int($time))        throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
 
-    static $dataDir; !$dataDir && $dataDir = Application::getConfig()['app.dir.data'];
+    static $storageDir;
+    $storageDir = $storageDir ?: Application::getConfig()['app.dir.storage'];
     $self = __FUNCTION__;
 
     if ($id == 'rtDirDate') {                   // $yyyy/$mmL/$dd                                               // lokales Pfad-Datum
@@ -562,7 +563,7 @@ function getVar($id, $symbol=null, $time=null) {
     else if ($id == 'rtDir') {                  // $dataDir/history/rosatrader/$type/$symbol/$rtDirDate         // lokales Verzeichnis
         $type      = RosaSymbol::dao()->getByName($symbol)->getType();
         $rtDirDate = $self('rtDirDate', null, $time);
-        $result    = $dataDir.'/history/rosatrader/'.$type.'/'.$symbol.'/'.$rtDirDate;
+        $result    = $storageDir.'/history/rosatrader/'.$type.'/'.$symbol.'/'.$rtDirDate;
     }
     else if ($id == 'rtFile.raw') {             // $rtDir/${hour}h_ticks.bin                                    // lokale Datei ungepackt
         $rtDir  = $self('rtDir', $symbol, $time);

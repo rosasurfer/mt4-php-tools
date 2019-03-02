@@ -178,9 +178,9 @@ class RosaSymbol extends RosatraderModel {
 
 
     /**
-     * Get the M1 history for the specified day.
+     * Get the M1 history for a given day.
      *
-     * @param  int $fxDay - FXT timestamp
+     * @param  int $time - FXT timestamp
      *
      * @return array[] - If history for the specified day is not available an empty array is returned. Otherwise a timeseries
      *                   array is returned with each element describing a M1 bar as follows:
@@ -195,13 +195,17 @@ class RosaSymbol extends RosatraderModel {
      * ]
      * </pre>
      */
-    public function getHistoryM1($fxDay) {
-        $dataDir  = $this->di('config')['app.dir.data'];
-        $dataDir .= '/history/rosatrader/'.$this->type.'/'.$this->name;
-        $dir      = $dataDir.'/'.gmdate('Y/m/d', $fxDay);
+    public function getHistoryM1($time) {
+        $storageDir  = $this->di('config')['app.dir.storage'];
+        $storageDir .= '/history/rosatrader/'.$this->type.'/'.$this->name;
+        $dir         = $storageDir.'/'.gmdate('Y/m/d', $time);
 
         if (is_file($file=$dir.'/M1.bin') || is_file($file.='.rar'))
             return RT::readBarFile($file, $this);
+
+        /** @var Output $output */
+        $output = $this->di(Output::class);
+        $output->error('[Error]   '.str_pad($this->name, 6).'  Rosatrader history for '.gmdate('D, d-M-Y', $time).' not found');
         return [];
     }
 
@@ -293,15 +297,15 @@ class RosaSymbol extends RosatraderModel {
      */
     public function synchronizeHistory() {
         /** @var Output $output */
-        $output     = $this->di(Output::class);
-        $dataDir    = $this->di('config')['app.dir.data'];
-        $dataDir   .= '/history/rosatrader/'.$this->type.'/'.$this->name;
-        $paddedName = str_pad($this->name, 6);
-        $startDate  = $endDate = null;
-        $missing    = [];
+        $output      = $this->di(Output::class);
+        $storageDir  = $this->di('config')['app.dir.storage'];
+        $storageDir .= '/history/rosatrader/'.$this->type.'/'.$this->name;
+        $paddedName  = str_pad($this->name, 6);
+        $startDate   = $endDate = null;
+        $missing     = [];
 
         // find the oldest existing history file
-        $years = glob($dataDir.'/[12][0-9][0-9][0-9]', GLOB_ONLYDIR|GLOB_NOESCAPE|GLOB_ERR) ?: [];
+        $years = glob($storageDir.'/[12][0-9][0-9][0-9]', GLOB_ONLYDIR|GLOB_NOESCAPE|GLOB_ERR) ?: [];
         foreach ($years as $year) {
             $months = glob($year.'/[0-9][0-9]', GLOB_ONLYDIR|GLOB_NOESCAPE|GLOB_ERR) ?: [];
             foreach ($months as $month) {
@@ -332,7 +336,7 @@ class RosaSymbol extends RosatraderModel {
             };
 
             for ($day=$startDate; $day < $today; $day+=1*DAY) {
-                $dir = $dataDir.'/'.gmdate('Y/m/d', $day);
+                $dir = $storageDir.'/'.gmdate('Y/m/d', $day);
 
                 if ($this->isTradingDay($day)) {
                     if (is_file($file=$dir.'/M1.bin') || is_file($file.='.rar')) {

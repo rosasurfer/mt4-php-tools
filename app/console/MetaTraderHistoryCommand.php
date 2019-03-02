@@ -2,6 +2,10 @@
 namespace rosasurfer\rt\console;
 
 use rosasurfer\console\Command;
+use rosasurfer\exception\IllegalStateException;
+use rosasurfer\process\Process;
+
+use rosasurfer\rt\lib\metatrader\MetaTrader;
 use rosasurfer\rt\model\RosaSymbol;
 
 
@@ -22,7 +26,7 @@ Usage:
   rt-metatrader-history  create SYMBOL [options]
 
 Commands:
-  create      Create a new MetaTrader history set (all standard timeframes).
+  create      Create new MetaTrader history files for the given symbol (all standard timeframes).
 
 Arguments:
   SYMBOL      The symbol to process history for.
@@ -51,16 +55,36 @@ DOCOPT;
      */
     protected function execute() {
         $symbol = $this->resolveSymbol();
-        if (!$symbol)
-            return $this->errorStatus;
+        if (!$symbol) return $this->errorStatus;
 
-        $starttime = (int) $symbol->getHistoryStartM1('U');
-        $endtime   = (int) $symbol->getHistoryEndM1('U');
+        $start = (int) $symbol->getHistoryStartM1('U');
+        $end   = (int) $symbol->getHistoryEndM1('U');           // starttime of the last bar
+        if (!$start) {
+            $this->output->out('[Info]    '.str_pad($symbol->getName(), 6).'  no Rosatrader history available');
+            return $this->errorStatus = 1;
+        }
+        if (!$end) throw new IllegalStateException('Rosatrader history start/end mis-match for '.$symbol->getName().':  start='.$start.'  end='.$end);
 
-        $this->out('from: '.$symbol->getHistoryStartM1());
-        $this->out('to:   '.$symbol->getHistoryEndM1());
+        /** @var MetaTrader $mt */
+        $mt = $this->di(MetaTrader::class);
+        $historySet = $mt->createHistorySet($symbol);
 
-        // create new HistorySet
+        // iterate over existing history
+        for ($day=$start, $lastMonth=-1; $day <= $end; $day+=1*DAY) {
+            $month = (int) gmdate('m', $day);
+            if ($month != $lastMonth) {
+                $this->output->out('[Info]    '.gmdate('M-Y', $day));
+                $lastMonth = $month;
+            }
+            if ($symbol->isTradingDay($day)) {
+                if (!$bars = $symbol->getHistoryM1($day))
+                    return $this->errorStatus = 1;
+                $historySet->appendBars($bars);
+                Process::dispatchSignals();                     // check for Ctrl-C
+            }
+        }
+        $historySet->close();
+        $this->output->out('[Ok]      '.$symbol->getName());
 
         return $this->errorStatus = 0;
     }
