@@ -56,11 +56,11 @@ Data is [LZMA](https://en.wikipedia.org/wiki/Lempel%E2%80%93Ziv%E2%80%93Markov_c
 
 ### Timezones
 
-Internally Rosatrader uses everywhere a virtual timezone called `FXT`. By default all history and times are stored and
-displayed in that timezone. `FXT` (Forex standard time) essentially is the timezone `America/New_York` shifted eastward by
-7 hours. In this timezone trading days start and end always at Midnight, no matter of the current DST (daylight saving time)
-status. It's the only timezone suitable for trading without DST irregularities and without the infamous Sunday candles. If a
-time is displayed without timezone identifier it is assumed to be in `FXT`.
+Internally Rosatrader uses everywhere a virtual timezone called `FXT` (Forex standard time). By default all history and times
+are stored and displayed in that timezone. `FXT` essentially is the timezone `America/New_York` shifted eastward by 7 hours.
+In this timezone trading days start and end always at Midnight, no matter of the current DST (daylight saving time) status.
+It is used by major brokerage companies and is the only timezone suitable for trading without DST irregularities and the
+infamous Sunday candles. If a time is displayed without timezone identifier it is assumed to be in `FXT`.
 ```
         +------------++------------+------------+------------+------------+------------++------------+------------++------------+
 GMT:    |   Sunday   ||   Monday   |  Tuesday   | Wednesday  |  Thursday  |   Friday   ||  Saturday  |   Sunday   ||   Monday   |
