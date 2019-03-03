@@ -2,34 +2,6 @@
 <?php
 /**
  * Update the M1 history of the specified Rosatrader symbols with data fetched from Dukascopy.
- *
- * Dukascopy provides separate bid and ask price series in GMT covering weekends and holidays. Data of the current day (GMT)
- * is available the earliest at the next day (GMT).
- *
- * Bid and ask prices are merged to median, converted to FXT and stored in Rosatrader format (ROST_PRICE_BAR). Weekend data
- * is not stored. Currently holiday data is stored as some holidays are instrument specific and irregular.
- *
- *
- * Website:       https://www.dukascopy.com/swiss/english/marketwatch/historical/
- *
- * History start: http://datafeed.dukascopy.com/datafeed/metadata/HistoryStart.bi5
- *                http://datafeed.dukascopy.com/datafeed/AUDUSD/metadata/HistoryStart.bi5
- *
- * Quotes:        One file per calendar day (January = 00) since history start. During trade breaks the last close price
- *                (OHLC) and a volume of zero (V=0) are indicated:
- *
- *                http://datafeed.dukascopy.com/datafeed/GBPUSD/2013/00/10/BID_candles_min_1.bi5
- *                http://datafeed.dukascopy.com/datafeed/GBPUSD/2013/11/31/ASK_candles_min_1.bi5
- *
- *          +------------++------------+------------+------------+------------+------------++------------+------------++------------+
- * GMT:     |   Sunday   ||   Monday   |  Tuesday   | Wednesday  |  Thursday  |   Friday   ||  Saturday  |   Sunday   ||   Monday   |
- *          +------------++------------+------------+------------+------------+------------++------------+------------++------------+
- *      +------------++------------+------------+------------+------------+------------++------------+------------++------------+
- * FXT: |   Sunday   ||   Monday   |  Tuesday   | Wednesday  |  Thursday  |   Friday   ||  Saturday  |   Sunday   ||   Monday   |
- *      +------------++------------+------------+------------+------------+------------++------------+------------++------------+
- *
- *
- * TODO: check info from Zorro forum:  http://www.opserver.de/ubb7/ubbthreads.php?ubb=showflat&Number=463361#Post463345
  */
 namespace rosasurfer\rt\bin\dukascopy\update_m1_bars;
 
