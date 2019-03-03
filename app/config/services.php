@@ -6,7 +6,7 @@ use rosasurfer\rt\lib\metatrader\MetaTrader;
 /**
  * Service configuration
  *
- * @see  https://github.com/rosasurfer/ministruts/blob/master/src/di/README.md
+ * @see  https://github.com/rosasurfer/ministruts/blob/master/src/di/
  */
 return [
     Dukascopy::class  => Dukascopy::class,
