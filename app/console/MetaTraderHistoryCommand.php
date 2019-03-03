@@ -2,6 +2,8 @@
 namespace rosasurfer\rt\console;
 
 use rosasurfer\console\Command;
+use rosasurfer\console\io\Input;
+use rosasurfer\console\io\Output;
 use rosasurfer\exception\IllegalStateException;
 use rosasurfer\process\Process;
 
@@ -51,42 +53,45 @@ DOCOPT;
     /**
      * {@inheritdoc}
      *
+     * @param  Input  $input
+     * @param  Output $output
+     *
      * @return int - execution status: 0 for "success"
      */
-    protected function execute() {
+    protected function execute(Input $input, Output $output) {
         $symbol = $this->resolveSymbol();
-        if (!$symbol) return $this->error;
+        if (!$symbol) return $this->status;
 
         $start = (int) $symbol->getHistoryStartM1('U');
         $end   = (int) $symbol->getHistoryEndM1('U');           // starttime of the last bar
         if (!$start) {
-            $this->output->out('[Info]    '.str_pad($symbol->getName(), 6).'  no Rosatrader history available');
-            return $this->error = 1;
+            $output->out('[Info]    '.str_pad($symbol->getName(), 6).'  no Rosatrader history available');
+            return 1;
         }
         if (!$end) throw new IllegalStateException('Rosatrader history start/end mis-match for '.$symbol->getName().':  start='.$start.'  end='.$end);
 
-        /** @var MetaTrader $mt */
-        $mt = $this->di(MetaTrader::class);
-        $historySet = $mt->createHistorySet($symbol);
+        /** @var MetaTrader $metatrader */
+        $metatrader = $this->di(MetaTrader::class);
+        $historySet = $metatrader->createHistorySet($symbol);
 
         // iterate over existing history
         for ($day=$start, $lastMonth=-1; $day <= $end; $day+=1*DAY) {
             $month = (int) gmdate('m', $day);
             if ($month != $lastMonth) {
-                $this->output->out('[Info]    '.gmdate('M-Y', $day));
+                $output->out('[Info]    '.gmdate('M-Y', $day));
                 $lastMonth = $month;
             }
             if ($symbol->isTradingDay($day)) {
                 if (!$bars = $symbol->getHistoryM1($day))
-                    return $this->error = 1;
+                    return 1;
                 $historySet->appendBars($bars);
                 Process::dispatchSignals();                     // check for Ctrl-C
             }
         }
         $historySet->close();
-        $this->output->out('[Ok]      '.$symbol->getName());
+        $output->out('[Ok]      '.$symbol->getName());
 
-        return $this->error = 0;
+        return 0;
     }
 
 
@@ -96,11 +101,14 @@ DOCOPT;
      * @return RosaSymbol|null
      */
     protected function resolveSymbol() {
-        $name = $this->input->getArgument('SYMBOL');
+        $input  = $this->input;
+        $output = $this->output;
+
+        $name = $input->getArgument('SYMBOL');
 
         if (!$symbol = RosaSymbol::dao()->findByName($name)) {
-            $this->output->error('Unknown Rosatrader symbol "'.$name.'"');
-            $this->error = 1;
+            $output->error('Unknown Rosatrader symbol "'.$name.'"');
+            $this->status = 1;
         }
         return $symbol;
     }

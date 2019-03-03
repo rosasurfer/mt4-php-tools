@@ -2,6 +2,8 @@
 namespace rosasurfer\rt\console;
 
 use rosasurfer\console\Command;
+use rosasurfer\console\io\Input;
+use rosasurfer\console\io\Output;
 use rosasurfer\process\Process;
 
 use rosasurfer\rt\model\RosaSymbol;
@@ -27,14 +29,14 @@ Usage:
 
 Commands:
   status       Show history status information.
-  synchronize  Synchronize start/end times stored in the database with files in the file system.
-  update       Update the locally stored history.
+  synchronize  Synchronize history status in the database with history stored in the file system.
+  update       Update the stored history (may connect to remote services).
 
 Arguments:
   SYMBOL       One or more symbols to process (default: all symbols).
 
 Options:
-  -p, --period=ID  The timeframe period to update: TICK | M1 [default: M1].
+  -p, --period=ID  Timeframe period to update: TICK | M1 [default: M1].
   -h, --help       This help screen.
 
 DOCOPT;
@@ -54,28 +56,29 @@ DOCOPT;
     /**
      * {@inheritdoc}
      *
+     * @param  Input  $input
+     * @param  Output $output
+     *
      * @return int - execution status: 0 for "success"
      */
-    protected function execute() {
-        echoPre($this->input->getDocoptResult());
-        exit();
-
+    protected function execute(Input $input, Output $output) {
         $symbols = $this->resolveSymbols();
-        if (!$symbols) return $this->error;
+        if (!$symbols) return $this->status;
 
-        $cmd = null;
-        if ($this->input->hasCommand('status'))      $cmd = 'status';
-        if ($this->input->hasCommand('synchronize')) $cmd = 'synchronize';
-
-        $this->output->out('[Info]    '.($cmd=='status' ? 'Local history status' : 'Synchronizing history...'));
-        $this->output->out($separator='---------------------------------------------------------------------------------------');
-
-        foreach ($symbols as $symbol) {
-            if ($cmd == 'status'     ) $symbol->showHistoryStatus();
-            if ($cmd == 'synchronize') $symbol->synchronizeHistory();
-            Process::dispatchSignals();                                 // process Ctrl-C
+        if ($input->hasCommand('status')) {
+            return $this->showStatus($symbols);
         }
-        return $this->error = 0;
+
+        if ($input->hasCommand('synchronize')) {
+            return $this->synchronizeStatus($symbols);
+        }
+
+        if ($input->hasCommand('update')) {
+            return $this->updateHistory($symbols);
+        }
+
+        $output->error(trim(self::DOCOPT));
+        return 1;
     }
 
 
@@ -85,26 +88,79 @@ DOCOPT;
      * @return RosaSymbol[]
      */
     protected function resolveSymbols() {
-        $args = $this->input->getArguments('SYMBOL');
+        $input  = $this->input;
+        $output = $this->output;
+
+        $args = $input->getArguments('SYMBOL');
         $symbols = [];
 
         foreach ($args as $name) {
             /** @var RosaSymbol $symbol */
             $symbol = RosaSymbol::dao()->findByName($name);
             if (!$symbol) {
-                $this->output->error('Unknown Rosatrader symbol "'.$name.'"');
-                $this->error = 1;
+                $output->error('Unknown Rosatrader symbol "'.$name.'"');
+                $this->status = 1;
                 return [];
             }
             $symbols[$symbol->getName()] = $symbol;                 // using the real name as index removes duplicates
         }
 
-        if (!$symbols) {
-            if (!$symbols = RosaSymbol::dao()->findAll('select * from :RosaSymbol order by name')) {
-                $this->output->out('No Rosatrader symbols found.');
-                $this->error = 0;
-            }
-        }
+        if (!$symbols && !$symbols = RosaSymbol::dao()->findAll('select * from :RosaSymbol order by name'))
+            $output->out('No Rosatrader symbols found.');
         return $symbols;
+    }
+
+
+    /**
+     * Show history status information.
+     *
+     * @param  RosaSymbol[] $symbols
+     *
+     * @return int - execution status: 0 for "success"
+     */
+    protected function showStatus(array $symbols) {
+        $output = $this->output;
+        $output->out('[Info]    Local history status');
+        $output->out($separator='---------------------------------------------------------------------------------------');
+
+        foreach ($symbols as $symbol) {
+            $symbol->showHistoryStatus();
+            Process::dispatchSignals();
+        }
+        return 0;
+    }
+
+
+    /**
+     * Synchronize history status in the database with history stored in the file system.
+     *
+     * @param  RosaSymbol[] $symbols
+     *
+     * @return int - execution status: 0 for "success"
+     */
+    protected function synchronizeStatus(array $symbols) {
+        $output = $this->output;
+        $output->out('[Info]    Synchronizing history...');
+        $output->out($separator='---------------------------------------------------------------------------------------');
+
+        foreach ($symbols as $symbol) {
+            $symbol->synchronizeHistory();
+            Process::dispatchSignals();
+        }
+        return 0;
+    }
+
+
+    /**
+     * Update the stored history.
+     *
+     * @param  RosaSymbol[] $symbols
+     *
+     * @return int - execution status: 0 for "success"
+     */
+    protected function updateHistory(array $symbols) {
+        $input  = $this->input;
+        $output = $this->output;
+        return 0;
     }
 }
