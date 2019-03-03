@@ -18,7 +18,7 @@ class RosatraderHistoryCommand extends Command {
     /** @var string */
     const DOCOPT = <<<'DOCOPT'
 
-Command line application to manage the Rosatrader history.
+Manage the Rosatrader history.
 
 Usage:
   rt-history  (status | synchronize) [SYMBOL ...] [-h]

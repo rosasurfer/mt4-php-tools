@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 /**
- * Console application for working with the Rosatrader history.
+ * Console application to manage the Rosatrader history.
  */
 use rosasurfer\Application;
 use rosasurfer\rt\console\RosatraderHistoryCommand;

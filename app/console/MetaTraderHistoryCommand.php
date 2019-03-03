@@ -20,7 +20,7 @@ class MetaTraderHistoryCommand extends Command {
     /** @var string */
     const DOCOPT = <<<'DOCOPT'
 
-Create, update or show status information about MetaTrader history files.
+Create, update or show status of MetaTrader history files.
 
 Usage:
   rt-metatrader-history  create SYMBOL [options]
