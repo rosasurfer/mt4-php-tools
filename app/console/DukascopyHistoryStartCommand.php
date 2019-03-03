@@ -52,8 +52,7 @@ DOCOPT;
      */
     protected function execute() {
         $symbols = $this->resolveSymbols();
-        if (!$symbols)
-            return $this->errorStatus;
+        if (!$symbols) return $this->error;
 
         $remote = $this->input->getOption('--remote');
         $update = $this->input->getOption('--update');
@@ -66,28 +65,28 @@ DOCOPT;
         }
 
         if ($update) {
-            $this->out('[Info]    Updating history start times...');
-            $this->out($separator='-----------------------------------------------------------------');
+            $this->output->out('[Info]    Updating history start times...');
+            $this->output->out($separator='-----------------------------------------------------------------');
             $i = 0;
             foreach ($symbols as $symbol) {
                 if ($symbol->updateHistoryStart($remoteTimes[$symbol->getName()])) {
                     $symbol->save();
-                    $this->out($separator);
+                    $this->output->out($separator);
                     $i++;
                 }
             }
-            !$i && $this->out('[Info]    All locally tracked symbols up-to-date');
-            return $this->errorStatus = 0;
+            !$i && $this->output->out('[Info]    All locally tracked symbols up-to-date');
+            return $this->error = 0;
         }
 
-        $this->out('[Info]    Displaying '.($remote ? 'remote':'local').' Dukascopy history status');
+        $this->output->out('[Info]    Displaying '.($remote ? 'remote':'local').' Dukascopy history status');
         $separator = '---------------------------------------------------------------------------------';
         foreach ($symbols as $symbol) {
-            $this->out($separator);
+            $this->output->out($separator);
             $symbol->showHistoryStatus(!$remote);
         }
-        $this->out($separator);
-        return $this->errorStatus = 0;
+        $this->output->out($separator);
+        return $this->error = 0;
     }
 
 
@@ -104,8 +103,8 @@ DOCOPT;
             /** @var DukascopySymbol $symbol */
             $symbol = DukascopySymbol::dao()->findByName($name);
             if (!$symbol) {
-                $this->error('Unknown or untracked Dukascopy symbol "'.$name.'"');
-                $this->errorStatus = 1;
+                $this->output->error('Unknown or untracked Dukascopy symbol "'.$name.'"');
+                $this->error = 1;
                 return [];
             }
             $symbols[$symbol->getName()] = $symbol;                 // using the real name as index removes duplicates
@@ -113,8 +112,8 @@ DOCOPT;
 
         if (!$symbols) {
             if (!$symbols = DukascopySymbol::dao()->findAll('select * from :DukascopySymbol order by name')) {
-                $this->out('No tracked Dukascopy symbols found.');
-                $this->errorStatus = 0;
+                $this->output->out('No tracked Dukascopy symbols found.');
+                $this->error = 0;
             }
         }
         return $symbols;

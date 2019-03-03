@@ -55,13 +55,13 @@ DOCOPT;
      */
     protected function execute() {
         $symbol = $this->resolveSymbol();
-        if (!$symbol) return $this->errorStatus;
+        if (!$symbol) return $this->error;
 
         $start = (int) $symbol->getHistoryStartM1('U');
         $end   = (int) $symbol->getHistoryEndM1('U');           // starttime of the last bar
         if (!$start) {
             $this->output->out('[Info]    '.str_pad($symbol->getName(), 6).'  no Rosatrader history available');
-            return $this->errorStatus = 1;
+            return $this->error = 1;
         }
         if (!$end) throw new IllegalStateException('Rosatrader history start/end mis-match for '.$symbol->getName().':  start='.$start.'  end='.$end);
 
@@ -78,7 +78,7 @@ DOCOPT;
             }
             if ($symbol->isTradingDay($day)) {
                 if (!$bars = $symbol->getHistoryM1($day))
-                    return $this->errorStatus = 1;
+                    return $this->error = 1;
                 $historySet->appendBars($bars);
                 Process::dispatchSignals();                     // check for Ctrl-C
             }
@@ -86,7 +86,7 @@ DOCOPT;
         $historySet->close();
         $this->output->out('[Ok]      '.$symbol->getName());
 
-        return $this->errorStatus = 0;
+        return $this->error = 0;
     }
 
 
@@ -99,8 +99,8 @@ DOCOPT;
         $name = $this->input->getArgument('SYMBOL');
 
         if (!$symbol = RosaSymbol::dao()->findByName($name)) {
-            $this->error('Unknown Rosatrader symbol "'.$name.'"');
-            $this->errorStatus = 1;
+            $this->output->error('Unknown Rosatrader symbol "'.$name.'"');
+            $this->error = 1;
         }
         return $symbol;
     }
