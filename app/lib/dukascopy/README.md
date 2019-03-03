@@ -18,9 +18,7 @@ re-defined at testing.
     <td> https://www.dukascopy.com/swiss/english/marketwatch/historical/ </td>
 </tr>
 <tr>
-    <td colspan="2"> 
-        <img src="https://user-images.githubusercontent.com/12749283/53694440-a2bb3c80-3db7-11e9-8999-74a0bd964113.png" alt="download" border="0">
-    </td>
+    <td colspan="2"><br></td>
 </tr>
 
 <tr>
@@ -35,9 +33,7 @@ re-defined at testing.
     <td> http://datafeed.dukascopy.com/datafeed/AUDUSD/metadata/HistoryStart.bi5 </td>
 </tr>
 <tr>
-    <td colspan="2">
-        <img src="https://user-images.githubusercontent.com/12749283/53694440-a2bb3c80-3db7-11e9-8999-74a0bd964113.png" alt="download" border="0">
-    </td>
+    <td colspan="2"><br></td>
 </tr>
 
 <tr>
