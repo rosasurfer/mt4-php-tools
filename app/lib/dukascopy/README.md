@@ -50,8 +50,8 @@ re-defined at testing.
 </table>
 
 M1 history is available one file per calendar day since history start. During trade breaks data indicates the last available
-close price (OHLC) and a volume of zero (V=0). Months are counted starting with zero (January = 00). Data is [LZMA]
-(https://en.wikipedia.org/wiki/Lempel%E2%80%93Ziv%E2%80%93Markov_chain_algorithm) compressed.
+close price (OHLC) and a volume of zero (V=0). Months are counted starting with zero (January = 00).
+Data is [LZMA](https://en.wikipedia.org/wiki/Lempel%E2%80%93Ziv%E2%80%93Markov_chain_algorithm) compressed.
 
 
 ### Timezones
