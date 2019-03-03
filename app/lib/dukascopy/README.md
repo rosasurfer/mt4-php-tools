@@ -19,7 +19,7 @@ re-defined at testing.
 </tr>
 <tr>
     <td colspan="2"> 
-        <img src="https://user-images.githubusercontent.com/12749283/53694353-6e934c00-3db6-11e9-98a5-a428d9b9dee4.png" alt="download" border="0">
+        <img src="https://user-images.githubusercontent.com/12749283/53694440-a2bb3c80-3db7-11e9-8999-74a0bd964113.png" alt="download" border="0">
     </td>
 </tr>
 
@@ -36,7 +36,7 @@ re-defined at testing.
 </tr>
 <tr>
     <td colspan="2">
-        <img src="https://user-images.githubusercontent.com/12749283/53694353-6e934c00-3db6-11e9-98a5-a428d9b9dee4.png" alt="download" border="0">
+        <img src="https://user-images.githubusercontent.com/12749283/53694440-a2bb3c80-3db7-11e9-8999-74a0bd964113.png" alt="download" border="0">
     </td>
 </tr>
 
