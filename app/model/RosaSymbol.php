@@ -6,6 +6,7 @@ use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\RuntimeException;
 use rosasurfer\process\Process;
 
+use rosasurfer\rt\lib\IHistoryProvider;
 use rosasurfer\rt\lib\RT;
 use rosasurfer\rt\lib\dukascopy\Dukascopy;
 use rosasurfer\rt\lib\synthetic\DefaultSynthesizer;
@@ -398,7 +399,7 @@ class RosaSymbol extends RosatraderModel {
         /** @var Output $output */
         $output = $this->di(Output::class);
 
-        $provider = $this->isSynthetic() ? $this->getSynthesizer() : $this->getDukascopySymbol();
+        $provider = $this->getHistoryProvider();
         if (!$provider) return false($output->error('[Error]   '.str_pad($this->name, 6).'  no history provider found'));
 
         $historyEnd = (int) $this->getHistoryEndM1('U');
@@ -424,6 +425,18 @@ class RosaSymbol extends RosatraderModel {
 
         $output->out('[Ok]      '.$this->name);
         return true;
+    }
+
+
+    /**
+     * Return a {@link IHistoryProvider} for the symbol.
+     *
+     * @return IHistoryProvider|null
+     */
+    public function getHistoryProvider() {
+        if ($this->isSynthetic())
+            return $this->getSynthesizer();
+        return $this->getDukascopySymbol();
     }
 
 
