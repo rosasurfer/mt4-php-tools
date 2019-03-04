@@ -276,6 +276,8 @@ function fxtTimezoneOffset($time=null, &$prevTransition=[], &$nextTransition=[])
  */
 function isGoodFriday($time) {
     if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
+    if (!$time)
+        return false;
 
     $dow = (int) gmdate('w', $time);
     if ($dow == FRIDAY) {
@@ -299,6 +301,8 @@ function isGoodFriday($time) {
  */
 function isHoliday($time) {
     if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
+    if (!$time)
+        return false;
 
     $m   = (int) gmdate('n', $time);            // month
     $dom = (int) gmdate('j', $time);            // day of month
@@ -320,6 +324,8 @@ function isHoliday($time) {
  */
 function isWeekend($time) {
     if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
+    if (!$time)
+        return false;
 
     $dow = (int) gmdate('w', $time);
     return ($dow==SATURDAY || $dow==SUNDAY);
@@ -602,3 +608,59 @@ function stats_calmar_ratio($from, $to, array $values) {
         return INF;
     return $normalizedProfit / $maxDrawdown;
 }
+
+
+/**
+ * Return the integer constant of a timeframe identifier.
+ *
+ * @param  string $value - M1, M5, M15, M30 etc.
+ *
+ * @return int - timeframe id or -1 if the value is not recognized
+ */
+function strToPeriod($value) {
+    if (!is_string($value)) throw new IllegalTypeException('Illegal type of parameter $value: '.gettype($value));
+
+    $value = strtoupper(trim($value));
+    if (strStartsWith($value, 'PERIOD_'))
+        $value = substr($value, 7);
+
+    switch ($value) {
+        case       'M1' :
+        case PERIOD_M1  : return(PERIOD_M1);
+        case       'M5' :
+        case PERIOD_M5  : return(PERIOD_M5);
+        case       'M15':
+        case PERIOD_M15 : return(PERIOD_M15);
+        case       'M30':
+        case PERIOD_M30 : return(PERIOD_M30);
+        case       'H1' :
+        case PERIOD_H1  : return(PERIOD_H1);
+        case       'H4' :
+        case PERIOD_H4  : return(PERIOD_H4);
+        case       'D1' :
+        case PERIOD_D1  : return(PERIOD_D1);
+        case       'W1' :
+        case PERIOD_W1  : return(PERIOD_W1);
+        case       'MN1':
+        case PERIOD_MN1 : return(PERIOD_MN1);
+        case       'Q1' :
+        case PERIOD_Q1  : return(PERIOD_Q1);
+    }
+   return -1;
+}
+
+
+/**
+ * Alias of strToPeriod()
+ *
+ * Return the integer constant of a timeframe identifier.
+ *
+ * @param  string $value - M1, M5, M15, M30 etc.
+ *
+ * @return int - timeframe id or -1 if the value is not recognized
+ */
+function strToTimeframe($value) {
+   return(strToPeriod($value));
+}
+
+

@@ -7,6 +7,7 @@ use rosasurfer\console\io\Output;
 use rosasurfer\process\Process;
 
 use rosasurfer\rt\model\RosaSymbol;
+use function rosasurfer\rt\strToPeriod;
 
 
 /**
@@ -161,6 +162,17 @@ DOCOPT;
     protected function updateHistory(array $symbols) {
         $input  = $this->input;
         $output = $this->output;
+        $output->out('[Info]    Updating history...');
+        $output->out($separator='---------------------------------------------------------------------------------------');
+
+        /** @var string $value */
+        $value = $input->getOption('--period');
+        $period = strToPeriod($value);
+
+        foreach ($symbols as $symbol) {
+            $symbol->updateHistory($period);
+            Process::dispatchSignals();
+        }
         return 0;
     }
 }

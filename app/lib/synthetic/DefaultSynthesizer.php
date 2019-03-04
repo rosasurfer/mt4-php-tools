@@ -31,7 +31,7 @@ class DefaultSynthesizer extends AbstractSynthesizer {
     /**
      * {@inheritdoc}
      */
-    public function calculateQuotes($day) {
+    public function getHistory($timeframe, $time) {
         return [];
     }
 }

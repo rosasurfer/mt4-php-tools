@@ -62,12 +62,11 @@ foreach ($args as $i => $arg) {
     $symbols[$symbol->getName()] = $symbol;                                             // using the name as index removes duplicates
 }
 $symbols = $symbols ?: RosaSymbol::dao()->findAllDukascopyMappedForUpdate();            // if none is specified update all
-!$symbols && echoPre('No Dukascopy mapped instruments found.');
 
 
 // update instruments
 foreach ($symbols as $symbol) {
-  //$symbol->updateHistory();
+    //$symbol->updateHistory();
     updateSymbol($symbol);
     Process::dispatchSignals();                                                         // process Ctrl-C
 }
@@ -104,14 +103,6 @@ function updateSymbol(RosaSymbol $symbol) {
 
     echoPre('[Info]    '.$symbolName);
 
-    // Pruefen, ob sich der Startzeitpunkt der History des Symbols geaendert hat
-    if (array_search($symbolName, ['USDNOK', 'USDSEK', 'USDSGD', 'USDZAR', 'XAUUSD']) === false) {
-        $content = downloadData($symbolName, $day=$startTime-1*DAY, $type='bid', $quiet=true, $saveData=false, $saveError=false);
-        if (strlen($content)) {
-            echoPre('[Notice]  '.$symbolName.' M1 history was extended. Please update the history start time.');
-        }
-    }
-
     // Gesamte Zeitspanne inklusive Wochenenden tageweise durchlaufen, um von vorherigen Durchlaufen ggf. vorhandene
     // Zwischendateien finden und loeschen zu koennen.
     static $lastMonth=-1;
@@ -123,9 +114,8 @@ function updateSymbol(RosaSymbol $symbol) {
             if ($verbose > 0) echoPre('[Info]    '.gmdate('M-Y', $day).'  checking for existing history files');
             $lastMonth = $month;
         }
-        if (!checkHistory($symbolName, $day)) return false;
-
-        Process::dispatchSignals();                                     // check for Ctrl-C
+        if (!checkHistory($symbolName, $day))
+            return false;
     }
 
     echoPre('[Ok]      '.$symbolName);

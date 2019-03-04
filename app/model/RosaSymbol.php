@@ -27,7 +27,7 @@ use const rosasurfer\rt\PERIOD_M1;
  * @method string          getName()            Return the symbol name, i.e. the actual symbol.
  * @method string          getDescription()     Return the symbol description.
  * @method int             getDigits()          Return the number of fractional digits of symbol prices.
- * @method int             getUpdateOrder()     Whether the symbols update order id.
+ * @method int             getUpdateOrder()     Return the symbol's update order value.
  * @method string          getFormula()         Return a synthetic instrument's calculation formula (LaTeX).
  * @method DukascopySymbol getDukascopySymbol() Return the {@link DukascopySymbol} mapped to this Rosatrader symbol.
  */
@@ -254,7 +254,7 @@ class RosaSymbol extends RosatraderModel {
     public function isTradingDay($time) {
         if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
 
-        return (!isWeekend($time) && !$this->isHoliday($time));
+        return ($time && !isWeekend($time) && !$this->isHoliday($time));
     }
 
 
@@ -267,6 +267,8 @@ class RosaSymbol extends RosatraderModel {
      */
     public function isHoliday($time) {
         if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
+        if (!$time)
+            return false;
 
         if (isHoliday($time))                           // check for common Holidays
             return true;
@@ -388,28 +390,27 @@ class RosaSymbol extends RosatraderModel {
     /**
      * Update the symbol's history.
      *
+     * @param  int $period [optional]
+     *
      * @return bool - success status
      */
-    public function updateHistory() {
+    public function updateHistory($period = PERIOD_M1) {
         /** @var Output $output */
-        $output     = $this->di(Output::class);
-        $updatedTo  = (int) $this->getHistoryEndM1('U');                        // 00:00 FXT of the last existing day
-        $updateFrom = $updatedTo ? $updatedTo - $updatedTo%DAY + 1*DAY : 0;     // 00:00 FXT of the first day to update
-        $today      = ($today=fxTime()) - $today%DAY;                           // 00:00 FXT of the current day
-        $output->out('[Info]    '.$this->name.'  updating M1 history '.($updatedTo ? 'since '.gmdate('D, d-M-Y', $updatedTo) : 'from start'));
+        $output = $this->di(Output::class);
 
-        /** @var Synthesizer     $synthesizer */
-        /** @var DukascopySymbol $dukaSymbol  */
-        $synthesizer = $dukaSymbol = null;
+        $hstProvider = $this->isSynthetic() ? $this->getSynthesizer() : $this->getDukascopySymbol();
+        if (!$hstProvider) return false($output->error('[Error]   '.str_pad($this->name, 6).'  no history provider found'));
 
-        if      ($this->isSynthetic())                       $synthesizer = $this->getSynthesizer();
-        else if (!$dukaSymbol = $this->getDukascopySymbol()) return false($output->error('[Error]   '.$this->name.'  Dukascopy mapping not found'));
+        $historyEnd = (int) $this->getHistoryEndM1('U');
+        $updateFrom = $historyEnd ? $historyEnd + 1*DAY : 0;                    // the next day
+        $now        = fxTime();                                                 // today
+        $output->out('[Info]    '.str_pad($this->name, 6).'  updating M1 history from '.gmdate('D, d-M-Y', $updateFrom));
 
-        for ($day=$updateFrom; $day < $today; $day+=1*DAY) {
-            if ($day && !$this->isTradingDay($day))                             // skip non-trading days
+        for ($day=$updateFrom; $day < $now; $day+=1*DAY) {
+            if (!$this->isTradingDay($day))                                     // skip non-trading days
                 continue;
-            $bars = $this->isSynthetic() ? $synthesizer->calculateQuotes($day) : $dukaSymbol->getHistory(PERIOD_M1, $day);
-            if (!$bars) return false($output->error('[Error]   '.$this->name.'  M1 history sources'.($day ? ' for '.gmdate('D, d-M-Y', $day) : '').' not available'));
+            $bars = $hstProvider->getHistory($period, $day);
+            if (!$bars) return false($output->error('[Error]   '.str_pad($this->name, 6).'  M1 history sources'.($day ? ' for '.gmdate('D, d-M-Y', $day) : '').' not available'));
             if (!$day) {
                 $opentime = $bars[0]['time'];                                   // if $day was zero (full update since start)
                 $day = $opentime - $opentime%DAY;                               // adjust it to the first available history

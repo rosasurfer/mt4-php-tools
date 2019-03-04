@@ -5,6 +5,7 @@ use rosasurfer\console\io\Output;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\UnimplementedFeatureException;
 
+use rosasurfer\rt\lib\IHistoryProvider;
 use rosasurfer\rt\lib\dukascopy\Dukascopy;
 
 use function rosasurfer\rt\fxDate;
@@ -26,7 +27,7 @@ use const rosasurfer\rt\PERIOD_D1;
  * @method int        getDigits()     Return the number of fractional digits of symbol prices.
  * @method RosaSymbol getRosaSymbol() Return the Rosatrader symbol this Dukascopy symbol is mapped to.
  */
-class DukascopySymbol extends RosatraderModel {
+class DukascopySymbol extends RosatraderModel implements IHistoryProvider {
 
 
     /** @var string - symbol name */
@@ -200,35 +201,31 @@ class DukascopySymbol extends RosatraderModel {
 
 
     /**
-     * Get the history for the specified period and time.
+     * {@inheritdoc}
      *
-     * @param  int $period - timeframe identifier:
-     *                       PERIOD_TICK:            returns the history for one hour
-     *                       PERIOD_M1 to PERIOD_D1: returns the history for one day
-     *                       PERIOD_W1:              returns the history for one week
-     *                       PERIOD_MN1:             returns the history for one month
-     *                       PERIOD_Q1:              returns the history for one quarter (3 months)
-     * @param  int $time   - FXT timestamp, if 0 (zero) the oldest available history for the period is returned
+     * @param  int $timeframe - timeframe identifier: M1, M5, M15 etc.
+     * @param  int $time      - FXT timestamp of the time to return prices for. If 0 (zero) the oldest available prices for
+     *                          the specified timeframe are returned.
      *
-     * @return array[] - If the specified history is not available an empty array is returned. Otherwise a timeseries array
-     *                   is returned with each element describing a single bar as follows:
+     * @return array[] - If history for the specified time and timeframe is not available an empty array is returned.
+     *                   Otherwise a timeseries array is returned with each element describing a single price bar as follows:
      * <pre>
      * Array [
-     *     'time'  => (int),            // bar open time in FXT
-     *     'open'  => (double),         // open value
-     *     'high'  => (double),         // high value
-     *     'low'   => (double),         // low value
-     *     'close' => (double),         // close value
+     *     'time'  => (int),            // bar open time (FXT)
+     *     'open'  => (float),          // open value
+     *     'high'  => (float),          // high value
+     *     'low'   => (float),          // low value
+     *     'close' => (float),          // close value
      *     'ticks' => (int),            // ticks or volume (if available)
-     * ]
+     * ];
      * </pre>
      */
-    public function getHistory($period, $time) {
-        if (!is_int($period))     throw new IllegalTypeException('Illegal type of parameter $period: '.gettype($period));
-        if (!is_int($time))       throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
-        if ($period != PERIOD_M1) throw new UnimplementedFeatureException(__METHOD__.'('.periodToStr($period).') not implemented');
+    public function getHistory($timeframe, $time) {
+        if (!is_int($timeframe))     throw new IllegalTypeException('Illegal type of parameter $timeframe: '.gettype($timeframe));
+        if (!is_int($time))          throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
+        if ($timeframe != PERIOD_M1) throw new UnimplementedFeatureException(__METHOD__.'('.periodToStr($timeframe).') not implemented');
 
-        echoPre('[Info]    '.$this->name.'  getting M1 history'.($time ? ' for '.gmdate('D, d-M-Y', $time) : ' since start'));
+        echoPre('[Info]    '.str_pad($this->name, 6).'  getting M1 history'.($time ? ' for '.gmdate('D, d-M-Y', $time) : ' since start'));
 
         // determine needed files
         // load remote files
@@ -243,7 +240,6 @@ class DukascopySymbol extends RosatraderModel {
         mergeHistory($symbol, $day);            // Bid und Ask mergen
         saveBars($symbol, $day);                // gemergte Daten speichern
         */
-
         return [];
     }
 }
