@@ -63,7 +63,7 @@ abstract class AbstractSynthesizer extends Object implements SynthesizerInterfac
                 $symbol = $this->loadedSymbols[$name];
             }
             else if (!$symbol = RosaSymbol::dao()->findByName($name)) {
-                echoPre('[Error]   '.$this->symbolName.'  required M1 history for '.$name.' not available');
+                echoPre('[Error]   '.str_pad($this->symbolName, 6).'  required M1 history for '.$name.' not available');
                 return [];
             }
             $symbols[] = $symbol;
@@ -84,12 +84,12 @@ abstract class AbstractSynthesizer extends Object implements SynthesizerInterfac
         foreach ($symbols as $symbol) {
             $historyStart = (int) $symbol->getHistoryStartM1('U');      // 00:00 FXT of the first stored day
             if (!$historyStart) {
-                echoPre('[Error]   '.$this->symbolName.'  required M1 history for '.$symbol->getName().' not available');
+                echoPre('[Error]   '.str_pad($this->symbolName, 6).'  required M1 history for '.$symbol->getName().' not available');
                 return 0;                                               // no history stored
             }
             $day = max($day, $historyStart);
         }
-        echoPre('[Info]    '.$this->symbolName.'  available M1 history for all sources starts at '.gmdate('D, d-M-Y', $day));
+        echoPre('[Info]    '.str_pad($this->symbolName, 6).'  available M1 history for all sources starts at '.gmdate('D, d-M-Y', $day));
         return $day;
     }
 
@@ -107,7 +107,7 @@ abstract class AbstractSynthesizer extends Object implements SynthesizerInterfac
         foreach ($symbols as $symbol) {
             $name = $symbol->getName();
             if (!$quotes[$name] = $symbol->getHistoryM1($day)) {
-                echoPre('[Error]   '.$this->symbolName.'  required '.$name.' history for '.gmdate('D, d-M-Y', $day).' not available');
+                echoPre('[Error]   '.str_pad($this->symbolName, 6).'  required '.$name.' history for '.gmdate('D, d-M-Y', $day).' not available');
                 return [];
             }
         }

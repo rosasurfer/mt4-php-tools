@@ -398,8 +398,8 @@ class RosaSymbol extends RosatraderModel {
         /** @var Output $output */
         $output = $this->di(Output::class);
 
-        $hstProvider = $this->isSynthetic() ? $this->getSynthesizer() : $this->getDukascopySymbol();
-        if (!$hstProvider) return false($output->error('[Error]   '.str_pad($this->name, 6).'  no history provider found'));
+        $provider = $this->isSynthetic() ? $this->getSynthesizer() : $this->getDukascopySymbol();
+        if (!$provider) return false($output->error('[Error]   '.str_pad($this->name, 6).'  no history provider found'));
 
         $historyEnd = (int) $this->getHistoryEndM1('U');
         $updateFrom = $historyEnd ? $historyEnd + 1*DAY : 0;                    // the next day
@@ -409,17 +409,15 @@ class RosaSymbol extends RosatraderModel {
         for ($day=$updateFrom; $day < $now; $day+=1*DAY) {
             if (!$this->isTradingDay($day))                                     // skip non-trading days
                 continue;
-            $bars = $hstProvider->getHistory($period, $day);
+            $bars = $provider->getHistory($period, $day);
             if (!$bars) return false($output->error('[Error]   '.str_pad($this->name, 6).'  M1 history sources'.($day ? ' for '.gmdate('D, d-M-Y', $day) : '').' not available'));
-            if (!$day) {
-                $opentime = $bars[0]['time'];                                   // if $day was zero (full update since start)
-                $day = $opentime - $opentime%DAY;                               // adjust it to the first available history
-            }
+            if (!$day) $day = $bars[0]['time'];                                 // if $day was zero (full update since start)
+                                                                                // adjust it to the first available history
             RT::saveM1Bars($bars, $this);                                       // store the quotes
 
             if (!$this->historyStartM1)                                         // update metadata *after* history was successfully saved
-                $this->historyStartM1 = gmdate('Y-m-d H:i:s', $day);
-            $this->historyEndM1 = gmdate('Y-m-d H:i:s', $day);
+                $this->historyStartM1 = gmdate('Y-m-d H:i:s', $bars[0]['time']);
+            $this->historyEndM1 = gmdate('Y-m-d H:i:s', $bars[sizeof($bars)-1]['time']);
             $this->modified()->save();                                          // update the database
             Process::dispatchSignals();                                         // process signals
         }
