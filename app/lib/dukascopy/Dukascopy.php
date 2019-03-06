@@ -27,47 +27,6 @@ use const rosasurfer\rt\PERIOD_D1;
  * Dukascopy
  *
  * Functionality for downloading and processing Dukascopy history data.
- *
- *
- * // big-endian
- * struct DUKASCOPY_HISTORY_START {     // -- offset --- size --- description -----------------------------------------------
- *     char      start;                 //         0        1     symbol start marker (always NULL)
- *     char      length;                //         1        1     length of the following symbol name
- *     char      symbol[length];        //         2 {length}     symbol name (no terminating NULL character)
- *     int64     count;                 //  variable        8     number of timeframe start records to follow
- *     {record};                        //  variable       16     struct DUKASCOPY_TIMEFRAME_START
- *     ...                              //  variable       16     struct DUKASCOPY_TIMEFRAME_START
- *     {record};                        //  variable       16     struct DUKASCOPY_TIMEFRAME_START
- * };                                   // ----------------------------------------------------------------------------------
- *                                      //                = 2 + {length} + {count}*16
- *
- * // big-endian
- * struct DUKASCOPY_TIMEFRAME_START {   // -- offset --- size --- description -----------------------------------------------
- *     int64 timeframe;                 //         0        8     period length in minutes as a Java timestamp (msec): 0|-1 = PERIOD_TICK
- *     int64 time;                      //         8        8     start time as a Java timestamp (msec):               INT_MAX = n/a
- * };                                   // ----------------------------------------------------------------------------------
- *                                      //               = 16
- *
- * // big-endian
- * struct DUKASCOPY_BAR {               // -- offset --- size --- description -----------------------------------------------
- *     uint  timeDelta;                 //         0        4     time difference in seconds since 00:00 GMT
- *     uint  open;                      //         4        4     in point
- *     uint  close;                     //         8        4     in point
- *     uint  low;                       //        12        4     in point
- *     uint  high;                      //        16        4     in point
- *     float volume;                    //        20        4
- * };                                   // ----------------------------------------------------------------------------------
- *                                      //               = 24
- *
- * // big-endian
- * struct DUKASCOPY_TICK {              // -- offset --- size --- description -----------------------------------------------
- *     uint  timeDelta;                 //         0        4     time difference in msec since start of the hour
- *     uint  ask;                       //         4        4     in point
- *     uint  bid;                       //         8        4     in point
- *     float askSize;                   //        12        4     cumulated ask size in lot (min. 1)
- *     float bidSize;                   //        16        4     cumulated bid size in lot (min. 1)
- * };                                   // ----------------------------------------------------------------------------------
- *                                      //               = 20
  */
 class Dukascopy extends Object {
 
