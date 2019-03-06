@@ -99,11 +99,6 @@ namespace rosasurfer\rt\bin\dukascopy\update_m1_bars {
     }
 
     /**
-     * @param  string|null $message
-     */
-    function help($message=null) {}
-
-    /**
      * @param  string $symbol
      * @param  int    $day
      * @param  string $type
@@ -161,11 +156,6 @@ namespace rosasurfer\rt\bin\dukascopy\update_m1_bars {
     function saveBars($symbol, $day) {
         return false;
     }
-
-    /**
-     *
-     */
-    function showBarBuffer() {}
 
     /**
      * @param  string $symbol

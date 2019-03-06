@@ -51,6 +51,9 @@ class DukascopySymbol extends RosatraderModel implements IHistoryProvider {
     /** @var RosaSymbol [transient] - the Rosatrader symbol this Dukascopy symbol is mapped to */
     protected $rosaSymbol;
 
+    /** @var array - buffer for loaded history data */
+    protected $historyBuffer = [];
+
 
     /**
      * Return the start time of the symbol's available tick history (FXT).
@@ -155,7 +158,7 @@ class DukascopySymbol extends RosatraderModel implements IHistoryProvider {
 
 
     /**
-     * Update history start times.
+     * Update locally stored history start times with the passed data.
      *
      * @param  array $times - array with start times per timeframe
      *
@@ -227,19 +230,20 @@ class DukascopySymbol extends RosatraderModel implements IHistoryProvider {
 
         echoPre('[Info]    '.str_pad($this->name, 6).'  getting M1 history'.($time ? ' for '.gmdate('D, d-M-Y', $time) : ' since start'));
 
-        // determine needed files
-        // load remote files
 
-        $time       -= $time%DAY;
-        $currentDay  = $time;
-        $previousDay = $time - 1*DAY;
 
-        /*
-        loadHistory($symbol, $day, 'bid');      // Bid-Daten laden
-        loadHistory($symbol, $day, 'ask');      // Ask-Daten laden
-        mergeHistory($symbol, $day);            // Bid und Ask mergen
-        saveBars($symbol, $day);                // gemergte Daten speichern
-        */
+
+
         return [];
+        /*
+        $date = gmdate('D, d-M-Y', $time);
+        $types = ['bid', 'ask'];
+        foreach ($types as $type) {
+            if (!isset($barBuffer[$type][$date]) || sizeof($barBuffer[$type][$date])!=PERIOD_D1) {
+                loadHistory($symbol, $day, $type);      // Bid- und Ask-Daten laden
+            }
+        }
+        mergeHistory($symbol, $day);                    // beide mergen
+        */
     }
 }

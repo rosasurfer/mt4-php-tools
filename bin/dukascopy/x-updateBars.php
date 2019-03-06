@@ -23,6 +23,7 @@ use rosasurfer\rt\model\RosaSymbol;
 use function rosasurfer\rt\fxtStrToTime;
 use function rosasurfer\rt\fxtTimezoneOffset;
 use function rosasurfer\rt\isWeekend;
+use const rosasurfer\rt\PERIOD_D1;
 
 require(dirname(realpath(__FILE__)).'/../../app/init.php');
 date_default_timezone_set('GMT');
@@ -44,7 +45,6 @@ $args = array_slice($_SERVER['argv'], 1);
 
 // parse options
 foreach ($args as $i => $arg) {
-    if ($arg == '-h'  )   exit(1|help());                                               // help
     if ($arg == '-v'  ) { $verbose = max($verbose, 1); unset($args[$i]); continue; }    // verbose output
     if ($arg == '-vv' ) { $verbose = max($verbose, 2); unset($args[$i]); continue; }    // more verbose output
     if ($arg == '-vvv') { $verbose = max($verbose, 3); unset($args[$i]); continue; }    // very verbose output
@@ -96,11 +96,11 @@ function updateSymbol(RosaSymbol $symbol) {
     $startTime -= $startTime % DAY;                                     // 00:00 GMT
 
     global $verbose, $barBuffer;
-    $barBuffer        = [];                                             // Barbuffer zuruecksetzen
-    $barBuffer['bid'] = [];
-    $barBuffer['ask'] = [];
-    $barBuffer['avg'] = [];
-
+    $barBuffer = [                                                      // Barbuffer zuruecksetzen
+        'bid' => [],
+        'ask' => [],
+        'avg' => [],
+    ];
     echoPre('[Info]    '.$symbolName);
 
     // Gesamte Zeitspanne inklusive Wochenenden tageweise durchlaufen, um von vorherigen Durchlaufen ggf. vorhandene
@@ -133,66 +133,24 @@ function updateSymbol(RosaSymbol $symbol) {
  */
 function checkHistory($symbol, $day) {
     if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.gettype($day));
-    global $verbose, $barBuffer;
+    $day -= $day % DAY;                                     // 00:00 GMT
 
-    $config           = Application::getConfig();
-    $keepDownloads    = $config->getBool('rt.dukascopy.keep-downloads');
-    $keepDecompressed = $config->getBool('rt.dukascopy.keep-decompressed');
-    $compressHistory  = $config->getBool('rt.history.compress');
-
-    $shortDate = gmdate('D, d-M-Y', $day);
-    $day      -= $day%DAY;                                              // 00:00 GMT
-
-    // (1) nur an Wochentagen: pruefen, ob die RT-History existiert und ggf. aktualisieren
-    if (!isWeekend($day)) {
-        // History ist ok, wenn entweder die komprimierte RT-Datei existiert...
-        if (is_file($file=getVar('rtFile.compressed', $symbol, $day))) {
-            if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'  Rosatrader history file found: '.RT::relativePath($file));
-        }
-        // ...oder die unkomprimierte RT-Datei gespeichert wird und existiert
-        else if (!$compressHistory && is_file($file=getVar('rtFile.raw', $symbol, $day))) {
-            if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'  Rosatrader history file found: '.RT::relativePath($file));
-        }
-        // andererseits History aktualisieren
-        else if (!updateHistory($symbol, $day)) {                       // da 00:00, kann der GMT- als FXT-Timestamp uebergeben werden
+    // nur an Wochentagen: pruefen, ob die RT-History existiert und ggf. aktualisieren
+    if (!isWeekend($day) && !is_file(getVar('rtFile.compressed', $symbol, $day)) && !is_file(getVar('rtFile.raw', $symbol, $day)))
+        if (!updateHistory($symbol, $day))                  // da 00:00, kann der GMT- als FXT-Timestamp uebergeben werden
             return false;
-        }
-    }
 
-
-    // (2) an allen Tagen: nicht mehr benoetigte Dateien, Verzeichnisse und Barbuffer-Daten loeschen
-    $previousDay   = $day - 1*DAY;
-    $shortDatePrev = gmdate('D, d-M-Y', $previousDay);
-
-    // Dukascopy-Downloads (gepackt) des Vortages
-    if (!$keepDownloads) {
-        if (is_file($file=getVar('dukaFile.compressed', $symbol, $previousDay, 'bid'))) unlink($file);
-        if (is_file($file=getVar('dukaFile.compressed', $symbol, $previousDay, 'ask'))) unlink($file);
-    }
-    // dekomprimierte Dukascopy-Daten des Vortages
-    if (!$keepDecompressed) {
-        if (is_file($file=getVar('dukaFile.raw', $symbol, $previousDay, 'bid'))) unlink($file);
-        if (is_file($file=getVar('dukaFile.raw', $symbol, $previousDay, 'ask'))) unlink($file);
-    }
-
-    // lokales Historyverzeichnis des Vortages, wenn Wochenende und es leer ist
-    if (isWeekend($previousDay)) {
-        if (is_dir($dir=getVar('rtDir', $symbol, $previousDay))) @rmdir($dir);
-    }
-    // lokales Historyverzeichnis des aktuellen Tages, wenn Wochenende und es leer ist
-    if (isWeekend($day)) {
-        if (is_dir($dir=getVar('rtDir', $symbol, $day))) @rmdir($dir);
-    }
-
-    // Barbuffer-Daten des Vortages
-    unset($barBuffer['bid'][$shortDatePrev]);
-    unset($barBuffer['ask'][$shortDatePrev]);
-    unset($barBuffer['avg'][$shortDatePrev]);
-
-    // Barbuffer-Daten des aktuellen Tages
-    unset($barBuffer['bid'][$shortDate]);
+    // nicht mehr benoetigte Barbuffer-Daten loeschen
+    global $barBuffer;
+    $shortDate = gmdate('D, d-M-Y', $day);
+    unset($barBuffer['bid'][$shortDate]);                   // aktueller Tag
     unset($barBuffer['ask'][$shortDate]);
     unset($barBuffer['avg'][$shortDate]);
+
+    $shortDatePrev = gmdate('D, d-M-Y', $day - 1*DAY);
+    unset($barBuffer['bid'][$shortDatePrev]);               // Vortag
+    unset($barBuffer['ask'][$shortDatePrev]);
+    unset($barBuffer['avg'][$shortDatePrev]);
 
     return true;
 }
@@ -215,7 +173,7 @@ function updateHistory($symbol, $day) {
     // Bid- und Ask-Daten im Barbuffer suchen und ggf. laden
     $types = ['bid', 'ask'];
     foreach ($types as $type) {
-        if (!isset($barBuffer[$type][$shortDate]) || sizeof($barBuffer[$type][$shortDate])!=1*DAY/MINUTES)
+        if (!isset($barBuffer[$type][$shortDate]) || sizeof($barBuffer[$type][$shortDate])!=PERIOD_D1)
             if (!loadHistory($symbol, $day, $type)) return false;
     }
 
@@ -336,8 +294,8 @@ function mergeHistory($symbol, $day) {
     // (1) beide Datenreihen nochmal pruefen
     $types = ['bid', 'ask'];
     foreach ($types as $type) {
-        if (!isset($barBuffer[$type][$shortDate]) || ($size=sizeof($barBuffer[$type][$shortDate]))!=1*DAY/MINUTES)
-            throw new RuntimeException('Unexpected number of Rosatrader '.$type.' bars for '.$shortDate.' in bar buffer: '.$size.' ('.($size > 1*DAY/MINUTES ? 'more':'less').' then a day)');
+        if (!isset($barBuffer[$type][$shortDate]) || ($size=sizeof($barBuffer[$type][$shortDate]))!=PERIOD_D1)
+            throw new RuntimeException('Unexpected number of Rosatrader '.$type.' bars for '.$shortDate.' in bar buffer: '.$size.' ('.($size > PERIOD_D1 ? 'more':'less').' then a day)');
     }
 
 
@@ -592,10 +550,7 @@ function saveBars($symbol, $day) {
     if (!$errorMsg && $barBuffer['avg'][$shortDate][0      ]['delta_fxt']!=0                  ) $errorMsg = 'No beginning "avg" bars for '.$shortDate.' in buffer, first bar:'.NL.printPretty($barBuffer['avg'][$shortDate][0], true);
     if (!$errorMsg && $barBuffer['avg'][$shortDate][$size-1]['delta_fxt']!=23*HOURS+59*MINUTES) $errorMsg = 'No ending "avg" bars for '.$shortDate.' in buffer, last bar:'.NL.printPretty($barBuffer['avg'][$shortDate][$size-1], true);
     if (!$errorMsg && ($size=sizeof(array_keys($barBuffer['avg']))) > 1)                        $errorMsg = 'Invalid bar buffer state: found more then one "avg" data series ('.$size.')';
-    if ($errorMsg) {
-        showBarBuffer();
-        throw new RuntimeException($errorMsg);
-    }
+    if ($errorMsg) throw new RuntimeException($errorMsg);
 
     // (2) Bars in Binaerstring umwandeln
     $data = null;
@@ -727,60 +682,4 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
         $varCache = array_slice($varCache, $offset=$maxSize/2);
     }
     return $result;
-}
-
-
-/**
- *
- */
-function showBarBuffer() {
-    global $barBuffer;
-
-    echoPre(NL);
-    foreach ($barBuffer as $type => $days) {
-        if (!is_array($days)) {
-            echoPre('barBuffer['.$type.'] => '.(is_null($days) ? 'null':$days));
-            continue;
-        }
-        foreach ($days as $day => $bars) {
-            if (!is_array($bars)) {
-                echoPre('barBuffer['.$type.']['.(is_int($day) ? gmdate('D, d-M-Y', $day):$day).'] => '.(is_null($bars) ? 'null':$bars));
-                continue;
-            }
-            $size = sizeof($bars);
-            $firstBar = $size ? gmdate('H:i', $bars[0      ]['time_fxt']):null;
-            $lastBar  = $size ? gmdate('H:i', $bars[$size-1]['time_fxt']):null;
-            echoPre('barBuffer['.$type.']['.(is_int($day) ? gmdate('D, d-M-Y', $day):$day).'] => '.str_pad($size, 4, ' ', STR_PAD_LEFT).' bar'.pluralize($size).($firstBar?'  '.$firstBar:'').($size>1?'-'.$lastBar:''));
-        }
-    }
-    echoPre(NL);
-}
-
-
-/**
- * Help
- *
- * @param  string $message [optional] - zusaetzlich zur Syntax anzuzeigende Message (default: keine)
- */
-function help($message = null) {
-    if (isset($message))
-        echo $message.NL.NL;
-
-    $self = basename($_SERVER['PHP_SELF']);
-
-echo <<<HELP
-Update the M1 history of the specified symbols with data from Dukascopy.
-
- Syntax:   $self [SYMBOL ...]
-
-   SYMBOL  One or more symbols to update. Without a symbol all defined symbols are updated.
-
- Options:  -h    This help screen.
-           -v    Verbose output.
-           -vv   More verbose output.
-           -vvv  Very verbose output.
-
-
-
-HELP;
 }
