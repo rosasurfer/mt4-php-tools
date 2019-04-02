@@ -65,6 +65,18 @@ const OP_TRANSFER  =       8;               // custom: balance update by client 
 const OP_VENDOR    =       9;               //         balance update by criminal (dividends, swap, manual etc.)
 
 
+// price types
+const PRICE_CLOSE    = 0;                   // Close
+const PRICE_OPEN     = 1;                   // Open
+const PRICE_HIGH     = 2;                   // High
+const PRICE_LOW      = 3;                   // Low
+const PRICE_MEDIAN   = 4;                   // (H+L)/2
+const PRICE_TYPICAL  = 5;                   // (H+L+C)/3
+const PRICE_WEIGHTED = 6;                   // (H+L+C+C)/4
+const PRICE_BID      = 7;                   // Bid
+const PRICE_ASK      = 8;                   // Ask
+
+
 // Strategy Tester bar models
 const BARMODEL_EVERYTICK     = 0;
 const BARMODEL_CONTROLPOINTS = 1;

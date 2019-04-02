@@ -16,6 +16,7 @@ use const rosasurfer\rt\PERIOD_TICK;
 use const rosasurfer\rt\PERIOD_M1;
 use const rosasurfer\rt\PERIOD_H1;
 use const rosasurfer\rt\PERIOD_D1;
+use const rosasurfer\rt\PRICE_MEDIAN;
 
 
 /**
@@ -230,20 +231,8 @@ class DukascopySymbol extends RosatraderModel implements IHistoryProvider {
 
         echoPre('[Info]    '.str_pad($this->name, 6).'  getting M1 history'.($time ? ' for '.gmdate('D, d-M-Y', $time) : ' since start'));
 
-
-
-
-
-        return [];
-        /*
-        $date = gmdate('D, d-M-Y', $time);
-        $types = ['bid', 'ask'];
-        foreach ($types as $type) {
-            if (!isset($barBuffer[$type][$date]) || sizeof($barBuffer[$type][$date])!=PERIOD_D1) {
-                loadHistory($symbol, $day, $type);      // Bid- und Ask-Daten laden
-            }
-        }
-        mergeHistory($symbol, $day);                    // beide mergen
-        */
+        /** @var Dukascopy $dukascopy */
+        $dukascopy = $this->di(Dukascopy::class);
+        return $dukascopy->getHistory($this->name, $timeframe, $time, PRICE_MEDIAN);
     }
 }

@@ -129,6 +129,43 @@ class Dukascopy extends Object {
 
 
     /**
+     * Get history for the specified symbol, timeframe and time. Downloads needed data from Dukascopy and converts Dukascopy
+     * times to FXT.
+     *
+     * @param  string $symbol
+     * @param  int    $timeframe
+     * @param  int    $time
+     * @param  int    $priceType
+     *
+     * @return array[] - If history for the specified time and timeframe is not available an empty array is returned.
+     *                   Otherwise a timeseries array is returned with each element describing a single price bar as follows:
+     * <pre>
+     * Array [
+     *     'time'  => (int),            // bar open time (FXT)
+     *     'open'  => (float),          // open value
+     *     'high'  => (float),          // high value
+     *     'low'   => (float),          // low value
+     *     'close' => (float),          // close value
+     *     'ticks' => (int),            // ticks or volume (if available)
+     * ];
+     * </pre>
+     */
+    public function getHistory($symbol, $timeframe, $time, $priceType) {
+        return [];
+        /*
+        $date = gmdate('D, d-M-Y', $time);
+        $types = ['bid', 'ask'];
+        foreach ($types as $type) {
+            if (!isset($barBuffer[$type][$date]) || sizeof($barBuffer[$type][$date])!=PERIOD_D1) {
+                loadHistory($symbol, $day, $type);      // Bid- und Ask-Daten laden
+            }
+        }
+        mergeHistory($symbol, $day);                    // beide mergen
+        */
+    }
+
+
+    /**
      * Decompress a compressed Dukascopy data string and return it.
      *
      * @param  string $data              - compressed string with bars or ticks
