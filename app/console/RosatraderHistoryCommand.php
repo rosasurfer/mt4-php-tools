@@ -29,12 +29,12 @@ Usage:
   rt-history  update      [SYMBOL ...] [-p PERIOD] [-h]
 
 Commands:
-  status       Show history status information.
-  synchronize  Synchronize history status in the database with history stored in the file system.
-  update       Update the stored history (may connect to remote services).
+  status           Show history status information.
+  synchronize      Synchronize history status in the database with history stored in the file system.
+  update           Update the stored history (may connect to remote services).
 
 Arguments:
-  SYMBOL       One or more symbols to process (default: all symbols).
+  SYMBOL           One or more symbols to process (default: all symbols).
 
 Options:
   -p, --period=ID  Timeframe period to update: TICK | M1 [default: M1].

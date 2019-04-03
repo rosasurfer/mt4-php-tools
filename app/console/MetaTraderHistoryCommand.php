@@ -28,13 +28,13 @@ Usage:
   rt-metatrader-history  create SYMBOL [options]
 
 Commands:
-  create      Create new MetaTrader history files for the given symbol (all standard timeframes).
+  create       Create new MetaTrader history files for the given symbol (all standard timeframes).
 
 Arguments:
-  SYMBOL      The symbol to process history for.
+  SYMBOL       The symbol to process history for.
 
 Options:
-   -h --help  This help screen.
+   -h, --help  This help screen.
 
 DOCOPT;
 
