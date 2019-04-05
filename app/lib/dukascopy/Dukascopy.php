@@ -129,8 +129,8 @@ class Dukascopy extends Object {
 
 
     /**
-     * Get history for the specified symbol, timeframe and time. Downloads needed data from Dukascopy and converts Dukascopy
-     * times to FXT.
+     * Get history for the specified symbol, timeframe and time. Downloads the required data and converts Dukascopy GMT times
+     * to FXT. The covered range of the returned timeseries depends on the requested timeframe.
      *
      * @param  string $symbol
      * @param  int    $timeframe
