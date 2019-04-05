@@ -29,9 +29,15 @@ vendor/
 config*.properties
 !config.dist.properties
 
+/etc/httpd/local/
+/etc/httpd/production/
+/etc/httpd/test/
+/etc/httpd/ssl/www.rosasurfer.com.crt
+/etc/httpd/ssl/www.rosasurfer.com.key
+
 /data/
 /data
-/web/doc/erm/*
 /deploy
+/web/doc/erm/*
 *.bi5
 *.bin
