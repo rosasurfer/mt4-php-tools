@@ -34,6 +34,8 @@ config*.properties
 /etc/httpd/test/
 /etc/httpd/ssl/www.rosasurfer.com.crt
 /etc/httpd/ssl/www.rosasurfer.com.key
+/etc/log/*
+/etc/tmp/*
 
 /data/
 /data
