@@ -25,21 +25,21 @@ nbactions.xml
 vendor/
 /composer
 /composer.phar
-
 config*.properties
 !config.dist.properties
 
+/data/
+/data
+
+/etc/httpd/cgi/
 /etc/httpd/local/
-/etc/httpd/production/
-/etc/httpd/test/
 /etc/httpd/ssl/www.rosasurfer.com.crt
 /etc/httpd/ssl/www.rosasurfer.com.key
 /etc/log/*
 /etc/tmp/*
 
-/data/
-/data
-/deploy
 /web/doc/erm/*
+
+/deploy
 *.bi5
 *.bin
