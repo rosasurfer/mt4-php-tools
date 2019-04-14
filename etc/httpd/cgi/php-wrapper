@@ -1,0 +1,21 @@
+#!/bin/sh
+#
+# This script must be executable. If mod_suexec is used the script AND the containing "cgi" directory must be owned by
+# the same user and group as specified in the Apache's "SuexecUserGroup {username} {groupname}" directive. On errors check
+# "/var/www/[apache2|httpd]/suexec.log". See also `/usr/lib/[apache2|httpd]/suexec -V` for the actual suexec configuration.
+#
+
+#
+# Set desired environment variables.
+#
+
+# By default PHP FastCGI processes exit after 500 requests.
+# FcgidMaxRequestsPerProcess in the Apache configuration must be <= PHP_FCGI_MAX_REQUESTS.
+export PHP_FCGI_MAX_REQUESTS=2000
+
+# Uses a custom php.ini in this directory or the system configuration if no custom file exists.
+# If a custom php.ini exists it has to be complete as the system's default php.ini will be completely ignored.
+export PHPRC=./
+
+# Replace with the path to your FastCGI-enabled PHP executable.
+exec php-cgi "$@"
