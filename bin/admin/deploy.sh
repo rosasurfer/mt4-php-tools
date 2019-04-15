@@ -13,9 +13,9 @@
 # Configuration values may be hard-coded here or passed via the environment. Values passed via the environment override
 # values hard-coded here. The variable NOTIFY_FOR_PROJECT is optional and defaults to the name of the checked-out project.
 #
-# Example: 
+# Example:
 #  $ NOTIFY_ON_HOST=hostname  NOTIFY_RECEIVER=email@domain.tld  deploy.sh  master
-# 
+#
 #
 # TODO: update existing submodules
 #
@@ -134,11 +134,11 @@ else
 fi
 
 
-# update read permissions for web server and PHP
-chmod -R a+rX "$PROJECT_DIR" 2>/dev/null            `# ignore errors caused by files the user can't update`
+# update read permissions for web server and PHP for everything (skip hidden files, ignore errors)
+chmod -R a+rX "${PROJECT_DIR}"/* 2>/dev/null && :
 
 
-# update write permissions for web server and PHP for special files/folders only 
+# update write permissions for web server and PHP for special files/folders only (don't ignore errors)
 DIRS="etc/log etc/tmp"
 for dir in $DIRS; do
     dir="$PROJECT_DIR/$dir/"
