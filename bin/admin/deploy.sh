@@ -134,7 +134,7 @@ else
 fi
 
 
-# update ownership and permissions for writable folders/files
+# update permissions for folders writable by web server and PHP
 DIRS="etc/log etc/tmp"
 
 for dir in $DIRS; do
