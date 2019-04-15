@@ -16,7 +16,6 @@
     "require": {
         "php":                   ">=5.6",
         "ext-bcmath":            "*",
-        "ext-stats":             "*",
         "rosasurfer/ministruts": "dev-development"
     },
     "autoload": {
