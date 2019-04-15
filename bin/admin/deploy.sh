@@ -10,10 +10,11 @@
 #
 # Configuration
 # -------------
-# Configuration values may be hard-coded or passed via the environment. Variables passed via the environment have precendence
-# over hard-coded values. The variable NOTIFY_FOR_PROJECT is optional and defaults to the checked-out project name.
+# Configuration values may be hard-coded here or passed via the environment. Values passed via the environment override
+# values hard-coded here. The variable NOTIFY_FOR_PROJECT is optional and defaults to the name of the checked-out project.
 #
-# Example:  $ NOTIFY_ON_HOST=hostname  NOTIFY_RECEIVER=email@domain.tld  deploy.sh  master
+# Example: 
+#  $ NOTIFY_ON_HOST=hostname  NOTIFY_RECEIVER=email@domain.tld  deploy.sh  master
 # 
 #
 # TODO: update existing submodules
@@ -21,7 +22,7 @@
 set -e
 
 
-# notification configuration (environment variables will have higher precedence than values hardcoded here)
+# notify configuration (environment variables will have higher precedence than values hardcoded here)
 NOTIFY_FOR_PROJECT="${NOTIFY_FOR_PROJECT:-<placeholder>}"   `# replace <placeholder> with your project name                    `
 NOTIFY_ON_HOST="${NOTIFY_ON_HOST:-<placeholder>}"           `# replace <placeholder> with the hostname to notify if deployed on`
 NOTIFY_RECEIVER="${NOTIFY_RECEIVER:-<placeholder>}"         `# replace <placeholder> with the receiver's email address         `
@@ -96,19 +97,19 @@ elif [ -n "$COMMIT" ]; then
 fi
 
 
-# check updates
+# check applied changes
 OLD=$FROM_COMMIT
 NEW=$(git rev-parse --short HEAD)
 
 if [ "$OLD" = "$NEW" ]; then
     echo No changes.
 else
-    # validate notification configuration
+    # validate notify configuration
     [ "$NOTIFY_FOR_PROJECT" = "<placeholder>" ] && NOTIFY_FOR_PROJECT=
     [ "$NOTIFY_ON_HOST"     = "<placeholder>" ] && NOTIFY_ON_HOST=
     [ "$NOTIFY_RECEIVER"    = "<placeholder>" ] && NOTIFY_RECEIVER=
 
-    # check/autocomplete missing values
+    # autocomplete optional values
     NOTIFY=0
     if [[ -n "$NOTIFY_ON_HOST" && -n "$NOTIFY_RECEIVER" ]]; then
         if [ "$NOTIFY_ON_HOST" = "$(hostname)" ]; then
@@ -117,7 +118,7 @@ else
         fi
     fi
 
-    # send deployment notifications if configured
+    # send deployment notifications
     if [ $NOTIFY -eq 1 ]; then
         if command -v sendmail >/dev/null; then
             (
@@ -133,7 +134,7 @@ else
 fi
 
 
-# update ownership and access permissions for writing of files
+# update ownership and permissions for writable folders/files
 USER="apache"
 DIRS="etc/log etc/tmp"
 
@@ -141,12 +142,13 @@ for dir in $DIRS; do
     dir="$PROJECT_DIR/$dir/"
     [ -d "$dir" ] || mkdir -p "$dir"
     
-    if id -u "$USER" &>/dev/null; then
-        chown -R "$USER.$USER" "$dir"
-        chmod -R u+rwX,g+rwX "$dir"
+	if id -u "$USER" &>/dev/null; then
+        chown "$USER.$USER" "$dir"
+        chmod u+rwX,g+rwX "$dir"
     else
-        chmod -R a+rwX "$dir"
-    fi    
+        chmod a+rwX "$dir"
+	fi    
 done
 
-id -u "$USER" &>/dev/null && chown -R --from=root.root "$USER.$USER" "$PROJECT_DIR"
+# TODO: from.from must not reference 'root' but the current user
+id -u "$USER" &>/dev/null && chown -R --from=root.root "$USER.$USER" "$PROJECT_DIR" 2>/dev/null
