@@ -135,7 +135,7 @@ fi
 
 
 # update read permissions for web server and PHP
-chmod a+rX "$PROJECT_DIR"
+chmod -R a+rX "$PROJECT_DIR" 2>/dev/null        `# ignore errors as there may be files we can't update`
 
 
 # update write permissions for web server and PHP for special files/folders only 
