@@ -135,20 +135,14 @@ fi
 
 
 # update ownership and permissions for writable folders/files
-USER="apache"
 DIRS="etc/log etc/tmp"
 
 for dir in $DIRS; do
     dir="$PROJECT_DIR/$dir/"
     [ -d "$dir" ] || mkdir -p "$dir"
-    
-	if id -u "$USER" &>/dev/null; then
-        chown "$USER.$USER" "$dir"
-        chmod u+rwX,g+rwX "$dir"
-    else
-        chmod a+rwX "$dir"
-	fi    
+    chmod a+rwX "$dir"
 done
 
 # TODO: from.from must not reference 'root' but the current user
-id -u "$USER" &>/dev/null && chown -R --from=root.root "$USER.$USER" "$PROJECT_DIR" 2>/dev/null
+USER="apache"
+id -u "$USER" &>/dev/null && chown -R --from=root.root "$USER.$USER" "$PROJECT_DIR"
