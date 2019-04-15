@@ -134,15 +134,14 @@ else
 fi
 
 
-# update permissions for folders writable by web server and PHP
-DIRS="etc/log etc/tmp"
+# update read permissions for web server and PHP
+chmod a+rX "$PROJECT_DIR"
 
+
+# update write permissions for web server and PHP for special files/folders only 
+DIRS="etc/log etc/tmp"
 for dir in $DIRS; do
     dir="$PROJECT_DIR/$dir/"
     [ -d "$dir" ] || mkdir -p "$dir"
     chmod a+rwX "$dir"
 done
-
-# TODO: from.from must not reference 'root' but the current user
-USER="apache"
-id -u "$USER" &>/dev/null && chown -R --from=root.root "$USER.$USER" "$PROJECT_DIR"
