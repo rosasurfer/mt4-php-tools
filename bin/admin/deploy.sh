@@ -134,14 +134,22 @@ else
 fi
 
 
-# update read permissions for web server and PHP for everything (skip hidden files, ignore errors)
-chmod -R a+rX "${PROJECT_DIR}"/* 2>/dev/null && :
+# grant read permission to everyone
+chmod -R a+rX "${PROJECT_DIR}"/* 2>/dev/null || true    `# you may want to limit this to the web server and/or php-fpm user`
 
 
-# update write permissions for web server and PHP for special files/folders only (don't ignore errors)
-DIRS="etc/log etc/tmp"
-for dir in $DIRS; do
+# grant write permission on special folders
+DIRS=('etc/log' 'etc/tmp')
+for dir in "${DIRS[@]}"; do
     dir="$PROJECT_DIR/$dir/"
     [ -d "$dir" ] || mkdir -p "$dir"
-    chmod a+rwX "$dir"
+    chmod a+rwX "$dir"                                  `# you may want to limit this to the web server and/or php-fpm user`
+done
+
+
+# grant write permission on special files
+FILES=('file1' 'file2')
+for file in "${FILES[@]}"; do
+    file="$PROJECT_DIR/$file"
+    [ -f "$file" ] && chmod a+w "$file"                 `# you may want to limit this to the web server and/or php-fpm user`
 done
