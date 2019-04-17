@@ -12,7 +12,7 @@ use rosasurfer\console\io\Output;
 /**
  * DukascopyHistoryStartCommand
  *
- * Show or update Dukascopy history start times.
+ * Show and update locally stored Dukascopy history start times.
  */
 class DukascopyHistoryStartCommand extends Command {
 
@@ -20,7 +20,7 @@ class DukascopyHistoryStartCommand extends Command {
     /** @var string */
     const DOCOPT = <<<'DOCOPT'
 
-Show or update Dukascopy history start times.
+Show and update locally stored Dukascopy history start times.
 
 Usage:
   rt-dukascopy-status  [-r | -u] [-h] [SYMBOL ...]

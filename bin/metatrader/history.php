@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 /**
- * Console application to create, update or show status of MetaTrader history files.
+ * Console command to create, update or show status of MetaTrader history files.
  */
 use rosasurfer\Application;
 use rosasurfer\rt\console\MetaTraderHistoryCommand;
