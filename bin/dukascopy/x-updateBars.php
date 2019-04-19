@@ -23,6 +23,7 @@ use rosasurfer\rt\model\RosaSymbol;
 use function rosasurfer\rt\fxtStrToTime;
 use function rosasurfer\rt\fxtTimezoneOffset;
 use function rosasurfer\rt\isWeekend;
+
 use const rosasurfer\rt\PERIOD_D1;
 
 require(dirname(realpath(__FILE__)).'/../../app/init.php');
@@ -467,6 +468,7 @@ function processRawDukascopyBarData($data, $symbol, $day, $type) {
     global $barBuffer; $barBuffer[$type];
 
     // (1) Bars einlesen
+    $symbol = DukascopySymbol::dao()->getByName($symbol);
     $bars = Dukascopy::readBarData($data, $symbol, $type, $day);
     $size = sizeof($bars); if ($size != 1*DAY/MINUTES) throw new RuntimeException('Unexpected number of Dukascopy bars in '.getVar('dukaName', null, null, $type).': '.$size.' ('.($size > 1*DAY/MINUTES ? 'more':'less').' then a day)');
 
