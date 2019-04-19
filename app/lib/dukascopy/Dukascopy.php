@@ -58,9 +58,9 @@ class Dukascopy extends Object {
 
 
     /**
-     * Fetch history start for the specified symbol from Dukascopy.
+     * Fetch history start for the specified symbol.
      *
-     * @param  string $symbol
+     * @param  DukascopySymbol $symbol
      *
      * @return array - history start times per timeframe or an empty value in case of errors
      *
@@ -73,21 +73,22 @@ class Dukascopy extends Object {
      * )
      * </pre>
      */
-    public function fetchHistoryStart($symbol) {
-        $symbolU = strtoupper($symbol);
+    public function fetchHistoryStart(DukascopySymbol $symbol) {
+        $name  = $symbol->getName();
+        $nameU = strtoupper($name);
 
-        if (isset($this->allHistoryStarts[$symbolU]))
-            return $this->allHistoryStarts[$symbolU];
-        if (isset($this->historyStarts[$symbolU]))
-            return $this->historyStarts[$symbolU];
+        if (isset($this->allHistoryStarts[$nameU]))
+            return $this->allHistoryStarts[$nameU];
+        if (isset($this->historyStarts[$nameU]))
+            return $this->historyStarts[$nameU];
 
         /** @var Output $output */
         $output = $this->di(Output::class);
-        $output->out('[Info]    '.$symbol.'  fetching history start times from Dukascopy...');
+        $output->out('[Info]    '.str_pad($name, 6).'  fetching history start times from Dukascopy...');
 
-        $data = $this->getHttpClient()->downloadHistoryStart($symbol);
+        $data = $this->getHttpClient()->downloadHistoryStart($name);
         if (strlen($data))
-            return $this->historyStarts[$symbolU] = $this->readHistoryStartSection($data);
+            return $this->historyStarts[$nameU] = $this->readHistoryStartSection($data);
         return [];
     }
 
@@ -132,10 +133,10 @@ class Dukascopy extends Object {
      * Get history for the specified symbol, timeframe and time. Downloads the required data and converts Dukascopy GMT times
      * to FXT. The covered range of the returned timeseries depends on the requested timeframe.
      *
-     * @param  string $symbol
-     * @param  int    $timeframe
-     * @param  int    $time
-     * @param  int    $priceType
+     * @param  DukascopySymbol $symbol
+     * @param  int             $timeframe
+     * @param  int             $time
+     * @param  int             $priceType
      *
      * @return array[] - If history for the specified time and timeframe is not available an empty array is returned.
      *                   Otherwise a timeseries array is returned with each element describing a single price bar as follows:
@@ -150,17 +151,28 @@ class Dukascopy extends Object {
      * ];
      * </pre>
      */
-    public function getHistory($symbol, $timeframe, $time, $priceType) {
+    public function getHistory(DukascopySymbol $symbol, $timeframe, $time, $priceType) {
         return [];
+
+        // validate parameters
+
+        // if requested data is in cache return from there
+
+        // download required data and cache it
+
+        // calculate data to generate and cache it
+
+        // return result from cache
+
         /*
         $date = gmdate('D, d-M-Y', $time);
         $types = ['bid', 'ask'];
         foreach ($types as $type) {
             if (!isset($barBuffer[$type][$date]) || sizeof($barBuffer[$type][$date])!=PERIOD_D1) {
-                loadHistory($symbol, $day, $type);      // Bid- und Ask-Daten laden
+                loadHistory($symbol, $day, $type);      // load Bid and Ask data
             }
         }
-        mergeHistory($symbol, $day);                    // beide mergen
+        mergeHistory($symbol, $day);                    // merge Bid and Ask to Median
         */
     }
 
@@ -212,23 +224,20 @@ class Dukascopy extends Object {
     /**
      * Parse a string with Dukascopy bar data and convert it to a timeseries array.
      *
-     * @param  string $data   - string with Dukascopy bar data
-     * @param  string $symbol - Dukascopy symbol
-     * @param  string $type   - meta info for error message generation
-     * @param  int    $time   - ditto
+     * @param  string          $data   - string with Dukascopy bar data
+     * @param  DukascopySymbol $symbol - symbol the data belongs to
+     * @param  string          $type   - meta data for generating better error messages (data may contain errors)
+     * @param  int             $time   - ...
      *
      * @return array[] - DUKASCOPY_BAR[] data as a timeseries array
      */
-    public static function readBarData($data, $symbol, $type, $time) {
-        /** @var DukascopySymbol $dukaSymbol */
-        $dukaSymbol = DukascopySymbol::dao()->getByName($symbol);
-        $symbol     = $dukaSymbol->getName();
-        $digits     = $dukaSymbol->getDigits();
-        $divider    = pow(10, $digits);
+    public static function readBarData($data, DukascopySymbol $symbol, $type, $time) {
+        $digits  = $symbol->getDigits();
+        $divider = pow(10, $digits);
 
         if (!is_string($data))                        throw new IllegalTypeException('Illegal type of parameter $data: '.gettype($data));
         $lenData = strlen($data);
-        if (!$lenData || $lenData%DUKASCOPY_BAR_SIZE) throw new RuntimeException('Odd length of passed '.$symbol.' '.$type.' data: '.$lenData.' (not an even DUKASCOPY_BAR_SIZE)');
+        if (!$lenData || $lenData%DUKASCOPY_BAR_SIZE) throw new RuntimeException('Odd length of passed '.$symbol->getName().' '.$type.' data: '.$lenData.' (not an even DUKASCOPY_BAR_SIZE)');
 
         $offset  = 0;
         $bars    = [];
@@ -255,7 +264,7 @@ class Dukascopy extends Object {
                 $L = number_format($bars[$i]['low'  ]/$divider, $digits);
                 $C = number_format($bars[$i]['close']/$divider, $digits);
 
-                Logger::log("Illegal ".$symbol." $type data for bar[$i] of ".gmdate('D, d-M-Y H:i:s', $time).": O=$O H=$H L=$L C=$C, adjusting high/low...", L_WARN);
+                Logger::log("Illegal ".$symbol->getName()." $type data for bar[$i] of ".gmdate('D, d-M-Y H:i:s', $time).": O=$O H=$H L=$L C=$C, adjusting high/low...", L_WARN);
 
                 $bars[$i]['high'] = max($bars[$i]['open'], $bars[$i]['high'], $bars[$i]['low'], $bars[$i]['close']);
                 $bars[$i]['low' ] = min($bars[$i]['open'], $bars[$i]['high'], $bars[$i]['low'], $bars[$i]['close']);
@@ -268,14 +277,14 @@ class Dukascopy extends Object {
     /**
      * Parse a file with Dukascopy bar data and convert it to a data array.
      *
-     * @param  string $fileName - name of file with Dukascopy bar data
-     * @param  string $symbol   - meta infos for generating better error messages (Dukascopy data may contain errors)
-     * @param  string $type     - ...
-     * @param  int    $time     - ...
+     * @param  string          $fileName - name of file with Dukascopy bar data
+     * @param  DukascopySymbol $symbol   - symbol the data belongs to
+     * @param  string          $type     - meta data for generating better error messages (data may contain errors)
+     * @param  int             $time     - ...
      *
      * @return array - DUKASCOPY_BAR[] data
      */
-    public static function readBarFile($fileName, $symbol, $type, $time) {
+    public static function readBarFile($fileName, DukascopySymbol $symbol, $type, $time) {
         if (!is_string($fileName)) throw new IllegalTypeException('Illegal type of parameter $fileName: '.gettype($fileName));
         return self::readBarData(file_get_contents($fileName), $symbol, $type, $time);
     }

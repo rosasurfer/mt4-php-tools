@@ -143,7 +143,7 @@ class DukascopySymbol extends RosatraderModel implements IHistoryProvider {
         else {
             /** @var Dukascopy $dukascopy */
             $dukascopy = $this->di(Dukascopy::class);
-            $historyStart = $dukascopy->fetchHistoryStart($this->name);
+            $historyStart = $dukascopy->fetchHistoryStart($this);
 
             foreach ($historyStart as $timeframe => $time) {
                 $period     = periodDescription($timeframe);
@@ -233,6 +233,6 @@ class DukascopySymbol extends RosatraderModel implements IHistoryProvider {
 
         /** @var Dukascopy $dukascopy */
         $dukascopy = $this->di(Dukascopy::class);
-        return $dukascopy->getHistory($this->name, $timeframe, $time, PRICE_MEDIAN);
+        return $dukascopy->getHistory($this, $timeframe, $time, PRICE_MEDIAN);
     }
 }

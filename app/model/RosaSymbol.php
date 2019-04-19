@@ -419,7 +419,8 @@ class RosaSymbol extends RosatraderModel {
             }
             $this->historyEndM1 = gmdate('Y-m-d H:i:s', $bars[sizeof($bars)-1]['time']);
             $this->modified()->save();                                              // update the database
-            Process::dispatchSignals();                                             // process signals
+
+            Process::dispatchSignals();
         }
 
         $output->out('[Ok]      '.$this->name);

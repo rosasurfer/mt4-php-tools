@@ -26,7 +26,7 @@ Usage:
   rt-dukascopy-status  [-r | -u] [-h] [SYMBOL ...]
 
 Arguments:
-  SYMBOL         The Dukascopy symbols to process (default: all tracked symbols).
+  SYMBOL         Dukascopy symbols to process (default: all tracked symbols).
 
 Options:
    -r, --remote  Show remote instead of locally stored history start times (connects to Dukascopy).
