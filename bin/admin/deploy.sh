@@ -90,7 +90,7 @@ fi
 if [ -n "$BRANCH" ]; then
     [ "$BRANCH" != "$FROM_BRANCH" ] && git checkout "$BRANCH"
     git merge --ff-only "origin/$BRANCH"
-elif [ -n "$TAG"    ]; then
+elif [ -n "$TAG" ]; then
     git checkout "$TAG"
 elif [ -n "$COMMIT" ]; then
     git checkout "$COMMIT"
