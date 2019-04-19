@@ -31,7 +31,7 @@ Usage:
 Commands:
   status           Show history status information.
   synchronize      Synchronize history status in the database with history stored in the file system.
-  update           Update the stored history (may connect to remote services).
+  update           Update locally stored history (may connect to remote services).
 
 Arguments:
   SYMBOL           One or more symbols to process (default: all symbols).
