@@ -36,7 +36,7 @@ class RT extends StaticClass {
      */
     public static function readBarFile($fileName, RosaSymbol $symbol) {
         if (!is_string($fileName)) throw new IllegalTypeException('Illegal type of parameter $fileName: '.gettype($fileName));
-        return self::readBarData(file_get_contents($fileName), $symbol);
+        return static::readBarData(file_get_contents($fileName), $symbol);
     }
 
 

@@ -178,47 +178,24 @@ function fxDate($format, $time=null, $fxtTime=false) {
 
 
 /**
- * Parst die String-Repraesentation einer FXT-Zeit in einen GMT-Timestamp.
+ * Return the FXT offset of a GMT time, and optionally the adjacent DST transition data.
  *
- * @param  string $time - FXT-Zeit in einem der Funktion strtotime() verstaendlichen Format
+ * @param  int   $time           [optional] - GMT time (default: current time)
+ * @param  array $prevTransition [optional] - if specified the array is filled with the data of the previous DST transition
+ * @param  array $nextTransition [optional] - if specified the array is filled with the data of the next DST transition
  *
- * @return int - Unix-Timestamp
- *
- * TODO:  Funktion unnoetig: strtotime() ueberladen und um Erkennung der FXT-Zeitzone erweitern
+ * @return int - Offset in seconds or NULL if parameter $time is not in the range of the timezone information for FXT.  <br>
+ *               Offset is always positive, it follows: FXT = GMT + offset                                              <br>
+ *                                                                                                                      <br>
+ * Transition data is returned as follows:
+ * <pre>
+ * Array (
+ *     ['time'   => {timestamp},    // GMT timestamp of the previous|next DST transition
+ *     ['offset' => {offset}        // FXT offset before|after that DST transition
+ * )
+ * </pre>
  */
-function fxtStrToTime($time) {
-    if (!is_string($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
-
-    $currentTZ = date_default_timezone_get();
-    try {
-        date_default_timezone_set('America/New_York');
-        $unixTime = strtotime($time);
-        if ($unixTime === false) throw new InvalidArgumentException('Invalid argument $time: "'.$time.'"');
-        return $unixTime - 7*HOURS;
-    }
-    finally { date_default_timezone_set($currentTZ); }
-}
-
-
-/**
- * Gibt den FXT-Offset einer Zeit zu GMT und ggf. die beiden jeweils angrenzenden naechsten DST-Transitionsdaten zurueck.
- *
- * @param  int        $time           - GMT-Zeitpunkt (default: aktuelle Zeit)
- * @param  array|null $prevTransition - Wenn angegeben, enthaelt diese Variable nach Rueckkehr ein Array
- *                                      ['time'=>{timestamp}, 'offset'=>{offset}] mit dem GMT-Timestamp des vorherigen
- *                                      Zeitwechsels und dem Offset vor diesem Zeitpunkt.
- * @param  array|null $nextTransition - Wenn angegeben, enthaelt diese Variable nach Rueckkehr ein Array
- *                                      ['time'=>{timestamp}, 'offset'=>{offset}] mit dem GMT-Timestamp des naechsten
- *                                      Zeitwechsels und dem Offset nach diesem Zeitpunkt.
- *
- * @return int - Offset in Sekunden oder NULL, wenn der Zeitpunkt ausserhalb der bekannten Transitionsdaten liegt.
- *               FXT liegt oestlich von GMT, der Offset ist also immer positiv. Es gilt: GMT + Offset = FXT
- *
- *
- * Note: Analog zu date('Z', $time) verhaelt sich diese Funktion, als wenn lokal die (in PHP nicht existierende) Zeitzone 'FXT'
- *       eingestellt worden waere.
- */
-function fxtTimezoneOffset($time=null, &$prevTransition=[], &$nextTransition=[]) {
+function fxTimezoneOffset($time=null, &$prevTransition=[], &$nextTransition=[]) {
     if (is_null($time)) $time = time();
     else if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
 
@@ -276,6 +253,29 @@ function fxtTimezoneOffset($time=null, &$prevTransition=[], &$nextTransition=[])
     if ($i >= 0)                                                    // $transitions ist nicht leer und
         $offset = $transitions[$i]['offset'] + 7*HOURS;             // $time liegt nicht vor der ersten Periode
     return $offset;
+}
+
+
+/**
+ * Parst die String-Repraesentation einer FXT-Zeit in einen GMT-Timestamp.
+ *
+ * @param  string $time - FXT-Zeit in einem der Funktion strtotime() verstaendlichen Format
+ *
+ * @return int - Unix-Timestamp
+ *
+ * TODO:  Funktion unnoetig: strtotime() ueberladen und um Erkennung der FXT-Zeitzone erweitern
+ */
+function fxtStrToTime($time) {
+    if (!is_string($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
+
+    $currentTZ = date_default_timezone_get();
+    try {
+        date_default_timezone_set('America/New_York');
+        $unixTime = strtotime($time);
+        if ($unixTime === false) throw new InvalidArgumentException('Invalid argument $time: "'.$time.'"');
+        return $unixTime - 7*HOURS;
+    }
+    finally { date_default_timezone_set($currentTZ); }
 }
 
 
@@ -419,6 +419,31 @@ function timeframeToStr($timeframe) {
  */
 function timeframeDescription($timeframe) {
     return periodDescription($timeframe);
+}
+
+
+/**
+ * Return a human-readable description of a price type identifier.
+ *
+ * @param  int $type - price type
+ *
+ * @return string
+ */
+function priceTypeDescription($type) {
+    if (!is_int($type)) throw new IllegalTypeException('Illegal type of parameter $type: '.gettype($type));
+
+    switch ($type) {
+        case PRICE_CLOSE   : return("Close"   );
+        case PRICE_OPEN    : return("Open"    );
+        case PRICE_HIGH    : return("High"    );
+        case PRICE_LOW     : return("Low"     );
+        case PRICE_MEDIAN  : return("Median"  );        // (High+Low)/2
+        case PRICE_TYPICAL : return("Typical" );        // (High+Low+Close)/3
+        case PRICE_WEIGHTED: return("Weighted");        // (High+Low+Close+Close)/4
+        case PRICE_BID     : return("Bid"     );
+        case PRICE_ASK     : return("Ask"     );
+    }
+    return (string) $type;
 }
 
 

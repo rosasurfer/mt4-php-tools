@@ -53,7 +53,7 @@ use rosasurfer\rt\model\DukascopySymbol;
 use rosasurfer\rt\model\RosaSymbol;
 
 use function rosasurfer\rt\fxtStrToTime;
-use function rosasurfer\rt\fxtTimezoneOffset;
+use function rosasurfer\rt\fxTimezoneOffset;
 use function rosasurfer\rt\isWeekend;
 
 require(dirname(realpath(__FILE__)).'/../../app/init.php');
@@ -131,7 +131,7 @@ function updateSymbol(RosaSymbol $symbol) {
     $startTimeFXT = $dukaSymbol->getHistoryStartTick();
     $startTimeGMT = $startTimeFXT ? fxtStrToTime($startTimeFXT) : 0;        // Beginn der Tickdaten des Symbols in GMT
     $prev = $next = null;
-    $fxtOffset    = fxtTimezoneOffset($startTimeGMT, $prev, $next);         // es gilt: FXT = GMT + Offset
+    $fxtOffset    = fxTimezoneOffset($startTimeGMT, $prev, $next);          // es gilt: FXT = GMT + Offset
     $startTimeFXT = $startTimeGMT + $fxtOffset;                             // Beginn der Tickdaten in FXT
 
     if ($remainder=$startTimeFXT % DAY) {                                   // Beginn auf den naechsten Forex-Tag 00:00 aufrunden, sodass
@@ -141,7 +141,7 @@ function updateSymbol(RosaSymbol $symbol) {
             $startTimeFXT = $startTimeGMT + $next['offset'];
             if ($remainder=$startTimeFXT % DAY) $diff = 1*DAY - $remainder;
             else                                $diff = 0;
-            $fxtOffset = fxtTimezoneOffset($startTimeGMT, $prev, $next);
+            $fxtOffset = fxTimezoneOffset($startTimeGMT, $prev, $next);
         }
         $startTimeGMT += $diff;                                             // naechster Forex-Tag 00:00 in GMT
         $startTimeFXT += $diff;                                             // naechster Forex-Tag 00:00 in FXT
@@ -155,7 +155,7 @@ function updateSymbol(RosaSymbol $symbol) {
 
     for ($gmtHour=$startTimeGMT; $gmtHour < $lastHour; $gmtHour+=1*HOUR) {
         if ($gmtHour >= $next['time'])
-            $fxtOffset = fxtTimezoneOffset($gmtHour, $prev, $next);         // $fxtOffset on-the-fly aktualisieren
+            $fxtOffset = fxTimezoneOffset($gmtHour, $prev, $next);          // $fxtOffset on-the-fly aktualisieren
         $fxtHour = $gmtHour + $fxtOffset;
 
         if (!checkHistory($symbolName, $gmtHour, $fxtHour)) return false;
@@ -483,7 +483,9 @@ function loadCompressedDukascopyTickData($data, $symbol, $gmtHour, $fxtHour) {
     global $saveRawDukascopyFiles;
     $saveAs = $saveRawDukascopyFiles ? getVar('dukaFile.raw', $symbol, $gmtHour) : null;
 
-    $rawData = Dukascopy::decompressHistoryData($data, $saveAs);
+    /** @var Dukascopy $dukascopy */
+    $dukascopy = Application::getDi()[Dukascopy::class];
+    $rawData = $dukascopy->decompressData($data, $saveAs);
     return loadRawDukascopyTickData($rawData, $symbol, $gmtHour, $fxtHour);
 }
 

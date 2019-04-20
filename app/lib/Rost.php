@@ -186,7 +186,7 @@ class Rost extends StaticClass {
      * @return bool
      */
     public static function isOrderType($integer) {
-        $description = self::orderTypeDescription($integer);
+        $description = static::orderTypeDescription($integer);
         return ($description !== null);
     }
 
@@ -324,7 +324,7 @@ class Rost extends StaticClass {
      */
     public static function readBarFile($fileName, $symbol) {
         if (!is_string($fileName)) throw new IllegalTypeException('Illegal type of parameter $fileName: '.gettype($fileName));
-        return self::readBarData(file_get_contents($fileName), $symbol);
+        return static::readBarData(file_get_contents($fileName), $symbol);
     }
 
 
@@ -396,10 +396,10 @@ class Rost extends StaticClass {
         if (!$size)
             return -1;
 
-        $offset = self::findTimeOffset($bars, $time);
+        $offset = static::findTimeOffset($bars, $time);
 
         if ($offset < 0) {                                                         // Zeitpunkt liegt nach der juengsten bar[openTime]
-            $closeTime = self::periodCloseTime($bars[$size-1]['time'], $period);
+            $closeTime = static::periodCloseTime($bars[$size-1]['time'], $period);
             if ($time < $closeTime)                                                 // Zeitpunkt liegt innerhalb der juengsten Bar
                 return $size-1;
             return -1;
@@ -412,7 +412,7 @@ class Rost extends StaticClass {
             return -1;
 
         $offset--;
-        $closeTime = self::periodCloseTime($bars[$offset]['time'], $period);
+        $closeTime = static::periodCloseTime($bars[$offset]['time'], $period);
         if ($time < $closeTime)                                                    // Zeitpunkt liegt in der vorhergehenden Bar
             return $offset;
         return -1;                                                                 // Zeitpunkt liegt nicht in der vorhergehenden Bar,
@@ -438,7 +438,7 @@ class Rost extends StaticClass {
         if (!$size)
             return -1;
 
-        $offset = self::findTimeOffset($bars, $time);
+        $offset = static::findTimeOffset($bars, $time);
 
         if ($offset < 0)                                                           // Zeitpunkt liegt nach der juengsten bar[openTime]
             return $size-1;
@@ -468,10 +468,10 @@ class Rost extends StaticClass {
         if (!$size)
             return -1;
 
-        $offset = self::findTimeOffset($bars, $time);
+        $offset = static::findTimeOffset($bars, $time);
 
         if ($offset < 0) {                                                         // Zeitpunkt liegt nach der juengsten bar[openTime]
-            $closeTime = self::periodCloseTime($bars[$size-1]['time'], $period);
+            $closeTime = static::periodCloseTime($bars[$size-1]['time'], $period);
             return ($closeTime > $time) ? $size-1 : -1;
         }
         if ($offset == 0)                                                          // Zeitpunkt liegt vor oder exakt auf der ersten Bar
@@ -480,12 +480,12 @@ class Rost extends StaticClass {
         if ($bars[$offset]['time'] == $time)                                       // Zeitpunkt stimmt mit bar[openTime] ueberein
             return $offset;
         $offset--;                                                                 // Zeitpunkt liegt in der vorherigen oder zwischen der
-                                                                                                            // vorherigen und der TimeOffset-Bar
-        $closeTime = self::periodCloseTime($bars[$offset]['time'], $period);
+                                                                                   // vorherigen und der TimeOffset-Bar
+        $closeTime = static::periodCloseTime($bars[$offset]['time'], $period);
         if ($closeTime > $time)                                                    // Zeitpunkt liegt innerhalb dieser vorherigen Bar
             return $offset;
         return ($offset+1 < $bars) ? $offset+1 : -1;                               // Zeitpunkt liegt nach bar[closeTime], also Luecke...
-    }                                                                             // zwischen der vorherigen und der folgenden Bar
+    }                                                                              // zwischen der vorherigen und der folgenden Bar
 
 
     /**
@@ -551,15 +551,15 @@ class Rost extends StaticClass {
         else if ($id == 'rtDir') {                      // $dataDir/history/rosatrader/$type/$symbol/$rtDirDate         // lokales Verzeichnis
             if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
             $type      = RosaSymbol::dao()->getByName($symbol)->getType();
-            $rtDirDate = self::{__FUNCTION__}('rtDirDate', null, $time);
+            $rtDirDate = static::{__FUNCTION__}('rtDirDate', null, $time);
             $result    = $storageDir.'/history/rosatrader/'.$type.'/'.$symbol.'/'.$rtDirDate;
         }
         else if ($id == 'rtFile.M1.raw') {              // $rtDir/M1.bin                                                // RT-M1-Datei ungepackt
-            $rtDir  = self::{__FUNCTION__}('rtDir' , $symbol, $time);
+            $rtDir  = static::{__FUNCTION__}('rtDir' , $symbol, $time);
             $result = $rtDir.'/M1.bin';
         }
         else if ($id == 'rtFile.M1.compressed') {       // $rtDir/M1.rar                                                // RT-M1-Datei gepackt
-            $rtDir  = self::{__FUNCTION__}('rtDir', $symbol, $time);
+            $rtDir  = static::{__FUNCTION__}('rtDir', $symbol, $time);
             $result = $rtDir.'/M1.rar';
         }
         else throw new InvalidArgumentException('Unknown variable identifier "'.$id.'"');

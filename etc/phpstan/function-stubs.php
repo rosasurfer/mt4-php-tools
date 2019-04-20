@@ -73,20 +73,6 @@ namespace rosasurfer\rt\bin\dukascopy\update_m1_bars {
     }
 
     /**
-     * @param  string $symbol
-     * @param  int    $day
-     * @param  string $type
-     * @param  bool   $quiet
-     * @param  bool   $saveData
-     * @param  bool   $saveError
-     *
-     * @return string
-     */
-    function downloadData($symbol, $day, $type, $quiet=false, $saveData=false, $saveError=true) {
-        return '';
-    }
-
-    /**
      * @param  string $id
      * @param  string $symbol [optional]
      * @param  int    $time   [optional]
@@ -156,6 +142,11 @@ namespace rosasurfer\rt\bin\dukascopy\update_m1_bars {
     function saveBars($symbol, $day) {
         return false;
     }
+
+    /**
+     *
+     */
+    function showBarBuffer() {}
 
     /**
      * @param  string $symbol

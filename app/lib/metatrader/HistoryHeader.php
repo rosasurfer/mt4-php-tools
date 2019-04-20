@@ -125,7 +125,7 @@ class HistoryHeader extends Object {
         if (!is_string($data))                                throw new IllegalTypeException('Illegal type of parameter $data: '.gettype($data));
         if (strlen($data) != self::SIZE)                      throw new InvalidArgumentException('Invalid length of parameter $data: '.strlen($data).' (not '.__CLASS__.'::SIZE)');
 
-        $header = unpack(self::unpackFormat(), $data);
+        $header = unpack(static::unpackFormat(), $data);
         if ($header['format']!=400 && $header['format']!=401) throw new MetaTraderException('version.unsupported: Invalid or unsupported history format version: '.$header['format']);
 
         // Daten speichern
