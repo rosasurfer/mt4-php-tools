@@ -168,9 +168,9 @@ class Dukascopy extends Object {
 
         // make sure Bid and Ask are loaded and Median is calculated
         foreach ([PRICE_BID, PRICE_ASK] as $reqType) {
-            $this->loadHistory($symbol, $period, $time, $reqType);      // As Bid or Ask will never be requested alone we
-        }                                                               // may as well pre-load and calculate everything.
-        $this->calculateMedian($symbol, $period, $time);
+            $this->loadHistory($symbol, $period, $time, $reqType);
+        }                                                               // As Bid or Ask will never be requested alone we
+        $this->calculateMedian($symbol, $period, $time);                // may as well pre-load and calculate everything.
 
         // return resulting data from cache
         $nameU = strtoupper($symbol->getName());
@@ -195,8 +195,8 @@ class Dukascopy extends Object {
         if (!in_array($type, [PRICE_BID, PRICE_ASK])) throw new InvalidArgumentException('Invalid parameter $type: '.$type);
 
         // Day transition time (Midnight) for Dukascopy data is at 00:00 GMT (~02:00 FXT). Thus each FXT day requires
-        // Dukascopy data of the current and the previous GMT day. If all data is already present in the internal cache this
-        // method does nothing. Otherwise data is downloaded, converted and stored in the cache.
+        // Dukascopy data of the current and the previous GMT day. If all data is already present in the internal cache
+        // this method does nothing. Otherwise data is downloaded, converted and stored in the cache.
         //
         //         +---------++---------+---------+---------+---------+---------++---------+---------++---------+
         // GMT:    |   Sun   ||   Mon   |   Tue   |   Wed   |   Thu   |   Fri   ||   Sat   |   Sun   ||   Mon   |
