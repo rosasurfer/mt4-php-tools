@@ -116,7 +116,7 @@ class HttpClient extends CurlHttpClient {
         $content = $response->getContent();
         if (!strlen($content))
             $status = HttpResponse::SC_NOT_FOUND;
-        if ($status == HttpResponse::SC_NOT_FOUND) $this->di(Output::class)->stderr('[Error]   URL not found (404): '.$url);
+        if ($status == HttpResponse::SC_NOT_FOUND) $output->error('[Error]   URL not found (404): '.$url);
 
         return ($status==HttpResponse::SC_OK) ? $response->getContent() : '';
     }

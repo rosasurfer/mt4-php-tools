@@ -324,7 +324,7 @@ class Dukascopy extends Object {
      * Calculate PRICE_MEDIAN of the specified history and store the resulting timeseries in the internal bar cache.
      *
      * @param  DukascopySymbol $symbol
-     * @param  int             $period - [PERIOD_M1 | PERIOD_D1]
+     * @param  int             $period - PERIOD_M1 | PERIOD_D1
      * @param  int             $time   - FXT time
      */
     protected function calculateMedian(DukascopySymbol $symbol, $period, $time) {
@@ -335,10 +335,9 @@ class Dukascopy extends Object {
      * Decompress a compressed Dukascopy data string and return it.
      *
      * @param  string $data              - compressed string with bars or ticks
-     * @param  string $saveAs [optional] - if specified the decompressed string is additionally stored in the given file
-     *                                     (default: no storage)
+     * @param  string $saveAs [optional] - name of file to store the decompressed data (default: no storage)
      *
-     * @return string - decompressed data string
+     * @return string - decompressed data
      */
     public function decompressData($data, $saveAs = null) {
         if (!is_string($data))       throw new IllegalTypeException('Illegal type of parameter $data: '.gettype($data));
