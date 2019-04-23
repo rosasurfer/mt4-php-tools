@@ -259,14 +259,12 @@ function mergeHistory($symbol, $day) {
     $shortDate = gmdate('D, d-M-Y', $day);
     global $barBuffer;
 
-
     // (1) beide Datenreihen nochmal pruefen
     $types = ['bid', 'ask'];
     foreach ($types as $type) {
         if (!isset($barBuffer[$type][$shortDate]) || ($size=sizeof($barBuffer[$type][$shortDate]))!=PERIOD_D1)
             throw new RuntimeException('Unexpected number of Rosatrader '.$type.' bars for '.$shortDate.' in bar buffer: '.$size.' ('.($size > PERIOD_D1 ? 'more':'less').' then a day)');
     }
-
 
     // (2) Daten mergen
     foreach ($barBuffer['bid'][$shortDate] as $i => $bid) {
@@ -455,8 +453,8 @@ function saveBars($symbol, $day) {
     foreach ($barBuffer['avg'][$shortDate] as $bar) {
         // Bardaten vorm Schreiben validieren
         if ($bar['open' ] > $bar['high'] ||
-            $bar['open' ] < $bar['low' ] ||          // aus (H >= O && O >= L) folgt (H >= L)
-            $bar['close'] > $bar['high'] ||          // nicht mit min()/max(), da nicht performant
+            $bar['open' ] < $bar['low' ] ||           // aus (H >= O && O >= L) folgt (H >= L)
+            $bar['close'] > $bar['high'] ||           // nicht mit min()/max(), da nicht performant
             $bar['close'] < $bar['low' ] ||
            !$bar['ticks']) throw new RuntimeException('Illegal data for Rosatrader price bar of '.gmdate('D, d-M-Y H:i:s', $bar['time_fxt']).": O=$bar[open] H=$bar[high] L=$bar[low] C=$bar[close] V=$bar[ticks]");
 
@@ -478,7 +476,7 @@ function saveBars($symbol, $day) {
         FS::mkDir(dirname($file));
         $tmpFile = tempnam(dirname($file), basename($file));
         file_put_contents($tmpFile, $data);
-        rename($tmpFile, $file);                                       // So kann eine existierende Datei niemals korrupt sein.
+        rename($tmpFile, $file);                      // this way an existing file can't be corrupt
     }
 
     // (4) binaere Daten ggf. komprimieren und speichern

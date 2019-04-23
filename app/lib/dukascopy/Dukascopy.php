@@ -164,17 +164,17 @@ class Dukascopy extends Object {
         if (!is_int($time))                                         throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
         if (!is_int($type))                                         throw new IllegalTypeException('Illegal type of parameter $type: '.gettype($type));
         if (!in_array($type, [PRICE_BID, PRICE_ASK, PRICE_MEDIAN])) throw new InvalidArgumentException('Invalid parameter $type: '.$type);
-        $time -= $time%DAY;
+        $day = $time - $time%DAY;
 
         // make sure Bid and Ask are loaded and Median is calculated
         foreach ([PRICE_BID, PRICE_ASK] as $reqType) {
-            $this->loadHistory($symbol, $period, $time, $reqType);
+            $this->loadHistory($symbol, $period, $day, $reqType);
         }                                                               // As Bid or Ask will never be requested alone we
-        $this->calculateMedian($symbol, $period, $time);                // may as well pre-load and calculate everything.
+        $this->calculateMedian($symbol, $period, $day);                 // may as well pre-load and calculate everything.
 
         // return resulting data from cache
         $nameU = strtoupper($symbol->getName());
-        return $this->history[$nameU][$period][$time][$type] ?: [];
+        return $this->history[$nameU][$period][$day][$type] ?: [];
     }
 
 
@@ -328,6 +328,50 @@ class Dukascopy extends Object {
      * @param  int             $time   - FXT time
      */
     protected function calculateMedian(DukascopySymbol $symbol, $period, $time) {
+        if (!is_int($period))     throw new IllegalTypeException('Illegal type of parameter $period: '.gettype($period));
+        if ($period != PERIOD_M1) throw new InvalidArgumentException('Invalid parameter $period: '.periodToStr($period));
+        if (!is_int($time))       throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
+        $nameU = strtoupper($symbol->getName());
+        $day   = $time - $time%DAY;
+
+        // make sure Bid and Ask timeseries exist
+        foreach ([PRICE_BID, PRICE_ASK] as $type) {
+            if (!isset($this->history[$nameU][$period][$day][$type]) || ($size=sizeof($this->history[$nameU][$period][$day][$type]))!=PERIOD_D1) {
+                throw new RuntimeException('Unexpected number of '.priceTypeDescription($type).' bars for '
+                                           .gmdate('D, d-M-Y', $day).' in bar cache: '
+                                           .$size.' ('.($size > PERIOD_D1 ? 'more':'less').' then a day)');
+            }
+        }
+        $bids = $this->history[$nameU][$period][$day][PRICE_BID];
+        $asks = $this->history[$nameU][$period][$day][PRICE_ASK];
+
+        // calculate PRICE_MEDIAN
+        foreach ($bids as $i => $bid) {
+            $ask = $asks[$i];
+            $median = [];
+            $median['time_fxt' ] = $bid['time_fxt' ];
+            $median['delta_fxt'] = $bid['delta_fxt'];
+            $median['open'     ] = (int) round(($bid['open' ] + $ask['open' ])/2);
+            $median['high'     ] = (int) round(($bid['high' ] + $ask['high' ])/2);
+            $median['low'      ] = (int) round(($bid['low'  ] + $ask['low'  ])/2);
+            $median['close'    ] = (int) round(($bid['close'] + $ask['close'])/2);
+
+            // Bid and Ask bar have been validated before. Validate the calculated Median bar
+            // to fix price spikes with negative spread by adjusting High and Low.
+            if ($bid['open'] > $ask['open'] || $bid['high'] > $ask['high'] || $bid['low'] > $ask['low'] || $bid['close'] > $ask['close']) {
+                $median['high'] = max($median['open'], $median['high'], $median['low'], $median['close']);
+                $median['low' ] = min($median['open'], $median['high'], $median['low'], $median['close']);
+            }
+
+            // Simplified calculation of ticks as number of steps to touch all control points inside the bar. Goal is
+            // a minimum tick value to speedup tests. On PERIOD_M1 accuracy of this method is more then sufficient.
+            $ticks = ($median['high'] - $median['low']) << 1;                                               // unchanged bar (O == C)
+            if      ($median['open'] < $median['close']) $ticks += ($median['open' ] - $median['close']);   // bull bar
+            else if ($median['open'] > $median['close']) $ticks += ($median['close'] - $median['open' ]);   // bear bar
+            $median['ticks'] = $ticks ?: 1;                                                                 // min. tick value of 1
+
+            $this->history[$nameU][$period][$day][PRICE_MEDIAN][$i] = $median;
+        }
     }
 
 
@@ -351,9 +395,9 @@ class Dukascopy extends Object {
         if (isset($saveAs)) {
             FS::mkDir(dirname($saveAs));
             $tmpFile = tempnam(dirname($saveAs), basename($saveAs));
-            file_put_contents($tmpFile, $rawData);                      // make sure an interruption of the write process
-            if (is_file($saveAs)) unlink($saveAs);                      // doesn't leave a corrupt file
-            rename($tmpFile, $saveAs);
+            file_put_contents($tmpFile, $rawData);
+            if (is_file($saveAs)) unlink($saveAs);
+            rename($tmpFile, $saveAs);                                  // this way an existing file can't be corrupt
         }
         return $rawData;
     }

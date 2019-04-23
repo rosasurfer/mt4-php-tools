@@ -87,6 +87,11 @@ class RT extends StaticClass {
      * @return bool - success status
      */
     public static function saveM1Bars(array $bars, RosaSymbol $symbol) {
+        /*
+        echoPre($bars[0]);
+        echoPre($bars[1]);
+        */
+
         // validate bar range
         $opentime = $bars[0]['time'];
         if ($opentime % DAY)                                   throw new RuntimeException('Invalid daily M1 data, first bar opentime: '.gmdate('D, d-M-Y H:i:s', $opentime));

@@ -263,7 +263,7 @@ function saveBars($symbol, $day, array $bars, $partial = false) {
         FS::mkDir(dirname($file));
         $tmpFile = tempnam(dirname($file), basename($file));
         file_put_contents($tmpFile, $data);
-        rename($tmpFile, $file);
+        rename($tmpFile, $file);                   // this way an existing file can't be corrupt
     }
     return true;
 }
