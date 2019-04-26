@@ -111,10 +111,8 @@ function updateSymbol(RosaSymbol $symbol) {
 
     for ($day=$startTime; $day < $today; $day+=1*DAY) {
         $month = (int) gmdate('m', $day);
-        if ($month != $lastMonth) {
-            if ($verbose > 0) echoPre('[Info]    '.gmdate('M-Y', $day).'  checking for existing history files');
+        if ($month != $lastMonth)
             $lastMonth = $month;
-        }
         if (!checkHistory($symbolName, $day))
             return false;
     }
@@ -303,41 +301,11 @@ function mergeHistory($symbol, $day) {
 /**
  * @return bool - Erfolgsstatus
  */
-function processCompressedDukascopyBarFile($file, $symbol, $day, $type) {
-    if (!is_string($file)) throw new IllegalTypeException('Illegal type of parameter $file: '.gettype($file));
-    if (!is_int($day))     throw new IllegalTypeException('Illegal type of parameter $day: '.gettype($day));
-
-    global $verbose;
-    if ($verbose > 0) echoPre('[Info]    '.gmdate('D, d-M-Y', $day).'  Dukascopy compressed bar file: '.RT::relativePath($file));
-
-    return processCompressedDukascopyBarData(file_get_contents($file), $symbol, $day, $type);
-}
-
-
-/**
- * @return bool - Erfolgsstatus
- */
 function processCompressedDukascopyBarData($data, $symbol, $day, $type) {
-    if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.gettype($data));
-
     /** @var Dukascopy $dukascopy */
     $dukascopy = Application::getDi()[Dukascopy::class];
     $rawData = $dukascopy->decompressData($data);
     return processRawDukascopyBarData($rawData, $symbol, $day, $type);
-}
-
-
-/**
- * @return bool - Erfolgsstatus
- */
-function processRawDukascopyBarFile($file, $symbol, $day, $type) {
-    if (!is_string($file)) throw new IllegalTypeException('Illegal type of parameter $file: '.gettype($file));
-    if (!is_int($day))     throw new IllegalTypeException('Illegal type of parameter $day: '.gettype($day));
-
-    global $verbose;
-    if ($verbose > 0) echoPre('[Info]    '.gmdate('D, d-M-Y', $day).'  Dukascopy uncompressed bar file: '.RT::relativePath($file));
-
-    return processRawDukascopyBarData(file_get_contents($file), $symbol, $day, $type);
 }
 
 
@@ -443,10 +411,7 @@ function saveBars($symbol, $day) {
     if (!$errorMsg && $barBuffer['avg'][$shortDate][0      ]['delta_fxt']!=0                  ) $errorMsg = 'No beginning "avg" bars for '.$shortDate.' in buffer, first bar:'.NL.printPretty($barBuffer['avg'][$shortDate][0], true);
     if (!$errorMsg && $barBuffer['avg'][$shortDate][$size-1]['delta_fxt']!=23*HOURS+59*MINUTES) $errorMsg = 'No ending "avg" bars for '.$shortDate.' in buffer, last bar:'.NL.printPretty($barBuffer['avg'][$shortDate][$size-1], true);
     if (!$errorMsg && ($size=sizeof(array_keys($barBuffer['avg']))) > 1)                        $errorMsg = 'Invalid bar buffer state: found more then one "avg" data series ('.$size.')';
-    if ($errorMsg) {
-        showBarBuffer();
-        throw new RuntimeException($errorMsg);
-    }
+    if ($errorMsg) throw new RuntimeException($errorMsg);
 
     // (2) Bars in Binaerstring umwandeln
     $data = null;
@@ -477,10 +442,6 @@ function saveBars($symbol, $day) {
         $tmpFile = tempnam(dirname($file), basename($file));    // make sure an existing file can't be corrupt
         file_put_contents($tmpFile, $data);
         rename($tmpFile, $file);
-    }
-
-    // (4) binaere Daten ggf. komprimieren und speichern
-    if ($compressHistory) {
     }
     return true;
 }
@@ -550,31 +511,4 @@ function getVar($id, $symbol=null, $time=null, $type=null) {
         $varCache = array_slice($varCache, $offset=$maxSize/2);
     }
     return $result;
-}
-
-
-/**
- *
- */
-function showBarBuffer() {
-    global $barBuffer;
-
-    echoPre(NL);
-    foreach ($barBuffer as $type => $days) {
-        if (!is_array($days)) {
-            echoPre('barBuffer['.$type.'] => '.(isset($days) ? $days : 'null'));
-            continue;
-        }
-        foreach ($days as $day => $bars) {
-            if (!is_array($bars)) {
-                echoPre('barBuffer['.$type.']['.(is_int($day) ? gmdate('D, d-M-Y', $day) : $day).'] => '.(isset($bars) ? $bars : 'null'));
-                continue;
-            }
-            $size = sizeof($bars);
-            $firstBar = $size ? gmdate('H:i', $bars[0      ]['time_fxt']) : null;
-            $lastBar  = $size ? gmdate('H:i', $bars[$size-1]['time_fxt']) : null;
-            echoPre('barBuffer['.$type.']['.(is_int($day) ? gmdate('D, d-M-Y', $day) : $day).'] => '.str_pad($size, 4, ' ', STR_PAD_LEFT).' bar'.pluralize($size).($firstBar ? '  '.$firstBar : '').($size>1 ? '-'.$lastBar : ''));
-        }
-    }
-    echoPre(NL);
 }

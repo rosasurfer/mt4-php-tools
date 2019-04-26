@@ -115,21 +115,7 @@ namespace rosasurfer\rt\bin\dukascopy\update_m1_bars {
     /**
      * @return bool
      */
-    function processCompressedDukascopyBarFile($file, $symbol, $day, $type) {
-        return false;
-    }
-
-    /**
-     * @return bool
-     */
     function processRawDukascopyBarData($data, $symbol, $day, $type) {
-        return false;
-    }
-
-    /**
-     * @return bool
-     */
-    function processRawDukascopyBarFile($file, $symbol, $day, $type) {
         return false;
     }
 
@@ -142,11 +128,6 @@ namespace rosasurfer\rt\bin\dukascopy\update_m1_bars {
     function saveBars($symbol, $day) {
         return false;
     }
-
-    /**
-     *
-     */
-    function showBarBuffer() {}
 
     /**
      * @param  string $symbol
