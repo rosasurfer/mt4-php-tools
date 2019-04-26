@@ -12,7 +12,7 @@ use rosasurfer\exception\RuntimeException;
 use rosasurfer\file\FileSystem as FS;
 use rosasurfer\process\Process;
 
-use rosasurfer\rt\lib\RT;
+use rosasurfer\rt\lib\Rosatrader as RT;
 use rosasurfer\rt\lib\dukascopy\Dukascopy;
 use rosasurfer\rt\lib\dukascopy\HttpClient as DukascopyClient;
 use rosasurfer\rt\model\DukascopySymbol;

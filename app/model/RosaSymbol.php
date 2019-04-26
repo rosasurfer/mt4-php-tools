@@ -7,7 +7,7 @@ use rosasurfer\exception\RuntimeException;
 use rosasurfer\process\Process;
 
 use rosasurfer\rt\lib\IHistoryProvider;
-use rosasurfer\rt\lib\RT;
+use rosasurfer\rt\lib\Rosatrader as RT;
 use rosasurfer\rt\lib\dukascopy\Dukascopy;
 use rosasurfer\rt\lib\synthetic\DefaultSynthesizer;
 use rosasurfer\rt\lib\synthetic\SynthesizerInterface as Synthesizer;

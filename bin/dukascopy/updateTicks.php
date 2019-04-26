@@ -46,7 +46,7 @@ use rosasurfer\net\http\HttpResponse;
 use rosasurfer\process\Process;
 
 use rosasurfer\rt\lib\LZMA;
-use rosasurfer\rt\lib\RT;
+use rosasurfer\rt\lib\Rosatrader as RT;
 use rosasurfer\rt\lib\dukascopy\Dukascopy;
 use rosasurfer\rt\lib\dukascopy\exception\DukascopyException;
 use rosasurfer\rt\model\DukascopySymbol;

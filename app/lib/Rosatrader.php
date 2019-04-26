@@ -13,7 +13,7 @@ use const rosasurfer\rt\PERIOD_D1;
 /**
  * Rosatrader related functionality.
  */
-class RT extends StaticClass {
+class Rosatrader extends StaticClass {
 
 
     /**
