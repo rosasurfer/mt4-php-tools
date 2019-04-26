@@ -149,27 +149,35 @@ class Dukascopy extends Object {
         if (!is_int($time))       throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
 
         $nameU = strtoupper($symbol->getName());
-        $day   = $time - $time%DAY;
+        $day   = $time - $time%DAY;                                                         // 00:00 FXT
 
         if (!isset($this->history[$nameU][$period][$day][PRICE_MEDIAN])) {
             // load Bid and Ask, calculate Median and store everything in the cache
-            $bids   = $this->loadHistory($symbol, $period, $day, PRICE_BID);            // raw
-            $asks   = $this->loadHistory($symbol, $period, $day, PRICE_ASK);            // raw
-            $median = $this->calculateMedian($bids, $asks);                             // optimized
+            if (!$bids = $this->loadHistory($symbol, $period, $day, PRICE_BID)) return [];  // raw
+            if (!$asks = $this->loadHistory($symbol, $period, $day, PRICE_ASK)) return [];  // raw
+            $median = $this->calculateMedian($bids, $asks);                                 // optimized
             $this->history[$nameU][$period][$day][PRICE_MEDIAN] = $median;
         }
+
+        // limit memory consumption
+        $purges = array_diff(array_keys($this->history), [$nameU]);
+        foreach ($purges as $stale) unset($this->history[$stale]);                          // drop old symbols
+        $purges = array_diff(array_keys($this->history[$nameU][$period]), [$day-DAY, $day, $day+DAY]);
+        foreach ($purges as $stale) unset($this->history[$nameU][$period][$stale]);         // drop old timeseries
+
         if ($optimized)
             return $this->history[$nameU][$period][$day][PRICE_MEDIAN];
 
-        $cache = &$this->history[$nameU][$period][$day];
-        $cache['real'] = $this->calculateReal($symbol, $cache[PRICE_MEDIAN]);           // real
-        return $cache['real'];
+        if (!isset($this->history[$nameU][$period][$day]['real'])) {
+            $real = $this->calculateReal($symbol, $this->history[$nameU][$period][$day][PRICE_MEDIAN]);
+            $this->history[$nameU][$period][$day]['real'] = $real;
+        }
+        return $this->history[$nameU][$period][$day]['real'];
     }
 
 
     /**
-     * Download history data from Dukascopy for the specified bar period and time, convert times to FXT and store the
-     * resulting timeseries in the internal cache.
+     * Load history data from Dukascopy for the specified bar period and time.
      *
      * @param  DukascopySymbol $symbol
      * @param  int             $period - bar period identifier: PERIOD_M1 | PERIOD_D1
@@ -197,10 +205,9 @@ class Dukascopy extends Object {
         if (!is_int($type))                           throw new IllegalTypeException('Illegal type of parameter $type: '.gettype($type));
         if (!in_array($type, [PRICE_BID, PRICE_ASK])) throw new InvalidArgumentException('Invalid parameter $type: '.$type);
 
-        // Day transition time (Midnight) for Dukascopy data is at 00:00 GMT (~02:00 FXT). Thus each FXT day requires
-        // Dukascopy data of the current and the previous GMT day. If all data is already present in the internal cache
-        // this method does nothing. Otherwise data is downloaded, converted and stored in the cache.
-        //
+        // Day transition time (Midnight) for Dukascopy data is at 00:00 GMT (~02:00 FXT). Each FXT day requires Dukascopy
+        // data of the current and the previous GMT day. If data is present in the internal cache the method doesn't connect
+        // to Dukascopy. Otherwise data is downloaded, converted to FXT and cached.
         //         +---------++---------+---------+---------+---------+---------++---------+---------++---------+
         // GMT:    |   Sun   ||   Mon   |   Tue   |   Wed   |   Thu   |   Fri   ||   Sat   |   Sun   ||   Mon   |
         //         +---------++---------+---------+---------+---------+---------++---------+---------++---------+
@@ -210,8 +217,8 @@ class Dukascopy extends Object {
 
         $name  = $symbol->getName();
         $nameU = strtoupper($name);
-        $day          = $time - $time%DAY;
-        $previousDay  = $day - 1*DAY;
+        $day          = $time - $time%DAY;                                          // 00:00 FXT
+        $previousDay  = $day - 1*DAY;                                               // 00:00 FXT
         $currentDayOk = $previousDayOk = false;
 
         if (isset($this->history[$nameU][$period][$day][$type])) {
@@ -228,25 +235,24 @@ class Dukascopy extends Object {
         // download and convert missing data
         foreach ([$previousDay=>$previousDayOk, $day=>$currentDayOk] as $day => $dayOk) {
             if (!$dayOk) {
-                $data = $this->getHttpClient()->downloadHistory($name, $day, $type);
+                $data = $this->getHttpClient()->downloadHistory($name, $day, $type);// here 00:00 FXT can be used as GMT
                 if (!$data) return [];                                              // that's if data is not available
                 $data = $this->decompressData($data);
-                $this->parseBarData($data, $symbol, $day, $period, $type);
+                $this->parseBarData($data, $symbol, $day, $period, $type);          // here 00:00 FXT can be used as GMT
             }
         }
-
-        // now data is complete
+        // now downloaded data is complete and stored on FXT boundaries
         return $this->history[$nameU][$period][$day][$type];
     }
 
 
     /**
-     * Parse a string with binary history data for the specified time and bar period, convert GMT times to FXT and store the
-     * resulting timeseries in the internal cache.
+     * Parse a string with binary history data for the specified time and bar period, convert GMT times to FXT, split on FXT
+     * boundaries and store the resulting timeseries in the internal cache.
      *
      * @param  string          $data   - binary history data
      * @param  DukascopySymbol $symbol - symbol the data belongs to
-     * @param  int             $day    - FXT day of the history
+     * @param  int             $day    - GMT timestamp of the history
      * @param  int             $period - bar period identifier: PERIOD_M1 | PERIOD_D1
      * @param  int             $type   - price type identifier: PRICE_BID | PRICE_ASK
      *
@@ -275,20 +281,28 @@ class Dukascopy extends Object {
         /** @var Output $output */
         $output  = $this->di(Output::class);
         $symbolU = strtoupper($symbol->getName());
-        $day    -= $day % DAY;
+        $day -= $day%DAY;                                           // 00:00 GMT
 
         // read bars
         $bars = $this->readBarData($data, $symbol, $type, $day);
         if (sizeof($bars) != PERIOD_D1) throw new RuntimeException('Unexpected number of Dukascopy bars in '.periodDescription($period).' data: '
                                                                    .sizeof($bars).' ('.(sizeof($bars) > PERIOD_D1 ? 'more':'less').' then a day)');
-        // add FXT and drop GMT data
+
+        // Day transition time (Midnight) for Dukascopy data is at 00:00 GMT (~02:00 FXT).
+        //         +---------++---------+---------+---------+---------+---------++---------+---------++---------+
+        // GMT:    |   Sun   ||   Mon   |   Tue   |   Wed   |   Thu   |   Fri   ||   Sat   |   Sun   ||   Mon   |
+        //         +---------++---------+---------+---------+---------+---------++---------+---------++---------+
+        //      +---------++---------+---------+---------+---------+---------++---------+---------++---------+
+        // FXT: |   Sun   ||   Mon   |   Tue   |   Wed   |   Thu   |   Fri   ||   Sat   |   Sun   ||   Mon   |
+        //      +---------++---------+---------+---------+---------+---------++---------+---------++---------+
+
+        // drop GMT and add FXT data
         $prev = $next = null;
         $fxtOffset = fxTimezoneOffset($day, $prev, $next);
         foreach ($bars as &$bar) {
-            // TODO: is the $timeGMT calculation orrect???
             $timeGMT = $day + $bar['timeDelta'];
             if ($timeGMT >= $next['time'])                          // If $day = "Sun, 00:00 GMT" bars may cover a DST transition.
-                $fxtOffset = $next['offset'];                       // In that case $fxtOffset must be updated during the loop.
+                $fxtOffset = $next['offset'];                       // In this case $fxtOffset must be updated during the loop.
             $bar['time'      ] = $timeGMT + $fxtOffset;             // FXT
             $bar['time_delta'] = $bar['time'] % DAY;                // offset to 00:00 FXT
             unset($bar['timeDelta']);
@@ -299,7 +313,7 @@ class Dukascopy extends Object {
         if ($fxtOffset == $next['offset']) {                        // additional lot check if bars cover a DST transition
             $firstBar = $bars[$newDayOffset];
             $lastBar  = $bars[$newDayOffset-1];
-            if ($lastBar['volume'] /*|| !$firstBar['volume']*/) {
+            if ($lastBar['volume']) {
                 $output->out('[Warn]    '.gmdate('D, d-M-Y', $day).'   volume mis-match during DST change.');
                 $output->out('Day of DST change ('.gmdate('D, d-M-Y', $lastBar['time']).') ended with:');
                 $output->out($bars[$newDayOffset-1]);

@@ -73,7 +73,7 @@ class HttpClient extends CurlHttpClient {
      * Download price history for the specified symbol.
      *
      * @param  string $symbol - symbol
-     * @param  int    $day    - day
+     * @param  int    $day    - GMT timestamp
      * @param  int    $type   - price type
      *
      * @return string - binary history data or an empty string in case of errors

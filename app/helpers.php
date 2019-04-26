@@ -153,20 +153,20 @@ function unixTime($fxTime = null) {
  * Format a timestamp and return an FXT representation. This function works exactly as <tt>gmdate()</tt> except that the
  * applied timezone is FXT.
  *
- * @param  string $format             - format as accepted by <tt>date($format, $timestamp)</tt>
- * @param  int    $time    [optional] - timestamp (default: the current time)
- * @param  bool   $fxtTime [optional] - whether the timestamp is an FXT timestamp (default: GMT)
+ * @param  string $format           - format as accepted by <tt>date($format, $timestamp)</tt>
+ * @param  int    $time  [optional] - timestamp (default: the current time)
+ * @param  bool   $isFxt [optional] - whether the timestamp is an FXT timestamp (default: GMT)
  *
  * @return string - formatted string
  */
-function fxDate($format, $time=null, $fxtTime=false) {
+function fxDate($format, $time=null, $isFxt=false) {
     if (isset($time)) {
         if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
     }
     else {
-        $time = $fxtTime ? fxTime() : time();
+        $time = $isFxt ? fxTime() : time();
     }
-    if ($fxtTime) return gmdate($format, $time);
+    if ($isFxt) return gmdate($format, $time);
 
     try {
         $timezone = date_default_timezone_get();
@@ -191,12 +191,12 @@ function fxDate($format, $time=null, $fxtTime=false) {
  * Transition data is returned as follows:
  * ---------------------------------------
  * Array(
- *     ['time'   => {timestamp},    // GMT timestamp of the previous|next DST transition
- *     ['offset' => {offset}        // FXT offset before|after that DST transition
+ *     'time'   => {timestamp},    // GMT timestamp of the previous|next DST transition
+ *     'offset' => {offset},       // FXT offset before|after that DST transition
  * )
  * </pre>
  */
-function fxTimezoneOffset($time=null, &$prevTransition=[], &$nextTransition=[]) {
+function fxTimezoneOffset($time=null, array &$prevTransition=null, array &$nextTransition=null) {
     if (is_null($time)) $time = time();
     else if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
 

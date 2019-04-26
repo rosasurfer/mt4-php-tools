@@ -367,7 +367,7 @@ class RosaSymbol extends RosatraderModel {
 
         // update the database
         if ($startDate != $this->getHistoryStartM1('U')) {
-            $output->out('[Info]    '.$paddedName.'  updating start time to '.($startDate ? gmdate('Y-m-d', $startDate) : '(empty)'));
+            $output->out('[Info]    '.$paddedName.'  updating history start time to '.($startDate ? gmdate('Y-m-d', $startDate) : '(empty)'));
             $this->historyStartM1 = $startDate ? gmdate('Y-m-d H:i:s', $startDate) : null;
             $this->modified();
         }
@@ -376,7 +376,7 @@ class RosaSymbol extends RosatraderModel {
             $endDate += 23*HOURS + 59*MINUTES;          // adjust to the last minute as the database always holds full days
         }
         if ($endDate != $this->getHistoryEndM1('U')) {
-            $output->out('[Info]    '.$paddedName.'  updating end time to: '.($endDate ? gmdate('D, Y-m-d H:i', $endDate) : '(empty)'));
+            $output->out('[Info]    '.$paddedName.'  updating history end time to: '.($endDate ? gmdate('D, Y-m-d H:i', $endDate) : '(empty)'));
             $this->historyEndM1 = $endDate ? gmdate('Y-m-d H:i:s', $endDate) : null;
             $this->modified();
         }
