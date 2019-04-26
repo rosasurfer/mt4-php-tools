@@ -93,7 +93,7 @@ class RosaSymbol extends RosatraderModel {
      *
      * @return double
      */
-    public function getPoint() {
+    public function getPointValue() {
         return 1/pow(10, $this->digits);
     }
 
@@ -190,14 +190,14 @@ class RosaSymbol extends RosatraderModel {
      * @return array[] - If history for the specified day is not available an empty array is returned. Otherwise a timeseries
      *                   array is returned with each element describing a M1 bar as follows:
      * <pre>
-     * Array [
+     * Array(
      *     'time'  => (int),            // bar open time in FXT
      *     'open'  => (double),         // open value
      *     'high'  => (double),         // high value
      *     'low'   => (double),         // low value
      *     'close' => (double),         // close value
      *     'ticks' => (int),            // ticks or volume (if available)
-     * ]
+     * )
      * </pre>
      */
     public function getHistoryM1($time) {
@@ -391,7 +391,7 @@ class RosaSymbol extends RosatraderModel {
     /**
      * Update the symbol's history.
      *
-     * @param  int $period [optional]
+     * @param  int $period [optional] - bar period identifier
      *
      * @return bool - success status
      */
@@ -409,20 +409,19 @@ class RosaSymbol extends RosatraderModel {
         for ($day=$updateFrom, $now=fxTime(); $day < $now; $day+=1*DAY) {
             if (!$this->isTradingDay($day))                                         // skip non-trading days
                 continue;
-            $bars = $provider->getHistory($period, $day);
+            $bars = $provider->getHistory($period, $day, $optimized=true);
             if (!$bars) return false($output->error('[Error]   '.str_pad($this->name, 6).'  M1 history sources'.($day ? ' for '.gmdate('D, d-M-Y', $day) : '').' not available'));
             RT::saveM1Bars($bars, $this);                                           // store the quotes
 
-            if (!$day) {                                                            // if $day is zero (full update since start)
+            if (!$day) {                                                            // If $day was zero (full update since start)
                 $day = $bars[0]['time'];                                            // adjust it to the first available history
-                $this->historyStartM1 = gmdate('Y-m-d H:i:s', $bars[0]['time']);    // update metadata *after* history was successfully saved
-            }
+                $this->historyStartM1 = gmdate('Y-m-d H:i:s', $bars[0]['time']);    // returned and update metadata *after* history
+            }                                                                       // was successfully stored.
             $this->historyEndM1 = gmdate('Y-m-d H:i:s', $bars[sizeof($bars)-1]['time']);
             $this->modified()->save();                                              // update the database
 
             Process::dispatchSignals();
         }
-
         $output->out('[Ok]      '.$this->name);
         return true;
     }

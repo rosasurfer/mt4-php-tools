@@ -16,7 +16,6 @@ use const rosasurfer\rt\PERIOD_TICK;
 use const rosasurfer\rt\PERIOD_M1;
 use const rosasurfer\rt\PERIOD_H1;
 use const rosasurfer\rt\PERIOD_D1;
-use const rosasurfer\rt\PRICE_MEDIAN;
 
 
 /**
@@ -52,8 +51,15 @@ class DukascopySymbol extends RosatraderModel implements IHistoryProvider {
     /** @var RosaSymbol [transient] - the Rosatrader symbol this Dukascopy symbol is mapped to */
     protected $rosaSymbol;
 
-    /** @var array - buffer for loaded history data */
-    protected $historyBuffer = [];
+
+    /**
+     * Return the instrument's quote resolution (the value of 1 point).
+     *
+     * @return double
+     */
+    public function getPointValue() {
+        return 1/pow(10, $this->digits);
+    }
 
 
     /**
@@ -206,33 +212,16 @@ class DukascopySymbol extends RosatraderModel implements IHistoryProvider {
 
     /**
      * {@inheritdoc}
-     *
-     * @param  int $timeframe - timeframe identifier: M1, M5, M15 etc.
-     * @param  int $time      - FXT timestamp of the time to return prices for. If 0 (zero) the oldest available prices for
-     *                          the specified timeframe are returned.
-     *
-     * @return array[] - If history for the specified time and timeframe is not available an empty array is returned.
-     *                   Otherwise a timeseries array is returned with each element describing a single price bar as follows:
-     * <pre>
-     * Array [
-     *     'time'  => (int),            // bar open time (FXT)
-     *     'open'  => (float),          // open value
-     *     'high'  => (float),          // high value
-     *     'low'   => (float),          // low value
-     *     'close' => (float),          // close value
-     *     'ticks' => (int),            // ticks or volume (if available)
-     * ];
-     * </pre>
      */
-    public function getHistory($timeframe, $time) {
-        if (!is_int($timeframe))     throw new IllegalTypeException('Illegal type of parameter $timeframe: '.gettype($timeframe));
-        if (!is_int($time))          throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
-        if ($timeframe != PERIOD_M1) throw new UnimplementedFeatureException(__METHOD__.'('.periodToStr($timeframe).') not implemented');
+    public function getHistory($period, $time, $optimized = false) {
+        if (!is_int($period))     throw new IllegalTypeException('Illegal type of parameter $period: '.gettype($period));
+        if ($period != PERIOD_M1) throw new UnimplementedFeatureException(__METHOD__.'('.periodToStr($period).') not implemented');
+        if (!is_int($time))       throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
 
-        echoPre('[Info]    '.str_pad($this->name, 6).'  getting M1 history'.($time ? ' for '.gmdate('D, d-M-Y', $time) : ' since start'));
+        //echoPre('[Info]    '.str_pad($this->name, 6).'  getting M1 history'.($time ? ' for '.gmdate('D, d-M-Y', $time) : ' since start'));
 
         /** @var Dukascopy $dukascopy */
         $dukascopy = $this->di(Dukascopy::class);
-        return $dukascopy->getHistory($this, $timeframe, $time, PRICE_MEDIAN);
+        return $dukascopy->getHistory($this, $period, $time, $optimized);
     }
 }

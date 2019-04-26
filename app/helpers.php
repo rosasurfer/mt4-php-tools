@@ -187,9 +187,10 @@ function fxDate($format, $time=null, $fxtTime=false) {
  * @return int - Offset in seconds or NULL if parameter $time is not in the range of the timezone information for FXT.  <br>
  *               Offset is always positive, it follows: FXT = GMT + offset                                              <br>
  *                                                                                                                      <br>
- * Transition data is returned as follows:
  * <pre>
- * Array (
+ * Transition data is returned as follows:
+ * ---------------------------------------
+ * Array(
  *     ['time'   => {timestamp},    // GMT timestamp of the previous|next DST transition
  *     ['offset' => {offset}        // FXT offset before|after that DST transition
  * )

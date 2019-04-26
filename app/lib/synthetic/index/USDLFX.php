@@ -35,10 +35,11 @@ class USDLFX extends AbstractSynthesizer {
     /**
      * {@inheritdoc}
      */
-    public function getHistory($timeframe, $time) {
-        if (!is_int($timeframe))     throw new IllegalTypeException('Illegal type of parameter $timeframe: '.gettype($timeframe));
-        if (!is_int($time))          throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
-        if ($timeframe != PERIOD_M1) throw new UnimplementedFeatureException(__METHOD__.'('.periodToStr($timeframe).') not implemented');
+    public function getHistory($period, $time, $optimized = false) {
+        if (!is_int($period))     throw new IllegalTypeException('Illegal type of parameter $period: '.gettype($period));
+        if ($period != PERIOD_M1) throw new UnimplementedFeatureException(__METHOD__.'('.periodToStr($period).') not implemented');
+        if (!is_int($time))       throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
+        if ($optimized)           echoPre('[Warn]    '.str_pad($this->symbolName, 6).'::'.__FUNCTION__.'($optimized=TRUE)  skipping unimplemented feature');
 
         if (!$symbols = $this->loadComponents(first($this->components)))
             return [];
@@ -59,7 +60,7 @@ class USDLFX extends AbstractSynthesizer {
         $USDJPY = $quotes['USDJPY'];
 
         $digits = $this->symbol->getDigits();
-        $point  = $this->symbol->getPoint();
+        $point  = $this->symbol->getPointValue();
         $bars   = [];
 
         // USDLFX = pow(USDCAD * USDCHF * USDJPY / (AUDUSD * EURUSD * GBPUSD), 1/7)

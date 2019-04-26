@@ -31,7 +31,7 @@ class DefaultSynthesizer extends AbstractSynthesizer {
     /**
      * {@inheritdoc}
      */
-    public function getHistory($timeframe, $time) {
+    public function getHistory($period, $time, $optimized = false) {
         return [];
     }
 }

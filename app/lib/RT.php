@@ -7,6 +7,7 @@ use rosasurfer\exception\RuntimeException;
 use rosasurfer\file\FileSystem as FS;
 
 use rosasurfer\rt\model\RosaSymbol;
+use const rosasurfer\rt\PERIOD_D1;
 
 
 /**
@@ -24,14 +25,14 @@ class RT extends StaticClass {
      * @return array[] - array with each element describing a bar as follows:
      *
      * <pre>
-     * Array [
+     * Array(
      *     'time'  => (int),            // bar open time in FXT
      *     'open'  => (double),         // open value
      *     'high'  => (double),         // high value
      *     'low'   => (double),         // low value
      *     'close' => (double),         // close value
      *     'ticks' => (int),            // ticks or volume (if available)
-     * ]
+     * )
      * </pre>
      */
     public static function readBarFile($fileName, RosaSymbol $symbol) {
@@ -49,14 +50,14 @@ class RT extends StaticClass {
      * @return array[] - array with each element describing a bar as follows:
      *
      * <pre>
-     * Array [
+     * Array(
      *     'time'  => (int),            // bar open time in FXT
      *     'open'  => (double),         // open value
      *     'high'  => (double),         // high value
      *     'low'   => (double),         // low value
      *     'close' => (double),         // close value
      *     'ticks' => (int),            // ticks or volume (if available)
-     * ]
+     * )
      * </pre>
      */
     public static function readBarData($data, RosaSymbol $symbol) {
@@ -64,7 +65,7 @@ class RT extends StaticClass {
 
         $lenData = strlen($data); if ($lenData % Rost::BAR_SIZE) throw new RuntimeException('Odd length of passed '.$symbol->getName().' data: '.$lenData.' (not an even Rost::BAR_SIZE)');
         $bars  = [];
-        $point = $symbol->getPoint();
+        $point = $symbol->getPointValue();
 
         for ($offset=0; $offset < $lenData; $offset += Rost::BAR_SIZE) {
             $bar = unpack("@$offset/Vtime/Vopen/Vhigh/Vlow/Vclose/Vticks", $data);
@@ -87,35 +88,36 @@ class RT extends StaticClass {
      * @return bool - success status
      */
     public static function saveM1Bars(array $bars, RosaSymbol $symbol) {
-        /*
-        echoPre($bars[0]);
-        echoPre($bars[1]);
-        */
-
         // validate bar range
         $opentime = $bars[0]['time'];
         if ($opentime % DAY)                                   throw new RuntimeException('Invalid daily M1 data, first bar opentime: '.gmdate('D, d-M-Y H:i:s', $opentime));
-        $day = $opentime - $opentime%DAY;
-        if (($size=sizeof($bars)) != DAY/MINUTES)              throw new RuntimeException('Invalid number of M1 bars for '.gmdate('D, d-M-Y', $day).': '.$size);
+        $day = $opentime;
+        if (($size=sizeof($bars)) != PERIOD_D1)                throw new RuntimeException('Invalid number of M1 bars for '.gmdate('D, d-M-Y', $day).': '.$size);
         if ($bars[$size-1]['time']%DAY != 23*HOURS+59*MINUTES) throw new RuntimeException('Invalid daily M1 data, last bar opentime: '.gmdate('D, d-M-Y H:i:s', $bars[$size-1]['time']));
 
-        $point = $symbol->getPoint();
+        $optimized = is_int($bars[0]['open']);
+        $point = $symbol->getPointValue();
 
-        // convert bars to binary string
-        $data = null;
+        // convert all bars to a one large binary string
+        $data = '';
         foreach ($bars as $bar) {
-            if ($bar['open' ] > $bar['high'] ||                 // validate bars logically
-                $bar['open' ] < $bar['low' ] ||
-                $bar['close'] > $bar['high'] ||
-                $bar['close'] < $bar['low' ] ||
-               !$bar['ticks']) throw new RuntimeException('Illegal M1 bar data for '.gmdate('D, d-M-Y H:i:s', $bar['time']).":  O=$bar[open]  H=$bar[high]  L=$bar[low]  C=$bar[close]  V=$bar[ticks]");
+            $time  = $bar['time' ];
+            $open  = $bar['open' ];
+            $high  = $bar['high' ];
+            $low   = $bar['low'  ];
+            $close = $bar['close'];
+            $ticks = $bar['ticks'];
 
-            $data .= pack('VVVVVV', $bar['time' ],
-                         (int)round($bar['open' ]/$point),      // storing price values in points saves 40% place
-                         (int)round($bar['high' ]/$point),
-                         (int)round($bar['low'  ]/$point),
-                         (int)round($bar['close']/$point),
-                                    $bar['ticks']);
+            if (!$optimized) {
+                $open  = (int) round($open /$point);    // storing price values in points saves 40% storage place
+                $high  = (int) round($high /$point);
+                $low   = (int) round($low  /$point);
+                $close = (int) round($close/$point);
+            }                                           // final bar validation
+            if ($open > $high || $open < $low || $close > $high || $close < $low || !$ticks)
+                throw new RuntimeException('Illegal M1 bar data for '.gmdate('D, d-M-Y H:i:s', $time).":  O=$open  H=$high  L=$low  C=$close  V=$ticks");
+
+            $data .= pack('VVVVVV', $time, $open, $high, $low, $close, $ticks);
         }
 
         // delete existing files
@@ -129,9 +131,9 @@ class RT extends StaticClass {
         // write data to new file
         $file = $dir.'/M1.bin';
         FS::mkDir(dirname($file));
-        $tmpFile = tempnam(dirname($file), basename($file));
+        $tmpFile = tempnam(dirname($file), basename($file));    // make sure an existing file can't be corrupt
         file_put_contents($tmpFile, $data);
-        rename($tmpFile, $file);                                // this way an existing file can't be corrupt
+        rename($tmpFile, $file);
         return true;
     }
 

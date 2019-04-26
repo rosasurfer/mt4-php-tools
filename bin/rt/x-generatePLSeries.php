@@ -261,9 +261,9 @@ function saveBars($symbol, $day, array $bars, $partial = false) {
         if (is_file($file=getVar('rtFile.pl.raw', $symbol, $day)))
             return false(echoPre('[Error]   PL series '.$symbol.' for '.gmdate('D, d-M-Y', $day).' already exists'));
         FS::mkDir(dirname($file));
-        $tmpFile = tempnam(dirname($file), basename($file));
+        $tmpFile = tempnam(dirname($file), basename($file));    // make sure an existing file can't be corrupt
         file_put_contents($tmpFile, $data);
-        rename($tmpFile, $file);                   // this way an existing file can't be corrupt
+        rename($tmpFile, $file);
     }
     return true;
 }

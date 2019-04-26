@@ -474,9 +474,9 @@ function saveBars($symbol, $day) {
             return false;
         }
         FS::mkDir(dirname($file));
-        $tmpFile = tempnam(dirname($file), basename($file));
+        $tmpFile = tempnam(dirname($file), basename($file));    // make sure an existing file can't be corrupt
         file_put_contents($tmpFile, $data);
-        rename($tmpFile, $file);                      // this way an existing file can't be corrupt
+        rename($tmpFile, $file);
     }
 
     // (4) binaere Daten ggf. komprimieren und speichern
