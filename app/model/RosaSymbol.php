@@ -336,7 +336,7 @@ class RosaSymbol extends RosatraderModel {
                 if ($misses = sizeof($missing)) {
                     $first     = first($missing);
                     $last      = last($missing);
-                    $output->out('[Error]   '.$paddedName.'  '.$misses.' missing history file'.pluralize($misses)
+                    $output->out('[Info]    '.$paddedName.'  '.$misses.' missing history file'.pluralize($misses)
                                              .($misses==1 ? ' for '.gmdate('D, Y-m-d', $first)
                                                           : ' from '.gmdate('D, Y-m-d', $first).' until '.($last==$yesterDay? 'now' : gmdate('D, Y-m-d', $last))));
                 }
