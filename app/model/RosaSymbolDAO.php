@@ -88,9 +88,9 @@ class RosaSymbolDAO extends DAO {
 
 
     /**
-     * Find all {@link RosaSymbol} instances in update order.
+     * Find all {@link RosaSymbol}s.
      *
-     * @return RosaSymbol[] - symbol instances sorted for update
+     * @return RosaSymbol[] - symbol instances sorted in update order
      */
     public function findAllForUpdate() {
         $sql = 'select *
@@ -115,9 +115,9 @@ class RosaSymbolDAO extends DAO {
 
 
     /**
-     * Find all {@link RosaSymbol}s with a Dukascopy mapping in update order.
+     * Find all {@link RosaSymbol}s with a Dukascopy mapping.
      *
-     * @return RosaSymbol[] - symbol instances sorted for update
+     * @return RosaSymbol[] - symbol instances sorted in update order
      */
     public function findAllDukascopyMappedForUpdate() {
         $sql = 'select r.*

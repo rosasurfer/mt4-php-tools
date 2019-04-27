@@ -60,7 +60,7 @@ DOCOPT;
      * @param  Input  $input
      * @param  Output $output
      *
-     * @return int - execution status: 0 for "success"
+     * @return int - execution status: 0 for success
      */
     protected function execute(Input $input, Output $output) {
         $symbols = $this->resolveSymbols();
@@ -106,8 +106,15 @@ DOCOPT;
             $symbols[$symbol->getName()] = $symbol;                 // using the real name as index removes duplicates
         }
 
-        if (!$symbols && !$symbols = RosaSymbol::dao()->findAll('select * from :RosaSymbol order by name'))
-            $output->out('No Rosatrader symbols found.');
+        if (!$symbols) {
+            if ($input->hasCommand('update')) {
+                $symbols = RosaSymbol::dao()->findAllForUpdate();
+            }
+            else {
+                $symbols = RosaSymbol::dao()->findAll('select * from :RosaSymbol order by name');
+            }
+            !$symbols && $output->out('No Rosatrader symbols found.');
+        }
         return $symbols;
     }
 
@@ -117,7 +124,7 @@ DOCOPT;
      *
      * @param  RosaSymbol[] $symbols
      *
-     * @return int - execution status: 0 for "success"
+     * @return int - execution status: 0 for success
      */
     protected function showStatus(array $symbols) {
         $output = $this->output;
@@ -137,7 +144,7 @@ DOCOPT;
      *
      * @param  RosaSymbol[] $symbols
      *
-     * @return int - execution status: 0 for "success"
+     * @return int - execution status: 0 for success
      */
     protected function synchronizeStatus(array $symbols) {
         $output = $this->output;
@@ -157,7 +164,7 @@ DOCOPT;
      *
      * @param  RosaSymbol[] $symbols
      *
-     * @return int - execution status: 0 for "success"
+     * @return int - execution status: 0 for success
      */
     protected function updateHistory(array $symbols) {
         $input  = $this->input;

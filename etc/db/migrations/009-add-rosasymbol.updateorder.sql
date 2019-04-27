@@ -5,7 +5,7 @@ begin;
 
 
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- RosaSymbols: redefine group and update order
+-- RosaSymbols: add update order
 create table t_rosasymbol_tmp_20190302 (                                                -- Rosatrader instruments (history is stored in full days only)
    id                 integer        not null,
    created            text[datetime] not null default (datetime('now')),   -- GMT
