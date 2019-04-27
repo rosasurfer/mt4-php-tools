@@ -439,9 +439,6 @@ class Dukascopy extends Object {
             $new['close'] = $bar['close'] * $point;
             $new['ticks'] = $bar['ticks'];
             $results[] = $new;
-
-            echoPre($new);
-            exit();
         }
         return $results;
     }
