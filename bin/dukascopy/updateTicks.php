@@ -459,7 +459,7 @@ function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=f
 /**
  * Laedt die in einem komprimierten Dukascopy-Tickfile enthaltenen Ticks.
  *
- * @return array[] - Array mit Tickdaten
+ * @return array - Array mit Tickdaten
  */
 function loadCompressedDukascopyTickFile($file, $symbol, $gmtHour, $fxtHour) {
     if (!is_string($file)) throw new IllegalTypeException('Illegal type of parameter $file: '.gettype($file));
