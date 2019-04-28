@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4dfa4357101d526c72765be54bd1ff17",
+    "content-hash": "7c02d1a34ceebd863ff167c0edad2179",
     "packages": [
         {
             "name": "psr/container",
@@ -57,21 +57,20 @@
         },
         {
             "name": "rosasurfer/ministruts",
-            "version": "dev-development",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rosasurfer/ministruts.git",
-                "reference": "316959d81988e2da6eceeb9ec68f90c28dae2ac3"
+                "reference": "62b24926a040f42251c32069d6ac27b426132db8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/316959d81988e2da6eceeb9ec68f90c28dae2ac3",
-                "reference": "316959d81988e2da6eceeb9ec68f90c28dae2ac3",
+                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/62b24926a040f42251c32069d6ac27b426132db8",
+                "reference": "62b24926a040f42251c32069d6ac27b426132db8",
                 "shasum": ""
             },
             "require": {
                 "ext-ctype": "*",
-                "ext-filter": "*",
                 "ext-json": "*",
                 "ext-libxml": "*",
                 "ext-mbstring": "*",
@@ -106,10 +105,10 @@
             ],
             "description": "Struts 1.2 inspired MVC web framework for PHP",
             "support": {
-                "source": "https://github.com/rosasurfer/ministruts/tree/development",
+                "source": "https://github.com/rosasurfer/ministruts/tree/master",
                 "issues": "https://github.com/rosasurfer/ministruts/issues"
             },
-            "time": "2019-04-27T20:22:44+00:00"
+            "time": "2019-04-24T10:21:07+00:00"
         }
     ],
     "packages-dev": [],
@@ -122,7 +121,8 @@
     "prefer-lowest": false,
     "platform": {
         "php": ">=5.6",
-        "ext-bcmath": "*"
+        "ext-bcmath": "*",
+        "ext-sqlite3": "*"
     },
     "platform-dev": []
 }
