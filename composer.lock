@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4dfa4357101d526c72765be54bd1ff17",
+    "content-hash": "e09847783d657231846cdb42e7db7b55",
     "packages": [
         {
             "name": "psr/container",
@@ -122,7 +122,8 @@
     "prefer-lowest": false,
     "platform": {
         "php": ">=5.6",
-        "ext-bcmath": "*"
+        "ext-bcmath": "*",
+        "ext-sqlite3": "*"
     },
     "platform-dev": []
 }

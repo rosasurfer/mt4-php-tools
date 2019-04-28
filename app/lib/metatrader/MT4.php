@@ -328,36 +328,30 @@ class MT4 extends StaticClass {
      */
     public static function writeHistoryBar400($hFile, $digits, $time, $open, $high, $low, $close, $ticks) {
         // Bardaten normalisieren...
-        $open  = round($open , $digits);
-        $high  = round($high , $digits);
-        $low   = round($low  , $digits);
-        $close = round($close, $digits);
+        $T = $time;
+        $O = round($open,  $digits);
+        $H = round($high,  $digits);
+        $L = round($low,   $digits);
+        $C = round($close, $digits);
+        $V = $ticks;
 
-        // ...vorm Schreiben nochmals pruefen (nicht mit min()/max(), da nicht performant)
-        if ($open  > $high ||
-            $open  < $low  ||                  // aus (H >= O && O >= L) folgt (H >= L)
-            $close > $high ||
-            $close < $low  ||
-           !$ticks) throw new RuntimeException('Illegal history bar of '.gmdate('D, d-M-Y', $time).": O=$open H=$high L=$low C=$close V=$ticks");
+        // vorm Schreiben nochmals pruefen (nicht mit min()/max(), da nicht performant)
+        if ($O > $H || $O < $L || $C > $H || $C < $L || !$V)
+            throw new RuntimeException('Illegal history bar of '.gmdate('D, d-M-Y H:i', $T).sprintf(': O='.($f='%.'.$digits.'F')." H=$f L=$f C=$f V=%d", $O, $H, $L, $C, $V));
 
         // Bardaten in Binaerstring umwandeln
-        $data = pack('Vddddd', $time,    // V
-                                      $open,    // d
-                                      $low,     // d
-                                      $high,    // d
-                                      $close,   // d
-                                      $ticks);  // d
+        $data = pack('Vddddd', $T, $O, $L, $H, $C, $V);
 
         // pack() unterstuetzt keinen expliziten Little-Endian-Double, die Byte-Order der Doubles muss ggf. manuell reversed werden.
-        static $isLittleEndian = null; is_null($isLittleEndian) && $isLittleEndian=isLittleEndian();
+        static $isLittleEndian; !isset($isLittleEndian) && $isLittleEndian=isLittleEndian();
         if (!$isLittleEndian) {
-            $time  =        substr($data,  0, 4);
-            $open  = strrev(substr($data,  4, 8));
-            $low   = strrev(substr($data, 12, 8));
-            $high  = strrev(substr($data, 20, 8));
-            $close = strrev(substr($data, 28, 8));
-            $ticks = strrev(substr($data, 36, 8));
-            $data  = $time.$open.$low.$high.$close.$ticks;
+            $T =        substr($data,  0, 4);
+            $O = strrev(substr($data,  4, 8));
+            $L = strrev(substr($data, 12, 8));
+            $H = strrev(substr($data, 20, 8));
+            $C = strrev(substr($data, 28, 8));
+            $V = strrev(substr($data, 36, 8));
+            $data  = $T.$O.$L.$H.$C.$V;
         }
         return fwrite($hFile, $data);
     }

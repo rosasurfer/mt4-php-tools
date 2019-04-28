@@ -16,6 +16,7 @@
     "require": {
         "php":                   ">=5.6",
         "ext-bcmath":            "*",
+        "ext-sqlite3":           "*",
         "rosasurfer/ministruts": "dev-development"
     },
     "autoload": {
