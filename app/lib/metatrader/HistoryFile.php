@@ -1,6 +1,7 @@
 <?php
 namespace rosasurfer\rt\lib\metatrader;
 
+use rosasurfer\console\io\Output;
 use rosasurfer\core\Object;
 use rosasurfer\debug\ErrorHandler;
 use rosasurfer\exception\FileNotFoundException;
@@ -680,6 +681,9 @@ class HistoryFile extends Object {
         if (!is_int($offset)) throw new IllegalTypeException('Illegal type of parameter $offset: '.gettype($offset));
         if (!is_int($length)) throw new IllegalTypeException('Illegal type of parameter $length: '.gettype($length));
 
+        /** @var Output $output */
+        $output = $this->di(Output::class);
+
         // determine absolute start offset: max. value for appending is one position after history end
         if ($offset >= 0) {
             if ($offset > $this->full_bars)   throw new InvalidArgumentException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
@@ -708,11 +712,11 @@ class HistoryFile extends Object {
         $length = $toOffset - $fromOffset + 1;
         if (!$length) $toOffset = -1;
         if (!$length && !$replace) {                            // nothing to do
-            echoPre(__METHOD__.'()  $fromOffset='.$fromOffset.'  $toOffset='.$toOffset.'  $length='.$length.'  $bars=0  (nothing to do)');
+            $output->out(__METHOD__.'()  $fromOffset='.$fromOffset.'  $toOffset='.$toOffset.'  $length='.$length.'  $bars=0  (nothing to do)');
             return;
         }
 
-        echoPre(__METHOD__.'()  $fromOffset='.$fromOffset.'  $toOffset='.$toOffset.'  $length='.$length);
+        $output->out(__METHOD__.'()  $fromOffset='.$fromOffset.'  $toOffset='.$toOffset.'  $length='.$length);
         $this->showMetaData(false, true, false);
 
         // modify history file
@@ -721,7 +725,7 @@ class HistoryFile extends Object {
         else {
             $hstFromBar = $this->getBar($fromOffset);
             $hstToBar   = $this->getBar($toOffset);
-            echoPre(__METHOD__.'()  replacing '.$length.' bar(s) from offset '.$fromOffset.' ('.gmdate('d-M-Y H:i:s', $hstFromBar['time']).') to offset '.$toOffset.' ('.gmdate('d-M-Y H:i:s', $hstToBar['time']).') with '.($size=sizeof($replace)).' bars from '.gmdate('d-M-Y H:i:s', $replace[0]['time']).' to '.gmdate('d-M-Y H:i:s', $replace[$size-1]['time']));
+            $output->out(__METHOD__.'()  replacing '.$length.' bar(s) from offset '.$fromOffset.' ('.gmdate('d-M-Y H:i:s', $hstFromBar['time']).') to offset '.$toOffset.' ('.gmdate('d-M-Y H:i:s', $hstToBar['time']).') with '.($size=sizeof($replace)).' bars from '.gmdate('d-M-Y H:i:s', $replace[0]['time']).' to '.gmdate('d-M-Y H:i:s', $replace[$size-1]['time']));
             $this->removeBars($fromOffset, $length);
             $this->insertBars($fromOffset, $replace);
         }
@@ -744,6 +748,9 @@ class HistoryFile extends Object {
     public function removeBars($offset, $length=0) {
         if (!is_int($offset)) throw new IllegalTypeException('Illegal type of parameter $offset: '.gettype($offset));
         if (!is_int($length)) throw new IllegalTypeException('Illegal type of parameter $length: '.gettype($length));
+
+        /** @var Output $output */
+        $output = $this->di(Output::class);
 
         // determine absolute start offset: max. value for appending is one position after history end
         if ($offset >= 0) {
@@ -771,13 +778,13 @@ class HistoryFile extends Object {
         // determine absolute length
         $length = $toOffset - $fromOffset + 1;
         if (!$length) {                                         // nothing to do
-            echoPre(__METHOD__.'()  $fromOffset='.$fromOffset.'  $toOffset='.$toOffset.'  $length='.$length.'  (nothing to do)');
+            $output->out(__METHOD__.'()  $fromOffset='.$fromOffset.'  $toOffset='.$toOffset.'  $length='.$length.'  (nothing to do)');
             return;
         }
 
         $hstFromBar = $this->getBar($fromOffset);
         $hstToBar   = $this->getBar($toOffset);
-        echoPre(__METHOD__.'()  removing '.$length.' bar(s) from offset '.$fromOffset.' ('.gmdate('d-M-Y H:i:s', $hstFromBar['time']).') to offset '.$toOffset.' ('.gmdate('d-M-Y H:i:s', $hstToBar['time']).')');
+        $output->out(__METHOD__.'()  removing '.$length.' bar(s) from offset '.$fromOffset.' ('.gmdate('d-M-Y H:i:s', $hstFromBar['time']).') to offset '.$toOffset.' ('.gmdate('d-M-Y H:i:s', $hstToBar['time']).')');
     }
 
 
@@ -793,6 +800,9 @@ class HistoryFile extends Object {
     public function insertBars($offset, array $bars) {
         if (!is_int($offset)) throw new IllegalTypeException('Illegal type of parameter $offset: '.gettype($offset));
 
+        /** @var Output $output */
+        $output = $this->di(Output::class);
+
         // determine absolute start offset: max. value for appending is one position after history end
         if ($offset >= 0) {
             if ($offset > $this->full_bars)   throw new InvalidArgumentException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
@@ -802,12 +812,12 @@ class HistoryFile extends Object {
         else $fromOffset = $this->full_bars + $offset;
 
         if (!$bars) {                                            // nothing to do
-            echoPre(__METHOD__.'()  $fromOffset='.$fromOffset.'  $bars=0  (nothing to do)');
+            $output->out(__METHOD__.'()  $fromOffset='.$fromOffset.'  $bars=0  (nothing to do)');
             return;
         }
 
         $hstFromBar = $this->getBar($fromOffset);
-        echoPre(__METHOD__.'()  inserting '.($size=sizeof($bars)).' bar(s) from '.gmdate('d-M-Y H:i:s', $bars[0]['time']).' to '.gmdate('d-M-Y H:i:s', $bars[$size-1]['time']).' at offset '.$fromOffset.' ('.gmdate('d-M-Y H:i:s', $hstFromBar['time']).')');
+        $output->out(__METHOD__.'()  inserting '.($size=sizeof($bars)).' bar(s) from '.gmdate('d-M-Y H:i:s', $bars[0]['time']).' to '.gmdate('d-M-Y H:i:s', $bars[$size-1]['time']).' at offset '.$fromOffset.' ('.gmdate('d-M-Y H:i:s', $hstFromBar['time']).')');
 
         /*
         $array = [0, 1, 2, 3, 4, 5];

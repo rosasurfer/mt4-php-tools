@@ -220,7 +220,9 @@ class DukascopySymbol extends RosatraderModel implements IHistoryProvider {
 
         if (!$time) {
             if (!$start = (int) $this->getHistoryStartM1('U')) {
-                echoPre('[Error]   '.str_pad($this->name, 6).'  history start for M1 not available');
+                /** @var Output $output */
+                $output = $this->di(Output::class);
+                $output->error('[Error]   '.str_pad($this->name, 6).'  history start for M1 not available');
                 return [];
             }
             $time = $start;
