@@ -170,7 +170,6 @@ DOCOPT;
         $input  = $this->input;
         $output = $this->output;
         $output->out('[Info]    Updating history...');
-        $output->out($separator='---------------------------------------------------------------------------------------');
 
         /** @var string $value */
         $value = $input->getOption('--period');
