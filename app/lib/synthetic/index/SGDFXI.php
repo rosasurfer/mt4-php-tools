@@ -1,6 +1,7 @@
 <?php
 namespace rosasurfer\rt\lib\synthetic\index;
 
+use rosasurfer\console\io\Output;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\UnimplementedFeatureException;
 
@@ -53,11 +54,13 @@ class SGDFXI extends AbstractSynthesizer {
         if (!$quotes = $this->getComponentsHistory($symbols, $time))
             return [];
 
+        /** @var Output $output */
+        $output = $this->di(Output::class);
+        $output->out('[Info]    '.str_pad($this->symbolName, 6).'  calculating M1 history for '.gmdate('D, d-M-Y', $time));
+
         // calculate quotes
-        echoPre('[Info]    '.str_pad($this->symbolName, 6).'  calculating M1 history for '.gmdate('D, d-M-Y', $time));
         $USDSGD = $quotes['USDSGD'];
         $USDLFX = $quotes['USDLFX'];
-
         $digits = $this->symbol->getDigits();
         $point  = $this->symbol->getPointValue();
         $bars   = [];

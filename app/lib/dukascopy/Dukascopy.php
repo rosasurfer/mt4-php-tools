@@ -147,7 +147,6 @@ class Dukascopy extends Object {
         if (!is_int($period))     throw new IllegalTypeException('Illegal type of parameter $period: '.gettype($period));
         if ($period != PERIOD_M1) throw new UnimplementedFeatureException(__METHOD__.'('.periodToStr($period).') not implemented');
         if (!is_int($time))       throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
-
         $nameU = strtoupper($symbol->getName());
         $day   = $time - $time%DAY;                                                         // 00:00 FXT
 
