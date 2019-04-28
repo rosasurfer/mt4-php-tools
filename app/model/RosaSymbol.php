@@ -407,9 +407,9 @@ class RosaSymbol extends RosatraderModel {
         $status = null;
 
         for ($day=$updateFrom, $now=fxTime(); $day < $now; $day+=1*DAY) {
-            if (!$this->isTradingDay($day))                                         // skip non-trading days
+            if ($day && !$this->isTradingDay($day))                                 // skip non-trading days
                 continue;
-            !$status && $output->out($status='[Info]    '.str_pad($this->name, 6).'  updating M1 history since '.gmdate('D, d-M-Y', $historyEnd));
+            !$status && $output->out($status='[Info]    '.str_pad($this->name, 6).'  updating M1 history since '.($day ? gmdate('D, d-M-Y', $historyEnd) : 'start'));
 
             $bars = $provider->getHistory($period, $day, $optimized=true);
             if (!$bars) return false($output->error('[Error]   '.str_pad($this->name, 6).'  M1 history sources'.($day ? ' for '.gmdate('D, d-M-Y', $day) : '').' not available'));

@@ -218,7 +218,13 @@ class DukascopySymbol extends RosatraderModel implements IHistoryProvider {
         if ($period != PERIOD_M1) throw new UnimplementedFeatureException(__METHOD__.'('.periodToStr($period).') not implemented');
         if (!is_int($time))       throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
 
-        //echoPre('[Info]    '.str_pad($this->name, 6).'  getting M1 history'.($time ? ' for '.gmdate('D, d-M-Y', $time) : ' since start'));
+        if (!$time) {
+            if (!$start = (int) $this->getHistoryStartM1('U')) {
+                echoPre('[Error]   '.str_pad($this->name, 6).'  history start for M1 not available');
+                return [];
+            }
+            $time = $start;
+        }
 
         /** @var Dukascopy $dukascopy */
         $dukascopy = $this->di(Dukascopy::class);

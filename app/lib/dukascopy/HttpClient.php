@@ -82,7 +82,6 @@ class HttpClient extends CurlHttpClient {
         if (!is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.gettype($symbol));
         if (!strlen($symbol))    throw new InvalidArgumentException('Invalid parameter $symbol: "'.$symbol.'"');
         if (!is_int($day))       throw new IllegalTypeException('Illegal type of parameter $day: '.gettype($day));
-        if (!$day)               throw new InvalidArgumentException('Invalid parameter $day: '.$day);
         if (!is_int($type))      throw new IllegalTypeException('Illegal type of parameter $type: '.gettype($type));
         if (!in_array($type, [PRICE_BID, PRICE_ASK]))
                                  throw new InvalidArgumentException('Invalid parameter $type: '.$type);
@@ -95,7 +94,7 @@ class HttpClient extends CurlHttpClient {
         // url: http://datafeed.dukascopy.com/datafeed/EURUSD/2009/00/31/BID_candles_min_1.bi5
         $symbolU = strtoupper($symbol);
         $yyyy = gmdate('Y', $day);
-        $mm   = strRight((string)(gmdate('m', $day)+99), 2);        // months are zero-based: January = 00
+        $mm   = sprintf('%02d', idate('m', $day)-1);                // Dukascopy months are zero-based: January = 00
         $dd   = gmdate('d', $day);
         $date = $yyyy.'/'.$mm.'/'.$dd;
         $name = ($type==PRICE_BID ? 'BID':'ASK').'_candles_min_1';
