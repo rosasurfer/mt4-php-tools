@@ -46,14 +46,14 @@ use rosasurfer\net\http\HttpResponse;
 use rosasurfer\process\Process;
 
 use rosasurfer\rt\lib\LZMA;
-use rosasurfer\rt\lib\RT;
+use rosasurfer\rt\lib\Rosatrader as RT;
 use rosasurfer\rt\lib\dukascopy\Dukascopy;
 use rosasurfer\rt\lib\dukascopy\exception\DukascopyException;
 use rosasurfer\rt\model\DukascopySymbol;
 use rosasurfer\rt\model\RosaSymbol;
 
 use function rosasurfer\rt\fxtStrToTime;
-use function rosasurfer\rt\fxtTimezoneOffset;
+use function rosasurfer\rt\fxTimezoneOffset;
 use function rosasurfer\rt\isWeekend;
 
 require(dirname(realpath(__FILE__)).'/../../app/init.php');
@@ -131,7 +131,7 @@ function updateSymbol(RosaSymbol $symbol) {
     $startTimeFXT = $dukaSymbol->getHistoryStartTick();
     $startTimeGMT = $startTimeFXT ? fxtStrToTime($startTimeFXT) : 0;        // Beginn der Tickdaten des Symbols in GMT
     $prev = $next = null;
-    $fxtOffset    = fxtTimezoneOffset($startTimeGMT, $prev, $next);         // es gilt: FXT = GMT + Offset
+    $fxtOffset    = fxTimezoneOffset($startTimeGMT, $prev, $next);          // es gilt: FXT = GMT + Offset
     $startTimeFXT = $startTimeGMT + $fxtOffset;                             // Beginn der Tickdaten in FXT
 
     if ($remainder=$startTimeFXT % DAY) {                                   // Beginn auf den naechsten Forex-Tag 00:00 aufrunden, sodass
@@ -141,7 +141,7 @@ function updateSymbol(RosaSymbol $symbol) {
             $startTimeFXT = $startTimeGMT + $next['offset'];
             if ($remainder=$startTimeFXT % DAY) $diff = 1*DAY - $remainder;
             else                                $diff = 0;
-            $fxtOffset = fxtTimezoneOffset($startTimeGMT, $prev, $next);
+            $fxtOffset = fxTimezoneOffset($startTimeGMT, $prev, $next);
         }
         $startTimeGMT += $diff;                                             // naechster Forex-Tag 00:00 in GMT
         $startTimeFXT += $diff;                                             // naechster Forex-Tag 00:00 in FXT
@@ -155,7 +155,7 @@ function updateSymbol(RosaSymbol $symbol) {
 
     for ($gmtHour=$startTimeGMT; $gmtHour < $lastHour; $gmtHour+=1*HOUR) {
         if ($gmtHour >= $next['time'])
-            $fxtOffset = fxtTimezoneOffset($gmtHour, $prev, $next);         // $fxtOffset on-the-fly aktualisieren
+            $fxtOffset = fxTimezoneOffset($gmtHour, $prev, $next);          // $fxtOffset on-the-fly aktualisieren
         $fxtHour = $gmtHour + $fxtOffset;
 
         if (!checkHistory($symbolName, $gmtHour, $fxtHour)) return false;
@@ -355,9 +355,9 @@ function saveTicks($symbol, $gmtHour, $fxtHour, array $ticks) {
             return false;
         }
         FS::mkDir(dirname($file));
-        $tmpFile = tempnam(dirname($file), basename($file));
+        $tmpFile = tempnam(dirname($file), basename($file));    // make sure an existing file can't be corrupt
         file_put_contents($tmpFile, $data);
-        rename($tmpFile, $file);            // So kann eine existierende Datei niemals korrupt sein.
+        rename($tmpFile, $file);
     }
 
 
@@ -430,8 +430,8 @@ function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=f
             FS::mkDir(getVar('rtDir', $symbol, $gmtHour));
             $tmpFile = tempnam(dirname($file=getVar('dukaFile.compressed', $symbol, $gmtHour)), basename($file));
             file_put_contents($tmpFile, $content);
-            if (is_file($file)) unlink($file);
-            rename($tmpFile, $file);                                       // So kann eine existierende Datei niemals korrupt sein.
+            if (is_file($file)) unlink($file);                  // make sure an existing file can't be corrupt
+            rename($tmpFile, $file);
         }
     }
 
@@ -459,7 +459,7 @@ function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=f
 /**
  * Laedt die in einem komprimierten Dukascopy-Tickfile enthaltenen Ticks.
  *
- * @return array[] - Array mit Tickdaten
+ * @return array - Array mit Tickdaten
  */
 function loadCompressedDukascopyTickFile($file, $symbol, $gmtHour, $fxtHour) {
     if (!is_string($file)) throw new IllegalTypeException('Illegal type of parameter $file: '.gettype($file));
@@ -483,7 +483,9 @@ function loadCompressedDukascopyTickData($data, $symbol, $gmtHour, $fxtHour) {
     global $saveRawDukascopyFiles;
     $saveAs = $saveRawDukascopyFiles ? getVar('dukaFile.raw', $symbol, $gmtHour) : null;
 
-    $rawData = Dukascopy::decompressHistoryData($data, $saveAs);
+    /** @var Dukascopy $dukascopy */
+    $dukascopy = Application::getDi()[Dukascopy::class];
+    $rawData = $dukascopy->decompressData($data, $saveAs);
     return loadRawDukascopyTickData($rawData, $symbol, $gmtHour, $fxtHour);
 }
 
@@ -552,7 +554,8 @@ function getVar($id, $symbol=null, $time=null) {
     if (isset($symbol) && !is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.gettype($symbol));
     if (isset($time) && !is_int($time))        throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
 
-    static $dataDir; !$dataDir && $dataDir = Application::getConfig()['app.dir.data'];
+    static $storageDir;
+    $storageDir = $storageDir ?: Application::getConfig()['app.dir.storage'];
     $self = __FUNCTION__;
 
     if ($id == 'rtDirDate') {                   // $yyyy/$mmL/$dd                                               // lokales Pfad-Datum
@@ -562,7 +565,7 @@ function getVar($id, $symbol=null, $time=null) {
     else if ($id == 'rtDir') {                  // $dataDir/history/rosatrader/$type/$symbol/$rtDirDate         // lokales Verzeichnis
         $type      = RosaSymbol::dao()->getByName($symbol)->getType();
         $rtDirDate = $self('rtDirDate', null, $time);
-        $result    = $dataDir.'/history/rosatrader/'.$type.'/'.$symbol.'/'.$rtDirDate;
+        $result    = $storageDir.'/history/rosatrader/'.$type.'/'.$symbol.'/'.$rtDirDate;
     }
     else if ($id == 'rtFile.raw') {             // $rtDir/${hour}h_ticks.bin                                    // lokale Datei ungepackt
         $rtDir  = $self('rtDir', $symbol, $time);

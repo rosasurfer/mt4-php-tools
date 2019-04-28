@@ -1,8 +1,8 @@
 /*
 Created     16.01.2017
-Modified    20.01.2019
+Modified    02.03.2019
 Project     Rosatrader
-Model       Rosatrader
+Model       Main model
 Author      Peter Walther
 Database    SQLite3
 */
@@ -69,17 +69,18 @@ create table t_rosasymbol (                                                -- Ro
    created            text[datetime] not null default (datetime('now')),   -- GMT
    modified           text[datetime],                                      -- GMT
    type               text[enum]     not null collate nocase,              -- forex|metals|synthetic
+   groupid            integer        not null,                             -- determines default view and sort order
    name               text(11)       not null collate nocase,              -- Rosatrader instrument identifier (the actual symbol)
    description        text(63)       not null collate nocase,              -- symbol description
    digits             integer        not null,                             -- decimal digits
-   autoupdate         integer[bool]  not null default 1,                   -- whether automatic history updates are enabled
+   updateorder        integer        not null default 9999,                -- required symbols should be updated before dependent ones
    formula            text,                                                -- LaTeX formula to calculate quotes (only if synthetic instrument)
-   historystart_ticks text[datetime],                                      -- first day with stored history (FXT)
-   historyend_ticks   text[datetime],                                      -- last day with stored history (FXT)
-   historystart_m1    text[datetime],                                      -- first day with stored history (FXT)
-   historyend_m1      text[datetime],                                      -- last day with stored history (FXT)
-   historystart_d1    text[datetime],                                      -- first day with stored history (FXT)
-   historyend_d1      text[datetime],                                      -- last day with stored history (FXT)
+   historystart_tick  text[datetime],                                      -- time of first locally stored tick (FXT)
+   historyend_tick    text[datetime],                                      -- time of last locally stored tick (FXT)
+   historystart_m1    text[datetime],                                      -- minute of first locally stored M1 bar (FXT)
+   historyend_m1      text[datetime],                                      -- minute of last locally stored M1 bar (FXT)
+   historystart_d1    text[datetime],                                      -- day of first locally stored D1 bar (FXT)
+   historyend_d1      text[datetime],                                      -- day of last locally stored D1 bar (FXT)
    primary key (id),
    constraint fk_rosasymbol_type foreign key (type) references enum_instrumenttype(type) on delete restrict on update cascade,
    constraint u_name unique (name)
@@ -100,10 +101,10 @@ create table t_dukascopysymbol (                                           -- Du
    modified           text[datetime],                                      -- GMT
    name               text(11)       not null collate nocase,              -- Dukascopy instrument identifier (the actual symbol)
    digits             integer        not null,                             -- decimal digits
-   historystart_ticks text[datetime],                                      -- start of available history (FXT)
-   historystart_m1    text[datetime],                                      -- start of available history (FXT)
-   historystart_h1    text[datetime],                                      -- start of available history (FXT)
-   historystart_d1    text[datetime],                                      -- start of available history (FXT)
+   historystart_tick  text[datetime],                                      -- time of first available tick (FXT)
+   historystart_m1    text[datetime],                                      -- minute of first available M1 history (FXT)
+   historystart_h1    text[datetime],                                      -- minute of first available H1 history (FXT)
+   historystart_d1    text[datetime],                                      -- day of first available D1 history (FXT)
    rosasymbol_id      integer,
    primary key (id),
    constraint fk_dukascopysymbol_rosasymbol foreign key (rosasymbol_id) references t_rosasymbol (id) on delete restrict on update cascade

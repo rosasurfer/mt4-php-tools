@@ -34,7 +34,7 @@ class LZMA extends StaticClass {
         $tmpFile = tempnam(null, 'php');
         file_put_contents($tmpFile, $data);
 
-        $content = self::decompressFile($tmpFile);
+        $content = static::decompressFile($tmpFile);
         unlink($tmpFile);
 
         return $content;
@@ -53,7 +53,7 @@ class LZMA extends StaticClass {
         if (!is_file($file))   throw new FileNotFoundException('File not found "'.$file.'"');
         if (!filesize($file))  throw new InvalidArgumentException('Invalid file "'.$file.'" (not compressed)');
 
-        $cmd     = self::getDecompressFileCmd();
+        $cmd     = static::getDecompressFileCmd();
         $file    = str_replace('/', DIRECTORY_SEPARATOR, str_replace('\\', '/', $file));
         $cmdLine = sprintf($cmd, $file);
         $stderr  = null;

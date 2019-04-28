@@ -2,6 +2,12 @@
 namespace rosasurfer\rt\console;
 
 use rosasurfer\console\Command;
+use rosasurfer\console\io\Input;
+use rosasurfer\console\io\Output;
+use rosasurfer\exception\IllegalStateException;
+use rosasurfer\process\Process;
+
+use rosasurfer\rt\lib\metatrader\MetaTrader;
 use rosasurfer\rt\model\RosaSymbol;
 
 
@@ -16,19 +22,19 @@ class MetaTraderHistoryCommand extends Command {
     /** @var string */
     const DOCOPT = <<<'DOCOPT'
 
-Create, update or show status information about MetaTrader history files.
+Create, update or show status of MetaTrader history files.
 
 Usage:
   rt-metatrader-history  create SYMBOL [options]
 
 Commands:
-  create      Create a new MetaTrader history set (all standard timeframes).
+  create       Create new MetaTrader history files for the given symbol (all standard timeframes).
 
 Arguments:
-  SYMBOL      The symbol to process history for.
+  SYMBOL       The symbol to process history for.
 
 Options:
-   -h --help  This help screen.
+   -h, --help  This help screen.
 
 DOCOPT;
 
@@ -47,22 +53,45 @@ DOCOPT;
     /**
      * {@inheritdoc}
      *
-     * @return int - execution status: 0 for "success"
+     * @param  Input  $input
+     * @param  Output $output
+     *
+     * @return int - execution status: 0 for success
      */
-    protected function execute() {
+    protected function execute(Input $input, Output $output) {
         $symbol = $this->resolveSymbol();
-        if (!$symbol)
-            return $this->errorStatus;
+        if (!$symbol) return $this->status;
 
-        $starttime = (int) $symbol->getHistoryStartM1('U');
-        $endtime   = (int) $symbol->getHistoryEndM1('U');
+        $start = (int) $symbol->getHistoryStartM1('U');
+        $end   = (int) $symbol->getHistoryEndM1('U');           // starttime of the last bar
+        if (!$start) {
+            $output->out('[Info]    '.str_pad($symbol->getName(), 6).'  no Rosatrader history available');
+            return 1;
+        }
+        if (!$end) throw new IllegalStateException('Rosatrader history start/end mis-match for '.$symbol->getName().':  start='.$start.'  end='.$end);
 
-        $this->out('from: '.$symbol->getHistoryStartM1());
-        $this->out('to:   '.$symbol->getHistoryEndM1());
+        /** @var MetaTrader $metatrader */
+        $metatrader = $this->di(MetaTrader::class);
+        $historySet = $metatrader->createHistorySet($symbol);
 
-        // create new HistorySet
+        // iterate over existing history
+        for ($day=$start, $lastMonth=-1; $day <= $end; $day+=1*DAY) {
+            $month = (int) gmdate('m', $day);
+            if ($month != $lastMonth) {
+                $output->out('[Info]    '.gmdate('M-Y', $day));
+                $lastMonth = $month;
+            }
+            if ($symbol->isTradingDay($day)) {
+                if (!$bars = $symbol->getHistoryM1($day))
+                    return 1;
+                $historySet->appendBars($bars);
+                Process::dispatchSignals();                     // check for Ctrl-C
+            }
+        }
+        $historySet->close();
+        $output->out('[Ok]      '.$symbol->getName());
 
-        return $this->errorStatus = 0;
+        return 0;
     }
 
 
@@ -72,11 +101,14 @@ DOCOPT;
      * @return RosaSymbol|null
      */
     protected function resolveSymbol() {
-        $name = $this->input->getArgument('SYMBOL');
+        $input  = $this->input;
+        $output = $this->output;
+
+        $name = $input->getArgument('SYMBOL');
 
         if (!$symbol = RosaSymbol::dao()->findByName($name)) {
-            $this->error('Unknown Rosatrader symbol "'.$name.'"');
-            $this->errorStatus = 1;
+            $output->error('Unknown Rosatrader symbol "'.$name.'"');
+            $this->status = 1;
         }
         return $symbol;
     }

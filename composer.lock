@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "da76bb3d44ffedd2a006bc090e1cf2d6",
+    "content-hash": "4dfa4357101d526c72765be54bd1ff17",
     "packages": [
         {
             "name": "psr/container",
@@ -61,24 +61,27 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/rosasurfer/ministruts.git",
-                "reference": "73b12bbea3977f5ba7cd4b27a5c36eec3284faef"
+                "reference": "c6e80558342c76af909a60da1a3d2996bfbfb7c7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/73b12bbea3977f5ba7cd4b27a5c36eec3284faef",
-                "reference": "73b12bbea3977f5ba7cd4b27a5c36eec3284faef",
+                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/c6e80558342c76af909a60da1a3d2996bfbfb7c7",
+                "reference": "c6e80558342c76af909a60da1a3d2996bfbfb7c7",
                 "shasum": ""
             },
             "require": {
                 "ext-ctype": "*",
                 "ext-json": "*",
+                "ext-libxml": "*",
                 "ext-mbstring": "*",
+                "ext-simplexml": "*",
                 "php": "^5.6",
-                "psr/container": "*"
+                "psr/container": "^1.0"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
+                    "dev-0.8": "0.8.x-dev",
                     "dev-master": "0.9.x-dev",
                     "dev-0.10-dev": "0.10.x-dev"
                 }
@@ -102,10 +105,10 @@
             ],
             "description": "Struts 1.2 inspired MVC web framework for PHP",
             "support": {
-                "source": "https://github.com/rosasurfer/ministruts",
+                "source": "https://github.com/rosasurfer/ministruts/tree/development",
                 "issues": "https://github.com/rosasurfer/ministruts/issues"
             },
-            "time": "2019-02-28T22:03:41+00:00"
+            "time": "2019-04-23T17:54:15+00:00"
         }
     ],
     "packages-dev": [],
@@ -118,8 +121,7 @@
     "prefer-lowest": false,
     "platform": {
         "php": ">=5.6",
-        "ext-bcmath": "*",
-        "ext-stats": "*"
+        "ext-bcmath": "*"
     },
     "platform-dev": []
 }

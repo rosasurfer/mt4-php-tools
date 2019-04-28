@@ -7,7 +7,6 @@ use rosasurfer\exception\IllegalTypeException;
 
 use const rosasurfer\db\orm\meta\INT;
 use const rosasurfer\db\orm\meta\STRING;
-use const rosasurfer\db\orm\meta\BOOL;
 
 
 /**
@@ -25,22 +24,23 @@ class RosaSymbolDAO extends DAO {
             'table'      => 't_rosasymbol',
             'class'      => RosaSymbol::class,
             'properties' => [
-                ['name'=>'id',                                               'type'=>INT,    'primary'=>true],      // db:int
-                ['name'=>'created',                                          'type'=>STRING,                ],      // db:text[datetime] GMT
-                ['name'=>'modified',                                         'type'=>STRING, 'version'=>true],      // db:text[datetime] GMT
+                ['name'=>'id',                                              'type'=>INT,    'primary'=>true],   // db:int
+                ['name'=>'created',                                         'type'=>STRING,                ],   // db:text[datetime] GMT
+                ['name'=>'modified',                                        'type'=>STRING, 'version'=>true],   // db:text[datetime] GMT
 
-                ['name'=>'type',                                             'type'=>STRING,                ],      // db:text forex|metals|synthetic
-                ['name'=>'name',                                             'type'=>STRING,                ],      // db:text
-                ['name'=>'description',                                      'type'=>STRING,                ],      // db:text
-                ['name'=>'digits',                                           'type'=>INT,                   ],      // db:int
-                ['name'=>'autoUpdate',       'column'=>'autoupdate',         'type'=>BOOL,                  ],      // db:int[bool]
-                ['name'=>'formula',                                          'type'=>STRING,                ],      // db:text
-                ['name'=>'historyStartTick', 'column'=>'historystart_ticks', 'type'=>STRING,                ],      // db:text[datetime] FXT
-                ['name'=>'historyEndTick',   'column'=>'historyend_ticks',   'type'=>STRING,                ],      // db:text[datetime] FXT
-                ['name'=>'historyStartM1',   'column'=>'historystart_m1',    'type'=>STRING,                ],      // db:text[datetime] FXT
-                ['name'=>'historyEndM1',     'column'=>'historyend_m1',      'type'=>STRING,                ],      // db:text[datetime] FXT
-                ['name'=>'historyStartD1',   'column'=>'historystart_d1',    'type'=>STRING,                ],      // db:text[datetime] FXT
-                ['name'=>'historyEndD1',     'column'=>'historyend_d1',      'type'=>STRING,                ],      // db:text[datetime] FXT
+                ['name'=>'type',                                            'type'=>STRING,                ],   // db:text forex|metals|synthetic
+                ['name'=>'group',            'column'=>'groupid',           'type'=>INT,                   ],   // db:int
+                ['name'=>'name',                                            'type'=>STRING,                ],   // db:text
+                ['name'=>'description',                                     'type'=>STRING,                ],   // db:text
+                ['name'=>'digits',                                          'type'=>INT,                   ],   // db:int
+                ['name'=>'updateOrder',      'column'=>'updateorder',       'type'=>INT,                   ],   // db:int
+                ['name'=>'formula',                                         'type'=>STRING,                ],   // db:text
+                ['name'=>'historyStartTick', 'column'=>'historystart_tick', 'type'=>STRING,                ],   // db:text[datetime] FXT
+                ['name'=>'historyEndTick',   'column'=>'historyend_tick',   'type'=>STRING,                ],   // db:text[datetime] FXT
+                ['name'=>'historyStartM1',   'column'=>'historystart_m1',   'type'=>STRING,                ],   // db:text[datetime] FXT
+                ['name'=>'historyEndM1',     'column'=>'historyend_m1',     'type'=>STRING,                ],   // db:text[datetime] FXT
+                ['name'=>'historyStartD1',   'column'=>'historystart_d1',   'type'=>STRING,                ],   // db:text[datetime] FXT
+                ['name'=>'historyEndD1',     'column'=>'historyend_d1',     'type'=>STRING,                ],   // db:text[datetime] FXT
             ],
             'relations' => [
                 ['name'=>'dukascopySymbol', 'assoc'=>'one-to-one', 'type'=>DukascopySymbol::class, 'ref-column'=>'rosasymbol_id'],  // db:int
@@ -88,20 +88,14 @@ class RosaSymbolDAO extends DAO {
 
 
     /**
-     * Find all {@link RosaSymbol} instances with the specified auto-update status.
+     * Find all {@link RosaSymbol}s.
      *
-     * @param  bool $status
-     *
-     * @return RosaSymbol[] - symbol instances sorted ascending by name
+     * @return RosaSymbol[] - symbol instances sorted in update order
      */
-    public function findAllByAutoUpdate($status) {
-        if (!is_bool($status)) throw new IllegalTypeException('Illegal type of parameter $status: '.gettype($status));
-
-        $status = $this->escapeLiteral($status);
+    public function findAllForUpdate() {
         $sql = 'select *
                    from :RosaSymbol
-                   where autoupdate = '.$status.'
-                   order by name';
+                   order by updateorder, name';
         return $this->findAll($sql);
     }
 
@@ -121,21 +115,15 @@ class RosaSymbolDAO extends DAO {
 
 
     /**
-     * Find all {@link RosaSymbol}s with a Dukascopy mapping and the specified auto-update status.
+     * Find all {@link RosaSymbol}s with a Dukascopy mapping.
      *
-     * @param  bool $status
-     *
-     * @return RosaSymbol[] - symbol instances sorted ascending by name
+     * @return RosaSymbol[] - symbol instances sorted in update order
      */
-    public function findAllDukascopyMappedByAutoUpdate($status) {
-        if (!is_bool($status)) throw new IllegalTypeException('Illegal type of parameter $status: '.gettype($status));
-
-        $status = $this->escapeLiteral($status);
+    public function findAllDukascopyMappedForUpdate() {
         $sql = 'select r.*
                    from :RosaSymbol      r
                    join :DukascopySymbol d on r.id = d.rosasymbol_id
-                   where autoupdate = '.$status.'
-                   order by r.name';
+                   order by r.updateorder, r.name';
         return $this->findAll($sql);
     }
 

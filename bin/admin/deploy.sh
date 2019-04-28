@@ -1,11 +1,20 @@
 #!/bin/bash
 #
 # Application deploy script for Git based repositories. Deploys a branch, a tag or a specific commit.
-# Sends email notifications with the deployed changes (commit mesages) if configured.
+# Sends email notifications with the deployed changes (i.e. commit mesages) if configured.
 #
-# Usage: deploy.sh [<branch-name> | <tag-name> | <commit-sha>]
+# Usage: deploy.sh [<branch-name> | <tag-name> | <commit-hash>]
 #
 # Without arguments the latest version of the current branch is deployed.
+#
+#
+# Configuration
+# -------------
+# Configuration values may be hard-coded here or passed via the environment. Values passed via the environment override
+# values hard-coded here. The variable NOTIFY_FOR_PROJECT is optional and defaults to the name of the checked-out project.
+#
+# Example:
+#  $ NOTIFY_ON_HOST=hostname  NOTIFY_RECEIVER=email@domain.tld  deploy.sh  master
 #
 #
 # TODO: update existing submodules
@@ -13,18 +22,20 @@
 set -e
 
 
-# notification configuration (environment variables of the same name will have precedence over values hardcoded here)
-NOTIFY_FOR_PROJECT="${NOTIFY_FOR_PROJECT:-<project-name>}"      `# fill in your project identifier              `
-NOTIFY_ON_HOST="${NOTIFY_ON_HOST:-<hostname>}"                  `# fill in the hostname to notify if deployed on`
-NOTIFY_RECEIVER="${NOTIFY_RECEIVER:-<email@domain.tld>}"        `# fill in the notification receiver            `
+# notification configuration (environment variables will have higher precedence than values hardcoded here)
+NOTIFY_FOR_PROJECT="${NOTIFY_FOR_PROJECT:-<placeholder>}"   `# replace <placeholder> with your project name                    `
+NOTIFY_ON_HOST="${NOTIFY_ON_HOST:-<placeholder>}"           `# replace <placeholder> with the hostname to notify if deployed on`
+NOTIFY_RECEIVER="${NOTIFY_RECEIVER:-<placeholder>}"         `# replace <placeholder> with the receiver's email address         `
 
 
 # --- functions -------------------------------------------------------------------------------------------------------------
 
-# print a message to stderr
+
+# print a message to STDERR
 function error() {
     echo "error: $@" 1>&2
 }
+
 
 # --- end of functions ------------------------------------------------------------------------------------------------------
 
@@ -79,33 +90,26 @@ fi
 if [ -n "$BRANCH" ]; then
     [ "$BRANCH" != "$FROM_BRANCH" ] && git checkout "$BRANCH"
     git merge --ff-only "origin/$BRANCH"
-elif [ -n "$TAG"    ]; then
+elif [ -n "$TAG" ]; then
     git checkout "$TAG"
 elif [ -n "$COMMIT" ]; then
     git checkout "$COMMIT"
 fi
 
 
-# check updates
+# check applied changes
 OLD=$FROM_COMMIT
 NEW=$(git rev-parse --short HEAD)
 
 if [ "$OLD" = "$NEW" ]; then
     echo No changes.
 else
-    # send deployment notifications if configured
+    # validate notify configuration
+    [ "$NOTIFY_FOR_PROJECT" = "<placeholder>" ] && NOTIFY_FOR_PROJECT=
+    [ "$NOTIFY_ON_HOST"     = "<placeholder>" ] && NOTIFY_ON_HOST=
+    [ "$NOTIFY_RECEIVER"    = "<placeholder>" ] && NOTIFY_RECEIVER=
 
-    # trim angle brackets
-    NOTIFY_FOR_PROJECT=${NOTIFY_FOR_PROJECT#<}; NOTIFY_FOR_PROJECT=${NOTIFY_FOR_PROJECT%>}
-    NOTIFY_ON_HOST=${NOTIFY_ON_HOST#<};         NOTIFY_ON_HOST=${NOTIFY_ON_HOST%>}
-    NOTIFY_RECEIVER=${NOTIFY_RECEIVER#<};       NOTIFY_RECEIVER=${NOTIFY_RECEIVER%>}
-
-    # reset default values
-    [ "$NOTIFY_FOR_PROJECT" = "project-name"     ] && NOTIFY_FOR_PROJECT=
-    [ "$NOTIFY_ON_HOST"     = "hostname"         ] && NOTIFY_ON_HOST=
-    [ "$NOTIFY_RECEIVER"    = "email@domain.tld" ] && NOTIFY_RECEIVER=
-
-    # check missing values
+    # autocomplete optional values
     NOTIFY=0
     if [[ -n "$NOTIFY_ON_HOST" && -n "$NOTIFY_RECEIVER" ]]; then
         if [ "$NOTIFY_ON_HOST" = "$(hostname)" ]; then
@@ -114,7 +118,7 @@ else
         fi
     fi
 
-    # notify
+    # send deployment notifications
     if [ $NOTIFY -eq 1 ]; then
         if command -v sendmail >/dev/null; then
             (
@@ -130,14 +134,39 @@ else
 fi
 
 
-# update access permissions and ownership for writing of files
-DIRS="etc/log  etc/tmp"
+# make sure there are SSL certificates for the web server
+TARGET="etc/httpd/ssl/www.rosasurfer.com.crt"
+if [ ! -e "$TARGET" ]; then
+    if [ -L "$TARGET" ]; then
+        echo "error - broken symlink detected: $TARGET"
+    else        
+        cp -p etc/httpd/ssl/self-signed.crt "$TARGET"
+    fi    
+fi    
+TARGET="etc/httpd/ssl//www.rosasurfer.com.key"
+if [ ! -e "$TARGET" ]; then
+    if [ -L "$TARGET" ]; then
+        echo "error - broken symlink detected: $TARGET"
+    else        
+        cp -p etc/httpd/ssl/self-signed.key "$TARGET"
+    fi    
+fi    
 
-for dir in $DIRS; do
-    dir="$PROJECT_DIR/$dir/"
+
+# grant read permission to everyone
+chmod -R a+rX * 2>/dev/null || true                     `# you may want to limit this to the web server and/or php-fpm user`
+
+
+# grant write permission on special folders
+DIRS=('etc/log' 'etc/tmp')
+for dir in "${DIRS[@]}"; do
     [ -d "$dir" ] || mkdir -p "$dir"
-    chmod -R u+rwX,g+rwX "$dir"
+    chmod a+rwX "$dir"                                  `# you may want to limit this to the web server and/or php-fpm user`
 done
 
-USER="apache"
-id -u "$USER" >/dev/null 2>&1 && chown -R --from=root.root "$USER.$USER" "$PROJECT_DIR"
+
+# grant write permission on special files
+FILES=('file1' 'file2')
+for file in "${FILES[@]}"; do
+    [ -f "$file" ] && chmod a+w "$file"                 `# you may want to limit this to the web server and/or php-fpm user`
+done

@@ -32,7 +32,7 @@ class Validator extends \rosasurfer\util\Validator {
      * @return bool
      */
     public static function isMT4OperationType($type) {
-        return (self::isOperationType($type) && $type <= OP_CREDIT);
+        return (static::isOperationType($type) && $type <= OP_CREDIT);
     }
 
 
@@ -44,7 +44,7 @@ class Validator extends \rosasurfer\util\Validator {
      * @return bool
      */
     public static function isCustomOperationType($type) {
-        return (self::isOperationType($type) && $type > OP_CREDIT);
+        return (static::isOperationType($type) && $type > OP_CREDIT);
     }
 
 

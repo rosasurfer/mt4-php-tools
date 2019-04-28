@@ -65,6 +65,18 @@ const OP_TRANSFER  =       8;               // custom: balance update by client 
 const OP_VENDOR    =       9;               //         balance update by criminal (dividends, swap, manual etc.)
 
 
+// price types
+const PRICE_CLOSE    = 0;                   // Close
+const PRICE_OPEN     = 1;                   // Open
+const PRICE_HIGH     = 2;                   // High
+const PRICE_LOW      = 3;                   // Low
+const PRICE_MEDIAN   = 4;                   // (H+L)/2
+const PRICE_TYPICAL  = 5;                   // (H+L+C)/3
+const PRICE_WEIGHTED = 6;                   // (H+L+C+C)/4
+const PRICE_BID      = 7;                   // Bid
+const PRICE_ASK      = 8;                   // Ask
+
+
 // Strategy Tester bar models
 const BARMODEL_EVERYTICK     = 0;
 const BARMODEL_CONTROLPOINTS = 1;
@@ -141,20 +153,20 @@ function unixTime($fxTime = null) {
  * Format a timestamp and return an FXT representation. This function works exactly as <tt>gmdate()</tt> except that the
  * applied timezone is FXT.
  *
- * @param  string $format             - format as accepted by <tt>date($format, $timestamp)</tt>
- * @param  int    $time    [optional] - timestamp (default: the current time)
- * @param  bool   $fxtTime [optional] - whether the timestamp is an FXT timestamp (default: GMT)
+ * @param  string $format           - format as accepted by <tt>date($format, $timestamp)</tt>
+ * @param  int    $time  [optional] - timestamp (default: the current time)
+ * @param  bool   $isFxt [optional] - whether the timestamp is an FXT timestamp (default: GMT)
  *
  * @return string - formatted string
  */
-function fxDate($format, $time=null, $fxtTime=false) {
+function fxDate($format, $time=null, $isFxt=false) {
     if (isset($time)) {
         if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
     }
     else {
-        $time = $fxtTime ? fxTime() : time();
+        $time = $isFxt ? fxTime() : time();
     }
-    if ($fxtTime) return gmdate($format, $time);
+    if ($isFxt) return gmdate($format, $time);
 
     try {
         $timezone = date_default_timezone_get();
@@ -166,47 +178,25 @@ function fxDate($format, $time=null, $fxtTime=false) {
 
 
 /**
- * Parst die String-Repraesentation einer FXT-Zeit in einen GMT-Timestamp.
+ * Return the FXT offset of a GMT time, and optionally the adjacent DST transition data.
  *
- * @param  string $time - FXT-Zeit in einem der Funktion strtotime() verstaendlichen Format
+ * @param  int   $time           [optional] - GMT time (default: current time)
+ * @param  array $prevTransition [optional] - if specified the array is filled with the data of the previous DST transition
+ * @param  array $nextTransition [optional] - if specified the array is filled with the data of the next DST transition
  *
- * @return int - Unix-Timestamp
- *
- * TODO:  Funktion unnoetig: strtotime() ueberladen und um Erkennung der FXT-Zeitzone erweitern
+ * @return int - Offset in seconds or NULL if parameter $time is not in the range of the timezone information for FXT.  <br>
+ *               Offset is always positive, it follows: FXT = GMT + offset                                              <br>
+ *                                                                                                                      <br>
+ * <pre>
+ * Transition data is returned as follows:
+ * ---------------------------------------
+ * Array(
+ *     'time'   => {timestamp},    // GMT timestamp of the previous|next DST transition
+ *     'offset' => {offset},       // FXT offset before|after that DST transition
+ * )
+ * </pre>
  */
-function fxtStrToTime($time) {
-    if (!is_string($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
-
-    $currentTZ = date_default_timezone_get();
-    try {
-        date_default_timezone_set('America/New_York');
-        $unixTime = strtotime($time);
-        if ($unixTime === false) throw new InvalidArgumentException('Invalid argument $time: "'.$time.'"');
-        return $unixTime - 7*HOURS;
-    }
-    finally { date_default_timezone_set($currentTZ); }
-}
-
-
-/**
- * Gibt den FXT-Offset einer Zeit zu GMT und ggf. die beiden jeweils angrenzenden naechsten DST-Transitionsdaten zurueck.
- *
- * @param  int        $time           - GMT-Zeitpunkt (default: aktuelle Zeit)
- * @param  array|null $prevTransition - Wenn angegeben, enthaelt diese Variable nach Rueckkehr ein Array
- *                                      ['time'=>{timestamp}, 'offset'=>{offset}] mit dem GMT-Timestamp des vorherigen
- *                                      Zeitwechsels und dem Offset vor diesem Zeitpunkt.
- * @param  array|null $nextTransition - Wenn angegeben, enthaelt diese Variable nach Rueckkehr ein Array
- *                                      ['time'=>{timestamp}, 'offset'=>{offset}] mit dem GMT-Timestamp des naechsten
- *                                      Zeitwechsels und dem Offset nach diesem Zeitpunkt.
- *
- * @return int - Offset in Sekunden oder NULL, wenn der Zeitpunkt ausserhalb der bekannten Transitionsdaten liegt.
- *               FXT liegt oestlich von GMT, der Offset ist also immer positiv. Es gilt: GMT + Offset = FXT
- *
- *
- * Note: Analog zu date('Z', $time) verhaelt sich diese Funktion, als wenn lokal die (in PHP nicht existierende) Zeitzone 'FXT'
- *       eingestellt worden waere.
- */
-function fxtTimezoneOffset($time=null, &$prevTransition=[], &$nextTransition=[]) {
+function fxTimezoneOffset($time=null, array &$prevTransition=null, array &$nextTransition=null) {
     if (is_null($time)) $time = time();
     else if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
 
@@ -268,6 +258,29 @@ function fxtTimezoneOffset($time=null, &$prevTransition=[], &$nextTransition=[])
 
 
 /**
+ * Parst die String-Repraesentation einer FXT-Zeit in einen GMT-Timestamp.
+ *
+ * @param  string $time - FXT-Zeit in einem der Funktion strtotime() verstaendlichen Format
+ *
+ * @return int - Unix-Timestamp
+ *
+ * TODO:  Funktion unnoetig: strtotime() ueberladen und um Erkennung der FXT-Zeitzone erweitern
+ */
+function fxtStrToTime($time) {
+    if (!is_string($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
+
+    $currentTZ = date_default_timezone_get();
+    try {
+        date_default_timezone_set('America/New_York');
+        $unixTime = strtotime($time);
+        if ($unixTime === false) throw new InvalidArgumentException('Invalid argument $time: "'.$time.'"');
+        return $unixTime - 7*HOURS;
+    }
+    finally { date_default_timezone_set($currentTZ); }
+}
+
+
+/**
  * Whether a time is on a Good Friday in the standard timezone of the timestamp.
  *
  * @param  int $time - Unix or FXT timestamp
@@ -276,6 +289,8 @@ function fxtTimezoneOffset($time=null, &$prevTransition=[], &$nextTransition=[])
  */
 function isGoodFriday($time) {
     if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
+    if (!$time)
+        return false;
 
     $dow = (int) gmdate('w', $time);
     if ($dow == FRIDAY) {
@@ -299,6 +314,8 @@ function isGoodFriday($time) {
  */
 function isHoliday($time) {
     if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
+    if (!$time)
+        return false;
 
     $m   = (int) gmdate('n', $time);            // month
     $dom = (int) gmdate('j', $time);            // day of month
@@ -320,6 +337,8 @@ function isHoliday($time) {
  */
 function isWeekend($time) {
     if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
+    if (!$time)
+        return false;
 
     $dow = (int) gmdate('w', $time);
     return ($dow==SATURDAY || $dow==SUNDAY);
@@ -401,6 +420,31 @@ function timeframeToStr($timeframe) {
  */
 function timeframeDescription($timeframe) {
     return periodDescription($timeframe);
+}
+
+
+/**
+ * Return a human-readable description of a price type identifier.
+ *
+ * @param  int $type - price type
+ *
+ * @return string
+ */
+function priceTypeDescription($type) {
+    if (!is_int($type)) throw new IllegalTypeException('Illegal type of parameter $type: '.gettype($type));
+
+    switch ($type) {
+        case PRICE_CLOSE   : return("Close"   );
+        case PRICE_OPEN    : return("Open"    );
+        case PRICE_HIGH    : return("High"    );
+        case PRICE_LOW     : return("Low"     );
+        case PRICE_MEDIAN  : return("Median"  );        // (High+Low)/2
+        case PRICE_TYPICAL : return("Typical" );        // (High+Low+Close)/3
+        case PRICE_WEIGHTED: return("Weighted");        // (High+Low+Close+Close)/4
+        case PRICE_BID     : return("Bid"     );
+        case PRICE_ASK     : return("Ask"     );
+    }
+    return (string) $type;
 }
 
 
@@ -602,3 +646,59 @@ function stats_calmar_ratio($from, $to, array $values) {
         return INF;
     return $normalizedProfit / $maxDrawdown;
 }
+
+
+/**
+ * Return the integer constant of a timeframe identifier.
+ *
+ * @param  string $value - M1, M5, M15, M30 etc.
+ *
+ * @return int - timeframe id or -1 if the value is not recognized
+ */
+function strToPeriod($value) {
+    if (!is_string($value)) throw new IllegalTypeException('Illegal type of parameter $value: '.gettype($value));
+
+    $value = strtoupper(trim($value));
+    if (strStartsWith($value, 'PERIOD_'))
+        $value = substr($value, 7);
+
+    switch ($value) {
+        case       'M1' :
+        case PERIOD_M1  : return(PERIOD_M1);
+        case       'M5' :
+        case PERIOD_M5  : return(PERIOD_M5);
+        case       'M15':
+        case PERIOD_M15 : return(PERIOD_M15);
+        case       'M30':
+        case PERIOD_M30 : return(PERIOD_M30);
+        case       'H1' :
+        case PERIOD_H1  : return(PERIOD_H1);
+        case       'H4' :
+        case PERIOD_H4  : return(PERIOD_H4);
+        case       'D1' :
+        case PERIOD_D1  : return(PERIOD_D1);
+        case       'W1' :
+        case PERIOD_W1  : return(PERIOD_W1);
+        case       'MN1':
+        case PERIOD_MN1 : return(PERIOD_MN1);
+        case       'Q1' :
+        case PERIOD_Q1  : return(PERIOD_Q1);
+    }
+   return -1;
+}
+
+
+/**
+ * Alias of strToPeriod()
+ *
+ * Return the integer constant of a timeframe identifier.
+ *
+ * @param  string $value - M1, M5, M15, M30 etc.
+ *
+ * @return int - timeframe id or -1 if the value is not recognized
+ */
+function strToTimeframe($value) {
+   return(strToPeriod($value));
+}
+
+

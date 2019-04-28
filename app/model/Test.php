@@ -109,7 +109,7 @@ class Test extends RosatraderModel {
 
             if (!$test->startTime) {
                 // first line: test properties
-                $properties = self::parseTestProperties($line);
+                $properties = static::parseTestProperties($line);
 
                 $time = $properties['time'];                  // GMT timestamp
                 if (!is_int($time))                           throw new IllegalTypeException('Illegal type of property "time": '.gettype($time));
@@ -186,7 +186,7 @@ class Test extends RosatraderModel {
 
             // all further lines: trades (order properties)
             if (!strStartsWith($line, 'order.')) throw new InvalidArgumentException('Unsupported file format in line '.$i.' of "'.$resultsFile.'"');
-            $order = Order::create($test, self::parseOrderProperties($line));
+            $order = Order::create($test, static::parseOrderProperties($line));
 
             if ($order->isClosedPosition()) {                           // open positions are skipped
                 $test->trades[] = $order;

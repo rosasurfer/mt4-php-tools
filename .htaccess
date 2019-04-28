@@ -1,6 +1,11 @@
 #
 # Protect the project from accidently being exposed to the web by a mis-configured web server.
+# To use the rewrite engine in .htaccess files "Options FollowSymLinks" must be enabled. 
+#
 # Intentionally trigger a server error if mod_rewrite is disabled.
 #
+# To run the project without a VirtualHost definition copy "./web/.htaccess.local" to "./web/.htaccess" and adjust the paths 
+# here and there according to your location of DOCUMENT_ROOT. The default value of APP_BASE_URI is "/". 
+#
 RewriteEngine On
-RewriteRule   (.*)  web/$1  [L]
+RewriteRule   (.*) web/$1  [env=APP_BASE_URI:/mt4/rosatrader/,QSA,L]

@@ -2,6 +2,7 @@
 // Dukascopy structure DUKASCOPY_BAR (file format "BID|ASK_candles_*.bin")
 //
 //
+// big-endian
 // struct DUKASCOPY_BAR {               // -- offset --- size --- description -----------------------------------------------
 //     uint  timeDelta;                 //         0        4     time difference in seconds since 00:00 GMT
 //     uint  open;                      //         4        4     in point

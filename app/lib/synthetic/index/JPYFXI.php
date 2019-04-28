@@ -2,15 +2,20 @@
 namespace rosasurfer\rt\lib\synthetic\index;
 
 use rosasurfer\exception\IllegalTypeException;
+use rosasurfer\exception\UnimplementedFeatureException;
 
 use rosasurfer\rt\lib\synthetic\AbstractSynthesizer;
-use rosasurfer\rt\lib\synthetic\SynthesizerInterface as Synthesizer;
+use rosasurfer\rt\lib\synthetic\ISynthesizer;
+
+use function rosasurfer\rt\periodToStr;
+
+use const rosasurfer\rt\PERIOD_M1;
 
 
 /**
  * JPYFXI synthesizer
  *
- * A {@link Synthesizer} for calculating the Japanese Yen currency index. Due to the Yen's low value the index is scaled-up
+ * A {@link ISynthesizer} for calculating the Japanese Yen currency index. Due to the Yen's low value the index is scaled-up
  * by a factor of 100. This adjustment only effects the nominal scala, not the shape of the JPY index chart.
  *
  * <pre>
@@ -35,25 +40,27 @@ class JPYFXI extends AbstractSynthesizer {
     /**
      * {@inheritdoc}
      */
-    public function calculateQuotes($day) {
-        if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.gettype($day));
+    public function calculateHistory($period, $time) {
+        if (!is_int($period))     throw new IllegalTypeException('Illegal type of parameter $period: '.gettype($period));
+        if ($period != PERIOD_M1) throw new UnimplementedFeatureException(__METHOD__.'('.periodToStr($period).') not implemented');
+        if (!is_int($time))       throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
 
-        if (!$symbols = $this->loadComponents(first($this->components)))
+        if (!$symbols = $this->getComponents(first($this->components)))
             return [];
-        if (!$day && !($day = $this->findCommonHistoryStartM1($symbols)))   // if no day was specified find the oldest available history
+        if (!$time && !($time=$this->findCommonHistoryStartM1($symbols)))       // if no time was specified find the oldest available history
             return [];
-        if (!$this->symbol->isTradingDay($day))                             // skip non-trading days
+        if (!$this->symbol->isTradingDay($time))                                // skip non-trading days
             return [];
-        if (!$quotes = $this->loadComponentHistory($symbols, $day))
+        if (!$quotes = $this->getComponentsHistory($symbols, $time))
             return [];
 
         // calculate quotes
-        echoPre('[Info]    '.$this->symbolName.'  calculating M1 history for '.gmdate('D, d-M-Y', $day));
+        echoPre('[Info]    '.str_pad($this->symbolName, 6).'  calculating M1 history for '.gmdate('D, d-M-Y', $time));
         $USDJPY = $quotes['USDJPY'];
         $USDLFX = $quotes['USDLFX'];
 
         $digits = $this->symbol->getDigits();
-        $point  = $this->symbol->getPoint();
+        $point  = $this->symbol->getPointValue();
         $bars   = [];
 
         // JPYFXI = 100 / pow(USDLFX / USDJPY, 7/6)

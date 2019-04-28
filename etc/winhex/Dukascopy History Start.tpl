@@ -2,6 +2,7 @@
 // Dukascopy structure DUKASCOPY_HISTORY_START (symbol format in files "HistoryStart.bi5")
 //
 //
+// big-endian
 // struct DUKASCOPY_HISTORY_START {     // -- offset --- size --- description -----------------------------------------------
 //     char      start;                 //         0        1     symbol start marker (always NULL)
 //     char      length;                //         1        1     length of the following symbol name

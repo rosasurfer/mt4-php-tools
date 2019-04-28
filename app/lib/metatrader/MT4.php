@@ -503,7 +503,7 @@ class MT4 extends StaticClass {
      * @return int - period id or 0 if the value doesn't represent a period
      */
     public static function strToPeriod($value) {
-        return self::strToTimeframe($value);
+        return static::strToTimeframe($value);
     }
 
 
@@ -585,7 +585,7 @@ class MT4 extends StaticClass {
      * @return string|null - description or NULL if the parameter is not a valid bar model id
      */
     public static function barModelDescription($id) {
-        $id = self::strToBarModel($id);
+        $id = static::strToBarModel($id);
         if ($id >= 0) {
             switch ($id) {
                 case BARMODEL_EVERYTICK:     return 'EveryTick';
@@ -605,7 +605,7 @@ class MT4 extends StaticClass {
      * @return string|null - description or NULL if the parameter is not a valid trade direction id
      */
     public static function tradeDirectionDescription($id) {
-        $id = self::strToTradeDirection($id);
+        $id = static::strToTradeDirection($id);
         if ($id >= 0) {
             switch ($id) {
                 case TRADE_DIRECTIONS_LONG:  return 'Long';

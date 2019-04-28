@@ -7,6 +7,7 @@ use rosasurfer\exception\IllegalArgumentException;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
 use rosasurfer\exception\RuntimeException;
+use rosasurfer\exception\UnimplementedFeatureException;
 use rosasurfer\file\FileSystem as FS;
 use rosasurfer\log\Logger;
 
@@ -15,59 +16,24 @@ use rosasurfer\rt\lib\dukascopy\HttpClient as DukascopyClient;
 use rosasurfer\rt\model\DukascopySymbol;
 
 use function rosasurfer\rt\fxTime;
+use function rosasurfer\rt\fxTimezoneOffset;
+use function rosasurfer\rt\periodDescription;
 use function rosasurfer\rt\periodToStr;
+use function rosasurfer\rt\priceTypeDescription;
 
 use const rosasurfer\rt\DUKASCOPY_BAR_SIZE;
 use const rosasurfer\rt\DUKASCOPY_TICK_SIZE;
 use const rosasurfer\rt\PERIOD_M1;
 use const rosasurfer\rt\PERIOD_D1;
+use const rosasurfer\rt\PRICE_BID;
+use const rosasurfer\rt\PRICE_ASK;
+use const rosasurfer\rt\PRICE_MEDIAN;
 
 
 /**
  * Dukascopy
  *
  * Functionality for downloading and processing Dukascopy history data.
- *
- *
- * // big-endian
- * struct DUKASCOPY_HISTORY_START {     // -- offset --- size --- description -----------------------------------------------
- *     char      start;                 //         0        1     symbol start marker (always NULL)
- *     char      length;                //         1        1     length of the following symbol name
- *     char      symbol[length];        //         2 {length}     symbol name (no terminating NULL character)
- *     int64     count;                 //  variable        8     number of timeframe start records to follow
- *     {record};                        //  variable       16     struct DUKASCOPY_TIMEFRAME_START
- *     ...                              //  variable       16     struct DUKASCOPY_TIMEFRAME_START
- *     {record};                        //  variable       16     struct DUKASCOPY_TIMEFRAME_START
- * };                                   // ----------------------------------------------------------------------------------
- *                                      //                = 2 + {length} + {count}*16
- *
- * // big-endian
- * struct DUKASCOPY_TIMEFRAME_START {   // -- offset --- size --- description -----------------------------------------------
- *     int64 timeframe;                 //         0        8     period length in minutes as a Java timestamp (msec); 0|-1 = PERIOD_TICK
- *     int64 time;                      //         8        8     start time as a Java timestamp (msec); PHP_INT_MAX = n/a
- * };                                   // ----------------------------------------------------------------------------------
- *                                      //               = 16
- *
- * // big-endian
- * struct DUKASCOPY_BAR {               // -- offset --- size --- description -----------------------------------------------
- *     uint  timeDelta;                 //         0        4     time difference in seconds since 00:00 GMT
- *     uint  open;                      //         4        4     in point
- *     uint  close;                     //         8        4     in point
- *     uint  low;                       //        12        4     in point
- *     uint  high;                      //        16        4     in point
- *     float volume;                    //        20        4
- * };                                   // ----------------------------------------------------------------------------------
- *                                      //               = 24
- *
- * // big-endian
- * struct DUKASCOPY_TICK {              // -- offset --- size --- description -----------------------------------------------
- *     uint  timeDelta;                 //         0        4     time difference in msec since start of the hour
- *     uint  ask;                       //         4        4     in point
- *     uint  bid;                       //         8        4     in point
- *     float askSize;                   //        12        4     cumulated ask size in lot (min. 1)
- *     float bidSize;                   //        16        4     cumulated bid size in lot (min. 1)
- * };                                   // ----------------------------------------------------------------------------------
- *                                      //               = 20
  */
 class Dukascopy extends Object {
 
@@ -81,8 +47,8 @@ class Dukascopy extends Object {
     /** @var array[] - internal cache for all fetched history start data */
     protected $allHistoryStarts;
 
-    /** @var array - symbol mapping from lower-case to Dukascopy name */
-    protected $symbolMapping;
+    /** @var array[] */
+    protected $history;
 
 
     /**
@@ -99,73 +65,17 @@ class Dukascopy extends Object {
 
 
     /**
-     * Fetch history start for the specified symbol from Dukascopy.
+     * Decompress a compressed Dukascopy data file and return its content.
      *
-     * @param  string $symbol
+     * @param  string $compressedFile    - name of the compressed data file
+     * @param  string $saveAs [optional] - if specified the decompressed file is stored in a file with the given name
+     *                                     (default: no additional storage)
      *
-     * @return array - history start times per timeframe or an empty value in case of errors
-     *
-     * <pre>
-     * Array (
-     *     [{timeframe-id}] => [{timestamp}],               // e.g.: PERIOD_TICK => Mon, 04-Aug-2003 10:03:02.837,
-     *     [{timeframe-id}] => [{timestamp}],               //       PERIOD_M1   => Mon, 04-Aug-2003 10:03:00,
-     *     [{timeframe-id}] => [{timestamp}],               //       PERIOD_H1   => Mon, 04-Aug-2003 10:00:00,
-     *     ...                                              //       PERIOD_D1   => Mon, 25-Nov-1991 00:00:00,
-     * )
-     * </pre>
+     * @return string - decompressed file content
      */
-    public function fetchHistoryStart($symbol) {
-        $symbolU = strtoupper($symbol);
-
-        if (isset($this->allHistoryStarts[$symbolU]))
-            return $this->allHistoryStarts[$symbolU];
-        if (isset($this->historyStarts[$symbolU]))
-            return $this->historyStarts[$symbolU];
-
-        /** @var Output $output */
-        $output = $this->di(Output::class);
-        $output->out('[Info]    '.$symbol.'  fetching history start times from Dukascopy...');
-
-        $data = $this->getHttpClient()->downloadHistoryStart($symbol);
-        if (strlen($data))
-            return $this->historyStarts[$symbolU] = $this->readHistoryStartSection($data);
-        return [];
-    }
-
-
-    /**
-     * Fetch history start times from Dukascopy for all available symbols. Returns a list of arrays with history start times
-     * for each available symbol.
-     *
-     * @return array[] - list of arrays in a format as follows:
-     *
-     * <pre>
-     * Array (
-     *     [{symbol}] => [
-     *         [{timeframe-id}] => [{timestamp}],           // e.g.: PERIOD_TICK => Mon, 04-Aug-2003 10:03:02.837,
-     *         [{timeframe-id}] => [{timestamp}],           //       PERIOD_M1   => Mon, 04-Aug-2003 10:03:00,
-     *         [{timeframe-id}] => [{timestamp}],           //       PERIOD_H1   => Mon, 04-Aug-2003 10:00:00,
-     *         [{timeframe-id}] => [{timestamp}],           //       PERIOD_D1   => Mon, 25-Nov-1991 00:00:00,
-     *     ],
-     *     [{symbol}] => [
-     *         ...
-     *     ],
-     *     ...
-     * )
-     * </pre>
-     */
-    public function fetchHistoryStarts() {
-        if ($this->allHistoryStarts)
-            return $this->allHistoryStarts;
-
-        /** @var Output $output */
-        $output = $this->di(Output::class);
-        $output->out('[Info]    Fetching history start times from Dukascopy...');
-
-        $data = $this->getHttpClient()->downloadHistoryStart();
-        if (strlen($data))
-            return $this->allHistoryStarts = $this->readHistoryStarts($data);
-        return [];
+    protected function decompressFile($compressedFile, $saveAs = null) {
+        if (!is_string($compressedFile)) throw new IllegalTypeException('Illegal type of parameter $compressedFile: '.gettype($compressedFile));
+        return $this->decompressData(file_get_contents($compressedFile), $saveAs);
     }
 
 
@@ -173,12 +83,12 @@ class Dukascopy extends Object {
      * Decompress a compressed Dukascopy data string and return it.
      *
      * @param  string $data              - compressed string with bars or ticks
-     * @param  string $saveAs [optional] - if specified the decompressed string is additionally stored in the given file
-     *                                     (default: no storage)
+     * @param  string $saveAs [optional] - if specified the decompressed data is stored in a file with the given name
+     *                                     (default: no additional storage)
      *
-     * @return string - decompressed data string
+     * @return string - decompressed data
      */
-    public static function decompressHistoryData($data, $saveAs = null) {
+    public function decompressData($data, $saveAs = null) {
         if (!is_string($data))       throw new IllegalTypeException('Illegal type of parameter $data: '.gettype($data));
         if (isset($saveAs)) {
             if (!is_string($saveAs)) throw new IllegalTypeException('Illegal type of parameter $saveAs: '.gettype($saveAs));
@@ -190,7 +100,7 @@ class Dukascopy extends Object {
         if (isset($saveAs)) {
             FS::mkDir(dirname($saveAs));
             $tmpFile = tempnam(dirname($saveAs), basename($saveAs));
-            file_put_contents($tmpFile, $rawData);
+            file_put_contents($tmpFile, $rawData);              // make sure an existing file can't be corrupt
             if (is_file($saveAs)) unlink($saveAs);
             rename($tmpFile, $saveAs);
         }
@@ -199,89 +109,435 @@ class Dukascopy extends Object {
 
 
     /**
-     * Decompress a compressed Dukascopy data file and return its content.
+     * Get history for the specified symbol, bar period and time. The range of the returned data depends on the requested
+     * bar period.
      *
-     * @param  string $compressedFile    - name of the compressed data file
-     * @param  string $saveAs [optional] - if specified the decompressed content is additionally stored in the given file
-     *                                     (default: no storage)
+     * @param  DukascopySymbol $symbol               - symbol to get history data for
+     * @param  int             $period               - bar period identifier: PERIOD_M1 | PERIOD_D1
+     * @param  int             $time                 - FXT time
+     * @param  bool            $optimized [optional] - returned bar format (see notes)
      *
-     * @return string - decompressed file content
+     * @return array - An empty array if history for the specified bar period and time is not available. Otherwise a
+     *                 timeseries array with each element describing a single price bar as follows:
+     * <pre>
+     * $optimized => FALSE (default):
+     * ------------------------------
+     * Array(
+     *     'time'  => (int),            // bar open time in FXT
+     *     'open'  => (float),          // open value in real terms
+     *     'high'  => (float),          // high value in real terms
+     *     'low'   => (float),          // low value in real terms
+     *     'close' => (float),          // close value in real terms
+     *     'ticks' => (int),            // number of synthetic ticks
+     * )
+     *
+     * $optimized => TRUE:
+     * -------------------
+     * Array(
+     *     'time'  => (int),            // bar open time in FXT
+     *     'open'  => (int),            // open value in point
+     *     'high'  => (int),            // high value in point
+     *     'low'   => (int),            // low value in point
+     *     'close' => (int),            // close value in point
+     *     'ticks' => (int),            // number of synthetic ticks
+     * )
+     * </pre>
      */
-    public static function decompressHistoryFile($compressedFile, $saveAs = null) {
-        if (!is_string($compressedFile)) throw new IllegalTypeException('Illegal type of parameter $compressedFile: '.gettype($compressedFile));
-        return self::decompressHistoryData(file_get_contents($compressedFile), $saveAs);
+    public function getHistory(DukascopySymbol $symbol, $period, $time, $optimized = false) {
+        if (!is_int($period))     throw new IllegalTypeException('Illegal type of parameter $period: '.gettype($period));
+        if ($period != PERIOD_M1) throw new UnimplementedFeatureException(__METHOD__.'('.periodToStr($period).') not implemented');
+        if (!is_int($time))       throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
+
+        $nameU = strtoupper($symbol->getName());
+        $day   = $time - $time%DAY;                                                         // 00:00 FXT
+
+        if (!isset($this->history[$nameU][$period][$day][PRICE_MEDIAN])) {
+            // load Bid and Ask, calculate Median and store everything in the cache
+            if (!$bids = $this->loadHistory($symbol, $period, $day, PRICE_BID)) return [];  // raw
+            if (!$asks = $this->loadHistory($symbol, $period, $day, PRICE_ASK)) return [];  // raw
+            $median = $this->calculateMedian($bids, $asks);                                 // optimized
+            $this->history[$nameU][$period][$day][PRICE_MEDIAN] = $median;
+        }
+
+        // limit memory consumption
+        $purges = array_diff(array_keys($this->history), [$nameU]);
+        foreach ($purges as $stale) unset($this->history[$stale]);                          // drop old symbols
+        $purges = array_diff(array_keys($this->history[$nameU][$period]), [$day-DAY, $day, $day+DAY]);
+        foreach ($purges as $stale) unset($this->history[$nameU][$period][$stale]);         // drop old timeseries
+
+        if ($optimized)
+            return $this->history[$nameU][$period][$day][PRICE_MEDIAN];
+
+        if (!isset($this->history[$nameU][$period][$day]['real'])) {
+            $real = $this->calculateReal($symbol, $this->history[$nameU][$period][$day][PRICE_MEDIAN]);
+            $this->history[$nameU][$period][$day]['real'] = $real;
+        }
+        return $this->history[$nameU][$period][$day]['real'];
     }
 
 
     /**
-     * Parse a string with Dukascopy bar data and convert it to a timeseries array.
+     * Load history data from Dukascopy for the specified bar period and time.
      *
-     * @param  string $data   - string with Dukascopy bar data
-     * @param  string $symbol - Dukascopy symbol
-     * @param  string $type   - meta info for error message generation
-     * @param  int    $time   - ditto
+     * @param  DukascopySymbol $symbol
+     * @param  int             $period - bar period identifier: PERIOD_M1 | PERIOD_D1
+     * @param  int             $time   - FXT time
+     * @param  int             $type   - price type identifier: PRICE_BID | PRICE_ASK
      *
-     * @return array[] - DUKASCOPY_BAR[] data as a timeseries array
+     * @return array - An empty array if history for the specified bar period and time is not available. Otherwise a
+     *                 timeseries array with each element describing a single price bar as follows:
+     * <pre>
+     * Array(
+     *     'time'       => (int),       // bar open time in FXT
+     *     'time_delta' => (int),       // bar offset to 00:00 FXT in seconds
+     *     'open'       => (int),       // open value in point
+     *     'high'       => (int),       // high value in point
+     *     'low'        => (int),       // low value in point
+     *     'close'      => (int),       // close value in point
+     *     'volume'     => (float),     // volume
+     * )
+     * </pre>
      */
-    public static function readBarData($data, $symbol, $type, $time) {
-        /** @var DukascopySymbol $dukaSymbol */
-        $dukaSymbol = DukascopySymbol::dao()->getByName($symbol);
-        $symbol     = $dukaSymbol->getName();
-        $digits     = $dukaSymbol->getDigits();
-        $divider    = pow(10, $digits);
+    protected function loadHistory(DukascopySymbol $symbol, $period, $time, $type) {
+        if (!is_int($period))                         throw new IllegalTypeException('Illegal type of parameter $period: '.gettype($period));
+        if ($period != PERIOD_M1)                     throw new InvalidArgumentException('Invalid parameter $period: '.periodToStr($period));
+        if (!is_int($time))                           throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
+        if (!is_int($type))                           throw new IllegalTypeException('Illegal type of parameter $type: '.gettype($type));
+        if (!in_array($type, [PRICE_BID, PRICE_ASK])) throw new InvalidArgumentException('Invalid parameter $type: '.$type);
 
-        if (!is_string($data))                        throw new IllegalTypeException('Illegal type of parameter $data: '.gettype($data));
-        $lenData = strlen($data);
-        if (!$lenData || $lenData%DUKASCOPY_BAR_SIZE) throw new RuntimeException('Odd length of passed '.$symbol.' '.$type.' data: '.$lenData.' (not an even DUKASCOPY_BAR_SIZE)');
+        // Day transition time (Midnight) for Dukascopy data is at 00:00 GMT (~02:00 FXT). Each FXT day requires Dukascopy
+        // data of the current and the previous GMT day. If data is present in the internal cache the method doesn't connect
+        // to Dukascopy. Otherwise data is downloaded, converted to FXT and cached.
+        //         +---------++---------+---------+---------+---------+---------++---------+---------++---------+
+        // GMT:    |   Sun   ||   Mon   |   Tue   |   Wed   |   Thu   |   Fri   ||   Sat   |   Sun   ||   Mon   |
+        //         +---------++---------+---------+---------+---------+---------++---------+---------++---------+
+        //      +---------++---------+---------+---------+---------+---------++---------+---------++---------+
+        // FXT: |   Sun   ||   Mon   |   Tue   |   Wed   |   Thu   |   Fri   ||   Sat   |   Sun   ||   Mon   |
+        //      +---------++---------+---------+---------+---------+---------++---------+---------++---------+
 
-        $offset  = 0;
-        $bars    = [];
-        $i       = -1;
+        $name  = $symbol->getName();
+        $nameU = strtoupper($name);
+        $day          = $time - $time%DAY;                                          // 00:00 FXT
+        $previousDay  = $day - 1*DAY;                                               // 00:00 FXT
+        $currentDayOk = $previousDayOk = false;
 
-        static $isLittleEndian = null; is_null($isLittleEndian) && $isLittleEndian=isLittleEndian();
+        if (isset($this->history[$nameU][$period][$day][$type])) {
+            if (sizeof($this->history[$nameU][$period][$day][$type]) == PERIOD_D1)  // that's if data of the day is complete
+                return $this->history[$nameU][$period][$day][$type];
 
-        while ($offset < $lenData) {
-            $i++;
-            $bars[] = unpack("@$offset/NtimeDelta/Nopen/Nclose/Nlow/Nhigh", $data);
-            $s      = substr($data, $offset+20, 4);
-            $lots   = unpack('f', $isLittleEndian ? strrev($s) : $s);   // unpack doesn't support explicit big-endian floats, on little-endian
-            $bars[$i]['lots'] = round($lots[1], 2);                     // machines the byte order of field "lots" must be reversed manually
-            $offset += DUKASCOPY_BAR_SIZE;
+            $first = first($this->history[$nameU][$period][$day][$type]);           // if cached data starts with 00:00, the
+            $previousDayOk = ($first['time_delta'] === 0);                          // previous GMT day was already loaded
 
-            // validate bar data
-            if ($bars[$i]['open' ] > $bars[$i]['high'] ||               // from (H >= O && O >= L) follws (H >= L)
-                $bars[$i]['open' ] < $bars[$i]['low' ] ||               // don't use min()/max() as it's slow
-                $bars[$i]['close'] > $bars[$i]['high'] ||
-                $bars[$i]['close'] < $bars[$i]['low' ]) {
+            $last = last($this->history[$nameU][$period][$day][$type]);             // if cached data ends with 23:59, the
+            $currentDayOk = ($last['time_delta'] === 23*HOURS+59*MINUTES);          // current GMT day was already loaded
+        }
 
-                $O = number_format($bars[$i]['open' ]/$divider, $digits);
-                $H = number_format($bars[$i]['high' ]/$divider, $digits);
-                $L = number_format($bars[$i]['low'  ]/$divider, $digits);
-                $C = number_format($bars[$i]['close']/$divider, $digits);
-
-                Logger::log("Illegal ".$symbol." $type data for bar[$i] of ".gmdate('D, d-M-Y H:i:s', $time).": O=$O H=$H L=$L C=$C, adjusting high/low...", L_WARN);
-
-                $bars[$i]['high'] = max($bars[$i]['open'], $bars[$i]['high'], $bars[$i]['low'], $bars[$i]['close']);
-                $bars[$i]['low' ] = min($bars[$i]['open'], $bars[$i]['high'], $bars[$i]['low'], $bars[$i]['close']);
+        // download and convert missing data
+        foreach ([$previousDay=>$previousDayOk, $day=>$currentDayOk] as $day => $dayOk) {
+            if (!$dayOk) {
+                $data = $this->getHttpClient()->downloadHistory($name, $day, $type);// here 00:00 FXT can be used as GMT
+                if (!$data) return [];                                              // that's if data is not available
+                $data = $this->decompressData($data);
+                $this->parseBarData($data, $symbol, $day, $period, $type);          // here 00:00 FXT can be used as GMT
             }
         }
-        return $bars;
+        // now downloaded data is complete and stored on FXT boundaries
+        return $this->history[$nameU][$period][$day][$type];
+    }
+
+
+    /**
+     * Parse a string with binary history data for the specified time and bar period, convert GMT times to FXT, split on FXT
+     * boundaries and store the resulting timeseries in the internal cache.
+     *
+     * @param  string          $data   - binary history data
+     * @param  DukascopySymbol $symbol - symbol the data belongs to
+     * @param  int             $day    - GMT timestamp of the history
+     * @param  int             $period - bar period identifier: PERIOD_M1 | PERIOD_D1
+     * @param  int             $type   - price type identifier: PRICE_BID | PRICE_ASK
+     *
+     * <pre>
+     * Bar format stored in the cache:
+     * -------------------------------
+     * Array(
+     *     'time'       => (int),       // bar open time in FXT
+     *     'time_delta' => (int),       // bar offset to 00:00 FXT in seconds
+     *     'open'       => (int),       // open value in point
+     *     'high'       => (int),       // high value in point
+     *     'low'        => (int),       // low value in point
+     *     'close'      => (int),       // close value in point
+     *     'volume'     => (float)      // volume
+     * )
+     * </pre>
+     */
+    protected function parseBarData($data, DukascopySymbol $symbol, $day, $period, $type) {
+        if (!is_string($data))                        throw new IllegalTypeException('Illegal type of parameter $data: '.gettype($data));
+        if (!is_int($day))                            throw new IllegalTypeException('Illegal type of parameter $day: '.gettype($day));
+        if (!is_int($period))                         throw new IllegalTypeException('Illegal type of parameter $period: '.gettype($period));
+        if ($period != PERIOD_M1)                     throw new InvalidArgumentException('Invalid parameter $period: '.periodToStr($period));
+        if (!is_int($type))                           throw new IllegalTypeException('Illegal type of parameter $type: '.gettype($type));
+        if (!in_array($type, [PRICE_BID, PRICE_ASK])) throw new InvalidArgumentException('Invalid parameter $type: '.$type);
+
+        /** @var Output $output */
+        $output  = $this->di(Output::class);
+        $symbolU = strtoupper($symbol->getName());
+        $day -= $day%DAY;                                           // 00:00 GMT
+
+        // read bars
+        $bars = $this->readBarData($data, $symbol, $type, $day);
+        if (sizeof($bars) != PERIOD_D1) throw new RuntimeException('Unexpected number of Dukascopy bars in '.periodDescription($period).' data: '
+                                                                   .sizeof($bars).' ('.(sizeof($bars) > PERIOD_D1 ? 'more':'less').' then a day)');
+
+        // Day transition time (Midnight) for Dukascopy data is at 00:00 GMT (~02:00 FXT).
+        //         +---------++---------+---------+---------+---------+---------++---------+---------++---------+
+        // GMT:    |   Sun   ||   Mon   |   Tue   |   Wed   |   Thu   |   Fri   ||   Sat   |   Sun   ||   Mon   |
+        //         +---------++---------+---------+---------+---------+---------++---------+---------++---------+
+        //      +---------++---------+---------+---------+---------+---------++---------+---------++---------+
+        // FXT: |   Sun   ||   Mon   |   Tue   |   Wed   |   Thu   |   Fri   ||   Sat   |   Sun   ||   Mon   |
+        //      +---------++---------+---------+---------+---------+---------++---------+---------++---------+
+
+        // drop GMT and add FXT data
+        $prev = $next = null;
+        $fxtOffset = fxTimezoneOffset($day, $prev, $next);
+        foreach ($bars as &$bar) {
+            $timeGMT = $day + $bar['timeDelta'];
+            if ($timeGMT >= $next['time'])                          // If $day = "Sun, 00:00 GMT" bars may cover a DST transition.
+                $fxtOffset = $next['offset'];                       // In this case $fxtOffset must be updated during the loop.
+            $bar['time'      ] = $timeGMT + $fxtOffset;             // FXT
+            $bar['time_delta'] = $bar['time'] % DAY;                // offset to 00:00 FXT
+            unset($bar['timeDelta']);
+        }; unset($bar);
+
+        // resolve array offset of 00:00 FXT
+        $newDayOffset = PERIOD_D1 - $fxtOffset/MINUTES;
+        if ($fxtOffset == $next['offset']) {                        // additional lot check if bars cover a DST transition
+            $firstBar = $bars[$newDayOffset];
+            $lastBar  = $bars[$newDayOffset-1];
+            if ($lastBar['volume']) {
+                $output->out('[Warn]    '.gmdate('D, d-M-Y', $day).'   volume mis-match during DST change.');
+                $output->out('Day of DST change ('.gmdate('D, d-M-Y', $lastBar['time']).') ended with:');
+                $output->out($bars[$newDayOffset-1]);
+                $output->out('Day after DST change ('.gmdate('D, d-M-Y', $firstBar['time']).') started with:');
+                $output->out($bars[$newDayOffset]);
+            }
+        }
+
+        // store bars in cache
+        $bars1 = array_slice($bars, 0, $newDayOffset);
+        $bars2 = array_slice($bars, $newDayOffset);
+        $day1 = $bars1[0]['time'] - $bars1[0]['time_delta'];
+        $day2 = $bars2[0]['time'] - $bars2[0]['time_delta'];
+
+        if (isset($this->history[$symbolU][$period][$day1][$type])) {
+            // make sure bars to merge match
+            $cache =& $this->history[$symbolU][$period][$day1][$type];
+            $lastBarTime = last($cache)['time'];
+            $nextBarTime = $bars1[0]['time'];
+            if ($lastBarTime + 1*MINUTE != $nextBarTime) throw new RuntimeException('Bar time mis-match, bars to merge: '.priceTypeDescription($type).', $lastBarTime='.$lastBarTime.', $nextBarTime='.$nextBarTime);
+            $cache = array_merge($cache, $bars1);
+        }
+        else {
+            $this->history[$symbolU][$period][$day1][$type] = $bars1;
+        }
+
+        if (isset($this->history[$symbolU][$period][$day2][$type])) {
+            // make sure bars to merge match
+            $cache =& $this->history[$symbolU][$period][$day2][$type];
+            $lastBarTime = last($bars2)['time'];
+            $nextBarTime = $cache[0]['time'];
+            if ($lastBarTime + 1*MINUTE != $nextBarTime) throw new RuntimeException('Bar time mis-match, bars to merge: '.priceTypeDescription($type).', $lastBarTime='.$lastBarTime.', $nextBarTime='.$nextBarTime);
+            $cache = array_merge($bars2, $cache);
+        }
+        else {
+            $this->history[$symbolU][$period][$day2][$type] = $bars2;
+        }
+    }
+
+
+    /**
+     * Derive a PRICE_MEDIAN timeseries array from the specified Bid and Ask history.
+     *
+     * @param  array $bids - Bid bars
+     * @param  array $asks - Ask bars
+     *
+     * @return array[] - a timeseries array with each element describing a single price bar as follows:
+     *
+     * <pre>
+     * Array(
+     *     'time'  => (int),            // bar open time in FXT
+     *     'open'  => (int),            // open value in point
+     *     'high'  => (int),            // high value in point
+     *     'low'   => (int),            // low value in point
+     *     'close' => (int),            // close value in point
+     *     'ticks' => (int),            // number of synthetic ticks
+     * )
+     * </pre>
+     */
+    protected function calculateMedian(array $bids, array $asks) {
+        if (sizeof($bids) != PERIOD_D1) throw new InvalidArgumentException('Invalid size of parameter $bids: '.($size=sizeof($bids)).' ('.($size > PERIOD_D1 ? 'more':'less').' then a day)');
+        if (sizeof($asks) != PERIOD_D1) throw new InvalidArgumentException('Invalid size of parameter $asks: '.($size=sizeof($asks)).' ('.($size > PERIOD_D1 ? 'more':'less').' then a day)');
+        $medians = [];
+
+        foreach ($bids as $i => $bid) {
+            $ask = $asks[$i];
+            $median = [];
+            $median['time' ] = $bid['time'];
+            $median['open' ] = (int) round(($bid['open' ] + $ask['open' ])/2);
+            $median['high' ] = (int) round(($bid['high' ] + $ask['high' ])/2);
+            $median['low'  ] = (int) round(($bid['low'  ] + $ask['low'  ])/2);
+            $median['close'] = (int) round(($bid['close'] + $ask['close'])/2);
+
+            // Bid and Ask bar have been validated before. Validate the calculated Median bar
+            // to fix price spikes with negative spread by adjusting High and Low.
+            if ($bid['open'] > $ask['open'] || $bid['high'] > $ask['high'] || $bid['low'] > $ask['low'] || $bid['close'] > $ask['close']) {
+                $median['high'] = max($median['open'], $median['high'], $median['low'], $median['close']);
+                $median['low' ] = min($median['open'], $median['high'], $median['low'], $median['close']);
+            }
+
+            // Calculation of synthetic ticks as number of steps to touch all inside bar paths. Goal is a minimum overall
+            // tick value to speed-up tests. On PERIOD_M1 accuracy of this algorythm is more than sufficient.
+            $ticks = ($median['high'] - $median['low']) << 1;                                               // unchanged bar (O == C)
+            if      ($median['open'] < $median['close']) $ticks += ($median['open' ] - $median['close']);   // bull bar
+            else if ($median['open'] > $median['close']) $ticks += ($median['close'] - $median['open' ]);   // bear bar
+            $median['ticks'] = $ticks ?: 1;                                                                 // min. tick value of 1
+
+            $medians[$i] = $median;
+        }
+        return $medians;
+    }
+
+
+    /**
+     * Calculate a real timeseries of the given optimized timeseries.
+     *
+     * @param  DukascopySymbol $symbol  - symbol the timeseries belongs to
+     * @param  array           $history - optimized timeseries
+     *
+     * @return array[] - a timeseries array with each element describing a single price bar as follows:
+     *
+     * <pre>
+     * Array(
+     *     'time'  => (int),            // bar open time in FXT
+     *     'open'  => (float),          // open value in real terms
+     *     'high'  => (float),          // high value in real terms
+     *     'low'   => (float),          // low value in real terms
+     *     'close' => (float),          // close value in real terms
+     *     'ticks' => (int),            // number of synthetic ticks
+     * )
+     * </pre>
+     */
+    protected function calculateReal(DukascopySymbol $symbol, array $history) {
+        $point = $symbol->getPointValue();
+        $results = [];
+
+        foreach ($history as $bar) {
+            $new = [];
+            $new['time' ] = $bar['time'];
+            $new['open' ] = $bar['open' ] * $point;
+            $new['high' ] = $bar['high' ] * $point;
+            $new['low'  ] = $bar['low'  ] * $point;
+            $new['close'] = $bar['close'] * $point;
+            $new['ticks'] = $bar['ticks'];
+            $results[] = $new;
+        }
+        return $results;
     }
 
 
     /**
      * Parse a file with Dukascopy bar data and convert it to a data array.
      *
-     * @param  string $fileName - name of file with Dukascopy bar data
-     * @param  string $symbol   - meta infos for generating better error messages (Dukascopy data may contain errors)
-     * @param  string $type     - ...
-     * @param  int    $time     - ...
+     * @param  string          $fileName - name of file with Dukascopy bar data
+     * @param  DukascopySymbol $symbol   - symbol the data belongs to
+     * @param  int             $type     - price type (for error messages as data may contain errors)
+     * @param  int             $time     - time of the bar data (for error messages as data may contain errors)
      *
-     * @return array - DUKASCOPY_BAR[] data
+     * @return array[] - a PHP representation of struct DUKASCOPY_BAR[], single elements are defined as follows:
+     *
+     * <pre>
+     * Array(
+     *     'timeDelta' => (int),        // time difference in seconds since 00:00 GMT
+     *     'open'      => (int),        // open value in point
+     *     'close'     => (int),        // close value in point
+     *     'low'       => (int),        // low value in point
+     *     'high'      => (int),        // high value in point
+     *     'volume'    => (float)       // volume
+     * )
+     * </pre>
      */
-    public static function readBarFile($fileName, $symbol, $type, $time) {
+    protected function readBarFile($fileName, DukascopySymbol $symbol, $type, $time) {
         if (!is_string($fileName)) throw new IllegalTypeException('Illegal type of parameter $fileName: '.gettype($fileName));
-        return self::readBarData(file_get_contents($fileName), $symbol, $type, $time);
+        return $this->readBarData(file_get_contents($fileName), $symbol, $type, $time);
+    }
+
+
+    /**
+     * Parse a string with Dukascopy bar data and convert it to a timeseries array.
+     *
+     * @param  string          $data   - string with Dukascopy bar data
+     * @param  DukascopySymbol $symbol - symbol the data belongs to
+     * @param  int             $type   - price type (for error messages as data may contain errors)
+     * @param  int             $time   - time of the history (for error messages as data may contain errors)
+     *
+     * @return array[] - a PHP representation of struct DUKASCOPY_BAR[], single elements are defined as follows:
+     *
+     * <pre>
+     * Array(
+     *     'timeDelta' => (int),        // time difference in seconds since 00:00 GMT
+     *     'open'      => (int),        // open value in point
+     *     'close'     => (int),        // close value in point
+     *     'low'       => (int),        // low value in point
+     *     'high'      => (int),        // high value in point
+     *     'volume'    => (float)       // volume
+     * )
+     * </pre>
+     */
+    public function readBarData($data, DukascopySymbol $symbol, $type, $time) {
+        if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.gettype($data));
+        $lenData = strlen($data);
+        if (!$lenData || $lenData%DUKASCOPY_BAR_SIZE) throw new RuntimeException('Odd length of passed '.$symbol->getName().' '.priceTypeDescription($type).' data: '.$lenData.' (not an even DUKASCOPY_BAR_SIZE)');
+
+        static $isLittleEndian; !isset($isLittleEndian) && $isLittleEndian=isLittleEndian();
+        $point = $symbol->getPointValue();
+
+        $bars = [];
+        $offset = 0;
+        $i = -1;
+        while ($offset < $lenData) {
+            $i++;
+            $bar = unpack("@$offset/NtimeDelta/Nopen/Nclose/Nlow/Nhigh", $data);
+            $s   = substr($data, $offset+20, 4);
+            $vol = unpack('f', $isLittleEndian ? strrev($s) : $s);  // unpack() doesn't support explicit big-endian floats,
+            $bar['volume'] = round($vol[1], 2);                     // on little-endian machines the byte order of field
+            $offset += DUKASCOPY_BAR_SIZE;                          // "vol" must be reversed manually
+
+            // validate bar data
+            if ($bar['open' ] > $bar['high'] || $bar['open' ] < $bar['low' ] || $bar['close'] > $bar['high'] || $bar['close'] < $bar['low' ]) {
+                $O = $bar['open' ] * $point;
+                $H = $bar['high' ] * $point;
+                $L = $bar['low'  ] * $point;
+                $C = $bar['close'] * $point;
+                Logger::log('Illegal '.$symbol->getName().' '.priceTypeDescription($type)." data for bar[$i] of ".gmdate('D, d-M-Y H:i:s', $time).": O=$O H=$H L=$L C=$C, adjusting high/low...", L_WARN);
+
+                $bar['high'] = max($bar['open'], $bar['high'], $bar['low'], $bar['close']);
+                $bar['low' ] = min($bar['open'], $bar['high'], $bar['low'], $bar['close']);
+            }
+            $bars[] = $bar;
+        }
+        return $bars;
+    }
+
+
+    /**
+     * Parse a file with Dukascopy tick data and convert it to a data array.
+     *
+     * @param  string $fileName - name of file with Dukascopy tick data
+     *
+     * @return array - DUKASCOPY_TICK[] data
+     */
+    public static function readTickFile($fileName) {
+        if (!is_string($fileName)) throw new IllegalTypeException('Illegal type of parameter $fileName: '.gettype($fileName));
+        return static::readTickData(file_get_contents($fileName));
     }
 
 
@@ -319,15 +575,74 @@ class Dukascopy extends Object {
 
 
     /**
-     * Parse a file with Dukascopy tick data and convert it to a data array.
+     * Fetch history start for the specified symbol.
      *
-     * @param  string $fileName - name of file with Dukascopy tick data
+     * @param  DukascopySymbol $symbol
      *
-     * @return array - DUKASCOPY_TICK[] data
+     * @return array - history start times per timeframe or an empty value in case of errors
+     *
+     * <pre>
+     * Array(
+     *     [{period-id}] => [{timestamp}],          // e.g.: PERIOD_TICK => Mon, 04-Aug-2003 10:03:02.837,
+     *     [{period-id}] => [{timestamp}],          //       PERIOD_M1   => Mon, 04-Aug-2003 10:03:00,
+     *     [{period-id}] => [{timestamp}],          //       PERIOD_H1   => Mon, 04-Aug-2003 10:00:00,
+     *     ...                                      //       PERIOD_D1   => Mon, 25-Nov-1991 00:00:00,
+     * )
+     * </pre>
      */
-    public static function readTickFile($fileName) {
-        if (!is_string($fileName)) throw new IllegalTypeException('Illegal type of parameter $fileName: '.gettype($fileName));
-        return self::readTickData(file_get_contents($fileName));
+    public function fetchHistoryStart(DukascopySymbol $symbol) {
+        $name  = $symbol->getName();
+        $nameU = strtoupper($name);
+
+        if (isset($this->allHistoryStarts[$nameU]))
+            return $this->allHistoryStarts[$nameU];
+        if (isset($this->historyStarts[$nameU]))
+            return $this->historyStarts[$nameU];
+
+        /** @var Output $output */
+        $output = $this->di(Output::class);
+        $output->out('[Info]    '.str_pad($name, 6).'  downloading history start times from Dukascopy...');
+
+        $data = $this->getHttpClient()->downloadHistoryStart($name);
+        if (strlen($data))
+            return $this->historyStarts[$nameU] = $this->readHistoryStartSection($data);
+        return [];
+    }
+
+
+    /**
+     * Fetch history start times from Dukascopy for all available symbols. Returns a list of arrays with history start times
+     * for each available symbol.
+     *
+     * @return array[] - list of arrays in a format as follows:
+     *
+     * <pre>
+     * Array(
+     *     [{symbol}] => [
+     *         [{period-id}] => [{timestamp}],      // e.g.: PERIOD_TICK => Mon, 04-Aug-2003 10:03:02.837,
+     *         [{period-id}] => [{timestamp}],      //       PERIOD_M1   => Mon, 04-Aug-2003 10:03:00,
+     *         [{period-id}] => [{timestamp}],      //       PERIOD_H1   => Mon, 04-Aug-2003 10:00:00,
+     *         [{period-id}] => [{timestamp}],      //       PERIOD_D1   => Mon, 25-Nov-1991 00:00:00,
+     *     ],
+     *     [{symbol}] => [
+     *         ...
+     *     ],
+     *     ...
+     * )
+     * </pre>
+     */
+    public function fetchHistoryStarts() {
+        if ($this->allHistoryStarts)
+            return $this->allHistoryStarts;
+
+        /** @var Output $output */
+        $output = $this->di(Output::class);
+        $output->out('[Info]    Downloading history start times from Dukascopy...');
+
+        $data = $this->getHttpClient()->downloadHistoryStart();
+        if (strlen($data))
+            return $this->allHistoryStarts = $this->readHistoryStarts($data);
+        return [];
     }
 
 
@@ -339,12 +654,12 @@ class Dukascopy extends Object {
      * @return array[] - associative list of arrays with variable number of elements each describing a symbol's history start
      *                   of a single timeframe as follows:
      * <pre>
-     * Array (
+     * Array(
      *     [{symbol}] => [
-     *         [{timeframe-id}] => [{timestamp}],           // e.g.: PERIOD_TICK => Mon, 04-Aug-2003 10:03:02.837,
-     *         [{timeframe-id}] => [{timestamp}],           //       PERIOD_M1   => Mon, 04-Aug-2003 10:03:00,
-     *         [{timeframe-id}] => [{timestamp}],           //       PERIOD_H1   => Mon, 04-Aug-2003 10:00:00,
-     *         [{timeframe-id}] => [{timestamp}],           //       PERIOD_D1   => Mon, 25-Nov-1991 00:00:00,
+     *         [{period-id}] => [{timestamp}],          // e.g.: PERIOD_TICK => Mon, 04-Aug-2003 10:03:02.837,
+     *         [{period-id}] => [{timestamp}],          //       PERIOD_M1   => Mon, 04-Aug-2003 10:03:00,
+     *         [{period-id}] => [{timestamp}],          //       PERIOD_H1   => Mon, 04-Aug-2003 10:00:00,
+     *         [{period-id}] => [{timestamp}],          //       PERIOD_D1   => Mon, 25-Nov-1991 00:00:00,
      *     ],
      *     [{symbol}] => [
      *         ...
@@ -394,11 +709,11 @@ class Dukascopy extends Object {
      * @return array - array with variable number of elements each describing history start of a single timeframe
      *                 as follows:
      * <pre>
-     * Array (
-     *     [{timeframe-id}] => [{timestamp}],               // e.g.: PERIOD_TICK => Mon, 04-Aug-2003 10:03:02.837,
-     *     [{timeframe-id}] => [{timestamp}],               //       PERIOD_M1   => Mon, 04-Aug-2003 10:03:00,
-     *     [{timeframe-id}] => [{timestamp}],               //       PERIOD_H1   => Mon, 04-Aug-2003 10:00:00,
-     *     ...                                              //       PERIOD_D1   => Mon, 25-Nov-1991 00:00:00,
+     * Array(
+     *     [{period-id}] => [{timestamp}],              // e.g.: PERIOD_TICK => Mon, 04-Aug-2003 10:03:02.837,
+     *     [{period-id}] => [{timestamp}],              //       PERIOD_M1   => Mon, 04-Aug-2003 10:03:00,
+     *     [{period-id}] => [{timestamp}],              //       PERIOD_H1   => Mon, 04-Aug-2003 10:00:00,
+     *     ...                                          //       PERIOD_D1   => Mon, 25-Nov-1991 00:00:00,
      * )
      * </pre>
      */
@@ -427,7 +742,7 @@ class Dukascopy extends Object {
      * @param  string $data   - binary data
      * @param  int    $offset - offset
      *
-     * @return array - a key-value pair [{timeframe-id} => {timestamp}] or an empty array if history of the given timeframe
+     * @return array - a key-value pair [{period-id} => {timestamp}] or an empty array if history of the given timeframe
      *                 is not available
      */
     protected function readHistoryStartRecord($data, $offset) {

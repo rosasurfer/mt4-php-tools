@@ -6,10 +6,11 @@ use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\RuntimeException;
 use rosasurfer\process\Process;
 
-use rosasurfer\rt\lib\RT;
+use rosasurfer\rt\lib\IHistoryProvider;
+use rosasurfer\rt\lib\Rosatrader as RT;
 use rosasurfer\rt\lib\dukascopy\Dukascopy;
-use rosasurfer\rt\lib\synthetic\DefaultSynthesizer;
-use rosasurfer\rt\lib\synthetic\SynthesizerInterface as Synthesizer;
+use rosasurfer\rt\lib\synthetic\GenericSynthesizer;
+use rosasurfer\rt\lib\synthetic\ISynthesizer;
 
 use function rosasurfer\rt\fxTime;
 use function rosasurfer\rt\isGoodFriday;
@@ -23,10 +24,11 @@ use const rosasurfer\rt\PERIOD_M1;
  * Represents a Rosatrader symbol.
  *
  * @method string          getType()            Return the instrument type (forex|metals|synthetic).
+ * @method int             getGroup()           Return the symbol's group id.
  * @method string          getName()            Return the symbol name, i.e. the actual symbol.
  * @method string          getDescription()     Return the symbol description.
  * @method int             getDigits()          Return the number of fractional digits of symbol prices.
- * @method bool            isAutoUpdate()       Whether automatic history updates are enabled.
+ * @method int             getUpdateOrder()     Return the symbol's update order value.
  * @method string          getFormula()         Return a synthetic instrument's calculation formula (LaTeX).
  * @method DukascopySymbol getDukascopySymbol() Return the {@link DukascopySymbol} mapped to this Rosatrader symbol.
  */
@@ -46,6 +48,9 @@ class RosaSymbol extends RosatraderModel {
     /** @var string - instrument type (forex|metals|synthetic) */
     protected $type;
 
+    /** @var int - grouping id for view separation */
+    protected $group;
+
     /** @var string - symbol name */
     protected $name;
 
@@ -55,8 +60,8 @@ class RosaSymbol extends RosatraderModel {
     /** @var int - number of fractional digits of symbol prices */
     protected $digits;
 
-    /** @var bool - whether automatic history updates are enabled */
-    protected $autoUpdate;
+    /** @var int - on multi-symbol updates required symbols are updated before dependent ones */
+    protected $updateOrder = 9999;
 
     /** @var string - LaTeX formula for calculation of synthetic instruments */
     protected $formula;
@@ -88,7 +93,7 @@ class RosaSymbol extends RosatraderModel {
      *
      * @return double
      */
-    public function getPoint() {
+    public function getPointValue() {
         return 1/pow(10, $this->digits);
     }
 
@@ -178,30 +183,34 @@ class RosaSymbol extends RosatraderModel {
 
 
     /**
-     * Get the M1 history for the specified day.
+     * Get the M1 history for a given day.
      *
-     * @param  int $fxDay - FXT timestamp
+     * @param  int $time - FXT timestamp
      *
      * @return array[] - If history for the specified day is not available an empty array is returned. Otherwise a timeseries
-     *                   array is returned with each element describing a M1 bar as follows:
+     *                   array is returned with each element describing an M1 bar as follows:
      * <pre>
-     * Array [
+     * Array(
      *     'time'  => (int),            // bar open time in FXT
      *     'open'  => (double),         // open value
      *     'high'  => (double),         // high value
      *     'low'   => (double),         // low value
      *     'close' => (double),         // close value
      *     'ticks' => (int),            // ticks or volume (if available)
-     * ]
+     * )
      * </pre>
      */
-    public function getHistoryM1($fxDay) {
-        $dataDir  = $this->di('config')['app.dir.data'];
-        $dataDir .= '/history/rosatrader/'.$this->type.'/'.$this->name;
-        $dir      = $dataDir.'/'.gmdate('Y/m/d', $fxDay);
+    public function getHistoryM1($time) {
+        $storageDir  = $this->di('config')['app.dir.storage'];
+        $storageDir .= '/history/rosatrader/'.$this->type.'/'.$this->name;
+        $dir         = $storageDir.'/'.gmdate('Y/m/d', $time);
 
         if (is_file($file=$dir.'/M1.bin') || is_file($file.='.rar'))
             return RT::readBarFile($file, $this);
+
+        /** @var Output $output */
+        $output = $this->di(Output::class);
+        $output->error('[Error]   '.str_pad($this->name, 6).'  Rosatrader history for '.gmdate('D, d-M-Y', $time).' not found');
         return [];
     }
 
@@ -246,7 +255,7 @@ class RosaSymbol extends RosatraderModel {
     public function isTradingDay($time) {
         if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
 
-        return (!isWeekend($time) && !$this->isHoliday($time));
+        return ($time && !isWeekend($time) && !$this->isHoliday($time));
     }
 
 
@@ -259,6 +268,8 @@ class RosaSymbol extends RosatraderModel {
      */
     public function isHoliday($time) {
         if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
+        if (!$time)
+            return false;
 
         if (isHoliday($time))                           // check for common Holidays
             return true;
@@ -293,15 +304,15 @@ class RosaSymbol extends RosatraderModel {
      */
     public function synchronizeHistory() {
         /** @var Output $output */
-        $output     = $this->di(Output::class);
-        $dataDir    = $this->di('config')['app.dir.data'];
-        $dataDir   .= '/history/rosatrader/'.$this->type.'/'.$this->name;
-        $paddedName = str_pad($this->name, 6);
-        $startDate  = $endDate = null;
-        $missing    = [];
+        $output      = $this->di(Output::class);
+        $storageDir  = $this->di('config')['app.dir.storage'];
+        $storageDir .= '/history/rosatrader/'.$this->type.'/'.$this->name;
+        $paddedName  = str_pad($this->name, 6);
+        $startDate   = $endDate = null;
+        $missing     = [];
 
         // find the oldest existing history file
-        $years = glob($dataDir.'/[12][0-9][0-9][0-9]', GLOB_ONLYDIR|GLOB_NOESCAPE|GLOB_ERR) ?: [];
+        $years = glob($storageDir.'/[12][0-9][0-9][0-9]', GLOB_ONLYDIR|GLOB_NOESCAPE|GLOB_ERR) ?: [];
         foreach ($years as $year) {
             $months = glob($year.'/[0-9][0-9]', GLOB_ONLYDIR|GLOB_NOESCAPE|GLOB_ERR) ?: [];
             foreach ($months as $month) {
@@ -325,14 +336,14 @@ class RosaSymbol extends RosatraderModel {
                 if ($misses = sizeof($missing)) {
                     $first     = first($missing);
                     $last      = last($missing);
-                    $output->out('[Error]   '.$paddedName.'  '.$misses.' missing history file'.pluralize($misses)
-                                             .($misses==1 ? ' for '.gmdate('D, Y-m-d', $first)
-                                                          : ' from '.gmdate('D, Y-m-d', $first).' until '.($last==$yesterDay? 'now' : gmdate('D, Y-m-d', $last))));
+                    $output->out('[Info]    '.$paddedName.'  '.$misses.' missing history file'.pluralize($misses)
+                                             .($misses==1 ? ' for '.gmdate('D, d-M-Y', $first)
+                                                          : ' from '.gmdate('D, d-M-Y', $first).' until '.($last==$yesterDay? 'now' : gmdate('D, d-M-Y', $last))));
                 }
             };
 
             for ($day=$startDate; $day < $today; $day+=1*DAY) {
-                $dir = $dataDir.'/'.gmdate('Y/m/d', $day);
+                $dir = $storageDir.'/'.gmdate('Y/m/d', $day);
 
                 if ($this->isTradingDay($day)) {
                     if (is_file($file=$dir.'/M1.bin') || is_file($file.='.rar')) {
@@ -356,7 +367,7 @@ class RosaSymbol extends RosatraderModel {
 
         // update the database
         if ($startDate != $this->getHistoryStartM1('U')) {
-            $output->out('[Info]    '.$paddedName.'  updating start time to '.($startDate ? gmdate('Y-m-d', $startDate) : '(empty)'));
+            $output->out('[Info]    '.$paddedName.'  updating history start time to '.($startDate ? gmdate('D, d-M-Y H:i', $startDate) : '(empty)'));
             $this->historyStartM1 = $startDate ? gmdate('Y-m-d H:i:s', $startDate) : null;
             $this->modified();
         }
@@ -365,7 +376,7 @@ class RosaSymbol extends RosatraderModel {
             $endDate += 23*HOURS + 59*MINUTES;          // adjust to the last minute as the database always holds full days
         }
         if ($endDate != $this->getHistoryEndM1('U')) {
-            $output->out('[Info]    '.$paddedName.'  updating end time to: '.($endDate ? gmdate('D, Y-m-d H:i', $endDate) : '(empty)'));
+            $output->out('[Info]    '.$paddedName.'  updating history end time to: '.($endDate ? gmdate('D, d-M-Y H:i', $endDate) : '(empty)'));
             $this->historyEndM1 = $endDate ? gmdate('Y-m-d H:i:s', $endDate) : null;
             $this->modified();
         }
@@ -380,57 +391,65 @@ class RosaSymbol extends RosatraderModel {
     /**
      * Update the symbol's history.
      *
+     * @param  int $period [optional] - bar period identifier
+     *
      * @return bool - success status
      */
-    public function updateHistory() {
+    public function updateHistory($period = PERIOD_M1) {
         /** @var Output $output */
-        $output     = $this->di(Output::class);
-        $updatedTo  = (int) $this->getHistoryEndM1('U');                        // 00:00 FXT of the last existing day
-        $updateFrom = $updatedTo ? $updatedTo - $updatedTo%DAY + 1*DAY : 0;     // 00:00 FXT of the first day to update
-        $today      = ($today=fxTime()) - $today%DAY;                           // 00:00 FXT of the current day
-        $output->out('[Info]    '.$this->name.'  updating M1 history '.($updatedTo ? 'since '.gmdate('D, d-M-Y', $updatedTo) : 'from start'));
+        $output = $this->di(Output::class);
 
-        /** @var Synthesizer     $synthesizer */
-        /** @var DukascopySymbol $dukaSymbol  */
-        $synthesizer = $dukaSymbol = null;
+        $provider = $this->getHistoryProvider();
+        if (!$provider) return false($output->error('[Error]   '.str_pad($this->name, 6).'  no history provider found'));
 
-        if      ($this->isSynthetic())                       $synthesizer = $this->getSynthesizer();
-        else if (!$dukaSymbol = $this->getDukascopySymbol()) return false($output->error('[Error]   '.$this->name.'  Dukascopy mapping not found'));
+        $historyEnd = (int) $this->getHistoryEndM1('U');
+        $updateFrom = $historyEnd ? $historyEnd + 1*DAY : 0;                        // the next day
+        $output->out('[Info]    '.str_pad($this->name, 6).'  updating M1 history since '.gmdate('D, d-M-Y', $historyEnd));
 
-        for ($day=$updateFrom; $day < $today; $day+=1*DAY) {
-            if ($day && !$this->isTradingDay($day))                             // skip non-trading days
+        for ($day=$updateFrom, $now=fxTime(); $day < $now; $day+=1*DAY) {
+            if (!$this->isTradingDay($day))                                         // skip non-trading days
                 continue;
-            $bars = $this->isSynthetic() ? $synthesizer->calculateQuotes($day) : $dukaSymbol->getHistory(PERIOD_M1, $day);
-            if (!$bars) return false($output->error('[Error]   '.$this->name.'  M1 history sources'.($day ? ' for '.gmdate('D, d-M-Y', $day) : '').' not available'));
-            if (!$day) {
-                $opentime = $bars[0]['time'];                                   // if $day was zero (full update since start)
-                $day = $opentime - $opentime%DAY;                               // adjust it to the first available history
-            }
-            RT::saveM1Bars($bars, $this);                                       // store the quotes
+            $bars = $provider->getHistory($period, $day, $optimized=true);
+            if (!$bars) return false($output->error('[Error]   '.str_pad($this->name, 6).'  M1 history sources'.($day ? ' for '.gmdate('D, d-M-Y', $day) : '').' not available'));
+            RT::saveM1Bars($bars, $this);                                           // store the quotes
 
-            if (!$this->historyStartM1)                                         // update metadata *after* history was successfully saved
-                $this->historyStartM1 = gmdate('Y-m-d H:i:s', $day);
-            $this->historyEndM1 = gmdate('Y-m-d H:i:s', $day);
-            $this->modified()->save();                                          // update the database
-            Process::dispatchSignals();                                         // process signals
+            if (!$day) {                                                            // If $day was zero (full update since start)
+                $day = $bars[0]['time'];                                            // adjust it to the first available history
+                $this->historyStartM1 = gmdate('Y-m-d H:i:s', $bars[0]['time']);    // returned and update metadata *after* history
+            }                                                                       // was successfully stored.
+            $this->historyEndM1 = gmdate('Y-m-d H:i:s', $bars[sizeof($bars)-1]['time']);
+            $this->modified()->save();                                              // update the database
+
+            Process::dispatchSignals();
         }
-
         $output->out('[Ok]      '.$this->name);
         return true;
     }
 
 
     /**
-     * Look-up and instantiate a {@link Synthesizer} to calculate quotes of a synthetic instrument.
+     * Return a {@link IHistoryProvider} for the symbol.
      *
-     * @return Synthesizer
+     * @return IHistoryProvider|null
+     */
+    public function getHistoryProvider() {
+        if ($this->isSynthetic())
+            return $this->getSynthesizer();
+        return $this->getDukascopySymbol();
+    }
+
+
+    /**
+     * Look-up and instantiate a {@link ISynthesizer} to calculate quotes of a synthetic instrument.
+     *
+     * @return ISynthesizer
      */
     protected function getSynthesizer() {
         if (!$this->isSynthetic()) throw new RuntimeException('Cannot create Synthesizer for non-synthetic instrument');
 
-        $customClass = strLeftTo(Synthesizer::class, '\\', -1).'\\index\\'.$this->name;
-        if (is_class($customClass) && is_a($customClass, Synthesizer::class, $allowString=true))
+        $customClass = strLeftTo(ISynthesizer::class, '\\', -1).'\\index\\'.$this->name;
+        if (is_class($customClass) && is_a($customClass, ISynthesizer::class, $allowString=true))
             return new $customClass($this);
-        return new DefaultSynthesizer($this);
+        return new GenericSynthesizer($this);
     }
 }

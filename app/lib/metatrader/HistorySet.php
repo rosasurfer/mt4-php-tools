@@ -77,7 +77,7 @@ class HistorySet extends Object {
      *
      * @param  array ...$params
      */
-    protected function __construct(...$params) {
+    public function __construct(...$params) {
         $argc = sizeof($params);
         if      ($argc == 1) $this->__construct1(...$params);
         else if ($argc == 3) $this->__construct2(...$params);
@@ -181,22 +181,6 @@ class HistorySet extends Object {
         catch (\Exception $ex) {
             throw ErrorHandler::handleDestructorException($ex);
         }
-    }
-
-
-    /**
-     * Erzeugt eine neue Instanz und legt alle Historydateien neu an. Vorhandene Daten werden geloescht. Mehrfachaufrufe
-     * dieser Funktion fuer dasselbe Symbol desselben Servers geben jeweils eine neue Instanz zurueck, weitere existierende
-     * Instanzen werden als ungueltig markiert.
-     *
-     * @param  RosaSymbol $symbol          - Symbol der HistorySet-Daten
-     * @param  int        $format          - Speicherformat der Datenreihen:
-     *                                       400: MetaTrader <= Build 509
-     *                                       401: MetaTrader  > Build 509
-     * @param  string     $serverDirectory - Serververzeichnis der Historydateien des Sets
-     */
-    public static function create($symbol, $format, $serverDirectory) {
-        return new self($symbol, $format, $serverDirectory);
     }
 
 
