@@ -9,8 +9,8 @@ use rosasurfer\process\Process;
 use rosasurfer\rt\lib\IHistoryProvider;
 use rosasurfer\rt\lib\Rosatrader as RT;
 use rosasurfer\rt\lib\dukascopy\Dukascopy;
-use rosasurfer\rt\lib\synthetic\DefaultSynthesizer;
-use rosasurfer\rt\lib\synthetic\SynthesizerInterface as Synthesizer;
+use rosasurfer\rt\lib\synthetic\GenericSynthesizer;
+use rosasurfer\rt\lib\synthetic\ISynthesizer;
 
 use function rosasurfer\rt\fxTime;
 use function rosasurfer\rt\isGoodFriday;
@@ -188,7 +188,7 @@ class RosaSymbol extends RosatraderModel {
      * @param  int $time - FXT timestamp
      *
      * @return array[] - If history for the specified day is not available an empty array is returned. Otherwise a timeseries
-     *                   array is returned with each element describing a M1 bar as follows:
+     *                   array is returned with each element describing an M1 bar as follows:
      * <pre>
      * Array(
      *     'time'  => (int),            // bar open time in FXT
@@ -440,16 +440,16 @@ class RosaSymbol extends RosatraderModel {
 
 
     /**
-     * Look-up and instantiate a {@link Synthesizer} to calculate quotes of a synthetic instrument.
+     * Look-up and instantiate a {@link ISynthesizer} to calculate quotes of a synthetic instrument.
      *
-     * @return Synthesizer
+     * @return ISynthesizer
      */
     protected function getSynthesizer() {
         if (!$this->isSynthetic()) throw new RuntimeException('Cannot create Synthesizer for non-synthetic instrument');
 
-        $customClass = strLeftTo(Synthesizer::class, '\\', -1).'\\index\\'.$this->name;
-        if (is_class($customClass) && is_a($customClass, Synthesizer::class, $allowString=true))
+        $customClass = strLeftTo(ISynthesizer::class, '\\', -1).'\\index\\'.$this->name;
+        if (is_class($customClass) && is_a($customClass, ISynthesizer::class, $allowString=true))
             return new $customClass($this);
-        return new DefaultSynthesizer($this);
+        return new GenericSynthesizer($this);
     }
 }

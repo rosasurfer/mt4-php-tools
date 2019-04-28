@@ -1,15 +1,15 @@
 <?php
 namespace rosasurfer\rt\lib\synthetic;
 
-use rosasurfer\rt\lib\synthetic\SynthesizerInterface as Synthesizer;
+use rosasurfer\rt\lib\synthetic\ISynthesizer;
 
 
 /**
- * DefaultSynthesizer
+ * GenericSynthesizer
  *
- * A {@link Synthesizer} to be used if no instrument-specific Synthesizer can be found.
+ * A {@link ISynthesizer} to be used if no instrument-specific Synthesizer can be found.
  */
-class DefaultSynthesizer extends AbstractSynthesizer {
+class GenericSynthesizer extends AbstractSynthesizer {
 
 
     /**
@@ -31,7 +31,7 @@ class DefaultSynthesizer extends AbstractSynthesizer {
     /**
      * {@inheritdoc}
      */
-    public function getHistory($period, $time, $optimized = false) {
+    public function calculateHistory($period, $time, $optimized = false) {
         return [];
     }
 }

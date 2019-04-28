@@ -6,7 +6,7 @@ use rosasurfer\rt\lib\IHistoryProvider;
 
 
 /**
- * SynthesizerInterface
+ * ISynthesizer
  *
  * An interface for classes processing calculations on synthetic instruments.
  *
@@ -14,11 +14,10 @@ use rosasurfer\rt\lib\IHistoryProvider;
  * are stored with the instrument in text form. A Synthesizer reads and evaluates a formula and calculates quotes based on it.
  * This way quotes of runtime generated synthetic instruments can be calculated.
  *
- * Performance can be considerably increased by providing an instrument-specific Synthesizer implementation. If an instrument
- * specific implementation is found calculations are passed on to an instance of that class. Otherwise calculations are
- * processed by a {@link DefaultSynthesizer}.
+ * Performance can be considerably increased by providing an instrument-specific Synthesizer implementation. If no instrument-
+ * specific implementation is found calculations are processed by a {@link GenericSynthesizer}.
  */
-interface SynthesizerInterface extends IHistoryProvider {
+interface ISynthesizer extends IHistoryProvider {
 
 
     /**

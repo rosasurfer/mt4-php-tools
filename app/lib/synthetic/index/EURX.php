@@ -5,7 +5,7 @@ use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\UnimplementedFeatureException;
 
 use rosasurfer\rt\lib\synthetic\AbstractSynthesizer;
-use rosasurfer\rt\lib\synthetic\SynthesizerInterface as Synthesizer;
+use rosasurfer\rt\lib\synthetic\ISynthesizer;
 
 use function rosasurfer\rt\periodToStr;
 
@@ -15,7 +15,7 @@ use const rosasurfer\rt\PERIOD_M1;
 /**
  * EURX synthesizer
  *
- * A {@link Synthesizer} for calculating the ICE Euro index.
+ * A {@link ISynthesizer} for calculating the ICE Euro index.
  *
  * <pre>
  * Formula:
@@ -37,19 +37,19 @@ class EURX extends AbstractSynthesizer {
     /**
      * {@inheritdoc}
      */
-    public function getHistory($period, $time, $optimized = false) {
+    public function calculateHistory($period, $time, $optimized = false) {
         if (!is_int($period))     throw new IllegalTypeException('Illegal type of parameter $period: '.gettype($period));
         if ($period != PERIOD_M1) throw new UnimplementedFeatureException(__METHOD__.'('.periodToStr($period).') not implemented');
         if (!is_int($time))       throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
         if ($optimized)           echoPre('[Warn]    '.str_pad($this->symbolName, 6).'::'.__FUNCTION__.'($optimized=TRUE)  skipping unimplemented feature');
 
-        if (!$symbols = $this->loadComponents(first($this->components)))
+        if (!$symbols = $this->getComponents(first($this->components)))
             return [];
-        if (!$time && !($time = $this->findCommonHistoryStartM1($symbols)))     // if no time was specified find the oldest available history
+        if (!$time && !($time=$this->findCommonHistoryStartM1($symbols)))       // if no time was specified find the oldest available history
             return [];
         if (!$this->symbol->isTradingDay($time))                                // skip non-trading days
             return [];
-        if (!$quotes = $this->loadComponentHistory($symbols, $time))
+        if (!$quotes = $this->getComponentsHistory($symbols, $time))
             return [];
 
         // calculate quotes
