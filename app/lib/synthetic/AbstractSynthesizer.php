@@ -2,7 +2,7 @@
 namespace rosasurfer\rt\lib\synthetic;
 
 use rosasurfer\core\Object;
-use rosasurfer\rt\lib\IHistoryProvider;
+
 use rosasurfer\rt\model\RosaSymbol;
 
 
@@ -23,6 +23,9 @@ abstract class AbstractSynthesizer extends Object implements ISynthesizer {
 
     /** @var RosaSymbol[] - loaded symbols */
     protected $loadedSymbols = [];
+
+    /** @var array[] - cached bars */
+    private $cache = [];
 
 
     /**
@@ -53,17 +56,13 @@ abstract class AbstractSynthesizer extends Object implements ISynthesizer {
     /**
      * Calculate history for the specified bar period and time.
      *
-     * @param  int  $period               - bar period identifier: PERIOD_M1 | PERIOD_M5 | PERIOD_M15 etc.
-     * @param  int  $time                 - FXT time to return prices for. If 0 (zero) the oldest available history for the
-     *                                      requested bar period is returned.
-     * @param  bool $optimized [optional] - returned bar format (see notes)
+     * @param  int $period - bar period identifier: PERIOD_M1 | PERIOD_M5 | PERIOD_M15 etc.
+     * @param  int $time   - FXT time to return prices for. If 0 (zero) the oldest available history for the requested bar
+     *                       period is returned.
      *
      * @return array - An empty array if history for the specified bar period and time is not available. Otherwise a
      *                 timeseries array with each element describing a single price bar as follows:
-     *
      * <pre>
-     * $optimized => FALSE (default):
-     * ------------------------------
      * Array(
      *     'time'  => (int),            // bar open time in FXT
      *     'open'  => (float),          // open value in real terms
@@ -72,20 +71,9 @@ abstract class AbstractSynthesizer extends Object implements ISynthesizer {
      *     'close' => (float),          // close value in real terms
      *     'ticks' => (int),            // number of synthetic ticks
      * )
-     *
-     * $optimized => TRUE:
-     * -------------------
-     * Array(
-     *     'time'  => (int),            // bar open time in FXT
-     *     'open'  => (int),            // open value in point
-     *     'high'  => (int),            // high value in point
-     *     'low'   => (int),            // low value in point
-     *     'close' => (int),            // close value in point
-     *     'ticks' => (int),            // number of synthetic ticks
-     * )
      * </pre>
      */
-    abstract public function calculateHistory($period, $time, $optimized = false);
+    abstract public function calculateHistory($period, $time);
 
 
     /**
@@ -163,11 +151,35 @@ abstract class AbstractSynthesizer extends Object implements ISynthesizer {
 
 
     /**
-     * Implementation of {@link IHistoryProvider}::getHistory().
-     *
      * {@inheritdoc}
      */
     public final function getHistory($period, $time, $optimized = false) {
-        return $this->calculateHistory($period, $time, $optimized);
+        $time -= $time%DAY;
+
+        // clear cache on different bar period or time
+        if (!isset($this->cache[$period][$time]))
+            unset($this->cache);
+
+        // calculate real prices
+        if (!isset($this->cache[$period][$time]['real']))
+            $this->cache[$period][$time]['real'] = $this->calculateHistory($period, $time);
+        $realBars = $this->cache[$period][$time]['real'];
+
+        if (!$optimized)
+            return $realBars;
+
+        if (!isset($this->cache[$period][$time]['optimized'])) {
+            // calculate optimized prices
+            $optBars = $realBars;
+            $point   = $this->symbol->getPointValue();
+            foreach ($optBars as $i => $bar) {
+                $optBars[$i]['open' ] = (int) round($bar['open' ]/$point);
+                $optBars[$i]['high' ] = (int) round($bar['high' ]/$point);
+                $optBars[$i]['low'  ] = (int) round($bar['low'  ]/$point);
+                $optBars[$i]['close'] = (int) round($bar['close']/$point);
+            }
+            $this->cache[$period][$time]['optimized'] = $optBars;
+        }
+        return $this->cache[$period][$time]['optimized'];
     }
 }

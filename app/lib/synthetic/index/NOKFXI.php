@@ -40,11 +40,10 @@ class NOKFXI extends AbstractSynthesizer {
     /**
      * {@inheritdoc}
      */
-    public function calculateHistory($period, $time, $optimized = false) {
+    public function calculateHistory($period, $time) {
         if (!is_int($period))     throw new IllegalTypeException('Illegal type of parameter $period: '.gettype($period));
         if ($period != PERIOD_M1) throw new UnimplementedFeatureException(__METHOD__.'('.periodToStr($period).') not implemented');
         if (!is_int($time))       throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
-        if ($optimized)           echoPre('[Warn]    '.str_pad($this->symbolName, 6).'::'.__FUNCTION__.'($optimized=TRUE)  skipping unimplemented feature');
 
         if (!$symbols = $this->getComponents(first($this->components)))
             return [];
