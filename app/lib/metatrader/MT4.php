@@ -337,7 +337,7 @@ class MT4 extends StaticClass {
 
         // vorm Schreiben nochmals pruefen (nicht mit min()/max(), da nicht performant)
         if ($O > $H || $O < $L || $C > $H || $C < $L || !$V)
-            throw new RuntimeException('Illegal history bar of '.gmdate('D, d-M-Y H:i', $T).sprintf(': O='.($f='%.'.$digits.'F')." H=$f L=$f C=$f V=%d", $O, $H, $L, $C, $V));
+            throw new RuntimeException('Illegal history bar: '.gmdate('D, d-M-Y H:i', $T).sprintf(', O='.($f='%.'.$digits.'F')." H=$f L=$f C=$f V=%d", $O, $H, $L, $C, $V));
 
         // Bardaten in Binaerstring umwandeln
         $data = pack('Vddddd', $T, $O, $L, $H, $C, $V);

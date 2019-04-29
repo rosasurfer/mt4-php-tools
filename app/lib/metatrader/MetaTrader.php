@@ -20,7 +20,7 @@ class MetaTrader extends Object {
      *
      * @param  RosaSymbol $symbol
      * @param  int        $format    [optional] - history format: 400 | 401 (default: 400)
-     * @param  string     $directory [optional] - history location (default: configured default server directory)
+     * @param  string     $directory [optional] - history location (default: the configured default server directory)
      *
      * @return HistorySet
      *
