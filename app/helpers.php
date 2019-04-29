@@ -98,8 +98,8 @@ const DUKASCOPY_TICK_SIZE = 20;
  * Convert a Unix timestamp (seconds since 1970-01-01 00:00 GMT) to an FXT timestamp (seconds since 1970-01-01 00:00 FXT).
  * Without a parameter the function returns the current FXT timestamp.
  *
- * @param  int|float $unixTime [optional] - timestamp with support for microseconds
- *                                          (default: the current time)
+ * @param  int|float $unixTime [optional] - timestamp with support for microseconds (default: the current time)
+ *
  * @return int|float - FXT timestamp
  */
 function fxTime($unixTime = null) {
@@ -197,7 +197,7 @@ function fxDate($format, $time=null, $isFxt=false) {
  * </pre>
  */
 function fxTimezoneOffset($time=null, array &$prevTransition=null, array &$nextTransition=null) {
-    if (is_null($time)) $time = time();
+    if (!isset($time)) $time = time();
     else if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
 
     static $transitions = null;
@@ -275,6 +275,27 @@ function fxtStrToTime($time) {
         $unixTime = strtotime($time);
         if ($unixTime === false) throw new InvalidArgumentException('Invalid argument $time: "'.$time.'"');
         return $unixTime - 7*HOURS;
+    }
+    finally { date_default_timezone_set($currentTZ); }
+}
+
+
+/**
+ * Format a date/time as an integer in GMT.
+ *
+ * Missing equivalent to PHP's built-in function idate() which formats a time in the local timezone.
+ *
+ * @param  string $format          - single character format as accepted by <tt>idate($format, $time)</tt>
+ * @param  int    $time [optional] - timestamp (default: the current time)
+ *
+ * @return int
+ */
+function igmdate($format, $time = null) {
+    if (!isset($time)) $time = time();
+    try {
+        $currentTZ = date_default_timezone_get();
+        date_default_timezone_set('GMT');
+        return idate($format, $time);
     }
     finally { date_default_timezone_set($currentTZ); }
 }
