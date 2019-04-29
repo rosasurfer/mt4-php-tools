@@ -208,9 +208,9 @@ class RosaSymbol extends RosatraderModel {
         if (is_file($file=$dir.'/M1.bin') || is_file($file.='.rar'))
             return RT::readBarFile($file, $this);
 
-        /** @var Output $output */
-        $output = $this->di(Output::class);
-        $output->error('[Error]   '.str_pad($this->name, 6).'  Rosatrader history for '.gmdate('D, d-M-Y', $time).' not found');
+        ///** @var Output $output */
+        //$output = $this->di(Output::class);
+        //$output->error('[Error]   '.str_pad($this->name, 6).'  Rosatrader history for '.gmdate('D, d-M-Y', $time).' not found');
         return [];
     }
 
@@ -412,7 +412,7 @@ class RosaSymbol extends RosatraderModel {
             !$status && $output->out($status='[Info]    '.str_pad($this->name, 6).'  updating M1 history since '.($day ? gmdate('D, d-M-Y', $historyEnd) : 'start'));
 
             $bars = $provider->getHistory($period, $day, $optimized=true);
-            if (!$bars) return false($output->error('[Error]   '.str_pad($this->name, 6).'  M1 history sources'.($day ? ' for '.gmdate('D, d-M-Y', $day) : '').' not available'));
+            if (!$bars) return false && false($output->error('[Error]   '.str_pad($this->name, 6).'  M1 history '.($day ? ' for '.gmdate('D, d-M-Y', $day) : '').' not available'));
             RT::saveM1Bars($bars, $this);
 
             if (!$day) {                                                            // If $day was zero (full update since start)

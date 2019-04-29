@@ -25,7 +25,7 @@ class MetaTraderHistoryCommand extends Command {
 Create new MetaTrader history files.
 
 Usage:
-  rt-metatrader-history  create SYMBOL [options]
+  rt-metatrader-history  create SYMBOL [OPTIONS]
 
 Commands:
   create       Create new MetaTrader history files (all standard timeframes) for the specified symbol.
