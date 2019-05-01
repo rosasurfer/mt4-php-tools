@@ -403,7 +403,7 @@ class RosaSymbol extends RosatraderModel {
         if (!$provider) return false($output->error('[Error]   '.str_pad($this->name, 6).'  no history provider found'));
 
         $historyEnd = (int) $this->getHistoryEndM1('U');
-        $updateFrom = $historyEnd ? $historyEnd + 1*DAY : 0;                        // the next day
+        $updateFrom = $historyEnd ? $historyEnd + 1*DAY : 0;                        // the day after history ends
         $today      = ($today=fxTime()) - $today%DAY;                               // 00:00 FXT
         $status = null;
 
