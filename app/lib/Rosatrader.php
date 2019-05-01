@@ -158,10 +158,10 @@ class Rosatrader extends StaticClass {
             $realStorage = str_replace('\\', '/', realpath($storage).'/');
         }
 
-        if (strStartsWith($_path, $root))        return               strRightFrom($_path, $root);
-        if (strStartsWith($_path, $realRoot))    return               strRightFrom($_path, $realRoot);
-        if (strStartsWith($_path, $storage))     return '{data-dir}/'.strRightFrom($_path, $storage);
-        if (strStartsWith($_path, $realStorage)) return '{data-dir}/'.strRightFrom($_path, $realStorage);
+        if (strStartsWith($_path, $root))        return           strRightFrom($_path, $root);
+        if (strStartsWith($_path, $realRoot))    return           strRightFrom($_path, $realRoot);
+        if (strStartsWith($_path, $storage))     return '{data}/'.strRightFrom($_path, $storage);
+        if (strStartsWith($_path, $realStorage)) return '{data}/'.strRightFrom($_path, $realStorage);
 
         return $path;
     }

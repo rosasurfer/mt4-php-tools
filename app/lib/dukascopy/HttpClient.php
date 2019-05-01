@@ -1,6 +1,7 @@
 <?php
 namespace rosasurfer\rt\lib\dukascopy;
 
+use rosasurfer\console\io\Input;
 use rosasurfer\console\io\Output;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\InvalidArgumentException;
@@ -10,9 +11,10 @@ use rosasurfer\net\http\HttpResponse;
 
 use rosasurfer\rt\lib\dukascopy\HttpRequest as DukascopyRequest;
 
+use function rosasurfer\rt\igmdate;
+
 use const rosasurfer\rt\PRICE_BID;
 use const rosasurfer\rt\PRICE_ASK;
-use rosasurfer\console\io\Input;
 
 
 /**
@@ -94,7 +96,7 @@ class HttpClient extends CurlHttpClient {
         // url: http://datafeed.dukascopy.com/datafeed/EURUSD/2009/00/31/BID_candles_min_1.bi5
         $symbolU = strtoupper($symbol);
         $yyyy = gmdate('Y', $day);
-        $mm   = sprintf('%02d', idate('m', $day)-1);                // Dukascopy months are zero-based: January = 00
+        $mm   = sprintf('%02d', igmdate('m', $day)-1);              // Dukascopy months are zero-based: January = 00
         $dd   = gmdate('d', $day);
         $date = $yyyy.'/'.$mm.'/'.$dd;
         $name = ($type==PRICE_BID ? 'BID':'ASK').'_candles_min_1';

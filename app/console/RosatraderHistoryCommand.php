@@ -57,10 +57,7 @@ DOCOPT;
     /**
      * {@inheritdoc}
      *
-     * @param  Input  $input
-     * @param  Output $output
-     *
-     * @return int - execution status: 0 for success
+     * @return int - execution status (0 for success)
      */
     protected function execute(Input $input, Output $output) {
         $symbols = $this->resolveSymbols();
@@ -124,7 +121,7 @@ DOCOPT;
      *
      * @param  RosaSymbol[] $symbols
      *
-     * @return int - execution status: 0 for success
+     * @return int - execution status (0 for success)
      */
     protected function showStatus(array $symbols) {
         $output = $this->output;
@@ -144,7 +141,7 @@ DOCOPT;
      *
      * @param  RosaSymbol[] $symbols
      *
-     * @return int - execution status: 0 for success
+     * @return int - execution status (0 for success)
      */
     protected function synchronizeStatus(array $symbols) {
         $output = $this->output;
@@ -164,7 +161,7 @@ DOCOPT;
      *
      * @param  RosaSymbol[] $symbols
      *
-     * @return int - execution status: 0 for success
+     * @return int - execution status (0 for success)
      */
     protected function updateHistory(array $symbols) {
         $input  = $this->input;

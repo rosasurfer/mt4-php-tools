@@ -50,10 +50,7 @@ DOCOPT;
     /**
      * {@inheritdoc}
      *
-     * @param  Input  $input
-     * @param  Output $output
-     *
-     * @return int - execution status: 0 for success
+     * @return int - execution status (0 for success)
      */
     protected function execute(Input $input, Output $output) {
         $symbols = $this->resolveSymbols();

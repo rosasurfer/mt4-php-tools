@@ -122,7 +122,7 @@ abstract class AbstractSynthesizer extends Object implements ISynthesizer {
             }
             $day = max($day, $historyStart);
         }
-        $output->out('[Info]    '.str_pad($this->symbolName, 6).'  available M1 history for all sources starts at '.gmdate('D, d-M-Y', $day));
+        $output->out('[Info]    '.str_pad($this->symbolName, 6).'  available M1 history for all components starts at '.gmdate('D, d-M-Y', $day));
 
         return $day;
     }

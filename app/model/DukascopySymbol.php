@@ -9,8 +9,10 @@ use rosasurfer\rt\lib\IHistoryProvider;
 use rosasurfer\rt\lib\dukascopy\Dukascopy;
 
 use function rosasurfer\rt\fxDate;
+use function rosasurfer\rt\igmdate;
 use function rosasurfer\rt\periodDescription;
 use function rosasurfer\rt\periodToStr;
+use function rosasurfer\rt\unixTime;
 
 use const rosasurfer\rt\PERIOD_TICK;
 use const rosasurfer\rt\PERIOD_M1;
@@ -219,15 +221,15 @@ class DukascopySymbol extends RosatraderModel implements IHistoryProvider {
         if (!is_int($time))       throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
 
         if (!$time) {
-            if (!$start = (int) $this->getHistoryStartM1('U')) {
+            if (!$time = (int) $this->getHistoryStartM1('U')) {
                 /** @var Output $output */
                 $output = $this->di(Output::class);
                 $output->error('[Error]   '.str_pad($this->name, 6).'  history start for M1 not available');
                 return [];
             }
-            $time = $start;
+            if (igmdate('d', $time) == igmdate('d', unixTime($time)))       // if history starts at or after 00:00 GMT skip
+                $time += 1*DAY - $time%DAY ;                                // the partial FXT day: it would be incomplete
         }
-
         /** @var Dukascopy $dukascopy */
         $dukascopy = $this->di(Dukascopy::class);
         return $dukascopy->getHistory($this, $period, $time, $optimized);
