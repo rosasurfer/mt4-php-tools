@@ -404,9 +404,10 @@ class RosaSymbol extends RosatraderModel {
 
         $historyEnd = (int) $this->getHistoryEndM1('U');
         $updateFrom = $historyEnd ? $historyEnd + 1*DAY : 0;                        // the next day
+        $today      = ($today=fxTime()) - $today%DAY;                               // 00:00 FXT
         $status = null;
 
-        for ($day=$updateFrom, $now=fxTime(); $day < $now; $day+=1*DAY) {
+        for ($day=$updateFrom; $day < $today; $day+=1*DAY) {
             if ($day && !$this->isTradingDay($day))                                 // skip non-trading days
                 continue;
             !$status && $output->out($status='[Info]    '.str_pad($this->name, 6).'  updating M1 history since '.($day ? gmdate('D, d-M-Y', $historyEnd) : 'start'));
