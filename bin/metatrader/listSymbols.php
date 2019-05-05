@@ -8,6 +8,7 @@
 namespace rosasurfer\rt\bin\metatrader\list_symbols;
 
 use rosasurfer\rt\lib\metatrader\MT4;
+use rosasurfer\rt\lib\metatrader\Symbol;
 
 require(dirname(realpath(__FILE__)).'/../../app/init.php');
 
@@ -167,9 +168,10 @@ foreach ($usedFields as $name => $value) {
 
 // (5) Symbolinformationen erfassen und ausgeben (getrennt, damit Spalten uebergreifend formatiert werden koennen)
 $data = [];
-foreach ($files as $file)
+foreach ($files as $file) {
     collectData($file, $usedFields, $data, $options) || exit(1);
-printData(    $files, $usedFields, $data, $options) || exit(1);
+}
+printData($files, $usedFields, $data, $options) || exit(1);
 
 // Programmende
 exit(0);
@@ -191,12 +193,12 @@ exit(0);
 function collectData($file, array &$fields, array &$data, array $options) {
     // (1) Dateigroesse pruefen
     $fileSize = filesize($file);
-    if ($fileSize < MT4::SYMBOL_SIZE) {
-        $data[$file]['meta:error'] = 'invalid or unsupported format, file size ('.$fileSize.') < MinFileSize ('.MT4::SYMBOL_SIZE.')';
+    if ($fileSize < Symbol::SIZE) {
+        $data[$file]['meta:error'] = 'invalid or unsupported format, file size ('.$fileSize.') < MinFileSize ('.Symbol::SIZE.')';
         return true;
     }
-    if ($fileSize % MT4::SYMBOL_SIZE)
-        $data[$file]['meta:warn'][] = 'file contains '.($fileSize % MT4::SYMBOL_SIZE).' trailing bytes';
+    if ($fileSize % Symbol::SIZE)
+        $data[$file]['meta:warn'][] = 'file contains '.($fileSize % Symbol::SIZE).' trailing bytes';
 
 
     // (2) Laenge des laengsten Dateinamens speichern
@@ -204,17 +206,17 @@ function collectData($file, array &$fields, array &$data, array $options) {
 
 
     // (3) Anzahl der Symbole ermitteln und speichern
-    $symbolsSize = (int)($fileSize/MT4::SYMBOL_SIZE);
+    $symbolsSize = (int)($fileSize/Symbol::SIZE);
     $data[$file]['meta:symbolsSize'] = $symbolsSize;
-    if (isset($options['countSymbols']))                                             // Die Meta-Daten liegen in derselben Arrayebene wie
-        return true;                           // ggf. sofort zurueckkehren            // die Symboldaten und muessen Namen haben, die mit den
-                                                                                                                // Feldnamen der Symbole nicht kollidieren koennen.
+    if (isset($options['countSymbols']))                            // Die Meta-Daten liegen in derselben Arrayebene wie
+        return true;                                                // die Symboldaten und muessen Namen haben, die mit den
+                                                                    // Feldnamen der Symbole nicht kollidieren koennen.
 
     // (4) Daten auslesen
     $hFile   = fopen($file, 'rb');
     $symbols = [];
     for ($i=0; $i < $symbolsSize; $i++) {
-        $symbols[] = unpack(MT4::SYMBOL_getUnpackFormat(), fread($hFile, MT4::SYMBOL_SIZE));
+        $symbols[] = unpack('@0'.Symbol::unpackFormat(), fread($hFile, Symbol::SIZE));
     }
     fclose($hFile);
 
@@ -223,15 +225,15 @@ function collectData($file, array &$fields, array &$data, array $options) {
     $values = $lengths = [];
     foreach ($symbols as $i => $symbol) {
         foreach ($fields as $name => $v) {
-            $value = isset($symbol[$name]) ? $symbol[$name] : '?';                     // typenlose Felder (x) werden markiert
+            $value = isset($symbol[$name]) ? $symbol[$name] : '?';                      // typenlose Felder (x) werden markiert
             if (is_float($value) && ($e=(int) strRightFrom($s=(string)$value, 'E-'))) {
                 $decimals = strLeftTo(strRightFrom($s, '.'), 'E');
                 $decimals = ($decimals=='0' ? 0 : strlen($decimals)) + $e;
                 if ($decimals <= 14)                                                    // ab 15 Dezimalstellen wissenschaftliche Anzeige
                     $value = numf($value, $decimals);
             }
-            $values[$name][]         = $value;                                         // real-name[n]      => value
-            $fields[$name]['length'] = max(strlen($value), $fields[$name]['length']);  // real-name[length] => (int)
+            $values[$name][]         = $value;                                          // real-name[n]      => value
+            $fields[$name]['length'] = max(strlen($value), $fields[$name]['length']);   // real-name[length] => (int)
         }
     }
     $data[$file] = array_merge($data[$file], $values);

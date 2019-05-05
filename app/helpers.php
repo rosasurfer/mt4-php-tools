@@ -721,5 +721,3 @@ function strToPeriod($value) {
 function strToTimeframe($value) {
    return(strToPeriod($value));
 }
-
-
