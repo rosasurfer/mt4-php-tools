@@ -44,11 +44,6 @@ class MT4 extends StaticClass {
     const HISTORY_BAR_401_SIZE = 60;
 
     /**
-     * Struct-Size eines Symbols (Symboldatei "symbols.raw")
-     */
-    const SYMBOL_SIZE = 1936;
-
-    /**
      * Struct-Size eine Symbolgruppe (Symbolgruppendatei "symgroups.raw")
      */
     const SYMBOL_GROUP_SIZE = 80;
@@ -105,63 +100,6 @@ class MT4 extends StaticClass {
         'volume' => 0
     ];
 
-    /**
-     * Formatbeschreibung eines struct SYMBOL.
-     *
-     * @see  Definition in MT4Expander.dll::Expander.h
-     * @see  MT4::SYMBOL_getUnpackFormat() zum Verwenden als unpack()-Formatstring
-     */
-    private static $SYMBOL_formatStr = '
-        /a12   name                      // szchar
-        /a54   description               // szchar
-        /a10   origin                    // szchar (custom)
-        /a12   altName                   // szchar
-        /a12   baseCurrency              // szchar
-        /V     group                     // uint
-        /V     digits                    // uint
-        /V     tradeMode                 // uint
-        /V     backgroundColor           // uint
-        /V     arrayKey                  // uint
-        /V     id                        // uint
-        /x32   unknown1:char32
-        /x208  mon:char208
-        /x208  tue:char208
-        /x208  wed:char208
-        /x208  thu:char208
-        /x208  fri:char208
-        /x208  sat:char208
-        /x208  sun:char208
-        /x16   unknown2:char16
-        /V     unknown3:int
-        /V     unknown4:int
-        /x4    _alignment1
-        /d     unknown5:double
-        /H24   unknown6:char12
-        /V     spread                    // uint
-        /H16   unknown7:char8
-        /V     swapEnabled               // bool
-        /V     swapType                  // uint
-        /d     swapLongValue             // double
-        /d     swapShortValue            // double
-        /V     swapTripleRolloverDay     // uint
-        /x4    _alignment2
-        /d     contractSize              // double
-        /x16   unknown8:char16
-        /V     stopDistance              // uint
-        /x8    unknown9:char8
-        /x4    _alignment3
-        /d     marginInit                // double
-        /d     marginMaintenance         // double
-        /d     marginHedged              // double
-        /d     marginDivider             // double
-        /d     pointSize                 // double
-        /d     pointsPerUnit             // double
-        /x24   unknown10:char24
-        /a12   marginCurrency            // szchar
-        /x104  unknown11:char104
-        /V     unknown12:int
-    ';
-
 
     /**
      * Formatbeschreibung eines struct HISTORY_BAR_400.
@@ -207,41 +145,16 @@ class MT4 extends StaticClass {
      */
     public static function SYMBOL_getFields() {
         static $fields = null; if (!$fields) {
-            $lines = explode(NL, self::$SYMBOL_formatStr);
+            $lines = explode(EOL_UNIX, normalizeEOL(Symbol::UNPACK_DEFINITION, EOL_UNIX));
             foreach ($lines as $i => &$line) {
                 $line = strLeftTo($line, '//');                             // Kommentare entfernen
                 $line = strRightFrom(trim($line), ' ', -1);                 // Format-Code entfernen
                 if (!strlen($line) || strStartsWith($line, '_alignment'))   // Leerzeilen und Alignment-Felder loeschen
                     unset($lines[$i]);
             }; unset($line);
-            $fields = array_values($lines);                                // Indizes neuordnen
+            $fields = array_values($lines);                                 // Indizes neuordnen
         }
         return $fields;
-    }
-
-
-    /**
-     * Gibt den Formatstring zum Entpacken eines struct SYMBOL zurueck.
-     *
-     * @return string - unpack()-Formatstring
-     */
-    public static function SYMBOL_getUnpackFormat() {
-        static $format = null;
-
-        if (is_null($format)) {
-            $lines = explode("\n", self::$SYMBOL_formatStr);
-            foreach ($lines as $i => &$line) {
-                $line = strLeftTo($line, '//');                          // Kommentare entfernen
-            }; unset($line);
-            $format = join('', $lines);
-
-            // since PHP 5.5.0: The 'a' code now retains trailing NULL bytes, 'Z' replaces the former 'a'.
-            if (PHP_VERSION >= '5.5.0') $format = str_replace('/a', '/Z', $format);
-
-            $format = preg_replace('/\s/', '', $format);                // remove white space
-            if ($format[0] == '/') $format = strRight($format, -1);     // remove leading format separator
-        }
-        return $format;
     }
 
 

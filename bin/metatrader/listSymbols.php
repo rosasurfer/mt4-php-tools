@@ -8,6 +8,7 @@
 namespace rosasurfer\rt\bin\metatrader\list_symbols;
 
 use rosasurfer\rt\lib\metatrader\MT4;
+use rosasurfer\rt\lib\metatrader\Symbol;
 
 require(dirname(realpath(__FILE__)).'/../../app/init.php');
 
@@ -192,12 +193,12 @@ exit(0);
 function collectData($file, array &$fields, array &$data, array $options) {
     // (1) Dateigroesse pruefen
     $fileSize = filesize($file);
-    if ($fileSize < MT4::SYMBOL_SIZE) {
-        $data[$file]['meta:error'] = 'invalid or unsupported format, file size ('.$fileSize.') < MinFileSize ('.MT4::SYMBOL_SIZE.')';
+    if ($fileSize < Symbol::SIZE) {
+        $data[$file]['meta:error'] = 'invalid or unsupported format, file size ('.$fileSize.') < MinFileSize ('.Symbol::SIZE.')';
         return true;
     }
-    if ($fileSize % MT4::SYMBOL_SIZE)
-        $data[$file]['meta:warn'][] = 'file contains '.($fileSize % MT4::SYMBOL_SIZE).' trailing bytes';
+    if ($fileSize % Symbol::SIZE)
+        $data[$file]['meta:warn'][] = 'file contains '.($fileSize % Symbol::SIZE).' trailing bytes';
 
 
     // (2) Laenge des laengsten Dateinamens speichern
@@ -205,7 +206,7 @@ function collectData($file, array &$fields, array &$data, array $options) {
 
 
     // (3) Anzahl der Symbole ermitteln und speichern
-    $symbolsSize = (int)($fileSize/MT4::SYMBOL_SIZE);
+    $symbolsSize = (int)($fileSize/Symbol::SIZE);
     $data[$file]['meta:symbolsSize'] = $symbolsSize;
     if (isset($options['countSymbols']))                            // Die Meta-Daten liegen in derselben Arrayebene wie
         return true;                                                // die Symboldaten und muessen Namen haben, die mit den
@@ -215,7 +216,7 @@ function collectData($file, array &$fields, array &$data, array $options) {
     $hFile   = fopen($file, 'rb');
     $symbols = [];
     for ($i=0; $i < $symbolsSize; $i++) {
-        $symbols[] = unpack(MT4::SYMBOL_getUnpackFormat(), fread($hFile, MT4::SYMBOL_SIZE));
+        $symbols[] = unpack('@0'.Symbol::unpackFormat(), fread($hFile, Symbol::SIZE));
     }
     fclose($hFile);
 
