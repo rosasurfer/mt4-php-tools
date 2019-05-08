@@ -5,7 +5,7 @@ use rosasurfer\console\io\Output;
 use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\UnimplementedFeatureException;
 
-use rosasurfer\rt\lib\IHistoryProvider;
+use rosasurfer\rt\lib\IHistorySource;
 use rosasurfer\rt\lib\dukascopy\Dukascopy;
 
 use function rosasurfer\rt\fxDate;
@@ -29,7 +29,7 @@ use const rosasurfer\rt\PERIOD_D1;
  * @method int        getDigits()     Return the number of fractional digits of symbol prices.
  * @method RosaSymbol getRosaSymbol() Return the Rosatrader symbol this Dukascopy symbol is mapped to.
  */
-class DukascopySymbol extends RosatraderModel implements IHistoryProvider {
+class DukascopySymbol extends RosatraderModel implements IHistorySource {
 
 
     /** @var string - symbol name */

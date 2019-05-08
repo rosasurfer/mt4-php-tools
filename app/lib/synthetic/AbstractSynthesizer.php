@@ -70,7 +70,7 @@ abstract class AbstractSynthesizer extends Object implements ISynthesizer {
      *     'high'  => (float),          // high value in real terms
      *     'low'   => (float),          // low value in real terms
      *     'close' => (float),          // close value in real terms
-     *     'ticks' => (int),            // number of synthetic ticks
+     *     'ticks' => (int),            // volume (if available) or number of synthetic ticks
      * )
      * </pre>
      */

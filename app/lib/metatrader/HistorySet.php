@@ -337,7 +337,7 @@ class HistorySet extends Object {
      * @return bool - Erfolgsstatus
      */
     public function appendBars(array $bars) {
-        if ($this->closed) throw new IllegalStateException('Cannot process a closed '.__CLASS__);
+        if ($this->closed) throw new IllegalStateException('Cannot process a closed '.get_class($this));
         if (!$bars) return false;
 
         foreach ($this->historyFiles as $timeframe => $file) {
@@ -356,7 +356,7 @@ class HistorySet extends Object {
      * @param  int[][] $bars - ROST_PRICE_BAR Daten der Periode M1
      */
     public function synchronize(array $bars) {
-        if ($this->closed) throw new IllegalStateException('Cannot process a closed '.__CLASS__);
+        if ($this->closed) throw new IllegalStateException('Cannot process a closed '.get_class($this));
         if (!$bars) return;
 
         $historyM1 = $this->getFile(PERIOD_M1);

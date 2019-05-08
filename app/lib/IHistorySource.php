@@ -3,11 +3,11 @@ namespace rosasurfer\rt\lib;
 
 
 /**
- * IHistoryProvider
+ * IHistorySource
  *
- * An interface for classes capable of returning timeseries for different periods.
+ * An interface for classes capable of providing the original history for a Rosatrader symbol.
  */
-interface IHistoryProvider {
+interface IHistorySource {
 
 
     /**
@@ -30,7 +30,7 @@ interface IHistoryProvider {
      *     'high'  => (float),          // high value in real terms
      *     'low'   => (float),          // low value in real terms
      *     'close' => (float),          // close value in real terms
-     *     'ticks' => (int),            // number of synthetic ticks
+     *     'ticks' => (int),            // volume (if available) or number of synthetic ticks
      * )
      *
      * $optimized => TRUE:
@@ -41,7 +41,7 @@ interface IHistoryProvider {
      *     'high'  => (int),            // high value in point
      *     'low'   => (int),            // low value in point
      *     'close' => (int),            // close value in point
-     *     'ticks' => (int),            // number of synthetic ticks
+     *     'ticks' => (int),            // volume (if available) or number of synthetic ticks
      * )
      * </pre>
      */

@@ -27,11 +27,11 @@ class Rosatrader extends StaticClass {
      * <pre>
      * Array(
      *     'time'  => (int),            // bar open time in FXT
-     *     'open'  => (double),         // open value
-     *     'high'  => (double),         // high value
-     *     'low'   => (double),         // low value
-     *     'close' => (double),         // close value
-     *     'ticks' => (int),            // ticks or volume (if available)
+     *     'open'  => (int),            // open value in point
+     *     'high'  => (int),            // high value in point
+     *     'low'   => (int),            // low value in point
+     *     'close' => (int),            // close value in point
+     *     'ticks' => (int),            // volume (if available) or number of synthetic ticks
      * )
      * </pre>
      */
@@ -52,28 +52,22 @@ class Rosatrader extends StaticClass {
      * <pre>
      * Array(
      *     'time'  => (int),            // bar open time in FXT
-     *     'open'  => (double),         // open value
-     *     'high'  => (double),         // high value
-     *     'low'   => (double),         // low value
-     *     'close' => (double),         // close value
-     *     'ticks' => (int),            // ticks or volume (if available)
+     *     'open'  => (int),            // open value in point
+     *     'high'  => (int),            // high value in point
+     *     'low'   => (int),            // low value in point
+     *     'close' => (int),            // close value in point
+     *     'ticks' => (int),            // volume (if available) or number of synthetic ticks
      * )
      * </pre>
      */
     public static function readBarData($data, RosaSymbol $symbol) {
-        if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.gettype($data));
+        if (!is_string($data))         throw new IllegalTypeException('Illegal type of parameter $data: '.gettype($data));
+        $lenData = strlen($data);
+        if ($lenData % Rost::BAR_SIZE) throw new RuntimeException('Odd length of passed '.$symbol->getName().' data: '.$lenData.' (not an even Rost::BAR_SIZE)');
 
-        $lenData = strlen($data); if ($lenData % Rost::BAR_SIZE) throw new RuntimeException('Odd length of passed '.$symbol->getName().' data: '.$lenData.' (not an even Rost::BAR_SIZE)');
-        $bars  = [];
-        $point = $symbol->getPointValue();
-
+        $bars = [];
         for ($offset=0; $offset < $lenData; $offset += Rost::BAR_SIZE) {
-            $bar = unpack("@$offset/Vtime/Vopen/Vhigh/Vlow/Vclose/Vticks", $data);
-            $bar['open' ] *= $point;
-            $bar['high' ] *= $point;
-            $bar['low'  ] *= $point;
-            $bar['close'] *= $point;
-            $bars[] = $bar;
+            $bars[] = unpack("@$offset/Vtime/Vopen/Vhigh/Vlow/Vclose/Vticks", $data);
         }
         return $bars;
     }

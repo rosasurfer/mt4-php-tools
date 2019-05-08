@@ -6,7 +6,7 @@ use rosasurfer\exception\IllegalTypeException;
 use rosasurfer\exception\RuntimeException;
 use rosasurfer\process\Process;
 
-use rosasurfer\rt\lib\IHistoryProvider;
+use rosasurfer\rt\lib\IHistorySource;
 use rosasurfer\rt\lib\Rosatrader as RT;
 use rosasurfer\rt\lib\dukascopy\Dukascopy;
 use rosasurfer\rt\lib\synthetic\GenericSynthesizer;
@@ -185,33 +185,56 @@ class RosaSymbol extends RosatraderModel {
     /**
      * Get the M1 history for a given day.
      *
-     * @param  int $time - FXT timestamp
+     * @param  int  $time                 - FXT timestamp
+     * @param  bool $optimized [optional] - returned bar format (see notes)
      *
-     * @return array[] - If history for the specified day is not available an empty array is returned. Otherwise a timeseries
-     *                   array is returned with each element describing an M1 bar as follows:
+     * @return array - An empty array if history for the specified time is not available. Otherwise a timeseries array with
+     *                 each element describing a single price bar as follows:
+     *
      * <pre>
+     * $optimized => FALSE (default):
+     * ------------------------------
      * Array(
      *     'time'  => (int),            // bar open time in FXT
-     *     'open'  => (double),         // open value
-     *     'high'  => (double),         // high value
-     *     'low'   => (double),         // low value
-     *     'close' => (double),         // close value
-     *     'ticks' => (int),            // ticks or volume (if available)
+     *     'open'  => (float),          // open value in real terms
+     *     'high'  => (float),          // high value in real terms
+     *     'low'   => (float),          // low value in real terms
+     *     'close' => (float),          // close value in real terms
+     *     'ticks' => (int),            // volume (if available) or number of synthetic ticks
+     * )
+     *
+     * $optimized => TRUE:
+     * -------------------
+     * Array(
+     *     'time'  => (int),            // bar open time in FXT
+     *     'open'  => (int),            // open value in point
+     *     'high'  => (int),            // high value in point
+     *     'low'   => (int),            // low value in point
+     *     'close' => (int),            // close value in point
+     *     'ticks' => (int),            // volume (if available) or number of synthetic ticks
      * )
      * </pre>
      */
-    public function getHistoryM1($time) {
-        $storageDir  = $this->di('config')['app.dir.storage'];
-        $storageDir .= '/history/rosatrader/'.$this->type.'/'.$this->name;
-        $dir         = $storageDir.'/'.gmdate('Y/m/d', $time);
+    public function getHistoryM1($time, $optimized = false) {
+        $storage = $this->di('config')['app.dir.storage'];
+        $dir = $storage.'/history/rosatrader/'.$this->type.'/'.$this->name.'/'.gmdate('Y/m/d', $time);
 
-        if (is_file($file=$dir.'/M1.bin') || is_file($file.='.rar'))
-            return RT::readBarFile($file, $this);
+        if (!is_file($file=$dir.'/M1.bin') && !is_file($file.='.rar'))
+            return [];
 
-        ///** @var Output $output */
-        //$output = $this->di(Output::class);
-        //$output->error('[Error]   '.str_pad($this->name, 6).'  Rosatrader history for '.gmdate('D, d-M-Y', $time).' not found');
-        return [];
+        $bars = RT::readBarFile($file, $this);
+        if ($optimized)
+            return $bars;
+
+        $point = $this->getPointValue();
+
+        foreach ($bars as $i => $bar) {
+            $bars[$i]['open' ] *= $point;
+            $bars[$i]['high' ] *= $point;
+            $bars[$i]['low'  ] *= $point;
+            $bars[$i]['close'] *= $point;
+        }
+        return $bars;
     }
 
 
@@ -399,7 +422,7 @@ class RosaSymbol extends RosatraderModel {
         /** @var Output $output */
         $output = $this->di(Output::class);
 
-        $provider = $this->getHistoryProvider();
+        $provider = $this->getHistorySource();
         if (!$provider) return false($output->error('[Error]   '.str_pad($this->name, 6).'  no history provider found'));
 
         $historyEnd = (int) $this->getHistoryEndM1('U');
@@ -431,11 +454,11 @@ class RosaSymbol extends RosatraderModel {
 
 
     /**
-     * Return a {@link IHistoryProvider} for the symbol.
+     * Return a {@link IHistorySource} for the symbol.
      *
-     * @return IHistoryProvider|null
+     * @return IHistorySource|null
      */
-    public function getHistoryProvider() {
+    public function getHistorySource() {
         if ($this->isSynthetic())
             return $this->getSynthesizer();
         return $this->getDukascopySymbol();

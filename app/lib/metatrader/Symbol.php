@@ -82,7 +82,6 @@ class Symbol extends Object {
                 $line = strLeftTo($line, '//');                         // drop line comments
             }; unset($line);
             $format = join('', $lines);
-            $format = str_replace('/a', '/Z', $format);                 // since PHP 5.5 'Z' replaces the former 'a'
             $format = preg_replace('/\s/', '', $format);                // remove white space
         }
         return $format;
