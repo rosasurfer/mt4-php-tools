@@ -3,11 +3,11 @@ namespace rosasurfer\rt\lib;
 
 
 /**
- * IHistoryProvider
+ * IHistorySource
  *
- * An interface for classes capable of returning timeseries for different periods.
+ * An interface for classes capable of providing the original history for a Rosatrader symbol.
  */
-interface IHistoryProvider {
+interface IHistorySource {
 
 
     /**
