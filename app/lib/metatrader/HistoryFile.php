@@ -466,7 +466,7 @@ class HistoryFile extends Object {
      * @param  int $size - buffer size
      */
     public function setBarBufferSize($size) {
-        if ($this->closed)  throw new IllegalStateException('Cannot process a closed '.__CLASS__);
+        if ($this->closed)  throw new IllegalStateException('Cannot process a closed '.get_class($this));
         if (!is_int($size)) throw new IllegalTypeException('Illegal type of parameter $size: '.gettype($size));
         if ($size < 0)      throw new InvalidArgumentException('Invalid parameter $size: '.$size);
 
@@ -890,7 +890,7 @@ class HistoryFile extends Object {
      * @param  array $bars - ROST_PRICE_BAR-Daten der Periode M1
      */
     private function synchronizeM1(array $bars) {
-        if ($this->closed) throw new IllegalStateException('Cannot process a closed '.__CLASS__);
+        if ($this->closed) throw new IllegalStateException('Cannot process a closed '.get_class($this));
         if (!$bars) return false;
 
         // Offset der Bar, die den Zeitpunkt abdeckt, ermitteln
@@ -1025,7 +1025,7 @@ class HistoryFile extends Object {
      * @param  array $bars - ROST_PRICE_BAR-Daten der Periode M1
      */
     private function appendToM1(array $bars) {
-        if ($this->closed)                             throw new IllegalStateException('Cannot process a closed '.__CLASS__);
+        if ($this->closed)                             throw new IllegalStateException('Cannot process a closed '.get_class($this));
         if (!$bars) return;
         if ($bars[0]['time'] <= $this->lastM1DataTime) throw new IllegalStateException('Cannot append bar(s) of '.gmdate('D, d-M-Y H:i:s', $bars[0]['time']).' to history ending at '.gmdate('D, d-M-Y H:i:s', $this->lastM1DataTime));
 
@@ -1056,7 +1056,7 @@ class HistoryFile extends Object {
      * @param  array $bars - ROST_PRICE_BAR-Daten der Periode M1
      */
     private function appendToTimeframe(array $bars) {
-        if ($this->closed)                             throw new IllegalStateException('Cannot process a closed '.__CLASS__);
+        if ($this->closed)                             throw new IllegalStateException('Cannot process a closed '.get_class($this));
         if (!$bars) return;
         if ($bars[0]['time'] <= $this->lastM1DataTime) throw new IllegalStateException('Cannot append bar(s) of '.gmdate('D, d-M-Y H:i:s', $bars[0]['time']).' to history ending at '.gmdate('D, d-M-Y H:i:s', $this->lastM1DataTime));
 
@@ -1108,7 +1108,7 @@ class HistoryFile extends Object {
      * @param  array $bars - ROST_PRICE_BAR-Daten der Periode M1
      */
     private function appendToW1(array $bars) {
-        if ($this->closed)                             throw new IllegalStateException('Cannot process a closed '.__CLASS__);
+        if ($this->closed)                             throw new IllegalStateException('Cannot process a closed '.get_class($this));
         if (!$bars) return;
         if ($bars[0]['time'] <= $this->lastM1DataTime) throw new IllegalStateException('Cannot append bar(s) of '.gmdate('D, d-M-Y H:i:s', $bars[0]['time']).' to history ending at '.gmdate('D, d-M-Y H:i:s', $this->lastM1DataTime));
 
@@ -1161,7 +1161,7 @@ class HistoryFile extends Object {
      * @param  array $bars - ROST_PRICE_BAR-Daten der Periode M1
      */
     private function appendToMN1(array $bars) {
-        if ($this->closed)                             throw new IllegalStateException('Cannot process a closed '.__CLASS__);
+        if ($this->closed)                             throw new IllegalStateException('Cannot process a closed '.get_class($this));
         if (!$bars) return;
         if ($bars[0]['time'] <= $this->lastM1DataTime) throw new IllegalStateException('Cannot append bar(s) of '.gmdate('D, d-M-Y H:i:s', $bars[0]['time']).' to history ending at '.gmdate('D, d-M-Y H:i:s', $this->lastM1DataTime));
 
@@ -1217,8 +1217,8 @@ class HistoryFile extends Object {
      *
      * @return int - Anzahl der geschriebenen und aus dem Buffer geloeschten Bars
      */
-    public function flush($count=PHP_INT_MAX) {
-        if ($this->closed)   throw new IllegalStateException('Cannot process a closed '.__CLASS__);
+    public function flush($count = PHP_INT_MAX) {
+        if ($this->closed)   throw new IllegalStateException('Cannot process a closed '.get_class($this));
         if (!is_int($count)) throw new IllegalTypeException('Illegal type of parameter $count: '.gettype($count));
         if ($count < 0)      throw new InvalidArgumentException('Invalid parameter $count: '.$count);
 
