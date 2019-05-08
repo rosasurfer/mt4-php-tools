@@ -16,7 +16,7 @@ use const rosasurfer\rt\PERIOD_M1;
 /**
  * EURLFX synthesizer
  *
- * A {@link ISynthesizer} for calculating the LiteForex Euro index.
+ * A {@link ISynthesizer} for calculating the synthetic LiteForex Euro index.
  *
  * <pre>
  * Formulas:

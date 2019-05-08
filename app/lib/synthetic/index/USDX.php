@@ -16,7 +16,7 @@ use const rosasurfer\rt\PERIOD_M1;
 /**
  * USDX synthesizer
  *
- * A {@link ISynthesizer} for calculating the ICE US-Dollar index.
+ * A {@link ISynthesizer} for calculating the official ICE US-Dollar index.
  *
  * <pre>
  * Formula:

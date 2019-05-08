@@ -16,7 +16,7 @@ use const rosasurfer\rt\PERIOD_M1;
 /**
  * AUDFXI synthesizer
  *
- * A {@link ISynthesizer} for calculating the Australian Dollar currency index.
+ * A {@link ISynthesizer} for calculating the synthetic Australian Dollar currency index.
  *
  * <pre>
  * Formulas:

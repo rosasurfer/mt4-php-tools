@@ -16,7 +16,7 @@ use const rosasurfer\rt\PERIOD_M1;
 /**
  * USDFXI synthesizer
  *
- * A {@link ISynthesizer} for calculating the US Dollar currency index.
+ * A {@link ISynthesizer} for calculating the synthetic US Dollar currency index.
  *
  * <pre>
  * Formula:

@@ -16,7 +16,7 @@ use const rosasurfer\rt\PERIOD_M1;
 /**
  * USDLFX synthesizer
  *
- * A {@link ISynthesizer} for calculating the LiteForex US Dollar index.
+ * A {@link ISynthesizer} for calculating the synthetic LiteForex US Dollar index.
  *
  * <pre>
  * Formula:

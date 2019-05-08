@@ -16,7 +16,7 @@ use const rosasurfer\rt\PERIOD_M1;
 /**
  * SGDFXI synthesizer
  *
- * A {@link ISynthesizer} for calculating the Singapore Dollar currency index.
+ * A {@link ISynthesizer} for calculating the synthetic Singapore Dollar currency index.
  *
  * <pre>
  * Formulas:

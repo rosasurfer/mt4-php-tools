@@ -16,7 +16,7 @@ use const rosasurfer\rt\PERIOD_M1;
 /**
  * GBPFXI synthesizer
  *
- * A {@link ISynthesizer} for calculating the Great Britain Pound currency index.
+ * A {@link ISynthesizer} for calculating the synthetic Great Britain Pound currency index.
  *
  * <pre>
  * Formulas:

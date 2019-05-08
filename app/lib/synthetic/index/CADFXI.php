@@ -16,7 +16,7 @@ use const rosasurfer\rt\PERIOD_M1;
 /**
  * CADLFX synthesizer
  *
- * A {@link ISynthesizer} for calculating the Canadian Dollar currency index.
+ * A {@link ISynthesizer} for calculating the synthetic Canadian Dollar currency index.
  *
  * <pre>
  * Formulas:

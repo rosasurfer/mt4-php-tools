@@ -16,7 +16,7 @@ use const rosasurfer\rt\PERIOD_M1;
 /**
  * EURFXI synthesizer
  *
- * A {@link ISynthesizer} for calculating the Euro currency index.
+ * A {@link ISynthesizer} for calculating the synthetic Euro currency index.
  *
  * <pre>
  * Formulas:

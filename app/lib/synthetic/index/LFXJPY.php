@@ -16,7 +16,7 @@ use const rosasurfer\rt\PERIOD_M1;
 /**
  * LFXJPY synthesizer
  *
- * A {@link ISynthesizer} for calculating the LiteForex Japanese Yen index.
+ * A {@link ISynthesizer} for calculating the synthetic LiteForex Japanese Yen index.
  *
  * <pre>
  * Formulas:
