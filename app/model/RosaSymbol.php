@@ -207,10 +207,6 @@ class RosaSymbol extends RosatraderModel {
 
         if (is_file($file=$dir.'/M1.bin') || is_file($file.='.rar'))
             return RT::readBarFile($file, $this);
-
-        ///** @var Output $output */
-        //$output = $this->di(Output::class);
-        //$output->error('[Error]   '.str_pad($this->name, 6).'  Rosatrader history for '.gmdate('D, d-M-Y', $time).' not found');
         return [];
     }
 

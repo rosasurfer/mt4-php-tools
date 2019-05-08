@@ -64,7 +64,7 @@ class Rosatrader extends StaticClass {
         if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.gettype($data));
 
         $lenData = strlen($data); if ($lenData % Rost::BAR_SIZE) throw new RuntimeException('Odd length of passed '.$symbol->getName().' data: '.$lenData.' (not an even Rost::BAR_SIZE)');
-        $bars  = [];
+        $bars = [];
         $point = $symbol->getPointValue();
 
         for ($offset=0; $offset < $lenData; $offset += Rost::BAR_SIZE) {
