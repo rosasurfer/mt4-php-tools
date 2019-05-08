@@ -36,7 +36,7 @@ use const rosasurfer\rt\PERIOD_W1;
  *    uint high;                                 4            8        in point
  *    uint low;                                  4           12        in point
  *    uint close;                                4           16        in point
- *    uint ticks;                                4           20
+ *    uint ticks;                                4           20        volume (if available) or number of synthetic ticks
  * };                                    = 24 byte
  *
  *                                             size        offset      description
