@@ -2,8 +2,8 @@
 namespace rosasurfer\rt\model;
 
 use rosasurfer\console\io\Output;
-use rosasurfer\exception\IllegalTypeException;
-use rosasurfer\exception\RuntimeException;
+use rosasurfer\core\assert\Assert;
+use rosasurfer\core\exception\RuntimeException;
 use rosasurfer\process\Process;
 
 use rosasurfer\rt\lib\IHistorySource;
@@ -276,7 +276,7 @@ class RosaSymbol extends RosatraderModel {
      * @return bool
      */
     public function isTradingDay($time) {
-        if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
+        Assert::int($time);
 
         return ($time && !isWeekend($time) && !$this->isHoliday($time));
     }
@@ -290,7 +290,7 @@ class RosaSymbol extends RosatraderModel {
      * @return bool
      */
     public function isHoliday($time) {
-        if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
+        Assert::int($time);
         if (!$time)
             return false;
 

@@ -2,14 +2,14 @@
 namespace rosasurfer\rt\lib\metatrader;
 
 use rosasurfer\console\io\Output;
-use rosasurfer\core\Object;
-use rosasurfer\debug\ErrorHandler;
-use rosasurfer\exception\FileNotFoundException;
-use rosasurfer\exception\IllegalStateException;
-use rosasurfer\exception\IllegalTypeException;
-use rosasurfer\exception\InvalidArgumentException;
-use rosasurfer\exception\RuntimeException;
-use rosasurfer\exception\UnimplementedFeatureException;
+use rosasurfer\core\CObject;
+use rosasurfer\core\assert\Assert;
+use rosasurfer\core\debug\ErrorHandler;
+use rosasurfer\core\exception\FileNotFoundException;
+use rosasurfer\core\exception\IllegalStateException;
+use rosasurfer\core\exception\InvalidArgumentException;
+use rosasurfer\core\exception\RuntimeException;
+use rosasurfer\core\exception\UnimplementedFeatureException;
 use rosasurfer\file\FileSystem as FS;
 
 use rosasurfer\rt\lib\Rost;
@@ -31,7 +31,7 @@ use const rosasurfer\rt\PERIOD_MN1;
 /**
  * Object wrapping a single MT4 history file ("*.hst").
  */
-class HistoryFile extends Object {
+class HistoryFile extends CObject {
 
 
     /** @var resource - handle of an open history file */
@@ -303,8 +303,8 @@ class HistoryFile extends Object {
      * @param  string $fileName - MT4 history file name
      */
     private function __construct1($fileName) {
-        if (!is_string($fileName)) throw new IllegalTypeException('Illegal type of parameter $fileName: '.gettype($fileName));
-        if (!is_file($fileName))   throw new FileNotFoundException('Invalid parameter $fileName: "'.$fileName.'" (file not found)');
+        Assert::string($fileName);
+        if (!is_file($fileName)) throw new FileNotFoundException('Invalid parameter $fileName: "'.$fileName.'" (file not found)');
 
         // resolve directory, file and server name
         $realName              = realpath($fileName);
@@ -344,12 +344,12 @@ class HistoryFile extends Object {
      * @param  string $serverDirectory - full server directory (storage location)
      */
     private function __construct2($symbol, $timeframe, $digits, $format, $serverDirectory) {
-        if (!is_string($symbol))                      throw new IllegalTypeException('Illegal type of parameter $symbol: '.gettype($symbol));
+        Assert::string($symbol, '$symbol');
         if (!strlen($symbol))                         throw new InvalidArgumentException('Invalid parameter $symbol: ""');
         if (strlen($symbol) > MT4::MAX_SYMBOL_LENGTH) throw new InvalidArgumentException('Invalid parameter $symbol: "'.$symbol.'" (max '.MT4::MAX_SYMBOL_LENGTH.' characters)');
-        if (!is_int($timeframe))                      throw new IllegalTypeException('Illegal type of parameter $timeframe: '.gettype($timeframe));
+        Assert::int($timeframe, '$timeframe');
         if (!MT4::isStdTimeframe($timeframe))         throw new InvalidArgumentException('Invalid parameter $timeframe: '.$timeframe.' (not a MetaTrader standard timeframe)');
-        if (!is_string($serverDirectory))             throw new IllegalTypeException('Illegal type of parameter $serverDirectory: '.gettype($serverDirectory));
+        Assert::string($serverDirectory, '$serverDirectory');
         if (!is_dir($serverDirectory))                throw new InvalidArgumentException('Directory "'.$serverDirectory.'" not found');
 
         $this->hstHeader       = new HistoryHeader($format, null, $symbol, $timeframe, $digits, null, null);
@@ -431,9 +431,8 @@ class HistoryFile extends Object {
         try {
             !$this->isClosed() && $this->close();
         }
-        catch (\Exception $ex) {
-            throw ErrorHandler::handleDestructorException($ex);
-        }
+        catch (\Throwable $ex) { throw ErrorHandler::handleDestructorException($ex); }
+        catch (\Exception $ex) { throw ErrorHandler::handleDestructorException($ex); }
     }
 
 
@@ -466,9 +465,9 @@ class HistoryFile extends Object {
      * @param  int $size - buffer size
      */
     public function setBarBufferSize($size) {
-        if ($this->closed)  throw new IllegalStateException('Cannot process a closed '.get_class($this));
-        if (!is_int($size)) throw new IllegalTypeException('Illegal type of parameter $size: '.gettype($size));
-        if ($size < 0)      throw new InvalidArgumentException('Invalid parameter $size: '.$size);
+        if ($this->closed) throw new IllegalStateException('Cannot process a closed '.get_class($this));
+        Assert::int($size);
+        if ($size < 0)     throw new InvalidArgumentException('Invalid parameter $size: '.$size);
 
         $this->barBufferSize = $size;
     }
@@ -487,8 +486,8 @@ class HistoryFile extends Object {
      * @see  HistoryFile::getHistoryBar()
      */
     public function getBar($offset) {
-        if (!is_int($offset)) throw new IllegalTypeException('Illegal type of parameter $offset: '.gettype($offset));
-        if ($offset < 0)      throw new InvalidArgumentException('Invalid parameter $offset: '.$offset);
+        Assert::int($offset);
+        if ($offset < 0) throw new InvalidArgumentException('Invalid parameter $offset: '.$offset);
 
         if ($offset >= $this->full_bars)                                        // bar[$offset] does not exist
             return null;
@@ -512,7 +511,7 @@ class HistoryFile extends Object {
      *               has to be expanded.
      */
     public function findTimeOffset($time) {
-        if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
+        Assert::int($time);
 
         $size    = $this->full_bars; if (!$size)                 return -1;
         $iFrom   = 0;
@@ -551,7 +550,7 @@ class HistoryFile extends Object {
      * @return int - offset or -1 if no such bar exists
      */
     public function findBarOffset($time) {
-        if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
+        Assert::int($time);
 
         $size = sizeof($this->full_bars);
         if (!$size)
@@ -595,7 +594,7 @@ class HistoryFile extends Object {
      * @return int - offset oder -1 if no such bar exists (i.e. time is older than the oldest bar)
      */
     public function findBarOffsetPrevious($time) {
-        if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
+        Assert::int($time);
 
         $size = $this->full_bars;
         if (!$size)
@@ -622,7 +621,7 @@ class HistoryFile extends Object {
      * @return int - offset or -1 if no such bar exists (i.e. time is younger than the youngest bar)
      */
     public function findBarOffsetNext($time) {
-        if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
+        Assert::int($time);
 
         $size = $this->full_bars;
         if (!$size)
@@ -678,8 +677,8 @@ class HistoryFile extends Object {
      * </pre>
      */
     public function spliceBars($offset, $length=0, array $replace=[]) {
-        if (!is_int($offset)) throw new IllegalTypeException('Illegal type of parameter $offset: '.gettype($offset));
-        if (!is_int($length)) throw new IllegalTypeException('Illegal type of parameter $length: '.gettype($length));
+        Assert::int($offset, '$offset');
+        Assert::int($length, '$length');
 
         /** @var Output $output */
         $output = $this->di(Output::class);
@@ -746,8 +745,8 @@ class HistoryFile extends Object {
      *                                  the end of the history. <br>
      */
     public function removeBars($offset, $length=0) {
-        if (!is_int($offset)) throw new IllegalTypeException('Illegal type of parameter $offset: '.gettype($offset));
-        if (!is_int($length)) throw new IllegalTypeException('Illegal type of parameter $length: '.gettype($length));
+        Assert::int($offset, '$offset');
+        Assert::int($length, '$length');
 
         /** @var Output $output */
         $output = $this->di(Output::class);
@@ -798,7 +797,7 @@ class HistoryFile extends Object {
      * @param  array $bars - bars to insert (ROST_PRICE_BAR[])
      */
     public function insertBars($offset, array $bars) {
-        if (!is_int($offset)) throw new IllegalTypeException('Illegal type of parameter $offset: '.gettype($offset));
+        Assert::int($offset, '$offset');
 
         /** @var Output $output */
         $output = $this->di(Output::class);
@@ -1218,9 +1217,9 @@ class HistoryFile extends Object {
      * @return int - Anzahl der geschriebenen und aus dem Buffer geloeschten Bars
      */
     public function flush($count = PHP_INT_MAX) {
-        if ($this->closed)   throw new IllegalStateException('Cannot process a closed '.get_class($this));
-        if (!is_int($count)) throw new IllegalTypeException('Illegal type of parameter $count: '.gettype($count));
-        if ($count < 0)      throw new InvalidArgumentException('Invalid parameter $count: '.$count);
+        if ($this->closed) throw new IllegalStateException('Cannot process a closed '.get_class($this));
+        Assert::int($count);
+        if ($count < 0)    throw new InvalidArgumentException('Invalid parameter $count: '.$count);
 
         $bufferSize = sizeof($this->barBuffer);
         $todo       = min($bufferSize, $count);

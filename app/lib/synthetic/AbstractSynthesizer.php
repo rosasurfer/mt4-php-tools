@@ -2,7 +2,7 @@
 namespace rosasurfer\rt\lib\synthetic;
 
 use rosasurfer\console\io\Output;
-use rosasurfer\core\Object;
+use rosasurfer\core\CObject;
 
 use rosasurfer\rt\model\RosaSymbol;
 
@@ -10,7 +10,7 @@ use rosasurfer\rt\model\RosaSymbol;
 /**
  * AbstractSynthesizer
  */
-abstract class AbstractSynthesizer extends Object implements ISynthesizer {
+abstract class AbstractSynthesizer extends CObject implements ISynthesizer {
 
 
     /** @var RosaSymbol */

@@ -1,7 +1,7 @@
 <?php
 namespace rosasurfer\rt\lib\dukascopy;
 
-use rosasurfer\exception\RuntimeException;
+use rosasurfer\core\exception\RuntimeException;
 
 
 /**

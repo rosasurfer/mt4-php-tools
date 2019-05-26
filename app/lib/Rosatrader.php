@@ -2,8 +2,8 @@
 namespace rosasurfer\rt\lib;
 
 use rosasurfer\core\StaticClass;
-use rosasurfer\exception\IllegalTypeException;
-use rosasurfer\exception\RuntimeException;
+use rosasurfer\core\assert\Assert;
+use rosasurfer\core\exception\RuntimeException;
 use rosasurfer\file\FileSystem as FS;
 
 use rosasurfer\rt\model\RosaSymbol;
@@ -36,7 +36,7 @@ class Rosatrader extends StaticClass {
      * </pre>
      */
     public static function readBarFile($fileName, RosaSymbol $symbol) {
-        if (!is_string($fileName)) throw new IllegalTypeException('Illegal type of parameter $fileName: '.gettype($fileName));
+        Assert::string($fileName, '$fileName');
         return static::readBarData(file_get_contents($fileName), $symbol);
     }
 
@@ -61,7 +61,7 @@ class Rosatrader extends StaticClass {
      * </pre>
      */
     public static function readBarData($data, RosaSymbol $symbol) {
-        if (!is_string($data))         throw new IllegalTypeException('Illegal type of parameter $data: '.gettype($data));
+        Assert::string($data, '$data');
         $lenData = strlen($data);
         if ($lenData % Rost::BAR_SIZE) throw new RuntimeException('Odd length of passed '.$symbol->getName().' data: '.$lenData.' (not an even Rost::BAR_SIZE)');
 
@@ -140,7 +140,7 @@ class Rosatrader extends StaticClass {
      * @return string
      */
     public static function relativePath($path) {
-        if (!is_string($path)) throw new IllegalTypeException('Illegal type of parameter $path: '.gettype($path));
+        Assert::string($path);
         $_path = str_replace('\\', '/', $path);
 
         static $root, $realRoot, $storage, $realStorage;

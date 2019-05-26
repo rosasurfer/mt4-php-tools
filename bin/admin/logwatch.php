@@ -8,7 +8,7 @@
 namespace rosasurfer\rt\bin\admin\logwatch;
 
 use rosasurfer\Application;
-use rosasurfer\exception\IllegalTypeException;
+use rosasurfer\core\assert\Assert;
 use rosasurfer\net\mail\Mailer;
 use rosasurfer\util\PHP;
 
@@ -98,7 +98,7 @@ exit(0);
  * @param  string $entry - a single log entry
  */
 function processEntry($entry) {
-    if (!is_string($entry)) throw new IllegalTypeException('Illegal type of parameter $entry: '.gettype($entry));
+    Assert::string($entry);
     $entry = trim($entry);
     if (!strlen($entry)) return;
 

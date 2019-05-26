@@ -1,9 +1,9 @@
 <?php
 namespace rosasurfer\rt\model;
 
+use rosasurfer\core\assert\Assert;
 use rosasurfer\db\NoSuchRecordException;
 use rosasurfer\db\orm\DAO;
-use rosasurfer\exception\IllegalTypeException;
 
 use const rosasurfer\db\orm\meta\INT;
 use const rosasurfer\db\orm\meta\STRING;
@@ -50,7 +50,7 @@ class DukascopySymbolDAO extends DAO {
      * @return DukascopySymbol|null
      */
     public function findByName($name) {
-        if (!is_string($name)) throw new IllegalTypeException('Illegal type of parameter $name: '.gettype($name));
+        Assert::string($name);
 
         $name = $this->escapeLiteral($name);
         $sql = 'select *
@@ -70,7 +70,7 @@ class DukascopySymbolDAO extends DAO {
      * @throws NoSuchRecordException if no such instance was found
      */
     public function getByName($name) {
-        if (!is_string($name)) throw new IllegalTypeException('Illegal type of parameter $name: '.gettype($name));
+        Assert::string($name);
 
         $name = $this->escapeLiteral($name);
 

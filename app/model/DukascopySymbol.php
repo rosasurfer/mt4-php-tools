@@ -2,8 +2,8 @@
 namespace rosasurfer\rt\model;
 
 use rosasurfer\console\io\Output;
-use rosasurfer\exception\IllegalTypeException;
-use rosasurfer\exception\UnimplementedFeatureException;
+use rosasurfer\core\assert\Assert;
+use rosasurfer\core\exception\UnimplementedFeatureException;
 
 use rosasurfer\rt\lib\IHistorySource;
 use rosasurfer\rt\lib\dukascopy\Dukascopy;
@@ -128,7 +128,8 @@ class DukascopySymbol extends RosatraderModel implements IHistorySource {
      * @return bool - success status
      */
     public function showHistoryStatus($local = true) {
-        if (!is_bool($local)) throw new IllegalTypeException('Illegal type of parameter $local: '.gettype($local));
+        Assert::bool($local);
+
         /** @var Output $output */
         $output = $this->di(Output::class);
 
@@ -216,9 +217,9 @@ class DukascopySymbol extends RosatraderModel implements IHistorySource {
      * {@inheritdoc}
      */
     public function getHistory($period, $time, $optimized = false) {
-        if (!is_int($period))     throw new IllegalTypeException('Illegal type of parameter $period: '.gettype($period));
+        Assert::int($period, '$period');
         if ($period != PERIOD_M1) throw new UnimplementedFeatureException(__METHOD__.'('.periodToStr($period).') not implemented');
-        if (!is_int($time))       throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
+        Assert::int($time, '$time');
 
         if (!$time) {
             if (!$time = (int) $this->getHistoryStartM1('U')) {

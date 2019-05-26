@@ -35,9 +35,9 @@
 namespace rosasurfer\rt\bin\dukascopy\update_tickdata;
 
 use rosasurfer\Application;
-use rosasurfer\exception\IllegalTypeException;
-use rosasurfer\exception\InvalidArgumentException;
-use rosasurfer\exception\RuntimeException;
+use rosasurfer\core\assert\Assert;
+use rosasurfer\core\exception\InvalidArgumentException;
+use rosasurfer\core\exception\RuntimeException;
 use rosasurfer\file\FileSystem as FS;
 use rosasurfer\net\http\CurlHttpClient;
 use rosasurfer\net\http\HttpClient;
@@ -177,8 +177,8 @@ function updateSymbol(RosaSymbol $symbol) {
  * @return bool - Erfolgsstatus
  */
 function checkHistory($symbol, $gmtHour, $fxtHour) {
-    if (!is_int($gmtHour)) throw new IllegalTypeException('Illegal type of parameter $gmtHour: '.gettype($gmtHour));
-    if (!is_int($fxtHour)) throw new IllegalTypeException('Illegal type of parameter $fxtHour: '.gettype($fxtHour));
+    Assert::int($gmtHour, '$gmtHour');
+    Assert::int($fxtHour, '$fxtHour');
     $shortDate = gmdate('D, d-M-Y H:i', $fxtHour);
 
     global $verbose, $saveCompressedDukascopyFiles, $saveRawDukascopyFiles, $saveRawRTData;
@@ -250,8 +250,8 @@ function checkHistory($symbol, $gmtHour, $fxtHour) {
  * @return bool - Erfolgsstatus
  */
 function updateTicks($symbol, $gmtHour, $fxtHour) {
-    if (!is_int($gmtHour)) throw new IllegalTypeException('Illegal type of parameter $gmtHour: '.gettype($gmtHour));
-    if (!is_int($fxtHour)) throw new IllegalTypeException('Illegal type of parameter $fxtHour: '.gettype($fxtHour));
+    Assert::int($gmtHour, '$gmtHour');
+    Assert::int($fxtHour, '$fxtHour');
     $shortDate = gmdate('D, d-M-Y H:i', $fxtHour);
 
     // Tickdaten laden
@@ -274,8 +274,8 @@ function updateTicks($symbol, $gmtHour, $fxtHour) {
  * @return array - Array mit Tickdaten oder an empty value in case of errors
  */
 function loadTicks($symbol, $gmtHour, $fxtHour) {
-    if (!is_int($gmtHour)) throw new IllegalTypeException('Illegal type of parameter $gmtHour: '.gettype($gmtHour));
-    if (!is_int($fxtHour)) throw new IllegalTypeException('Illegal type of parameter $fxtHour: '.gettype($fxtHour));
+    Assert::int($gmtHour, '$gmtHour');
+    Assert::int($fxtHour, '$fxtHour');
     $shortDate = gmdate('D, d-M-Y H:i', $fxtHour);
 
     // Die Tickdaten der Handelsstunde werden in folgender Reihenfolge gesucht:
@@ -324,8 +324,8 @@ function loadTicks($symbol, $gmtHour, $fxtHour) {
  * @return bool - Erfolgsstatus
  */
 function saveTicks($symbol, $gmtHour, $fxtHour, array $ticks) {
-    if (!is_int($gmtHour)) throw new IllegalTypeException('Illegal type of parameter $gmtHour: '.gettype($gmtHour));
-    if (!is_int($fxtHour)) throw new IllegalTypeException('Illegal type of parameter $fxtHour: '.gettype($fxtHour));
+    Assert::int($gmtHour, '$gmtHour');
+    Assert::int($fxtHour, '$fxtHour');
     $shortDate = gmdate('D, d-M-Y H:i', $fxtHour);
     global $saveRawRTData;
 
@@ -380,11 +380,11 @@ function saveTicks($symbol, $gmtHour, $fxtHour, array $ticks) {
  * @return string - Content der heruntergeladenen Datei oder Leerstring, wenn die Resource nicht gefunden wurde (404-Fehler).
  */
 function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=false, $saveError=true) {
-    if (!is_int($gmtHour))    throw new IllegalTypeException('Illegal type of parameter $gmtHour: '.gettype($gmtHour));
-    if (!is_int($fxtHour))    throw new IllegalTypeException('Illegal type of parameter $fxtHour: '.gettype($fxtHour));
-    if (!is_bool($quiet))     throw new IllegalTypeException('Illegal type of parameter $quiet: '.gettype($quiet));
-    if (!is_bool($saveData))  throw new IllegalTypeException('Illegal type of parameter $saveData: '.gettype($saveData));
-    if (!is_bool($saveError)) throw new IllegalTypeException('Illegal type of parameter $saveError: '.gettype($saveError));
+    Assert::int($gmtHour, '$gmtHour');
+    Assert::int($fxtHour, '$fxtHour');
+    Assert::bool($quiet, '$quiet');
+    Assert::bool($saveData, '$saveData');
+    Assert::bool($saveError, '$saveError');
     global$verbose;
 
     $shortDate = gmdate('D, d-M-Y H:i', $fxtHour);
@@ -462,8 +462,8 @@ function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=f
  * @return array - Array mit Tickdaten
  */
 function loadCompressedDukascopyTickFile($file, $symbol, $gmtHour, $fxtHour) {
-    if (!is_string($file)) throw new IllegalTypeException('Illegal type of parameter $file: '.gettype($file));
-    if (!is_int($fxtHour)) throw new IllegalTypeException('Illegal type of parameter $fxtHour: '.gettype($fxtHour));
+    Assert::string($file, '$file');
+    Assert::int($fxtHour, '$fxtHour');
 
     global $verbose;
     if ($verbose > 0) echoPre('[Info]    '.gmdate('D, d-M-Y H:i', $fxtHour).'  Dukascopy compressed tick file: '.RT::relativePath($file));
@@ -478,7 +478,7 @@ function loadCompressedDukascopyTickFile($file, $symbol, $gmtHour, $fxtHour) {
  * @return array - Array mit Tickdaten
  */
 function loadCompressedDukascopyTickData($data, $symbol, $gmtHour, $fxtHour) {
-    if (!is_int($gmtHour)) throw new IllegalTypeException('Illegal type of parameter $gmtHour: '.gettype($gmtHour));
+    Assert::int($gmtHour, '$gmtHour');
 
     global $saveRawDukascopyFiles;
     $saveAs = $saveRawDukascopyFiles ? getVar('dukaFile.raw', $symbol, $gmtHour) : null;
@@ -496,8 +496,8 @@ function loadCompressedDukascopyTickData($data, $symbol, $gmtHour, $fxtHour) {
  * @return array - Array mit Tickdaten
  */
 function loadRawDukascopyTickFile($file, $symbol, $gmtHour, $fxtHour) {
-    if (!is_string($file)) throw new IllegalTypeException('Illegal type of parameter $file: '.gettype($file));
-    if (!is_int($fxtHour)) throw new IllegalTypeException('Illegal type of parameter $fxtHour: '.gettype($fxtHour));
+    Assert::string($file, '$file');
+    Assert::int($fxtHour, '$fxtHour');
 
     global $verbose;
     if ($verbose > 0) echoPre('[Info]    '.gmdate('D, d-M-Y H:i', $fxtHour).'  Dukascopy uncompressed tick file: '.RT::relativePath($file));
@@ -512,9 +512,9 @@ function loadRawDukascopyTickFile($file, $symbol, $gmtHour, $fxtHour) {
  * @return array - Array mit Tickdaten
  */
 function loadRawDukascopyTickData($data, $symbol, $gmtHour, $fxtHour) {
-    if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.gettype($data));
-    if (!is_int($gmtHour)) throw new IllegalTypeException('Illegal type of parameter $gmtHour: '.gettype($gmtHour));
-    if (!is_int($fxtHour)) throw new IllegalTypeException('Illegal type of parameter $fxtHour: '.gettype($fxtHour));
+    Assert::string($data, '$data');
+    Assert::int($gmtHour, '$gmtHour');
+    Assert::int($fxtHour, '$fxtHour');
 
     // Ticks einlesen
     $ticks = Dukascopy::readTickData($data);
@@ -550,9 +550,9 @@ function getVar($id, $symbol=null, $time=null) {
     if (array_key_exists(($key=$id.'|'.$symbol.'|'.$time), $varCache))
         return $varCache[$key];
 
-    if (!is_string($id))                       throw new IllegalTypeException('Illegal type of parameter $id: '.gettype($id));
-    if (isset($symbol) && !is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.gettype($symbol));
-    if (isset($time) && !is_int($time))        throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
+    Assert::string($id, '$id');
+    Assert::nullOrString($symbol, '$symbol');
+    Assert::nullOrInt($time, '$time');
 
     static $storageDir;
     $storageDir = $storageDir ?: Application::getConfig()['app.dir.storage'];

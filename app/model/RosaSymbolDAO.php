@@ -1,9 +1,9 @@
 <?php
 namespace rosasurfer\rt\model;
 
+use rosasurfer\core\assert\Assert;
 use rosasurfer\db\NoSuchRecordException;
 use rosasurfer\db\orm\DAO;
-use rosasurfer\exception\IllegalTypeException;
 
 use const rosasurfer\db\orm\meta\INT;
 use const rosasurfer\db\orm\meta\STRING;
@@ -57,7 +57,7 @@ class RosaSymbolDAO extends DAO {
      * @return RosaSymbol|null
      */
     public function findByName($name) {
-        if (!is_string($name)) throw new IllegalTypeException('Illegal type of parameter $name: '.gettype($name));
+        Assert::string($name);
 
         $name = $this->escapeLiteral($name);
         $sql = 'select *
@@ -77,7 +77,7 @@ class RosaSymbolDAO extends DAO {
      * @throws NoSuchRecordException if no such instance was found
      */
     public function getByName($name) {
-        if (!is_string($name)) throw new IllegalTypeException('Illegal type of parameter $name: '.gettype($name));
+        Assert::string($name);
 
         $name = $this->escapeLiteral($name);
         $sql = 'select *
@@ -136,7 +136,7 @@ class RosaSymbolDAO extends DAO {
      * @return RosaSymbol[] - symbol instances sorted ascending by name
      */
     public function findAllByType($type) {
-        if (!is_string($type)) throw new IllegalTypeException('Illegal type of parameter $type: '.gettype($type));
+        Assert::string($type);
 
         $type = $this->escapeLiteral($type);
         $sql = 'select *

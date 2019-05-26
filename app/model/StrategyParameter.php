@@ -1,8 +1,8 @@
 <?php
 namespace rosasurfer\rt\model;
 
-use rosasurfer\exception\IllegalArgumentException;
-use rosasurfer\exception\IllegalTypeException;
+use rosasurfer\core\assert\Assert;
+use rosasurfer\core\exception\IllegalArgumentException;
 
 
 /**
@@ -35,9 +35,9 @@ class StrategyParameter extends RosatraderModel {
      * @return self
      */
     public static function create(Test $test, $name, $value) {
-        if (!is_string($name))  throw new IllegalTypeException('Illegal type of parameter $name: '.gettype($name));
-        if (!strlen($name))     throw new IllegalArgumentException('Illegal parameter $name "'.$name.'" (must be non-empty)');
-        if (!is_string($value)) throw new IllegalTypeException('Illegal type of parameter $value: '.gettype($value));
+        Assert::string($name, '$name');
+        if (!strlen($name)) throw new IllegalArgumentException('Illegal parameter $name "'.$name.'" (must be non-empty)');
+        Assert::string($value, '$value');
 
         $param = new self();
 

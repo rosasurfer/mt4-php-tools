@@ -1,7 +1,7 @@
 <?php
 namespace rosasurfer\rt\lib\metatrader;
 
-use rosasurfer\core\Object;
+use rosasurfer\core\CObject;
 
 
 /**
@@ -10,7 +10,7 @@ use rosasurfer\core\Object;
  *
  * @see  https://github.com/rosasurfer/mt4-expander/blob/master/header/struct/mt4/Symbol.h
  */
-class Symbol extends Object {
+class Symbol extends CObject {
 
 
     /** @var int - struct size of a symbol in bytes */

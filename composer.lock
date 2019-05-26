@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7c02d1a34ceebd863ff167c0edad2179",
+    "content-hash": "02e4f9146e3dcbb6c6c464f82e5d9b8a",
     "packages": [
         {
             "name": "psr/container",
@@ -57,32 +57,32 @@
         },
         {
             "name": "rosasurfer/ministruts",
-            "version": "dev-master",
+            "version": "dev-0.10-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rosasurfer/ministruts.git",
-                "reference": "4be264ba0b427b800690a1c81497345a6966d5b5"
+                "reference": "a818f3d8b9aaa38a851e27e15eff5f6aab084da6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/4be264ba0b427b800690a1c81497345a6966d5b5",
-                "reference": "4be264ba0b427b800690a1c81497345a6966d5b5",
+                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/a818f3d8b9aaa38a851e27e15eff5f6aab084da6",
+                "reference": "a818f3d8b9aaa38a851e27e15eff5f6aab084da6",
                 "shasum": ""
             },
             "require": {
                 "ext-ctype": "*",
+                "ext-filter": "*",
                 "ext-json": "*",
                 "ext-libxml": "*",
                 "ext-mbstring": "*",
                 "ext-simplexml": "*",
-                "php": "^5.6",
+                "php": ">=5.6",
                 "psr/container": "^1.0"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-0.8": "0.8.x-dev",
-                    "dev-master": "0.9.x-dev",
+                    "dev-0.9": "0.9.x-dev",
                     "dev-0.10-dev": "0.10.x-dev"
                 }
             },
@@ -103,12 +103,12 @@
                     "email": "ministruts@rosasurfer.com"
                 }
             ],
-            "description": "Struts 1.2 inspired MVC web framework for PHP",
+            "description": "Java Struts inspired MVC micro framework for PHP",
             "support": {
-                "source": "https://github.com/rosasurfer/ministruts/tree/master",
+                "source": "https://github.com/rosasurfer/ministruts/tree/0.10-dev",
                 "issues": "https://github.com/rosasurfer/ministruts/issues"
             },
-            "time": "2019-04-30T10:54:38+00:00"
+            "time": "2019-05-26T14:51:03+00:00"
         }
     ],
     "packages-dev": [],

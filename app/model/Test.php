@@ -1,9 +1,9 @@
 <?php
 namespace rosasurfer\rt\model;
 
-use rosasurfer\exception\IllegalArgumentException;
-use rosasurfer\exception\IllegalTypeException;
-use rosasurfer\exception\InvalidArgumentException;
+use rosasurfer\core\assert\Assert;
+use rosasurfer\core\exception\IllegalArgumentException;
+use rosasurfer\core\exception\InvalidArgumentException;
 use rosasurfer\util\PHP;
 use rosasurfer\util\Windows;
 
@@ -91,8 +91,8 @@ class Test extends RosatraderModel {
      * @return self
      */
     public static function create($configFile, $resultsFile) {
-        if (!is_string($configFile))  throw new IllegalTypeException('Illegal type of parameter $configFile: '.gettype($configFile));
-        if (!is_string($resultsFile)) throw new IllegalTypeException('Illegal type of parameter $resultsFile: '.gettype($resultsFile));
+        Assert::string($configFile, '$configFile');
+        Assert::string($resultsFile, '$resultsFile');
 
         $test          = new self();
         $test->created = date('Y-m-d H:i:s');
@@ -112,70 +112,70 @@ class Test extends RosatraderModel {
                 $properties = static::parseTestProperties($line);
 
                 $time = $properties['time'];                  // GMT timestamp
-                if (!is_int($time))                           throw new IllegalTypeException('Illegal type of property "time": '.gettype($time));
+                Assert::int($time, '$time');
                 if ($time <= 0)                               throw new InvalidArgumentException('Invalid property "time": '.$time.' (not positive)');
                 $test->created = gmdate('Y-m-d H:i:s', $time);
 
                 $strategy = $properties['strategy'];
-                if (!is_string($strategy))                    throw new IllegalTypeException('Illegal type of property "strategy": '.gettype($strategy));
+                Assert::string($strategy, '$strategy');
                 if ($strategy != trim($strategy))             throw new InvalidArgumentException('Invalid property "strategy": "'.$strategy.'" (format violation)');
                 if (!strlen($strategy))                       throw new InvalidArgumentException('Invalid property "strategy": "'.$strategy.'" (length violation)');
                 if (strlen($strategy) > Windows::MAX_PATH)    throw new InvalidArgumentException('Invalid property "strategy": "'.$strategy.'" (length violation)');
                 $test->strategy = $strategy;
 
                 $reportingId = $properties['reportingId'];
-                if (!is_int($reportingId))                    throw new IllegalTypeException('Illegal type of property "reportingId": '.gettype($reportingId));
+                Assert::int($reportingId, '$reportingId');
                 if ($reportingId <= 0)                        throw new InvalidArgumentException('Invalid property "reportingId": '.$reportingId.' (not positive)');
                 $test->reportingId = $reportingId;
 
                 $symbol = $properties['reportingSymbol'];
-                if (!is_string($symbol))                      throw new IllegalTypeException('Illegal type of property "reportingSymbol": '.gettype($symbol));
+                Assert::string($symbol, '$symbol');
                 if ($symbol != trim($symbol))                 throw new InvalidArgumentException('Invalid property "reportingSymbol": "'.$symbol.'" (format violation)');
                 if (!strlen($symbol))                         throw new InvalidArgumentException('Invalid property "reportingSymbol": "'.$symbol.'" (length violation)');
                 if (strlen($symbol) > MT4::MAX_SYMBOL_LENGTH) throw new InvalidArgumentException('Invalid property "reportingSymbol": "'.$symbol.'" (length violation)');
                 $test->reportingSymbol = $symbol;
 
                 $symbol = $properties['symbol'];
-                if (!is_string($symbol))                      throw new IllegalTypeException('Illegal type of property "symbol": '.gettype($symbol));
+                Assert::string($symbol, '$symbol');
                 if ($symbol != trim($symbol))                 throw new InvalidArgumentException('Invalid property "symbol": "'.$symbol.'" (format violation)');
                 if (!strlen($symbol))                         throw new InvalidArgumentException('Invalid property "symbol": "'.$symbol.'" (length violation)');
                 if (strlen($symbol) > MT4::MAX_SYMBOL_LENGTH) throw new InvalidArgumentException('Invalid property "symbol": "'.$symbol.'" (length violation)');
                 $test->symbol = $symbol;
 
                 $timeframe = $properties['timeframe'];
-                if (!is_int($timeframe))                      throw new IllegalTypeException('Illegal type of property "timeframe": '.gettype($timeframe));
+                Assert::int($timeframe, '$timeframe');
                 if (!MT4::isStdTimeframe($timeframe))         throw new InvalidArgumentException('Invalid property "timeframe": '.$timeframe.' (not a timeframe)');
                 $test->timeframe = $timeframe;
 
                 $startTime = $properties['startTime'];        // FXT timestamp
-                if (!is_int($startTime))                      throw new IllegalTypeException('Illegal type of property "startTime": '.gettype($startTime));
+                Assert::int($startTime, '$startTime');
                 if ($startTime <= 0)                          throw new InvalidArgumentException('Invalid property "startTime": '.$startTime.' (not positive)');
                 $test->startTime = gmdate('Y-m-d H:i:s', $startTime);
 
                 $endTime = $properties['endTime'];            // FXT timestamp
-                if (!is_int($endTime))                        throw new IllegalTypeException('Illegal type of property "endTime": '.gettype($endTime));
+                Assert::int($endTime, '$endTime');
                 if ($endTime <= 0)                            throw new InvalidArgumentException('Invalid property "endTime": '.$endTime.' (not positive)');
                 if ($startTime > $endTime)                    throw new InvalidArgumentException('Invalid properties "startTime|endTime": '.$startTime.'|'.$endTime.' (mis-match)');
                 $test->endTime = gmdate('Y-m-d H:i:s', $endTime);
 
                 $barModel = $properties['barModel'];
-                if (!is_int($barModel))                       throw new IllegalTypeException('Illegal type of property "barModel": '.gettype($barModel));
+                Assert::int($barModel, '$barModel');
                 if (!MT4::isBarModel($barModel))              throw new InvalidArgumentException('Invalid property "barModel": '.$barModel.' (not a bar model)');
                 $test->barModel = MT4::barModelDescription($barModel);
 
                 $spread = $properties['spread'];
-                if (!is_float($spread))                       throw new IllegalTypeException('Illegal type of property "spread": '.gettype($spread));
+                Assert::float($spread, '$spread');
                 if ($spread < 0)                              throw new InvalidArgumentException('Invalid property "spread": '.$spread.' (not non-negative)');
                 if ($spread != round($spread, 1))             throw new InvalidArgumentException('Invalid property "spread": '.$spread.' (illegal)');
                 $test->spread = $spread;
 
                 $bars = $properties['bars'];
-                if (!is_int($bars))                           throw new IllegalTypeException('Illegal type of property "bars": '.gettype($bars));
+                Assert::int($bars, '$bars');
                 if ($bars <= 0)                               throw new InvalidArgumentException('Invalid property "bars": '.$bars.' (not positive)');
                 $test->bars = $bars;
 
                 $ticks = $properties['ticks'];
-                if (!is_int($ticks))                          throw new IllegalTypeException('Illegal type of property "ticks": '.gettype($ticks));
+                Assert::int($ticks, '$ticks');
                 if ($ticks <= 0)                              throw new InvalidArgumentException('Invalid property "ticks": '.$ticks.' (not positive)');
                 $test->ticks = $ticks;
 
@@ -256,7 +256,7 @@ class Test extends RosatraderModel {
      * @return mixed[] - associative array with parsed properties
      */
     private static function parseTestProperties($values) {
-        if (!is_string($values)) throw new IllegalTypeException('Illegal type of parameter $values: '.gettype($values));
+        Assert::string($values);
         $valuesOrig = $values;
         $values     = trim($values);
         $properties = [];
@@ -377,7 +377,7 @@ class Test extends RosatraderModel {
      * @return mixed[] - associative array with parsed properties
      */
     private static function parseOrderProperties($values) {
-        if (!is_string($values)) throw new IllegalTypeException('Illegal type of parameter $values: '.gettype($values));
+        Assert::string($values);
         $valuesOrig = $values;
         $values     = trim($values);
         $properties = [];
@@ -522,8 +522,8 @@ class Test extends RosatraderModel {
      * @return $this
      */
     public function setReportingId($id) {
-        if (!is_int($id)) throw new IllegalTypeException('Illegal type of parameter $id: '.gettype($id));
-        if ($id <= 0)     throw new InvalidArgumentException('Invalid parameter $id: '.$id.' (not positive)');
+        Assert::int($id);
+        if ($id <= 0) throw new InvalidArgumentException('Invalid parameter $id: '.$id.' (not positive)');
 
         $this->reportingId = $id;
         $this->modified();

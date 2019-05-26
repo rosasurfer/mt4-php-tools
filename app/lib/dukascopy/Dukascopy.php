@@ -2,12 +2,12 @@
 namespace rosasurfer\rt\lib\dukascopy;
 
 use rosasurfer\console\io\Output;
-use rosasurfer\core\Object;
-use rosasurfer\exception\IllegalArgumentException;
-use rosasurfer\exception\IllegalTypeException;
-use rosasurfer\exception\InvalidArgumentException;
-use rosasurfer\exception\RuntimeException;
-use rosasurfer\exception\UnimplementedFeatureException;
+use rosasurfer\core\CObject;
+use rosasurfer\core\assert\Assert;
+use rosasurfer\core\exception\IllegalArgumentException;
+use rosasurfer\core\exception\InvalidArgumentException;
+use rosasurfer\core\exception\RuntimeException;
+use rosasurfer\core\exception\UnimplementedFeatureException;
 use rosasurfer\file\FileSystem as FS;
 use rosasurfer\log\Logger;
 
@@ -35,7 +35,7 @@ use const rosasurfer\rt\PRICE_MEDIAN;
  *
  * Functionality for downloading and processing Dukascopy history data.
  */
-class Dukascopy extends Object {
+class Dukascopy extends CObject {
 
 
     /** @var HttpClient */
@@ -74,7 +74,7 @@ class Dukascopy extends Object {
      * @return string - decompressed file content
      */
     protected function decompressFile($compressedFile, $saveAs = null) {
-        if (!is_string($compressedFile)) throw new IllegalTypeException('Illegal type of parameter $compressedFile: '.gettype($compressedFile));
+        Assert::string($compressedFile, '$compressedFile');
         return $this->decompressData(file_get_contents($compressedFile), $saveAs);
     }
 
@@ -89,11 +89,9 @@ class Dukascopy extends Object {
      * @return string - decompressed data
      */
     public function decompressData($data, $saveAs = null) {
-        if (!is_string($data))       throw new IllegalTypeException('Illegal type of parameter $data: '.gettype($data));
-        if (isset($saveAs)) {
-            if (!is_string($saveAs)) throw new IllegalTypeException('Illegal type of parameter $saveAs: '.gettype($saveAs));
-            if (!strlen($saveAs))    throw new InvalidArgumentException('Invalid parameter $saveAs: ""');
-        }
+        Assert::string($data, '$data');
+        Assert::nullOrString($saveAs, '$saveAs');
+        if (isset($saveAs) && !strlen($saveAs)) throw new InvalidArgumentException('Invalid parameter $saveAs: ""');
 
         $rawData = LZMA::decompressData($data);
 
@@ -144,9 +142,9 @@ class Dukascopy extends Object {
      * </pre>
      */
     public function getHistory(DukascopySymbol $symbol, $period, $time, $optimized = false) {
-        if (!is_int($period))     throw new IllegalTypeException('Illegal type of parameter $period: '.gettype($period));
+        Assert::int($period, '$period');
         if ($period != PERIOD_M1) throw new UnimplementedFeatureException(__METHOD__.'('.periodToStr($period).') not implemented');
-        if (!is_int($time))       throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
+        Assert::int($time, '$time');
         $nameU = strtoupper($symbol->getName());
         $day   = $time - $time%DAY;                                                         // 00:00 FXT
 
@@ -198,10 +196,10 @@ class Dukascopy extends Object {
      * </pre>
      */
     protected function loadHistory(DukascopySymbol $symbol, $period, $time, $type) {
-        if (!is_int($period))                         throw new IllegalTypeException('Illegal type of parameter $period: '.gettype($period));
+        Assert::int($period, '$period');
         if ($period != PERIOD_M1)                     throw new InvalidArgumentException('Invalid parameter $period: '.periodToStr($period));
-        if (!is_int($time))                           throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
-        if (!is_int($type))                           throw new IllegalTypeException('Illegal type of parameter $type: '.gettype($type));
+        Assert::int($time, '$time');
+        Assert::int($type, '$type');
         if (!in_array($type, [PRICE_BID, PRICE_ASK])) throw new InvalidArgumentException('Invalid parameter $type: '.$type);
 
         // Day transition time (Midnight) for Dukascopy data is at 00:00 GMT (~02:00 FXT). Each FXT day requires Dukascopy
@@ -270,11 +268,11 @@ class Dukascopy extends Object {
      * </pre>
      */
     protected function parseBarData($data, DukascopySymbol $symbol, $day, $period, $type) {
-        if (!is_string($data))                        throw new IllegalTypeException('Illegal type of parameter $data: '.gettype($data));
-        if (!is_int($day))                            throw new IllegalTypeException('Illegal type of parameter $day: '.gettype($day));
-        if (!is_int($period))                         throw new IllegalTypeException('Illegal type of parameter $period: '.gettype($period));
+        Assert::string($data, '$data');
+        Assert::int($day, '$day');
+        Assert::int($period, '$period');
         if ($period != PERIOD_M1)                     throw new InvalidArgumentException('Invalid parameter $period: '.periodToStr($period));
-        if (!is_int($type))                           throw new IllegalTypeException('Illegal type of parameter $type: '.gettype($type));
+        Assert::int($type, '$type');
         if (!in_array($type, [PRICE_BID, PRICE_ASK])) throw new InvalidArgumentException('Invalid parameter $type: '.$type);
 
         /** @var Output $output */
@@ -465,7 +463,7 @@ class Dukascopy extends Object {
      * </pre>
      */
     protected function readBarFile($fileName, DukascopySymbol $symbol, $type, $time) {
-        if (!is_string($fileName)) throw new IllegalTypeException('Illegal type of parameter $fileName: '.gettype($fileName));
+        Assert::string($fileName, '$fileName');
         return $this->readBarData(file_get_contents($fileName), $symbol, $type, $time);
     }
 
@@ -492,7 +490,7 @@ class Dukascopy extends Object {
      * </pre>
      */
     public function readBarData($data, DukascopySymbol $symbol, $type, $time) {
-        if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.gettype($data));
+        Assert::string($data, '$data');
         $lenData = strlen($data);
         if (!$lenData || $lenData%DUKASCOPY_BAR_SIZE) throw new RuntimeException('Odd length of passed '.$symbol->getName().' '.priceTypeDescription($type).' data: '.$lenData.' (not an even DUKASCOPY_BAR_SIZE)');
 
@@ -535,7 +533,7 @@ class Dukascopy extends Object {
      * @return array - DUKASCOPY_TICK[] data
      */
     public static function readTickFile($fileName) {
-        if (!is_string($fileName)) throw new IllegalTypeException('Illegal type of parameter $fileName: '.gettype($fileName));
+        Assert::string($fileName, '$fileName');
         return static::readTickData(file_get_contents($fileName));
     }
 
@@ -548,7 +546,7 @@ class Dukascopy extends Object {
      * @return array - DUKASCOPY_TICK[] data
      */
     public static function readTickData($data) {
-        if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.gettype($data));
+        Assert::string($data);
 
         $lenData = strlen($data); if (!$lenData || $lenData%DUKASCOPY_TICK_SIZE) throw new RuntimeException('Odd length of passed data: '.$lenData.' (not an even DUKASCOPY_TICK_SIZE)');
         $offset  = 0;
@@ -668,9 +666,9 @@ class Dukascopy extends Object {
      * </pre>
      */
     protected function readHistoryStarts($data) {
-        if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.gettype($data));
+        Assert::string($data);
         $lenData = strlen($data);
-        if (!$lenData)         throw new IllegalArgumentException('Illegal length of history start data: '.$lenData);
+        if (!$lenData) throw new IllegalArgumentException('Illegal length of history start data: '.$lenData);
 
         $symbols = [];
         $start   = $length = $symbol = $high = $count = null;

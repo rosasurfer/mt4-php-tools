@@ -1,9 +1,9 @@
 <?php
 namespace rosasurfer\rt\lib\metatrader;
 
+use rosasurfer\core\CObject;
 use rosasurfer\file\FileSystem as FS;
 
-use rosasurfer\core\Object;
 use rosasurfer\rt\model\RosaSymbol;
 
 
@@ -12,7 +12,7 @@ use rosasurfer\rt\model\RosaSymbol;
  *
  * Functionality for performing MetaTrader related tasks.
  */
-class MetaTrader extends Object {
+class MetaTrader extends CObject {
 
 
     /**

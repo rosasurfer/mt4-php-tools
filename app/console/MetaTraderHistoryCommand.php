@@ -4,7 +4,7 @@ namespace rosasurfer\rt\console;
 use rosasurfer\console\Command;
 use rosasurfer\console\io\Input;
 use rosasurfer\console\io\Output;
-use rosasurfer\exception\IllegalStateException;
+use rosasurfer\core\exception\IllegalStateException;
 use rosasurfer\process\Process;
 
 use rosasurfer\rt\lib\metatrader\MetaTrader;
@@ -99,8 +99,10 @@ DOCOPT;
      * @return RosaSymbol|null
      */
     protected function resolveSymbol() {
-        $input  = $this->input;
-        $output = $this->output;
+        /** @var Input $input */
+        $input = $this->di(Input::class);
+        /** @var Output $output */
+        $output = $this->di(Output::class);
 
         $name = $input->getArgument('SYMBOL');
 
