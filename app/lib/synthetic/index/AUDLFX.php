@@ -16,7 +16,7 @@ use const rosasurfer\rt\PERIOD_M1;
 /**
  * AUDLFX synthesizer
  *
- * A {@link ISynthesizer} for calculating the LiteForex Australian Dollar index.
+ * A {@link ISynthesizer} for calculating the synthetic LiteForex Australian Dollar index.
  *
  * <pre>
  * Formulas:

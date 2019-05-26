@@ -6,8 +6,8 @@ begin;
 
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- RosaSymbols
-insert into t_rosasymbol (type, name, description, digits) values
-   ('synthetic', 'LFXJPY', 'LiteForex scaled-down and inversed Japanese Yen FX6 index', 3);
+insert into t_rosasymbol (type, groupid, updateorder, name, description, digits) values
+   ('synthetic', 2, 32, 'XAUI', 'Gold vs Majors index', 3);
 
 
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------

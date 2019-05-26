@@ -16,7 +16,7 @@ use const rosasurfer\rt\PERIOD_M1;
 /**
  * NZDFXI synthesizer
  *
- * A {@link ISynthesizer} for calculating the New Zealand Dollar currency index.
+ * A {@link ISynthesizer} for calculating the synthetic New Zealand Dollar currency index.
  *
  * <pre>
  * Formulas:

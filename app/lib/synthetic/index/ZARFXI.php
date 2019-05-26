@@ -16,8 +16,8 @@ use const rosasurfer\rt\PERIOD_M1;
 /**
  * ZARFXI synthesizer
  *
- * A {@link ISynthesizer} for calculating the South African Rand currency index. Due to the Rand's low value the index is
- * scaled-up by a factor of 10. This adjustment only effects the nominal scala, not the shape of the ZAR index chart.
+ * A {@link ISynthesizer} for calculating the synthetic South African Rand currency index. Due to the Rand's low value the
+ * index is scaled-up by a factor of 10. This adjustment only effects the nominal scala, not the shape of the ZAR index chart.
  *
  * <pre>
  * Formulas:

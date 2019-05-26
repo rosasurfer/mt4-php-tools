@@ -16,8 +16,8 @@ use const rosasurfer\rt\PERIOD_M1;
 /**
  * NOKFXI synthesizer
  *
- * A {@link ISynthesizer} for calculating the Norwegian Krone currency index. Due to the Krone's low value the index is
- * scaled-up by a factor of 10. This adjustment only effects the nominal scala, not the shape of the NOK index chart.
+ * A {@link ISynthesizer} for calculating the synthetic Norwegian Krone currency index. Due to the Krone's low value the
+ * index is scaled-up by a factor of 10. This adjustment only effects the nominal scala, not the shape of the NOK index chart.
  *
  * <pre>
  * Formulas:

@@ -16,7 +16,7 @@ use const rosasurfer\rt\PERIOD_M1;
 /**
  * GBPLFX synthesizer
  *
- * A {@link ISynthesizer} for calculating the LiteForex Great Britain Pound index.
+ * A {@link ISynthesizer} for calculating the synthetic LiteForex Great Britain Pound index.
  *
  * <pre>
  * Formulas:

@@ -16,7 +16,7 @@ use const rosasurfer\rt\PERIOD_M1;
 /**
  * EURX synthesizer
  *
- * A {@link ISynthesizer} for calculating the ICE Euro index.
+ * A {@link ISynthesizer} for calculating the official ICE Euro index.
  *
  * <pre>
  * Formula:

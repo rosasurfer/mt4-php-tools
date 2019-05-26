@@ -14,24 +14,24 @@ use const rosasurfer\rt\PERIOD_M1;
 
 
 /**
- * LFXJPY synthesizer
+ * XAUI synthesizer
  *
- * A {@link ISynthesizer} for calculating the synthetic LiteForex Japanese Yen index.
+ * A {@link ISynthesizer} for calculating the synthetic Gold index.
  *
  * <pre>
  * Formulas:
  * ---------
- * LFXJPY = USDJPY / USDLFX
- * LFXJPY = pow(AUDJPY * CADJPY * CHFJPY * EURJPY * GBPJPY * USDJPY, 1/7)
+ * XAUI = USDLFX * XAUUSD
+ * XAUI = pow(XAUAUD * XAUCAD * XAUCHF * XAUEUR * XAUUSD * XAUGBP * XAUJPY, 1/7)
  * </pre>
  */
-class LFXJPY extends AbstractSynthesizer {
+class XAUI extends AbstractSynthesizer {
 
 
     /** @var string[][] */
     protected $components = [
-        'fast'    => ['USDJPY', 'USDLFX'],
-        'crosses' => ['AUDJPY', 'CADJPY', 'CHFJPY', 'EURJPY', 'GBPJPY', 'USDJPY'],
+        'fast'    => ['XAUUSD', 'USDLFX'],
+        'crosses' => ['XAUAUD', 'XAUCAD', 'XAUCHF', 'XAUEUR', 'XAUGBP', 'XAUJPY', 'XAUUSD'],
     ];
 
 
@@ -57,22 +57,22 @@ class LFXJPY extends AbstractSynthesizer {
         $output->out('[Info]    '.str_pad($this->symbolName, 6).'  calculating M1 history for '.gmdate('D, d-M-Y', $time));
 
         // calculate quotes
-        $USDJPY = $quotes['USDJPY'];
+        $XAUUSD = $quotes['XAUUSD'];
         $USDLFX = $quotes['USDLFX'];
         $digits = $this->symbol->getDigits();
         $point  = $this->symbol->getPointValue();
         $bars   = [];
 
-        // LFXJPY = USDJPY / USDLFX
-        foreach ($USDJPY as $i => $bar) {
-            $usdjpy = $USDJPY[$i]['open'];
+        // XAUI = USDLFX * XAUUSD
+        foreach ($XAUUSD as $i => $bar) {
+            $xauusd = $XAUUSD[$i]['open'];
             $usdlfx = $USDLFX[$i]['open'];
-            $open   = round($usdjpy / $usdlfx, $digits);
+            $open   = round($usdlfx * $xauusd, $digits);
             $iOpen  = (int) round($open/$point);
 
-            $usdjpy = $USDJPY[$i]['close'];
+            $xauusd = $XAUUSD[$i]['close'];
             $usdlfx = $USDLFX[$i]['close'];
-            $close  = round($usdjpy / $usdlfx, $digits);
+            $close  = round($usdlfx * $xauusd, $digits);
             $iClose = (int) round($close/$point);
 
             $bars[$i]['time' ] = $bar['time'];

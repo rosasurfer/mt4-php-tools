@@ -294,10 +294,12 @@ class RosaSymbol extends RosatraderModel {
         if (!$time)
             return false;
 
-        if (isHoliday($time))                           // check for common Holidays
+        if (isHoliday($time))                               // check for common Holidays
             return true;
-        if ($this->isMetal() && isGoodFriday($time))    // check for specific Holidays
-            return true;
+        if ($this->isMetal() || $this->name=='XAUI') {
+            if (isGoodFriday($time))                        // check for specific Holidays
+                return true;
+        }
         return false;
     }
 

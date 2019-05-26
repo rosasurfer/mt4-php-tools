@@ -16,8 +16,8 @@ use const rosasurfer\rt\PERIOD_M1;
 /**
  * SEKFXI synthesizer
  *
- * A {@link ISynthesizer} for calculating the Swedish Krona currency index. Due to the Krona's low value the index is
- * scaled-up by a factor of 10. This adjustment only effects the nominal scala, not the shape of the SEK index chart.
+ * A {@link ISynthesizer} for calculating the synthetic Swedish Krona currency index. Due to the Krona's low value the index
+ * is scaled-up by a factor of 10. This adjustment only effects the nominal scala, not the shape of the SEK index chart.
  *
  * <pre>
  * Formulas:

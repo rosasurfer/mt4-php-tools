@@ -18,6 +18,7 @@ insert into t_rosasymbol (type, groupid, updateorder, name, description, digits)
    ('forex'    , 1, 11, 'USDZAR', 'US Dollar vs South African Rand'              , 5),
 
    ('metals'   , 2, 12, 'XAUUSD', 'Gold vs US Dollar'                            , 3),
+   ('synthetic', 2, 32, 'XAUI'  , 'Gold vs Majors index'                         , 3),
 
    ('synthetic', 3, 20, 'EURX'  , 'ICE Euro Futures index'                       , 3),
    ('synthetic', 3, 20, 'USDX'  , 'ICE US Dollar Futures index'                  , 3),

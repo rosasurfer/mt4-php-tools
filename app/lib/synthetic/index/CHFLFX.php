@@ -16,7 +16,7 @@ use const rosasurfer\rt\PERIOD_M1;
 /**
  * CHFLFX synthesizer
  *
- * A {@link ISynthesizer} for calculating the LiteForex Swiss Franc index.
+ * A {@link ISynthesizer} for calculating the synthetic LiteForex Swiss Franc index.
  *
  * <pre>
  * Formulas:

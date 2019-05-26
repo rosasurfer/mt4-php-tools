@@ -16,7 +16,7 @@ use const rosasurfer\rt\PERIOD_M1;
 /**
  * CHFFXI synthesizer
  *
- * A {@link ISynthesizer} for calculating the Swiss Franc currency index.
+ * A {@link ISynthesizer} for calculating the synthetic Swiss Franc currency index.
  *
  * <pre>
  * Formulas:
