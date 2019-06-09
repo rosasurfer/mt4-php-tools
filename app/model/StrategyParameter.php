@@ -8,9 +8,10 @@ use rosasurfer\core\exception\IllegalArgumentException;
 /**
  * Represents a single input parameter of a tested strategy.
  *
- * @method string getName()  Return the name of the input parameter.
- * @method string getValue() Return the value of the input parameter.
- * @method Test   getTest()  Return the test this input parameter belongs to.
+ * @method        string               getName()  Return the name of the input parameter.
+ * @method        string               getValue() Return the value of the input parameter.
+ * @method        Test                 getTest()  Return the test this input parameter belongs to.
+ * @method static StrategyParameterDAO dao()      Return the {@link DAO} for the calling class.
  */
 class StrategyParameter extends RosatraderModel {
 

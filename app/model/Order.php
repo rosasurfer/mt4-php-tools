@@ -13,22 +13,23 @@ use function rosasurfer\rt\isWeekend;
 /**
  * Represents a MetaTrader order ticket.
  *
- * @method int    getTicket()      Return the ticket number.
- * @method string getType()        Return the ticket order type.
- * @method float  getLots()        Return the ticket lot size.
- * @method string getSymbol()      Return the ticket symbol.
- * @method float  getOpenPrice()   Return the ticket open price.
- * @method string getOpenTime()    Return the ticket open time (FXT).
- * @method float  getStopLoss()    Return the ticket stop loss price.
- * @method float  getTakeProfit()  Return the ticket take profit price.
- * @method float  getClosePrice()  Return the ticket close price.
- * @method string getCloseTime()   Return the ticket close time (FXT).
- * @method float  getCommission()  Return the ticket commission amount.
- * @method float  getSwap()        Return the ticket swap amount.
- * @method float  getProfit()      Return the ticket gross profit amount.
- * @method int    getMagicNumber() Return the magic number of the ticket.
- * @method string getComment()     Return the ticket comment.
- * @method Test   getTest()        Return the test the ticket belongs to.
+ * @method        int      getTicket()      Return the ticket number.
+ * @method        string   getType()        Return the ticket order type.
+ * @method        float    getLots()        Return the ticket lot size.
+ * @method        string   getSymbol()      Return the ticket symbol.
+ * @method        float    getOpenPrice()   Return the ticket open price.
+ * @method        string   getOpenTime()    Return the ticket open time (FXT).
+ * @method        float    getStopLoss()    Return the ticket stop loss price.
+ * @method        float    getTakeProfit()  Return the ticket take profit price.
+ * @method        float    getClosePrice()  Return the ticket close price.
+ * @method        string   getCloseTime()   Return the ticket close time (FXT).
+ * @method        float    getCommission()  Return the ticket commission amount.
+ * @method        float    getSwap()        Return the ticket swap amount.
+ * @method        float    getProfit()      Return the ticket gross profit amount.
+ * @method        int      getMagicNumber() Return the magic number of the ticket.
+ * @method        string   getComment()     Return the ticket comment.
+ * @method        Test     getTest()        Return the test the ticket belongs to.
+ * @method static OrderDAO dao()            Return the {@link DAO} for the calling class.
  */
 class Order extends RosatraderModel {
 
