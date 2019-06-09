@@ -2,8 +2,8 @@
 namespace rosasurfer\rt\lib\synthetic\index;
 
 use rosasurfer\console\io\Output;
-use rosasurfer\exception\IllegalTypeException;
-use rosasurfer\exception\UnimplementedFeatureException;
+use rosasurfer\core\assert\Assert;
+use rosasurfer\core\exception\UnimplementedFeatureException;
 
 use rosasurfer\rt\lib\synthetic\AbstractSynthesizer;
 use rosasurfer\rt\lib\synthetic\ISynthesizer;
@@ -42,9 +42,9 @@ class ZARFXI extends AbstractSynthesizer {
      * {@inheritdoc}
      */
     public function calculateHistory($period, $time) {
-        if (!is_int($period))     throw new IllegalTypeException('Illegal type of parameter $period: '.gettype($period));
+        Assert::int($period, '$period');
         if ($period != PERIOD_M1) throw new UnimplementedFeatureException(__METHOD__.'('.periodToStr($period).') not implemented');
-        if (!is_int($time))       throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
+        Assert::int($time, '$time');
 
         if (!$symbols = $this->getComponents(first($this->components)))
             return [];

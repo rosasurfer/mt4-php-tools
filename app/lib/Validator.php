@@ -1,6 +1,7 @@
 <?php
 namespace rosasurfer\rt\lib;
 
+use rosasurfer\core\StaticClass;
 use rosasurfer\rt\view\ViewHelper;
 
 use const rosasurfer\rt\OP_CREDIT;
@@ -9,7 +10,7 @@ use const rosasurfer\rt\OP_CREDIT;
 /**
  * Validator
  */
-class Validator extends \rosasurfer\util\Validator {
+class Validator extends StaticClass {
 
 
     /**

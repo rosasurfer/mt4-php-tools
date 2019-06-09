@@ -1,11 +1,12 @@
 <?php
 namespace rosasurfer\rt;
 
-use rosasurfer\exception\IllegalTypeException;
-use rosasurfer\exception\IllegalArgumentException;
-use rosasurfer\exception\UnimplementedFeatureException;
-use rosasurfer\exception\RuntimeException;
-use rosasurfer\exception\InvalidArgumentException;
+use rosasurfer\core\assert\Assert;
+use rosasurfer\core\exception\IllegalTypeException;
+use rosasurfer\core\exception\IllegalArgumentException;
+use rosasurfer\core\exception\UnimplementedFeatureException;
+use rosasurfer\core\exception\RuntimeException;
+use rosasurfer\core\exception\InvalidArgumentException;
 
 
 /**
@@ -161,7 +162,7 @@ function unixTime($fxTime = null) {
  */
 function fxDate($format, $time=null, $isFxt=false) {
     if (isset($time)) {
-        if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
+        Assert::int($time, '$time');
     }
     else {
         $time = $isFxt ? fxTime() : time();
@@ -198,7 +199,7 @@ function fxDate($format, $time=null, $isFxt=false) {
  */
 function fxTimezoneOffset($time=null, array &$prevTransition=null, array &$nextTransition=null) {
     if (!isset($time)) $time = time();
-    else if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
+    else Assert::int($time, '$time');
 
     static $transitions = null;
     if (!$transitions) {
@@ -267,7 +268,7 @@ function fxTimezoneOffset($time=null, array &$prevTransition=null, array &$nextT
  * TODO:  Funktion unnoetig: strtotime() ueberladen und um Erkennung der FXT-Zeitzone erweitern
  */
 function fxtStrToTime($time) {
-    if (!is_string($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
+    Assert::string($time);
 
     $currentTZ = date_default_timezone_get();
     try {
@@ -309,9 +310,8 @@ function igmdate($format, $time = null) {
  * @return bool
  */
 function isGoodFriday($time) {
-    if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
-    if (!$time)
-        return false;
+    Assert::int($time);
+    if (!$time) return false;
 
     $dow = (int) gmdate('w', $time);
     if ($dow == FRIDAY) {
@@ -334,9 +334,8 @@ function isGoodFriday($time) {
  * @return bool
  */
 function isHoliday($time) {
-    if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
-    if (!$time)
-        return false;
+    Assert::int($time);
+    if (!$time) return false;
 
     $m   = (int) gmdate('n', $time);            // month
     $dom = (int) gmdate('j', $time);            // day of month
@@ -357,9 +356,8 @@ function isHoliday($time) {
  * @return bool
  */
 function isWeekend($time) {
-    if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
-    if (!$time)
-        return false;
+    Assert::int($time);
+    if (!$time) return false;
 
     $dow = (int) gmdate('w', $time);
     return ($dow==SATURDAY || $dow==SUNDAY);
@@ -374,7 +372,7 @@ function isWeekend($time) {
  * @return string
  */
 function periodToStr($value) {
-    if (!is_int($value)) throw new IllegalTypeException('Illegal type of parameter $value: '.gettype($value));
+    Assert::int($value);
 
     switch ($value) {
         case PERIOD_TICK: return 'PERIOD_TICK';         //      0 = no period
@@ -401,7 +399,7 @@ function periodToStr($value) {
  * @return string
  */
 function periodDescription($value) {
-    if (!is_int($value)) throw new IllegalTypeException('Illegal type of parameter $value: '.gettype($value));
+    Assert::int($value);
 
     switch ($value) {
         case PERIOD_TICK: return 'TICK';                //      0 = no period
@@ -452,7 +450,7 @@ function timeframeDescription($timeframe) {
  * @return string
  */
 function priceTypeDescription($type) {
-    if (!is_int($type)) throw new IllegalTypeException('Illegal type of parameter $type: '.gettype($type));
+    Assert::int($type);
 
     switch ($type) {
         case PRICE_CLOSE   : return("Close"   );
@@ -677,7 +675,7 @@ function stats_calmar_ratio($from, $to, array $values) {
  * @return int - timeframe id or -1 if the value is not recognized
  */
 function strToPeriod($value) {
-    if (!is_string($value)) throw new IllegalTypeException('Illegal type of parameter $value: '.gettype($value));
+    Assert::string($value);
 
     $value = strtoupper(trim($value));
     if (strStartsWith($value, 'PERIOD_'))

@@ -3,9 +3,9 @@ namespace rosasurfer\rt\lib\dukascopy;
 
 use rosasurfer\console\io\Input;
 use rosasurfer\console\io\Output;
-use rosasurfer\exception\IllegalTypeException;
-use rosasurfer\exception\InvalidArgumentException;
-use rosasurfer\exception\RuntimeException;
+use rosasurfer\core\assert\Assert;
+use rosasurfer\core\exception\InvalidArgumentException;
+use rosasurfer\core\exception\RuntimeException;
 use rosasurfer\net\http\CurlHttpClient;
 use rosasurfer\net\http\HttpResponse;
 
@@ -48,7 +48,7 @@ class HttpClient extends CurlHttpClient {
      * @return string - binary history start data or an empty string in case of errors
      */
     public function downloadHistoryStart($symbol = null) {
-        if (isset($symbol) && !is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.gettype($symbol));
+        Assert::nullOrString($symbol);
         if (strlen($symbol))
             $symbol .= '/';
         $symbol = strtoupper($symbol);
@@ -81,12 +81,11 @@ class HttpClient extends CurlHttpClient {
      * @return string - binary history data or an empty string in case of errors
      */
     public function downloadHistory($symbol, $day, $type) {
-        if (!is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.gettype($symbol));
-        if (!strlen($symbol))    throw new InvalidArgumentException('Invalid parameter $symbol: "'.$symbol.'"');
-        if (!is_int($day))       throw new IllegalTypeException('Illegal type of parameter $day: '.gettype($day));
-        if (!is_int($type))      throw new IllegalTypeException('Illegal type of parameter $type: '.gettype($type));
-        if (!in_array($type, [PRICE_BID, PRICE_ASK]))
-                                 throw new InvalidArgumentException('Invalid parameter $type: '.$type);
+        Assert::string($symbol, '$symbol');
+        if (!strlen($symbol))                         throw new InvalidArgumentException('Invalid parameter $symbol: "'.$symbol.'"');
+        Assert::int($day, '$day');
+        Assert::int($type, '$type');
+        if (!in_array($type, [PRICE_BID, PRICE_ASK])) throw new InvalidArgumentException('Invalid parameter $type: '.$type);
 
         /** @var Input $input */
         $input = $this->di(Input::class);

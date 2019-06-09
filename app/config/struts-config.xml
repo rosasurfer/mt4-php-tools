@@ -13,16 +13,16 @@
 
     <!-- ================================================ Action Mappings =============================================== -->
     <action-mappings>
-        <mapping name="home"               path="/"         include=".home"/>
-        <mapping name="symbols"            path="/symbols"  include=".home"/>
-        <mapping name="history"            path="/history"  include=".home"/>
-        <mapping name="login"              path="/login"    include=".home"/>
-        <mapping name="about"              path="/about"    include=".home"/>
-                                                            
-        <mapping name="tests.sorted"       path="/sorted"   include=".tests.sorted"/>
+        <mapping name="home"     path="/"         include=".home"/>
+        <mapping name="symbols"  path="/symbols"  include=".home"/>
+        <mapping name="history"  path="/history"  include=".home"/>
+        <mapping name="login"    path="/login"    include=".home"/>
+        <mapping name="about"    path="/about"    include=".home"/>
+                                                          
+        <mapping name="tests.sorted"  path="/sorted"  include=".tests.sorted"/>
 
-        <mapping name="chartjs.bar"        path="/chartjs/bar"  include=".chartjs.bar"/>
-        <mapping name="chartjs.line"       path="/chartjs/equity"      form="ViewTestActionForm">
+        <mapping name="chartjs.bar"   path="/chartjs/bar"  include=".chartjs.bar"/>
+        <mapping name="chartjs.line"  path="/chartjs/equity"  form="ViewTestActionForm">
             <forward name="success"  include=".chartjs.line"/>
             <forward name="error"    include=".tests.sorted"/>
         </mapping>
@@ -31,7 +31,7 @@
             <forward name="error"    include=".tests.sorted"/>
         </mapping>
         
-        <mapping name="highcharts.line"    path="/highcharts/equity"   form="ViewTestActionForm">
+        <mapping name="highcharts.line"  path="/highcharts/equity"  form="ViewTestActionForm">
             <forward name="success"  include=".highcharts.line"/>
             <forward name="error"    include=".tests.sorted"/>
         </mapping>

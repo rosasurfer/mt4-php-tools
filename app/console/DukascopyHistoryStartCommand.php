@@ -2,11 +2,11 @@
 namespace rosasurfer\rt\console;
 
 use rosasurfer\console\Command;
+use rosasurfer\console\io\Input;
+use rosasurfer\console\io\Output;
 
 use rosasurfer\rt\lib\dukascopy\Dukascopy;
 use rosasurfer\rt\model\DukascopySymbol;
-use rosasurfer\console\io\Input;
-use rosasurfer\console\io\Output;
 
 
 /**
@@ -98,8 +98,10 @@ DOCOPT;
      * @return DukascopySymbol[]
      */
     protected function resolveSymbols() {
-        $input  = $this->input;
-        $output = $this->output;
+        /** @var Input $input */
+        $input = $this->di(Input::class);
+        /** @var Output $output */
+        $output = $this->di(Output::class);
 
         $args = $input->getArguments('SYMBOL');
         $symbols = [];

@@ -2,8 +2,9 @@
 namespace rosasurfer\rt\lib\metatrader;
 
 use rosasurfer\core\StaticClass;
-use rosasurfer\exception\IllegalTypeException;
-use rosasurfer\exception\RuntimeException;
+use rosasurfer\core\assert\Assert;
+use rosasurfer\core\exception\IllegalTypeException;
+use rosasurfer\core\exception\RuntimeException;
 
 use const rosasurfer\rt\BARMODEL_BAROPEN;
 use const rosasurfer\rt\BARMODEL_CONTROLPOINTS;
@@ -166,7 +167,7 @@ class MT4 extends StaticClass {
      * @return string - pack()-Formatstring
      */
     public static function BAR_getPackFormat($version) {
-        if (!is_int($version))              throw new IllegalTypeException('Illegal type of parameter $version: '.gettype($version));
+        Assert::int($version);
         if ($version!=400 && $version!=401) throw new MetaTraderException('version.unsupported: Invalid parameter $version: '.$version.' (must be 400 or 401)');
 
         static $format_400 = null;
@@ -201,7 +202,7 @@ class MT4 extends StaticClass {
      * @return string - unpack()-Formatstring
      */
     public static function BAR_getUnpackFormat($version) {
-        if (!is_int($version))              throw new IllegalTypeException('Illegal type of parameter $version: '.gettype($version));
+        Assert::int($version);
         if ($version!=400 && $version!=401) throw new MetaTraderException('version.unsupported: Invalid parameter $version: '.$version.' (must be 400 or 401)');
 
         static $format_400 = null;

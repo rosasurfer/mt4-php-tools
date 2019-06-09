@@ -1,12 +1,12 @@
 <?php
 namespace rosasurfer\rt\lib\metatrader;
 
-use rosasurfer\core\Object;
-use rosasurfer\debug\ErrorHandler;
-use rosasurfer\exception\IllegalStateException;
-use rosasurfer\exception\IllegalTypeException;
-use rosasurfer\exception\InvalidArgumentException;
-use rosasurfer\exception\RuntimeException;
+use rosasurfer\core\CObject;
+use rosasurfer\core\assert\Assert;
+use rosasurfer\core\debug\ErrorHandler;
+use rosasurfer\core\exception\IllegalStateException;
+use rosasurfer\core\exception\InvalidArgumentException;
+use rosasurfer\core\exception\RuntimeException;
 use rosasurfer\log\Logger;
 
 use rosasurfer\rt\lib\metatrader\MT4;
@@ -30,7 +30,7 @@ use const rosasurfer\rt\PERIOD_MN1;
  * e.g. a set may contain files in format HISTORY_BAR_400 (until terminal build 509) and files in format HISTORY_BAR_401
  * (since terminal build > 509).
  */
-class HistorySet extends Object {
+class HistorySet extends CObject {
 
 
     /** @var string */
@@ -144,8 +144,8 @@ class HistorySet extends Object {
      * @param  string     $serverDirectory - Serververzeichnis der Historydateien des Sets
      */
     protected function __construct2(RosaSymbol $symbol, $format, $serverDirectory) {
-        if (!is_string($serverDirectory)) throw new IllegalTypeException('Illegal type of parameter $serverDirectory: '.gettype($serverDirectory));
-        if (!is_dir($serverDirectory))    throw new InvalidArgumentException('Directory "'.$serverDirectory.'" not found');
+        Assert::string($serverDirectory, '$serverDirectory');
+        if (!is_dir($serverDirectory)) throw new InvalidArgumentException('Directory "'.$serverDirectory.'" not found');
 
         $this->symbol          = $symbol->getName();
         $this->digits          = $symbol->getDigits();
@@ -178,9 +178,8 @@ class HistorySet extends Object {
         try {
             $this->close();
         }
-        catch (\Exception $ex) {
-            throw ErrorHandler::handleDestructorException($ex);
-        }
+        catch (\Throwable $ex) { throw ErrorHandler::handleDestructorException($ex); }
+        catch (\Exception $ex) { throw ErrorHandler::handleDestructorException($ex); }
     }
 
 
@@ -198,10 +197,10 @@ class HistorySet extends Object {
      *                     gefundenen Dateien korrupt sind.
      */
     public static function open($symbol, $serverDirectory) {
-        if (!is_string($symbol))          throw new IllegalTypeException('Illegal type of parameter $symbol: '.gettype($symbol));
-        if (!strlen($symbol))             throw new InvalidArgumentException('Invalid parameter $symbol: ""');
-        if (!is_string($serverDirectory)) throw new IllegalTypeException('Illegal type of parameter $serverDirectory: '.gettype($serverDirectory));
-        if (!is_dir($serverDirectory))    throw new InvalidArgumentException('Directory "'.$serverDirectory.'" not found');
+        Assert::string($symbol, '$symbol');
+        if (!strlen($symbol))          throw new InvalidArgumentException('Invalid parameter $symbol: ""');
+        Assert::string($serverDirectory, '$serverDirectory');
+        if (!is_dir($serverDirectory)) throw new InvalidArgumentException('Directory "'.$serverDirectory.'" not found');
         $serverDirectory = realpath($serverDirectory);
 
         // existierende Instanzen durchsuchen und bei Erfolg die entsprechende Instanz zurueckgeben

@@ -2,8 +2,8 @@
 namespace rosasurfer\rt\model;
 
 use rosasurfer\console\io\Output;
-use rosasurfer\exception\IllegalTypeException;
-use rosasurfer\exception\RuntimeException;
+use rosasurfer\core\assert\Assert;
+use rosasurfer\core\exception\RuntimeException;
 use rosasurfer\process\Process;
 
 use rosasurfer\rt\lib\IHistorySource;
@@ -23,14 +23,15 @@ use const rosasurfer\rt\PERIOD_M1;
 /**
  * Represents a Rosatrader symbol.
  *
- * @method string          getType()            Return the instrument type (forex|metals|synthetic).
- * @method int             getGroup()           Return the symbol's group id.
- * @method string          getName()            Return the symbol name, i.e. the actual symbol.
- * @method string          getDescription()     Return the symbol description.
- * @method int             getDigits()          Return the number of fractional digits of symbol prices.
- * @method int             getUpdateOrder()     Return the symbol's update order value.
- * @method string          getFormula()         Return a synthetic instrument's calculation formula (LaTeX).
- * @method DukascopySymbol getDukascopySymbol() Return the {@link DukascopySymbol} mapped to this Rosatrader symbol.
+ * @method        string                               getType()            Return the instrument type (forex|metals|synthetic).
+ * @method        int                                  getGroup()           Return the symbol's group id.
+ * @method        string                               getName()            Return the symbol name, i.e. the actual symbol.
+ * @method        string                               getDescription()     Return the symbol description.
+ * @method        int                                  getDigits()          Return the number of fractional digits of symbol prices.
+ * @method        int                                  getUpdateOrder()     Return the symbol's update order value.
+ * @method        string                               getFormula()         Return a synthetic instrument's calculation formula (LaTeX).
+ * @method        \rosasurfer\rt\model\DukascopySymbol getDukascopySymbol() Return the {@link DukascopySymbol} mapped to this Rosatrader symbol.
+ * @method static \rosasurfer\rt\model\RosaSymbolDAO   dao()                Return the {@link DAO} for the calling class.
  */
 class RosaSymbol extends RosatraderModel {
 
@@ -276,7 +277,7 @@ class RosaSymbol extends RosatraderModel {
      * @return bool
      */
     public function isTradingDay($time) {
-        if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
+        Assert::int($time);
 
         return ($time && !isWeekend($time) && !$this->isHoliday($time));
     }
@@ -290,7 +291,7 @@ class RosaSymbol extends RosatraderModel {
      * @return bool
      */
     public function isHoliday($time) {
-        if (!is_int($time)) throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
+        Assert::int($time);
         if (!$time)
             return false;
 

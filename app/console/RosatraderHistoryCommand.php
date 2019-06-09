@@ -86,8 +86,10 @@ DOCOPT;
      * @return RosaSymbol[]
      */
     protected function resolveSymbols() {
-        $input  = $this->input;
-        $output = $this->output;
+        /** @var Input $input */
+        $input = $this->di(Input::class);
+        /** @var Output $output */
+        $output = $this->di(Output::class);
 
         $args = $input->getArguments('SYMBOL');
         $symbols = [];
@@ -124,7 +126,8 @@ DOCOPT;
      * @return int - execution status (0 for success)
      */
     protected function showStatus(array $symbols) {
-        $output = $this->output;
+        /** @var Output $output */
+        $output = $this->di(Output::class);
         $output->out('[Info]    Local history status');
         $output->out($separator='---------------------------------------------------------------------------------------');
 
@@ -144,7 +147,8 @@ DOCOPT;
      * @return int - execution status (0 for success)
      */
     protected function synchronizeStatus(array $symbols) {
-        $output = $this->output;
+        /** @var Output $output */
+        $output = $this->di(Output::class);
         $output->out('[Info]    Synchronizing history...');
         $output->out($separator='---------------------------------------------------------------------------------------');
 
@@ -164,8 +168,10 @@ DOCOPT;
      * @return int - execution status (0 for success)
      */
     protected function updateHistory(array $symbols) {
-        $input  = $this->input;
-        $output = $this->output;
+        /** @var Input $input */
+        $input = $this->di(Input::class);
+        /** @var Output $output */
+        $output = $this->di(Output::class);
         $output->out('[Info]    Updating history...');
 
         /** @var string $value */

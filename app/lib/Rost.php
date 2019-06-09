@@ -3,10 +3,11 @@ namespace rosasurfer\rt\lib;
 
 use rosasurfer\config\ConfigInterface;
 use rosasurfer\core\StaticClass;
-use rosasurfer\exception\IllegalTypeException;
-use rosasurfer\exception\InvalidArgumentException;
-use rosasurfer\exception\RuntimeException;
-use rosasurfer\exception\UnimplementedFeatureException;
+use rosasurfer\core\assert\Assert;
+use rosasurfer\core\exception\IllegalTypeException;
+use rosasurfer\core\exception\InvalidArgumentException;
+use rosasurfer\core\exception\RuntimeException;
+use rosasurfer\core\exception\UnimplementedFeatureException;
 use rosasurfer\net\http\CurlHttpClient;
 use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
@@ -124,15 +125,15 @@ class Rost extends StaticClass {
      * @param  string $message  - Nachricht
      */
     public static function sendSMS($receiver, $message) {
-        if (!is_string($receiver))   throw new IllegalTypeException('Illegal type of parameter $receiver: '.gettype($receiver));
+        Assert::string($receiver, '$receiver');
         $receiver = trim($receiver);
         if (strStartsWith($receiver, '+' )) $receiver = substr($receiver, 1);
         if (strStartsWith($receiver, '00')) $receiver = substr($receiver, 2);
         if (!ctype_digit($receiver)) throw new InvalidArgumentException('Invalid argument $receiver: "'.$receiver.'"');
 
-        if (!is_string($message))    throw new IllegalTypeException('Illegal type of parameter $message: '.gettype($message));
+        Assert::string($message, '$message');
         $message = trim($message);
-        if ($message == '')          throw new InvalidArgumentException('Invalid argument $message: "'.$message.'"');
+        if ($message == '') throw new InvalidArgumentException('Invalid argument $message: "'.$message.'"');
 
         $config   = self::di('config')['sms.clickatell'];
         $username = $config['username'];
@@ -159,7 +160,7 @@ class Rost extends StaticClass {
      * @return string - Beschreibung
      */
     public static function operationTypeDescription($type) {
-        if (!is_int($type)) throw new IllegalTypeException('Illegal type of parameter $type: '.gettype($type));
+        Assert::int($type);
 
         static $operationTypes = [
             OP_BUY       => 'Buy'       ,
@@ -302,7 +303,7 @@ class Rost extends StaticClass {
      * @return array - ROST_PRICE_BAR-Daten
      */
     public static function readBarData($data, $symbol) {
-        if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.gettype($data));
+        Assert::string($data, '$data');
 
         $lenData = strlen($data); if ($lenData % self::BAR_SIZE) throw new RuntimeException('Odd length of passed '.$symbol.' data: '.$lenData.' (not an even Rost::BAR_SIZE)');
         $bars = [];
@@ -323,7 +324,7 @@ class Rost extends StaticClass {
      * @return array - ROST_PRICE_BAR-Daten
      */
     public static function readBarFile($fileName, $symbol) {
-        if (!is_string($fileName)) throw new IllegalTypeException('Illegal type of parameter $fileName: '.gettype($fileName));
+        Assert::string($fileName, '$fileName');
         return static::readBarData(file_get_contents($fileName), $symbol);
     }
 
@@ -349,11 +350,11 @@ class Rost extends StaticClass {
      * @return int - Offset oder -1, wenn der Offset ausserhalb der Arraygrenzen liegt
      */
     public static function findTimeOffset(array $series, $time) {
-        if (!is_int($time))              throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
+        Assert::int($time, '$time');
         $size = sizeof($series); if (!$size) return -1;
-        if (!is_array($series[0]))       throw new IllegalTypeException('Illegal type of element $series[0]: '.gettype($series[0]));
+        Assert::isArray($series[0], '$series[0]');
         if (!isset($series[0]['time']))  throw new InvalidArgumentException('Invalid parameter $series[0]: '.gettype($series[0].' (no index "time")'));
-        if (!is_int($series[0]['time'])) throw new IllegalTypeException('Illegal type of element $series[0][time]: '.gettype($series[0]['time']));
+        Assert::int($series[0]['time'], '$series[0][time]');
 
         $i     = -1;
         $iFrom =  0;
@@ -388,9 +389,9 @@ class Rost extends StaticClass {
      * @return int - Offset oder -1, wenn keine solche Bar existiert
      */
     public static function findBarOffset(array $bars, $period, $time) {
-        if (!is_int($period))              throw new IllegalTypeException('Illegal type of parameter $period: '.gettype($period));
+        Assert::int($period, '$period');
         if (!MT4::isStdTimeframe($period)) throw new InvalidArgumentException('Invalid parameter $period: '.$period.' (not a standard timeframe)');
-        if (!is_int($time))                throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
+        Assert::int($time, '$time');
 
         $size = sizeof($bars);
         if (!$size)
@@ -430,9 +431,9 @@ class Rost extends StaticClass {
      * @return int - Offset oder -1, wenn keine solche Bar existiert (der Zeitpunkt ist aelter als die aelteste Bar)
      */
     public static function findBarOffsetPrevious(array $bars, $period, $time) {
-        if (!is_int($period))              throw new IllegalTypeException('Illegal type of parameter $period: '.gettype($period));
+        Assert::int($period, '$period');
         if (!MT4::isStdTimeframe($period)) throw new InvalidArgumentException('Invalid parameter $period: '.$period.' (not a standard timeframe)');
-        if (!is_int($time))                throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
+        Assert::int($time, '$time');
 
         $size = sizeof($bars);
         if (!$size)
@@ -460,9 +461,9 @@ class Rost extends StaticClass {
      * @return int - Offset oder -1, wenn keine solche Bar existiert (der Zeitpunkt ist juenger als das Ende der juengsten Bar)
      */
     public static function findBarOffsetNext(array $bars, $period, $time) {
-        if (!is_int($period))              throw new IllegalTypeException('Illegal type of parameter $period: '.gettype($period));
+        Assert::int($period, '$period');
         if (!MT4::isStdTimeframe($period)) throw new InvalidArgumentException('Invalid parameter $period: '.$period.' (not a standard timeframe)');
-        if (!is_int($time))                throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
+        Assert::int($time, '$time');
 
         $size = sizeof($bars);
         if (!$size)
@@ -497,8 +498,8 @@ class Rost extends StaticClass {
      * @return int - Zeit
      */
     public static function periodCloseTime($time, $period) {
-        if (!is_int($time))                throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
-        if (!is_int($period))              throw new IllegalTypeException('Illegal type of parameter $period: '.gettype($period));
+        Assert::int($time, '$time');
+        Assert::int($period, '$period');
         if (!MT4::isStdTimeframe($period)) throw new InvalidArgumentException('Invalid parameter $period: '.$period.' (not a standard timeframe)');
 
         if ($period <= PERIOD_D1) {
@@ -538,9 +539,9 @@ class Rost extends StaticClass {
         if (array_key_exists(($key=$id.'|'.$symbol.'|'.$time), $varCache))
             return $varCache[$key];
 
-        if (!is_string($id))                       throw new IllegalTypeException('Illegal type of parameter $id: '.gettype($id));
-        if (isset($symbol) && !is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.gettype($symbol));
-        if (isset($time) && !is_int($time))        throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
+        Assert::string($id, '$id');
+        Assert::nullOrString($symbol, '$symbol');
+        Assert::nullOrInt($time, '$time');
 
         static $storageDir; !$storageDir && $storageDir = self::di('config')['app.dir.storage'];
 

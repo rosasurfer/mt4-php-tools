@@ -1,20 +1,18 @@
 <?php
-use rosasurfer\ministruts\Request;
-
+use rosasurfer\di\proxy\Request;
 use rosasurfer\rt\model\Test;
 
 use function rosasurfer\rt\periodDescription;
 use function rosasurfer\rt\prettyTimeRange;
 
-/** @var Request $request */
-/** @var Test[]  $tests   */
+/** @var Test[] $tests */
 $tests = Test::dao()->findAll('select * from :Test order by strategy, created, reportingsymbol');
 ?>
 
 <link href="<?=asset('/css/tablesorter/theme.blue.min.css')?>" id="tablesorter-theme" rel="stylesheet">
 <script src="<?=asset('/js/tablesorter/jquery.tablesorter.combined.js')?>"></script>
 
-<?foreach ($request->getActionMessages() as $message) {?>
+<?foreach (Request::getActionMessages() as $message) {?>
     <div class="alert alert-danger textcenter"><p><?=hsc($message)?></p></div>
 <?}?>
 

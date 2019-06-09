@@ -2,11 +2,11 @@
 namespace rosasurfer\rt\lib;
 
 use rosasurfer\core\StaticClass;
-use rosasurfer\exception\FileNotFoundException;
-use rosasurfer\exception\IllegalTypeException;
-use rosasurfer\exception\InfrastructureException;
-use rosasurfer\exception\InvalidArgumentException;
-use rosasurfer\exception\RuntimeException;
+use rosasurfer\core\assert\Assert;
+use rosasurfer\core\exception\FileNotFoundException;
+use rosasurfer\core\exception\InfrastructureException;
+use rosasurfer\core\exception\InvalidArgumentException;
+use rosasurfer\core\exception\RuntimeException;
 use rosasurfer\util\PHP;
 
 
@@ -24,8 +24,8 @@ class LZMA extends StaticClass {
      * @return string - unkompromierter String
      */
     public static function decompressData($data) {
-        if (!is_string($data)) throw new IllegalTypeException('Illegal type of parameter $data: '.gettype($data));
-        if (!strlen($data))    throw new InvalidArgumentException('Invalid parameter $data: "" (not compressed)');
+        Assert::string($data);
+        if (!strlen($data)) throw new InvalidArgumentException('Invalid parameter $data: "" (not compressed)');
 
         // Unter Windows blockiert das Schreiben nach STDIN bei Datenmengen ab 8193 Bytes, stream_set_blocking() scheint dort
         // jedoch nicht zu funktionieren (Windows 7). Daher wird der String in eine temporaere Datei geschrieben und diese
@@ -49,9 +49,9 @@ class LZMA extends StaticClass {
      * @return string - unkomprimierter Dateiinhalt
      */
     public static function decompressFile($file) {
-        if (!is_string($file)) throw new IllegalTypeException('Illegal type of parameter $file: '.gettype($file));
-        if (!is_file($file))   throw new FileNotFoundException('File not found "'.$file.'"');
-        if (!filesize($file))  throw new InvalidArgumentException('Invalid file "'.$file.'" (not compressed)');
+        Assert::string($file);
+        if (!is_file($file))  throw new FileNotFoundException('File not found "'.$file.'"');
+        if (!filesize($file)) throw new InvalidArgumentException('Invalid file "'.$file.'" (not compressed)');
 
         $cmd     = static::getDecompressFileCmd();
         $file    = str_replace('/', DIRECTORY_SEPARATOR, str_replace('\\', '/', $file));

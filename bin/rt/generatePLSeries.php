@@ -10,9 +10,9 @@
 namespace rosasurfer\rt\bin\generate_pl_series;
 
 use rosasurfer\Application;
-use rosasurfer\exception\IllegalTypeException;
-use rosasurfer\exception\InvalidArgumentException;
-use rosasurfer\exception\RuntimeException;
+use rosasurfer\core\assert\Assert;
+use rosasurfer\core\exception\InvalidArgumentException;
+use rosasurfer\core\exception\RuntimeException;
 use rosasurfer\file\FileSystem as FS;
 
 use rosasurfer\rt\lib\Rost;
@@ -222,7 +222,7 @@ exit(0);
  * @return bool - success status
  */
 function saveBars($symbol, $day, array $bars, $partial = false) {
-    if (!is_int($day)) throw new IllegalTypeException('Illegal type of parameter $day: '.gettype($day));
+    Assert::int($day, '$day');
     $shortDate = gmdate('D, d-M-Y', $day);
 
     // re-check the bars
@@ -284,9 +284,9 @@ function getVar($id, $symbol=null, $time=null) {
     if (array_key_exists(($key=$id.'|'.$symbol.'|'.$time), $varCache))
         return $varCache[$key];
 
-    if (!is_string($id))                       throw new IllegalTypeException('Illegal type of parameter $id: '.gettype($id));
-    if (isset($symbol) && !is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.gettype($symbol));
-    if (isset($time) && !is_int($time))        throw new IllegalTypeException('Illegal type of parameter $time: '.gettype($time));
+    Assert::string($id, '$id');
+    Assert::nullOrString($symbol, '$symbol');
+    Assert::nullOrInt($time, '$time');
 
     $self = __FUNCTION__;
     static $storageDir; !$storageDir && $storageDir = Application::getConfig()['app.dir.storage'];

@@ -76,8 +76,10 @@ DOCOPT;
      * @return int - execution status (0 for success)
      */
     protected function splitSymbols() {
-        $input  = $this->input;
-        $output = $this->output;
+        /** @var Input $input */
+        $input = $this->di(Input::class);
+        /** @var Output $output */
+        $output = $this->di(Output::class);
 
         $sourceFile = $input->getArgument('SYMBOLS_RAW');
         if (!is_file($sourceFile) || !is_readable($sourceFile)) {

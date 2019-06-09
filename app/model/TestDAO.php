@@ -1,9 +1,9 @@
 <?php
 namespace rosasurfer\rt\model;
 
+use rosasurfer\core\assert\Assert;
+use rosasurfer\core\exception\InvalidArgumentException;
 use rosasurfer\db\orm\DAO;
-use rosasurfer\exception\IllegalTypeException;
-use rosasurfer\exception\InvalidArgumentException;
 
 use const rosasurfer\db\orm\meta\FLOAT;
 use const rosasurfer\db\orm\meta\INT;
@@ -59,8 +59,8 @@ class TestDAO extends DAO {
      * @return Test|null - instance or NULL if no such instance was found
      */
     public function findById($id) {
-        if (!is_int($id)) throw new IllegalTypeException('Illegal type of parameter $id: '.gettype($id));
-        if ($id < 1)      throw new InvalidArgumentException('Invalid argument $id: '.$id);
+        Assert::int($id);
+        if ($id < 1) throw new InvalidArgumentException('Invalid argument $id: '.$id);
 
         $sql = 'select *
                    from :Test
@@ -77,7 +77,7 @@ class TestDAO extends DAO {
      * @return Test|null - Test instance or NULL if no such instance exists
      */
     public function findByReportingSymbol($symbol) {
-        if (!is_string($symbol)) throw new IllegalTypeException('Illegal type of parameter $symbol: '.gettype($symbol));
+        Assert::string($symbol);
 
         $symbol = $this->escapeLiteral($symbol);
 
