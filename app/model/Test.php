@@ -18,21 +18,21 @@ use const rosasurfer\rt\PERIOD_M1;
 /**
  * Represents a test executed in the MetaTrader Strategy Tester.
  *
- * @method        string              getStrategy()           Return the name of the tested strategy.
- * @method        StrategyParameter[] getStrategyParameters() Return the strategy parameters of the test.
- * @method        int                 getReportingId()        Return the reporting id of the test (for composition of the reporting symbol).
- * @method        string              getReportingSymbol()    Return the reporting symbol of the test (for charted reports).
- * @method        string              getSymbol()             Return the symbol of the tested instrument.
- * @method        int                 getTimeframe()          Return the tested timeframe.
- * @method        string              getStartTime()          Return the time of the first tested tick (FXT).
- * @method        string              getEndTime()            Return the time of the last tested tick (FXT).
- * @method        string              getBarModel()           Return the bar model used for the test.
- * @method        float               getSpread()             Return the spread used for the test.
- * @method        int                 getBars()               Return the number of tested bars.
- * @method        int                 getTicks()              Return the number of tested ticks.
- * @method        string              getTradeDirections()    Return the enabled trade directions of the test.
- * @method        Order[]             getTrades()             Return the trade history of the test.
- * @method static TestDAO             dao()                   Return the {@link DAO} for the calling class.
+ * @method        string                                  getStrategy()           Return the name of the tested strategy.
+ * @method        rosasurfer\rt\model\StrategyParameter[] getStrategyParameters() Return the strategy parameters of the test.
+ * @method        int                                     getReportingId()        Return the reporting id of the test (for composition of the reporting symbol).
+ * @method        string                                  getReportingSymbol()    Return the reporting symbol of the test (for charted reports).
+ * @method        string                                  getSymbol()             Return the symbol of the tested instrument.
+ * @method        int                                     getTimeframe()          Return the tested timeframe.
+ * @method        string                                  getStartTime()          Return the time of the first tested tick (FXT).
+ * @method        string                                  getEndTime()            Return the time of the last tested tick (FXT).
+ * @method        string                                  getBarModel()           Return the bar model used for the test.
+ * @method        float                                   getSpread()             Return the spread used for the test.
+ * @method        int                                     getBars()               Return the number of tested bars.
+ * @method        int                                     getTicks()              Return the number of tested ticks.
+ * @method        string                                  getTradeDirections()    Return the enabled trade directions of the test.
+ * @method        rosasurfer\rt\model\Order[]             getTrades()             Return the trade history of the test.
+ * @method static rosasurfer\rt\model\TestDAO             dao()                   Return the DAO for the class.
  */
 class Test extends RosatraderModel {
 

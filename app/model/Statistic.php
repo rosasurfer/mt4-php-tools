@@ -9,24 +9,24 @@ use function rosasurfer\rt\stats_sortino_ratio;
 /**
  * Represents the statistics record of a {@link Test}.
  *
- * @method        int          getTrades()          Return the number of trades of the test.
- * @method        float        getTradesPerDay()    Return the number of trades per day of the test.
- * @method        int          getMinDuration()     Return the minimum trade duration in seconds.
- * @method        int          getAvgDuration()     Return the average trade duration in seconds.
- * @method        int          getMaxDuration()     Return the maximum trade duration in seconds.
- * @method        float        getMinPips()         Return the minimum amount of won/lost pips of the test.
- * @method        float        getAvgPips()         Return the average amount of won/lost pips of the test.
- * @method        float        getMaxPips()         Return the maximum amount of won/lost pips of the test.
- * @method        float        getPips()            Return the sum of won/lost pips of the test.
- * @method        float        getSharpeRatio()     Return the Sharpe ratio of the test.
- * @method        float        getSortinoRatio()    Return the Sortino ratio of the test.
- * @method        float        getCalmarRatio()     Return the Calmar ratio of the test.
- * @method        int          getMaxRecoveryTime() Return the maximum drawdown recovery time in seconds.
- * @method        float        getGrossProfit()     Return the total gross profit of the test.
- * @method        float        getCommission()      Return the total commission amount of the test.
- * @method        float        getSwap()            Return the total swap amount of the test.
- * @method        Test         getTest()            Return the test the statistics record belongs to.
- * @method static StatisticDAO dao()                Return the {@link DAO} for the calling class.
+ * @method        int                              getTrades()          Return the number of trades of the test.
+ * @method        float                            getTradesPerDay()    Return the number of trades per day of the test.
+ * @method        int                              getMinDuration()     Return the minimum trade duration in seconds.
+ * @method        int                              getAvgDuration()     Return the average trade duration in seconds.
+ * @method        int                              getMaxDuration()     Return the maximum trade duration in seconds.
+ * @method        float                            getMinPips()         Return the minimum amount of won/lost pips of the test.
+ * @method        float                            getAvgPips()         Return the average amount of won/lost pips of the test.
+ * @method        float                            getMaxPips()         Return the maximum amount of won/lost pips of the test.
+ * @method        float                            getPips()            Return the sum of won/lost pips of the test.
+ * @method        float                            getSharpeRatio()     Return the Sharpe ratio of the test.
+ * @method        float                            getSortinoRatio()    Return the Sortino ratio of the test.
+ * @method        float                            getCalmarRatio()     Return the Calmar ratio of the test.
+ * @method        int                              getMaxRecoveryTime() Return the maximum drawdown recovery time in seconds.
+ * @method        float                            getGrossProfit()     Return the total gross profit of the test.
+ * @method        float                            getCommission()      Return the total commission amount of the test.
+ * @method        float                            getSwap()            Return the total swap amount of the test.
+ * @method        Test                             getTest()            Return the test the statistics record belongs to.
+ * @method static rosasurfer\rt\model\StatisticDAO dao()                Return the {@link DAO} for the calling class.
  */
 class Statistic extends RosatraderModel {
 
