@@ -3,7 +3,7 @@ use rosasurfer\rt\model\Test;
 
 /** @var Test $test */
 $test   = $form->getTest();
-$trades = $test->getTrades(['order' => 'closeTime, openTime']);
+$trades = $test->getTrades();
 ?>
 <script src="<?=asset('/js/chartjs/Chart-2.6.0.js')?>"></script>
 

@@ -1,4 +1,6 @@
+<?php
+use rosasurfer\di\proxy\Request;
 
-<?foreach ($request->getActionMessages() as $message) {?>
+foreach (Request::getActionMessages() as $message) {?>
     <div class="alert alert-danger textcenter"><p><?=hsc($message)?></p></div>
 <?}?>

@@ -3,7 +3,7 @@ use rosasurfer\rt\model\Test;
 
 /** @var Test $test */
 $test   = $form->getTest();
-$trades = $test->getTrades(['order' => 'closeTime, openTime']);
+$trades = $test->getTrades();
 ?>
 <script src="<?=asset('/js/highstock/highstock.js')?>"></script>
 
