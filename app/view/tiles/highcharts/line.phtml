@@ -1,7 +1,9 @@
 <?php
-use rosasurfer\rt\model\Test;
+use rosasurfer\di\proxy\Form;
+use rosasurfer\rt\controller\forms\ViewTestActionForm;
 
-/** @var Test $test */
+/** @var ViewTestActionForm $form */
+$form   = Form::instance();
 $test   = $form->getTest();
 $trades = $test->getTrades();
 ?>
