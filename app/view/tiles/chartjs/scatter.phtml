@@ -1,10 +1,9 @@
 <?php
-use rosasurfer\core\proxy\Form;
-use rosasurfer\rt\controller\forms\ViewTestActionForm;
+use rosasurfer\core\facade\Form;
+use rosasurfer\rt\model\Test;
 
-/** @var ViewTestActionForm $form */
-$form   = Form::instance();
-$test   = $form->getTest();
+/** @var Test $test */
+$test = Form::get('test');
 $trades = $test->getTrades();
 ?>
 <script src="<?=asset('/js/chartjs/Chart-2.6.0.js')?>"></script>
