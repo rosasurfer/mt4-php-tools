@@ -1,8 +1,8 @@
 <?php
 namespace rosasurfer\rt\lib\synthetic;
 
-use rosasurfer\console\io\Output;
 use rosasurfer\core\CObject;
+use rosasurfer\core\di\proxy\Output;
 
 use rosasurfer\rt\model\RosaSymbol;
 
@@ -91,9 +91,7 @@ abstract class AbstractSynthesizer extends CObject implements ISynthesizer {
                 $symbol = $this->loadedSymbols[$name];
             }
             else if (!$symbol = RosaSymbol::dao()->findByName($name)) {
-                /** @var Output $output */
-                $output = $this->di(Output::class);
-                $output->error('[Error]   '.str_pad($this->symbolName, 6).'  required symbol '.$name.' not available');
+                Output::error('[Error]   '.str_pad($this->symbolName, 6).'  required symbol '.$name.' not available');
                 return [];
             }
             $symbols[] = $symbol;
@@ -110,19 +108,16 @@ abstract class AbstractSynthesizer extends CObject implements ISynthesizer {
      * @return int - history start time for all symbols (FXT) or 0 (zero) if no common history is available
      */
     protected function findCommonHistoryStartM1(array $symbols) {
-        /** @var Output $output */
-        $output = $this->di(Output::class);
-
         $day = 0;
         foreach ($symbols as $symbol) {
             $historyStart = (int) $symbol->getHistoryStartM1('U');      // 00:00 FXT of the first stored day
             if (!$historyStart) {
-                $output->error('[Error]   '.str_pad($this->symbolName, 6).'  required M1 history for '.$symbol->getName().' not available');
+                Output::error('[Error]   '.str_pad($this->symbolName, 6).'  required M1 history for '.$symbol->getName().' not available');
                 return 0;                                               // no history stored
             }
             $day = max($day, $historyStart);
         }
-        $output->out('[Info]    '.str_pad($this->symbolName, 6).'  available M1 history for all components starts at '.gmdate('D, d-M-Y', $day));
+        Output::out('[Info]    '.str_pad($this->symbolName, 6).'  available M1 history for all components starts at '.gmdate('D, d-M-Y', $day));
 
         return $day;
     }
@@ -149,9 +144,7 @@ abstract class AbstractSynthesizer extends CObject implements ISynthesizer {
         foreach ($symbols as $symbol) {
             $name = $symbol->getName();
             if (!$quotes[$name] = $symbol->getHistoryM1($day)) {
-                /** @var Output $output */
-                $output = $this->di(Output::class);
-                $output->error('[Error]   '.str_pad($this->symbolName, 6).'  required '.$name.' history for '.gmdate('D, d-M-Y', $day).' not available');
+                Output::error('[Error]   '.str_pad($this->symbolName, 6).'  required '.$name.' history for '.gmdate('D, d-M-Y', $day).' not available');
                 return [];
             }
         }

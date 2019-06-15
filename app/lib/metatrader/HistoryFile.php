@@ -1,10 +1,10 @@
 <?php
 namespace rosasurfer\rt\lib\metatrader;
 
-use rosasurfer\console\io\Output;
 use rosasurfer\core\CObject;
 use rosasurfer\core\assert\Assert;
 use rosasurfer\core\debug\ErrorHandler;
+use rosasurfer\core\di\proxy\Output;
 use rosasurfer\core\exception\FileNotFoundException;
 use rosasurfer\core\exception\IllegalStateException;
 use rosasurfer\core\exception\InvalidArgumentException;
@@ -680,9 +680,6 @@ class HistoryFile extends CObject {
         Assert::int($offset, '$offset');
         Assert::int($length, '$length');
 
-        /** @var Output $output */
-        $output = $this->di(Output::class);
-
         // determine absolute start offset: max. value for appending is one position after history end
         if ($offset >= 0) {
             if ($offset > $this->full_bars)   throw new InvalidArgumentException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
@@ -711,11 +708,11 @@ class HistoryFile extends CObject {
         $length = $toOffset - $fromOffset + 1;
         if (!$length) $toOffset = -1;
         if (!$length && !$replace) {                            // nothing to do
-            $output->out(__METHOD__.'()  $fromOffset='.$fromOffset.'  $toOffset='.$toOffset.'  $length='.$length.'  $bars=0  (nothing to do)');
+            Output::out(__METHOD__.'()  $fromOffset='.$fromOffset.'  $toOffset='.$toOffset.'  $length='.$length.'  $bars=0  (nothing to do)');
             return;
         }
 
-        $output->out(__METHOD__.'()  $fromOffset='.$fromOffset.'  $toOffset='.$toOffset.'  $length='.$length);
+        Output::out(__METHOD__.'()  $fromOffset='.$fromOffset.'  $toOffset='.$toOffset.'  $length='.$length);
         $this->showMetaData(false, true, false);
 
         // modify history file
@@ -724,7 +721,7 @@ class HistoryFile extends CObject {
         else {
             $hstFromBar = $this->getBar($fromOffset);
             $hstToBar   = $this->getBar($toOffset);
-            $output->out(__METHOD__.'()  replacing '.$length.' bar(s) from offset '.$fromOffset.' ('.gmdate('d-M-Y H:i:s', $hstFromBar['time']).') to offset '.$toOffset.' ('.gmdate('d-M-Y H:i:s', $hstToBar['time']).') with '.($size=sizeof($replace)).' bars from '.gmdate('d-M-Y H:i:s', $replace[0]['time']).' to '.gmdate('d-M-Y H:i:s', $replace[$size-1]['time']));
+            Output::out(__METHOD__.'()  replacing '.$length.' bar(s) from offset '.$fromOffset.' ('.gmdate('d-M-Y H:i:s', $hstFromBar['time']).') to offset '.$toOffset.' ('.gmdate('d-M-Y H:i:s', $hstToBar['time']).') with '.($size=sizeof($replace)).' bars from '.gmdate('d-M-Y H:i:s', $replace[0]['time']).' to '.gmdate('d-M-Y H:i:s', $replace[$size-1]['time']));
             $this->removeBars($fromOffset, $length);
             $this->insertBars($fromOffset, $replace);
         }
@@ -747,9 +744,6 @@ class HistoryFile extends CObject {
     public function removeBars($offset, $length=0) {
         Assert::int($offset, '$offset');
         Assert::int($length, '$length');
-
-        /** @var Output $output */
-        $output = $this->di(Output::class);
 
         // determine absolute start offset: max. value for appending is one position after history end
         if ($offset >= 0) {
@@ -777,13 +771,13 @@ class HistoryFile extends CObject {
         // determine absolute length
         $length = $toOffset - $fromOffset + 1;
         if (!$length) {                                         // nothing to do
-            $output->out(__METHOD__.'()  $fromOffset='.$fromOffset.'  $toOffset='.$toOffset.'  $length='.$length.'  (nothing to do)');
+            Output::out(__METHOD__.'()  $fromOffset='.$fromOffset.'  $toOffset='.$toOffset.'  $length='.$length.'  (nothing to do)');
             return;
         }
 
         $hstFromBar = $this->getBar($fromOffset);
         $hstToBar   = $this->getBar($toOffset);
-        $output->out(__METHOD__.'()  removing '.$length.' bar(s) from offset '.$fromOffset.' ('.gmdate('d-M-Y H:i:s', $hstFromBar['time']).') to offset '.$toOffset.' ('.gmdate('d-M-Y H:i:s', $hstToBar['time']).')');
+        Output::out(__METHOD__.'()  removing '.$length.' bar(s) from offset '.$fromOffset.' ('.gmdate('d-M-Y H:i:s', $hstFromBar['time']).') to offset '.$toOffset.' ('.gmdate('d-M-Y H:i:s', $hstToBar['time']).')');
     }
 
 
@@ -799,9 +793,6 @@ class HistoryFile extends CObject {
     public function insertBars($offset, array $bars) {
         Assert::int($offset, '$offset');
 
-        /** @var Output $output */
-        $output = $this->di(Output::class);
-
         // determine absolute start offset: max. value for appending is one position after history end
         if ($offset >= 0) {
             if ($offset > $this->full_bars)   throw new InvalidArgumentException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
@@ -811,12 +802,12 @@ class HistoryFile extends CObject {
         else $fromOffset = $this->full_bars + $offset;
 
         if (!$bars) {                                            // nothing to do
-            $output->out(__METHOD__.'()  $fromOffset='.$fromOffset.'  $bars=0  (nothing to do)');
+            Output::out(__METHOD__.'()  $fromOffset='.$fromOffset.'  $bars=0  (nothing to do)');
             return;
         }
 
         $hstFromBar = $this->getBar($fromOffset);
-        $output->out(__METHOD__.'()  inserting '.($size=sizeof($bars)).' bar(s) from '.gmdate('d-M-Y H:i:s', $bars[0]['time']).' to '.gmdate('d-M-Y H:i:s', $bars[$size-1]['time']).' at offset '.$fromOffset.' ('.gmdate('d-M-Y H:i:s', $hstFromBar['time']).')');
+        Output::out(__METHOD__.'()  inserting '.($size=sizeof($bars)).' bar(s) from '.gmdate('d-M-Y H:i:s', $bars[0]['time']).' to '.gmdate('d-M-Y H:i:s', $bars[$size-1]['time']).' at offset '.$fromOffset.' ('.gmdate('d-M-Y H:i:s', $hstFromBar['time']).')');
 
         /*
         $array = [0, 1, 2, 3, 4, 5];

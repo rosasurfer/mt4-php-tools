@@ -1,9 +1,9 @@
 <?php
 namespace rosasurfer\rt\lib\dukascopy;
 
-use rosasurfer\console\io\Output;
 use rosasurfer\core\CObject;
 use rosasurfer\core\assert\Assert;
+use rosasurfer\core\di\proxy\Output;
 use rosasurfer\core\exception\IllegalArgumentException;
 use rosasurfer\core\exception\InvalidArgumentException;
 use rosasurfer\core\exception\RuntimeException;
@@ -275,8 +275,6 @@ class Dukascopy extends CObject {
         Assert::int($type, '$type');
         if (!in_array($type, [PRICE_BID, PRICE_ASK])) throw new InvalidArgumentException('Invalid parameter $type: '.$type);
 
-        /** @var Output $output */
-        $output  = $this->di(Output::class);
         $symbolU = strtoupper($symbol->getName());
         $day -= $day%DAY;                                           // 00:00 GMT
 
@@ -311,11 +309,11 @@ class Dukascopy extends CObject {
             $firstBar = $bars[$newDayOffset];
             $lastBar  = $bars[$newDayOffset-1];
             if ($lastBar['volume']) {
-                $output->out('[Warn]    '.gmdate('D, d-M-Y', $day).'   volume mis-match during DST change.');
-                $output->out('Day of DST change ('.gmdate('D, d-M-Y', $lastBar['time']).') ended with:');
-                $output->out($bars[$newDayOffset-1]);
-                $output->out('Day after DST change ('.gmdate('D, d-M-Y', $firstBar['time']).') started with:');
-                $output->out($bars[$newDayOffset]);
+                Output::out('[Warn]    '.gmdate('D, d-M-Y', $day).'   volume mis-match during DST change.');
+                Output::out('Day of DST change ('.gmdate('D, d-M-Y', $lastBar['time']).') ended with:');
+                Output::out($bars[$newDayOffset-1]);
+                Output::out('Day after DST change ('.gmdate('D, d-M-Y', $firstBar['time']).') started with:');
+                Output::out($bars[$newDayOffset]);
             }
         }
 
@@ -596,9 +594,7 @@ class Dukascopy extends CObject {
         if (isset($this->historyStarts[$nameU]))
             return $this->historyStarts[$nameU];
 
-        /** @var Output $output */
-        $output = $this->di(Output::class);
-        $output->out('[Info]    '.str_pad($name, 6).'  downloading history start times from Dukascopy...');
+        Output::out('[Info]    '.str_pad($name, 6).'  downloading history start times from Dukascopy...');
 
         $data = $this->getHttpClient()->downloadHistoryStart($name);
         if (strlen($data))
@@ -632,9 +628,7 @@ class Dukascopy extends CObject {
         if ($this->allHistoryStarts)
             return $this->allHistoryStarts;
 
-        /** @var Output $output */
-        $output = $this->di(Output::class);
-        $output->out('[Info]    Downloading history start times from Dukascopy...');
+        Output::out('[Info]    Downloading history start times from Dukascopy...');
 
         $data = $this->getHttpClient()->downloadHistoryStart();
         if (strlen($data))

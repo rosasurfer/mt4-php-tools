@@ -1,9 +1,9 @@
 <?php
 namespace rosasurfer\rt\lib\dukascopy;
 
-use rosasurfer\console\io\Input;
-use rosasurfer\console\io\Output;
 use rosasurfer\core\assert\Assert;
+use rosasurfer\core\di\proxy\CliInput as Input;
+use rosasurfer\core\di\proxy\Output;
 use rosasurfer\core\exception\InvalidArgumentException;
 use rosasurfer\core\exception\RuntimeException;
 use rosasurfer\net\http\CurlHttpClient;
@@ -65,7 +65,7 @@ class HttpClient extends CurlHttpClient {
         $content = $response->getContent();
         if (!strlen($content))
             $status = HttpResponse::SC_NOT_FOUND;
-        if ($status == HttpResponse::SC_NOT_FOUND) $this->di(Output::class)->stderr('[Error]   URL not found (404): '.$url);
+        if ($status == HttpResponse::SC_NOT_FOUND) Output::error('[Error]   URL not found (404): '.$url);
 
         return ($status==HttpResponse::SC_OK) ? $response->getContent() : '';
     }
@@ -87,11 +87,6 @@ class HttpClient extends CurlHttpClient {
         Assert::int($type, '$type');
         if (!in_array($type, [PRICE_BID, PRICE_ASK])) throw new InvalidArgumentException('Invalid parameter $type: '.$type);
 
-        /** @var Input $input */
-        $input = $this->di(Input::class);
-        /** @var Output $output */
-        $output = $this->di(Output::class);
-
         // url: http://datafeed.dukascopy.com/datafeed/EURUSD/2009/00/31/BID_candles_min_1.bi5
         $symbolU = strtoupper($symbol);
         $yyyy = gmdate('Y', $day);
@@ -101,8 +96,8 @@ class HttpClient extends CurlHttpClient {
         $name = ($type==PRICE_BID ? 'BID':'ASK').'_candles_min_1';
         $url  = 'http://datafeed.dukascopy.com/datafeed/'.$symbolU.'/'.$date.'/'.$name.'.bi5';
 
-        if (!$input->getOption('--quiet')) {
-            $output->out('[Info]    '.gmdate('D, d-M-Y', $day).'  downloading: '.$url);
+        if (!Input::getOption('--quiet')) {
+            Output::out('[Info]    '.gmdate('D, d-M-Y', $day).'  downloading: '.$url);
         }
 
         $request = new DukascopyRequest($url);
@@ -116,7 +111,7 @@ class HttpClient extends CurlHttpClient {
         $content = $response->getContent();
         if (!strlen($content))
             $status = HttpResponse::SC_NOT_FOUND;
-        if ($status == HttpResponse::SC_NOT_FOUND) $output->error('[Error]   URL not found (404): '.$url);
+        if ($status == HttpResponse::SC_NOT_FOUND) Output::error('[Error]   URL not found (404): '.$url);
 
         return ($status==HttpResponse::SC_OK) ? $response->getContent() : '';
     }

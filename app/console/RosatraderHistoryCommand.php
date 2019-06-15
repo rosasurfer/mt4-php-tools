@@ -7,6 +7,7 @@ use rosasurfer\console\io\Output;
 use rosasurfer\process\Process;
 
 use rosasurfer\rt\model\RosaSymbol;
+
 use function rosasurfer\rt\strToPeriod;
 
 
@@ -57,6 +58,9 @@ DOCOPT;
     /**
      * {@inheritdoc}
      *
+     * @param  Input  $input
+     * @param  Output $output
+     *
      * @return int - execution status (0 for success)
      */
     protected function execute(Input $input, Output $output) {
@@ -86,10 +90,8 @@ DOCOPT;
      * @return RosaSymbol[]
      */
     protected function resolveSymbols() {
-        /** @var Input $input */
-        $input = $this->di(Input::class);
-        /** @var Output $output */
-        $output = $this->di(Output::class);
+        $input  = $this->input;
+        $output = $this->output;
 
         $args = $input->getArguments('SYMBOL');
         $symbols = [];
@@ -126,8 +128,7 @@ DOCOPT;
      * @return int - execution status (0 for success)
      */
     protected function showStatus(array $symbols) {
-        /** @var Output $output */
-        $output = $this->di(Output::class);
+        $output = $this->output;
         $output->out('[Info]    Local history status');
         $output->out($separator='---------------------------------------------------------------------------------------');
 
@@ -147,8 +148,7 @@ DOCOPT;
      * @return int - execution status (0 for success)
      */
     protected function synchronizeStatus(array $symbols) {
-        /** @var Output $output */
-        $output = $this->di(Output::class);
+        $output = $this->output;
         $output->out('[Info]    Synchronizing history...');
         $output->out($separator='---------------------------------------------------------------------------------------');
 
@@ -168,10 +168,8 @@ DOCOPT;
      * @return int - execution status (0 for success)
      */
     protected function updateHistory(array $symbols) {
-        /** @var Input $input */
-        $input = $this->di(Input::class);
-        /** @var Output $output */
-        $output = $this->di(Output::class);
+        $input  = $this->input;
+        $output = $this->output;
         $output->out('[Info]    Updating history...');
 
         /** @var string $value */

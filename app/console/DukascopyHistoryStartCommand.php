@@ -50,6 +50,9 @@ DOCOPT;
     /**
      * {@inheritdoc}
      *
+     * @param  Input  $input
+     * @param  Output $output
+     *
      * @return int - execution status (0 for success)
      */
     protected function execute(Input $input, Output $output) {
@@ -98,10 +101,8 @@ DOCOPT;
      * @return DukascopySymbol[]
      */
     protected function resolveSymbols() {
-        /** @var Input $input */
-        $input = $this->di(Input::class);
-        /** @var Output $output */
-        $output = $this->di(Output::class);
+        $input  = $this->input;
+        $output = $this->output;
 
         $args = $input->getArguments('SYMBOL');
         $symbols = [];

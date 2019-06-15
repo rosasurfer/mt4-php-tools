@@ -1,8 +1,8 @@
 <?php
 namespace rosasurfer\rt\model;
 
-use rosasurfer\console\io\Output;
 use rosasurfer\core\assert\Assert;
+use rosasurfer\core\di\proxy\Output;
 use rosasurfer\core\exception\UnimplementedFeatureException;
 
 use rosasurfer\rt\lib\IHistorySource;
@@ -131,9 +131,6 @@ class DukascopySymbol extends RosatraderModel implements IHistorySource {
     public function showHistoryStatus($local = true) {
         Assert::bool($local);
 
-        /** @var Output $output */
-        $output = $this->di(Output::class);
-
         if ($local) {
             $startTick = $this->getHistoryStartTick('D, d-M-Y H:i:s \F\X\T');
             $startM1   = $this->getHistoryStartM1  ('D, d-M-Y H:i:s \F\X\T');
@@ -141,13 +138,13 @@ class DukascopySymbol extends RosatraderModel implements IHistorySource {
             $startD1   = $this->getHistoryStartD1  ('D, d-M-Y H:i:s \F\X\T');
 
             if (!$startTick && !$startM1 && !$startH1 && !$startD1) {
-                $output->out('[Info]    '.$this->name.'  local Dukascopy status not available');
+                Output::out('[Info]    '.$this->name.'  local Dukascopy status not available');
             }
             else {
-                $startTick && $output->out('[Info]    '.$this->name.'  Dukascopy TICK history starts '.$startTick);
-                $startM1   && $output->out('[Info]    '.$this->name.'  Dukascopy M1   history starts '.$startM1  );
-                $startH1   && $output->out('[Info]    '.$this->name.'  Dukascopy H1   history starts '.$startH1  );
-                $startD1   && $output->out('[Info]    '.$this->name.'  Dukascopy D1   history starts '.$startD1  );
+                $startTick && Output::out('[Info]    '.$this->name.'  Dukascopy TICK history starts '.$startTick);
+                $startM1   && Output::out('[Info]    '.$this->name.'  Dukascopy M1   history starts '.$startM1  );
+                $startH1   && Output::out('[Info]    '.$this->name.'  Dukascopy H1   history starts '.$startH1  );
+                $startD1   && Output::out('[Info]    '.$this->name.'  Dukascopy D1   history starts '.$startD1  );
             }
         }
         else {
@@ -161,7 +158,7 @@ class DukascopySymbol extends RosatraderModel implements IHistorySource {
                 $formatted  = $datetime->format('D, d-M-Y H:i'.(is_int($time) ? '':':s.u'));
                 is_float($time) && $formatted = strLeft($formatted, -3);
                 $formatted .= ' FXT';
-                $output->out('[Info]    '.$this->name.'  Dukascopy '.str_pad($period, 4).' history starts '.$formatted);
+                Output::out('[Info]    '.$this->name.'  Dukascopy '.str_pad($period, 4).' history starts '.$formatted);
             }
         }
         return true;
@@ -176,15 +173,12 @@ class DukascopySymbol extends RosatraderModel implements IHistorySource {
      * @return bool - whether at least one of the start times have changed
      */
     public function updateHistoryStart(array $times) {
-        /** @var Output $output */
-        $output = $this->di(Output::class);
-
         $localTime = $this->historyStartTick;
         $remoteTime = isset($times[PERIOD_TICK]) ? fxDate('Y-m-d H:i:s', (int)$times[PERIOD_TICK], true) : null;
         if ($localTime !== $remoteTime) {
             $this->historyStartTick = $remoteTime;
             $this->modified();
-            $output->out('[Info]    '.$this->getName().'  TICK history start changed: '.($remoteTime ?: 'n/a'));
+            Output::out('[Info]    '.$this->getName().'  TICK history start changed: '.($remoteTime ?: 'n/a'));
         }
 
         $localTime = $this->historyStartM1;
@@ -192,7 +186,7 @@ class DukascopySymbol extends RosatraderModel implements IHistorySource {
         if ($localTime !== $remoteTime) {
             $this->historyStartM1 = $remoteTime;
             $this->modified();
-            $output->out('[Info]    '.$this->getName().'  M1   history start changed: '.($remoteTime ?: 'n/a'));
+            Output::out('[Info]    '.$this->getName().'  M1   history start changed: '.($remoteTime ?: 'n/a'));
         }
 
         $localTime = $this->historyStartH1;
@@ -200,7 +194,7 @@ class DukascopySymbol extends RosatraderModel implements IHistorySource {
         if ($localTime !== $remoteTime) {
             $this->historyStartH1 = $remoteTime;
             $this->modified();
-            $output->out('[Info]    '.$this->getName().'  H1   history start changed: '.($remoteTime ?: 'n/a'));
+            Output::out('[Info]    '.$this->getName().'  H1   history start changed: '.($remoteTime ?: 'n/a'));
         }
 
         $localTime = $this->historyStartD1;
@@ -208,7 +202,7 @@ class DukascopySymbol extends RosatraderModel implements IHistorySource {
         if ($localTime !== $remoteTime) {
             $this->historyStartD1 = $remoteTime;
             $this->modified();
-            $output->out('[Info]    '.$this->getName().'  D1   history start changed: '.($remoteTime ?: 'n/a'));
+            Output::out('[Info]    '.$this->getName().'  D1   history start changed: '.($remoteTime ?: 'n/a'));
         }
         return $this->isModified();
     }
@@ -224,9 +218,7 @@ class DukascopySymbol extends RosatraderModel implements IHistorySource {
 
         if (!$time) {
             if (!$time = (int) $this->getHistoryStartM1('U')) {
-                /** @var Output $output */
-                $output = $this->di(Output::class);
-                $output->error('[Error]   '.str_pad($this->name, 6).'  history start for M1 not available');
+                Output::error('[Error]   '.str_pad($this->name, 6).'  history start for M1 not available');
                 return [];
             }
             if (igmdate('d', $time) == igmdate('d', unixTime($time)))       // if history starts at or after 00:00 GMT skip

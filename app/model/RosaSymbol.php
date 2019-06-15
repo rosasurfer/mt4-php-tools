@@ -1,8 +1,8 @@
 <?php
 namespace rosasurfer\rt\model;
 
-use rosasurfer\console\io\Output;
 use rosasurfer\core\assert\Assert;
+use rosasurfer\core\di\proxy\Output;
 use rosasurfer\core\exception\RuntimeException;
 use rosasurfer\process\Process;
 
@@ -311,14 +311,12 @@ class RosaSymbol extends RosatraderModel {
      * @return bool - success status
      */
     public function showHistoryStatus() {
-        /** @var Output $output */
-        $output     = $this->di(Output::class);
         $start      = $this->getHistoryStartM1('D, d-M-Y');
         $end        = $this->getHistoryEndM1  ('D, d-M-Y');
         $paddedName = str_pad($this->name, 6);
 
-        if ($start) $output->out('[Info]    '.$paddedName.'  M1 local history from '.$start.' to '.$end);
-        else        $output->out('[Info]    '.$paddedName.'  M1 local history empty');
+        if ($start) Output::out('[Info]    '.$paddedName.'  M1 local history from '.$start.' to '.$end);
+        else        Output::out('[Info]    '.$paddedName.'  M1 local history empty');
         return true;
     }
 
@@ -329,8 +327,6 @@ class RosaSymbol extends RosatraderModel {
      * @return bool - success status
      */
     public function synchronizeHistory() {
-        /** @var Output $output */
-        $output      = $this->di(Output::class);
         $storageDir  = $this->di('config')['app.dir.storage'];
         $storageDir .= '/history/rosatrader/'.$this->type.'/'.$this->name;
         $paddedName  = str_pad($this->name, 6);
@@ -358,13 +354,13 @@ class RosaSymbol extends RosatraderModel {
             $delMsg    = '[Info]    '.$paddedName.'  deleting non-trading day M1 file: ';
             $yesterDay = fxTime() - fxTime()%DAY - DAY;
 
-            $missMsg = function($missing) use ($output, $paddedName, $yesterDay) {
+            $missMsg = function($missing) use ($paddedName, $yesterDay) {
                 if ($misses = sizeof($missing)) {
                     $first     = first($missing);
                     $last      = last($missing);
-                    $output->out('[Info]    '.$paddedName.'  '.$misses.' missing history file'.pluralize($misses)
-                                             .($misses==1 ? ' for '.gmdate('D, d-M-Y', $first)
-                                                          : ' from '.gmdate('D, d-M-Y', $first).' until '.($last==$yesterDay? 'now' : gmdate('D, d-M-Y', $last))));
+                    Output::out('[Info]    '.$paddedName.'  '.$misses.' missing history file'.pluralize($misses)
+                                            .($misses==1 ? ' for '.gmdate('D, d-M-Y', $first)
+                                                         : ' from '.gmdate('D, d-M-Y', $first).' until '.($last==$yesterDay? 'now' : gmdate('D, d-M-Y', $last))));
                 }
             };
 
@@ -384,8 +380,8 @@ class RosaSymbol extends RosatraderModel {
                     }
                 }
                 else {
-                    is_file($file=$dir.'/M1.bin'    ) && true($output->out($delMsg.RT::relativePath($file))) && unlink($file);
-                    is_file($file=$dir.'/M1.bin.rar') && true($output->out($delMsg.RT::relativePath($file))) && unlink($file);
+                    is_file($file=$dir.'/M1.bin'    ) && true(Output::out($delMsg.RT::relativePath($file))) && unlink($file);
+                    is_file($file=$dir.'/M1.bin.rar') && true(Output::out($delMsg.RT::relativePath($file))) && unlink($file);
                 }
             }
             $missing && $missMsg($missing);
@@ -393,7 +389,7 @@ class RosaSymbol extends RosatraderModel {
 
         // update the database
         if ($startDate != $this->getHistoryStartM1('U')) {
-            $output->out('[Info]    '.$paddedName.'  updating history start time to '.($startDate ? gmdate('D, d-M-Y H:i', $startDate) : '(empty)'));
+            Output::out('[Info]    '.$paddedName.'  updating history start time to '.($startDate ? gmdate('D, d-M-Y H:i', $startDate) : '(empty)'));
             $this->historyStartM1 = $startDate ? gmdate('Y-m-d H:i:s', $startDate) : null;
             $this->modified();
         }
@@ -402,14 +398,14 @@ class RosaSymbol extends RosatraderModel {
             $endDate += 23*HOURS + 59*MINUTES;          // adjust to the last minute as the database always holds full days
         }
         if ($endDate != $this->getHistoryEndM1('U')) {
-            $output->out('[Info]    '.$paddedName.'  updating history end time to: '.($endDate ? gmdate('D, d-M-Y H:i', $endDate) : '(empty)'));
+            Output::out('[Info]    '.$paddedName.'  updating history end time to: '.($endDate ? gmdate('D, d-M-Y H:i', $endDate) : '(empty)'));
             $this->historyEndM1 = $endDate ? gmdate('Y-m-d H:i:s', $endDate) : null;
             $this->modified();
         }
         $this->save();
 
-        !$missing && $output->out('[Info]    '.$paddedName.'  '.($startDate ? 'ok':'empty'));
-        $output->out('---------------------------------------------------------------------------------------');
+        !$missing && Output::out('[Info]    '.$paddedName.'  '.($startDate ? 'ok':'empty'));
+        Output::out('---------------------------------------------------------------------------------------');
         return true;
     }
 
@@ -422,11 +418,8 @@ class RosaSymbol extends RosatraderModel {
      * @return bool - success status
      */
     public function updateHistory($period = PERIOD_M1) {
-        /** @var Output $output */
-        $output = $this->di(Output::class);
-
         $provider = $this->getHistorySource();
-        if (!$provider) return false($output->error('[Error]   '.str_pad($this->name, 6).'  no history provider found'));
+        if (!$provider) return false(Output::error('[Error]   '.str_pad($this->name, 6).'  no history provider found'));
 
         $historyEnd = (int) $this->getHistoryEndM1('U');
         $updateFrom = $historyEnd ? $historyEnd + 1*DAY : 0;                        // the day after history ends
@@ -436,10 +429,10 @@ class RosaSymbol extends RosatraderModel {
         for ($day=$updateFrom; $day < $today; $day+=1*DAY) {
             if ($day && !$this->isTradingDay($day))                                 // skip non-trading days
                 continue;
-            !$status && $output->out($status='[Info]    '.str_pad($this->name, 6).'  updating M1 history since '.($day ? gmdate('D, d-M-Y', $historyEnd) : 'start'));
+            !$status && Output::out($status='[Info]    '.str_pad($this->name, 6).'  updating M1 history since '.($day ? gmdate('D, d-M-Y', $historyEnd) : 'start'));
 
             $bars = $provider->getHistory($period, $day, $optimized=true);
-            if (!$bars) return false && false($output->error('[Error]   '.str_pad($this->name, 6).'  M1 history '.($day ? ' for '.gmdate('D, d-M-Y', $day) : '').' not available'));
+            if (!$bars) return false && false(Output::error('[Error]   '.str_pad($this->name, 6).'  M1 history '.($day ? ' for '.gmdate('D, d-M-Y', $day) : '').' not available'));
             RT::saveM1Bars($bars, $this);
 
             if (!$day) {                                                            // If $day was zero (full update since start)
@@ -451,7 +444,7 @@ class RosaSymbol extends RosatraderModel {
 
             Process::dispatchSignals();
         }
-        $output->out('[Ok]      '.$this->name);
+        Output::out('[Ok]      '.$this->name);
         return true;
     }
 
