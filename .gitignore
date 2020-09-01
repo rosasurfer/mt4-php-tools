@@ -22,24 +22,23 @@ nbactions.xml
 
 
 # ignore the following project directories and files
-vendor/
-/composer
-/composer.phar
-config*.properties
-!config.dist.properties
-
 /data/
 /data
-
-/etc/httpd/cgi/
-/etc/httpd/local/
-/etc/httpd/ssl/www.rosasurfer.com.crt
-/etc/httpd/ssl/www.rosasurfer.com.key
+/etc/httpd/cgi/php.ini
+/etc/httpd/ssl/www.rosatrader.com.crt
+/etc/httpd/ssl/www.rosatrader.com.key
 /etc/log/*
 /etc/tmp/*
-
+/vendor/
 /web/doc/erm/*
 
+/composer
+/composer.phar
 /deploy
+
+.gitignore
+config.*properties
+config.*properties.bak
+!config.dist.properties
 *.bi5
 *.bin
