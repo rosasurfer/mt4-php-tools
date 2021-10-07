@@ -7,7 +7,7 @@
 // @see  Definition in MT4Expander::Expander.h
 //
 
-template    "MT4 History Data v401 [3]"
+template    "MT4 History Data v401 [4]"
 description "Files '*.hst'"
 
 applies_to   file
@@ -26,5 +26,5 @@ begin
       int64        "Ticks"
       int32        "Spread"
       int64        "Volume"
-   }[3]
+   }[4]
 end
