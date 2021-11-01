@@ -130,6 +130,7 @@ DOCOPT;
      * @return int - execution status (0 for success)
      */
     protected function joinSymbols() {
-        return 0;
+        $this->output->error('error: command "join" not yet implemented');
+        return 1;
     }
 }
