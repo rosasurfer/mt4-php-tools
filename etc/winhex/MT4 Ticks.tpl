@@ -7,9 +7,12 @@
 //   int    time;                           4           12        // Timestamp
 //   double bid;                            8           16
 //   double ask;                            8           24
-//   int    counter;                        4           32        // fortlaufender Zähler innerhalb der Datei
+//   int    counter;                        4           32        // fortlaufender Zï¿½hler innerhalb der Datei
 //   int    reserved[1];                    4           36
 // } t;                                  = 40 byte
+//
+//
+// @see  https://github.com/rosasurfer/mt4-expander/blob/master/header/struct/mt4/Tick.h
 //
 
 template    "MT4 Ticks"

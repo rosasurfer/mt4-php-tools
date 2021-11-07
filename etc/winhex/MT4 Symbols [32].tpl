@@ -17,15 +17,13 @@ multiple
 begin
    { endsection                             // -------------- offset -
       char[12] "Symbol"                     //                     0
-      char[54] "Description"                //                    12
+      char[64] "Description"                //                    12
 
-      move 54                               //                    66
+      move 40                               //                    76
+      uint32   "Index"                      //                   116
       uint32   "ID"                         //                   120
-      move -8                               //                   124
-      uint32   "Array Key"                  //                   116
-      move -54                              //                   120
+      move -48                              //                   124
 
-      char[10] "origin"                     //                    66
       char[12] "Alt Symbol"                 //                    76
       char[12] "Base Currency"              //                    88
       uint32   "Group"                      //                   100

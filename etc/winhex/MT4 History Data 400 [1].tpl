@@ -4,7 +4,7 @@
 // HistoryFile Barformat v400 (bis Build 509), entspricht dem MetaQuotes-Struct RateInfo
 //
 //
-// @see  Definition in MT4Expander::Expander.h
+// @see  https://github.com/rosasurfer/mt4-expander/blob/master/header/struct/mt4/HistoryBar400.h
 //
 
 template    "MT4 History Data v400 [1]"

@@ -2,7 +2,7 @@
 // MetaTrader structure HISTORY_HEADER: HistoryFile Header
 //
 //
-// @see  Definition in MT4Expander::Expander.h
+// @see  https://github.com/rosasurfer/mt4-expander/blob/master/header/struct/mt4/HistoryHeader.h
 //
 
 template    "MT4 History Header"
