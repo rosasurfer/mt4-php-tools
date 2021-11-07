@@ -8,7 +8,7 @@ use rosasurfer\core\CObject;
  * A PHP representation of a MetaTrader symbol definition. The file "symbols.raw" is a concatenation of C++ structs of such
  * symbols. For the C++ definition see the following link.
  *
- * @link  https://github.com/rosasurfer/mt4-expander/blob/master/header/struct/mt4/Symbol.h#
+ * @link  https://github.com/rosasurfer/mt4-expander/blob/master/header/struct/mt4/Symbol.h
  */
 class Symbol extends CObject {
 
