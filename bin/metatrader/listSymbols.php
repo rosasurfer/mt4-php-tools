@@ -125,16 +125,16 @@ if (!$files) {
 
 
 // (4) anzuzeigende Felder bestimmen
-$allFieldsLower = array_change_key_case(array_flip($allFields), CASE_LOWER);  // lower-name => (int)
-$usedFields     = array_flip($allFields);                                     // real-name  => (int)
+$allFieldsLower = array_change_key_case(array_flip($allFields), CASE_LOWER);    // lower-name => (int)
+$usedFields     = array_flip($allFields);                                       // real-name  => (int)
 foreach ($usedFields as &$value) {
-    $value = null;                                                             // real-name  => (null)       default: alle Felder OFF
+    $value = null;                                                              // real-name  => (null)       default: alle Felder OFF
 }; unset($value);
 
 foreach ($fieldArgs as $arg) {
     if ($arg == '++') {
         foreach ($usedFields as $name => &$value) {
-            $value = $name;                                                      // real-name  => print-name   alle Felder ON
+            $value = $name;                                                     // real-name  => print-name   alle Felder ON
         }; unset($value);
         continue;
     }
@@ -142,27 +142,27 @@ foreach ($fieldArgs as $arg) {
         $name = strtolower(strRight($arg, -1));
         if (isset($allFieldsLower[$name])) {
             $realName = $allFields[$allFieldsLower[$name]];
-            $usedFields[$realName] = $realName;                                  // real-name => print-name    Feld ON
+            $usedFields[$realName] = $realName;                                 // real-name => print-name    Feld ON
         }
     }
     else if ($arg[0] == '-') {
         $name = strtolower(strRight($arg, -1));
         if (isset($allFieldsLower[$name])) {
             $realName = $allFields[$allFieldsLower[$name]];
-            $usedFields[$realName] = null;                                       // real-name => (null)        Feld OFF
+            $usedFields[$realName] = null;                                      // real-name => (null)        Feld OFF
         }
     }
 }
-$usedFields['name'] = 'symbol';                                               // Symbol ist immer ON (kann nicht ausgeschaltet werden)
+$usedFields['name'] = 'symbol';                                                 // Symbol ist immer ON (kann nicht ausgeschaltet werden)
 
 foreach ($usedFields as $name => $value) {
-    if (is_null($value)) {                                                     // verbliebene NULL-Felder loeschen
+    if (is_null($value)) {                                                      // verbliebene NULL-Felder loeschen
         unset($usedFields[$name]);
         continue;
     }
     $usedFields[$name] = null;
-    $usedFields[$name]['printName'] = ucfirst($value);                         // [real-name][printName] => print-name
-    $usedFields[$name]['length'   ] = strlen($value);                          // [real-name][length]    => (int)
+    $usedFields[$name]['printName'] = ucfirst($value);                          // [real-name][printName] => print-name
+    $usedFields[$name]['length'   ] = strlen($value);                           // [real-name][length]    => (int)
 }
 
 
