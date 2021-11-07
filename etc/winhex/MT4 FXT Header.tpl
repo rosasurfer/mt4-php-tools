@@ -2,7 +2,7 @@
 // MetaTrader structure FXT_HEADER: FXT-File Header version 405 (ab Build ???)
 //
 //
-// @see  Definition in MT4Expander::Expander.h
+// @see  https://github.com/rosasurfer/mt4-expander/blob/master/header/struct/mt4/FxtHeader.h
 //
 
 template    "MT4 FXT Header"
@@ -58,7 +58,7 @@ begin
 
    // profit calculation parameters                 // ----------------------------------------------------------------------------------------------------------------
    double       "Contract Size (units)"             //       296         8
-   double       "Tick Value"                        //       304         8     in Quote-Currency oder Accountwährung ???
+   double       "Tick Value"                        //       304         8     in Quote-Currency oder Accountwï¿½hrung ???
    double       "Tick Size"                         //       312         8
    uint32       "Profit Calculation Mode"           //       320         4
    endsection
@@ -97,7 +97,7 @@ begin
    move         -12                                 //       436       -12
    double       "Commission Value"                  //       424         8     commission rate
    move         4                                   //       432         4
-   uint32       "Commission Type"                   //       436         4     !!! prüfen !!! round-turn or per deal
+   uint32       "Commission Type"                   //       436         4     !!! prï¿½fen !!! round-turn or per deal
    endsection
 
    // later additions                               // ----------------------------------------------------------------------------------------------------------------

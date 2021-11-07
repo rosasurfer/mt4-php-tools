@@ -2,7 +2,7 @@
 // MetaTrader structure SYMBOL_SELECTED: Dateiformat "symbols.sel"
 //
 //
-// @see  Definition in MT4Expander::Expander.h
+// @see  https://github.com/rosasurfer/mt4-expander/blob/master/header/struct/mt4/SymbolSelected.h
 //
 
 template    "MT4 Symbols Selected [1]"
@@ -17,7 +17,7 @@ begin
    { endsection
       char[12]     "Symbol"
       move 4
-      uint32       "Array Key"
+      uint32       "SYMBOL.index"
       uint32       "(undocumented DWORD)"
       endsection
 

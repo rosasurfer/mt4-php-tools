@@ -4,7 +4,7 @@
 // HistoryFile Barformat v401 (ab Build 510), entspricht dem MetaQuotes-Struct MqlRates
 //
 //
-// @see  Definition in MT4Expander::Expander.h
+// @see  https://github.com/rosasurfer/mt4-expander/blob/master/header/struct/mt4/HistoryBar401.h
 //
 
 template    "MT4 History Data v401 [4]"
