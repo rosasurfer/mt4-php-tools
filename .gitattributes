@@ -40,10 +40,5 @@ etc/db/html/*          linguist-generated
 etc/db/html/*          linguist-vendored
                        
 web/css/*              linguist-vendored
-web/css/rosatrader.css linguist-vendored=false
-
 web/fonts/*            linguist-vendored
-                       
 web/js/*               linguist-vendored
-web/js/rosasurfer.js   linguist-vendored=false
-web/js/rosatrader.js   linguist-vendored=false
