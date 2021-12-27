@@ -124,5 +124,6 @@
         "ext-bcmath": "*",
         "ext-sqlite3": "*"
     },
-    "platform-dev": []
+    "platform-dev": [],
+    "plugin-api-version": "1.1.0"
 }

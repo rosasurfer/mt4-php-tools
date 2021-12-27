@@ -1,11 +1,11 @@
 {
     "name":        "rosasurfer/mt4-tools",
-    "description": "rosatrader - web and command line tools",
+    "description": "MT4 web and command line tools",
     "type":        "project",
     "license":     "WTFPL",
     "authors": [{
         "name":  "Peter Walther",
-        "email": "rosatrader@rosasurfer.com"
+        "email": "mt4-tools@rosasurfer.com"
     }],
     "config": {
         "optimize-autoloader": true
