@@ -67,8 +67,9 @@ for ($i=0; $i < $iBars; $i++) {
     fseek($hFile, -$barSize, SEEK_CUR);
     MT4::writeHistoryBar400($hFile, $digits, $bar['time'], $bar['open'], $bar['high'], $bar['low'], $bar['close'], $bar['ticks']);
 }
-
 fclose($hFile);
+
+echoPre('success: shifted '.$i.' bars');
 exit(0);
 
 
