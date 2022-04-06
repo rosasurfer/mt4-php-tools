@@ -267,7 +267,10 @@ class MT4 extends StaticClass {
             $V = strrev(substr($data, 36, 8));
             $data  = $T.$O.$L.$H.$C.$V;
         }
-        return fwrite($hFile, $data);
+
+        $written = fwrite($hFile, $data);
+        if ($written != MT4::HISTORY_BAR_400_SIZE) throw new RuntimeException('Error writing '.strlen($data).' bytes to file ('.$written.' written)');
+        return $written;
     }
 
 
