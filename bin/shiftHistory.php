@@ -1,7 +1,23 @@
 #!/usr/bin/env php
 <?php
 /**
+ * - testing
+ *    rsync remote to localhost
+ *    copy files to process to working directory and create backup
+ *    compose cmd line matching only the files to shift:            for FILE in zDE40_936D*.hst;       do echo mt4-shiftHistory $FILE 1500; done
+ *    shift files and test charts (repeat until results fit)        for FILE in zDE40_936{A,B,C}*.hst; do echo mt4-shiftHistory $FILE 1500; done
  *
+ * - real shifting                                                  for FILE in zDE40_936*.hst; do mt4-shiftHistory $FILE 190000; done
+ *    open remote .set file and remote chart profile
+ *    shutdown remote terminal
+ *    rsync remote to localhost
+ *    copy files to process to working directory
+ *    apply shift cmd
+ *    copy shifted working directory to remote
+ *    overwrite original remote files
+ *    add shift value to existing base value of .set file and chart profile
+ *    re-launch terminal
+ *    reload the profile
  */
 use rosasurfer\rt\lib\metatrader\HistoryHeader;
 use rosasurfer\rt\lib\metatrader\MetaTraderException;
