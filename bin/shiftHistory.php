@@ -89,6 +89,5 @@ echo <<<HELP
   FILE:   history file to process
   SHIFT:  numeric shift value
 
-
 HELP;
 }
