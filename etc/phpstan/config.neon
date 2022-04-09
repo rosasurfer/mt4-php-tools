@@ -17,13 +17,12 @@ parameters:
         - phtml
 
     excludes_analyse:
-        - .git/
-        - .settings/
         - data/
         - etc/
-        - vendor/
-        - web/css/
-        - web/js/
+        - vendor/composer/
+        - vendor/psr/
+        - vendor/rosasurfer/ministruts/etc/
+        - web/
 
     universalObjectCratesClasses:
         - rosasurfer\ministruts\Page
