@@ -25,7 +25,7 @@ class MetaTraderHistoryCommand extends Command {
 Create new MetaTrader history files.
 
 Usage:
-  rt-metatrader-history  create SYMBOL [options]
+  {:cmd:}  create SYMBOL [options]
 
 Commands:
   create       Create new MetaTrader history files (all standard timeframes) for the specified symbol.
@@ -37,18 +37,6 @@ Options:
    -h, --help  This help screen.
 
 DOCOPT;
-//Create, update or show status of MetaTrader history files.
-
-
-    /**
-     * {@inheritdoc}
-     *
-     * @return $this
-     */
-    protected function configure() {
-        $this->setDocoptDefinition(self::DOCOPT);
-        return $this;
-    }
 
 
     /**

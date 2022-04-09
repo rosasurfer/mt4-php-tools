@@ -25,9 +25,9 @@ class RosatraderHistoryCommand extends Command {
 Command line application to work with the Rosatrader history.
 
 Usage:
-  rt-history  status      [SYMBOL ...] [-h]
-  rt-history  synchronize [SYMBOL ...] [-h]
-  rt-history  update      [SYMBOL ...] [-p PERIOD] [-h]
+  {:cmd:}  status      [SYMBOL ...] [-h]
+  {:cmd:}  synchronize [SYMBOL ...] [-h]
+  {:cmd:}  update      [SYMBOL ...] [-p PERIOD] [-h]
 
 Commands:
   status           Show history status information.
@@ -42,17 +42,6 @@ Options:
   -h, --help       This help screen.
 
 DOCOPT;
-
-
-    /**
-     * {@inheritdoc}
-     *
-     * @return $this
-     */
-    protected function configure() {
-        $this->setDocoptDefinition(self::DOCOPT);
-        return $this;
-    }
 
 
     /**

@@ -23,7 +23,7 @@ class DukascopyHistoryStartCommand extends Command {
 Show and update locally stored Dukascopy history start times.
 
 Usage:
-  rt-dukascopy-status  [-r | -u] [-h] [SYMBOL ...]
+  {:cmd:}  [-r | -u] [-h] [SYMBOL ...]
 
 Arguments:
   SYMBOL         Dukascopy symbols to process (default: all tracked symbols).
@@ -34,17 +34,6 @@ Options:
    -h, --help    This help screen.
 
 DOCOPT;
-
-
-    /**
-     * {@inheritdoc}
-     *
-     * @return $this
-     */
-    protected function configure() {
-        $this->setDocoptDefinition(self::DOCOPT);
-        return $this;
-    }
 
 
     /**

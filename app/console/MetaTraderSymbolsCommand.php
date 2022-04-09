@@ -24,8 +24,8 @@ class MetaTraderSymbolsCommand extends Command {
 Create, modify or display MetaTrader symbol definitions ("symbols.raw" files).
 
 Usage:
-  rt-metatrader-symbol  split SYMBOLS_RAW [-h]
-  rt-metatrader-symbol  join  SYMBOL... [-h]
+  {:cmd:}  split SYMBOLS_RAW [-h]
+  {:cmd:}  join  SYMBOL... [-h]
 
 Commands:
   split        Split a "symbols.raw" file into separate files per symbol. Files are stored in the current working directory.
@@ -39,17 +39,6 @@ Options:
    -h, --help  This help screen.
 
 DOCOPT;
-
-
-    /**
-     * {@inheritdoc}
-     *
-     * @return $this
-     */
-    protected function configure() {
-        $this->setDocoptDefinition(self::DOCOPT);
-        return $this;
-    }
 
 
     /**
