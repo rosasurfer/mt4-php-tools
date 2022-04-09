@@ -122,7 +122,6 @@ DOCOPT;
         $fileSize = filesize($file);
         if ($fileSize < HistoryHeader::SIZE) return 1|echoPre('error: invalid or unknown file format (file size < min. size of '.HistoryHeader::SIZE.')');
         $hFile = fopen($file, 'r+b');
-        $header = null;
         try {
             $header = new HistoryHeader(fread($hFile, HistoryHeader::SIZE));
         }
