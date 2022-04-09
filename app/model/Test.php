@@ -534,8 +534,6 @@ class Test extends RosatraderModel {
 
     /**
      * Make sure the test statistics are calculated.
-     *
-     * {@inheritdoc}
      */
     protected function beforeInsert() {
         $this->getStats();
@@ -545,8 +543,6 @@ class Test extends RosatraderModel {
 
     /**
      * Insert the related entities as this is not yet automated by the ORM.
-     *
-     * {@inheritdoc}
      */
     protected function afterInsert() {
         $objects = array_merge(

@@ -209,7 +209,7 @@ class DukascopySymbol extends RosatraderModel implements IHistorySource {
 
 
     /**
-     * {@inheritdoc}
+     *
      */
     public function getHistory($period, $time, $optimized = false) {
         Assert::int($period, '$period');

@@ -44,7 +44,7 @@ class ViewTestActionForm extends ActionForm {
 
 
     /**
-     * {@inheritdoc}
+     *
      */
     protected function populate() {
         $input = $this->request->input();
@@ -53,7 +53,7 @@ class ViewTestActionForm extends ActionForm {
 
 
    /**
-    * {@inheritdoc}
+    *
     */
     public function validate() {
         $request = $this->request;

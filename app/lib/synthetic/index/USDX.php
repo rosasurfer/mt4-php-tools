@@ -34,7 +34,7 @@ class USDX extends AbstractSynthesizer {
 
 
     /**
-     * {@inheritdoc}
+     *
      */
     public function calculateHistory($period, $time) {
         Assert::int($period, '$period');

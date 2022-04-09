@@ -40,8 +40,6 @@ DOCOPT;
 
 
     /**
-     * {@inheritdoc}
-     *
      * @param  Input  $input
      * @param  Output $output
      *

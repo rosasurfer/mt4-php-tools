@@ -39,7 +39,7 @@ class SEKFXI extends AbstractSynthesizer {
 
 
     /**
-     * {@inheritdoc}
+     *
      */
     public function calculateHistory($period, $time) {
         Assert::int($period, '$period');

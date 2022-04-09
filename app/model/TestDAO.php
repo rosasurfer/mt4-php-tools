@@ -17,7 +17,7 @@ class TestDAO extends DAO {
 
 
     /**
-     * {@inheritdoc}
+     *
      */
     public function getMapping() {
         static $mapping; return $mapping ?: ($mapping=$this->parseMapping([

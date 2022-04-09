@@ -52,8 +52,6 @@ abstract class RosatraderModel extends PersistableObject {
 
     /**
      * Update the version field as this is not yet automated by the ORM.
-     *
-     * {@inheritdoc}
      */
     protected function beforeUpdate() {
         $this->modified = gmdate('Y-m-d H:i:s');

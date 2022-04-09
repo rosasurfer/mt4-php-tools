@@ -30,7 +30,7 @@ abstract class AbstractSynthesizer extends CObject implements ISynthesizer {
 
 
     /**
-     * {@inheritdoc}
+     *
      */
     public function __construct(RosaSymbol $symbol) {
         $this->symbol     = $symbol;
@@ -39,7 +39,7 @@ abstract class AbstractSynthesizer extends CObject implements ISynthesizer {
 
 
     /**
-     * {@inheritdoc}
+     *
      */
     public function getHistoryStartTick($format = 'Y-m-d H:i:s') {
         return '0';
@@ -47,7 +47,7 @@ abstract class AbstractSynthesizer extends CObject implements ISynthesizer {
 
 
     /**
-     * {@inheritdoc}
+     *
      */
     public function getHistoryStartM1($format = 'Y-m-d H:i:s') {
         return '0';
@@ -153,7 +153,7 @@ abstract class AbstractSynthesizer extends CObject implements ISynthesizer {
 
 
     /**
-     * {@inheritdoc}
+     *
      */
     public final function getHistory($period, $time, $optimized = false) {
         $time -= $time%DAY;
