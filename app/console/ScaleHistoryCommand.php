@@ -4,6 +4,9 @@ namespace rosasurfer\rt\console;
 use rosasurfer\console\Command;
 use rosasurfer\console\io\Input;
 use rosasurfer\console\io\Output;
+use rosasurfer\core\exception\InvalidArgumentException;
+use rosasurfer\util\DateTime;
+
 use rosasurfer\rt\lib\metatrader\HistoryHeader;
 use rosasurfer\rt\lib\metatrader\MetaTraderException;
 use rosasurfer\rt\lib\metatrader\MT4;
@@ -35,9 +38,9 @@ Options:
   -h, --help         This help screen.
 
 Examples:
-  {:cmd:}  EURUSD1.hst + 0.5012                                                     # add 0.5012 to all bars
-  {:cmd:}  EURUSD1.hst '*' 1.1                                                      # scale up all bars by 10%
-  {:cmd:}  EURUSD1.hst / 0.9 --from='2022.01.03 10:00' --to='2022.01.06 17:55'      # scale down a bar range by 10%
+  {:cmd:}  EURUSD1.hst + 0.5012                                                 # add 0.5012 to all bars
+  {:cmd:}  EURUSD1.hst '*' 1.1                                                  # scale up all bars by 10%
+  {:cmd:}  EURUSD1.hst / 0.9 --from='2022.01.03' --to='2022.01.06 17:55'        # scale down a bar range by 10%
 
 DOCOPT;
 
@@ -51,10 +54,10 @@ DOCOPT;
     protected $operand;
 
     /** @var int */
-    protected $from = 0;
+    protected $from;
 
     /** @var int */
-    protected $to = PHP_INT_MAX;
+    protected $to;
 
 
     /**
@@ -67,7 +70,7 @@ DOCOPT;
      */
     protected function validate(Input $input, Output $output) {
         // FILE
-        if (!is_file($file = $input->getArgument('FILE'))) return 1|echoPre('error: file "'.$file.'" not found'.NL.NL.$input->getDocoptResult()->getUsage());
+        if (!is_file($file = $input->getArgument('FILE'))) return 1|$output->error('error: file "'.$file.'" not found'.NL.NL.$input->getDocoptResult()->getUsage());
         $this->file = $file;
 
         // operator
@@ -75,31 +78,33 @@ DOCOPT;
         else if ($input->getArgument('-')) $this->operation = '-';
         else if ($input->getArgument('*')) $this->operation = '*';
         else if ($input->getArgument('/')) $this->operation = '/';
-        else                               return 1|echoPre('error: invalid scaling operator'.NL.NL.$input->getDocoptResult()->getUsage());
+        else                               return 1|$output->error('error: invalid scaling operator'.NL.NL.$input->getDocoptResult()->getUsage());
 
-        // <value> i.e. operand
-        if (!is_numeric($value = $input->getArgument('<value>'))) return 1|echoPre('error: non-numeric <value>'.NL.NL.$input->getDocoptResult()->getUsage());
+        // <value> i.e. the operand
+        if (!is_numeric($value = $input->getArgument('<value>'))) return 1|$output->error('error: non-numeric <value>'.NL.NL.$input->getDocoptResult()->getUsage());
         $value = (float) $value;
-        if (!$value)                                              return 1|echoPre('error: invalid <value> (zero)'.NL.NL.$input->getDocoptResult()->getUsage());
+        if (!$value)                                              return 1|$output->error('error: invalid <value> (zero)'.NL.NL.$input->getDocoptResult()->getUsage());
         $this->operand = (float) $value;
 
         // --from <datetime>
-        /** @var string|bool $from */
         $from = $input->getOption('--from');
         if (is_string($from)) {
-            if (!is_datetime($from, ['Y.m.d', 'Y.m.d H:i', 'Y.m.d H:i:s'])) return 1|echoPre('error: invalid --from time'.NL.NL.$input->getDocoptResult()->getUsage());
-            $this->from = strtotime($from.' GMT');
+            /** @var DateTime $date */
+            ($date = DateTime::createFromFormat('Y.m.d H:i T', $from.' GMT'))       && $this->from = $date->getTimestamp();
+            ($date = DateTime::createFromFormat('Y.m.d H:i T', $from.' 00:00 GMT')) && $this->from = $date->getTimestamp();
+            if (!$this->from) return 1|$output->error('error: invalid --from time'.NL.NL.$input->getDocoptResult()->getUsage());
         }
 
         // --to <datetime>
-        /** @var string|bool $to */
         $to = $input->getOption('--to');
         if (is_string($to)) {
-            if (!is_datetime($to, ['Y.m.d', 'Y.m.d H:i', 'Y.m.d H:i:s'])) return 1|echoPre('error: invalid --to time'.NL.NL.$input->getDocoptResult()->getUsage());
-            $this->to = strtotime($to.' GMT');
+            /** @var DateTime $date */
+            ($date = DateTime::createFromFormat('Y.m.d H:i T', $to.' GMT'))       && $this->to = $date->getTimestamp();
+            ($date = DateTime::createFromFormat('Y.m.d H:i T', $to.' 00:00 GMT')) && $this->to = $date->getTimestamp() + 1*DAY;
+            if (!$this->to) return 1|$output->error('error: invalid --to time'.NL.NL.$input->getDocoptResult()->getUsage());
         }
         if (is_string($from) && is_string($to)) {
-            if ($this->from > $this->to) return 1|echoPre('error: invalid --from/--to time range'.NL.NL.$input->getDocoptResult()->getUsage());
+            if ($this->from > $this->to) return 1|$output->error('error: invalid --from/--to time range'.NL.NL.$input->getDocoptResult()->getUsage());
         }
         return 0;
    }
@@ -115,28 +120,31 @@ DOCOPT;
         $file      = $this->file;
         $operation = $this->operation;
         $operand   = $this->operand;
-        $from      = $this->from;
-        $to        = $this->to;
+        $from      = $this->from ?: 0;
+        $to        = $this->to ?: PHP_INT_MAX;
 
         // open history file and read header
         $fileSize = filesize($file);
-        if ($fileSize < HistoryHeader::SIZE) return 1|echoPre('error: invalid or unknown file format (file size < min. size of '.HistoryHeader::SIZE.')');
+        if ($fileSize < HistoryHeader::SIZE) return 1|$output->error('error: invalid or unknown file format (file size < min. size of '.HistoryHeader::SIZE.')');
         $hFile = fopen($file, 'r+b');
         try {
             $header = new HistoryHeader(fread($hFile, HistoryHeader::SIZE));
         }
         catch (MetaTraderException $ex) {
-            if (strStartsWith($ex->getMessage(), 'version.unsupported'))
-                return 1|echoPre('error: unsupported history format in "'.$file.'": '.NL.$ex->getMessage());
+            if (strStartsWith($ex->getMessage(), 'version.unsupported')) return 1|$output->error('error: unsupported history format in "'.$file.'"');
             throw $ex;
         }
         $version   = $header->getFormat();
         $digits    = $header->getDigits();
         $barSize   = $version==400 ? MT4::HISTORY_BAR_400_SIZE : MT4::HISTORY_BAR_401_SIZE;
         $barFormat = MT4::BAR_getUnpackFormat($version);
-        $iBars     = ($fileSize-HistoryHeader::SIZE) / $barSize;
-        if (!is_int($iBars)) return 1|echoPre('error: invalid size of file "'.$file.'" (EOF is not on a bar boundary)');
-        if ($version != 400) return 1|echoPre('error: processing of history files in format '.$version.' not yet implemented');
+        $bars      = ($fileSize-HistoryHeader::SIZE) / $barSize;
+        if (!is_int($bars))  return 1|$output->error('error: invalid size of file "'.$file.'" (EOF is not on a bar boundary)');
+        if ($version != 400) return 1|$output->error('error: processing of history format '.$version.' not yet implemented');
+
+        // lookup start bar and set initial file pointer position
+        $startbar = $this->findStartbar($hFile, $bars, $barSize, $barFormat, $from);
+        fseek($hFile, HistoryHeader::SIZE + $startbar*$barSize);
 
         // transformation helper
         $transform = function($value) use ($operation, $operand) {
@@ -145,26 +153,68 @@ DOCOPT;
                 case '-': return $value - $operand;
                 case '*': return $value * $operand;
                 case '/': return $value / $operand;
+                default: throw new InvalidArgumentException('invalid parameter $operation: '.$operation);
             }
         };
 
-        // iterate over all bars and transform data
-        for ($n=$i=0; $i < $iBars; $i++) {
-            $bar = unpack($barFormat, fread($hFile, $barSize));     // read bar
+        // iterate over remaining bars and transform data
+        for ($i=$startbar, $n=0; $i < $bars; $i++) {
+            $bar = unpack($barFormat, fread($hFile, $barSize)); // read bar
 
-            if ($from <= $bar['time'] && $bar['time'] < $to) {      // transform data
-                $bar['open' ] = $transform($bar['open' ]);
-                $bar['high' ] = $transform($bar['high' ]);
-                $bar['low'  ] = $transform($bar['low'  ]);
-                $bar['close'] = $transform($bar['close']);
-                $n++;
-                fseek($hFile, -$barSize, SEEK_CUR);                 // write bar
-                MT4::writeHistoryBar400($hFile, $digits, $bar['time'], $bar['open'], $bar['high'], $bar['low'], $bar['close'], $bar['ticks']);
-            }
+            if ($bar['time'] < $from) continue;
+            if ($bar['time'] >= $to)  break;
+
+            $bar['open' ] = $transform($bar['open' ]);          // transform data
+            $bar['high' ] = $transform($bar['high' ]);
+            $bar['low'  ] = $transform($bar['low'  ]);
+            $bar['close'] = $transform($bar['close']);
+
+            fseek($hFile, -$barSize, SEEK_CUR);                 // write transformed bar
+            MT4::writeHistoryBar400($hFile, $digits, $bar['time'], $bar['open'], $bar['high'], $bar['low'], $bar['close'], $bar['ticks']);
+            $n++;
         }
         fclose($hFile);
 
-        echoPre('success: transformed '.$n.' bars');
+        $output->out($file.': modified '.$n.' bar'.pluralize($n));
         return 0;
+    }
+
+
+    /**
+     * Fast lookup of the processing start bar (not the transformation start bar).
+     *
+     * @param  resource $hFile     - file handle
+     * @param  int      $bars      - number of bars in the file
+     * @param  int      $barSize   - bar size
+     * @param  string   $barFormat - bar unpack format
+     * @param  int      $from      - time to lookup
+     *
+     * @return int - start bar offset with the oldest bar having offset = 0
+     */
+    protected function findStartbar($hFile, $bars, $barSize, $barFormat, $from) {
+        if ($bars < 2 && !$from) return 0;
+
+        $iFirstBar = 0;
+        fseek($hFile, HistoryHeader::SIZE + $iFirstBar*$barSize);
+        $firstBar = unpack($barFormat, fread($hFile, $barSize));
+
+        $iLastBar = $bars-1;
+        fseek($hFile, HistoryHeader::SIZE + $iLastBar*$barSize);
+        $lastBar = unpack($barFormat, fread($hFile, $barSize));
+
+        while (true) {
+            $bars = $iLastBar - $iFirstBar + 1;                     // number of remaining bars
+
+            if ($firstBar['time'] > $from) return $iFirstBar;
+            if ($lastBar['time'] <= $from) return $iLastBar;
+            if ($bars <= 2)                return $iLastBar;
+
+            $half = (int) ceil($bars/2);                            // narrow the range
+            $iMidBar = $iFirstBar + $half - 1;
+            fseek($hFile, HistoryHeader::SIZE + $iMidBar*$barSize);
+            $midBar = unpack($barFormat, fread($hFile, $barSize));
+            if ($midBar['time'] <= $from) { $firstBar = $midBar; $iFirstBar = $iMidBar; }
+            else                          { $lastBar  = $midBar; $iLastBar  = $iMidBar; }
+        }
     }
 }
