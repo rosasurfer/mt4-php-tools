@@ -158,8 +158,8 @@ DOCOPT;
                 case '-': return $value - $operand;
                 case '*': return $value * $operand;
                 case '/': return $value / $operand;
-                default: throw new InvalidArgumentException('invalid parameter $operation: '.$operation);
             }
+            throw new InvalidArgumentException('invalid parameter $operation: '.$operation);
         };
 
         // iterate over remaining bars and transform data
