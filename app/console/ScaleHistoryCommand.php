@@ -40,7 +40,7 @@ Options:
 Examples:
   {:cmd:}  EURUSD1.hst + 0.5012                                                 # add 0.5012 to all bars
   {:cmd:}  EURUSD1.hst '*' 1.1                                                  # scale up all bars by 10%
-  {:cmd:}  EURUSD1.hst / 0.9 --from='2022.01.03' --to='2022.01.06 17:55'        # scale down a bar range by 10%
+  {:cmd:}  EURUSD1.hst / 0.9 --from=2022.01.03 --to='2022.01.06 17:55'          # scale down a bar range by 10%
 
 DOCOPT;
 
