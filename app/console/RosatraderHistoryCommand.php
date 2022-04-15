@@ -20,8 +20,7 @@ class RosatraderHistoryCommand extends Command {
 
 
     /** @var string */
-    const DOCOPT = <<<'DOCOPT'
-
+    const DOCOPT = <<<DOCOPT
 Command line application to work with the Rosatrader history.
 
 Usage:

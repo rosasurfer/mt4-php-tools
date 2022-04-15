@@ -20,8 +20,7 @@ class MetaTraderHistoryCommand extends Command {
 
 
     /** @var string */
-    const DOCOPT = <<<'DOCOPT'
-
+    const DOCOPT = <<<DOCOPT
 Create new MetaTrader history files.
 
 Usage:

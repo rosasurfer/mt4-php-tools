@@ -18,8 +18,7 @@ class DukascopyHistoryStartCommand extends Command {
 
 
     /** @var string */
-    const DOCOPT = <<<'DOCOPT'
-
+    const DOCOPT = <<<DOCOPT
 Show and update locally stored Dukascopy history start times.
 
 Usage:

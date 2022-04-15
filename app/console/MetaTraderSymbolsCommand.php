@@ -19,8 +19,7 @@ class MetaTraderSymbolsCommand extends Command {
 
 
     /** @var string */
-    const DOCOPT = <<<'DOCOPT'
-
+    const DOCOPT = <<<DOCOPT
 Create, modify or display MetaTrader symbol definitions ("symbols.raw" files).
 
 Usage:
