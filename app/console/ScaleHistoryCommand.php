@@ -117,7 +117,7 @@ DOCOPT;
         // --fix-bars
         $this->fixBars = (bool) $input->getOption('--fix-bars');
         return 0;
-   }
+    }
 
 
     /**
