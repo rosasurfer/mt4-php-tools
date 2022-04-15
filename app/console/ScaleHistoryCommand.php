@@ -35,7 +35,7 @@ Arguments:
 Options:
   --from=<datetime>  Processing start time (default: start of file).
   --to=<datetime>    Processing end time (default: end of file).
-  --fix-bars         Fix invalid bar ranges (e.g. high/low mis-matches)
+  --fix-bars         Fix invalid ranges of modified bars (e.g. high/low mis-matches)
   --help, -h         This help screen.
 
 Examples:
