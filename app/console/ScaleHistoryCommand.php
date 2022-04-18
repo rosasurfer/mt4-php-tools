@@ -160,7 +160,9 @@ DOCOPT;
         fseek($hFile, HistoryHeader::SIZE + $startbar*$barSize);
 
         // transformation helper
-        $transform = function($value) use ($operation, $operand) {
+        $transform = function($value, &$modified) use ($operation, $operand) {
+            $modified = true;
+
             switch ($operation) {
                 case '+': return $value + $operand;
                 case '-': return $value - $operand;
@@ -173,14 +175,15 @@ DOCOPT;
         // iterate over remaining bars and transform data
         for ($i=$startbar, $n=0; $i < $bars; $i++) {
             $bar = unpack($barFormat, fread($hFile, $barSize)); // read bar
+            $modified = false;
 
             if ($bar['time'] < $from) continue;
             if ($bar['time'] >= $to)  break;
 
-            $bar['open' ] = $transform($bar['open' ]);          // transform data
-            $bar['high' ] = $transform($bar['high' ]);
-            $bar['low'  ] = $transform($bar['low'  ]);
-            $bar['close'] = $transform($bar['close']);
+            $bar['open' ] = $transform($bar['open' ], $modified);   // transform data
+            $bar['high' ] = $transform($bar['high' ], $modified);
+            $bar['low'  ] = $transform($bar['low'  ], $modified);
+            $bar['close'] = $transform($bar['close'], $modified);
 
             if ($fixBars) {
                 $bar['high'] = max($bar['open'], $bar['high'], $bar['low'], $bar['close']);
@@ -189,7 +192,7 @@ DOCOPT;
 
             fseek($hFile, -$barSize, SEEK_CUR);                 // write transformed bar
             MT4::writeHistoryBar400($hFile, $digits, $bar['time'], $bar['open'], $bar['high'], $bar['low'], $bar['close'], $bar['ticks']);
-            $n++;
+            $modified && $n++;
         }
         fclose($hFile);
 
