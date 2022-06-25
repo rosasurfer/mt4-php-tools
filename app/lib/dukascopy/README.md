@@ -84,8 +84,8 @@ struct DUKASCOPY_HISTORY_START {     // -- offset --- size --- description -----
 ```C++
 // big-endian
 struct DUKASCOPY_TIMEFRAME_START {   // -- offset --- size --- description -----------------------------------------------
-    int64 timeframe;                 //         0        8     period in minutes as a Java timestamp: 0|-1 = PERIOD_TICK
-    int64 time;                      //         8        8     start time as a Java timestamp:        INT_MAX = n/a
+    int64 timeframe;                 //         0        8     period in minutes as a Java timestamp (0 or -1: tick data)
+    int64 time;                      //         8        8     start time as a Java timestamp (INT_MAX: no data avaliable)
 };                                   // ----------------------------------------------------------------------------------
                                      //               = 16
 ```
@@ -123,11 +123,10 @@ struct DUKASCOPY_TICK {              // -- offset --- size --- description -----
 
 ### Timezones
 
-Internally Rosatrader uses everywhere a virtual timezone called `FXT` (Forex standard time). By default all history and times
-are stored and displayed in that timezone. `FXT` essentially is the timezone `America/New_York` shifted eastward by 7 hours.
-In this timezone trading days start and end always at Midnight, no matter of the current DST (daylight saving time) status.
-It is used by major brokerage companies and is the only timezone suitable for trading without DST irregularities and the
-infamous Sunday candles. If a time is displayed without timezone identifier it is assumed to be in `FXT`.
+Internally Rosatrader uses a timezone called `FXT` (Forex standard time). All history data and times are stored and displayed
+in it. `FXT` is a synonym for `America/New_York+0700`. In this timezone trading days start and end always at Midnight, no
+matter of the current DST (daylight saving time) status. It is the only trading related timezone without DST irregularities
+and so called Sunday candles. If a time is displayed without timezone identifier it is assumed to be in `FXT`.
 ```
         +------------++------------+------------+------------+------------+------------++------------+------------++------------+
 GMT:    |   Sunday   ||   Monday   |  Tuesday   | Wednesday  |  Thursday  |   Friday   ||  Saturday  |   Sunday   ||   Monday   |
