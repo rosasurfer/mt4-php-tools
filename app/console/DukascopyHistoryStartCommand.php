@@ -19,17 +19,17 @@ class DukascopyHistoryStartCommand extends Command {
 
     /** @var string */
     const DOCOPT = <<<DOCOPT
-Show and update locally stored Dukascopy history start times.
+Show and/or update locally stored Dukascopy history start times.
 
 Usage:
   {:cmd:}  [-r | -u] [-h] [SYMBOL ...]
 
 Arguments:
-  SYMBOL         Dukascopy symbols to process (default: all tracked symbols).
+  SYMBOL         One or more Dukascopy symbols to process (default: all tracked symbols).
 
 Options:
-   -r, --remote  Show remote instead of locally stored history start times (connects to Dukascopy).
-   -u, --update  Update locally stored history start times (connects to Dukascopy).
+   -r, --remote  Show remote instead of local history start times (connects to Dukascopy).
+   -u, --update  Update history start times (connects to Dukascopy).
    -h, --help    This help screen.
 
 DOCOPT;
@@ -66,7 +66,7 @@ DOCOPT;
                     $i++;
                 }
             }
-            !$i && $output->out('[Info]    All locally tracked symbols up-to-date');
+            !$i && $output->out('[Info]    All local symbols up-to-date');
             return 0;
         }
 
@@ -97,7 +97,7 @@ DOCOPT;
             /** @var DukascopySymbol $symbol */
             $symbol = DukascopySymbol::dao()->findByName($name);
             if (!$symbol) {
-                $output->error('Unknown or untracked Dukascopy symbol "'.$name.'"');
+                $output->error('Untracked Dukascopy symbol "'.$name.'"');
                 $this->status = 1;
                 return [];
             }
@@ -105,7 +105,7 @@ DOCOPT;
         }
 
         if (!$symbols && !$symbols = DukascopySymbol::dao()->findAll('select * from :DukascopySymbol order by name'))
-            $output->out('No tracked Dukascopy symbols found.');
+            $output->out('No local Dukascopy symbols found.');
         return $symbols;
     }
 }

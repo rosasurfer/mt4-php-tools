@@ -15,8 +15,12 @@ day is available the earliest at the next day (`GMT`). In Rosatrader bid and ask
     <td colspan="2"> <b>Web site</b> </td>
 </tr>
 <tr>
-    <td> Historical data feed </td>
+    <td> Historical data feed (1) </td>
     <td> https://www.dukascopy.com/swiss/english/marketwatch/historical/ </td>
+</tr>
+<tr>
+    <td> Historical data feed (2) </td>
+    <td> https://www.dukascopy.com/trading-tools/widgets/quotes/historical_data_feed </td>
 </tr>
 <tr>
     <td colspan="2"><br></td>
@@ -59,7 +63,7 @@ Data is [LZMA](https://en.wikipedia.org/wiki/Lempel%E2%80%93Ziv%E2%80%93Markov_c
 
 ### Data structures
 
-`DUKASCOPY_HISTORY_START` defines the storage format of history start times of all timeframes available for a symbol:
+`DUKASCOPY_HISTORY_START` describes the storage format of history start times of all timeframes available for a symbol:
 ```C++
 // big-endian
 struct DUKASCOPY_HISTORY_START {     // -- offset --- size --- description -----------------------------------------------
@@ -76,7 +80,7 @@ struct DUKASCOPY_HISTORY_START {     // -- offset --- size --- description -----
 ```
 ---
 
-`DUKASCOPY_TIMEFRAME_START` defines the storage format of the history start time of a single timeframe:
+`DUKASCOPY_TIMEFRAME_START` describes the storage format of the history start time of a single timeframe:
 ```C++
 // big-endian
 struct DUKASCOPY_TIMEFRAME_START {   // -- offset --- size --- description -----------------------------------------------
@@ -87,7 +91,7 @@ struct DUKASCOPY_TIMEFRAME_START {   // -- offset --- size --- description -----
 ```
 ---
 
-`DUKASCOPY_BAR` defines the storage format of a single price bar:
+`DUKASCOPY_BAR` describes the storage format of a single price bar:
 ```C++
 // big-endian
 struct DUKASCOPY_BAR {               // -- offset --- size --- description -----------------------------------------------
@@ -102,7 +106,7 @@ struct DUKASCOPY_BAR {               // -- offset --- size --- description -----
 ```
 ---
 
-`DUKASCOPY_TICK` defines the storage format of a tick:
+`DUKASCOPY_TICK` describes the storage format of a tick:
 ```C++
 // big-endian
 struct DUKASCOPY_TICK {              // -- offset --- size --- description -----------------------------------------------
