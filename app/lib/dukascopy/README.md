@@ -123,10 +123,10 @@ struct DUKASCOPY_TICK {              // -- offset --- size --- description -----
 
 ### Timezones
 
-Internally Rosatrader uses a timezone called `FXT` (Forex standard time). All history data and times are stored and displayed
-in it. `FXT` is a synonym for `America/New_York+0700`. In this timezone trading days start and end always at Midnight, no
-matter of the current DST (daylight saving time) status. It is the only trading related timezone without DST irregularities
-and so called Sunday candles. If a time is displayed without timezone identifier it is assumed to be in `FXT`.
+Internally Rosatrader uses a timezone called `FXT` (Forex standard time) which is a synonym for `America/New_York+0700`. All
+history data and times are stored and displayed in it. In this timezone trading days start and end always at Midnight, no
+matter of the current DST (daylight saving time) status. It's the only trading related timezone without DST irregularities
+and without so called Sunday candles. If a time is displayed without timezone identifier it is assumed to be in `FXT`.
 ```
         +------------++------------+------------+------------+------------+------------++------------+------------++------------+
 GMT:    |   Sunday   ||   Monday   |  Tuesday   | Wednesday  |  Thursday  |   Friday   ||  Saturday  |   Sunday   ||   Monday   |
