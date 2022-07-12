@@ -538,8 +538,8 @@ function prettyRecoveryTime($duration) {
  * User-land implementation of PECL::stats_standard_deviation()
  *
  * @param  array $values
- * @param  bool  $sample [optional] - whether the values represent just a sample
- *                                    (default: total population)
+ * @param  bool  $sample [optional] - whether values represent a sample or an entire population (default: entire population)
+ *
  * @return float - standard deviation
  */
 function stats_standard_deviation(array $values, $sample = false) {
@@ -558,7 +558,7 @@ function stats_standard_deviation(array $values, $sample = false) {
 
     foreach ($values as $value) {           // The denominator's reduction by 1 for calculating the variance of a sample
         $diff = $value - $mean;             // tries to correct the "mean error" caused by unknown out-of-sample values.
-        $sqrSum += $diff * $diff;           // Think of it as a "correction" when your data is only a sample.
+        $sqrSum += $diff * $diff;           // Think of it as an arbitrary correction when you don't know outliers.
     };                                      //
                                             // standard deviation:
     if ($sample) $n--;                      // @see http://www.mathsisfun.com/data/standard-deviation.html
