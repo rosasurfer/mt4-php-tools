@@ -1,11 +1,11 @@
 name: PHP Composer
 
 on:
+  workflow_dispatch:
   push:
-    branches: [ "gh-1" ]
+    branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
-  workflow_dispatch: [ "master", "gh-1" ]    
 
 permissions:
   contents: read
