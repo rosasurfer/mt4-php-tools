@@ -569,7 +569,7 @@ function stats_standard_deviation(array $values, $sample = false) {
 
 
 /**
- * Calculate the Sharpe ratio of the given returns (the average return divided by the standard deviation).
+ * Calculate the Sharpe ratio of the given returns (the average return divided by the standard deviation).      // wrong: it's the total return
  *
  * @param  array $returns
  * @param  bool  $growth  [optional] - whether the returns are growth rates or absolute values
@@ -578,12 +578,27 @@ function stats_standard_deviation(array $values, $sample = false) {
  *                                     (default: total population)
  *
  * @return float - over-simplified and non-normalized Sharpe ratio
+ *
+ * @see    https://www.mql5.com/en/forum/289927#comment_9807456
  */
 function stats_sharpe_ratio(array $returns, $growth=false, $sample=false) {
     $n = sizeof($returns);
     if ($n==0           ) throw new IllegalArgumentException('Illegal number of returns: 0 (not a population)');
     if ($n==1 && $sample) throw new IllegalArgumentException('Illegal number of returns: 1 (not a sample)');
 
+    // edit April 2024: calculations are so wrong
+    //  - Sharpe ratio = TotalReturn / TotalVolatility                  // not avgReturn/volatility
+    //    TotalVolatility = StdDeviation(AllReturns)
+    //
+    //  - Growth rates must be handled the same as absolute values. In this case TotalReturn is the sum of all single returns,
+    //    NOT the product. StdDevation() returns the same unit as TotalReturn. If one wanted to process growth rates differently
+    //    then StdDeviation() would have to make that same distinction, which obviously is non-sense.
+    //
+    //  - StdDeviation() returns the average deviation of a single data point from the population mean in the same unit as the population.
+    //    If we start from monthly growth rates in %, std-deviation is the expected (Sigma=1) deviation in % from the average monthly rate.
+    //
+    //  - Summary: Parameter $growth can be fully discarded.
+    //
     if ($growth) {
         throw new UnimplementedFeatureException('Validation of growth rates not yet implemented');
         // all values must be non-negative and non-zero (no return = zero growth = 1)
@@ -608,6 +623,8 @@ function stats_sharpe_ratio(array $returns, $growth=false, $sample=false) {
  *                                    (default: total population)
  *
  * @return float - over-simplified and non-normalized Sortino ratio
+ *
+ * @see    https://www.mql5.com/en/forum/289927#comment_9807456
  */
 function stats_sortino_ratio(array $returns, $growth=false, $sample=false) {
     $n = sizeof($returns);
