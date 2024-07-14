@@ -38,7 +38,8 @@ var chart = new Chart('canvas', {
             lineTension:     0,
             pointRadius:     0,
             data: [
-                <?foreach ($trades as $i => $trade) {
+                <?php
+                foreach ($trades as $i => $trade) {
                     $time   = gmdate(DATE_ISO8601, strtotime($trade->getCloseTime().' GMT'));   // '2014-09-08T08:02:17-05:00' (ISO 8601)
                     $profit = $trade->getProfit();
                     if ($i++) echo ','.NL;
@@ -46,7 +47,8 @@ var chart = new Chart('canvas', {
                     if ($i > 100) {
                         break;
                     }
-                }?>
+                }
+                ?>
             ],
         }]
     },

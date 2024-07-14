@@ -40,10 +40,12 @@ var chart = new Chart('canvas', {
             pointBorderColor:     Color.red,
             pointBackgroundColor: Color.red,
             data: [
-                <?foreach ($trades as $i => $trade) {
+                <?php
+                foreach ($trades as $i => $trade) {
                     if ($i++) echo ','.NL;
                     echo '{x: '.$i.', y: '.$trade->getProfit().'}';
-                }?>
+                }
+                ?>
             ]
         }]
     },
