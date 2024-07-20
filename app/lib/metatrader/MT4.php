@@ -74,7 +74,7 @@ class MT4 extends StaticClass {
     /**
      * History-Bar v400
      *
-     * @see  Definition in MT4Expander.dll::Expander.h
+     * @see  https://github.com/rosasurfer/mt4-expander/blob/master/header/struct/mt4/HistoryBar400.h
      */
     private static $tpl_HistoryBar400 = [
         'time'  => 0,
@@ -88,7 +88,7 @@ class MT4 extends StaticClass {
     /**
      * History-Bar v401
      *
-     * @see  Definition in MT4Expander.dll::Expander.h
+     * @see  https://github.com/rosasurfer/mt4-expander/blob/master/header/struct/mt4/HistoryBar401.h
      */
     private static $tpl_HistoryBar401 = [
         'time'   => 0,
@@ -105,7 +105,7 @@ class MT4 extends StaticClass {
     /**
      * Formatbeschreibung eines struct HISTORY_BAR_400.
      *
-     * @see  Definition in MT4Expander.dll::Expander.h
+     * @see  https://github.com/rosasurfer/mt4-expander/blob/master/header/struct/mt4/HistoryBar400.h
      * @see  MT4::BAR_getUnpackFormat() zum Verwenden als unpack()-Formatstring
      */
     private static $BAR_400_formatStr = '
@@ -121,7 +121,7 @@ class MT4 extends StaticClass {
     /**
      * Formatbeschreibung eines struct HISTORY_BAR_401.
      *
-     * @see  Definition in MT4Expander.dll::Expander.h
+     * @see  https://github.com/rosasurfer/mt4-expander/blob/master/header/struct/mt4/HistoryBar401.h
      * @see  MT4::BAR_getUnpackFormat() zum Verwenden als unpack()-Formatstring
      */
     private static $BAR_401_formatStr = '

@@ -39,7 +39,7 @@ class HistoryHeader extends CObject {
     /**
      * Formatbeschreibung eines struct HISTORY_HEADER.
      *
-     * @see  Definition in MT4Expander.dll::Expander.h
+     * @see  https://github.com/rosasurfer/mt4-expander/blob/master/header/struct/mt4/HistoryHeader.h
      * @see  self::unpackFormat() zum Verwenden als unpack()-Formatstring
      */
     private static $formatStr = '

@@ -204,6 +204,7 @@ class Test extends RosatraderModel {
 
         // tradeDirections
         $pattern = '|^\s*<common\s*>\s*\n(?:.*\n)*(\s*positions\s*=\s*(.+)\s*\n)(?:.*\n)*\s*</common>|imU';
+        $matches = null;
         if (!preg_match($pattern, $content, $matches))                throw new InvalidArgumentException('Unsupported file format in test config file "'.$configFile.'" ("/common positions" not found)');
         if (($direction = MT4::strToTradeDirection($matches[2])) < 0) throw new IllegalArgumentException('Illegal test property "tradeDirections": "'.$matches[2].'"');
         $test->tradeDirections = MT4::tradeDirectionDescription($direction);
@@ -278,6 +279,7 @@ class Test extends RosatraderModel {
 
             // id
             $pattern = '/, *id *= *([0-9]+) *,/i';
+            $matches = null;
             if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal test properties ("id" invalid or not found): "'.$valuesOrig.'"');
             $properties['id'] = (int)$matches[1][0];
             if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal test properties (multiple "id" occurrences): "'.$valuesOrig.'"');
@@ -402,6 +404,7 @@ class Test extends RosatraderModel {
 
         // id
         $pattern = '/, *id *= *([0-9]+) *,/i';
+        $matches = null;
         if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new IllegalArgumentException('Illegal order properties ("id" invalid or not found): "'.$valuesOrig.'"');
         $properties['id'] = (int)$matches[1][0];
         if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new IllegalArgumentException('Illegal order properties (multiple "id" occurrences): "'.$valuesOrig.'"');
