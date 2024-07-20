@@ -1,6 +1,6 @@
 {
     "name":        "rosasurfer/mt4-tools",
-    "description": "MT4 web and command line tools",
+    "description": "PHP tools for the MetaTrader4 MQL framework",
     "type":        "project",
     "license":     "WTFPL",
     "authors": [{
@@ -14,10 +14,13 @@
         { "type": "vcs", "url": "https://github.com/rosasurfer/ministruts" }
     ],
     "require": {
-        "php":                   ">=5.6",
+        "php":                   "5.6 - 7",
         "ext-bcmath":            "*",
         "ext-sqlite3":           "*",
         "rosasurfer/ministruts": "dev-development"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "*"
     },
     "autoload": {
         "classmap": ["app/"],

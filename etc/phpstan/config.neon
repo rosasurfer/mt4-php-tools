@@ -1,81 +1,44 @@
 #
-# Requires:
-#   PHP 7
-#   https://github.com/rosasurfer/phpstan, branch "0.9-pewa"
-#
 # Usage:
-#  alias phpstan='php7 -d memory_limit=256M -d short_open_tag=On /path/to/rosasurfer-phpstan/bin/phpstan'
-#  phpstan analyse -a etc/phpstan/autoload.php -c etc/phpstan/config.neon --level=0..7 [--] <path>
+#  See the PHPStan wrapper "bin/phpstan".
 #
-
+# File format:
+#  @see  https://phpstan.org/config-reference
+#
 parameters:
-    autoload_files:
-        - etc/phpstan/stubs.php                                             # stubs for PHP extensions and procedural code
-        - vendor/rosasurfer/ministruts/etc/phpstan/stubs.php
+  phpVersion: 70400                                 # assume PHP 7.4 if running under a different PHP version
+  level:      6                                     # a rule level on the command line overrides this hardcoded value
 
-    fileExtensions:                                                         # additional files to analyse
-        - phtml
+  bootstrapFiles:                                   # API stubs of functional code
+    - stubs.php
 
-    excludes_analyse:
-        - data/
-        - etc/
-        - vendor/composer/
-        - vendor/psr/
-        - vendor/rosasurfer/ministruts/etc/
-        - web/
+  scanFiles:                                        # additional non-autoloaded files to scan for symbols
+    - ../struct/rost.php
+    - ../../vendor/rosasurfer/ministruts/src/globals.php
 
-    universalObjectCratesClasses:
-        - rosasurfer\ministruts\Page
+  paths:                                            # paths on the command line override these hardcoded values
+    - ../../app
+    - ../../bin
 
-    reportUnmatchedIgnoredErrors:           false
-    polluteScopeWithLoopInitialAssignments: true
-    polluteCatchScopeWithTryAssignments:    true
+  fileExtensions:                                   # additional files to analyse
+    - phtml
 
-    ignoreErrors:
-        # intentionally ignore the following issues
-        - '/Array \(([^ ]+)\[\]\) does not accept (\1\|)?null\b/'                                                   # NULL is a value (not a type) and can always be assigned.
-        - '/Array \(array<([^ ]+)>\) does not accept (\1\|)?null\b/'                                                # - dito -
-        - '/(Static )?property [^ ]+ \(([^ ]+)\) does not accept (\2\|)?null\b/i'                                   # - dito -
-        - '/Property [^ ]+ \([^ ]+\[\]\) does not accept default value of type null\[\]/i'                          # - dito -
-        - '/Property [^ ]+ \(array<[^ ]+>\) does not accept default value of type array<int, null>/'                # - dito -
-        - '/Parameter #[0-9]+ [^ ]+ of class [^ ]+ constructor expects ([^ ]+), (\1\|)?null given\b/'               # - dito -
-        - '/Parameter #[0-9]+ [^ ]+ of (static )?(function|method) [^ ]+ expects ([^ ]+), (\3\|)?null given\b/'     # - dito -
-        - '/Calling method [^ ]+\(\) on possibly null value of type [^ ]+\|null\b/'
-        - "/Casting to (bool|int|float|string) something that's already (bool|int|float|string)/"                   # PHPStan contradicts itself by treating NULL as a value.
-        - '/Strict comparison using [=!]== between (int|string) and null will always evaluate to (true|false)\b/'
+  excludePaths:
+    - ../../data/
+    - ../../etc
+    - ../../vendor
+    - ../../web
 
-        # PHPdoc bug
-        - '/Parameter #1 \$arg of function extract is passed by reference, so it expects variables only\b/'
+  dynamicConstantNames:                             # changing constants depending on the environment
+    - rosasurfer\CLI
+    - rosasurfer\LOCALHOST
+    - rosasurfer\MACOS
+    - rosasurfer\WINDOWS
+    - rosasurfer\NUL_DEVICE
 
-        # false positives since v0.9
-        - '/PHPDoc tag @param for parameter \$[^ ]+ with type array(<[^ |]+(\|[^ |]+)?>)? is not subtype of native type array<int, mixed>/'
+  reportUnmatchedIgnoredErrors: false
 
-        # unsolved issues
-        - '/Parameter (#2 \$sort_order|#4 \.\.\.\$arr2) of function array_multisort is passed by reference, so it expects variables only/'
-
-
-services: # Services must be loaded via cmd line option --autoload-file as they are
-          # instantiated before execution of block "parameters/autoload_files".
-    -
-        class: rosasurfer\phpstan\DAO_Find_ReturnType
-        tags:
-            - phpstan.broker.dynamicMethodReturnTypeExtension
-            - phpstan.broker.dynamicStaticMethodReturnTypeExtension
-    -
-        class: rosasurfer\phpstan\DAO_FindAll_ReturnType
-        tags:
-            - phpstan.broker.dynamicMethodReturnTypeExtension
-            - phpstan.broker.dynamicStaticMethodReturnTypeExtension
-    -
-        class: rosasurfer\phpstan\Di_Set_ReturnType
-        tags:
-            - phpstan.broker.dynamicMethodReturnTypeExtension
-    -
-        class: rosasurfer\phpstan\PersistableObject_Dao_ReturnType
-        tags:
-            - phpstan.broker.dynamicMethodReturnTypeExtension
-            - phpstan.broker.dynamicStaticMethodReturnTypeExtension
-    -
-        class: rosasurfer\phpstan\Singleton_GetInstance_ReturnType
-        tags:
-            - phpstan.broker.dynamicStaticMethodReturnTypeExtension
+  parallel:
+    maximumNumberOfProcesses: 4
+  tmpDir:       .tmp
+  tipsOfTheDay: false

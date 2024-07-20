@@ -2,8 +2,11 @@
 
 namespace rosasurfer\rt\bin\generate_pl_series {
 
-    const PIP   = 0; const PIPS   = PIP;
-    const POINT = 0; const POINTS = POINT;
+    const PIP  = 0;
+    const PIPS = PIP;
+
+    const POINT  = 0;
+    const POINTS = POINT;
 
     /**
      * @param  string $id
