@@ -6,7 +6,6 @@ use rosasurfer\core\di\proxy\Output;
 use rosasurfer\core\exception\UnimplementedFeatureException;
 
 use rosasurfer\rt\lib\synthetic\AbstractSynthesizer;
-use rosasurfer\rt\lib\synthetic\ISynthesizer;
 
 use function rosasurfer\rt\periodToStr;
 
@@ -16,7 +15,7 @@ use const rosasurfer\rt\PERIOD_M1;
 /**
  * SGDFXI synthesizer
  *
- * A {@link ISynthesizer} for calculating the synthetic Singapore Dollar currency index.
+ * A {@link \rosasurfer\rt\lib\synthetic\ISynthesizer} for calculating the synthetic Singapore Dollar currency index.
  *
  * <pre>
  * Formulas:

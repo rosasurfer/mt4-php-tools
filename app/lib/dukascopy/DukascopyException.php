@@ -1,7 +1,8 @@
 <?php
 namespace rosasurfer\rt\lib\dukascopy;
 
-use rosasurfer\core\exception\RuntimeException;
+use rosasurfer\core\exception\RosasurferException;
+use rosasurfer\core\exception\RosasurferExceptionTrait;
 
 
 /**
@@ -9,5 +10,7 @@ use rosasurfer\core\exception\RuntimeException;
  *
  * Exception marking Dukascopy related errors.
  */
-class DukascopyException extends RuntimeException {
+class DukascopyException extends RosasurferException {
+
+    use RosasurferExceptionTrait;               // repeated use (workaround for PDT 7.2 bug)
 }

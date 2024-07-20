@@ -40,12 +40,10 @@ use rosasurfer\core\exception\InvalidArgumentException;
 use rosasurfer\core\exception\RuntimeException;
 use rosasurfer\file\FileSystem as FS;
 use rosasurfer\net\http\CurlHttpClient;
-use rosasurfer\net\http\HttpClient;
 use rosasurfer\net\http\HttpRequest;
 use rosasurfer\net\http\HttpResponse;
 use rosasurfer\process\Process;
 
-use rosasurfer\rt\lib\LZMA;
 use rosasurfer\rt\lib\Rosatrader as RT;
 use rosasurfer\rt\lib\dukascopy\Dukascopy;
 use rosasurfer\rt\lib\dukascopy\DukascopyException;

@@ -4,9 +4,7 @@ namespace rosasurfer\rt\console;
 use rosasurfer\console\Command;
 use rosasurfer\console\io\Input;
 use rosasurfer\console\io\Output;
-use rosasurfer\process\Process;
 
-use rosasurfer\rt\lib\metatrader\MetaTrader;
 use rosasurfer\rt\lib\metatrader\Symbol;
 
 

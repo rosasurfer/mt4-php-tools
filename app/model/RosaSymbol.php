@@ -8,7 +8,6 @@ use rosasurfer\process\Process;
 
 use rosasurfer\rt\lib\IHistorySource;
 use rosasurfer\rt\lib\Rosatrader as RT;
-use rosasurfer\rt\lib\dukascopy\Dukascopy;
 use rosasurfer\rt\lib\synthetic\GenericSynthesizer;
 use rosasurfer\rt\lib\synthetic\ISynthesizer;
 

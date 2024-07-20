@@ -9,7 +9,6 @@ use rosasurfer\core\exception\InvalidArgumentException;
 use rosasurfer\core\exception\RuntimeException;
 use rosasurfer\log\Logger;
 
-use rosasurfer\rt\lib\metatrader\MT4;
 use rosasurfer\rt\model\RosaSymbol;
 
 use const rosasurfer\rt\PERIOD_M1;

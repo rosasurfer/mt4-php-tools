@@ -1,8 +1,6 @@
 <?php
 namespace rosasurfer\rt\lib\synthetic;
 
-use rosasurfer\rt\lib\synthetic\ISynthesizer;
-
 
 /**
  * GenericSynthesizer

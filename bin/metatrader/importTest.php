@@ -5,7 +5,6 @@
  */
 namespace rosasurfer\rt\bin\metatrader\import_test;
 
-use rosasurfer\util\PHP;
 use rosasurfer\rt\model\Test;
 
 require(dirname(realpath(__FILE__)).'/../../app/init.php');

@@ -11,7 +11,6 @@ use rosasurfer\process\Process;
 use rosasurfer\rt\lib\Rost;
 use rosasurfer\rt\lib\metatrader\HistorySet;
 use rosasurfer\rt\lib\metatrader\MetaTrader;
-use rosasurfer\rt\lib\metatrader\MT4;
 use rosasurfer\rt\model\RosaSymbol;
 
 use function rosasurfer\rt\fxTime;
