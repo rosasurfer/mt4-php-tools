@@ -3,11 +3,11 @@ namespace rosasurfer\rt\lib\metatrader;
 
 use rosasurfer\core\CObject;
 use rosasurfer\core\assert\Assert;
-use rosasurfer\core\debug\ErrorHandler;
+use rosasurfer\core\error\ErrorHandler;
 use rosasurfer\core\di\proxy\Output;
 use rosasurfer\core\exception\FileNotFoundException;
 use rosasurfer\core\exception\IllegalStateException;
-use rosasurfer\core\exception\InvalidArgumentException;
+use rosasurfer\core\exception\InvalidValueException;
 use rosasurfer\core\exception\RuntimeException;
 use rosasurfer\core\exception\UnimplementedFeatureException;
 use rosasurfer\file\FileSystem as FS;
@@ -34,8 +34,8 @@ use const rosasurfer\rt\PERIOD_MN1;
 class HistoryFile extends CObject {
 
 
-    /** @var resource - handle of an open history file */
-    protected $hFile;
+    /** @var ?resource - handle of an open history file */
+    protected $hFile = null;
 
     /** @var string - simple history file name (basename + extension) */
     protected $fileName;
@@ -291,7 +291,7 @@ class HistoryFile extends CObject {
         $argc = sizeof($args);
         if      ($argc == 1) $this->__construct1(...$args);
         else if ($argc == 5) $this->__construct2(...$args);
-        else throw new InvalidArgumentException('Invalid number of arguments: '.$argc);
+        else throw new InvalidValueException('Invalid number of arguments: '.$argc);
     }
 
 
@@ -345,12 +345,12 @@ class HistoryFile extends CObject {
      */
     private function __construct2($symbol, $timeframe, $digits, $format, $serverDirectory) {
         Assert::string($symbol, '$symbol');
-        if (!strlen($symbol))                         throw new InvalidArgumentException('Invalid parameter $symbol: ""');
-        if (strlen($symbol) > MT4::MAX_SYMBOL_LENGTH) throw new InvalidArgumentException('Invalid parameter $symbol: "'.$symbol.'" (max '.MT4::MAX_SYMBOL_LENGTH.' characters)');
+        if (!strlen($symbol))                         throw new InvalidValueException('Invalid parameter $symbol: ""');
+        if (strlen($symbol) > MT4::MAX_SYMBOL_LENGTH) throw new InvalidValueException('Invalid parameter $symbol: "'.$symbol.'" (max '.MT4::MAX_SYMBOL_LENGTH.' characters)');
         Assert::int($timeframe, '$timeframe');
-        if (!MT4::isStdTimeframe($timeframe))         throw new InvalidArgumentException('Invalid parameter $timeframe: '.$timeframe.' (not a MetaTrader standard timeframe)');
+        if (!MT4::isStdTimeframe($timeframe))         throw new InvalidValueException('Invalid parameter $timeframe: '.$timeframe.' (not a MetaTrader standard timeframe)');
         Assert::string($serverDirectory, '$serverDirectory');
-        if (!is_dir($serverDirectory))                throw new InvalidArgumentException('Directory "'.$serverDirectory.'" not found');
+        if (!is_dir($serverDirectory))                throw new InvalidValueException('Directory "'.$serverDirectory.'" not found');
 
         $this->hstHeader       = new HistoryHeader($format, null, $symbol, $timeframe, $digits, null, null);
         $this->serverDirectory = realpath($serverDirectory);
@@ -452,7 +452,8 @@ class HistoryFile extends CObject {
 
         // close the file
         if (is_resource($this->hFile)) {
-            $hTmp=$this->hFile; $this->hFile=null;
+            $hTmp = $this->hFile;
+            $this->hFile = null;
             fclose($hTmp);
         }
         return $this->closed=true;
@@ -467,7 +468,7 @@ class HistoryFile extends CObject {
     public function setBarBufferSize($size) {
         if ($this->closed) throw new IllegalStateException('Cannot process a closed '.get_class($this));
         Assert::int($size);
-        if ($size < 0)     throw new InvalidArgumentException('Invalid parameter $size: '.$size);
+        if ($size < 0)     throw new InvalidValueException('Invalid parameter $size: '.$size);
 
         $this->barBufferSize = $size;
     }
@@ -487,7 +488,7 @@ class HistoryFile extends CObject {
      */
     public function getBar($offset) {
         Assert::int($offset);
-        if ($offset < 0) throw new InvalidArgumentException('Invalid parameter $offset: '.$offset);
+        if ($offset < 0) throw new InvalidValueException('Invalid parameter $offset: '.$offset);
 
         if ($offset >= $this->full_bars)                                        // bar[$offset] does not exist
             return null;
@@ -682,10 +683,10 @@ class HistoryFile extends CObject {
 
         // determine absolute start offset: max. value for appending is one position after history end
         if ($offset >= 0) {
-            if ($offset > $this->full_bars)   throw new InvalidArgumentException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
+            if ($offset > $this->full_bars)   throw new InvalidValueException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
             $fromOffset = $offset;
         }
-        else if ($offset < -$this->full_bars) throw new InvalidArgumentException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
+        else if ($offset < -$this->full_bars) throw new InvalidValueException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
         else $fromOffset = $this->full_bars + $offset;
 
         // determine absolute end offset
@@ -695,13 +696,13 @@ class HistoryFile extends CObject {
         }
         else if ($length >= 0) {
             $toOffset = $fromOffset + $length - 1;
-            if ($toOffset > $this->full_to_offset) throw new InvalidArgumentException('Invalid parameter $length='.$length.' at $offset='.$offset.' ('.$this->full_bars.' bars in history)');
+            if ($toOffset > $this->full_to_offset) throw new InvalidValueException('Invalid parameter $length='.$length.' at $offset='.$offset.' ('.$this->full_bars.' bars in history)');
         }
-        else if ($fromOffset == $this->full_bars)  throw new InvalidArgumentException('Invalid parameter $length='.$length.' at $offset='.$offset.' ('.$this->full_bars.' bars in history)');
-        else if ($length < $offset && $offset < 0) throw new InvalidArgumentException('Invalid parameter $length='.$length.' at $offset='.$offset.' ('.$this->full_bars.' bars in history)');
+        else if ($fromOffset == $this->full_bars)  throw new InvalidValueException('Invalid parameter $length='.$length.' at $offset='.$offset.' ('.$this->full_bars.' bars in history)');
+        else if ($length < $offset && $offset < 0) throw new InvalidValueException('Invalid parameter $length='.$length.' at $offset='.$offset.' ('.$this->full_bars.' bars in history)');
         else {
             $toOffset = $this->full_to_offset + $length;
-            if ($toOffset+1 < $fromOffset)         throw new InvalidArgumentException('Invalid parameter $length='.$length.' at $offset='.$offset.' ('.$this->full_bars.' bars in history)');
+            if ($toOffset+1 < $fromOffset)         throw new InvalidValueException('Invalid parameter $length='.$length.' at $offset='.$offset.' ('.$this->full_bars.' bars in history)');
         }
 
         // determine absolute length
@@ -747,10 +748,10 @@ class HistoryFile extends CObject {
 
         // determine absolute start offset: max. value for appending is one position after history end
         if ($offset >= 0) {
-            if ($offset >= $this->full_bars)  throw new InvalidArgumentException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
+            if ($offset >= $this->full_bars)  throw new InvalidValueException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
             $fromOffset = $offset;
         }
-        else if ($offset < -$this->full_bars) throw new InvalidArgumentException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
+        else if ($offset < -$this->full_bars) throw new InvalidValueException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
         else $fromOffset = $this->full_bars + $offset;
 
         // determine absolute end offset
@@ -760,12 +761,12 @@ class HistoryFile extends CObject {
         }
         else if ($length >= 0) {
             $toOffset = $fromOffset + $length - 1;
-            if ($toOffset > $this->full_to_offset) throw new InvalidArgumentException('Invalid parameter $length='.$length.' at $offset='.$offset.' ('.$this->full_bars.' bars in history)');
+            if ($toOffset > $this->full_to_offset) throw new InvalidValueException('Invalid parameter $length='.$length.' at $offset='.$offset.' ('.$this->full_bars.' bars in history)');
         }
-        else if ($length < $offset && $offset < 0) throw new InvalidArgumentException('Invalid parameter $length='.$length.' at $offset='.$offset.' ('.$this->full_bars.' bars in history)');
+        else if ($length < $offset && $offset < 0) throw new InvalidValueException('Invalid parameter $length='.$length.' at $offset='.$offset.' ('.$this->full_bars.' bars in history)');
         else {
             $toOffset = $this->full_to_offset + $length;
-            if ($toOffset+1 < $fromOffset)         throw new InvalidArgumentException('Invalid parameter $length='.$length.' at $offset='.$offset.' ('.$this->full_bars.' bars in history)');
+            if ($toOffset+1 < $fromOffset)         throw new InvalidValueException('Invalid parameter $length='.$length.' at $offset='.$offset.' ('.$this->full_bars.' bars in history)');
         }
 
         // determine absolute length
@@ -795,10 +796,10 @@ class HistoryFile extends CObject {
 
         // determine absolute start offset: max. value for appending is one position after history end
         if ($offset >= 0) {
-            if ($offset > $this->full_bars)   throw new InvalidArgumentException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
+            if ($offset > $this->full_bars)   throw new InvalidValueException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
             $fromOffset = $offset;
         }
-        else if ($offset < -$this->full_bars) throw new InvalidArgumentException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
+        else if ($offset < -$this->full_bars) throw new InvalidValueException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
         else $fromOffset = $this->full_bars + $offset;
 
         if (!$bars) {                                            // nothing to do
@@ -811,9 +812,9 @@ class HistoryFile extends CObject {
 
         /*
         $array = [0, 1, 2, 3, 4, 5];
-        echoPre($array);
+        echof($array);
         array_splice($array, 7, 2, [6, 7]);
-        echoPre($array);
+        echof($array);
 
         M1::full_bars             = 101381
         M1::full_from_offset      = 0
@@ -1210,7 +1211,7 @@ class HistoryFile extends CObject {
     public function flush($count = PHP_INT_MAX) {
         if ($this->closed) throw new IllegalStateException('Cannot process a closed '.get_class($this));
         Assert::int($count);
-        if ($count < 0)    throw new InvalidArgumentException('Invalid parameter $count: '.$count);
+        if ($count < 0)    throw new InvalidValueException('Invalid parameter $count: '.$count);
 
         $bufferSize = sizeof($this->barBuffer);
         $todo       = min($bufferSize, $count);
@@ -1235,7 +1236,7 @@ class HistoryFile extends CObject {
             if ($i+1 == $todo)
                 break;
         }
-        //if ($this->period==PERIOD_M1) echoPre(__METHOD__.'()  wrote '.$todo.' bars, lastBar.time='.gmdate('D, d-M-Y H:i:s', $this->barBuffer[$todo-1]['time']));
+        //if ($this->period==PERIOD_M1) echof(__METHOD__.'()  wrote '.$todo.' bars, lastBar.time='.gmdate('D, d-M-Y H:i:s', $this->barBuffer[$todo-1]['time']));
 
 
         // (3) Metadaten aktualisieren
@@ -1293,32 +1294,32 @@ class HistoryFile extends CObject {
     public function showMetaData($showStored=true, $showFull=true, $showFile=true) {
         $Pxx = periodDescription($this->period);
 
-        ($showStored || $showFull || $showFile) && echoPre(NL);
+        ($showStored || $showFull || $showFile) && echof(NL);
         if ($showStored) {
-            echoPre($Pxx.'::stored_bars           = '. $this->stored_bars);
-            echoPre($Pxx.'::stored_from_offset    = '. $this->stored_from_offset);
-            echoPre($Pxx.'::stored_from_openTime  = '.($this->stored_from_openTime  ? gmdate('D, d-M-Y H:i:s', $this->stored_from_openTime ) : 0));
-            echoPre($Pxx.'::stored_from_closeTime = '.($this->stored_from_closeTime ? gmdate('D, d-M-Y H:i:s', $this->stored_from_closeTime) : 0));
-            echoPre($Pxx.'::stored_to_offset      = '. $this->stored_to_offset);
-            echoPre($Pxx.'::stored_to_openTime    = '.($this->stored_to_openTime    ? gmdate('D, d-M-Y H:i:s', $this->stored_to_openTime   ) : 0));
-            echoPre($Pxx.'::stored_to_closeTime   = '.($this->stored_to_closeTime   ? gmdate('D, d-M-Y H:i:s', $this->stored_to_closeTime  ) : 0));
-            echoPre($Pxx.'::stored_lastSyncTime   = '.($this->stored_lastSyncTime   ? gmdate('D, d-M-Y H:i:s', $this->stored_lastSyncTime  ) : 0));
+            echof($Pxx.'::stored_bars           = '. $this->stored_bars);
+            echof($Pxx.'::stored_from_offset    = '. $this->stored_from_offset);
+            echof($Pxx.'::stored_from_openTime  = '.($this->stored_from_openTime  ? gmdate('D, d-M-Y H:i:s', $this->stored_from_openTime ) : 0));
+            echof($Pxx.'::stored_from_closeTime = '.($this->stored_from_closeTime ? gmdate('D, d-M-Y H:i:s', $this->stored_from_closeTime) : 0));
+            echof($Pxx.'::stored_to_offset      = '. $this->stored_to_offset);
+            echof($Pxx.'::stored_to_openTime    = '.($this->stored_to_openTime    ? gmdate('D, d-M-Y H:i:s', $this->stored_to_openTime   ) : 0));
+            echof($Pxx.'::stored_to_closeTime   = '.($this->stored_to_closeTime   ? gmdate('D, d-M-Y H:i:s', $this->stored_to_closeTime  ) : 0));
+            echof($Pxx.'::stored_lastSyncTime   = '.($this->stored_lastSyncTime   ? gmdate('D, d-M-Y H:i:s', $this->stored_lastSyncTime  ) : 0));
         }
         if ($showFull) {
-            $showStored && echoPre(NL);
-            echoPre($Pxx.'::full_bars             = '. $this->full_bars);
-            echoPre($Pxx.'::full_from_offset      = '. $this->full_from_offset);
-            echoPre($Pxx.'::full_from_openTime    = '.($this->full_from_openTime    ? gmdate('D, d-M-Y H:i:s', $this->full_from_openTime   ) : 0));
-            echoPre($Pxx.'::full_from_closeTime   = '.($this->full_from_closeTime   ? gmdate('D, d-M-Y H:i:s', $this->full_from_closeTime  ) : 0));
-            echoPre($Pxx.'::full_to_offset        = '. $this->full_to_offset);
-            echoPre($Pxx.'::full_to_openTime      = '.($this->full_to_openTime      ? gmdate('D, d-M-Y H:i:s', $this->full_to_openTime     ) : 0));
-            echoPre($Pxx.'::full_to_closeTime     = '.($this->full_to_closeTime     ? gmdate('D, d-M-Y H:i:s', $this->full_to_closeTime    ) : 0));
-            echoPre($Pxx.'::full_lastSyncTime     = '.($this->full_lastSyncTime     ? gmdate('D, d-M-Y H:i:s', $this->full_lastSyncTime    ) : 0));
+            $showStored && echof(NL);
+            echof($Pxx.'::full_bars             = '. $this->full_bars);
+            echof($Pxx.'::full_from_offset      = '. $this->full_from_offset);
+            echof($Pxx.'::full_from_openTime    = '.($this->full_from_openTime    ? gmdate('D, d-M-Y H:i:s', $this->full_from_openTime   ) : 0));
+            echof($Pxx.'::full_from_closeTime   = '.($this->full_from_closeTime   ? gmdate('D, d-M-Y H:i:s', $this->full_from_closeTime  ) : 0));
+            echof($Pxx.'::full_to_offset        = '. $this->full_to_offset);
+            echof($Pxx.'::full_to_openTime      = '.($this->full_to_openTime      ? gmdate('D, d-M-Y H:i:s', $this->full_to_openTime     ) : 0));
+            echof($Pxx.'::full_to_closeTime     = '.($this->full_to_closeTime     ? gmdate('D, d-M-Y H:i:s', $this->full_to_closeTime    ) : 0));
+            echof($Pxx.'::full_lastSyncTime     = '.($this->full_lastSyncTime     ? gmdate('D, d-M-Y H:i:s', $this->full_lastSyncTime    ) : 0));
         }
         if ($showFile) {
-            ($showStored || $showFull) && echoPre(NL);
-            echoPre($Pxx.'::lastM1DataTime        = '.($this->lastM1DataTime        ? gmdate('D, d-M-Y H:i:s', $this->lastM1DataTime       ) : 0));
-            echoPre($Pxx.'::fp                    = '.($fp=ftell($this->hFile)).' (bar offset '.(($fp-HistoryHeader::SIZE)/$this->barSize).')');
+            ($showStored || $showFull) && echof(NL);
+            echof($Pxx.'::lastM1DataTime        = '.($this->lastM1DataTime        ? gmdate('D, d-M-Y H:i:s', $this->lastM1DataTime       ) : 0));
+            echof($Pxx.'::fp                    = '.($fp=ftell($this->hFile)).' (bar offset '.(($fp-HistoryHeader::SIZE)/$this->barSize).')');
         }
     }
 }

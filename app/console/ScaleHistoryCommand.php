@@ -4,7 +4,7 @@ namespace rosasurfer\rt\console;
 use rosasurfer\console\Command;
 use rosasurfer\console\io\Input;
 use rosasurfer\console\io\Output;
-use rosasurfer\core\exception\InvalidArgumentException;
+use rosasurfer\core\exception\InvalidValueException;
 use rosasurfer\util\DateTime;
 
 use rosasurfer\rt\lib\metatrader\HistoryHeader;
@@ -182,7 +182,7 @@ DOCOPT;
                 case '*': return $value * $operand;
                 case '/': return $value / $operand;
             }
-            throw new InvalidArgumentException('invalid parameter $operation: '.$operation);
+            throw new InvalidValueException('invalid parameter $operation: '.$operation);
         };
 
         // iterate over remaining bars and transform data

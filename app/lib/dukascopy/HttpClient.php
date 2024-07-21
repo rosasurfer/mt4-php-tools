@@ -4,7 +4,7 @@ namespace rosasurfer\rt\lib\dukascopy;
 use rosasurfer\core\assert\Assert;
 use rosasurfer\core\di\proxy\CliInput as Input;
 use rosasurfer\core\di\proxy\Output;
-use rosasurfer\core\exception\InvalidArgumentException;
+use rosasurfer\core\exception\InvalidValueException;
 use rosasurfer\core\exception\RuntimeException;
 use rosasurfer\net\http\CurlHttpClient;
 use rosasurfer\net\http\HttpResponse;
@@ -59,7 +59,7 @@ class HttpClient extends CurlHttpClient {
 
         $status = $response->getStatus();
         if ($status!=HttpResponse::SC_OK && $status!=HttpResponse::SC_NOT_FOUND)
-            throw new RuntimeException('Unexpected HTTP response status '.$status.' ('.HttpResponse::$sc[$status].')'.NL.'url: '.$url.NL.printPretty($response, true));
+            throw new RuntimeException('Unexpected HTTP response status '.$status.' ('.HttpResponse::$sc[$status].')'.NL.'url: '.$url.NL.print_p($response, true));
 
         // treat an empty response as 404 error (not found)
         $content = $response->getContent();
@@ -82,10 +82,10 @@ class HttpClient extends CurlHttpClient {
      */
     public function downloadHistory($symbol, $day, $type) {
         Assert::string($symbol, '$symbol');
-        if (!strlen($symbol))                         throw new InvalidArgumentException('Invalid parameter $symbol: "'.$symbol.'"');
+        if (!strlen($symbol))                         throw new InvalidValueException('Invalid parameter $symbol: "'.$symbol.'"');
         Assert::int($day, '$day');
         Assert::int($type, '$type');
-        if (!in_array($type, [PRICE_BID, PRICE_ASK])) throw new InvalidArgumentException('Invalid parameter $type: '.$type);
+        if (!in_array($type, [PRICE_BID, PRICE_ASK])) throw new InvalidValueException('Invalid parameter $type: '.$type);
 
         // url: http://datafeed.dukascopy.com/datafeed/EURUSD/2009/00/31/BID_candles_min_1.bi5
         $symbolU = strtoupper($symbol);
@@ -105,7 +105,7 @@ class HttpClient extends CurlHttpClient {
 
         $status = $response->getStatus();
         if ($status!=HttpResponse::SC_OK && $status!=HttpResponse::SC_NOT_FOUND)
-            throw new RuntimeException('Unexpected HTTP response status '.$status.' ('.HttpResponse::$sc[$status].')'.NL.'url: '.$url.NL.printPretty($response, true));
+            throw new RuntimeException('Unexpected HTTP response status '.$status.' ('.HttpResponse::$sc[$status].')'.NL.'url: '.$url.NL.print_p($response, true));
 
         // treat an empty response as 404 error (not found)
         $content = $response->getContent();

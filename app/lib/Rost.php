@@ -4,8 +4,8 @@ namespace rosasurfer\rt\lib;
 use rosasurfer\config\ConfigInterface;
 use rosasurfer\core\StaticClass;
 use rosasurfer\core\assert\Assert;
-use rosasurfer\core\exception\IllegalTypeException;
-use rosasurfer\core\exception\InvalidArgumentException;
+use rosasurfer\core\exception\InvalidTypeException;
+use rosasurfer\core\exception\InvalidValueException;
 use rosasurfer\core\exception\RuntimeException;
 use rosasurfer\core\exception\UnimplementedFeatureException;
 use rosasurfer\net\http\CurlHttpClient;
@@ -129,11 +129,11 @@ class Rost extends StaticClass {
         $receiver = trim($receiver);
         if (strStartsWith($receiver, '+' )) $receiver = substr($receiver, 1);
         if (strStartsWith($receiver, '00')) $receiver = substr($receiver, 2);
-        if (!ctype_digit($receiver)) throw new InvalidArgumentException('Invalid argument $receiver: "'.$receiver.'"');
+        if (!ctype_digit($receiver)) throw new InvalidValueException('Invalid argument $receiver: "'.$receiver.'"');
 
         Assert::string($message, '$message');
         $message = trim($message);
-        if ($message == '') throw new InvalidArgumentException('Invalid argument $message: "'.$message.'"');
+        if ($message == '') throw new InvalidValueException('Invalid argument $message: "'.$message.'"');
 
         $config   = self::di('config')['sms.clickatell'];
         $username = $config['username'];
@@ -175,7 +175,7 @@ class Rost extends StaticClass {
         if (isset($operationTypes[$type]))
             return $operationTypes[$type];
 
-        throw new InvalidArgumentException('Invalid parameter $type: '.$type.' (not an operation type)');
+        throw new InvalidValueException('Invalid parameter $type: '.$type.' (not an operation type)');
     }
 
 
@@ -289,7 +289,7 @@ class Rost extends StaticClass {
             }
             return -1;
         }
-        throw new IllegalTypeException('Illegal type of parameter $value: '.gettype($value));
+        throw new InvalidTypeException('Illegal type of parameter $value: '.gettype($value));
     }
 
 
@@ -353,7 +353,7 @@ class Rost extends StaticClass {
         Assert::int($time, '$time');
         $size = sizeof($series); if (!$size) return -1;
         Assert::isArray($series[0], '$series[0]');
-        if (!isset($series[0]['time']))  throw new InvalidArgumentException('Invalid parameter $series[0]: '.gettype($series[0].' (no index "time")'));
+        if (!isset($series[0]['time']))  throw new InvalidValueException('Invalid parameter $series[0]: '.gettype($series[0].' (no index "time")'));
         Assert::int($series[0]['time'], '$series[0][time]');
 
         $i     = -1;
@@ -390,7 +390,7 @@ class Rost extends StaticClass {
      */
     public static function findBarOffset(array $bars, $period, $time) {
         Assert::int($period, '$period');
-        if (!MT4::isStdTimeframe($period)) throw new InvalidArgumentException('Invalid parameter $period: '.$period.' (not a standard timeframe)');
+        if (!MT4::isStdTimeframe($period)) throw new InvalidValueException('Invalid parameter $period: '.$period.' (not a standard timeframe)');
         Assert::int($time, '$time');
 
         $size = sizeof($bars);
@@ -432,7 +432,7 @@ class Rost extends StaticClass {
      */
     public static function findBarOffsetPrevious(array $bars, $period, $time) {
         Assert::int($period, '$period');
-        if (!MT4::isStdTimeframe($period)) throw new InvalidArgumentException('Invalid parameter $period: '.$period.' (not a standard timeframe)');
+        if (!MT4::isStdTimeframe($period)) throw new InvalidValueException('Invalid parameter $period: '.$period.' (not a standard timeframe)');
         Assert::int($time, '$time');
 
         $size = sizeof($bars);
@@ -462,7 +462,7 @@ class Rost extends StaticClass {
      */
     public static function findBarOffsetNext(array $bars, $period, $time) {
         Assert::int($period, '$period');
-        if (!MT4::isStdTimeframe($period)) throw new InvalidArgumentException('Invalid parameter $period: '.$period.' (not a standard timeframe)');
+        if (!MT4::isStdTimeframe($period)) throw new InvalidValueException('Invalid parameter $period: '.$period.' (not a standard timeframe)');
         Assert::int($time, '$time');
 
         $sizeOfBars = sizeof($bars);
@@ -500,7 +500,7 @@ class Rost extends StaticClass {
     public static function periodCloseTime($time, $period) {
         Assert::int($time, '$time');
         Assert::int($period, '$period');
-        if (!MT4::isStdTimeframe($period)) throw new InvalidArgumentException('Invalid parameter $period: '.$period.' (not a standard timeframe)');
+        if (!MT4::isStdTimeframe($period)) throw new InvalidValueException('Invalid parameter $period: '.$period.' (not a standard timeframe)');
 
         if ($period <= PERIOD_D1) {
             $openTime  = $time - $time%$period*MINUTES;
@@ -546,11 +546,11 @@ class Rost extends StaticClass {
         static $storageDir; !$storageDir && $storageDir = self::di('config')['app.dir.storage'];
 
         if ($id == 'rtDirDate') {                       // $yyyy/$mm/$dd                                                // lokales Pfad-Datum
-            if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
+            if (!$time) throw new InvalidValueException('Invalid parameter $time: '.$time);
             $result = gmdate('Y/m/d', $time);
         }
         else if ($id == 'rtDir') {                      // $dataDir/history/rosatrader/$type/$symbol/$rtDirDate         // lokales Verzeichnis
-            if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
+            if (!$symbol) throw new InvalidValueException('Invalid parameter $symbol: '.$symbol);
             $type      = RosaSymbol::dao()->getByName($symbol)->getType();
             $rtDirDate = static::{__FUNCTION__}('rtDirDate', null, $time);
             $result    = $storageDir.'/history/rosatrader/'.$type.'/'.$symbol.'/'.$rtDirDate;
@@ -563,10 +563,10 @@ class Rost extends StaticClass {
             $rtDir  = static::{__FUNCTION__}('rtDir', $symbol, $time);
             $result = $rtDir.'/M1.rar';
         }
-        else throw new InvalidArgumentException('Unknown variable identifier "'.$id.'"');
+        else throw new InvalidValueException('Unknown variable identifier "'.$id.'"');
 
         $varCache[$key] = $result;
-        (sizeof($varCache) > ($maxSize=256)) && array_shift($varCache)/* && echoPre('var cache size limit of '.$maxSize.' hit')*/;
+        (sizeof($varCache) > ($maxSize=256)) && array_shift($varCache)/* && echof('var cache size limit of '.$maxSize.' hit')*/;
 
         return $result;
     }

@@ -62,7 +62,7 @@ foreach ($args as $arg) {
     foreach ($entries as $entry) if (is_file($entry))
         $expandedArgs[] = $entry;
 }
-!$expandedArgs && exit(1|echoPre('no history files found'));
+!$expandedArgs && exit(1|echof('no history files found'));
 sort($expandedArgs);                                              // alles sortieren (Dateien im aktuellen Verzeichnis ans Ende)
 
 
@@ -203,26 +203,26 @@ function showDirResults($dirName, array $files, array $formats, array $symbols, 
     $tableHeader    = 'Symbol           Digits  SyncMarker           LastSyncTime              Bars  From                 To                   Format';
     $tableSeparator = '------------------------------------------------------------------------------------------------------------------------------';
     $tableRowFormat = '%-15s    %d     %-19s  %-19s  %9s  %-19s  %-19s    %s  %s';
-    echoPre(NL);
-    echoPre($dirName.':');
-    echoPre($tableHeader);
+    echof(NL);
+    echof($dirName.':');
+    echof($tableHeader);
 
     // sortierte Daten ausgeben
     $lastSymbol = null;
     foreach ($files as $i => $fileName) {
         if ($symbols[$i] != $lastSymbol)
-            echoPre($tableSeparator);
+            echof($tableSeparator);
 
         if ($formats[$i]) {
             $period = periodDescription($periods[$i]);
-            echoPre(trim(sprintf($tableRowFormat, $symbols[$i].','.$period, $digits[$i], $syncMarkers[$i], $lastSyncTimes[$i], numf($bars[$i]), $barsFrom[$i], $barsTo[$i], $formats[$i], $errors[$i])));
+            echof(trim(sprintf($tableRowFormat, $symbols[$i].','.$period, $digits[$i], $syncMarkers[$i], $lastSyncTimes[$i], numf($bars[$i]), $barsFrom[$i], $barsTo[$i], $formats[$i], $errors[$i])));
         }
         else {
-            echoPre(str_pad($fileName, 18).' '.$errors[$i]);
+            echof(str_pad($fileName, 18).' '.$errors[$i]);
         }
         $lastSymbol = $symbols[$i];
     }
-    echoPre($tableSeparator);
+    echof($tableSeparator);
 }
 
 

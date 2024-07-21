@@ -11,7 +11,7 @@ namespace rosasurfer\rt\bin\generate_pl_series;
 
 use rosasurfer\Application;
 use rosasurfer\core\assert\Assert;
-use rosasurfer\core\exception\InvalidArgumentException;
+use rosasurfer\core\exception\InvalidValueException;
 use rosasurfer\core\exception\RuntimeException;
 use rosasurfer\file\FileSystem as FS;
 
@@ -53,7 +53,7 @@ $trades = $test->getTrades();
 $deals  = [];
 $symbol = null;
 foreach ($trades as $trade) {                                           // atm: error out on mixed symbols
-    $symbol && $symbol!=$trade->getSymbol() && exit(1|echoPre('[Error]   Mixed trade histories are not yet supported (found trades in '.$symbol.' and '.$trade->getSymbol().').'));
+    $symbol && $symbol!=$trade->getSymbol() && exit(1|echof('[Error]   Mixed trade histories are not yet supported (found trades in '.$symbol.' and '.$trade->getSymbol().').'));
     $symbol = $trade->getSymbol();
 
     // separate trades into deals
@@ -87,13 +87,13 @@ $deals = array_values($deals);
 $firstDeal = reset($deals);
 if      (is_file(getVar('rtFile.compressed', $symbol, $firstDeal->time))) {}
 else if (is_file(getVar('rtFile.raw'       , $symbol, $firstDeal->time))) {}
-else     exit(1|echoPre('[Error]   '.$symbol.'  Rosatrader price history for '.gmdate('D, d-M-Y', $firstDeal->time).' not found'));
+else     exit(1|echof('[Error]   '.$symbol.'  Rosatrader price history for '.gmdate('D, d-M-Y', $firstDeal->time).' not found'));
 
 $lastDeal = end($deals);
 if      (is_file(getVar('rtFile.compressed', $symbol, $lastDeal->time))) {}
 else if (is_file(getVar('rtFile.raw'       , $symbol, $lastDeal->time))) {}
-else     exit(1|echoPre('[Error]   '.$symbol.'  Rosatrader price history for '.gmdate('D, d-M-Y', $lastDeal->time).' not found'));
-echoPre('[Info]    Processing '.sizeof($trades).' trades of test '.$test->getReportingSymbol().' ('.gmdate('d.m.Y', $firstDeal->time).' - '.gmdate('d.m.Y', $lastDeal->time).')');
+else     exit(1|echof('[Error]   '.$symbol.'  Rosatrader price history for '.gmdate('D, d-M-Y', $lastDeal->time).' not found'));
+echof('[Info]    Processing '.sizeof($trades).' trades of test '.$test->getReportingSymbol().' ('.gmdate('d.m.Y', $firstDeal->time).' - '.gmdate('d.m.Y', $lastDeal->time).')');
 
 
 // (4) calculate total position and price at each deal time
@@ -133,7 +133,7 @@ for ($day=$firstDealDay; $day <= $lastDealDay; $day+=1*DAY) {
     $shortDate = gmdate('D, d-M-Y', $day);
     $month     = (int) gmdate('m', $day);
     if ($month != $prevMonth) {
-        echoPre('[Info]    '.gmdate('M-Y', $day));
+        echof('[Info]    '.gmdate('M-Y', $day));
         $prevMonth = $month;
     }
     if (isWeekend($day))                                            // skip non-trading days
@@ -141,7 +141,7 @@ for ($day=$firstDealDay; $day <= $lastDealDay; $day+=1*DAY) {
 
     if      (is_file($file=getVar('rtFile.compressed', $symbol, $day))) {}
     else if (is_file($file=getVar('rtFile.raw'       , $symbol, $day))) {}
-    else exit(1|echoPre('[Error]   '.$symbol.'  Rosatrader price history for '.$shortDate.' not found'));
+    else exit(1|echof('[Error]   '.$symbol.'  Rosatrader price history for '.$shortDate.' not found'));
 
     $bars    = Rost::readBarFile($file, $symbol);
     $partial = false;
@@ -201,7 +201,7 @@ for ($day=$firstDealDay; $day <= $lastDealDay; $day+=1*DAY) {
     if (!saveBars($reportSymbol, $day, $pipSeries, $partial)) exit(1);
     $pipSeries = [];
 }
-echoPre('[Info]    total pips: '.round($totalPL + $pl, 3));
+echof('[Info]    total pips: '.round($totalPL + $pl, 3));
 
 
 // (7) the ugly end
@@ -259,7 +259,7 @@ function saveBars($symbol, $day, array $bars, $partial = false) {
     // write binary data
     if ($saveRawRTData) {
         if (is_file($file=getVar('rtFile.pl.raw', $symbol, $day)))
-            return false(echoPre('[Error]   PL series '.$symbol.' for '.gmdate('D, d-M-Y', $day).' already exists'));
+            return false(echof('[Error]   PL series '.$symbol.' for '.gmdate('D, d-M-Y', $day).' already exists'));
         FS::mkDir(dirname($file));
         $tmpFile = tempnam(dirname($file), basename($file));    // make sure an existing file can't be corrupt
         file_put_contents($tmpFile, $data);
@@ -292,7 +292,7 @@ function getVar($id, $symbol=null, $time=null) {
     static $storageDir; !$storageDir && $storageDir = Application::getConfig()['app.dir.storage'];
 
     if ($id == 'rtDirDate') {                   // $yyyy/$mm/$dd                                                // local path date
-        if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
+        if (!$time) throw new InvalidValueException('Invalid parameter $time: '.$time);
         $result = gmdate('Y/m/d', $time);
     }
     else if ($id == 'rtDir') {                  // $dataDir/history/rosatrader/$type/$symbol/$rtDirDate         // local directory
@@ -301,7 +301,7 @@ function getVar($id, $symbol=null, $time=null) {
         $result    = $storageDir.'/history/rosatrader/'.$type.'/'.$symbol.'/'.$rtDirDate;
     }
     else if ($id == 'rtDirPL') {                // $dataDir/stats/pl/$symbol/$rtDirDate                         // local directory
-        if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
+        if (!$symbol) throw new InvalidValueException('Invalid parameter $symbol: '.$symbol);
         $rtDirDate = $self('rtDirDate', null, $time);
         $result    = $storageDir.'/stats/pl/'.$symbol.'/'.$rtDirDate;
     }
@@ -318,12 +318,12 @@ function getVar($id, $symbol=null, $time=null) {
         $result  = $rtDirPL.'/M1.bin';
     }
     else {
-      throw new InvalidArgumentException('Unknown variable identifier "'.$id.'"');
+      throw new InvalidValueException('Unknown variable identifier "'.$id.'"');
     }
 
     $varCache[$key] = $result;
-    (sizeof($varCache) > ($maxEntries=2048)) && echoPre('cache limit of '.$maxEntries.' entries hit')           // ~200KB
-                                               |echoPre('memory used: '.strlen(serialize($varCache)).' bytes')
+    (sizeof($varCache) > ($maxEntries=2048)) && echof('cache limit of '.$maxEntries.' entries hit')           // ~200KB
+                                               |echof('memory used: '.strlen(serialize($varCache)).' bytes')
                                                |exit(1);
     return $result;
 }

@@ -12,8 +12,8 @@ use rosasurfer\db\orm\PersistableObject;
 abstract class RosatraderModel extends PersistableObject {
 
 
-    /** @var int - primary key */
-    protected $id;
+    /** @var ?int - primary key */
+    protected $id = null;
 
     /** @var string - creation time */
     protected $created;

@@ -41,17 +41,17 @@ foreach ($args as $i => $arg) {
 $sTime = $arg = array_shift($args);
 
 if (strIsQuoted($sTime)) $sTime = trim(strLeft(strRight($sTime, -1), -1));
-!is_datetime($sTime, ['Y-m-d', 'Y-m-d H:i', 'Y-m-d H:i:s']) && exit(1|echoPre('invalid argument datetime = '.$arg));
+!is_datetime($sTime, ['Y-m-d', 'Y-m-d H:i', 'Y-m-d H:i:s']) && exit(1|echof('invalid argument datetime = '.$arg));
 $datetime = strtotime($sTime.' GMT');
 
 // (1.2) Das verbleibende zweite Argument muss ein History-File sein.
 $fileName = array_shift($args);
-!is_file($fileName) && exit(1|echoPre('file not found "'.$fileName.'"'));
+!is_file($fileName) && exit(1|echof('file not found "'.$fileName.'"'));
 
 
 // (2) Datei oeffnen und Header auslesen
 $fileSize = filesize($fileName);
-($fileSize < HistoryHeader::SIZE) && exit(1|echoPre('invalid or unknown history file format: file size of "'.$fileName.'" < MinFileSize ('.HistoryHeader::SIZE.')'));
+($fileSize < HistoryHeader::SIZE) && exit(1|echof('invalid or unknown history file format: file size of "'.$fileName.'" < MinFileSize ('.HistoryHeader::SIZE.')'));
 $hFile  = fopen($fileName, 'rb');
 $header = null;
 try {
@@ -59,7 +59,7 @@ try {
 }
 catch (MetaTraderException $ex) {
     if (strStartsWith($ex->getMessage(), 'version.unsupported'))
-        exit(1|echoPre('unsupported history format in "'.$fileName.'": '.$ex->getMessage()));
+        exit(1|echof('unsupported history format in "'.$fileName.'": '.$ex->getMessage()));
     throw $ex;
 }
 
@@ -71,7 +71,7 @@ else                      /*401*/{ $barSize = MT4::HISTORY_BAR_401_SIZE; $barFor
 $i = 0;
 $allBars = $bars = ($fileSize-HistoryHeader::SIZE)/$barSize;
 if (!is_int($bars)) {
-    echoPre('unexpected EOF of "'.$fileName.'"');
+    echof('unexpected EOF of "'.$fileName.'"');
     $allBars = $bars = (int) $bars;
 }
 $barFrom = $barTo = [];
@@ -118,8 +118,8 @@ if ($i>=0 && $byteOffset) $result = HistoryHeader::SIZE + $i*$barSize;
 else                      $result = $i;
 
 if      ($quietMode ) echo $result;
-else if ($byteOffset) echoPre('byte offset: '.$result);
-else                  echoPre('bar offset: ' .$result);
+else if ($byteOffset) echof('byte offset: '.$result);
+else                  echof('bar offset: ' .$result);
 
 exit(0);
 

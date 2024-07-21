@@ -36,7 +36,7 @@ namespace rosasurfer\rt\bin\dukascopy\update_tickdata;
 
 use rosasurfer\Application;
 use rosasurfer\core\assert\Assert;
-use rosasurfer\core\exception\InvalidArgumentException;
+use rosasurfer\core\exception\InvalidValueException;
 use rosasurfer\core\exception\RuntimeException;
 use rosasurfer\file\FileSystem as FS;
 use rosasurfer\net\http\CurlHttpClient;
@@ -122,7 +122,7 @@ function updateSymbol(RosaSymbol $symbol) {
     $dukaSymbol = $symbol->getDukascopySymbol();
     $symbolName = $symbol->getName();
 
-    echoPre('[Info]    '.$symbolName);
+    echof('[Info]    '.$symbolName);
 
 
     // (1) Beginn des naechsten Forex-Tages ermitteln
@@ -160,7 +160,7 @@ function updateSymbol(RosaSymbol $symbol) {
 
         Process::dispatchSignals();                                         // check for Ctrl-C
     }
-    echoPre('[Ok]      '.$symbolName);
+    echof('[Ok]      '.$symbolName);
     return true;
 }
 
@@ -186,11 +186,11 @@ function checkHistory($symbol, $gmtHour, $fxtHour) {
     if (!isWeekend($fxtHour)) {
         $day = (int) gmdate('d', $fxtHour);
         if ($day != $lastDay) {
-            if ($verbose > 1) echoPre('[Info]    '.gmdate('d-M-Y', $fxtHour));
+            if ($verbose > 1) echof('[Info]    '.gmdate('d-M-Y', $fxtHour));
             else {
                 $month = (int) gmdate('m', $fxtHour);
                 if ($month != $lastMonth) {
-                    if ($verbose > 0) echoPre('[Info]    '.gmdate('M-Y', $fxtHour));
+                    if ($verbose > 0) echof('[Info]    '.gmdate('M-Y', $fxtHour));
                     $lastMonth = $month;
                 }
             }
@@ -199,11 +199,11 @@ function checkHistory($symbol, $gmtHour, $fxtHour) {
 
         // History ist ok, wenn entweder die komprimierte RT-Datei existiert...
         if (is_file($file=getVar('rtFile.compressed', $symbol, $fxtHour))) {
-            if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'  Rosatrader compressed tick file: '.RT::relativePath($file));
+            if ($verbose > 1) echof('[Ok]      '.$shortDate.'  Rosatrader compressed tick file: '.RT::relativePath($file));
         }
         // History ist ok, ...oder die unkomprimierte RT-Datei gespeichert wird und existiert
         else if ($saveRawRTData && is_file($file=getVar('rtFile.raw', $symbol, $fxtHour))) {
-            if ($verbose > 1) echoPre('[Ok]      '.$shortDate.'  Rosatrader uncompressed tick file: '.RT::relativePath($file));
+            if ($verbose > 1) echof('[Ok]      '.$shortDate.'  Rosatrader uncompressed tick file: '.RT::relativePath($file));
         }
         // andererseits Tickdaten aktualisieren
         else {
@@ -349,7 +349,7 @@ function saveTicks($symbol, $gmtHour, $fxtHour, array $ticks) {
     // (3) binaere Daten ggf. unkomprimiert speichern
     if ($saveRawRTData) {
         if (is_file($file=getVar('rtFile.raw', $symbol, $fxtHour))) {
-            echoPre('[Error]   '.$symbol.' ticks for '.$shortDate.' already exists');
+            echof('[Error]   '.$symbol.' ticks for '.$shortDate.' already exists');
             return false;
         }
         FS::mkDir(dirname($file));
@@ -387,10 +387,9 @@ function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=f
 
     $shortDate = gmdate('D, d-M-Y H:i', $fxtHour);
     $url       = getVar('dukaUrl', $symbol, $gmtHour);
-    if (!$quiet && $verbose > 1) echoPre('[Info]    '.$shortDate.'  downloading: '.$url);
+    if (!$quiet && $verbose > 1) echof('[Info]    '.$shortDate.'  downloading: '.$url);
 
-
-    // (1) Standard-Browser simulieren
+    // Standard-Browser simulieren
     $userAgent = Application::getConfig()['rt.http.useragent'];
     $request = (new HttpRequest($url))
                ->setHeader('User-Agent'     , $userAgent                                                       )
@@ -403,21 +402,19 @@ function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=f
     $options[CURLOPT_SSL_VERIFYPEER] = false;                           // falls HTTPS verwendet wird
     //$options[CURLOPT_VERBOSE     ] = true;
 
-
-    // (2) HTTP-Request abschicken und auswerten
+    // HTTP-Request abschicken und auswerten
     static $httpClient = null;
     !$httpClient && $httpClient = new CurlHttpClient($options);         // Instanz fuer KeepAlive-Connections wiederverwenden
 
     $response = $httpClient->send($request);                            // TODO: CURL-Fehler wie bei SimpleTrader behandeln
     $status   = $response->getStatus();
-    if ($status!=200 && $status!=404) throw new RuntimeException('Unexpected HTTP status '.$status.' ('.HttpResponse::$sc[$status].') for url "'.$url.'"'.NL.printPretty($response, true));
+    if ($status!=200 && $status!=404) throw new RuntimeException('Unexpected HTTP status '.$status.' ('.HttpResponse::$sc[$status].') for url "'.$url.'"'.NL.print_p($response, true));
 
     // eine leere Antwort ist moeglich und wird als Fehler behandelt
     $content = $response->getContent();
     if ($status == 404) $content = '';                                  // moeglichen Content eines 404-Fehlers zuruecksetzen
 
-
-    // (3) Download-Success: 200 und Datei ist nicht leer
+    // Download-Success: 200 und Datei ist nicht leer
     if ($status==200 && strlen($content)) {
         // vorhandene Fehlerdateien loeschen (haben FXT-Namen)
         if (is_file($file=getVar('dukaFile.404',   $symbol, $fxtHour))) unlink($file);
@@ -433,8 +430,7 @@ function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=f
         }
     }
 
-
-    // (4) Download-Fehler: ist das Flag $saveError gesetzt, Fehler speichern
+    // Download-Fehler: ist das Flag $saveError gesetzt, Fehler speichern
     else {
         if ($saveError) {                                                 // Fehlerdatei unter FXT-Namen speichern
             $file = getVar($status==404 ? 'dukaFile.404':'dukaFile.empty', $symbol, $fxtHour);
@@ -443,8 +439,8 @@ function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=f
         }
 
         if (!$quiet) {
-            if ($status==404) echoPre('[Error]   '.$shortDate.'  url not found (404): '.$url);
-            else              echoPre('[Warn]    '.$shortDate.'  empty response: '.$url);
+            if ($status==404) echof('[Error]   '.$shortDate.'  url not found (404): '.$url);
+            else              echof('[Warn]    '.$shortDate.'  empty response: '.$url);
         }
 
         // bei leerem Response Exception werfen, damit eine Schleife ggf. fortgesetzt werden kann
@@ -464,7 +460,7 @@ function loadCompressedDukascopyTickFile($file, $symbol, $gmtHour, $fxtHour) {
     Assert::int($fxtHour, '$fxtHour');
 
     global $verbose;
-    if ($verbose > 0) echoPre('[Info]    '.gmdate('D, d-M-Y H:i', $fxtHour).'  Dukascopy compressed tick file: '.RT::relativePath($file));
+    if ($verbose > 0) echof('[Info]    '.gmdate('D, d-M-Y H:i', $fxtHour).'  Dukascopy compressed tick file: '.RT::relativePath($file));
 
     return loadCompressedDukascopyTickData(file_get_contents($file), $symbol, $gmtHour, $fxtHour);
 }
@@ -498,7 +494,7 @@ function loadRawDukascopyTickFile($file, $symbol, $gmtHour, $fxtHour) {
     Assert::int($fxtHour, '$fxtHour');
 
     global $verbose;
-    if ($verbose > 0) echoPre('[Info]    '.gmdate('D, d-M-Y H:i', $fxtHour).'  Dukascopy uncompressed tick file: '.RT::relativePath($file));
+    if ($verbose > 0) echof('[Info]    '.gmdate('D, d-M-Y H:i', $fxtHour).'  Dukascopy uncompressed tick file: '.RT::relativePath($file));
 
     return loadRawDukascopyTickData(file_get_contents($file), $symbol, $gmtHour, $fxtHour);
 }
@@ -557,7 +553,7 @@ function getVar($id, $symbol=null, $time=null) {
     $self = __FUNCTION__;
 
     if ($id == 'rtDirDate') {                   // $yyyy/$mmL/$dd                                               // lokales Pfad-Datum
-        if (!$time)   throw new InvalidArgumentException('Invalid parameter $time: '.$time);
+        if (!$time)   throw new InvalidValueException('Invalid parameter $time: '.$time);
         $result = gmdate('Y/m/d', $time);
     }
     else if ($id == 'rtDir') {                  // $dataDir/history/rosatrader/$type/$symbol/$rtDirDate         // lokales Verzeichnis
@@ -586,14 +582,14 @@ function getVar($id, $symbol=null, $time=null) {
         $result = $rtDir.'/'.$hour.'h_ticks.bi5';
     }
     else if ($id == 'dukaUrlDate') {            // $yyyy/$mmD/$dd                                               // Dukascopy-URL-Datum
-        if (!$time) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
+        if (!$time) throw new InvalidValueException('Invalid parameter $time: '.$time);
         $yyyy   = gmdate('Y', $time);
         $mmD    = strRight((string)(gmdate('m', $time)+99), 2);  // Januar = 00
         $dd     = gmdate('d', $time);
         $result = $yyyy.'/'.$mmD.'/'.$dd;
     }
     else if ($id == 'dukaUrl') {                // http://datafeed.dukascopy.com/datafeed/$symbol/$dukaUrlDate/${hour}h_ticks.bi5
-        if (!$symbol) throw new InvalidArgumentException('Invalid parameter $symbol: '.$symbol);
+        if (!$symbol) throw new InvalidValueException('Invalid parameter $symbol: '.$symbol);
         $dukaUrlDate = $self('dukaUrlDate', null, $time);
         $hour        = gmdate('H', $time);
         $result      = 'http://datafeed.dukascopy.com/datafeed/'.$symbol.'/'.$dukaUrlDate.'/'.$hour.'h_ticks.bi5';
@@ -609,11 +605,11 @@ function getVar($id, $symbol=null, $time=null) {
         $result = $rtDir.'/'.$hour.'h_ticks.na';
     }
     else {
-      throw new InvalidArgumentException('Unknown variable identifier "'.$id.'"');
+      throw new InvalidValueException('Unknown variable identifier "'.$id.'"');
     }
 
     $varCache[$key] = $result;
-    (sizeof($varCache) > ($maxSize=128)) && array_shift($varCache) /*&& echoPre('cache size limit of '.$maxSize.' hit')*/;
+    (sizeof($varCache) > ($maxSize=128)) && array_shift($varCache) /*&& echof('cache size limit of '.$maxSize.' hit')*/;
 
     return $result;
 }

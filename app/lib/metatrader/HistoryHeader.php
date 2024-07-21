@@ -3,7 +3,7 @@ namespace rosasurfer\rt\lib\metatrader;
 
 use rosasurfer\core\CObject;
 use rosasurfer\core\assert\Assert;
-use rosasurfer\core\exception\InvalidArgumentException;
+use rosasurfer\core\exception\InvalidValueException;
 
 
 /**
@@ -66,7 +66,7 @@ class HistoryHeader extends CObject {
         $argc = func_num_args();
         if      ($argc == 7) $this->__construct_1($arg1, $arg2, $arg3, $arg4, $arg5, $arg6, $arg7);
         else if ($argc == 1) $this->__construct_2($arg1);
-        else throw new InvalidArgumentException('Invalid number of arguments: '.$argc);
+        else throw new InvalidValueException('Invalid number of arguments: '.$argc);
     }
 
 
@@ -90,18 +90,18 @@ class HistoryHeader extends CObject {
         Assert::string($copyright, '$copyright');
         $copyright = strLeft($copyright, 63);
         Assert::string($symbol, '$symbol');
-        if (!strlen($symbol))                         throw new InvalidArgumentException('Invalid parameter $symbol: ""');
-        if (strlen($symbol) > MT4::MAX_SYMBOL_LENGTH) throw new InvalidArgumentException('Invalid parameter $symbol: "'.$symbol.'" (max '.MT4::MAX_SYMBOL_LENGTH.' characters)');
+        if (!strlen($symbol))                         throw new InvalidValueException('Invalid parameter $symbol: ""');
+        if (strlen($symbol) > MT4::MAX_SYMBOL_LENGTH) throw new InvalidValueException('Invalid parameter $symbol: "'.$symbol.'" (max '.MT4::MAX_SYMBOL_LENGTH.' characters)');
         Assert::int($period, '$period');
-        if ($period <= 0)                             throw new InvalidArgumentException('Invalid parameter $period: '.$period);
+        if ($period <= 0)                             throw new InvalidValueException('Invalid parameter $period: '.$period);
         Assert::int($digits, '$digits');
-        if ($digits < 0)                              throw new InvalidArgumentException('Invalid parameter $digits: '.$digits);
+        if ($digits < 0)                              throw new InvalidValueException('Invalid parameter $digits: '.$digits);
         if (!isset($syncMarker)) $syncMarker = 0;
         Assert::int($syncMarker, '$syncMarker');
-        if ($syncMarker < 0)                          throw new InvalidArgumentException('Invalid parameter $syncMarker: '.$syncMarker);
+        if ($syncMarker < 0)                          throw new InvalidValueException('Invalid parameter $syncMarker: '.$syncMarker);
         if (!isset($lastSyncTime)) $lastSyncTime = 0;
         Assert::int($lastSyncTime, '$lastSyncTime');
-        if ($lastSyncTime < 0)                        throw new InvalidArgumentException('Invalid parameter $lastSyncTime: '.$lastSyncTime);
+        if ($lastSyncTime < 0)                        throw new InvalidValueException('Invalid parameter $lastSyncTime: '.$lastSyncTime);
 
         // Daten speichern
         $this->format       = $format;
@@ -123,7 +123,7 @@ class HistoryHeader extends CObject {
      */
     private function __construct_2($data) {
         Assert::string($data);
-        if (strlen($data) != self::SIZE) throw new InvalidArgumentException('Invalid length of parameter $data: '.strlen($data).' (not '.__CLASS__.'::SIZE)');
+        if (strlen($data) != self::SIZE) throw new InvalidValueException('Invalid length of parameter $data: '.strlen($data).' (not '.__CLASS__.'::SIZE)');
 
         $header = unpack(static::unpackFormat(), $data);
         if ($header['format']!=400 && $header['format']!=401) throw new MetaTraderException('version.unsupported: Invalid or unsupported history format version: '.$header['format']);
@@ -146,7 +146,7 @@ class HistoryHeader extends CObject {
      */
     public function setLastSyncTime($time) {
         Assert::int($time);
-        if ($time < 0) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
+        if ($time < 0) throw new InvalidValueException('Invalid parameter $time: '.$time);
 
         $this->lastSyncTime = $time;
     }

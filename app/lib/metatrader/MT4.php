@@ -3,7 +3,7 @@ namespace rosasurfer\rt\lib\metatrader;
 
 use rosasurfer\core\StaticClass;
 use rosasurfer\core\assert\Assert;
-use rosasurfer\core\exception\IllegalTypeException;
+use rosasurfer\core\exception\InvalidTypeException;
 use rosasurfer\core\exception\RuntimeException;
 
 use const rosasurfer\rt\BARMODEL_BAROPEN;
@@ -402,7 +402,7 @@ class MT4 extends StaticClass {
             }
             return 0;
         }
-        throw new IllegalTypeException('Illegal type of parameter $value: '.gettype($value));
+        throw new InvalidTypeException('Illegal type of parameter $value: '.gettype($value));
     }
 
 
@@ -449,7 +449,7 @@ class MT4 extends StaticClass {
             }
             return -1;
         }
-        throw new IllegalTypeException('Illegal type of parameter $value: '.gettype($value));
+        throw new InvalidTypeException('Illegal type of parameter $value: '.gettype($value));
     }
 
 
@@ -484,7 +484,7 @@ class MT4 extends StaticClass {
             }
             return -1;
         }
-        throw new IllegalTypeException('Illegal type of parameter $value: '.gettype($value));
+        throw new InvalidTypeException('Illegal type of parameter $value: '.gettype($value));
     }
 
 

@@ -4,8 +4,7 @@ namespace rosasurfer\rt\lib\dukascopy;
 use rosasurfer\core\CObject;
 use rosasurfer\core\assert\Assert;
 use rosasurfer\core\di\proxy\Output;
-use rosasurfer\core\exception\IllegalArgumentException;
-use rosasurfer\core\exception\InvalidArgumentException;
+use rosasurfer\core\exception\InvalidValueException;
 use rosasurfer\core\exception\RuntimeException;
 use rosasurfer\core\exception\UnimplementedFeatureException;
 use rosasurfer\file\FileSystem as FS;
@@ -91,7 +90,7 @@ class Dukascopy extends CObject {
     public function decompressData($data, $saveAs = null) {
         Assert::string($data, '$data');
         Assert::nullOrString($saveAs, '$saveAs');
-        if (isset($saveAs) && !strlen($saveAs)) throw new InvalidArgumentException('Invalid parameter $saveAs: ""');
+        if (isset($saveAs) && !strlen($saveAs)) throw new InvalidValueException('Invalid parameter $saveAs: ""');
 
         $rawData = LZMA::decompressData($data);
 
@@ -197,10 +196,10 @@ class Dukascopy extends CObject {
      */
     protected function loadHistory(DukascopySymbol $symbol, $period, $time, $type) {
         Assert::int($period, '$period');
-        if ($period != PERIOD_M1)                     throw new InvalidArgumentException('Invalid parameter $period: '.periodToStr($period));
+        if ($period != PERIOD_M1)                     throw new InvalidValueException('Invalid parameter $period: '.periodToStr($period));
         Assert::int($time, '$time');
         Assert::int($type, '$type');
-        if (!in_array($type, [PRICE_BID, PRICE_ASK])) throw new InvalidArgumentException('Invalid parameter $type: '.$type);
+        if (!in_array($type, [PRICE_BID, PRICE_ASK])) throw new InvalidValueException('Invalid parameter $type: '.$type);
 
         // Day transition time (Midnight) for Dukascopy data is at 00:00 GMT (~02:00 FXT). Each FXT day requires Dukascopy
         // data of the current and the previous GMT day. If data is present in the internal cache the method doesn't connect
@@ -271,9 +270,9 @@ class Dukascopy extends CObject {
         Assert::string($data, '$data');
         Assert::int($day, '$day');
         Assert::int($period, '$period');
-        if ($period != PERIOD_M1)                     throw new InvalidArgumentException('Invalid parameter $period: '.periodToStr($period));
+        if ($period != PERIOD_M1)                     throw new InvalidValueException('Invalid parameter $period: '.periodToStr($period));
         Assert::int($type, '$type');
-        if (!in_array($type, [PRICE_BID, PRICE_ASK])) throw new InvalidArgumentException('Invalid parameter $type: '.$type);
+        if (!in_array($type, [PRICE_BID, PRICE_ASK])) throw new InvalidValueException('Invalid parameter $type: '.$type);
 
         $symbolU = strtoupper($symbol->getName());
         $day -= $day%DAY;                                           // 00:00 GMT
@@ -369,8 +368,8 @@ class Dukascopy extends CObject {
      * </pre>
      */
     protected function calculateMedian(array $bids, array $asks) {
-        if (sizeof($bids) != PERIOD_D1) throw new InvalidArgumentException('Invalid size of parameter $bids: '.($size=sizeof($bids)).' ('.($size > PERIOD_D1 ? 'more':'less').' then a day)');
-        if (sizeof($asks) != PERIOD_D1) throw new InvalidArgumentException('Invalid size of parameter $asks: '.($size=sizeof($asks)).' ('.($size > PERIOD_D1 ? 'more':'less').' then a day)');
+        if (sizeof($bids) != PERIOD_D1) throw new InvalidValueException('Invalid size of parameter $bids: '.($size=sizeof($bids)).' ('.($size > PERIOD_D1 ? 'more':'less').' then a day)');
+        if (sizeof($asks) != PERIOD_D1) throw new InvalidValueException('Invalid size of parameter $asks: '.($size=sizeof($asks)).' ('.($size > PERIOD_D1 ? 'more':'less').' then a day)');
         $medians = [];
 
         foreach ($bids as $i => $bid) {
@@ -662,7 +661,7 @@ class Dukascopy extends CObject {
     protected function readHistoryStarts($data) {
         Assert::string($data);
         $lenData = strlen($data);
-        if (!$lenData) throw new IllegalArgumentException('Illegal length of history start data: '.$lenData);
+        if (!$lenData) throw new InvalidValueException('Illegal length of history start data: '.$lenData);
 
         $symbols = [];
         $start   = $length = $symbol = $high = $count = null;
@@ -710,10 +709,10 @@ class Dukascopy extends CObject {
      */
     protected function readHistoryStartSection($data, $offset = 0, $count = null) {
         $lenData = strlen($data);
-        if (!is_int($offset) || $offset < 0)    throw new IllegalArgumentException('Invalid parameter $offset: '.$offset.' ('.gettype($offset).')');
-        if ($offset >= $lenData)                throw new IllegalArgumentException('Invalid parameters, mis-matching $offset/$lenData: '.$offset.'/'.$lenData);
+        if (!is_int($offset) || $offset < 0)    throw new InvalidValueException('Invalid parameter $offset: '.$offset.' ('.gettype($offset).')');
+        if ($offset >= $lenData)                throw new InvalidValueException('Invalid parameters, mis-matching $offset/$lenData: '.$offset.'/'.$lenData);
         if (!isset($count)) $count = PHP_INT_MAX;
-        elseif (!is_int($count) || $count <= 0) throw new IllegalArgumentException('Invalid parameter $count: '.$count.' ('.gettype($count).')');
+        elseif (!is_int($count) || $count <= 0) throw new InvalidValueException('Invalid parameter $count: '.$count.' ('.gettype($count).')');
 
         $timeframes = [];
 

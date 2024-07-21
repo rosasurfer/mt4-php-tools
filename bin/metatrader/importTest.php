@@ -44,7 +44,7 @@ foreach ($args as $arg) {
         if ($file['extension']=='ini' || $file['extension']=='log') {
             $files[$file['filename']] = $file['dirname'];
         }
-        else echoPre('skipping non-test file "'.$value.'"');
+        else echof('skipping non-test file "'.$value.'"');
     }
     else {                                                                  // not an existing file, try to expand wildcards
         $entries = glob($value, GLOB_NOESCAPE|GLOB_BRACE|GLOB_ERR);
@@ -54,7 +54,7 @@ foreach ($args as $arg) {
                 if ($file['extension']=='ini' || $file['extension']=='log') {
                     $files[$file['filename']] = $file['dirname'];
                 }
-                else echoPre('skipping non-test file "'.$entries.'"');
+                else echof('skipping non-test file "'.$entries.'"');
             }
         }
     }
@@ -66,11 +66,11 @@ foreach ($files as $name => &$path) {
         $path .= DIRECTORY_SEPARATOR.$name;
     }
     else {
-        echoPre('missing file "'.$file.'" (skipping test)');
+        echof('missing file "'.$file.'" (skipping test)');
         unset($files[$name]);
     }
 }; unset($path);
-!$files && exit(1|echoPre('error: no test result files found'));
+!$files && exit(1|echof('error: no test result files found'));
 
 
 // (2) process the files
@@ -103,14 +103,14 @@ function processTestFiles(array $files) {
 
         if (Test::dao()->findByReportingSymbol($symbol)) {
             Test::db()->rollback();
-            echoPre('error: a test for reporting symbol '.$symbol.' already exists');
+            echof('error: a test for reporting symbol '.$symbol.' already exists');
             return false;
         }
         $test->save();
         Test::db()->commit();
 
         // confirm saving
-        echoPre('Test(id='.$test->getId().') of "'.$test->getStrategy().'" with '.$test->countTrades().' trades saved.');
+        echof('Test(id='.$test->getId().') of "'.$test->getStrategy().'" with '.$test->countTrades().' trades saved.');
 
         // print statistics
         $stats        = $test->getStats();
@@ -132,11 +132,11 @@ function processTestFiles(array $files) {
         $commission   = $stats->getCommission();
         $swap         = $stats->getSwap();
 
-        echoPre('trades:    '.$tradesPerDay.'/day');
-        echoPre('durations: min='.$sMinDuration.'  avg='.$sAvgDuration.'  max='.$sMaxDuration);
-        echoPre('pips:      '.$pips.'  min='.$minPips.'  avg='.$avgPips.'  max='.$maxPips);
-        echoPre('profit:    '.numf($profit, 2).'  commission='.numf($commission, 2).'  swap='.numf($swap, 2));
-        echoPre(NL);
+        echof('trades:    '.$tradesPerDay.'/day');
+        echof('durations: min='.$sMinDuration.'  avg='.$sAvgDuration.'  max='.$sMaxDuration);
+        echof('pips:      '.$pips.'  min='.$minPips.'  avg='.$avgPips.'  max='.$maxPips);
+        echof('profit:    '.numf($profit, 2).'  commission='.numf($commission, 2).'  swap='.numf($swap, 2));
+        echof(NL);
     }
     return true;
 }

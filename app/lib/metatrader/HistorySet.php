@@ -3,9 +3,9 @@ namespace rosasurfer\rt\lib\metatrader;
 
 use rosasurfer\core\CObject;
 use rosasurfer\core\assert\Assert;
-use rosasurfer\core\debug\ErrorHandler;
+use rosasurfer\core\error\ErrorHandler;
 use rosasurfer\core\exception\IllegalStateException;
-use rosasurfer\core\exception\InvalidArgumentException;
+use rosasurfer\core\exception\InvalidValueException;
 use rosasurfer\core\exception\RuntimeException;
 use rosasurfer\log\Logger;
 
@@ -47,7 +47,7 @@ class HistorySet extends CObject {
     /** @var bool - whether the set is closed and resources are disposed */
     protected $closed = false;
 
-    /** @var HistoryFile[] - the history files of the set */
+    /** @var (?HistoryFile)[] - the history files of the set */
     protected $historyFiles = [
         PERIOD_M1  => null,
         PERIOD_M5  => null,
@@ -80,7 +80,7 @@ class HistorySet extends CObject {
         $argc = sizeof($params);
         if      ($argc == 1) $this->__construct1(...$params);
         else if ($argc == 3) $this->__construct2(...$params);
-        else                 throw new InvalidArgumentException('Invalid number of arguments: '.$argc);
+        else                 throw new InvalidValueException('Invalid number of arguments: '.$argc);
     }
 
 
@@ -144,7 +144,7 @@ class HistorySet extends CObject {
      */
     final protected function __construct2(RosaSymbol $symbol, $format, $serverDirectory) {
         Assert::string($serverDirectory, '$serverDirectory');
-        if (!is_dir($serverDirectory)) throw new InvalidArgumentException('Directory "'.$serverDirectory.'" not found');
+        if (!is_dir($serverDirectory)) throw new InvalidValueException('Directory "'.$serverDirectory.'" not found');
 
         $this->symbol          = $symbol->getName();
         $this->digits          = $symbol->getDigits();
@@ -197,9 +197,9 @@ class HistorySet extends CObject {
      */
     public static function open($symbol, $serverDirectory) {
         Assert::string($symbol, '$symbol');
-        if (!strlen($symbol))          throw new InvalidArgumentException('Invalid parameter $symbol: ""');
+        if (!strlen($symbol))          throw new InvalidValueException('Invalid parameter $symbol: ""');
         Assert::string($serverDirectory, '$serverDirectory');
-        if (!is_dir($serverDirectory)) throw new InvalidArgumentException('Directory "'.$serverDirectory.'" not found');
+        if (!is_dir($serverDirectory)) throw new InvalidValueException('Directory "'.$serverDirectory.'" not found');
         $serverDirectory = realpath($serverDirectory);
 
         // existierende Instanzen durchsuchen und bei Erfolg die entsprechende Instanz zurueckgeben

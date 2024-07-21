@@ -33,7 +33,7 @@ foreach ($args as $i => $arg) {
     $symbols[$symbol->getName()] = $symbol;                                             // using the name as index removes duplicates
 }
 $symbols = $symbols ?: RosaSymbol::dao()->findAllByType(RosaSymbol::TYPE_SYNTHETIC);    // if none is specified update all synthetics
-!$symbols && echoPre('No synthetic instruments found.');
+!$symbols && echof('No synthetic instruments found.');
 
 
 // update instruments

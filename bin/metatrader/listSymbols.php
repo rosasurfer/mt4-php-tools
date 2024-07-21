@@ -107,10 +107,10 @@ foreach ($args as $i => $arg) {
 $allFields = MT4::SYMBOL_getFields();               // TODO: Feld 'leverage' dynamisch hinzufuegen
                                                     //       array_splice($fields, array_search('marginDivider', $fields)+1, 0, ['leverage']);
 if (isset($options['listFields'])) {
-    echoPre($s='Symbol fields:');
-    echoPre(str_repeat('-', strlen($s)));
+    echof($s='Symbol fields:');
+    echof(str_repeat('-', strlen($s)));
     foreach ($allFields as $field) {
-        echoPre(ucfirst($field));
+        echof(ucfirst($field));
     }
     exit(0);
 }
@@ -272,12 +272,12 @@ function printData(array $files, array $fields, array $data, array $options) {
         $fileSeparator  = str_repeat('=', strlen($tableSeparator));
 
         if ($countSymbols) {
-            echoPre(str_pad($file.':', $data['meta:maxFileLength']+1, ' ',  STR_PAD_RIGHT).' '.$symbolsSize.' symbols');
+            echof(str_pad($file.':', $data['meta:maxFileLength']+1, ' ',  STR_PAD_RIGHT).' '.$symbolsSize.' symbols');
             continue;
         }
-        echoPre($file.':');
-        echoPre($tableHeader);
-        echoPre($tableSeparator);
+        echof($file.':');
+        echof($tableHeader);
+        echof($tableSeparator);
 
         // (3) Daten ausgeben
         for ($n=0; $n < $symbolsSize; $n++) {
@@ -286,14 +286,14 @@ function printData(array $files, array $fields, array $data, array $options) {
                 $line .= str_pad($data[$file][$name][$n], $fields[$name]['length'], ' ',  STR_PAD_RIGHT).'  ';
             }
             $line = strLeft($line, -2);
-            echoPre($line);
+            echof($line);
         }
 
         // (4) Table-Footer ausgeben
-        echoPre($tableSeparator);
-        echoPre($sizeMsg);
+        echof($tableSeparator);
+        echof($sizeMsg);
         if (++$i < $sizeFiles)
-            echoPre($fileSeparator.NL.NL);
+            echof($fileSeparator.NL.NL);
     }
     return true;
 }

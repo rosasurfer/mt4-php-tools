@@ -14,10 +14,10 @@
         { "type": "vcs", "url": "https://github.com/rosasurfer/ministruts" }
     ],
     "require": {
-        "php":                   "5.6 - 7",
+        "php":                   "5.6 - 8",
         "ext-bcmath":            "*",
         "ext-sqlite3":           "*",
-        "rosasurfer/ministruts": "dev-master#29ace86"
+        "rosasurfer/ministruts": "^0.11@dev"
     },
     "require-dev": {
         "phpstan/phpstan": "*"

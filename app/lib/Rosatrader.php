@@ -119,8 +119,8 @@ class Rosatrader extends StaticClass {
         $storageDir .= '/history/rosatrader/'.$symbol->getType().'/'.$symbol->getName();
         $dir         = $storageDir.'/'.gmdate('Y/m/d', $day);
         $msg         = '[Info]    '.$symbol->getName().'  deleting existing M1 file: ';
-        is_file($file=$dir.'/M1.bin'    ) && true(echoPre($msg.static::relativePath($file))) && unlink($file);
-        is_file($file=$dir.'/M1.bin.rar') && true(echoPre($msg.static::relativePath($file))) && unlink($file);
+        is_file($file=$dir.'/M1.bin'    ) && true(echof($msg.static::relativePath($file))) && unlink($file);
+        is_file($file=$dir.'/M1.bin.rar') && true(echof($msg.static::relativePath($file))) && unlink($file);
 
         // write data to new file
         $file = $dir.'/M1.bin';

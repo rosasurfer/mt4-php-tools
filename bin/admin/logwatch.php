@@ -45,14 +45,14 @@ foreach ($args as $i => $arg) {
 // (1) define the location of the error log
 $errorLog = ini_get('error_log');
 if (empty($errorLog) || $errorLog=='syslog') {              // errors are logged elsewhere
-    if (empty($errorLog)) $quiet || echoPre('errors are logged elsewhere ('.(CLI     ?    'stderr':'sapi'  ).')');
-    else                  $quiet || echoPre('errors are logged elsewhere ('.(WINDOWS ? 'event log':'syslog').')');
+    if (empty($errorLog)) $quiet || echof('errors are logged elsewhere ('.(CLI     ?    'stderr':'sapi'  ).')');
+    else                  $quiet || echof('errors are logged elsewhere ('.(WINDOWS ? 'event log':'syslog').')');
     exit(0);
 }
 
 
 // (2) check log file for existence and process it
-if (!is_file    ($errorLog)) { $quiet || echoPre('error log empty: '       .$errorLog); exit(0); }
+if (!is_file    ($errorLog)) { $quiet || echof('error log empty: '       .$errorLog); exit(0); }
 if (!is_writable($errorLog)) {            stderr('cannot access log file: '.$errorLog); exit(1); }
 $errorLog = realpath($errorLog);
 
@@ -130,7 +130,7 @@ function processEntry($entry) {
     }
 
     global $quiet;
-    $quiet || echoPre(substr($subject, 0, 80).'...');
+    $quiet || echof(substr($subject, 0, 80).'...');
 
     foreach ($receivers as $receiver) {
         $mailer->sendMail($sender, $receiver, $subject, $message, $headers);

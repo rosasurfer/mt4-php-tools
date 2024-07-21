@@ -2,11 +2,10 @@
 namespace rosasurfer\rt;
 
 use rosasurfer\core\assert\Assert;
-use rosasurfer\core\exception\IllegalTypeException;
-use rosasurfer\core\exception\IllegalArgumentException;
-use rosasurfer\core\exception\UnimplementedFeatureException;
+use rosasurfer\core\exception\InvalidTypeException;
+use rosasurfer\core\exception\InvalidValueException;
 use rosasurfer\core\exception\RuntimeException;
-use rosasurfer\core\exception\InvalidArgumentException;
+use rosasurfer\core\exception\UnimplementedFeatureException;
 
 
 /**
@@ -105,7 +104,7 @@ const DUKASCOPY_TICK_SIZE = 20;
  */
 function fxTime($unixTime = null) {
     if      (!func_num_args())                           $unixTime = time();
-    else if (!is_int($unixTime) && !is_float($unixTime)) throw new IllegalTypeException('Illegal type of parameter $unixTime: '.gettype($unixTime));
+    else if (!is_int($unixTime) && !is_float($unixTime)) throw new InvalidTypeException('Illegal type of parameter $unixTime: '.gettype($unixTime));
 
     try {
         $currentTZ = date_default_timezone_get();
@@ -135,7 +134,7 @@ function fxTime($unixTime = null) {
  */
 function unixTime($fxTime = null) {
     if      (!func_num_args())                       $fxTime = fxTime();
-    else if (!is_int($fxTime) && !is_float($fxTime)) throw new IllegalTypeException('Illegal type of parameter $fxTime: '.gettype($fxTime));
+    else if (!is_int($fxTime) && !is_float($fxTime)) throw new InvalidTypeException('Illegal type of parameter $fxTime: '.gettype($fxTime));
 
     try {
         $currentTZ = date_default_timezone_get();
@@ -274,7 +273,7 @@ function fxtStrToTime($time) {
     try {
         date_default_timezone_set('America/New_York');
         $unixTime = strtotime($time);
-        if ($unixTime === false) throw new InvalidArgumentException('Invalid argument $time: "'.$time.'"');
+        if ($unixTime === false) throw new InvalidValueException('Invalid argument $time: "'.$time.'"');
         return $unixTime - 7*HOURS;
     }
     finally { date_default_timezone_set($currentTZ); }
@@ -550,8 +549,8 @@ function stats_standard_deviation(array $values, $sample = false) {
     }
 
     $n = sizeof($values);
-    if ($n==0           ) throw new IllegalArgumentException('Illegal number of values: 0 (not a population)');
-    if ($n==1 && $sample) throw new IllegalArgumentException('Illegal number of values: 1 (not a sample)');
+    if ($n==0           ) throw new InvalidValueException('Illegal number of values: 0 (not a population)');
+    if ($n==1 && $sample) throw new InvalidValueException('Illegal number of values: 1 (not a sample)');
 
     $mean = array_sum($values) / $n;        // arythmetic mean (aka simple average)
     $sqrSum = 0;
@@ -583,8 +582,8 @@ function stats_standard_deviation(array $values, $sample = false) {
  */
 function stats_sharpe_ratio(array $returns, $growth=false, $sample=false) {
     $n = sizeof($returns);
-    if ($n==0           ) throw new IllegalArgumentException('Illegal number of returns: 0 (not a population)');
-    if ($n==1 && $sample) throw new IllegalArgumentException('Illegal number of returns: 1 (not a sample)');
+    if ($n==0           ) throw new InvalidValueException('Illegal number of returns: 0 (not a population)');
+    if ($n==1 && $sample) throw new InvalidValueException('Illegal number of returns: 1 (not a sample)');
 
     // edit April 2024: calculations are so wrong
     //  - Sharpe ratio = TotalReturn / TotalVolatility                  // not avgReturn/volatility
@@ -628,8 +627,8 @@ function stats_sharpe_ratio(array $returns, $growth=false, $sample=false) {
  */
 function stats_sortino_ratio(array $returns, $growth=false, $sample=false) {
     $n = sizeof($returns);
-    if ($n==0           ) throw new IllegalArgumentException('Illegal number of returns: 0 (not a population)');
-    if ($n==1 && $sample) throw new IllegalArgumentException('Illegal number of returns: 1 (not a sample)');
+    if ($n==0           ) throw new InvalidValueException('Illegal number of returns: 0 (not a population)');
+    if ($n==1 && $sample) throw new InvalidValueException('Illegal number of returns: 1 (not a sample)');
 
     if ($growth) {
         throw new UnimplementedFeatureException('Validation of growth rates not yet implemented');

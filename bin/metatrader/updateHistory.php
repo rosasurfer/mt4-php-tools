@@ -77,11 +77,11 @@ function updateHistory(RosaSymbol $symbol) {
     $config       = Application::getConfig();
     $directory    = $config['app.dir.storage'].'/history/mt4/'.$config['rt.metatrader.servername'];
     $lastSyncTime = null;
-    echoPre('[Info]    '.$symbolName);
+    echof('[Info]    '.$symbolName);
 
     // HistorySet oeffnen bzw. neues Set erstellen
     if ($history = HistorySet::open($symbolName, $directory)) {
-        if ($verbose) echoPre('[Info]    lastSyncTime: '.(($lastSyncTime=$history->getLastSyncTime()) ? gmdate('D, d-M-Y H:i:s', $lastSyncTime) : 0));
+        if ($verbose) echof('[Info]    lastSyncTime: '.(($lastSyncTime=$history->getLastSyncTime()) ? gmdate('D, d-M-Y H:i:s', $lastSyncTime) : 0));
     }
     else {
         /** @var MetaTrader $mt */
@@ -99,17 +99,17 @@ function updateHistory(RosaSymbol $symbol) {
         $shortDate = gmdate('D, d-M-Y', $day);
         $month     = (int) gmdate('m', $day);
         if ($month != $lastMonth) {
-            echoPre('[Info]    '.gmdate('M-Y', $day));
+            echof('[Info]    '.gmdate('M-Y', $day));
             $lastMonth = $month;
         }
         if (!isWeekend($day)) {                                                                     // nur an Handelstagen
             if      (is_file($file=Rost::getVar('rtFile.M1.compressed', $symbolName, $day))) {}     // wenn komprimierte RT-Datei existiert
             else if (is_file($file=Rost::getVar('rtFile.M1.raw'       , $symbolName, $day))) {}     // wenn unkomprimierte RT-Datei existiert
             else {
-                echoPre('[Error]   '.$symbolName.'  Rosatrader history for '.$shortDate.' not found');
+                echof('[Error]   '.$symbolName.'  Rosatrader history for '.$shortDate.' not found');
                 return false;
             }
-            if ($verbose > 0) echoPre('[Info]    synchronizing '.$shortDate);
+            if ($verbose > 0) echof('[Info]    synchronizing '.$shortDate);
 
             $bars = Rost::readBarFile($file, $symbolName);
             $history->synchronize($bars);
@@ -118,7 +118,7 @@ function updateHistory(RosaSymbol $symbol) {
     }
     $history->close();
 
-    echoPre('[Ok]      '.$symbolName);
+    echof('[Ok]      '.$symbolName);
     return true;
 }
 

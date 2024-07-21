@@ -2,7 +2,7 @@
 namespace rosasurfer\rt\model;
 
 use rosasurfer\core\assert\Assert;
-use rosasurfer\core\exception\InvalidArgumentException;
+use rosasurfer\core\exception\InvalidValueException;
 use rosasurfer\db\orm\DAO;
 
 use const rosasurfer\db\orm\meta\FLOAT;
@@ -56,11 +56,11 @@ class TestDAO extends DAO {
      *
      * @param  int $id - primary key
      *
-     * @return Test|null - instance or NULL if no such instance was found
+     * @return ?Test - instance or NULL if no such instance was found
      */
     public function findById($id) {
         Assert::int($id);
-        if ($id < 1) throw new InvalidArgumentException('Invalid argument $id: '.$id);
+        if ($id < 1) throw new InvalidValueException('Invalid argument $id: '.$id);
 
         $sql = 'select *
                    from :Test

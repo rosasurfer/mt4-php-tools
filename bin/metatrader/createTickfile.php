@@ -129,7 +129,7 @@ if (!isset($options['model'    ])) $options['model'    ] = 'REALTICKS';
 if (!isset($options['spread'   ])) $options['spread'   ] = 0;
 
 
-echoPre($options);
+echof($options);
 exit(0);
 
 
