@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "65719dba39c28ae03c9c8ac5a5d1310f",
+    "content-hash": "ec24fd518332bde5c281822af5eecb05",
     "packages": [
         {
             "name": "psr/container",
@@ -57,16 +57,16 @@
         },
         {
             "name": "rosasurfer/ministruts",
-            "version": "dev-development",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rosasurfer/ministruts.git",
-                "reference": "29ace86924ab45d157a3dd60786bb686b1b21528"
+                "reference": "29ace86"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/29ace86924ab45d157a3dd60786bb686b1b21528",
-                "reference": "29ace86924ab45d157a3dd60786bb686b1b21528",
+                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/29ace86",
+                "reference": "29ace86",
                 "shasum": ""
             },
             "require": {
@@ -76,20 +76,23 @@
                 "ext-libxml": "*",
                 "ext-mbstring": "*",
                 "ext-simplexml": "*",
-                "php": ">=5.6",
+                "php": "7 - 8",
                 "psr/container": "^1.0"
             },
+            "require-dev": {
+                "phpstan/phpstan": "*"
+            },
+            "default-branch": true,
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-0.9": "0.9.x-dev",
-                    "dev-master": "0.10.x-dev"
+                    "dev-master": "0.11.x-dev"
                 }
             },
             "autoload": {
-                "classmap": [
-                    "src/"
-                ],
+                "psr-4": {
+                    "rosasurfer\\": "src"
+                },
                 "files": [
                     "src/load.php"
                 ]
@@ -103,12 +106,12 @@
                     "email": "ministruts@rosasurfer.com"
                 }
             ],
-            "description": "Java Struts inspired MVC micro framework for PHP",
+            "description": "MVC micro framework inspired by Java Struts",
             "support": {
-                "source": "https://github.com/rosasurfer/ministruts/tree/development",
+                "source": "https://github.com/rosasurfer/ministruts/tree/master",
                 "issues": "https://github.com/rosasurfer/ministruts/issues"
             },
-            "time": "2022-04-10T07:44:05+00:00"
+            "time": "2024-07-20T19:52:10+00:00"
         }
     ],
     "packages-dev": [
