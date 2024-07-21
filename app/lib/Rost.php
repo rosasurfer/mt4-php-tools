@@ -465,28 +465,28 @@ class Rost extends StaticClass {
         if (!MT4::isStdTimeframe($period)) throw new InvalidArgumentException('Invalid parameter $period: '.$period.' (not a standard timeframe)');
         Assert::int($time, '$time');
 
-        $size = sizeof($bars);
-        if (!$size)
-            return -1;
+        $sizeOfBars = sizeof($bars);
+        if (!$sizeOfBars) return -1;
 
         $offset = static::findTimeOffset($bars, $time);
 
-        if ($offset < 0) {                                                         // Zeitpunkt liegt nach der juengsten bar[openTime]
-            $closeTime = static::periodCloseTime($bars[$size-1]['time'], $period);
-            return ($closeTime > $time) ? $size-1 : -1;
+        if ($offset < 0) {                                                          // Zeitpunkt liegt nach der juengsten bar[openTime]
+            $closeTime = static::periodCloseTime($bars[$sizeOfBars-1]['time'], $period);
+            return ($closeTime > $time) ? $sizeOfBars-1 : -1;
         }
-        if ($offset == 0)                                                          // Zeitpunkt liegt vor oder exakt auf der ersten Bar
+        if ($offset == 0) {                                                         // Zeitpunkt liegt vor oder exakt auf der ersten Bar
             return 0;
+        }
 
-        if ($bars[$offset]['time'] == $time)                                       // Zeitpunkt stimmt mit bar[openTime] ueberein
+        if ($bars[$offset]['time'] == $time)                                        // Zeitpunkt stimmt mit bar[openTime] ueberein
             return $offset;
-        $offset--;                                                                 // Zeitpunkt liegt in der vorherigen oder zwischen der
-                                                                                   // vorherigen und der TimeOffset-Bar
+        $offset--;                                                                  // Zeitpunkt liegt in der vorherigen oder zwischen der
+                                                                                    // vorherigen und der TimeOffset-Bar
         $closeTime = static::periodCloseTime($bars[$offset]['time'], $period);
-        if ($closeTime > $time)                                                    // Zeitpunkt liegt innerhalb dieser vorherigen Bar
+        if ($closeTime > $time)                                                     // Zeitpunkt liegt innerhalb dieser vorherigen Bar
             return $offset;
-        return ($offset+1 < $bars) ? $offset+1 : -1;                               // Zeitpunkt liegt nach bar[closeTime], also Luecke...
-    }                                                                              // zwischen der vorherigen und der folgenden Bar
+        return ($offset+1 < $sizeOfBars) ? $offset+1 : -1;                          // Zeitpunkt liegt nach bar[closeTime], also Luecke...
+    }                                                                               // zwischen der vorherigen und der folgenden Bar
 
 
     /**

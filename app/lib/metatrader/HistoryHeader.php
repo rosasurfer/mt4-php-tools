@@ -75,13 +75,13 @@ class HistoryHeader extends CObject {
      *
      * Erzeugt eine neue Instanz anhand der uebergebenen Parameter.
      *
-     * @param  int    $format       - unterstuetzte Formate: 400 und 401
-     * @param  string $copyright
-     * @param  string $symbol
-     * @param  int    $period
-     * @param  int    $digits
-     * @param  int    $syncMarker
-     * @param  int    $lastSyncTime
+     * @param  int     $format       - unterstuetzte Formate: 400 und 401
+     * @param  ?string $copyright
+     * @param  string  $symbol
+     * @param  int     $period
+     * @param  int     $digits
+     * @param  ?int    $syncMarker
+     * @param  ?int    $lastSyncTime
      */
     private function __construct_1($format, $copyright, $symbol, $period, $digits, $syncMarker, $lastSyncTime) {
         Assert::int($format, '$format');

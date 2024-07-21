@@ -257,7 +257,7 @@ class Test extends RosatraderModel {
      *
      * @return mixed[] - associative array with parsed properties
      */
-    private static function parseTestProperties($values) {
+    protected static function parseTestProperties($values) {
         Assert::string($values);
         $valuesOrig = $values;
         $values     = trim($values);
@@ -379,7 +379,7 @@ class Test extends RosatraderModel {
      *
      * @return mixed[] - associative array with parsed properties
      */
-    private static function parseOrderProperties($values) {
+    protected static function parseOrderProperties($values) {
         Assert::string($values);
         $valuesOrig = $values;
         $values     = trim($values);

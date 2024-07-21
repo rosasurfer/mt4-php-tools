@@ -73,11 +73,14 @@ DOCOPT;
      * @return int - error status (0 for no error)
      */
     protected function validate(Input $input, Output $output) {
-        $stderr = function($message) use ($output) { $output->error($message); };
-        $usage  = $input->getDocoptResult()->getUsage();
+        $error = function($status, $message) use ($input, $output) {
+            $usage = $input->getDocoptResult()->getUsage();
+            $output->error($message.NL.NL.$usage);
+            return $status;
+        };
 
         // FILE
-        if (!is_file($file = $input->getArgument('FILE'))) return 1|$stderr('error: file "'.$file.'" not found'.NL.NL.$usage);
+        if (!is_file($file = $input->getArgument('FILE'))) return $error(1, 'error: file "'.$file.'" not found');
         $this->file = $file;
 
         // operator
@@ -85,33 +88,43 @@ DOCOPT;
         elseif ($input->getArgument('-')) $this->operation = '-';
         elseif ($input->getArgument('*')) $this->operation = '*';
         elseif ($input->getArgument('/')) $this->operation = '/';
-        else                              return 1|$stderr('error: invalid scaling operator'.NL.NL.$usage);
+        else                              return $error(1, 'error: invalid scaling operator');
 
         // <value> i.e. the operand
-        if (!is_numeric($value = $input->getArgument('<value>'))) return 1|$stderr('error: non-numeric <value>'.NL.NL.$usage);
+        if (!is_numeric($value = $input->getArgument('<value>'))) return $error(1, 'error: non-numeric <value>');
         $value = (float) $value;
-        if (!$value)                                              return 1|$stderr('error: invalid <value> (zero)'.NL.NL.$usage);
+        if (!$value)                                              return $error(1, 'error: invalid <value> (zero)');
         $this->operand = (float) $value;
 
         // --from <datetime>
         $from = $input->getOption('--from');
         if (is_string($from)) {
-            /** @var DateTime $date */
-            ($date = DateTime::createFromFormat('Y.m.d H:i T', $from.' GMT'))       && $this->from = $date->getTimestamp();
-            ($date = DateTime::createFromFormat('Y.m.d H:i T', $from.' 00:00 GMT')) && $this->from = $date->getTimestamp();
-            if (!$this->from) return 1|$stderr('error: invalid --from time'.NL.NL.$usage);
+            if ($date = DateTime::createFromFormat('Y.m.d H:i T', $from.' GMT')) {
+                $this->from = $date->getTimestamp();
+            }
+            elseif ($date = DateTime::createFromFormat('Y.m.d H:i T', $from.' 00:00 GMT')) {
+                $this->from = $date->getTimestamp();
+            }
+            else {
+                return $error(1, 'error: invalid --from time');
+            }
         }
 
         // --to <datetime>
         $to = $input->getOption('--to');
         if (is_string($to)) {
-            /** @var DateTime $date */
-            ($date = DateTime::createFromFormat('Y.m.d H:i T', $to.' GMT'))       && $this->to = $date->getTimestamp();
-            ($date = DateTime::createFromFormat('Y.m.d H:i T', $to.' 00:00 GMT')) && $this->to = $date->getTimestamp() + 1*DAY;
-            if (!$this->to) return 1|$stderr('error: invalid --to time'.NL.NL.$usage);
+            if ($date = DateTime::createFromFormat('Y.m.d H:i T', $to.' GMT')) {
+                $this->to = $date->getTimestamp();
+            }
+            elseif ($date = DateTime::createFromFormat('Y.m.d H:i T', $to.' 00:00 GMT')) {
+                $this->to = $date->getTimestamp() + 1*DAY;
+            }
+            else {
+                return $error(1, 'error: invalid --to time');
+            }
         }
         if (is_string($from) && is_string($to)) {
-            if ($this->from > $this->to) return 1|$stderr('error: invalid --from/--to time range'.NL.NL.$usage);
+            if ($this->from > $this->to) return $error(1, 'error: invalid --from/--to time range');
         }
 
         // --fix-bars
@@ -127,8 +140,8 @@ DOCOPT;
      * @return int - execution status (0 for success)
      */
     protected function execute(Input $input, Output $output) {
-        $stdout    = function($message) use ($output) { $output->out($message); };
-        $stderr    = function($message) use ($output) { $output->error($message); };
+        $stdout    = function($message)          use ($output) { $output->out($message); };
+        $error     = function($status, $message) use ($output) { $output->error($message); return $status; };
         $file      = $this->file;
         $operation = $this->operation;
         $operand   = $this->operand;
@@ -138,13 +151,13 @@ DOCOPT;
 
         // open history file and read header
         $fileSize = filesize($file);
-        if ($fileSize < HistoryHeader::SIZE) return 1|$stderr('error: invalid or unknown file format (file size < min. size of '.HistoryHeader::SIZE.')');
+        if ($fileSize < HistoryHeader::SIZE) return $error(1, 'error: invalid or unknown file format (file size < min. size of '.HistoryHeader::SIZE.')');
         $hFile = fopen($file, 'r+b');
         try {
             $header = new HistoryHeader(fread($hFile, HistoryHeader::SIZE));
         }
         catch (MetaTraderException $ex) {
-            if (strStartsWith($ex->getMessage(), 'version.unsupported')) return 1|$stderr('error: unsupported history format in "'.$file.'"');
+            if (strStartsWith($ex->getMessage(), 'version.unsupported')) return $error(1, 'error: unsupported history format in "'.$file.'"');
             throw $ex;
         }
         $version   = $header->getFormat();
@@ -152,8 +165,8 @@ DOCOPT;
         $barSize   = $version==400 ? MT4::HISTORY_BAR_400_SIZE : MT4::HISTORY_BAR_401_SIZE;
         $barFormat = MT4::BAR_getUnpackFormat($version);
         $bars      = ($fileSize-HistoryHeader::SIZE) / $barSize;
-        if (!is_int($bars))  return 1|$stderr('error: invalid size of file "'.$file.'" (EOF is not on a bar boundary)');
-        if ($version != 400) return 1|$stderr('error: processing of history format '.$version.' not yet implemented');
+        if (!is_int($bars))  return $error(1, 'error: invalid size of file "'.$file.'" (EOF is not on a bar boundary)');
+        if ($version != 400) return $error(1, 'error: processing of history format '.$version.' not yet implemented');
 
         // lookup start bar and set initial file pointer position
         $startbar = $this->findStartbar($hFile, $bars, $barSize, $barFormat, $from);
