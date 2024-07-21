@@ -1,13 +1,16 @@
 {
-    "name":        "rosasurfer/mt4-tools",
+    "name":        "rosasurfer/mt4-php-tools",
     "description": "PHP tools for the MetaTrader4 MQL framework",
     "type":        "project",
     "license":     "WTFPL",
     "authors": [{
         "name":  "Peter Walther",
-        "email": "mt4-tools@rosasurfer.com"
+        "email": "mt4-php-tools@rosasurfer.com"
     }],
     "config": {
+        "platform": {
+            "php": "7.3"
+        },
         "optimize-autoloader": true
     },
     "repositories": [
