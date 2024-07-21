@@ -379,11 +379,17 @@ class RosaSymbol extends RosatraderModel {
                     }
                 }
                 else {
-                    is_file($file=$dir.'/M1.bin'    ) && true(Output::out($delMsg.RT::relativePath($file))) && unlink($file);
-                    is_file($file=$dir.'/M1.bin.rar') && true(Output::out($delMsg.RT::relativePath($file))) && unlink($file);
+                    if (is_file($file = $dir . '/M1.bin')) {
+                        Output::out($delMsg . RT::relativePath($file));
+                        unlink($file);
+                    }
+                    if (is_file($file = $dir . '/M1.bin.rar')) {
+                        Output::out($delMsg.RT::relativePath($file));
+                        unlink($file);
+                    }
                 }
             }
-            $missing && $missMsg($missing);
+            if ($missing) $missMsg($missing);
         }
 
         // update the database
@@ -418,7 +424,10 @@ class RosaSymbol extends RosatraderModel {
      */
     public function updateHistory($period = PERIOD_M1) {
         $provider = $this->getHistorySource();
-        if (!$provider) return false(Output::error('[Error]   '.str_pad($this->name, 6).'  no history provider found'));
+        if (!$provider) {
+            Output::error('[Error]   '.str_pad($this->name, 6).'  no history provider found');
+            return false;
+        }
 
         $historyEnd = (int) $this->getHistoryEndM1('U');
         $updateFrom = $historyEnd ? $historyEnd + 1*DAY : 0;                        // the day after history ends
@@ -431,7 +440,10 @@ class RosaSymbol extends RosatraderModel {
             !$status && Output::out($status='[Info]    '.str_pad($this->name, 6).'  updating M1 history since '.($day ? gmdate('D, d-M-Y', $historyEnd) : 'start'));
 
             $bars = $provider->getHistory($period, $day, $optimized=true);
-            if (!$bars) return false && false(Output::error('[Error]   '.str_pad($this->name, 6).'  M1 history '.($day ? ' for '.gmdate('D, d-M-Y', $day) : '').' not available'));
+            if (!$bars) {
+                Output::error('[Error]   '.str_pad($this->name, 6).'  M1 history '.($day ? ' for '.gmdate('D, d-M-Y', $day) : '').' not available');
+                return false;
+            }
             RT::saveM1Bars($bars, $this);
 
             if (!$day) {                                                            // If $day was zero (full update since start)

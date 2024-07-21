@@ -76,7 +76,7 @@ class HistorySet extends CObject {
      *
      * @param  array ...$params
      */
-    public function __construct(...$params) {
+    final public function __construct(...$params) {
         $argc = sizeof($params);
         if      ($argc == 1) $this->__construct1(...$params);
         else if ($argc == 3) $this->__construct2(...$params);
@@ -91,7 +91,7 @@ class HistorySet extends CObject {
      *
      * @param  HistoryFile $file - existierende History-Datei
      */
-    protected function __construct1(HistoryFile $file) {
+    final protected function __construct1(HistoryFile $file) {
         $this->symbol          = $file->getSymbol();
         $this->digits          = $file->getDigits();
         $this->serverName      = $file->getServerName();
@@ -142,7 +142,7 @@ class HistorySet extends CObject {
      *                                       401: MetaTrader  > Build 509
      * @param  string     $serverDirectory - Serververzeichnis der Historydateien des Sets
      */
-    protected function __construct2(RosaSymbol $symbol, $format, $serverDirectory) {
+    final protected function __construct2(RosaSymbol $symbol, $format, $serverDirectory) {
         Assert::string($serverDirectory, '$serverDirectory');
         if (!is_dir($serverDirectory)) throw new InvalidArgumentException('Directory "'.$serverDirectory.'" not found');
 

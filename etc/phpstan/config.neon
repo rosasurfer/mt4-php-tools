@@ -36,6 +36,10 @@ parameters:
     - rosasurfer\WINDOWS
     - rosasurfer\NUL_DEVICE
 
+  ignoreErrors:
+    # tmp. fix until we can use a dynamic version constraint for require "rosasurfer/ministruts" 
+    - '#^Static call to instance method rosasurfer\\core\\di\\proxy\\Output::(out|error)\(\)\.$#'
+
   reportUnmatchedIgnoredErrors: false
 
   parallel:
