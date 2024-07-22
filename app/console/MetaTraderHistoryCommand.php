@@ -68,8 +68,9 @@ DOCOPT;
                 $lastMonth = $month;
             }
             if ($symbol->isTradingDay($day)) {
-                if (!$bars = $symbol->getHistoryM1($day, $optimized=true))
+                if (!$bars = $symbol->getHistoryM1($day, true)) {
                     return 1;
+                }
                 $historySet->appendBars($bars);
                 Process::dispatchSignals();                     // check for Ctrl-C
             }

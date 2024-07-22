@@ -4,7 +4,7 @@ use rosasurfer\rt\model\Test;
 
 /** @var Test $test */
 $test = Form::get('test');
-$trades = $test->getTrades();
+$test->getTrades();
 ?>
 <script src="<?=asset('/js/highstock/highstock.js')?>"></script>
 

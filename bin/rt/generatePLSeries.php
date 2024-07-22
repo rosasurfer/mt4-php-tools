@@ -27,7 +27,7 @@ require(dirname(realpath(__FILE__)).'/../../app/init.php');
 // --- Configuration --------------------------------------------------------------------------------------------------------
 
 
-$saveRawRTData = true;                                                  // whether or not to store uncompressed RT data
+$saveRawRTData = true;                                                 // whether or not to store uncompressed RT data
 
 
 // --- Start ----------------------------------------------------------------------------------------------------------------
@@ -36,7 +36,7 @@ $saveRawRTData = true;                                                  // wheth
 // (1) parse/validate command line arguments
 /** @var string[] $args */
 $args = array_slice($_SERVER['argv'], 1);
-foreach ($args as $i => $arg) {
+foreach ($args as $arg) {
     if ($arg == '-h') exit(1|help());           // help
 }
 (sizeof($args) != 1) && exit(1|help());
@@ -97,9 +97,8 @@ echof('[Info]    Processing '.sizeof($trades).' trades of test '.$test->getRepor
 
 
 // (4) calculate total position and price at each deal time
-$sum = $position = $prevPosition = 0;
+$sum = $position = 0;
 foreach ($deals as $deal) {
-    $prevPosition = $position;
     $position = round($position + $deal->lots, 2);
 
     if ($position) {
@@ -163,7 +162,7 @@ for ($day=$firstDealDay; $day <= $lastDealDay; $day+=1*DAY) {
     $pipSeries = [];
 
     // calculate PL bars of a single day                            // TODO: handle multiple deals per minute or second
-    foreach ($bars as $i => $bar) {
+    foreach ($bars as $bar) {
         if ($bar['time'] == $nextDealMinute) {
             $lastPositionPrice = $currentDeal->positionPrice;
             $currentDeal       = $nextDeal;

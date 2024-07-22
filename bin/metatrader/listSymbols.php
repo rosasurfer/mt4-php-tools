@@ -34,7 +34,7 @@ foreach ($args as $arg) {
 }
 
 // Optionen und Argumente parsen
-foreach ($args as $i => $arg) {
+foreach ($args as $arg) {
     // -f=FILE
     if (strStartsWith($arg, '-f=')) {
         if ($files) exit(1|stderr('invalid/multiple file arguments: -f='.$arg));
@@ -222,7 +222,7 @@ function collectData($file, array &$fields, array &$data, array $options) {
 
 
     // (5) Daten auslesen und maximale Feldlaengen speichern
-    $values = $lengths = [];
+    $values = [];
     foreach ($symbols as $i => $symbol) {
         foreach ($fields as $name => $v) {
             $value = isset($symbol[$name]) ? $symbol[$name] : '?';                      // typenlose Felder (x) werden markiert

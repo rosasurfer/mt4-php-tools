@@ -69,10 +69,10 @@ else                      /*401*/{ $barSize = MT4::HISTORY_BAR_401_SIZE; $barFor
 
 // (3) Anzahl der Bars bestimmen und Beginn- und Endbar auslesen
 $i = 0;
-$allBars = $bars = ($fileSize-HistoryHeader::SIZE)/$barSize;
+$bars = ($fileSize-HistoryHeader::SIZE)/$barSize;
 if (!is_int($bars)) {
     echof('unexpected EOF of "'.$fileName.'"');
-    $allBars = $bars = (int) $bars;
+    $bars = (int) $bars;
 }
 $barFrom = $barTo = [];
 $iFrom = $iTo = null;
@@ -81,10 +81,10 @@ if (!$bars) {
 }
 else {
     $barFrom = unpack($barFormat, fread($hFile, $barSize));
-    $iFrom   = 0;
+    $iFrom = 0;
     fseek($hFile, HistoryHeader::SIZE + $barSize*($bars-1));
-    $barTo   = unpack($barFormat, fread($hFile, $barSize));
-    $iTo     = $bars-1;
+    $barTo = unpack($barFormat, fread($hFile, $barSize));
+    $iTo = $bars-1;
 }
 
 

@@ -63,9 +63,9 @@ date_default_timezone_set('GMT');
 
 $verbose = 0;                                   // output verbosity
 
-$saveCompressedDukascopyFiles = false;          // ob heruntergeladene Dukascopy-Dateien zwischengespeichert werden sollen
-$saveRawDukascopyFiles        = false;          // ob entpackte Dukascopy-Dateien zwischengespeichert werden sollen
-$saveRawRTData                = true;           // ob unkomprimierte RT-Historydaten gespeichert werden sollen
+$saveCompressedDukascopyFiles = false;        // ob heruntergeladene Dukascopy-Dateien zwischengespeichert werden sollen
+$saveRawDukascopyFiles        = false;        // ob entpackte Dukascopy-Dateien zwischengespeichert werden sollen
+$saveRawRTData                = true;         // ob unkomprimierte RT-Historydaten gespeichert werden sollen
 
 
 // -- Start -----------------------------------------------------------------------------------------------------------------
@@ -250,7 +250,6 @@ function checkHistory($symbol, $gmtHour, $fxtHour) {
 function updateTicks($symbol, $gmtHour, $fxtHour) {
     Assert::int($gmtHour, '$gmtHour');
     Assert::int($fxtHour, '$fxtHour');
-    $shortDate = gmdate('D, d-M-Y H:i', $fxtHour);
 
     // Tickdaten laden
     /** @var array $ticks */
@@ -274,7 +273,6 @@ function updateTicks($symbol, $gmtHour, $fxtHour) {
 function loadTicks($symbol, $gmtHour, $fxtHour) {
     Assert::int($gmtHour, '$gmtHour');
     Assert::int($fxtHour, '$fxtHour');
-    $shortDate = gmdate('D, d-M-Y H:i', $fxtHour);
 
     // Die Tickdaten der Handelsstunde werden in folgender Reihenfolge gesucht:
     //  - in bereits dekomprimierten Dukascopy-Dateien

@@ -1,17 +1,17 @@
-# do not ignore the following files
+# never ignore the following files
 !.gitattributes
 !.htaccess
 
-# ignore Eclipse directories and files
+# ignore Eclipse folders and files
 /.externalToolBuilders/
 /.settings/
 /.buildpath
 /.project*
 
-# ignore IntelliJ directories and files
+# ignore IntelliJ folders and files
 /.idea/
 
-# ignore NetBeans directories and files
+# ignore NetBeans folders and files
 .nb-gradle/
 nbbuild/
 nbdist/
@@ -20,25 +20,25 @@ nbactions.xml
 /build/
 /dist/
 
-
-# ignore the following project directories and files
-/data/
-/data
+# ignore the following folders and files
 /etc/httpd/cgi/php.ini
 /etc/httpd/ssl/www.rosatrader.com.crt
 /etc/httpd/ssl/www.rosatrader.com.key
 /etc/log/*
 /etc/tmp/*
-/vendor/
-/web/doc/erm/*
+/etc/phpstan/.tmp/
 
+/vendor/
 /composer
 /composer.phar
-/deploy
+/composer-*
 
-.gitignore
-config.*properties
-config.*properties.bak
+config*.properties
 !config.dist.properties
+
+/data/
+/data
+/deploy
+/web/doc/erm/*
 *.bi5
 *.bin

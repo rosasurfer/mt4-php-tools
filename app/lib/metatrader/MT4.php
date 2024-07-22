@@ -177,16 +177,17 @@ class MT4 extends StaticClass {
             $lines = explode("\n", self::${'BAR_'.$version.'_formatStr'});
             foreach ($lines as &$line) {
                 $line = strLeftTo($line, '//');                          // Kommentare entfernen
-            }; unset($line);
+            };
+            unset($line);
 
             $values = explode('/', join('', $lines));                   // in Format-Codes zerlegen
 
             foreach ($values as $i => &$value) {
                 $value = trim($value);
                 $value = strLeftTo($value, ' ');                         // dem Code folgende Bezeichner entfernen
-                if (!strlen($value))
-                    unset($values[$i]);
-            }; unset($value);
+                if (!strlen($value)) unset($values[$i]);
+            };
+            unset($value);
             $format = join('', $values);
             ${'format_'.$version} = $format;
         }
@@ -210,9 +211,10 @@ class MT4 extends StaticClass {
 
         if (is_null(${'format_'.$version})) {
             $lines = explode("\n", self::${'BAR_'.$version.'_formatStr'});
-            foreach ($lines as $i => &$line) {
+            foreach ($lines as &$line) {
                 $line = strLeftTo($line, '//');                          // Kommentare entfernen
-            }; unset($line);
+            };
+            unset($line);
             $format = join('', $lines);
 
             // since PHP 5.5.0: The 'a' code now retains trailing NULL bytes, 'Z' replaces the former 'a'.

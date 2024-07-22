@@ -190,9 +190,10 @@ class HistoryHeader extends CObject {
 
         if (is_null($format)) {
             $lines = explode("\n", self::$formatStr);
-            foreach ($lines as $i => &$line) {
+            foreach ($lines as &$line) {
                 $line = strLeftTo($line, '//');                          // Kommentare entfernen
-            }; unset($line);
+            };
+            unset($line);
             $format = join('', $lines);
 
             // since PHP 5.5.0: The 'a' code now retains trailing NULL bytes, 'Z' replaces the former 'a'.

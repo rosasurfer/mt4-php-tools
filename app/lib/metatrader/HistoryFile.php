@@ -1108,13 +1108,13 @@ class HistoryFile extends CObject {
         if ($bufferSize)
             $currentBar = &$this->barBuffer[$bufferSize-1];
 
-        foreach ($bars as $i => $bar) {
+        foreach ($bars as $bar) {
             if ($bar['time'] < $this->full_to_closeTime) {                       // Wechsel zur naechsten W1-Bar erkennen
                 // letzte Bar aktualisieren ('time' und 'open' unveraendert)
                 if ($bar['high'] > $currentBar['high']) $currentBar['high' ]  = $bar['high' ];
                 if ($bar['low' ] < $currentBar['low' ]) $currentBar['low'  ]  = $bar['low'  ];
-                                                                     $currentBar['close']  = $bar['close'];
-                                                                     $currentBar['ticks'] += $bar['ticks'];
+                                                        $currentBar['close']  = $bar['close'];
+                                                        $currentBar['ticks'] += $bar['ticks'];
             }
             else {
                 // neue Bar beginnen
@@ -1140,8 +1140,9 @@ class HistoryFile extends CObject {
             $this->full_lastSyncTime = $this->lastM1DataTime + 1*MINUTE;
 
             // ggf. Buffer flushen
-            if ($bufferSize > $this->barBufferSize)
+            if ($bufferSize > $this->barBufferSize) {
                 $bufferSize -= $this->flush($this->barBufferSize);
+            }
         }
     }
 

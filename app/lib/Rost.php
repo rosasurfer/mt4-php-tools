@@ -146,8 +146,8 @@ class Rost extends StaticClass {
         $request  = new HttpRequest($url);
         $options[CURLOPT_SSL_VERIFYPEER] = false;                // das SSL-Zertifikat kann nicht pruefbar oder ungueltig sein
         $response = (new CurlHttpClient($options))->send($request);
-        $status   = $response->getStatus();
-        $content  = $response->getContent();
+        $status = $response->getStatus();
+        $response->getContent();
         if ($status != 200) throw new RuntimeException('Unexpected HTTP status code from api.clickatell.com: '.$status.' ('.HttpResponse::$sc[$status].')');
     }
 

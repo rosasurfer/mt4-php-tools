@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "76662a4f33cc7a6082449504b6ab7428",
+    "content-hash": "f748798931ae6575462600f55b9c8690",
     "packages": [
         {
             "name": "psr/container",
@@ -60,12 +60,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/rosasurfer/ministruts.git",
-                "reference": "3a045aa50122c20ac35e1390f58d3753714af02a"
+                "reference": "797131cc76ea32541777ec6e1950ff13f8efee9d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/3a045aa50122c20ac35e1390f58d3753714af02a",
-                "reference": "3a045aa50122c20ac35e1390f58d3753714af02a",
+                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/797131cc76ea32541777ec6e1950ff13f8efee9d",
+                "reference": "797131cc76ea32541777ec6e1950ff13f8efee9d",
                 "shasum": ""
             },
             "require": {
@@ -79,7 +79,7 @@
                 "psr/container": "^1.0"
             },
             "require-dev": {
-                "phpstan/phpstan": "*"
+                "phpstan/phpstan": "^1.0"
             },
             "default-branch": true,
             "type": "library",
@@ -110,7 +110,7 @@
                 "source": "https://github.com/rosasurfer/ministruts/tree/master",
                 "issues": "https://github.com/rosasurfer/ministruts/issues"
             },
-            "time": "2024-07-21T21:53:36+00:00"
+            "time": "2024-07-22T06:35:19+00:00"
         }
     ],
     "packages-dev": [
@@ -181,7 +181,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": "5.6 - 8",
+        "php": "7 - 8",
         "ext-bcmath": "*",
         "ext-sqlite3": "*"
     },

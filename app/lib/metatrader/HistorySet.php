@@ -296,7 +296,7 @@ class HistorySet extends CObject {
                 if ($file->getDigits() != $this->getDigits()) throw new RuntimeException('Digits mis-match in "'.$fileName.'": file.digits='.$file->getDigits().' instead of set.digits='.$this->getDigits());
             }
 
-            if (!$file) $file = new HistoryFile($this->symbol, $timeframe, $this->digits, $format=400, $this->serverDirectory);
+            if (!$file) $file = new HistoryFile($this->symbol, $timeframe, $this->digits, 400, $this->serverDirectory);
             $this->historyFiles[$timeframe] = $file;
         }
         return $this->historyFiles[$timeframe];

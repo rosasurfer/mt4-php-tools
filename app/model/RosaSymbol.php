@@ -228,7 +228,7 @@ class RosaSymbol extends RosatraderModel {
 
         $point = $this->getPointValue();
 
-        foreach ($bars as $i => $bar) {
+        foreach ($bars as $i => $v) {
             $bars[$i]['open' ] *= $point;
             $bars[$i]['high' ] *= $point;
             $bars[$i]['low'  ] *= $point;
@@ -439,7 +439,7 @@ class RosaSymbol extends RosatraderModel {
                 continue;
             !$status && Output::out($status='[Info]    '.str_pad($this->name, 6).'  updating M1 history since '.($day ? gmdate('D, d-M-Y', $historyEnd) : 'start'));
 
-            $bars = $provider->getHistory($period, $day, $optimized=true);
+            $bars = $provider->getHistory($period, $day, true);
             if (!$bars) {
                 Output::error('[Error]   '.str_pad($this->name, 6).'  M1 history '.($day ? ' for '.gmdate('D, d-M-Y', $day) : '').' not available');
                 return false;
@@ -481,7 +481,7 @@ class RosaSymbol extends RosatraderModel {
         if (!$this->isSynthetic()) throw new RuntimeException('Cannot create Synthesizer for non-synthetic instrument');
 
         $customClass = strLeftTo(ISynthesizer::class, '\\', -1).'\\index\\'.$this->name;
-        if (is_class($customClass) && is_a($customClass, ISynthesizer::class, $allowString=true))
+        if (is_class($customClass) && is_a($customClass, ISynthesizer::class, true))
             return new $customClass($this);
         return new GenericSynthesizer($this);
     }

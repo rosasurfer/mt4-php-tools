@@ -90,8 +90,6 @@ exit(0);
  * @return bool - success status
  */
 function processTestFiles(array $files) {
-    global $verbose;
-
     foreach ($files as $file) {
         $testConfigFile  = $file.'.ini';
         $testResultsFile = $file.'.log';

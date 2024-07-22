@@ -116,7 +116,7 @@ DOCOPT;
     protected function showStatus(array $symbols) {
         $output = $this->output;
         $output->out('[Info]    Local history status');
-        $output->out($separator='---------------------------------------------------------------------------------------');
+        $output->out('---------------------------------------------------------------------------------------');
 
         foreach ($symbols as $symbol) {
             $symbol->showHistoryStatus();
@@ -136,7 +136,7 @@ DOCOPT;
     protected function synchronizeStatus(array $symbols) {
         $output = $this->output;
         $output->out('[Info]    Synchronizing history...');
-        $output->out($separator='---------------------------------------------------------------------------------------');
+        $output->out('---------------------------------------------------------------------------------------');
 
         foreach ($symbols as $symbol) {
             $symbol->synchronizeHistory();
