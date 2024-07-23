@@ -28,7 +28,7 @@ use const rosasurfer\rt\PERIOD_D1;
  * @method        string                                  getName()       Return the symbol name, i.e. the actual symbol.
  * @method        int                                     getDigits()     Return the number of fractional digits of symbol prices.
  * @method        \rosasurfer\rt\model\RosaSymbol         getRosaSymbol() Return the Rosatrader symbol this Dukascopy symbol is mapped to.
- * @method static \rosasurfer\rt\model\DukascopySymbolDAO dao()           Return the {@link DAO} for the calling class.
+ * @method static \rosasurfer\rt\model\DukascopySymbolDAO dao()           Return the {@link DukascopySymbolDAO} for the calling class.
  */
 class DukascopySymbol extends RosatraderModel implements IHistorySource {
 

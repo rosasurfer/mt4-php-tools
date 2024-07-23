@@ -11,7 +11,7 @@ use rosasurfer\rt\lib\metatrader\Symbol;
 /**
  * MetaTraderSymbolsCommand
  *
- * A {@link Command} to process MetaTrader "symbols.raw" files.
+ * A {@link \rosasurfer\console\Command} to process MetaTrader "symbols.raw" files.
  */
 class MetaTraderSymbolsCommand extends Command {
 

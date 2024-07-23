@@ -29,7 +29,7 @@ use function rosasurfer\rt\isWeekend;
  * @method        int                           getMagicNumber() Return the magic number of the ticket.
  * @method        string                        getComment()     Return the ticket comment.
  * @method        \rosasurfer\rt\model\Test     getTest()        Return the test the ticket belongs to.
- * @method static \rosasurfer\rt\model\OrderDAO dao()            Return the {@link DAO} for the calling class.
+ * @method static \rosasurfer\rt\model\OrderDAO dao()            Return the {@link OrderDAO} for the calling class.
  */
 class Order extends RosatraderModel {
 

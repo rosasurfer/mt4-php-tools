@@ -15,7 +15,7 @@ use rosasurfer\rt\lib\metatrader\MT4;
 /**
  * ScaleHistoryCommand
  *
- * A {@link Command} to scale the bars of a MetaTrader4 history file.
+ * A {@link \rosasurfer\console\Command} to scale the bars of a MetaTrader4 history file.
  */
 class ScaleHistoryCommand extends Command {
 

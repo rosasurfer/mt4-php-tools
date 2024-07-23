@@ -14,7 +14,7 @@ use function rosasurfer\rt\strToPeriod;
 /**
  * RosatraderHistoryCommand
  *
- * A {@link Command} to work with the Rosatrader history.
+ * A {@link \rosasurfer\console\Command} to work with the Rosatrader history.
  */
 class RosatraderHistoryCommand extends Command {
 

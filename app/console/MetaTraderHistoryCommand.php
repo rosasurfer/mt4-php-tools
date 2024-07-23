@@ -14,7 +14,7 @@ use rosasurfer\rt\model\RosaSymbol;
 /**
  * MetaTraderHistoryCommand
  *
- * A {@link Command} to work with MetaTrader history files.
+ * A {@link \rosasurfer\console\Command} to work with MetaTrader history files.
  */
 class MetaTraderHistoryCommand extends Command {
 

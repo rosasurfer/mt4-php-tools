@@ -30,7 +30,7 @@ use const rosasurfer\rt\PERIOD_M1;
  * @method        int                                  getUpdateOrder()     Return the symbol's update order value.
  * @method        string                               getFormula()         Return a synthetic instrument's calculation formula (LaTeX).
  * @method        \rosasurfer\rt\model\DukascopySymbol getDukascopySymbol() Return the {@link DukascopySymbol} mapped to this Rosatrader symbol.
- * @method static \rosasurfer\rt\model\RosaSymbolDAO   dao()                Return the {@link DAO} for the calling class.
+ * @method static \rosasurfer\rt\model\RosaSymbolDAO   dao()                Return the {@link RosaSymbolDAO} for the calling class.
  */
 class RosaSymbol extends RosatraderModel {
 
@@ -461,7 +461,7 @@ class RosaSymbol extends RosatraderModel {
 
 
     /**
-     * Return a {@link IHistorySource} for the symbol.
+     * Return a {@link \rosasurfer\rt\lib\IHistorySource} for the symbol.
      *
      * @return IHistorySource|null
      */
@@ -473,7 +473,7 @@ class RosaSymbol extends RosatraderModel {
 
 
     /**
-     * Look-up and instantiate a {@link ISynthesizer} to calculate quotes of a synthetic instrument.
+     * Look-up and instantiate a {@link \rosasurfer\rt\lib\synthetic\ISynthesizer} to calculate quotes of a synthetic instrument.
      *
      * @return ISynthesizer
      */
