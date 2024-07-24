@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # A script called by Composer after execution of "composer install". This script copies all distributed Git hooks to the
-# project's Git hook directory. Extend it with your project-specific tasks to be executed after "composer install". 
+# project's Git hook directory. Extend it with your project-specific tasks to be executed after "composer install".
 #
 set -e
 
@@ -19,7 +19,7 @@ function error() {
 function copyHook() {
     SOURCE="$SCRIPT_DIR/$1"
     TARGET="$GIT_HOOK_DIR/$1"
-    
+
     # copy file
     if ! cmp -s "$SOURCE" "$TARGET"; then
         cp -p "$SOURCE" "$TARGET" || return $?
@@ -55,10 +55,10 @@ fi
 
 
 # make sure we run in the repo's root directory (as to not to mess-up nested repos)
-if [ "$CWD" != "$REPO_ROOT_DIR" ]; then
-    error "ERROR: $(basename "$0") must run in the repository's root directory."
-    exit 1
-fi
+#if [ "$CWD" != "$REPO_ROOT_DIR" ]; then
+#    error "ERROR: $(basename "$0") must run in the repository's root directory."
+#    exit 1
+#fi
 
 
 # call copyHook() with the arguments specified in "composer.json"
@@ -71,6 +71,4 @@ done
 # print execution status
 [ -z "$STATUS" ] && STATUS="OK" || STATUS="error $STATUS"
 echo "Git hooks: $STATUS"
-
-
 exit

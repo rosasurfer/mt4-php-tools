@@ -1,6 +1,20 @@
 <?php declare(strict_types=1);
 
-namespace rosasurfer\rt\bin\generate_pl_series {
+namespace rosasurfer\rt\bin\logwatch {
+
+    /**
+     * @param  string $message [optional]
+     */
+    function help($message = null) {}
+
+    /**
+     * @param  string $entry
+     */
+    function processEntry($entry) {}
+}
+
+
+namespace rosasurfer\rt\cmd\app_generate_pl_series {
 
     const PIP  = 0;
     const PIPS = PIP;
@@ -38,21 +52,7 @@ namespace rosasurfer\rt\bin\generate_pl_series {
 }
 
 
-namespace rosasurfer\rt\bin\admin\logwatch {
-
-    /**
-     * @param  string $message [optional]
-     */
-    function help($message = null) {}
-
-    /**
-     * @param  string $entry
-     */
-    function processEntry($entry) {}
-}
-
-
-namespace rosasurfer\rt\bin\update_synthetics_m1 {
+namespace rosasurfer\rt\cmd\app_update_synthetic_bars {
 
     /**
      * @param  string $message [optional]
@@ -61,7 +61,7 @@ namespace rosasurfer\rt\bin\update_synthetics_m1 {
 }
 
 
-namespace rosasurfer\rt\bin\dukascopy\update_tickdata {
+namespace rosasurfer\rt\cmd\duk_update_ticks {
 
     use rosasurfer\rt\model\RosaSymbol;
 
@@ -179,7 +179,7 @@ namespace rosasurfer\rt\bin\dukascopy\update_tickdata {
 }
 
 
-namespace rosasurfer\rt\bin\metatrader\create_tickfile {
+namespace rosasurfer\rt\cmd\mt4_create_tick_file {
 
     /**
      * @param  string $message [optional]
@@ -188,7 +188,7 @@ namespace rosasurfer\rt\bin\metatrader\create_tickfile {
 }
 
 
-namespace rosasurfer\rt\bin\metatrader\dir {
+namespace rosasurfer\rt\cmd\mt4_dir {
 
     /**
      * @param  string $dirName
@@ -203,7 +203,7 @@ namespace rosasurfer\rt\bin\metatrader\dir {
 }
 
 
-namespace rosasurfer\rt\bin\metatrader\find_offset {
+namespace rosasurfer\rt\cmd\mt4_find_offset {
 
     /**
      * @param  string $message [optional]
@@ -212,7 +212,7 @@ namespace rosasurfer\rt\bin\metatrader\find_offset {
 }
 
 
-namespace rosasurfer\rt\bin\metatrader\import_test {
+namespace rosasurfer\rt\cmd\mt4_import_test {
 
     /**
      * @param  string $message [optional]
@@ -230,7 +230,7 @@ namespace rosasurfer\rt\bin\metatrader\import_test {
 }
 
 
-namespace rosasurfer\rt\bin\metatrader\list_symbols {
+namespace rosasurfer\rt\cmd\mt4_list_symbols {
 
     /**
      * @param  string $file
@@ -273,7 +273,7 @@ namespace rosasurfer\rt\bin\metatrader\list_symbols {
 }
 
 
-namespace rosasurfer\rt\bin\metatrader\update_history {
+namespace rosasurfer\rt\cmd\mt4_update_history {
 
     use rosasurfer\rt\model\RosaSymbol;
 

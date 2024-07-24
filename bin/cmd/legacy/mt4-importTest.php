@@ -1,13 +1,16 @@
 #!/usr/bin/env php
 <?php
 /**
+ * TODO: replace by Ministruts console command
+ *
+ *
  * Import test results into the database.
  */
-namespace rosasurfer\rt\bin\metatrader\import_test;
+namespace rosasurfer\rt\cmd\mt4_import_test;
 
 use rosasurfer\rt\model\Test;
 
-require(dirname(realpath(__FILE__)).'/../../app/init.php');
+require(dirname(realpath(__FILE__)).'/../../../app/init.php');
 date_default_timezone_set('GMT');
 
 

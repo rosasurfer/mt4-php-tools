@@ -1,15 +1,15 @@
 #!/usr/bin/env php
 <?php
 /**
- * Console command to manage the Rosatrader history.
+ * Console command to process MT4 "symbols.raw" files.
  */
 use rosasurfer\Application;
-use rosasurfer\rt\console\RosatraderHistoryCommand;
+use rosasurfer\rt\console\MetaTraderSymbolsCommand;
 
 /** @var Application $app */
 $app = require(dirname(realpath(__FILE__)).'/../../app/init.php');
 
-$app->addCommand(new RosatraderHistoryCommand());
+$app->addCommand(new MetaTraderSymbolsCommand());
 $status = $app->run();
 
 exit($status);

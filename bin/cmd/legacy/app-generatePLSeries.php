@@ -1,13 +1,16 @@
 #!/usr/bin/env php
 <?php
 /**
+ * TODO: replace by Ministruts console command
+ *
+ *
  * Generate a profit/loss timeseries for a trade history (at the moment M1 only).
  *
  *
  * TODO: link the PL series to the originating trade history
  * TODO: check and confirm over/rewriting of existing PL series
  */
-namespace rosasurfer\rt\bin\generate_pl_series;
+namespace rosasurfer\rt\cmd\app_generate_pl_series;
 
 use rosasurfer\Application;
 use rosasurfer\core\assert\Assert;
@@ -20,8 +23,9 @@ use rosasurfer\rt\model\RosaSymbol;
 use rosasurfer\rt\model\Test;
 
 use function rosasurfer\rt\isWeekend;
+use rosasurfer\rt\bin\generate_pl_series\ROST_PIP_BAR;
 
-require(dirname(realpath(__FILE__)).'/../../app/init.php');
+require(dirname(realpath(__FILE__)).'/../../../app/init.php');
 
 
 // --- Configuration --------------------------------------------------------------------------------------------------------

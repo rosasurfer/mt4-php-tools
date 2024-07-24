@@ -1,9 +1,12 @@
 #!/usr/bin/env php
 <?php
 /**
+ * TODO: replace by Ministruts console command
+ *
+ *
  * Verzeichnislisting fuer MetaTrader-Historydateien
  */
-namespace rosasurfer\rt\bin\metatrader\dir;
+namespace rosasurfer\rt\cmd\mt4_dir;
 
 use rosasurfer\rt\lib\metatrader\HistoryHeader;
 use rosasurfer\rt\lib\metatrader\MetaTraderException;
@@ -11,7 +14,7 @@ use rosasurfer\rt\lib\metatrader\MT4;
 
 use function rosasurfer\rt\periodDescription;
 
-require(dirname(realpath(__FILE__)).'/../../app/init.php');
+require(dirname(realpath(__FILE__)).'/../../../app/init.php');
 
 
 // -- Start -----------------------------------------------------------------------------------------------------------------

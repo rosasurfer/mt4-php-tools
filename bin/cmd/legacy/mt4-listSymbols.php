@@ -1,16 +1,19 @@
 #!/usr/bin/env php
 <?php
 /**
+ * TODO: replace by Ministruts console command
+ *
+ *
  * Listet die Symbol-Informationen einer MetaTrader-Datei "symbols.raw" auf.
  *
  * @see Struct-Formate in MT4Expander.dll::Expander.h
  */
-namespace rosasurfer\rt\bin\metatrader\list_symbols;
+namespace rosasurfer\rt\cmd\mt4_list_symbols;
 
 use rosasurfer\rt\lib\metatrader\MT4;
 use rosasurfer\rt\lib\metatrader\Symbol;
 
-require(dirname(realpath(__FILE__)).'/../../app/init.php');
+require(dirname(realpath(__FILE__)).'/../../../app/init.php');
 
 
 // -- Konfiguration ---------------------------------------------------------------------------------------------------------

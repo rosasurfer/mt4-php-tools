@@ -1,16 +1,19 @@
 #!/usr/bin/env php
 <?php
 /**
+ * TODO: replace by Ministruts console command
+ *
+ *
  * Gibt den Offset der ersten Bar einer MetaTrader-Historydatei zurueck, die am oder nach dem angegebenen Zeitpunkt beginnt
  * oder -1, wenn keine solche Bar existiert.
  */
-namespace rosasurfer\rt\bin\metatrader\find_offset;
+namespace rosasurfer\rt\cmd\mt4_find_offset;
 
 use rosasurfer\rt\lib\metatrader\HistoryHeader;
 use rosasurfer\rt\lib\metatrader\MetaTraderException;
 use rosasurfer\rt\lib\metatrader\MT4;
 
-require(dirname(realpath(__FILE__)).'/../../app/init.php');
+require(dirname(realpath(__FILE__)).'/../../../app/init.php');
 date_default_timezone_set('GMT');
 
 

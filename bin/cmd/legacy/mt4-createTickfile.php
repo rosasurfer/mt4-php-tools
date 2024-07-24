@@ -1,13 +1,16 @@
 #!/usr/bin/env php
 <?php
 /**
+ * TODO: replace by Ministruts console command
+ *
+ *
  * Erzeugt eine FXT-Tickdatei fuer den Strategy Tester.
  */
-namespace rosasurfer\rt\bin\metatrader\create_tickfile;
+namespace rosasurfer\rt\cmd\mt4_create_tick_file;
 
 use rosasurfer\rt\lib\metatrader\MT4;
 
-require(dirname(realpath(__FILE__)).'/../../app/init.php');
+require(dirname(realpath(__FILE__)).'/../../../app/init.php');
 date_default_timezone_set('GMT');
 
 

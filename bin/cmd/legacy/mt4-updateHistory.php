@@ -1,9 +1,12 @@
 #!/usr/bin/env php
 <?php
 /**
+ * TODO: replace by Ministruts console command
+ *
+ *
  * Aktualisiert die MetaTrader-History der angegebenen Instrumente im globalen MT4-Serververzeichnis.
  */
-namespace rosasurfer\rt\bin\metatrader\update_history;
+namespace rosasurfer\rt\cmd\mt4_update_history;
 
 use rosasurfer\Application;
 use rosasurfer\process\Process;
@@ -16,7 +19,7 @@ use rosasurfer\rt\model\RosaSymbol;
 use function rosasurfer\rt\fxTime;
 use function rosasurfer\rt\isWeekend;
 
-require(dirname(realpath(__FILE__)).'/../../app/init.php');
+require(dirname(realpath(__FILE__)).'/../../../app/init.php');
 date_default_timezone_set('GMT');
 
 

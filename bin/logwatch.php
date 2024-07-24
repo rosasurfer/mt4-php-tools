@@ -5,14 +5,14 @@
  * If no receivers are configured mail is sent to the system user running the script. Processed log entries are removed
  * from the file.
  */
-namespace rosasurfer\rt\bin\admin\logwatch;
+namespace rosasurfer\rt\bin\logwatch;
 
 use rosasurfer\Application;
 use rosasurfer\core\assert\Assert;
 use rosasurfer\net\mail\Mailer;
 use rosasurfer\util\PHP;
 
-require(dirname(realpath(__FILE__)).'/../../app/init.php');
+require(dirname(realpath(__FILE__)).'/../app/init.php');
 !CLI && exit(1|stderr('error: This script must be executed from a command line interface.'));
 
 

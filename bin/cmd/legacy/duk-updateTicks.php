@@ -1,6 +1,9 @@
 #!/usr/bin/env php
 <?php
 /**
+ * TODO: replace by Ministruts console command
+ *
+ *
  * Aktualisiert die lokal vorhandenen Dukascopy-Tickdaten. Die Daten werden nach FXT konvertiert und im Rosatrader-Format
  * gespeichert. Am Wochenende, an Feiertagen und wenn keine Tickdaten verfuegbar sind, sind die Dukascopy-Dateien leer.
  * Wochenenden werden lokal nicht gespeichert. Montags frueh koennen die Daten erst um 01:00 FXT beginnen.
@@ -32,7 +35,7 @@
  *
  * TODO: check info from Zorro forum:  http://www.opserver.de/ubb7/ubbthreads.php?ubb=showflat&Number=463361#Post463345
  */
-namespace rosasurfer\rt\bin\dukascopy\update_tickdata;
+namespace rosasurfer\rt\cmd\duk_update_ticks;
 
 use rosasurfer\Application;
 use rosasurfer\core\assert\Assert;
@@ -54,7 +57,7 @@ use function rosasurfer\rt\fxtStrToTime;
 use function rosasurfer\rt\fxTimezoneOffset;
 use function rosasurfer\rt\isWeekend;
 
-require(dirname(realpath(__FILE__)).'/../../app/init.php');
+require(dirname(realpath(__FILE__)).'/../../../app/init.php');
 date_default_timezone_set('GMT');
 
 

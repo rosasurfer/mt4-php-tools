@@ -1,14 +1,17 @@
 #!/usr/bin/env php
 <?php
 /**
+ * TODO: replace by Ministruts console command
+ *
+ *
  * Update the M1 history of synthetic Rosatrader instruments.
  */
-namespace rosasurfer\rt\bin\update_synthetics_m1;
+namespace rosasurfer\rt\cmd\app_update_synthetic_bars;
 
 use rosasurfer\process\Process;
 use rosasurfer\rt\model\RosaSymbol;
 
-require(dirname(realpath(__FILE__)).'/../../app/init.php');
+require(dirname(realpath(__FILE__)).'/../../../app/init.php');
 date_default_timezone_set('GMT');
 
 
