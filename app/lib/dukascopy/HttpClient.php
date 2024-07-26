@@ -1,13 +1,13 @@
 <?php
 namespace rosasurfer\rt\lib\dukascopy;
 
-use rosasurfer\core\assert\Assert;
-use rosasurfer\core\di\proxy\CliInput as Input;
-use rosasurfer\core\di\proxy\Output;
-use rosasurfer\core\exception\InvalidValueException;
-use rosasurfer\core\exception\RuntimeException;
-use rosasurfer\net\http\CurlHttpClient;
-use rosasurfer\net\http\HttpResponse;
+use rosasurfer\ministruts\core\assert\Assert;
+use rosasurfer\ministruts\core\di\proxy\CliInput as Input;
+use rosasurfer\ministruts\core\di\proxy\Output;
+use rosasurfer\ministruts\core\exception\InvalidValueException;
+use rosasurfer\ministruts\core\exception\RuntimeException;
+use rosasurfer\ministruts\net\http\CurlHttpClient;
+use rosasurfer\ministruts\net\http\HttpResponse;
 
 use rosasurfer\rt\lib\dukascopy\HttpRequest as DukascopyRequest;
 

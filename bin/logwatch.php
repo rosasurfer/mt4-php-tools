@@ -7,10 +7,10 @@
  */
 namespace rosasurfer\rt\bin\logwatch;
 
-use rosasurfer\Application;
-use rosasurfer\core\assert\Assert;
-use rosasurfer\net\mail\Mailer;
-use rosasurfer\util\PHP;
+use rosasurfer\ministruts\Application;
+use rosasurfer\ministruts\core\assert\Assert;
+use rosasurfer\ministruts\net\mail\Mailer;
+use rosasurfer\ministruts\util\PHP;
 
 require(dirname(realpath(__FILE__)).'/../app/init.php');
 !CLI && exit(1|stderr('error: This script must be executed from a command line interface.'));

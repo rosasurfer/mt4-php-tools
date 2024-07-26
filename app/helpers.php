@@ -1,11 +1,11 @@
 <?php
 namespace rosasurfer\rt;
 
-use rosasurfer\core\assert\Assert;
-use rosasurfer\core\exception\InvalidTypeException;
-use rosasurfer\core\exception\InvalidValueException;
-use rosasurfer\core\exception\RuntimeException;
-use rosasurfer\core\exception\UnimplementedFeatureException;
+use rosasurfer\ministruts\core\assert\Assert;
+use rosasurfer\ministruts\core\exception\InvalidTypeException;
+use rosasurfer\ministruts\core\exception\InvalidValueException;
+use rosasurfer\ministruts\core\exception\RuntimeException;
+use rosasurfer\ministruts\core\exception\UnimplementedFeatureException;
 
 
 /**
@@ -529,7 +529,6 @@ function prettyRecoveryTime($duration) {
         $result = $ww.'w';
     }
     return $result;
-    return '&infin;';
 }
 
 

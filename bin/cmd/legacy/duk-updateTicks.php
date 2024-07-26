@@ -37,15 +37,15 @@
  */
 namespace rosasurfer\rt\cmd\duk_update_ticks;
 
-use rosasurfer\Application;
-use rosasurfer\core\assert\Assert;
-use rosasurfer\core\exception\InvalidValueException;
-use rosasurfer\core\exception\RuntimeException;
-use rosasurfer\file\FileSystem as FS;
-use rosasurfer\net\http\CurlHttpClient;
-use rosasurfer\net\http\HttpRequest;
-use rosasurfer\net\http\HttpResponse;
-use rosasurfer\process\Process;
+use rosasurfer\ministruts\Application;
+use rosasurfer\ministruts\core\assert\Assert;
+use rosasurfer\ministruts\core\exception\InvalidValueException;
+use rosasurfer\ministruts\core\exception\RuntimeException;
+use rosasurfer\ministruts\file\FileSystem as FS;
+use rosasurfer\ministruts\net\http\CurlHttpClient;
+use rosasurfer\ministruts\net\http\HttpRequest;
+use rosasurfer\ministruts\net\http\HttpResponse;
+use rosasurfer\ministruts\process\Process;
 
 use rosasurfer\rt\lib\Rosatrader as RT;
 use rosasurfer\rt\lib\dukascopy\Dukascopy;
@@ -585,7 +585,7 @@ function getVar($id, $symbol=null, $time=null) {
     else if ($id == 'dukaUrlDate') {            // $yyyy/$mmD/$dd                                               // Dukascopy-URL-Datum
         if (!$time) throw new InvalidValueException('Invalid parameter $time: '.$time);
         $yyyy   = gmdate('Y', $time);
-        $mmD    = strRight((string)(gmdate('m', $time)+99), 2);  // Januar = 00
+        $mmD    = strRight((string)((int)gmdate('m', $time)+99), 2);        // Januar = 00
         $dd     = gmdate('d', $time);
         $result = $yyyy.'/'.$mmD.'/'.$dd;
     }

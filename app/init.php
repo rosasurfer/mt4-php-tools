@@ -1,6 +1,6 @@
 <?php
-use rosasurfer\Application;
-use rosasurfer\util\PHP;
+use rosasurfer\ministruts\Application;
+use rosasurfer\ministruts\util\PHP;
 error_reporting(E_ALL & ~E_DEPRECATED);
 
 // class loader

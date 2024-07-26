@@ -5,7 +5,7 @@
  */
 namespace rosasurfer\rt\bin\admin;
 
-use rosasurfer\util\PHP;
+use rosasurfer\ministruts\util\PHP;
 
 require(dirname(realpath(__FILE__)).'/../app/init.php');
 

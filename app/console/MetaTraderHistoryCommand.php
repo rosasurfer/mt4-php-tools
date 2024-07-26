@@ -1,11 +1,11 @@
 <?php
 namespace rosasurfer\rt\console;
 
-use rosasurfer\console\Command;
-use rosasurfer\console\io\Input;
-use rosasurfer\console\io\Output;
-use rosasurfer\core\exception\IllegalStateException;
-use rosasurfer\process\Process;
+use rosasurfer\ministruts\console\Command;
+use rosasurfer\ministruts\console\io\Input;
+use rosasurfer\ministruts\console\io\Output;
+use rosasurfer\ministruts\core\exception\IllegalStateException;
+use rosasurfer\ministruts\process\Process;
 
 use rosasurfer\rt\lib\metatrader\MetaTrader;
 use rosasurfer\rt\model\RosaSymbol;

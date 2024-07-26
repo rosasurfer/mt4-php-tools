@@ -1,12 +1,12 @@
 <?php
 namespace rosasurfer\rt\model;
 
-use rosasurfer\core\assert\Assert;
-use rosasurfer\db\NoSuchRecordException;
-use rosasurfer\db\orm\DAO;
+use rosasurfer\ministruts\core\assert\Assert;
+use rosasurfer\ministruts\db\NoSuchRecordException;
+use rosasurfer\ministruts\db\orm\DAO;
 
-use const rosasurfer\db\orm\meta\INT;
-use const rosasurfer\db\orm\meta\STRING;
+use const rosasurfer\ministruts\db\orm\meta\INT;
+use const rosasurfer\ministruts\db\orm\meta\STRING;
 
 
 /**

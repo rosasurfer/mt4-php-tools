@@ -1,10 +1,10 @@
 <?php
 namespace rosasurfer\rt\lib;
 
-use rosasurfer\core\StaticClass;
-use rosasurfer\core\assert\Assert;
-use rosasurfer\core\exception\RuntimeException;
-use rosasurfer\file\FileSystem as FS;
+use rosasurfer\ministruts\core\StaticClass;
+use rosasurfer\ministruts\core\assert\Assert;
+use rosasurfer\ministruts\core\exception\RuntimeException;
+use rosasurfer\ministruts\file\FileSystem as FS;
 
 use rosasurfer\rt\model\RosaSymbol;
 use const rosasurfer\rt\PERIOD_D1;

@@ -3,7 +3,7 @@
 /**
  * Console command to manage the application's history.
  */
-use rosasurfer\Application;
+use rosasurfer\ministruts\Application;
 use rosasurfer\rt\console\RosatraderHistoryCommand;
 
 /** @var Application $app */

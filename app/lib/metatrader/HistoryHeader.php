@@ -1,9 +1,9 @@
 <?php
 namespace rosasurfer\rt\lib\metatrader;
 
-use rosasurfer\core\CObject;
-use rosasurfer\core\assert\Assert;
-use rosasurfer\core\exception\InvalidValueException;
+use rosasurfer\ministruts\core\CObject;
+use rosasurfer\ministruts\core\assert\Assert;
+use rosasurfer\ministruts\core\exception\InvalidValueException;
 
 
 /**

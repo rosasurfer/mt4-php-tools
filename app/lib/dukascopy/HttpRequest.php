@@ -7,7 +7,7 @@ namespace rosasurfer\rt\lib\dukascopy;
  *
  * An HttpRequest for a Dukascopy web resource.
  */
-class HttpRequest extends \rosasurfer\net\http\HttpRequest {
+class HttpRequest extends \rosasurfer\ministruts\net\http\HttpRequest {
 
 
     /**

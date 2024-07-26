@@ -1,8 +1,8 @@
 <?php
 namespace rosasurfer\rt\lib\synthetic;
 
-use rosasurfer\core\CObject;
-use rosasurfer\core\di\proxy\Output;
+use rosasurfer\ministruts\core\CObject;
+use rosasurfer\ministruts\core\di\proxy\Output;
 
 use rosasurfer\rt\model\RosaSymbol;
 

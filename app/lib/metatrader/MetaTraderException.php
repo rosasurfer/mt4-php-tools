@@ -1,7 +1,7 @@
 <?php
 namespace rosasurfer\rt\lib\metatrader;
 
-use rosasurfer\core\exception\RosasurferException;
+use rosasurfer\ministruts\core\exception\RosasurferException;
 
 
 /**

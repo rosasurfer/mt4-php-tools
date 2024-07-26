@@ -1,10 +1,10 @@
 <?php
 namespace rosasurfer\rt\model;
 
-use rosasurfer\core\assert\Assert;
-use rosasurfer\core\exception\InvalidValueException;
-use rosasurfer\util\PHP;
-use rosasurfer\util\Windows;
+use rosasurfer\ministruts\core\assert\Assert;
+use rosasurfer\ministruts\core\exception\InvalidValueException;
+use rosasurfer\ministruts\util\PHP;
+use rosasurfer\ministruts\util\Windows;
 
 use rosasurfer\rt\lib\Rost;
 use rosasurfer\rt\lib\metatrader\MT4;

@@ -3,7 +3,7 @@
 /**
  * Console command to show and update locally stored Dukascopy history start times.
  */
-use rosasurfer\Application;
+use rosasurfer\ministruts\Application;
 use rosasurfer\rt\console\DukascopyHistoryStartCommand;
 
 /** @var Application $app */

@@ -3,7 +3,7 @@
 /**
  * Console command to scale the bars of a MetaTrader4 history file.
  */
-use rosasurfer\Application;
+use rosasurfer\ministruts\Application;
 use rosasurfer\rt\console\ScaleHistoryCommand;
 
 /** @var Application $app */

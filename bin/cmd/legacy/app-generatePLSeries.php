@@ -12,18 +12,17 @@
  */
 namespace rosasurfer\rt\cmd\app_generate_pl_series;
 
-use rosasurfer\Application;
-use rosasurfer\core\assert\Assert;
-use rosasurfer\core\exception\InvalidValueException;
-use rosasurfer\core\exception\RuntimeException;
-use rosasurfer\file\FileSystem as FS;
+use rosasurfer\ministruts\Application;
+use rosasurfer\ministruts\core\assert\Assert;
+use rosasurfer\ministruts\core\exception\InvalidValueException;
+use rosasurfer\ministruts\core\exception\RuntimeException;
+use rosasurfer\ministruts\file\FileSystem as FS;
 
 use rosasurfer\rt\lib\Rost;
 use rosasurfer\rt\model\RosaSymbol;
 use rosasurfer\rt\model\Test;
 
 use function rosasurfer\rt\isWeekend;
-use rosasurfer\rt\bin\generate_pl_series\ROST_PIP_BAR;
 
 require(dirname(realpath(__FILE__)).'/../../../app/init.php');
 
@@ -162,7 +161,7 @@ for ($day=$firstDealDay; $day <= $lastDealDay; $day+=1*DAY) {
         $partial = true;
     }
 
-    /** ROST_PIP_BAR[] $pipSeries */
+    /** array $pipSeries - ROST_PIP_BAR[] */
     $pipSeries = [];
 
     // calculate PL bars of a single day                            // TODO: handle multiple deals per minute or second
@@ -217,10 +216,10 @@ exit(0);
 /**
  * Store a single day's PL series in an RT history file.
  *
- * @param  string         $symbol
- * @param  int            $day                - the day's timestamp (FXT)
- * @param  ROST_PIP_BAR[] $bars
- * @param  bool           $partial [optional] - whether or not the bars cover only a part of the day (default: FALSE)
+ * @param  string $symbol
+ * @param  int    $day                - the day's timestamp (FXT)
+ * @param  array  $bars               - ROST_PIP_BAR[]
+ * @param  bool   $partial [optional] - whether or not the bars cover only a part of the day (default: FALSE)
  *
  * @return bool - success status
  */

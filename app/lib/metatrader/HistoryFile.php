@@ -1,16 +1,16 @@
 <?php
 namespace rosasurfer\rt\lib\metatrader;
 
-use rosasurfer\core\CObject;
-use rosasurfer\core\assert\Assert;
-use rosasurfer\core\error\ErrorHandler;
-use rosasurfer\core\di\proxy\Output;
-use rosasurfer\core\exception\FileNotFoundException;
-use rosasurfer\core\exception\IllegalStateException;
-use rosasurfer\core\exception\InvalidValueException;
-use rosasurfer\core\exception\RuntimeException;
-use rosasurfer\core\exception\UnimplementedFeatureException;
-use rosasurfer\file\FileSystem as FS;
+use rosasurfer\ministruts\core\CObject;
+use rosasurfer\ministruts\core\assert\Assert;
+use rosasurfer\ministruts\core\error\ErrorHandler;
+use rosasurfer\ministruts\core\di\proxy\Output;
+use rosasurfer\ministruts\core\exception\FileNotFoundException;
+use rosasurfer\ministruts\core\exception\IllegalStateException;
+use rosasurfer\ministruts\core\exception\InvalidValueException;
+use rosasurfer\ministruts\core\exception\RuntimeException;
+use rosasurfer\ministruts\core\exception\UnimplementedFeatureException;
+use rosasurfer\ministruts\file\FileSystem as FS;
 
 use rosasurfer\rt\lib\Rost;
 

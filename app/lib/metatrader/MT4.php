@@ -1,10 +1,10 @@
 <?php
 namespace rosasurfer\rt\lib\metatrader;
 
-use rosasurfer\core\StaticClass;
-use rosasurfer\core\assert\Assert;
-use rosasurfer\core\exception\InvalidTypeException;
-use rosasurfer\core\exception\RuntimeException;
+use rosasurfer\ministruts\core\StaticClass;
+use rosasurfer\ministruts\core\assert\Assert;
+use rosasurfer\ministruts\core\exception\InvalidTypeException;
+use rosasurfer\ministruts\core\exception\RuntimeException;
 
 use const rosasurfer\rt\BARMODEL_BAROPEN;
 use const rosasurfer\rt\BARMODEL_CONTROLPOINTS;

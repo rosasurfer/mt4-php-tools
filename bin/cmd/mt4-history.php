@@ -3,7 +3,7 @@
 /**
  * Console command to create, update or show status of MT4 history files.
  */
-use rosasurfer\Application;
+use rosasurfer\ministruts\Application;
 use rosasurfer\rt\console\MetaTraderHistoryCommand;
 
 /** @var Application $app */

@@ -1,7 +1,7 @@
 <?php
 namespace rosasurfer\rt\model;
 
-use rosasurfer\db\orm\PersistableObject;
+use rosasurfer\ministruts\db\orm\PersistableObject;
 
 
 /**

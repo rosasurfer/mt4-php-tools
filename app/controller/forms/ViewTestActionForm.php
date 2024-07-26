@@ -1,7 +1,7 @@
 <?php
 namespace rosasurfer\rt\controller\forms;
 
-use rosasurfer\ministruts\ActionForm;
+use rosasurfer\ministruts\struts\ActionForm;
 
 use rosasurfer\rt\model\Test;
 

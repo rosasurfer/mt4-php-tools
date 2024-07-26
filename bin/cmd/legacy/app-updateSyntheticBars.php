@@ -8,7 +8,7 @@
  */
 namespace rosasurfer\rt\cmd\app_update_synthetic_bars;
 
-use rosasurfer\process\Process;
+use rosasurfer\ministruts\process\Process;
 use rosasurfer\rt\model\RosaSymbol;
 
 require(dirname(realpath(__FILE__)).'/../../../app/init.php');

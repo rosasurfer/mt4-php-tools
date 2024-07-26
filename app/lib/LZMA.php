@@ -1,13 +1,13 @@
 <?php
 namespace rosasurfer\rt\lib;
 
-use rosasurfer\core\StaticClass;
-use rosasurfer\core\assert\Assert;
-use rosasurfer\core\exception\FileNotFoundException;
-use rosasurfer\core\exception\InfrastructureException;
-use rosasurfer\core\exception\InvalidValueException;
-use rosasurfer\core\exception\RuntimeException;
-use rosasurfer\util\PHP;
+use rosasurfer\ministruts\core\StaticClass;
+use rosasurfer\ministruts\core\assert\Assert;
+use rosasurfer\ministruts\core\exception\FileNotFoundException;
+use rosasurfer\ministruts\core\exception\InfrastructureException;
+use rosasurfer\ministruts\core\exception\InvalidValueException;
+use rosasurfer\ministruts\core\exception\RuntimeException;
+use rosasurfer\ministruts\util\PHP;
 
 
 /**

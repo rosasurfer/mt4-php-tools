@@ -1,10 +1,10 @@
 <?php
 namespace rosasurfer\rt\model;
 
-use rosasurfer\core\assert\Assert;
-use rosasurfer\core\di\proxy\Output;
-use rosasurfer\core\exception\RuntimeException;
-use rosasurfer\process\Process;
+use rosasurfer\ministruts\core\assert\Assert;
+use rosasurfer\ministruts\core\di\proxy\Output;
+use rosasurfer\ministruts\core\exception\RuntimeException;
+use rosasurfer\ministruts\process\Process;
 
 use rosasurfer\rt\lib\IHistorySource;
 use rosasurfer\rt\lib\Rosatrader as RT;

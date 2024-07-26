@@ -1,9 +1,9 @@
 <?php
 namespace rosasurfer\rt\model;
 
-use rosasurfer\core\assert\Assert;
-use rosasurfer\core\di\proxy\Output;
-use rosasurfer\core\exception\UnimplementedFeatureException;
+use rosasurfer\ministruts\core\assert\Assert;
+use rosasurfer\ministruts\core\di\proxy\Output;
+use rosasurfer\ministruts\core\exception\UnimplementedFeatureException;
 
 use rosasurfer\rt\lib\IHistorySource;
 use rosasurfer\rt\lib\dukascopy\Dukascopy;

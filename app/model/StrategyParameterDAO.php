@@ -1,10 +1,10 @@
 <?php
 namespace rosasurfer\rt\model;
 
-use rosasurfer\db\orm\DAO;
+use rosasurfer\ministruts\db\orm\DAO;
 
-use const rosasurfer\db\orm\meta\INT;
-use const rosasurfer\db\orm\meta\STRING;
+use const rosasurfer\ministruts\db\orm\meta\INT;
+use const rosasurfer\ministruts\db\orm\meta\STRING;
 
 
 /**

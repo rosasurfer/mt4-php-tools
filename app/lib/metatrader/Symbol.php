@@ -1,7 +1,7 @@
 <?php
 namespace rosasurfer\rt\lib\metatrader;
 
-use rosasurfer\core\CObject;
+use rosasurfer\ministruts\core\CObject;
 
 
 /**

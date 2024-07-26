@@ -1,13 +1,13 @@
 <?php
 namespace rosasurfer\rt\model;
 
-use rosasurfer\core\assert\Assert;
-use rosasurfer\core\exception\InvalidValueException;
-use rosasurfer\db\orm\DAO;
+use rosasurfer\ministruts\core\assert\Assert;
+use rosasurfer\ministruts\core\exception\InvalidValueException;
+use rosasurfer\ministruts\db\orm\DAO;
 
-use const rosasurfer\db\orm\meta\FLOAT;
-use const rosasurfer\db\orm\meta\INT;
-use const rosasurfer\db\orm\meta\STRING;
+use const rosasurfer\ministruts\db\orm\meta\FLOAT;
+use const rosasurfer\ministruts\db\orm\meta\INT;
+use const rosasurfer\ministruts\db\orm\meta\STRING;
 
 
 /**

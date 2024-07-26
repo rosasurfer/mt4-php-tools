@@ -3,7 +3,7 @@
 /**
  * Console command to process MT4 "symbols.raw" files.
  */
-use rosasurfer\Application;
+use rosasurfer\ministruts\Application;
 use rosasurfer\rt\console\MetaTraderSymbolsCommand;
 
 /** @var Application $app */

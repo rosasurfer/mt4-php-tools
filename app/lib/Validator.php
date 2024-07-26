@@ -1,7 +1,7 @@
 <?php
 namespace rosasurfer\rt\lib;
 
-use rosasurfer\core\StaticClass;
+use rosasurfer\ministruts\core\StaticClass;
 use rosasurfer\rt\view\ViewHelper;
 
 use const rosasurfer\rt\OP_CREDIT;

@@ -1,9 +1,9 @@
 <?php
 namespace rosasurfer\rt\lib\synthetic\index;
 
-use rosasurfer\core\assert\Assert;
-use rosasurfer\core\di\proxy\Output;
-use rosasurfer\core\exception\UnimplementedFeatureException;
+use rosasurfer\ministruts\core\assert\Assert;
+use rosasurfer\ministruts\core\di\proxy\Output;
+use rosasurfer\ministruts\core\exception\UnimplementedFeatureException;
 
 use rosasurfer\rt\lib\synthetic\AbstractSynthesizer;
 

@@ -1,8 +1,8 @@
 <?php
 namespace rosasurfer\rt\lib\metatrader;
 
-use rosasurfer\core\CObject;
-use rosasurfer\file\FileSystem as FS;
+use rosasurfer\ministruts\core\CObject;
+use rosasurfer\ministruts\file\FileSystem as FS;
 
 use rosasurfer\rt\model\RosaSymbol;
 

@@ -1,16 +1,16 @@
 <?php
 namespace rosasurfer\rt\lib;
 
-use rosasurfer\config\ConfigInterface;
-use rosasurfer\core\StaticClass;
-use rosasurfer\core\assert\Assert;
-use rosasurfer\core\exception\InvalidTypeException;
-use rosasurfer\core\exception\InvalidValueException;
-use rosasurfer\core\exception\RuntimeException;
-use rosasurfer\core\exception\UnimplementedFeatureException;
-use rosasurfer\net\http\CurlHttpClient;
-use rosasurfer\net\http\HttpRequest;
-use rosasurfer\net\http\HttpResponse;
+use rosasurfer\ministruts\config\ConfigInterface;
+use rosasurfer\ministruts\core\StaticClass;
+use rosasurfer\ministruts\core\assert\Assert;
+use rosasurfer\ministruts\core\exception\InvalidTypeException;
+use rosasurfer\ministruts\core\exception\InvalidValueException;
+use rosasurfer\ministruts\core\exception\RuntimeException;
+use rosasurfer\ministruts\core\exception\UnimplementedFeatureException;
+use rosasurfer\ministruts\net\http\CurlHttpClient;
+use rosasurfer\ministruts\net\http\HttpRequest;
+use rosasurfer\ministruts\net\http\HttpResponse;
 
 use rosasurfer\rt\lib\metatrader\MT4;
 use rosasurfer\rt\model\RosaSymbol;

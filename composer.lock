@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f748798931ae6575462600f55b9c8690",
+    "content-hash": "7c73e485cc6b5233f488a6971aedb048",
     "packages": [
         {
             "name": "psr/container",
@@ -60,12 +60,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/rosasurfer/ministruts.git",
-                "reference": "797131cc76ea32541777ec6e1950ff13f8efee9d"
+                "reference": "1198a4f7539bf869abafdf4dcae2f0aa0c95e4bc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/797131cc76ea32541777ec6e1950ff13f8efee9d",
-                "reference": "797131cc76ea32541777ec6e1950ff13f8efee9d",
+                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/1198a4f7539bf869abafdf4dcae2f0aa0c95e4bc",
+                "reference": "1198a4f7539bf869abafdf4dcae2f0aa0c95e4bc",
                 "shasum": ""
             },
             "require": {
@@ -75,7 +75,7 @@
                 "ext-libxml": "*",
                 "ext-mbstring": "*",
                 "ext-simplexml": "*",
-                "php": "7 - 8",
+                "php": "7.3 - 8",
                 "psr/container": "^1.0"
             },
             "require-dev": {
@@ -90,7 +90,7 @@
             },
             "autoload": {
                 "psr-4": {
-                    "rosasurfer\\": "src"
+                    "rosasurfer\\ministruts\\": "src"
                 },
                 "files": [
                     "src/load.php"
@@ -110,22 +110,22 @@
                 "source": "https://github.com/rosasurfer/ministruts/tree/master",
                 "issues": "https://github.com/rosasurfer/ministruts/issues"
             },
-            "time": "2024-07-22T06:35:19+00:00"
+            "time": "2024-07-26T17:23:40+00:00"
         }
     ],
     "packages-dev": [
         {
             "name": "phpstan/phpstan",
-            "version": "1.11.7",
+            "version": "1.11.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "52d2bbfdcae7f895915629e4694e9497d0f8e28d"
+                "reference": "6adbd118e6c0515dd2f36b06cde1d6da40f1b8ec"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/52d2bbfdcae7f895915629e4694e9497d0f8e28d",
-                "reference": "52d2bbfdcae7f895915629e4694e9497d0f8e28d",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/6adbd118e6c0515dd2f36b06cde1d6da40f1b8ec",
+                "reference": "6adbd118e6c0515dd2f36b06cde1d6da40f1b8ec",
                 "shasum": ""
             },
             "require": {
@@ -170,7 +170,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-07-06T11:17:41+00:00"
+            "time": "2024-07-24T07:01:22+00:00"
         }
     ],
     "aliases": [],
@@ -181,7 +181,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": "7 - 8",
+        "php": "7.3 - 8",
         "ext-bcmath": "*",
         "ext-sqlite3": "*"
     },

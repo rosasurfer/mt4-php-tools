@@ -8,8 +8,8 @@
  */
 namespace rosasurfer\rt\cmd\mt4_update_history;
 
-use rosasurfer\Application;
-use rosasurfer\process\Process;
+use rosasurfer\ministruts\Application;
+use rosasurfer\ministruts\process\Process;
 
 use rosasurfer\rt\lib\Rost;
 use rosasurfer\rt\lib\metatrader\HistorySet;

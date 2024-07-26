@@ -1,14 +1,14 @@
 <?php
 namespace rosasurfer\rt\lib\dukascopy;
 
-use rosasurfer\core\CObject;
-use rosasurfer\core\assert\Assert;
-use rosasurfer\core\di\proxy\Output;
-use rosasurfer\core\exception\InvalidValueException;
-use rosasurfer\core\exception\RuntimeException;
-use rosasurfer\core\exception\UnimplementedFeatureException;
-use rosasurfer\file\FileSystem as FS;
-use rosasurfer\log\Logger;
+use rosasurfer\ministruts\core\CObject;
+use rosasurfer\ministruts\core\assert\Assert;
+use rosasurfer\ministruts\core\di\proxy\Output;
+use rosasurfer\ministruts\core\exception\InvalidValueException;
+use rosasurfer\ministruts\core\exception\RuntimeException;
+use rosasurfer\ministruts\core\exception\UnimplementedFeatureException;
+use rosasurfer\ministruts\file\FileSystem as FS;
+use rosasurfer\ministruts\log\Logger;
 
 use rosasurfer\rt\lib\LZMA;
 use rosasurfer\rt\lib\dukascopy\HttpClient as DukascopyClient;
