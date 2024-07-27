@@ -9,7 +9,7 @@ use rosasurfer\ministruts\db\orm\PersistableObject;
 /**
  * Provides common functionality for all project model classes.
  *
- * @method int getId() Return the id (primary key) of the instance.
+ * @method ?int getId() Return the id (primary key) of the instance.
  */
 abstract class RosatraderModel extends PersistableObject {
 
@@ -17,11 +17,11 @@ abstract class RosatraderModel extends PersistableObject {
     /** @var ?int - primary key */
     protected $id = null;
 
-    /** @var string - creation time */
-    protected $created;
+    /** @var ?string - creation time */
+    protected $created = null;
 
-    /** @var string - last modification time */
-    protected $modified;
+    /** @var ?string - last modification time */
+    protected $modified = null;
 
 
     /**
@@ -29,11 +29,12 @@ abstract class RosatraderModel extends PersistableObject {
      *
      * @param  string $format [optional] - format as accepted by <tt>date($format, $timestamp)</tt>
      *
-     * @return string - creation time
+     * @return ?string - creation time
      */
     public function getCreated($format = 'Y-m-d H:i:s') {
-        if (!isset($this->created) || $format=='Y-m-d H:i:s')
+        if (!isset($this->created) || $format=='Y-m-d H:i:s') {
             return $this->created;
+        }
         return date($format, strtotime($this->created));
     }
 
@@ -43,11 +44,12 @@ abstract class RosatraderModel extends PersistableObject {
      *
      * @param  string $format [optional] - format as accepted by <tt>date($format, $timestamp)</tt>
      *
-     * @return string|null - last modification time or NULL if the instance hasn't been modified yet
+     * @return ?string - last modification time or NULL if the instance hasn't been modified yet
      */
     public function getModified($format = 'Y-m-d H:i:s') {
-        if (!isset($this->modified) || $format=='Y-m-d H:i:s')
+        if (!isset($this->modified) || $format=='Y-m-d H:i:s') {
             return $this->modified;
+        }
         return date($format, strtotime($this->modified));
     }
 

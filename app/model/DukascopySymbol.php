@@ -45,17 +45,17 @@ class DukascopySymbol extends RosatraderModel implements IHistorySource {
     /** @var int - number of fractional digits of symbol prices */
     protected $digits;
 
-    /** @var string - start time of the available tick history (FXT) */
-    protected $historyStartTick;
+    /** @var ?string - start time of the available tick history (FXT) */
+    protected $historyStartTick = null;
 
-    /** @var string - start time of the available M1 history (FXT) */
-    protected $historyStartM1;
+    /** @var ?string - start time of the available M1 history (FXT) */
+    protected $historyStartM1 = null;
 
-    /** @var string - start time of the available H1 history (FXT) */
-    protected $historyStartH1;
+    /** @var ?string - start time of the available H1 history (FXT) */
+    protected $historyStartH1 = null;
 
-    /** @var string - start time of the available D1 history (FXT) */
-    protected $historyStartD1;
+    /** @var ?string - start time of the available D1 history (FXT) */
+    protected $historyStartD1 = null;
 
     /** @var RosaSymbol [transient] - the Rosatrader symbol this Dukascopy symbol is mapped to */
     protected $rosaSymbol;
@@ -76,7 +76,7 @@ class DukascopySymbol extends RosatraderModel implements IHistorySource {
      *
      * @param  string $format [optional] - format as accepted by <tt>date($format, $timestamp)</tt>
      *
-     * @return string - start time based on an FXT timestamp
+     * @return ?string - start time based on an FXT timestamp
      */
     public function getHistoryStartTick($format = 'Y-m-d H:i:s') {
         if (!isset($this->historyStartTick) || $format=='Y-m-d H:i:s')
@@ -90,7 +90,7 @@ class DukascopySymbol extends RosatraderModel implements IHistorySource {
      *
      * @param  string $format [optional] - format as accepted by <tt>date($format, $timestamp)</tt>
      *
-     * @return string - start time based on an FXT timestamp
+     * @return ?string - start time based on an FXT timestamp
      */
     public function getHistoryStartM1($format = 'Y-m-d H:i:s') {
         if (!isset($this->historyStartM1) || $format=='Y-m-d H:i:s')
@@ -104,7 +104,7 @@ class DukascopySymbol extends RosatraderModel implements IHistorySource {
      *
      * @param  string $format [optional] - format as accepted by <tt>date($format, $timestamp)</tt>
      *
-     * @return string - start time based on an FXT timestamp
+     * @return ?string - start time based on an FXT timestamp
      */
     public function getHistoryStartH1($format = 'Y-m-d H:i:s') {
         if (!isset($this->historyStartH1) || $format=='Y-m-d H:i:s')
@@ -118,7 +118,7 @@ class DukascopySymbol extends RosatraderModel implements IHistorySource {
      *
      * @param  string $format [optional] - format as accepted by <tt>date($format, $timestamp)</tt>
      *
-     * @return string - start time based on an FXT timestamp
+     * @return ?string - start time based on an FXT timestamp
      */
     public function getHistoryStartD1($format = 'Y-m-d H:i:s') {
         if (!isset($this->historyStartD1) || $format=='Y-m-d H:i:s')

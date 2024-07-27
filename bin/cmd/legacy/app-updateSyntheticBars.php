@@ -36,7 +36,6 @@ $symbols = [];
 
 // parse symbols
 foreach ($args as $i => $arg) {
-    /** @var RosaSymbol $symbol */
     $symbol = RosaSymbol::dao()->findByName($arg);
     if (!$symbol)                exit(1|stderr('error: unknown symbol "'.$args[$i].'"'));
     if (!$symbol->isSynthetic()) exit(1|stderr('error: not a synthetic instrument "'.$symbol->getName().'"'));

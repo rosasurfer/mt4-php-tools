@@ -443,8 +443,9 @@ class HistoryFile extends CObject {
         try {
             !$this->isClosed() && $this->close();
         }
-        catch (\Throwable $ex) { throw ErrorHandler::handleDestructorException($ex); }
-        catch (\Exception $ex) { throw ErrorHandler::handleDestructorException($ex); }
+        catch (\Throwable $ex) {
+            throw ErrorHandler::handleDestructorException($ex);
+        }
     }
 
 

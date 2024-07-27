@@ -43,11 +43,11 @@ $fieldArgs = [];
 // -- Start -----------------------------------------------------------------------------------------------------------------
 
 
-// (1) Befehlszeilenargumente auswerten
+// Befehlszeilenargumente auswerten
 /** @var string[] $args */
 $args = array_slice($_SERVER['argv'], 1);
 
-// Hilfe ?
+// Hilfe
 foreach ($args as $arg) {
     if ($arg == '-h') exit(1|help());
 }
@@ -66,11 +66,13 @@ foreach ($args as $arg) {
         }
         else {                                  // Argument existiert nicht, Wildcards expandieren und Ergebnisse pruefen (z.B. unter Windows)
             strEndsWith($value, ['/', '\\']) && ($value.='symbols.raw');
-            $entries    = glob($value, GLOB_NOESCAPE|GLOB_BRACE|GLOB_ERR);
+            $entries = glob($value, GLOB_NOESCAPE|GLOB_BRACE|GLOB_ERR);
             $matchesDir = false;
             foreach ($entries as $entry) {
-                if (is_dir($entry) && ($matchesDir=true))
+                if (is_dir($entry)) {
+                    $matchesDir = true;
                     continue;
+                }
                 $files[] = $entry;              // nur Dateien uebernehmen
             }
             !$files && exit(1|stderr('file(s) not found: '.$arg.($matchesDir ? ' (enter a trailing slash "/" to search directories)':'')));
@@ -121,8 +123,7 @@ foreach ($args as $arg) {
     exit(1|help('invalid argument: '.$arg));
 }
 
-
-// (2) ggf. verfuegbare Felder anzeigen und danach abbrechen
+// ggf. verfuegbare Felder anzeigen und danach abbrechen
 $allFields = MT4::SYMBOL_getFields();               // TODO: Feld 'leverage' dynamisch hinzufuegen
                                                     //       array_splice($fields, array_search('marginDivider', $fields)+1, 0, ['leverage']);
 if (isset($options['listFields'])) {
@@ -134,21 +135,20 @@ if (isset($options['listFields'])) {
     exit(0);
 }
 
-
-// (3) Default-Parameter setzen
+// Default-Parameter setzen
 if (!$files) {
     $file = 'symbols.raw';
     if (!is_file($file)) exit(1|help('file not found: '.$file));
     $files[] = $file;
 }
 
-
-// (4) anzuzeigende Felder bestimmen
+// anzuzeigende Felder bestimmen
 $allFieldsLower = array_change_key_case(array_flip($allFields), CASE_LOWER);    // lower-name => (int)
 $usedFields     = array_flip($allFields);                                       // real-name  => (int)
 foreach ($usedFields as &$value) {
     $value = null;                                                              // real-name  => (null)       default: alle Felder OFF
-}; unset($value);
+};
+unset($value);
 
 foreach ($fieldArgs as $arg) {
     if ($arg == '++') {
@@ -184,15 +184,13 @@ foreach ($usedFields as $name => $value) {
     $usedFields[$name]['length'   ] = strlen($value);                           // [real-name][length]    => (int)
 }
 
-
-// (5) Symbolinformationen erfassen und ausgeben (getrennt, damit Spalten uebergreifend formatiert werden koennen)
+// Symbolinformationen erfassen und ausgeben (getrennt, damit Spalten uebergreifend formatiert werden koennen)
 $data = [];
 foreach ($files as $file) {
     collectData($file, $usedFields, $data, $options) || exit(1);
 }
 printData($files, $usedFields, $data, $options) || exit(1);
 
-// Programmende
 exit(0);
 
 

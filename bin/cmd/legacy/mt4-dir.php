@@ -34,7 +34,7 @@ require(dirname(realpath(__FILE__)).'/../../../app/init.php');
 // -- Start -----------------------------------------------------------------------------------------------------------------
 
 
-// (1) Befehlszeilenparameter auswerten
+// Befehlszeilenparameter auswerten
 /** @var string[] $args */
 $args = array_slice($_SERVER['argv'], 1);
 !$args && ($args[]='.');                                          // Historydateien des aktuellen Verzeichnis
@@ -76,32 +76,28 @@ foreach ($args as $arg) {
 
     // Glob-Pattern einlesen und gefundene Dateien speichern
     $entries = glob($globPattern, GLOB_NOESCAPE|GLOB_BRACE|GLOB_ERR);
-    foreach ($entries as $entry) if (is_file($entry))
-        $expandedArgs[] = $entry;
+    foreach ($entries as $entry) {
+        if (is_file($entry)) $expandedArgs[] = $entry;
+    }
 }
 !$expandedArgs && exit(1|echof('no history files found'));
 sort($expandedArgs);                                              // alles sortieren (Dateien im aktuellen Verzeichnis ans Ende)
 
-
-// (2) gefundene Dateien verzeichnisweise verarbeiten
-$files   = [];
-$formats = $symbols = $symbolsU = $periods = $digits = $syncMarkers = $lastSyncTimes = [];
-$bars    = $barsFrom = $barsTo = $errors = [];
+// gefundene Dateien verzeichnisweise verarbeiten
+$files = $formats = $symbols = $symbolsU = $periods = $digits = $syncMarkers = $lastSyncTimes = $bars = $barsFrom = $barsTo = $errors = [];
 $dirName = $lastDir = null;
 
 foreach ($expandedArgs as $fileName) {
-    $dirName  = dirname($fileName);
+    $dirName = dirname($fileName);
     $basename = basename($fileName);
     if ($dirName!=$lastDir && $files) {                            // bei jedem neuen Verzeichnis vorherige angesammelte Daten anzeigen
         showDirResults($dirName, $files, $formats, $symbols, $symbolsU, $periods, $digits, $syncMarkers, $lastSyncTimes, $bars, $barsFrom, $barsTo, $errors);
-        $files   = [];
-        $formats = $symbols = $symbolsU = $periods = $digits = $syncMarkers = $lastSyncTimes = [];
-        $bars    = $barsFrom = $barsTo = $errors = [];
+        $files = $formats = $symbols = $symbolsU = $periods = $digits = $syncMarkers = $lastSyncTimes = $bars = $barsFrom = $barsTo = $errors = [];
     }
     $lastDir = $dirName;
 
     // Daten auslesen und fuer Anzeige zwischenspeichern
-    $files[]  = $basename;
+    $files[] = $basename;
     $fileSize = filesize($fileName);
 
     if ($fileSize < HistoryHeader::SIZE) {
@@ -183,12 +179,8 @@ foreach ($expandedArgs as $fileName) {
 }
 
 // abschliessende Ausgabe fuer das letzte Verzeichnis
-if ($files) {
-    showDirResults($dirName, $files, $formats, $symbols, $symbolsU, $periods, $digits, $syncMarkers, $lastSyncTimes, $bars, $barsFrom, $barsTo, $errors);
-}
+showDirResults($dirName, $files, $formats, $symbols, $symbolsU, $periods, $digits, $syncMarkers, $lastSyncTimes, $bars, $barsFrom, $barsTo, $errors);
 
-
-// (4) regulaeres Programm-Ende
 exit(0);
 
 

@@ -18,8 +18,8 @@ class ViewTestActionForm extends ActionForm {
     /** @var string|int - submitted Test id */
     protected $id;
 
-    /** @var Test|bool [transient] - Test instance or FALSE if a test with the submitted id was not found */
-    protected $test;
+    /** @var Test|bool|null [transient] - Test instance or FALSE if a test with the submitted id was not found */
+    protected $test = null;
 
 
     /**

@@ -52,16 +52,15 @@ foreach ($args as $i => $arg) {
 // --- Start ----------------------------------------------------------------------------------------------------------------
 
 
-// (1) define the location of the error log
+// define the location of the error log
 $errorLog = ini_get('error_log');
 if (empty($errorLog) || $errorLog=='syslog') {              // errors are logged elsewhere
-    if (empty($errorLog)) $quiet || echof('errors are logged elsewhere ('.(CLI     ?    'stderr':'sapi'  ).')');
+    if (empty($errorLog)) $quiet || echof('errors are logged elsewhere (stderr)');
     else                  $quiet || echof('errors are logged elsewhere ('.(WINDOWS ? 'event log':'syslog').')');
     exit(0);
 }
 
-
-// (2) check log file for existence and process it
+// check log file for existence and process it
 if (!is_file    ($errorLog)) { $quiet || echof('error log empty: '       .$errorLog); exit(0); }
 if (!is_writable($errorLog)) {            stderr('cannot access log file: '.$errorLog); exit(1); }
 $errorLog = realpath($errorLog);
@@ -93,8 +92,6 @@ processEntry($entry);                           // process the last entry (if an
 fclose($hFile);
 unlink($tempName);
 
-
-// (3) the ugly end
 exit(0);
 
 

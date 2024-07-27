@@ -49,8 +49,8 @@ use const rosasurfer\rt\PRICE_MEDIAN;
 class Dukascopy extends CObject {
 
 
-    /** @var HttpClient */
-    protected $httpClient;
+    /** @var ?HttpClient */
+    protected $httpClient = null;
 
     /** @var array[] - internal cache for single fetched history start data */
     protected $historyStarts;
@@ -676,18 +676,18 @@ class Dukascopy extends CObject {
         if (!$lenData) throw new InvalidValueException('Illegal length of history start data: '.$lenData);
 
         $symbols = [];
-        $start   = $length = $symbol = $high = $count = null;
-        $offset  = 0;
+        $start = $length = $symbol = $high = $count = null;
+        $offset = 0;
 
         while ($offset < $lenData) {
             extract(unpack("@$offset/Cstart/Clength", $data));
-            if ($start)                     throw new RuntimeException('Unexpected data format in DUKASCOPY_HISTORY_START at offset '.$offset.': start='.$start);
+            if ($start)                     throw new RuntimeException('Unexpected data format in DUKASCOPY_HISTORY_START at offset '.$offset.': start='.$start);                           // @phpstan-ignore if.alwaysFalse (extract sets)
             $offset += 2;
             extract(unpack("@$offset/A${length}symbol/Nhigh/Ncount", $data));
-            if (strlen($symbol) != $length) throw new RuntimeException('Unexpected data format in DUKASCOPY_HISTORY_START at offset '.$offset.': symbol="'.$symbol.'"  length='.$length);
-            if ($high)                      throw new RuntimeException('Unexpected data format in DUKASCOPY_HISTORY_START at offset '.($offset+$length).': highInt='.$high);
-            if ($count != 4)                throw new RuntimeException('Unexpected data format in DUKASCOPY_HISTORY_START at offset '.($offset+$length+1).': count='.$count);
-            $offset += $length + 8;
+            if (strlen($symbol) != $length) throw new RuntimeException('Unexpected data format in DUKASCOPY_HISTORY_START at offset '.$offset.': symbol="'.$symbol.'"  length='.$length);   // @phpstan-ignore if.alwaysFalse (extract sets)
+            if ($high)                      throw new RuntimeException('Unexpected data format in DUKASCOPY_HISTORY_START at offset '.($offset+$length).': highInt='.$high);                // @phpstan-ignore if.alwaysFalse (extract sets)
+            if ($count != 4)                throw new RuntimeException('Unexpected data format in DUKASCOPY_HISTORY_START at offset '.($offset+$length+1).': count='.$count);               // @phpstan-ignore if.alwaysTrue  (extract sets)
+            $offset += $length + 8;                                             // @phpstan-ignore deadCode.unreachable (reachable because of extract)
 
             $timeframes = $this->readHistoryStartSection($data, $offset, $count);
             if ($timeframes) {                                                  // skip symbols without history
@@ -696,7 +696,7 @@ class Dukascopy extends CObject {
             }
             $offset += $count*16;
         }
-        ksort($symbols);
+        ksort($symbols);                                                        // @phpstan-ignore deadCode.unreachable (reachable because of extract)
         return $symbols;
     }
 

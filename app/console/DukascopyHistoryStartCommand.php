@@ -96,7 +96,6 @@ DOCOPT;
         $symbols = [];
 
         foreach ($args as $name) {
-            /** @var DukascopySymbol $symbol */
             $symbol = DukascopySymbol::dao()->findByName($name);
             if (!$symbol) {
                 $output->error('Untracked Dukascopy symbol "'.$name.'"');

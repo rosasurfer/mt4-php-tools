@@ -85,7 +85,6 @@ DOCOPT;
         $symbols = [];
 
         foreach ($args as $name) {
-            /** @var RosaSymbol $symbol */
             $symbol = RosaSymbol::dao()->findByName($name);
             if (!$symbol) {
                 $output->error('Unknown Rosatrader symbol "'.$name.'"');

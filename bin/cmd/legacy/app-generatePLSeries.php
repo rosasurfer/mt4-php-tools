@@ -59,9 +59,8 @@ foreach ($args as $arg) {
 
 // the only argument must be a test report symbol
 $value = array_shift($args);
-/** @var Test $test */
-$test  = Test::dao()->findByReportingSymbol($value);
-!$test && exit(1|help('unknown test report symbol "'.$value.'"'));
+$test = Test::dao()->findByReportingSymbol($value);
+if (!$test) exit(1|help('unknown test report symbol "'.$value.'"'));
 
 
 // (2) load trades and order trade events chronologically

@@ -86,7 +86,7 @@ $saveRawRTData                = true;           // ob unkomprimierte RT-Historyd
 // -- Start -----------------------------------------------------------------------------------------------------------------
 
 
-// (1) Befehlszeilenargumente einlesen und validieren
+// Befehlszeilenargumente einlesen und validieren
 /** @var string[] $args */
 $args = array_slice($_SERVER['argv'], 1);
 
@@ -103,7 +103,6 @@ $symbols = [];
 
 // Symbole parsen
 foreach ($args as $i => $arg) {
-    /** @var RosaSymbol $symbol */
     $symbol = RosaSymbol::dao()->findByName($arg);
     if (!$symbol)                       exit(1|stderr('error: unknown symbol "'.$args[$i].'"'));
     if (!$symbol->getDukascopySymbol()) exit(1|stderr('error: no Dukascopy mapping found for symbol "'.$args[$i].'"'));
@@ -111,8 +110,7 @@ foreach ($args as $i => $arg) {
 }
 $symbols = $symbols ?: RosaSymbol::dao()->findAllDukascopyMapped();                 // ohne Angabe werden alle Instrumente verarbeitet
 
-
-// (2) Daten aktualisieren
+// Daten aktualisieren
 foreach ($symbols as $symbol) {
     updateSymbol($symbol) || exit(1);
 }
@@ -298,11 +296,9 @@ function loadTicks($symbol, $gmtHour, $fxtHour) {
     $ticks = [];
 
     // dekomprimierte Dukascopy-Datei suchen und bei Erfolg Ticks laden
-    if (!$ticks) {
-        if (is_file($file=getVar('dukaFile.raw', $symbol, $gmtHour))) {
-            $ticks = loadRawDukascopyTickFile($file, $symbol, $gmtHour, $fxtHour);
-            if (!$ticks) return [];
-        }
+    if (is_file($file=getVar('dukaFile.raw', $symbol, $gmtHour))) {
+        $ticks = loadRawDukascopyTickFile($file, $symbol, $gmtHour, $fxtHour);
+        if (!$ticks) return [];
     }
 
     // ggf. komprimierte Dukascopy-Datei suchen und bei Erfolg Ticks laden

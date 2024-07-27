@@ -614,8 +614,7 @@ function stats_sharpe_ratio(array $returns, $growth=false, $sample=false) {
     if ($growth) {
         throw new UnimplementedFeatureException('Validation of growth rates not yet implemented');
         // all values must be non-negative and non-zero (no return = zero growth = 1)
-
-        $mean = array_product($returns) ** 1/$n;        // geometric mean (aka geometric average)
+        $mean = array_product($returns) ** 1/$n;        // geometric mean (aka geometric average)           // @phpstan-ignore deadCode.unreachable (keep for documentation)
     }
     else {
         $mean = array_sum($returns) / $n;               // arythmetic mean (aka simple average)
@@ -646,8 +645,7 @@ function stats_sortino_ratio(array $returns, $growth=false, $sample=false) {
     if ($growth) {
         throw new UnimplementedFeatureException('Validation of growth rates not yet implemented');
         // all values must be above zero (no return = zero growth = 1)
-
-        $mean = array_product($returns) ** 1/$n;        // geometric mean (aka geometric average)
+        $mean = array_product($returns) ** 1/$n;        // geometric mean (aka geometric average)           // @phpstan-ignore deadCode.unreachable (keep for documentation)
         $zeroReturn = 1;
     }
     else {

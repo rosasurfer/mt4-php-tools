@@ -36,15 +36,15 @@ use const rosasurfer\rt\PERIOD_M1;
 /**
  * Represents a Rosatrader symbol.
  *
- * @method        string                               getType()            Return the instrument type (forex|metals|synthetic).
- * @method        int                                  getGroup()           Return the symbol's group id.
- * @method        string                               getName()            Return the symbol name, i.e. the actual symbol.
- * @method        string                               getDescription()     Return the symbol description.
- * @method        int                                  getDigits()          Return the number of fractional digits of symbol prices.
- * @method        int                                  getUpdateOrder()     Return the symbol's update order value.
- * @method        string                               getFormula()         Return a synthetic instrument's calculation formula (LaTeX).
- * @method        \rosasurfer\rt\model\DukascopySymbol getDukascopySymbol() Return the {@link DukascopySymbol} mapped to this Rosatrader symbol.
- * @method static \rosasurfer\rt\model\RosaSymbolDAO   dao()                Return the {@link RosaSymbolDAO} for the calling class.
+ * @method        string                                getType()            Return the instrument type (forex|metals|synthetic).
+ * @method        int                                   getGroup()           Return the symbol's group id.
+ * @method        string                                getName()            Return the symbol name, i.e. the actual symbol.
+ * @method        string                                getDescription()     Return the symbol description.
+ * @method        int                                   getDigits()          Return the number of fractional digits of symbol prices.
+ * @method        int                                   getUpdateOrder()     Return the symbol's update order value.
+ * @method        string                                getFormula()         Return a synthetic instrument's calculation formula (LaTeX).
+ * @method        ?\rosasurfer\rt\model\DukascopySymbol getDukascopySymbol() Return the {@link DukascopySymbol} mapped to this Rosatrader symbol.
+ * @method static \rosasurfer\rt\model\RosaSymbolDAO    dao()                Return the {@link RosaSymbolDAO} for the calling class.
  */
 class RosaSymbol extends RosatraderModel {
 
@@ -80,23 +80,23 @@ class RosaSymbol extends RosatraderModel {
     /** @var string - LaTeX formula for calculation of synthetic instruments */
     protected $formula;
 
-    /** @var string - start time of the available tick history (FXT) */
-    protected $historyStartTick;
+    /** @var ?string - start time of the available tick history (FXT) */
+    protected $historyStartTick = null;
 
-    /** @var string - end time of the available tick history (FXT) */
-    protected $historyEndTick;
+    /** @var ?string - end time of the available tick history (FXT) */
+    protected $historyEndTick = null;
 
-    /** @var string - start time of the available M1 history (FXT) */
-    protected $historyStartM1;
+    /** @var ?string - start time of the available M1 history (FXT) */
+    protected $historyStartM1 = null;
 
-    /** @var string - end time of the available M1 history (FXT) */
-    protected $historyEndM1;
+    /** @var ?string - end time of the available M1 history (FXT) */
+    protected $historyEndM1 = null;
 
-    /** @var string - start time of the available D1 history (FXT) */
-    protected $historyStartD1;
+    /** @var ?string - start time of the available D1 history (FXT) */
+    protected $historyStartD1 = null;
 
-    /** @var string - end time of the available D1 history (FXT) */
-    protected $historyEndD1;
+    /** @var ?string - end time of the available D1 history (FXT) */
+    protected $historyEndD1 = null;
 
     /** @var DukascopySymbol [transient] - the Dukascopy symbol mapped to this Rosatrader symbol */
     protected $dukascopySymbol;
@@ -117,7 +117,7 @@ class RosaSymbol extends RosatraderModel {
      *
      * @param  string $format [optional] - format as accepted by <tt>date($format, $timestamp)</tt>
      *
-     * @return string - start time based on an FXT timestamp
+     * @return ?string - start time based on an FXT timestamp
      */
     public function getHistoryStartTick($format = 'Y-m-d H:i:s') {
         if (!isset($this->historyStartTick) || $format=='Y-m-d H:i:s')
@@ -131,7 +131,7 @@ class RosaSymbol extends RosatraderModel {
      *
      * @param  string $format [optional] - format as accepted by <tt>date($format, $timestamp)</tt>
      *
-     * @return string - end time based on an FXT timestamp
+     * @return ?string - end time based on an FXT timestamp
      */
     public function getHistoryEndTick($format = 'Y-m-d H:i:s') {
         if (!isset($this->historyEndTick) || $format=='Y-m-d H:i:s')
@@ -145,7 +145,7 @@ class RosaSymbol extends RosatraderModel {
      *
      * @param  string $format [optional] - format as accepted by <tt>date($format, $timestamp)</tt>
      *
-     * @return string - start time based on an FXT timestamp
+     * @return ?string - start time based on an FXT timestamp
      */
     public function getHistoryStartM1($format = 'Y-m-d H:i:s') {
         if (!isset($this->historyStartM1) || $format=='Y-m-d H:i:s')
@@ -159,7 +159,7 @@ class RosaSymbol extends RosatraderModel {
      *
      * @param  string $format [optional] - format as accepted by <tt>date($format, $timestamp)</tt>
      *
-     * @return string - end time based on an FXT timestamp
+     * @return ?string - end time based on an FXT timestamp
      */
     public function getHistoryEndM1($format = 'Y-m-d H:i:s') {
         if (!isset($this->historyEndM1) || $format=='Y-m-d H:i:s')
@@ -173,7 +173,7 @@ class RosaSymbol extends RosatraderModel {
      *
      * @param  string $format [optional] - format as accepted by <tt>date($format, $timestamp)</tt>
      *
-     * @return string - start time based on an FXT timestamp
+     * @return ?string - start time based on an FXT timestamp
      */
     public function getHistoryStartD1($format = 'Y-m-d H:i:s') {
         if (!isset($this->historyStartD1) || $format=='Y-m-d H:i:s')
@@ -187,7 +187,7 @@ class RosaSymbol extends RosatraderModel {
      *
      * @param  string $format [optional] - format as accepted by <tt>date($format, $timestamp)</tt>
      *
-     * @return string - end time based on an FXT timestamp
+     * @return ?string - end time based on an FXT timestamp
      */
     public function getHistoryEndD1($format = 'Y-m-d H:i:s') {
         if (!isset($this->historyEndD1) || $format=='Y-m-d H:i:s')
