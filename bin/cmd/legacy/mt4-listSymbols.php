@@ -13,6 +13,20 @@ namespace rosasurfer\rt\cmd\mt4_list_symbols;
 use rosasurfer\rt\lib\metatrader\MT4;
 use rosasurfer\rt\lib\metatrader\Symbol;
 
+use function rosasurfer\ministruts\echof;
+use function rosasurfer\ministruts\numf;
+use function rosasurfer\ministruts\pluralize;
+use function rosasurfer\ministruts\stderr;
+use function rosasurfer\ministruts\strEndsWith;
+use function rosasurfer\ministruts\strIsQuoted;
+use function rosasurfer\ministruts\strLeft;
+use function rosasurfer\ministruts\strLeftTo;
+use function rosasurfer\ministruts\strRight;
+use function rosasurfer\ministruts\strStartsWith;
+use function rosasurfer\ministruts\strRightFrom;
+
+use const rosasurfer\ministruts\NL;
+
 require(dirname(realpath(__FILE__)).'/../../../app/init.php');
 
 

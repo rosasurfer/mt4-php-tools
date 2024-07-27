@@ -7,6 +7,7 @@ use rosasurfer\ministruts\core\exception\InvalidValueException;
 use rosasurfer\rt\lib\Rost;
 use rosasurfer\rt\lib\metatrader\MT4;
 
+use function rosasurfer\ministruts\strCompareI;
 use function rosasurfer\rt\isWeekend;
 
 

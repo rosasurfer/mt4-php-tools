@@ -8,11 +8,15 @@ use rosasurfer\ministruts\core\exception\UnimplementedFeatureException;
 use rosasurfer\rt\lib\IHistorySource;
 use rosasurfer\rt\lib\dukascopy\Dukascopy;
 
+use function rosasurfer\ministruts\strLeft;
+
 use function rosasurfer\rt\fxDate;
 use function rosasurfer\rt\igmdate;
 use function rosasurfer\rt\periodDescription;
 use function rosasurfer\rt\periodToStr;
 use function rosasurfer\rt\unixTime;
+
+use const rosasurfer\ministruts\DAY;
 
 use const rosasurfer\rt\PERIOD_TICK;
 use const rosasurfer\rt\PERIOD_M1;
@@ -222,7 +226,7 @@ class DukascopySymbol extends RosatraderModel implements IHistorySource {
                 return [];
             }
             if (igmdate('d', $time) == igmdate('d', unixTime($time)))       // if history starts at or after 00:00 GMT skip
-                $time += 1*DAY - $time%DAY ;                                // the partial FXT day: it would be incomplete
+                $time += 1*DAY - $time%DAY;                                 // the partial FXT day: it would be incomplete
         }
         /** @var Dukascopy $dukascopy */
         $dukascopy = $this->di(Dukascopy::class);

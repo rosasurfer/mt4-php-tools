@@ -16,8 +16,13 @@ use rosasurfer\rt\lib\metatrader\HistorySet;
 use rosasurfer\rt\lib\metatrader\MetaTrader;
 use rosasurfer\rt\model\RosaSymbol;
 
+use function rosasurfer\ministruts\echof;
+use function rosasurfer\ministruts\stderr;
+
 use function rosasurfer\rt\fxTime;
 use function rosasurfer\rt\isWeekend;
+
+use const rosasurfer\ministruts\DAY;
 
 require(dirname(realpath(__FILE__)).'/../../../app/init.php');
 date_default_timezone_set('GMT');

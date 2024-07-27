@@ -13,7 +13,6 @@ parameters:
     - stubs.php
 
   scanFiles:                                        # additional non-autoloaded files to scan for symbols
-    - ../../vendor/rosasurfer/ministruts/src/globals.php
 
   paths:                                            # paths on the command line override these hardcoded values
     - ../../app
@@ -28,15 +27,15 @@ parameters:
     - ../../vendor
     - ../../web
 
-  dynamicConstantNames:                             # changing constants depending on the environment
-    - rosasurfer\CLI
-    - rosasurfer\LOCALHOST
-    - rosasurfer\MACOS
-    - rosasurfer\WINDOWS
-    - rosasurfer\NUL_DEVICE
+  dynamicConstantNames:                             # dynamic constants with values depending on the environment
+    - rosasurfer\ministruts\CLI
+    - rosasurfer\ministruts\LOCALHOST
+    - rosasurfer\ministruts\MACOS
+    - rosasurfer\ministruts\WINDOWS
+    - rosasurfer\ministruts\NUL_DEVICE
 
   ignoreErrors:
-    # tmp. fix until we have a PHPStan extension 
+    # tmp. fix until we have a new PHPStan extension 
     - '#^Method rosasurfer\\rt\\model\\[a-zA-Z]+DAO::(find|get)By[a-zA-Z]+\(\) should return rosasurfer\\rt\\model\\[a-zA-Z]+(\|null)? but returns rosasurfer\\ministruts\\db\\orm\\PersistableObject(\|null)?\.$#'
     - '#^Method rosasurfer\\rt\\[a-z]+\\[a-zA-Z]+(DAO|Command)::[a-zA-Z]+\(\) should return array<rosasurfer\\rt\\model\\[a-zA-Z]+> but returns array<rosasurfer\\ministruts\\db\\orm\\PersistableObject>\.$#'
 

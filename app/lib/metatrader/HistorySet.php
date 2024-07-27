@@ -11,6 +11,8 @@ use rosasurfer\ministruts\log\Logger;
 
 use rosasurfer\rt\model\RosaSymbol;
 
+use const rosasurfer\ministruts\L_WARN;
+
 use const rosasurfer\rt\PERIOD_M1;
 use const rosasurfer\rt\PERIOD_M5;
 use const rosasurfer\rt\PERIOD_M15;

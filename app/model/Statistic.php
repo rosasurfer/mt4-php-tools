@@ -5,6 +5,8 @@ use function rosasurfer\rt\stats_calmar_ratio;
 use function rosasurfer\rt\stats_sharpe_ratio;
 use function rosasurfer\rt\stats_sortino_ratio;
 
+use const rosasurfer\ministruts\DAYS;
+
 
 /**
  * Represents the statistics record of a {@link Test}.

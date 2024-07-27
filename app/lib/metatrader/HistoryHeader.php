@@ -5,6 +5,10 @@ use rosasurfer\ministruts\core\CObject;
 use rosasurfer\ministruts\core\assert\Assert;
 use rosasurfer\ministruts\core\exception\InvalidValueException;
 
+use function rosasurfer\ministruts\strLeft;
+use function rosasurfer\ministruts\strLeftTo;
+use function rosasurfer\ministruts\strRight;
+
 
 /**
  * HistoryHeader eines HistoryFiles ("*.hst")

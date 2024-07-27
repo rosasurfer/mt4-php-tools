@@ -14,8 +14,18 @@ use rosasurfer\ministruts\file\FileSystem as FS;
 
 use rosasurfer\rt\lib\Rost;
 
+use function rosasurfer\ministruts\echof;
+use function rosasurfer\ministruts\strCompareI;
+
 use function rosasurfer\rt\periodDescription;
 use function rosasurfer\rt\timeframeDescription;
+
+use const rosasurfer\ministruts\DAY;
+use const rosasurfer\ministruts\DAYS;
+use const rosasurfer\ministruts\MINUTE;
+use const rosasurfer\ministruts\MINUTES;
+use const rosasurfer\ministruts\NL;
+use const rosasurfer\ministruts\WEEK;
 
 use const rosasurfer\rt\PERIOD_M1;
 use const rosasurfer\rt\PERIOD_M5;

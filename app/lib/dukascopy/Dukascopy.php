@@ -14,11 +14,21 @@ use rosasurfer\rt\lib\LZMA;
 use rosasurfer\rt\lib\dukascopy\HttpClient as DukascopyClient;
 use rosasurfer\rt\model\DukascopySymbol;
 
+use function rosasurfer\ministruts\first;
+use function rosasurfer\ministruts\isLittleEndian;
+use function rosasurfer\ministruts\last;
+
 use function rosasurfer\rt\fxTime;
 use function rosasurfer\rt\fxTimezoneOffset;
 use function rosasurfer\rt\periodDescription;
 use function rosasurfer\rt\periodToStr;
 use function rosasurfer\rt\priceTypeDescription;
+
+use const rosasurfer\ministruts\DAY;
+use const rosasurfer\ministruts\HOURS;
+use const rosasurfer\ministruts\L_WARN;
+use const rosasurfer\ministruts\MINUTE;
+use const rosasurfer\ministruts\MINUTES;
 
 use const rosasurfer\rt\DUKASCOPY_BAR_SIZE;
 use const rosasurfer\rt\DUKASCOPY_TICK_SIZE;

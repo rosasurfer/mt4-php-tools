@@ -11,6 +11,12 @@ use rosasurfer\rt\lib\metatrader\HistoryHeader;
 use rosasurfer\rt\lib\metatrader\MetaTraderException;
 use rosasurfer\rt\lib\metatrader\MT4;
 
+use function rosasurfer\ministruts\pluralize;
+use function rosasurfer\ministruts\strStartsWith;
+
+use const rosasurfer\ministruts\DAY;
+use const rosasurfer\ministruts\NL;
+
 
 /**
  * ScaleHistoryCommand

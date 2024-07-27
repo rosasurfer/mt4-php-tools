@@ -13,6 +13,15 @@ use rosasurfer\rt\lib\metatrader\HistoryHeader;
 use rosasurfer\rt\lib\metatrader\MetaTraderException;
 use rosasurfer\rt\lib\metatrader\MT4;
 
+use function rosasurfer\ministruts\echof;
+use function rosasurfer\ministruts\is_datetime;
+use function rosasurfer\ministruts\strIsQuoted;
+use function rosasurfer\ministruts\strLeft;
+use function rosasurfer\ministruts\strRight;
+use function rosasurfer\ministruts\strStartsWith;
+
+use const rosasurfer\ministruts\NL;
+
 require(dirname(realpath(__FILE__)).'/../../../app/init.php');
 date_default_timezone_set('GMT');
 

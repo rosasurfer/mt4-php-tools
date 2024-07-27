@@ -10,6 +10,8 @@ use rosasurfer\ministruts\process\Process;
 use rosasurfer\rt\lib\metatrader\MetaTrader;
 use rosasurfer\rt\model\RosaSymbol;
 
+use const rosasurfer\ministruts\DAY;
+
 
 /**
  * MetaTraderHistoryCommand

@@ -2,8 +2,16 @@
 use rosasurfer\ministruts\core\di\proxy\Request;
 use rosasurfer\rt\model\Test;
 
+use function rosasurfer\ministruts\asset;
+use function rosasurfer\ministruts\hsc;
+use function rosasurfer\ministruts\numf;
+use function rosasurfer\ministruts\pluralize;
+use function rosasurfer\ministruts\route;
+
 use function rosasurfer\rt\periodDescription;
 use function rosasurfer\rt\prettyTimeRange;
+
+use const rosasurfer\ministruts\DAYS;
 
 /** @var Test[] $tests */
 $tests = Test::dao()->findAll('select * from :Test order by strategy, created, reportingsymbol');

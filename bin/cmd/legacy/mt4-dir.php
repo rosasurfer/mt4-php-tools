@@ -12,7 +12,19 @@ use rosasurfer\rt\lib\metatrader\HistoryHeader;
 use rosasurfer\rt\lib\metatrader\MetaTraderException;
 use rosasurfer\rt\lib\metatrader\MT4;
 
+use function rosasurfer\ministruts\echof;
+use function rosasurfer\ministruts\numf;
+use function rosasurfer\ministruts\strCompareI;
+use function rosasurfer\ministruts\strEndsWith;
+use function rosasurfer\ministruts\strIsQuoted;
+use function rosasurfer\ministruts\strLeft;
+use function rosasurfer\ministruts\strLeftTo;
+use function rosasurfer\ministruts\strRight;
+use function rosasurfer\ministruts\strStartsWith;
+
 use function rosasurfer\rt\periodDescription;
+
+use const rosasurfer\ministruts\NL;
 
 require(dirname(realpath(__FILE__)).'/../../../app/init.php');
 

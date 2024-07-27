@@ -11,7 +11,10 @@ use rosasurfer\ministruts\net\http\HttpResponse;
 
 use rosasurfer\rt\lib\dukascopy\HttpRequest as DukascopyRequest;
 
+use function rosasurfer\ministruts\print_p;
 use function rosasurfer\rt\igmdate;
+
+use const rosasurfer\ministruts\NL;
 
 use const rosasurfer\rt\PRICE_BID;
 use const rosasurfer\rt\PRICE_ASK;
@@ -104,8 +107,9 @@ class HttpClient extends CurlHttpClient {
         $response = $this->send($request);
 
         $status = $response->getStatus();
-        if ($status!=HttpResponse::SC_OK && $status!=HttpResponse::SC_NOT_FOUND)
+        if ($status!=HttpResponse::SC_OK && $status!=HttpResponse::SC_NOT_FOUND) {
             throw new RuntimeException('Unexpected HTTP response status '.$status.' ('.HttpResponse::$sc[$status].')'.NL.'url: '.$url.NL.print_p($response, true));
+        }
 
         // treat an empty response as 404 error (not found)
         $content = $response->getContent();

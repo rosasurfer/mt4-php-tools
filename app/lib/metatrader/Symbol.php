@@ -3,6 +3,11 @@ namespace rosasurfer\rt\lib\metatrader;
 
 use rosasurfer\ministruts\core\CObject;
 
+use function rosasurfer\ministruts\normalizeEOL;
+use function rosasurfer\ministruts\strLeftTo;
+
+use const rosasurfer\ministruts\EOL_UNIX;
+
 
 /**
  * A PHP representation of a MetaTrader symbol definition. The file "symbols.raw" is a concatenation of C++ structs of such

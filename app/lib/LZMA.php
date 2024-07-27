@@ -9,6 +9,10 @@ use rosasurfer\ministruts\core\exception\InvalidValueException;
 use rosasurfer\ministruts\core\exception\RuntimeException;
 use rosasurfer\ministruts\util\PHP;
 
+use const rosasurfer\ministruts\NL;
+use const rosasurfer\ministruts\NUL_DEVICE;
+use const rosasurfer\ministruts\WINDOWS;
+
 
 /**
  * LZMA related functionality
@@ -60,7 +64,6 @@ class LZMA extends StaticClass {
         $stdout  = PHP::execProcess($cmdLine, $stderr);
 
         if (!strlen($stdout)) throw new RuntimeException('Decoding of file "'.$file.'" failed (decoded size=0),'.NL.'STDERR: '.$stderr);
-
         return $stdout;
     }
 

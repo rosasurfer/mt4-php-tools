@@ -22,7 +22,18 @@ use rosasurfer\rt\lib\Rost;
 use rosasurfer\rt\model\RosaSymbol;
 use rosasurfer\rt\model\Test;
 
+use function rosasurfer\ministruts\echof;
+use function rosasurfer\ministruts\false;
+use function rosasurfer\ministruts\isLittleEndian;
+use function rosasurfer\ministruts\strCompareI;
+
 use function rosasurfer\rt\isWeekend;
+
+use const rosasurfer\ministruts\DAY;
+use const rosasurfer\ministruts\DAYS;
+use const rosasurfer\ministruts\HOURS;
+use const rosasurfer\ministruts\MINUTE;
+use const rosasurfer\ministruts\MINUTES;
 
 require(dirname(realpath(__FILE__)).'/../../../app/init.php');
 

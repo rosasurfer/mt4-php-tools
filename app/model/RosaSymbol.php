@@ -11,10 +11,22 @@ use rosasurfer\rt\lib\Rosatrader as RT;
 use rosasurfer\rt\lib\synthetic\GenericSynthesizer;
 use rosasurfer\rt\lib\synthetic\ISynthesizer;
 
+use function rosasurfer\ministruts\strRight;
+
 use function rosasurfer\rt\fxTime;
 use function rosasurfer\rt\isGoodFriday;
 use function rosasurfer\rt\isHoliday;
 use function rosasurfer\rt\isWeekend;
+
+use function rosasurfer\ministruts\first;
+use function rosasurfer\ministruts\last;
+use function rosasurfer\ministruts\pluralize;
+use function rosasurfer\ministruts\strLeftTo;
+use function rosasurfer\ministruts\is_class;
+
+use const rosasurfer\ministruts\DAY;
+use const rosasurfer\ministruts\HOURS;
+use const rosasurfer\ministruts\MINUTES;
 
 use const rosasurfer\rt\PERIOD_M1;
 
@@ -355,8 +367,8 @@ class RosaSymbol extends RosatraderModel {
 
             $missMsg = function($missing) use ($paddedName, $yesterDay) {
                 if ($misses = sizeof($missing)) {
-                    $first     = first($missing);
-                    $last      = last($missing);
+                    $first = first($missing);
+                    $last  = last($missing);
                     Output::out('[Info]    '.$paddedName.'  '.$misses.' missing history file'.pluralize($misses)
                                             .($misses==1 ? ' for '.gmdate('D, d-M-Y', $first)
                                                          : ' from '.gmdate('D, d-M-Y', $first).' until '.($last==$yesterDay? 'now' : gmdate('D, d-M-Y', $last))));

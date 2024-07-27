@@ -12,6 +12,14 @@ use rosasurfer\ministruts\core\assert\Assert;
 use rosasurfer\ministruts\net\mail\Mailer;
 use rosasurfer\ministruts\util\PHP;
 
+use function rosasurfer\ministruts\echof;
+use function rosasurfer\ministruts\stderr;
+use function rosasurfer\ministruts\strStartsWith;
+
+use const rosasurfer\ministruts\CLI;
+use const rosasurfer\ministruts\NL;
+use const rosasurfer\ministruts\WINDOWS;
+
 require(dirname(realpath(__FILE__)).'/../app/init.php');
 !CLI && exit(1|stderr('error: This script must be executed from a command line interface.'));
 

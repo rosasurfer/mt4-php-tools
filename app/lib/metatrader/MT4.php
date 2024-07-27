@@ -6,6 +6,16 @@ use rosasurfer\ministruts\core\assert\Assert;
 use rosasurfer\ministruts\core\exception\InvalidTypeException;
 use rosasurfer\ministruts\core\exception\RuntimeException;
 
+use function rosasurfer\ministruts\isLittleEndian;
+use function rosasurfer\ministruts\normalizeEOL;
+use function rosasurfer\ministruts\strIsNumeric;
+use function rosasurfer\ministruts\strLeftTo;
+use function rosasurfer\ministruts\strRight;
+use function rosasurfer\ministruts\strRightFrom;
+use function rosasurfer\ministruts\strStartsWith;
+
+use const rosasurfer\ministruts\EOL_UNIX;
+
 use const rosasurfer\rt\BARMODEL_BAROPEN;
 use const rosasurfer\rt\BARMODEL_CONTROLPOINTS;
 use const rosasurfer\rt\BARMODEL_EVERYTICK;

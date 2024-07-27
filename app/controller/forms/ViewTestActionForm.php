@@ -2,8 +2,9 @@
 namespace rosasurfer\rt\controller\forms;
 
 use rosasurfer\ministruts\struts\ActionForm;
-
 use rosasurfer\rt\model\Test;
+
+use function rosasurfer\ministruts\strIsDigits;
 
 
 /**

@@ -10,6 +10,17 @@ namespace rosasurfer\rt\cmd\mt4_import_test;
 
 use rosasurfer\rt\model\Test;
 
+use function rosasurfer\ministruts\echof;
+use function rosasurfer\ministruts\numf;
+use function rosasurfer\ministruts\strIsQuoted;
+use function rosasurfer\ministruts\strLeft;
+use function rosasurfer\ministruts\strRight;
+
+use const rosasurfer\ministruts\DAYS;
+use const rosasurfer\ministruts\HOURS;
+use const rosasurfer\ministruts\MINUTES;
+use const rosasurfer\ministruts\NL;
+
 require(dirname(realpath(__FILE__)).'/../../../app/init.php');
 date_default_timezone_set('GMT');
 

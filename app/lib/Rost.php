@@ -15,6 +15,15 @@ use rosasurfer\ministruts\net\http\HttpResponse;
 use rosasurfer\rt\lib\metatrader\MT4;
 use rosasurfer\rt\model\RosaSymbol;
 
+use function rosasurfer\ministruts\strIsNumeric;
+use function rosasurfer\ministruts\strRight;
+use function rosasurfer\ministruts\strStartsWith;
+
+use const rosasurfer\ministruts\DAY;
+use const rosasurfer\ministruts\DAYS;
+use const rosasurfer\ministruts\MINUTES;
+use const rosasurfer\ministruts\WEEK;
+
 use const rosasurfer\rt\OP_BALANCE;
 use const rosasurfer\rt\OP_BUY;
 use const rosasurfer\rt\OP_BUYLIMIT;

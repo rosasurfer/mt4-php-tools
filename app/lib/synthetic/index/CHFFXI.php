@@ -7,6 +7,7 @@ use rosasurfer\ministruts\core\exception\UnimplementedFeatureException;
 
 use rosasurfer\rt\lib\synthetic\AbstractSynthesizer;
 
+use function rosasurfer\ministruts\first;
 use function rosasurfer\rt\periodToStr;
 
 use const rosasurfer\rt\PERIOD_M1;

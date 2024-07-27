@@ -9,6 +9,19 @@ use rosasurfer\ministruts\util\Windows;
 use rosasurfer\rt\lib\Rost;
 use rosasurfer\rt\lib\metatrader\MT4;
 
+use function rosasurfer\ministruts\ini_get_int;
+use function rosasurfer\ministruts\normalizeEOL;
+use function rosasurfer\ministruts\strContains;
+use function rosasurfer\ministruts\strEndsWith;
+use function rosasurfer\ministruts\strIsDigits;
+use function rosasurfer\ministruts\strIsDoubleQuoted;
+use function rosasurfer\ministruts\strIsNumeric;
+use function rosasurfer\ministruts\strLeftTo;
+use function rosasurfer\ministruts\strRight;
+use function rosasurfer\ministruts\strStartsWith;
+
+use const rosasurfer\ministruts\NL;
+
 use const rosasurfer\rt\BARMODEL_BAROPEN;
 use const rosasurfer\rt\OP_SELL;
 use const rosasurfer\rt\PERIOD_M1;

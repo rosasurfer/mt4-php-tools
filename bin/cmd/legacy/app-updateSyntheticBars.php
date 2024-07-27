@@ -11,6 +11,11 @@ namespace rosasurfer\rt\cmd\app_update_synthetic_bars;
 use rosasurfer\ministruts\process\Process;
 use rosasurfer\rt\model\RosaSymbol;
 
+use function rosasurfer\ministruts\echof;
+use function rosasurfer\ministruts\stderr;
+
+use const rosasurfer\ministruts\NL;
+
 require(dirname(realpath(__FILE__)).'/../../../app/init.php');
 date_default_timezone_set('GMT');
 
