@@ -76,7 +76,9 @@ foreach ($args as $arg) {
                 $files[] = $entry;              // nur Dateien uebernehmen
             }
             !$files && exit(1|stderr('file(s) not found: '.$arg.($matchesDir ? ' (enter a trailing slash "/" to search directories)':'')));
-            usort($files, 'compareFileNames');  // Datei-/Verzeichnisnamen lassen sich mit den existierenden Funktionen nicht natuerlich sortieren
+            usort($files, function($a, $b) {    // Datei-/Verzeichnisnamen lassen sich mit den existierenden Funktionen nicht natuerlich sortieren
+                return compareFileNames($a, $b);
+            });
         }
         continue;
     }

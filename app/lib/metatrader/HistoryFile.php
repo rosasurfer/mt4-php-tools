@@ -297,7 +297,7 @@ class HistoryFile extends CObject {
      *  new HistoryFile($fileName)                                               <br>
      *  new HistoryFile($symbol, $timeframe, $digits, $format, $serverDirectory) <br>
      *
-     * @param  array $args
+     * @param  mixed ...$args
      */
     public function __construct(...$args) {
         $argc = sizeof($args);
@@ -566,16 +566,16 @@ class HistoryFile extends CObject {
     public function findBarOffset($time) {
         Assert::int($time);
 
-        $size = sizeof($this->full_bars);
-        if (!$size)
-            return -1;
+        $size = $this->full_bars;
+        if (!$size) return -1;
 
         $offset = $this->findTimeOffset($time);
 
         if ($offset < 0) {                                          // time is younger than the youngest [openTime]
             $closeTime = $this->full_to_closeTime;
-            if ($time < $closeTime)                                 // time is covered by the youngest bar
+            if ($time < $closeTime) {                               // time is covered by the youngest bar
                 return $size-1;
+            }
             return -1;
         }
 

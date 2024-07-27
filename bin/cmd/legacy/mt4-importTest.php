@@ -66,7 +66,7 @@ foreach ($args as $arg) {
         $entries = glob($value, GLOB_NOESCAPE|GLOB_BRACE|GLOB_ERR);
         foreach ($entries as $entry) {
             if (is_file($entry)) {
-                $file = pathinfo(realpath($entries));
+                $file = pathinfo(realpath($entry));
                 if ($file['extension']=='ini' || $file['extension']=='log') {
                     $files[$file['filename']] = $file['dirname'];
                 }

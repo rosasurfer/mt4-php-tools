@@ -37,7 +37,7 @@ class LZMA extends StaticClass {
         // jedoch nicht zu funktionieren (Windows 7). Daher wird der String in eine temporaere Datei geschrieben und diese
         // decodiert.
 
-        $tmpFile = tempnam(null, 'php');
+        $tmpFile = tempnam('', 'php');
         file_put_contents($tmpFile, $data);
 
         $content = static::decompressFile($tmpFile);

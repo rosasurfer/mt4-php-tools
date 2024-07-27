@@ -328,7 +328,7 @@ function isGoodFriday($time) {
 
     $dow = (int) gmdate('w', $time);
     if ($dow == FRIDAY) {
-        $year       = gmdate('Y', $time);
+        $year       = (int)gmdate('Y', $time);
         $spring     = strtotime($year.'-03-21 GMT');
         $easter     = $spring + easter_days($year)*DAYS;
         $goodFriday = $easter - 2*DAYS;

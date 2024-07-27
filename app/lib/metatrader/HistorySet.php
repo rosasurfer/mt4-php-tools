@@ -78,7 +78,7 @@ class HistorySet extends CObject {
      * new HistorySet(RosaSymbol $symbol, int $format, string $serverDirectory)
      * </pre>
      *
-     * @param  array ...$params
+     * @param  mixed ...$params
      */
     final public function __construct(...$params) {
         $argc = sizeof($params);

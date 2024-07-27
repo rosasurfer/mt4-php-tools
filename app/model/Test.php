@@ -294,94 +294,95 @@ class Test extends RosatraderModel {
             // id
             $pattern = '/, *id *= *([0-9]+) *,/i';
             $matches = null;
-            if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new InvalidValueException('Illegal test properties ("id" invalid or not found): "'.$valuesOrig.'"');
+            if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE)) throw new InvalidValueException('Illegal test properties ("id" invalid or not found): "'.$valuesOrig.'"');
             $properties['id'] = (int)$matches[1][0];
-            if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new InvalidValueException('Illegal test properties (multiple "id" occurrences): "'.$valuesOrig.'"');
+            if (preg_match($pattern, $values, $matches, 0, $matches[0][1]+1))  throw new InvalidValueException('Illegal test properties (multiple "id" occurrences): "'.$valuesOrig.'"');
 
             // time (local)
             $pattern = '/, *time *= *"([^"]+)" *,/i';
-            if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new InvalidValueException('Illegal test properties ("time" invalid or not found): "'.$valuesOrig.'"');
+            if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE)) throw new InvalidValueException('Illegal test properties ("time" invalid or not found): "'.$valuesOrig.'"');
 
             date_default_timezone_set(ini_get('date.timezone'));
-            if (!$time = strtotime($matches[1][0]))                              throw new InvalidValueException('Illegal test property "time": "'.$matches[1][0].'"');
+            if (!$time = strtotime($matches[1][0]))                            throw new InvalidValueException('Illegal test property "time": "'.$matches[1][0].'"');
             $properties['time'] = $time;
-            if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new InvalidValueException('Illegal test properties (multiple "time" occurrences): "'.$valuesOrig.'"');
+            if (preg_match($pattern, $values, $matches, 0, $matches[0][1]+1))  throw new InvalidValueException('Illegal test properties (multiple "time" occurrences): "'.$valuesOrig.'"');
 
             // strategy
             $pattern = '/, *strategy *= *"([^"]+)" *,/i';
-            if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new InvalidValueException('Illegal test properties ("strategy" invalid or not found): "'.$valuesOrig.'"');
+            if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE)) throw new InvalidValueException('Illegal test properties ("strategy" invalid or not found): "'.$valuesOrig.'"');
             $properties['strategy'] = $matches[1][0];
-            if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new InvalidValueException('Illegal test properties (multiple "strategy" occurrences): "'.$valuesOrig.'"');
+            if (preg_match($pattern, $values, $matches, 0, $matches[0][1]+1))  throw new InvalidValueException('Illegal test properties (multiple "strategy" occurrences): "'.$valuesOrig.'"');
 
             // reportingId
             $pattern = '/, *reportingId *= *([0-9]+) *,/i';
-            if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new InvalidValueException('Illegal test properties ("reportingId" invalid or not found): "'.$valuesOrig.'"');
+            if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE)) throw new InvalidValueException('Illegal test properties ("reportingId" invalid or not found): "'.$valuesOrig.'"');
             $properties['reportingId'] = (int)$matches[1][0];
-            if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new InvalidValueException('Illegal test properties (multiple "reportingId" occurrences): "'.$valuesOrig.'"');
+            if (preg_match($pattern, $values, $matches, 0, $matches[0][1]+1))  throw new InvalidValueException('Illegal test properties (multiple "reportingId" occurrences): "'.$valuesOrig.'"');
 
             // reportingSymbol
             $pattern = '/, *reportingSymbol *= *"([^"]+)" *,/i';
-            if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new InvalidValueException('Illegal test properties ("reportingSymbol" invalid or not found): "'.$valuesOrig.'"');
+            if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE)) throw new InvalidValueException('Illegal test properties ("reportingSymbol" invalid or not found): "'.$valuesOrig.'"');
             $properties['reportingSymbol'] = $matches[1][0];
-            if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new InvalidValueException('Illegal test properties (multiple "reportingSymbol" occurrences): "'.$valuesOrig.'"');
+            if (preg_match($pattern, $values, $matches, 0, $matches[0][1]+1))  throw new InvalidValueException('Illegal test properties (multiple "reportingSymbol" occurrences): "'.$valuesOrig.'"');
 
             // symbol
             $pattern = '/, *symbol *= *"([^"]+)" *,/i';
-            if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new InvalidValueException('Illegal test properties ("symbol" invalid or not found): "'.$valuesOrig.'"');
+            if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE)) throw new InvalidValueException('Illegal test properties ("symbol" invalid or not found): "'.$valuesOrig.'"');
             $properties['symbol'] = $matches[1][0];
-            if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new InvalidValueException('Illegal test properties (multiple "symbol" occurrences): "'.$valuesOrig.'"');
+            if (preg_match($pattern, $values, $matches, 0, $matches[0][1]+1))  throw new InvalidValueException('Illegal test properties (multiple "symbol" occurrences): "'.$valuesOrig.'"');
 
             // timeframe
             $pattern = '/, *timeframe *= *(PERIOD_[^ ]+) *,/i';
-            if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new InvalidValueException('Illegal test properties ("timeframe" invalid or not found): "'.$valuesOrig.'"');
-            if (!$id = MT4::strToTimeframe($matches[1][0]))                      throw new InvalidValueException('Illegal test property "timeframe": "'.$matches[1][0].'"');
+            if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE)) throw new InvalidValueException('Illegal test properties ("timeframe" invalid or not found): "'.$valuesOrig.'"');
+            if (!$id = MT4::strToTimeframe($matches[1][0]))                    throw new InvalidValueException('Illegal test property "timeframe": "'.$matches[1][0].'"');
             $properties['timeframe'] = $id;
-            if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new InvalidValueException('Illegal test properties (multiple "timeframe" occurrences): "'.$valuesOrig.'"');
+            if (preg_match($pattern, $values, $matches, 0, $matches[0][1]+1))  throw new InvalidValueException('Illegal test properties (multiple "timeframe" occurrences): "'.$valuesOrig.'"');
 
             // startTime (FXT)
             $pattern = '/, *startTime *= *"([^"]+)" *,/i';
-            if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new InvalidValueException('Illegal test properties ("startTime" invalid or not found): "'.$valuesOrig.'"');
+            if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE)) throw new InvalidValueException('Illegal test properties ("startTime" invalid or not found): "'.$valuesOrig.'"');
             date_default_timezone_set('GMT');
-            if (!$time = strtotime($matches[1][0]))                              throw new InvalidValueException('Illegal test property "startTime": "'.$matches[1][0].'"');
+            if (!$time = strtotime($matches[1][0]))                            throw new InvalidValueException('Illegal test property "startTime": "'.$matches[1][0].'"');
             $properties['startTime'] = $time;
-            if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new InvalidValueException('Illegal test properties (multiple "startTime" occurrences): "'.$valuesOrig.'"');
+            if (preg_match($pattern, $values, $matches, 0, $matches[0][1]+1))  throw new InvalidValueException('Illegal test properties (multiple "startTime" occurrences): "'.$valuesOrig.'"');
 
             // endTime (FXT)
             $pattern = '/, *endTime *= *"([^"]+)" *,/i';
-            if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new InvalidValueException('Illegal test properties ("endTime" invalid or not found): "'.$valuesOrig.'"');
+            if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE)) throw new InvalidValueException('Illegal test properties ("endTime" invalid or not found): "'.$valuesOrig.'"');
             date_default_timezone_set('GMT');
-            if (!$time = strtotime($matches[1][0]))                              throw new InvalidValueException('Illegal test property "endTime": "'.$matches[1][0].'"');
+            if (!$time = strtotime($matches[1][0]))                            throw new InvalidValueException('Illegal test property "endTime": "'.$matches[1][0].'"');
             $properties['endTime'] = $time;
-            if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new InvalidValueException('Illegal test properties (multiple "endTime" occurrences): "'.$valuesOrig.'"');
+            if (preg_match($pattern, $values, $matches, 0, $matches[0][1]+1))  throw new InvalidValueException('Illegal test properties (multiple "endTime" occurrences): "'.$valuesOrig.'"');
 
             // barModel
             $pattern = '/, *barModel *= *([0-9]+) *,/i';
-            if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new InvalidValueException('Illegal test properties ("barModel" invalid or not found): "'.$valuesOrig.'"');
-            if (($id = MT4::strToBarModel($matches[1][0])) < 0)                  throw new InvalidValueException('Illegal test property "barModel": "'.$matches[1][0].'"');
+            if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE)) throw new InvalidValueException('Illegal test properties ("barModel" invalid or not found): "'.$valuesOrig.'"');
+            if (($id = MT4::strToBarModel($matches[1][0])) < 0)                throw new InvalidValueException('Illegal test property "barModel": "'.$matches[1][0].'"');
             $properties['barModel'] = $id;
-            if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new InvalidValueException('Illegal test properties (multiple "barModel" occurrences): "'.$valuesOrig.'"');
+            if (preg_match($pattern, $values, $matches, 0, $matches[0][1]+1))  throw new InvalidValueException('Illegal test properties (multiple "barModel" occurrences): "'.$valuesOrig.'"');
 
             // spread
             $pattern = '/, *spread *= *([^ ]+) *,/i';
-            if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new InvalidValueException('Illegal test properties ("spread" invalid or not found): "'.$valuesOrig.'"');
-            if (!strIsNumeric($spread = $matches[1][0]))                         throw new InvalidValueException('Illegal test property "spread": "'.$matches[1][0].'"');
+            if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE)) throw new InvalidValueException('Illegal test properties ("spread" invalid or not found): "'.$valuesOrig.'"');
+            if (!strIsNumeric($spread = $matches[1][0]))                       throw new InvalidValueException('Illegal test property "spread": "'.$matches[1][0].'"');
             $properties['spread'] = (float)$spread;
-            if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new InvalidValueException('Illegal test properties (multiple "spread" occurrences): "'.$valuesOrig.'"');
+            if (preg_match($pattern, $values, $matches, 0, $matches[0][1]+1))  throw new InvalidValueException('Illegal test properties (multiple "spread" occurrences): "'.$valuesOrig.'"');
 
             // bars
             $pattern = '/, *bars *= *([0-9]+) *,/i';
-            if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new InvalidValueException('Illegal test properties ("bars" invalid or not found): "'.$valuesOrig.'"');
+            if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE)) throw new InvalidValueException('Illegal test properties ("bars" invalid or not found): "'.$valuesOrig.'"');
             $properties['bars'] = (int)$matches[1][0];
-            if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new InvalidValueException('Illegal test properties (multiple "bars" occurrences): "'.$valuesOrig.'"');
+            if (preg_match($pattern, $values, $matches, 0, $matches[0][1]+1))  throw new InvalidValueException('Illegal test properties (multiple "bars" occurrences): "'.$valuesOrig.'"');
 
             // ticks
             $pattern = '/, *ticks *= *([0-9]+) *,/i';
-            if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new InvalidValueException('Illegal test properties ("ticks" invalid or not found): "'.$valuesOrig.'"');
+            if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE)) throw new InvalidValueException('Illegal test properties ("ticks" invalid or not found): "'.$valuesOrig.'"');
             $properties['ticks'] = (int)$matches[1][0];
-            if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new InvalidValueException('Illegal test properties (multiple "ticks" occurrences): "'.$valuesOrig.'"');
+            if (preg_match($pattern, $values, $matches, 0, $matches[0][1]+1))  throw new InvalidValueException('Illegal test properties (multiple "ticks" occurrences): "'.$valuesOrig.'"');
         }
-        finally { date_default_timezone_set($oldTimezone); }
-
+        finally {
+            date_default_timezone_set($oldTimezone);
+        }
         return $properties;
     }
 
@@ -407,7 +408,7 @@ class Test extends RosatraderModel {
         $values = trim(strRight($values, -6));
 
         // 0={id=0, ticket=1, type=OP_SELL, lots=0.10, symbol="EURUSD", openPrice=1.05669, openTime="Tue, 01-Dec-2015 00:22:00", stopLoss=0, takeProfit=0, closePrice=1.05685, closeTime="Tue, 01-Dec-2015 00:29:00", commission=-0.43, swap=0.00, profit=-1.60, magicNumber=0, comment=""}
-        $prefix = strLeftTo($values, '=', 1, false, null);
+        $prefix = strLeftTo($values, '=');
         if (!strIsDigits($prefix)) throw new InvalidValueException('Unsupported order properties format: "'.$valuesOrig.'"');
         $values = trim(substr($values, strlen($prefix)+1));
 
@@ -419,114 +420,114 @@ class Test extends RosatraderModel {
         // id
         $pattern = '/, *id *= *([0-9]+) *,/i';
         $matches = null;
-        if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new InvalidValueException('Illegal order properties ("id" invalid or not found): "'.$valuesOrig.'"');
+        if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE)) throw new InvalidValueException('Illegal order properties ("id" invalid or not found): "'.$valuesOrig.'"');
         $properties['id'] = (int)$matches[1][0];
-        if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new InvalidValueException('Illegal order properties (multiple "id" occurrences): "'.$valuesOrig.'"');
+        if (preg_match($pattern, $values, $matches, 0, $matches[0][1]+1))  throw new InvalidValueException('Illegal order properties (multiple "id" occurrences): "'.$valuesOrig.'"');
 
         // ticket
         $pattern = '/, *ticket *= *([0-9]+) *,/i';
-        if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new InvalidValueException('Illegal order properties ("ticket" invalid or not found): "'.$valuesOrig.'"');
+        if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE)) throw new InvalidValueException('Illegal order properties ("ticket" invalid or not found): "'.$valuesOrig.'"');
         $properties['ticket'] = (int)$matches[1][0];
-        if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new InvalidValueException('Illegal order properties (multiple "ticket" occurrences): "'.$valuesOrig.'"');
+        if (preg_match($pattern, $values, $matches, 0, $matches[0][1]+1))  throw new InvalidValueException('Illegal order properties (multiple "ticket" occurrences): "'.$valuesOrig.'"');
 
         // type
         $pattern = '/, *type *= *(OP_[^ ]+) *,/i';
-        if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new InvalidValueException('Illegal order properties ("type" invalid or not found): "'.$valuesOrig.'"');
-        if (($type = Rost::strToOrderType($matches[1][0])) < 0)               throw new InvalidValueException('Illegal order property "type": "'.$matches[1][0].'"');
+        if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE)) throw new InvalidValueException('Illegal order properties ("type" invalid or not found): "'.$valuesOrig.'"');
+        if (($type = Rost::strToOrderType($matches[1][0])) < 0)            throw new InvalidValueException('Illegal order property "type": "'.$matches[1][0].'"');
         $properties['type'] = $type;
-        if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new InvalidValueException('Illegal order properties (multiple "type" occurrences): "'.$valuesOrig.'"');
+        if (preg_match($pattern, $values, $matches, 0, $matches[0][1]+1))  throw new InvalidValueException('Illegal order properties (multiple "type" occurrences): "'.$valuesOrig.'"');
 
         // lots
         $pattern = '/, *lots *= *([^ ]+) *,/i';
-        if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new InvalidValueException('Illegal order properties ("lots" invalid or not found): "'.$valuesOrig.'"');
-        if (!strIsNumeric($lots = $matches[1][0]))                           throw new InvalidValueException('Illegal order property "lots": "'.$matches[1][0].'"');
+        if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE)) throw new InvalidValueException('Illegal order properties ("lots" invalid or not found): "'.$valuesOrig.'"');
+        if (!strIsNumeric($lots = $matches[1][0]))                         throw new InvalidValueException('Illegal order property "lots": "'.$matches[1][0].'"');
         $properties['lots'] = (float)$lots;
-        if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new InvalidValueException('Illegal order properties (multiple "lots" occurrences): "'.$valuesOrig.'"');
+        if (preg_match($pattern, $values, $matches, 0, $matches[0][1]+1))  throw new InvalidValueException('Illegal order properties (multiple "lots" occurrences): "'.$valuesOrig.'"');
 
         // symbol
         $pattern = '/, *symbol *= *"([^"]+)" *,/i';
-        if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new InvalidValueException('Illegal order properties ("symbol" invalid or not found): "'.$valuesOrig.'"');
+        if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE)) throw new InvalidValueException('Illegal order properties ("symbol" invalid or not found): "'.$valuesOrig.'"');
         $properties['symbol'] = $matches[1][0];
-        if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new InvalidValueException('Illegal order properties (multiple "symbol" occurrences): "'.$valuesOrig.'"');
+        if (preg_match($pattern, $values, $matches, 0, $matches[0][1]+1))  throw new InvalidValueException('Illegal order properties (multiple "symbol" occurrences): "'.$valuesOrig.'"');
 
         // openPrice
         $pattern = '/, *openPrice *= *([^ ]+) *,/i';
-        if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new InvalidValueException('Illegal order properties ("openPrice" invalid or not found): "'.$valuesOrig.'"');
-        if (!strIsNumeric($price = $matches[1][0]))                          throw new InvalidValueException('Illegal order property "openPrice": "'.$matches[1][0].'"');
+        if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE)) throw new InvalidValueException('Illegal order properties ("openPrice" invalid or not found): "'.$valuesOrig.'"');
+        if (!strIsNumeric($price = $matches[1][0]))                        throw new InvalidValueException('Illegal order property "openPrice": "'.$matches[1][0].'"');
         $properties['openPrice'] = (float)$price;
-        if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new InvalidValueException('Illegal order properties (multiple "openPrice" occurrences): "'.$valuesOrig.'"');
+        if (preg_match($pattern, $values, $matches, 0, $matches[0][1]+1))  throw new InvalidValueException('Illegal order properties (multiple "openPrice" occurrences): "'.$valuesOrig.'"');
 
         // openTime (FXT)
         $pattern = '/, *openTime *= *"([^"]+)" *,/i';
-        if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new InvalidValueException('Illegal order properties ("openTime" invalid or not found): "'.$valuesOrig.'"');
-        if (!$time = strtotime($matches[1][0]))                              throw new InvalidValueException('Illegal order property "openTime": "'.$matches[1][0].'"');
+        if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE)) throw new InvalidValueException('Illegal order properties ("openTime" invalid or not found): "'.$valuesOrig.'"');
+        if (!$time = strtotime($matches[1][0]))                            throw new InvalidValueException('Illegal order property "openTime": "'.$matches[1][0].'"');
         $properties['openTime'] = $time;
-        if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new InvalidValueException('Illegal order properties (multiple "openTime" occurrences): "'.$valuesOrig.'"');
+        if (preg_match($pattern, $values, $matches, 0, $matches[0][1]+1))  throw new InvalidValueException('Illegal order properties (multiple "openTime" occurrences): "'.$valuesOrig.'"');
 
         // stopLoss
         $pattern = '/, *stopLoss *= *([^ ]+) *,/i';
-        if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new InvalidValueException('Illegal order properties ("stopLoss" invalid or not found): "'.$valuesOrig.'"');
-        if (!strIsNumeric($price = $matches[1][0]))                          throw new InvalidValueException('Illegal order property "stopLoss": "'.$matches[1][0].'"');
+        if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE)) throw new InvalidValueException('Illegal order properties ("stopLoss" invalid or not found): "'.$valuesOrig.'"');
+        if (!strIsNumeric($price = $matches[1][0]))                        throw new InvalidValueException('Illegal order property "stopLoss": "'.$matches[1][0].'"');
         $properties['stopLoss'] = (float)$price;
-        if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new InvalidValueException('Illegal order properties (multiple "stopLoss" occurrences): "'.$valuesOrig.'"');
+        if (preg_match($pattern, $values, $matches, 0, $matches[0][1]+1))  throw new InvalidValueException('Illegal order properties (multiple "stopLoss" occurrences): "'.$valuesOrig.'"');
 
         // takeProfit
         $pattern = '/, *takeProfit *= *([^ ]+) *,/i';
-        if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new InvalidValueException('Illegal order properties ("takeProfit" invalid or not found): "'.$valuesOrig.'"');
-        if (!strIsNumeric($price = $matches[1][0]))                          throw new InvalidValueException('Illegal order property "takeProfit": "'.$matches[1][0].'"');
+        if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE)) throw new InvalidValueException('Illegal order properties ("takeProfit" invalid or not found): "'.$valuesOrig.'"');
+        if (!strIsNumeric($price = $matches[1][0]))                        throw new InvalidValueException('Illegal order property "takeProfit": "'.$matches[1][0].'"');
         $properties['takeProfit'] = (float)$price;
-        if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new InvalidValueException('Illegal order properties (multiple "takeProfit" occurrences): "'.$valuesOrig.'"');
+        if (preg_match($pattern, $values, $matches, 0, $matches[0][1]+1))  throw new InvalidValueException('Illegal order properties (multiple "takeProfit" occurrences): "'.$valuesOrig.'"');
 
         // closePrice
         $pattern = '/, *closePrice *= *([^ ]+) *,/i';
-        if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new InvalidValueException('Illegal order properties ("closePrice" invalid or not found): "'.$valuesOrig.'"');
-        if (!strIsNumeric($price = $matches[1][0]))                          throw new InvalidValueException('Illegal order property "closePrice": "'.$matches[1][0].'"');
+        if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE)) throw new InvalidValueException('Illegal order properties ("closePrice" invalid or not found): "'.$valuesOrig.'"');
+        if (!strIsNumeric($price = $matches[1][0]))                        throw new InvalidValueException('Illegal order property "closePrice": "'.$matches[1][0].'"');
         $properties['closePrice'] = (float)$price;
-        if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new InvalidValueException('Illegal order properties (multiple "closePrice" occurrences): "'.$valuesOrig.'"');
+        if (preg_match($pattern, $values, $matches, 0, $matches[0][1]+1))  throw new InvalidValueException('Illegal order properties (multiple "closePrice" occurrences): "'.$valuesOrig.'"');
 
         // closeTime (FXT)
         $pattern = '/, *closeTime *= *(0|"[^"]+") *,/i';
-        if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new InvalidValueException('Illegal order properties ("closeTime" invalid or not found): "'.$valuesOrig.'"');
+        if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE)) throw new InvalidValueException('Illegal order properties ("closeTime" invalid or not found): "'.$valuesOrig.'"');
         if (!strIsDoubleQuoted($time = $matches[1][0])) {
-            if ($time != '0')                                                 throw new InvalidValueException('Illegal order property "closeTime": "'.$matches[1][0].'"');
+            if ($time != '0')                                              throw new InvalidValueException('Illegal order property "closeTime": "'.$matches[1][0].'"');
             $time = 0;
         }
-        else if (!$time = strtotime(substr($time, 1, strlen($time)-2)))      throw new InvalidValueException('Illegal order property "closeTime": "'.$matches[1][0].'"');
+        else if (!$time = strtotime(substr($time, 1, strlen($time)-2)))    throw new InvalidValueException('Illegal order property "closeTime": "'.$matches[1][0].'"');
         $properties['closeTime'] = $time;
-        if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new InvalidValueException('Illegal order properties (multiple "closeTime" occurrences): "'.$valuesOrig.'"');
+        if (preg_match($pattern, $values, $matches, 0, $matches[0][1]+1))  throw new InvalidValueException('Illegal order properties (multiple "closeTime" occurrences): "'.$valuesOrig.'"');
 
         // commission
         $pattern = '/, *commission *= *([^ ]+) *,/i';
-        if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new InvalidValueException('Illegal order properties ("commission" invalid or not found): "'.$valuesOrig.'"');
-        if (!strIsNumeric($amount = $matches[1][0]))                         throw new InvalidValueException('Illegal order property "commission": "'.$matches[1][0].'"');
+        if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE)) throw new InvalidValueException('Illegal order properties ("commission" invalid or not found): "'.$valuesOrig.'"');
+        if (!strIsNumeric($amount = $matches[1][0]))                       throw new InvalidValueException('Illegal order property "commission": "'.$matches[1][0].'"');
         $properties['commission'] = (float)$amount;
-        if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new InvalidValueException('Illegal order properties (multiple "commission" occurrences): "'.$valuesOrig.'"');
+        if (preg_match($pattern, $values, $matches, 0, $matches[0][1]+1))  throw new InvalidValueException('Illegal order properties (multiple "commission" occurrences): "'.$valuesOrig.'"');
 
         // swap
         $pattern = '/, *swap *= *([^ ]+) *,/i';
-        if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new InvalidValueException('Illegal order properties ("swap" invalid or not found): "'.$valuesOrig.'"');
-        if (!strIsNumeric($amount = $matches[1][0]))                         throw new InvalidValueException('Illegal order property "swap": "'.$matches[1][0].'"');
+        if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE)) throw new InvalidValueException('Illegal order properties ("swap" invalid or not found): "'.$valuesOrig.'"');
+        if (!strIsNumeric($amount = $matches[1][0]))                       throw new InvalidValueException('Illegal order property "swap": "'.$matches[1][0].'"');
         $properties['swap'] = (float)$amount;
-        if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new InvalidValueException('Illegal order properties (multiple "swap" occurrences): "'.$valuesOrig.'"');
+        if (preg_match($pattern, $values, $matches, 0, $matches[0][1]+1))  throw new InvalidValueException('Illegal order properties (multiple "swap" occurrences): "'.$valuesOrig.'"');
 
         // profit
         $pattern = '/, *profit *= *([^ ]+) *,/i';
-        if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new InvalidValueException('Illegal order properties ("profit" invalid or not found): "'.$valuesOrig.'"');
-        if (!strIsNumeric($amount = $matches[1][0]))                         throw new InvalidValueException('Illegal order property "profit": "'.$matches[1][0].'"');
+        if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE)) throw new InvalidValueException('Illegal order properties ("profit" invalid or not found): "'.$valuesOrig.'"');
+        if (!strIsNumeric($amount = $matches[1][0]))                       throw new InvalidValueException('Illegal order property "profit": "'.$matches[1][0].'"');
         $properties['profit'] = (float)$amount;
-        if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new InvalidValueException('Illegal order properties (multiple "profit" occurrences): "'.$valuesOrig.'"');
+        if (preg_match($pattern, $values, $matches, 0, $matches[0][1]+1))  throw new InvalidValueException('Illegal order properties (multiple "profit" occurrences): "'.$valuesOrig.'"');
 
         // magicNumber
         $pattern = '/, *magicNumber *= *([0-9]+) *,/i';
-        if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new InvalidValueException('Illegal order properties ("magicNumber" invalid or not found): "'.$valuesOrig.'"');
+        if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE)) throw new InvalidValueException('Illegal order properties ("magicNumber" invalid or not found): "'.$valuesOrig.'"');
         $properties['magicNumber'] = (int)$matches[1][0];
-        if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new InvalidValueException('Illegal order properties (multiple "magicNumber" occurrences): "'.$valuesOrig.'"');
+        if (preg_match($pattern, $values, $matches, 0, $matches[0][1]+1))  throw new InvalidValueException('Illegal order properties (multiple "magicNumber" occurrences): "'.$valuesOrig.'"');
 
         // comment
         $pattern = '/, *comment *= *"([^"]*)" *,/i';
-        if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE))   throw new InvalidValueException('Illegal order properties ("comment" invalid or not found): "'.$valuesOrig.'"');
+        if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE)) throw new InvalidValueException('Illegal order properties ("comment" invalid or not found): "'.$valuesOrig.'"');
         $properties['comment'] = $matches[1][0];
-        if (preg_match($pattern, $values, $matches, null, $matches[0][1]+1)) throw new InvalidValueException('Illegal order properties (multiple "comment" occurrences): "'.$valuesOrig.'"');
+        if (preg_match($pattern, $values, $matches, 0, $matches[0][1]+1))  throw new InvalidValueException('Illegal order properties (multiple "comment" occurrences): "'.$valuesOrig.'"');
 
         return $properties;
     }
