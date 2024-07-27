@@ -1,5 +1,7 @@
 #!/usr/bin/env php
 <?php
+declare(strict_types=1);
+
 /**
  * Console command to process MT4 "symbols.raw" files.
  */

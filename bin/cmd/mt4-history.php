@@ -1,5 +1,7 @@
 #!/usr/bin/env php
 <?php
+declare(strict_types=1);
+
 /**
  * Console command to create, update or show status of MT4 history files.
  */

@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace rosasurfer\rt\controller\forms;
 
 use rosasurfer\ministruts\struts\ActionForm;

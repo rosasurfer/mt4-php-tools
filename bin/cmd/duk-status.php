@@ -1,5 +1,7 @@
 #!/usr/bin/env php
 <?php
+declare(strict_types=1);
+
 /**
  * Console command to show and update locally stored Dukascopy history start times.
  */

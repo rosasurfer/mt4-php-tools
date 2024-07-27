@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace rosasurfer\rt\view;
 
 use rosasurfer\ministruts\core\StaticClass;

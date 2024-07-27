@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 use rosasurfer\ministruts\Application;
 use rosasurfer\ministruts\util\PHP;
 error_reporting(E_ALL & ~E_DEPRECATED);

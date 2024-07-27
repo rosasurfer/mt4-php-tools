@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace rosasurfer\rt\model;
 
 use rosasurfer\ministruts\db\orm\PersistableObject;
