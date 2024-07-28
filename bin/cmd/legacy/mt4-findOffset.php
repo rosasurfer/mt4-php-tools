@@ -16,11 +16,11 @@ use rosasurfer\rt\lib\metatrader\MetaTraderException;
 use rosasurfer\rt\lib\metatrader\MT4;
 
 use function rosasurfer\ministruts\echof;
-use function rosasurfer\ministruts\is_datetime;
 use function rosasurfer\ministruts\strIsQuoted;
 use function rosasurfer\ministruts\strLeft;
 use function rosasurfer\ministruts\strRight;
 use function rosasurfer\ministruts\strStartsWith;
+use function rosasurfer\ministruts\strToTimestamp;
 
 use const rosasurfer\ministruts\NL;
 
@@ -55,7 +55,7 @@ foreach ($args as $i => $arg) {
 $sTime = $arg = array_shift($args);
 
 if (strIsQuoted($sTime)) $sTime = trim(strLeft(strRight($sTime, -1), -1));
-!is_datetime($sTime, ['Y-m-d', 'Y-m-d H:i', 'Y-m-d H:i:s']) && exit(1|echof('invalid argument datetime = '.$arg));
+!strToTimestamp($sTime, ['Y-m-d', 'Y-m-d H:i', 'Y-m-d H:i:s']) && exit(1|echof('invalid argument datetime = '.$arg));
 $datetime = strtotime($sTime.' GMT');
 
 // (1.2) Das verbleibende zweite Argument muss ein History-File sein.

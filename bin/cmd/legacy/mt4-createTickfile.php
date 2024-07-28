@@ -13,13 +13,13 @@ namespace rosasurfer\rt\cmd\mt4_create_tick_file;
 use rosasurfer\rt\lib\metatrader\MT4;
 
 use function rosasurfer\ministruts\echof;
-use function rosasurfer\ministruts\is_datetime;
 use function rosasurfer\ministruts\strIsDigits;
 use function rosasurfer\ministruts\strIsQuoted;
 use function rosasurfer\ministruts\strLeft;
 use function rosasurfer\ministruts\strRight;
 use function rosasurfer\ministruts\strStartsWith;
 use function rosasurfer\ministruts\strStartsWithI;
+use function rosasurfer\ministruts\strToTimestamp;
 
 require(dirname(realpath(__FILE__)).'/../../../app/init.php');
 date_default_timezone_set('GMT');
@@ -34,7 +34,7 @@ $options = ['verbose' => 0];
 // -- Start -----------------------------------------------------------------------------------------------------------------
 
 
-// (1) Befehlszeilenargumente einlesen und validieren
+// Befehlszeilenargumente einlesen und validieren
 /** @var string[] $args */
 $args = array_slice($_SERVER['argv'], 1);
 
@@ -82,7 +82,7 @@ foreach ($args as $i => $arg) {
         $value = $arg = strRight($arg, -6);
         if (strIsQuoted($value))
             $value = strLeft(strRight($value, -1), 1);
-        $timestamp = is_datetime($value, ['Y-m-d', 'Y.m.d', 'd.m.Y', 'd/m/Y']);
+        $timestamp = strToTimestamp($value, ['Y-m-d', 'Y.m.d', 'd.m.Y', 'd/m/Y']);
         if (!is_int($timestamp) || $timestamp < 0) exit(1|help('invalid start date: '.$arg));
         $options['startDate'] = $timestamp;
         if (isset($options['endDate']) && $options['startDate'] > $options['endDate']) {
@@ -97,7 +97,7 @@ foreach ($args as $i => $arg) {
         $value = $arg = strRight($arg, -4);
         if (strIsQuoted($value))
             $value = strLeft(strRight($value, -1), 1);
-        $timestamp = is_datetime($value, ['Y-m-d', 'Y.m.d', 'd.m.Y', 'd/m/Y']);
+        $timestamp = strToTimestamp($value, ['Y-m-d', 'Y.m.d', 'd.m.Y', 'd/m/Y']);
         if (!is_int($timestamp) || $timestamp<=0) exit(1|help('invalid end date: '.$arg));
         $options['endDate'] = $timestamp;
         if (isset($options['startDate']) && $options['startDate'] > $options['endDate']) {
