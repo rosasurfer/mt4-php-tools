@@ -23,7 +23,11 @@ use const rosasurfer\ministruts\NL;
 use const rosasurfer\ministruts\WINDOWS;
 
 require(dirname(realpath(__FILE__)).'/../app/init.php');
-!CLI && exit(1|stderr('error: This script must be executed from a command line interface.'));
+
+if (!CLI) {
+    stderr('error: This script must be executed from a command line interface.');
+    exit(1);
+}
 
 
 // --- Configuration --------------------------------------------------------------------------------------------------------

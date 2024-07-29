@@ -63,8 +63,9 @@ class HttpClient extends CurlHttpClient {
         $response = $this->send($request);
 
         $status = $response->getStatus();
-        if ($status!=HttpResponse::SC_OK && $status!=HttpResponse::SC_NOT_FOUND)
-            throw new RuntimeException('Unexpected HTTP response status '.$status.' ('.HttpResponse::$sc[$status].')'.NL.'url: '.$url.NL.print_p($response, true));
+        if ($status!=HttpResponse::SC_OK && $status!=HttpResponse::SC_NOT_FOUND) {
+            throw new RuntimeException('Unexpected HTTP response status '.$status.' ('.HttpResponse::$statusCodes[$status].')'.NL.'url: '.$url.NL.print_p($response, true));
+        }
 
         // treat an empty response as 404 error (not found)
         $content = $response->getContent();
@@ -110,7 +111,7 @@ class HttpClient extends CurlHttpClient {
 
         $status = $response->getStatus();
         if ($status!=HttpResponse::SC_OK && $status!=HttpResponse::SC_NOT_FOUND) {
-            throw new RuntimeException('Unexpected HTTP response status '.$status.' ('.HttpResponse::$sc[$status].')'.NL.'url: '.$url.NL.print_p($response, true));
+            throw new RuntimeException('Unexpected HTTP response status '.$status.' ('.HttpResponse::$statusCodes[$status].')'.NL.'url: '.$url.NL.print_p($response, true));
         }
 
         // treat an empty response as 404 error (not found)

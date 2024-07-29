@@ -56,7 +56,10 @@ $symbols = [];
 // Symbole parsen
 foreach ($args as $i => $arg) {
     $symbol = RosaSymbol::dao()->findByName($arg);
-    if (!$symbol) exit(1|stderr('error: unknown symbol "'.$args[$i].'"'));
+    if (!$symbol) {
+        stderr('error: unknown symbol "'.$args[$i].'"');
+        exit(1);
+    }
     $symbols[$symbol->getName()] = $symbol;                                         // using the name as index removes duplicates
 }
 /** @var RosaSymbol[] $symbols */

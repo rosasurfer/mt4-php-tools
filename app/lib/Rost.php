@@ -159,7 +159,7 @@ class Rost extends StaticClass {
         $response = (new CurlHttpClient($options))->send($request);
         $status = $response->getStatus();
         $response->getContent();
-        if ($status != 200) throw new RuntimeException('Unexpected HTTP status code from api.clickatell.com: '.$status.' ('.HttpResponse::$sc[$status].')');
+        if ($status != 200) throw new RuntimeException('Unexpected HTTP status code from api.clickatell.com: '.$status.' ('.HttpResponse::$statusCodes[$status].')');
     }
 
 

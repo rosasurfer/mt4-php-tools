@@ -104,8 +104,14 @@ $symbols = [];
 // Symbole parsen
 foreach ($args as $i => $arg) {
     $symbol = RosaSymbol::dao()->findByName($arg);
-    if (!$symbol)                       exit(1|stderr('error: unknown symbol "'.$args[$i].'"'));
-    if (!$symbol->getDukascopySymbol()) exit(1|stderr('error: no Dukascopy mapping found for symbol "'.$args[$i].'"'));
+    if (!$symbol) {
+        stderr('error: unknown symbol "'.$args[$i].'"');
+        exit(1);
+    }
+    if (!$symbol->getDukascopySymbol()) {
+        stderr('error: no Dukascopy mapping found for symbol "'.$args[$i].'"');
+        exit(1);
+    }
     $symbols[$symbol->getName()] = $symbol;                                         // using the name as index removes duplicates
 }
 $symbols = $symbols ?: RosaSymbol::dao()->findAllDukascopyMapped();                 // ohne Angabe werden alle Instrumente verarbeitet
@@ -417,7 +423,7 @@ function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=f
 
     $response = $httpClient->send($request);                            // TODO: CURL-Fehler wie bei SimpleTrader behandeln
     $status   = $response->getStatus();
-    if ($status!=200 && $status!=404) throw new RuntimeException('Unexpected HTTP status '.$status.' ('.HttpResponse::$sc[$status].') for url "'.$url.'"'.NL.print_p($response, true));
+    if ($status!=200 && $status!=404) throw new RuntimeException('Unexpected HTTP status '.$status.' ('.HttpResponse::$statusCodes[$status].') for url "'.$url.'"'.NL.print_p($response, true));
 
     // eine leere Antwort ist moeglich und wird als Fehler behandelt
     $content = $response->getContent();
