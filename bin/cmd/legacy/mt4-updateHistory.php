@@ -45,10 +45,10 @@ $args = array_slice($_SERVER['argv'], 1);
 
 // Optionen parsen
 foreach ($args as $i => $arg) {
-    if ($arg == '-h'  )   exit(1|help());                                            // Hilfe
-    if ($arg == '-v'  ) { $verbose = max($verbose, 1); unset($args[$i]); continue; } // verbose output
-    if ($arg == '-vv' ) { $verbose = max($verbose, 2); unset($args[$i]); continue; } // more verbose output
-    if ($arg == '-vvv') { $verbose = max($verbose, 3); unset($args[$i]); continue; } // very verbose output
+    if ($arg == '-h'  ) { help(); exit(1); }                                            // Hilfe
+    if ($arg == '-v'  ) { $verbose = max($verbose, 1); unset($args[$i]); continue; }    // verbose output
+    if ($arg == '-vv' ) { $verbose = max($verbose, 2); unset($args[$i]); continue; }    // more verbose output
+    if ($arg == '-vvv') { $verbose = max($verbose, 3); unset($args[$i]); continue; }    // very verbose output
 }
 
 $symbols = [];
@@ -137,7 +137,9 @@ function updateHistory(RosaSymbol $symbol) {
 /**
  * Hilfefunktion: Zeigt die Syntax des Aufrufs an.
  *
- * @param  string $message [optional] - zusaetzlich zur Syntax anzuzeigende Message (default: keine)
+ * @param  ?string $message [optional] - zusaetzlich zur Syntax anzuzeigende Message (default: keine)
+ *
+ * @return void
  */
 function help($message = null) {
     if (is_null($message))

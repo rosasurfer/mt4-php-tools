@@ -42,10 +42,13 @@ $args = array_slice($_SERVER['argv'], 1);
 
 // parse options
 foreach ($args as $i => $arg) {
-    if ($arg == '-h')   exit(1|help());                                             // help
+    if ($arg == '-h') { help(); exit(1); }                                          // help
     if ($arg == '-v') { $verbose = max($verbose, 1); unset($args[$i]); continue; }  // verbose output
 }
-!sizeof($args) && exit(1|help());
+if (!$args) {
+    help();
+    exit(1);
+}
 
 // (1.1) remaining arguments must be files
 $files = [];
@@ -159,7 +162,9 @@ function processTestFiles(array $files) {
 /**
  * Show help screen.
  *
- * @param  string $message [optional] - additional message to display (default: none)
+ * @param  ?string $message [optional] - additional message to display (default: none)
+ *
+ * @return void
  */
 function help($message = null) {
     if (is_null($message))

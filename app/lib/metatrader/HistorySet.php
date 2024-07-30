@@ -94,6 +94,8 @@ class HistorySet extends CObject {
      * Erzeugt eine neue Instanz. Vorhandene Daten werden nicht geloescht.
      *
      * @param  HistoryFile $file - existierende History-Datei
+     *
+     * @return void
      */
     final protected function __construct1(HistoryFile $file) {
         $this->symbol          = $file->getSymbol();
@@ -145,6 +147,8 @@ class HistorySet extends CObject {
      *                                       400: MetaTrader <= Build 509
      *                                       401: MetaTrader  > Build 509
      * @param  string     $serverDirectory - Serververzeichnis der Historydateien des Sets
+     *
+     * @return void
      */
     final protected function __construct2(RosaSymbol $symbol, $format, $serverDirectory) {
         Assert::string($serverDirectory, '$serverDirectory');
@@ -357,6 +361,8 @@ class HistorySet extends CObject {
      * werden ersetzt. Vorhandene Bars, die sich mit den uebergebenen Bars nicht ueberschneiden, bleiben unveraendert.
      *
      * @param  int[][] $bars - ROST_PRICE_BAR Daten der Periode M1
+     *
+     * @return void
      */
     public function synchronize(array $bars) {
         if ($this->closed) throw new IllegalStateException('Cannot process a closed '.get_class($this));

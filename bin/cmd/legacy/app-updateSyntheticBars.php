@@ -28,7 +28,10 @@ $args = array_slice($_SERVER['argv'], 1);
 
 // parse options
 foreach ($args as $i => $arg) {
-    $arg=='-h' && exit(1|help());
+    if ($arg=='-h') {
+        help();
+        exit(1);
+    }
 }
 
 /** @var RosaSymbol[] $symbols */
@@ -62,7 +65,9 @@ exit(0);
 /**
  * Help
  *
- * @param  string $message [optional] - zusaetzlich zur Syntax anzuzeigende Message (default: keine)
+ * @param  ?string $message [optional] - zusaetzlich zur Syntax anzuzeigende Message (default: keine)
+ *
+ * @return void
  */
 function help($message = null) {
     if (isset($message))

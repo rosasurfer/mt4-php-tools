@@ -313,6 +313,8 @@ class HistoryFile extends CObject {
      * Create a new instance from an existing MT4 history file. Existing data is kept.
      *
      * @param  string $fileName - MT4 history file name
+     *
+     * @return void
      */
     private function __construct1($fileName) {
         Assert::string($fileName);
@@ -354,6 +356,8 @@ class HistoryFile extends CObject {
      * @param  int    $digits          - digits
      * @param  int    $format          - file format: 400=MT4 <= build 509; 401=MT4 > build 509
      * @param  string $serverDirectory - full server directory (storage location)
+     *
+     * @return void
      */
     private function __construct2($symbol, $timeframe, $digits, $format, $serverDirectory) {
         Assert::string($symbol, '$symbol');
@@ -382,6 +386,8 @@ class HistoryFile extends CObject {
 
     /**
      * Read the file's metadata and initialize local vars. Called only by a constructor.
+     *
+     * @return void
      */
     private function initMetaData() {
         $this->period          = $this->hstHeader->getPeriod();
@@ -477,6 +483,8 @@ class HistoryFile extends CObject {
      * Set the size of the write buffer.
      *
      * @param  int $size - buffer size
+     *
+     * @return void
      */
     public function setBarBufferSize($size) {
         if ($this->closed) throw new IllegalStateException('Cannot process a closed '.get_class($this));
@@ -682,12 +690,13 @@ class HistoryFile extends CObject {
      *                                     replaced with these bars. If offset and length are such that nothing is removed
      *                                     then the replacement bars are inserted at the specified offset. If offset is one
      *                                     greater than the greatest existing offset the replacement bars are appended. <br>
+     * @return void
      *
      * @example
      * <pre>
-     * HistoryFile::spliceBars(0, 1)        // remove the first bar
-     * HistoryFile::spliceBars(-1)          // remove the last bar
-     * HistoryFile::spliceBars(0, -2)       // remove all except the last two bars
+     *  HistoryFile::spliceBars(0, 1)       // remove the first bar
+     *  HistoryFile::spliceBars(-1)         // remove the last bar
+     *  HistoryFile::spliceBars(0, -2)      // remove all except the last two bars
      * </pre>
      */
     public function spliceBars($offset, $length=0, array $replace=[]) {
@@ -754,6 +763,7 @@ class HistoryFile extends CObject {
      *                                  then that many bars starting from offset will be removed. If length is specified and
      *                                  is negative then all bars starting from offset will be removed except length bars at
      *                                  the end of the history. <br>
+     * @return void
      */
     public function removeBars($offset, $length=0) {
         Assert::int($offset, '$offset');
@@ -803,6 +813,8 @@ class HistoryFile extends CObject {
      *                       (the youngest bar). <br>
      *
      * @param  array $bars - bars to insert (ROST_PRICE_BAR[])
+     *
+     * @return void
      */
     public function insertBars($offset, array $bars) {
         Assert::int($offset, '$offset');
@@ -857,6 +869,7 @@ class HistoryFile extends CObject {
      *                                    positive then that many bars starting from offset will be replaced. If length is
      *                                    specified and is negative then all bars starting from offset will be replaced
      *                                    except length bars at the end of the history. <br>
+     * @return void
      */
     public function replaceBars(array $bars, $offset, $length = null) {
         throw new UnimplementedFeatureException(__METHOD__.'not yet implemented');
@@ -868,6 +881,8 @@ class HistoryFile extends CObject {
      * are replaced. Existing bars not overlapping passed bars are kept.
      *
      * @param  array $bars - M1 bars, will be converted to the HistoryFile's timeframe (ROST_PRICE_BAR[])
+     *
+     * @return void
      *
      * @todo   rename to mergeBars...()
      */
@@ -892,18 +907,20 @@ class HistoryFile extends CObject {
      * Synchronisiert die M1-History dieser Instanz.
      *
      * @param  array $bars - ROST_PRICE_BAR-Daten der Periode M1
+     *
+     * @return void
      */
     private function synchronizeM1(array $bars) {
         if ($this->closed) throw new IllegalStateException('Cannot process a closed '.get_class($this));
-        if (!$bars) return false;
+        if (!$bars) return;
 
         // Offset der Bar, die den Zeitpunkt abdeckt, ermitteln
         $lastSyncTime = $this->full_lastSyncTime;
-        $offset       = Rost::findBarOffsetNext($bars, PERIOD_M1, $lastSyncTime);
+        $offset = Rost::findBarOffsetNext($bars, PERIOD_M1, $lastSyncTime);
 
         // Bars vor Offset verwerfen
-        if ($offset == -1)                                                      // alle Bars liegen vor $lastSyncTime
-            return;
+        if ($offset == -1) return;                                              // alle Bars liegen vor $lastSyncTime
+
         $bars = array_slice($bars, $offset);
         $size = sizeof($bars);
 
@@ -925,6 +942,8 @@ class HistoryFile extends CObject {
      * Synchronisiert die M5-History dieser Instanz.
      *
      * @param  array $bars - ROST_PRICE_BAR-Daten der Periode M5
+     *
+     * @return void
      */
     private function synchronizeM5(array $bars) {
         throw new UnimplementedFeatureException(__METHOD__.'() not yet implemented');
@@ -935,6 +954,8 @@ class HistoryFile extends CObject {
      * Synchronisiert die M15-History dieser Instanz.
      *
      * @param  array $bars - ROST_PRICE_BAR-Daten der Periode M15
+     *
+     * @return void
      */
     private function synchronizeM15(array $bars) {
         throw new UnimplementedFeatureException(__METHOD__.'() not yet implemented');
@@ -945,6 +966,8 @@ class HistoryFile extends CObject {
      * Synchronisiert die M30-History dieser Instanz.
      *
      * @param  array $bars - ROST_PRICE_BAR-Daten der Periode M30
+     *
+     * @return void
      */
     private function synchronizeM30(array $bars) {
         throw new UnimplementedFeatureException(__METHOD__.'() not yet implemented');
@@ -955,6 +978,8 @@ class HistoryFile extends CObject {
      * Synchronisiert die H1-History dieser Instanz.
      *
      * @param  array $bars - ROST_PRICE_BAR-Daten der Periode H1
+     *
+     * @return void
      */
     private function synchronizeH1(array $bars) {
         throw new UnimplementedFeatureException(__METHOD__.'() not yet implemented');
@@ -965,6 +990,8 @@ class HistoryFile extends CObject {
      * Synchronisiert die H4-History dieser Instanz.
      *
      * @param  array $bars - ROST_PRICE_BAR-Daten der Periode H4
+     *
+     * @return void
      */
     private function synchronizeH4(array $bars) {
         throw new UnimplementedFeatureException(__METHOD__.'() not yet implemented');
@@ -975,6 +1002,8 @@ class HistoryFile extends CObject {
      * Synchronisiert die D1-History dieser Instanz.
      *
      * @param  array $bars - ROST_PRICE_BAR-Daten der Periode D1
+     *
+     * @return void
      */
     private function synchronizeD1(array $bars) {
         throw new UnimplementedFeatureException(__METHOD__.'() not yet implemented');
@@ -985,6 +1014,8 @@ class HistoryFile extends CObject {
      * Synchronisiert die W1-History dieser Instanz.
      *
      * @param  array $bars - ROST_PRICE_BAR-Daten der Periode W1
+     *
+     * @return void
      */
     private function synchronizeW1(array $bars) {
         throw new UnimplementedFeatureException(__METHOD__.'() not yet implemented');
@@ -995,6 +1026,8 @@ class HistoryFile extends CObject {
      * Synchronisiert die MN1-History dieser Instanz.
      *
      * @param  array $bars - ROST_PRICE_BAR-Daten der Periode MN1
+     *
+     * @return void
      */
     private function synchronizeMN1(array $bars) {
         throw new UnimplementedFeatureException(__METHOD__.'() not yet implemented');
@@ -1005,6 +1038,8 @@ class HistoryFile extends CObject {
      * Fuegt der Historydatei dieser Instanz Bardaten hinzu. Die Daten werden ans Ende der Zeitreihe angefuegt.
      *
      * @param  array $bars - ROST_PRICE_BAR-Daten der Periode M1
+     *
+     * @return void
      */
     public function appendBars(array $bars) {
         switch ($this->period) {
@@ -1027,6 +1062,8 @@ class HistoryFile extends CObject {
      * Fuegt der M1-History dieser Instanz weitere Daten hinzu.
      *
      * @param  array $bars - ROST_PRICE_BAR-Daten der Periode M1
+     *
+     * @return void
      */
     private function appendToM1(array $bars) {
         if ($this->closed)                             throw new IllegalStateException('Cannot process a closed '.get_class($this));
@@ -1058,6 +1095,8 @@ class HistoryFile extends CObject {
      * Fuegt der History dieser Instanz weitere Daten hinzu.
      *
      * @param  array $bars - ROST_PRICE_BAR-Daten der Periode M1
+     *
+     * @return void
      */
     private function appendToTimeframe(array $bars) {
         if ($this->closed)                             throw new IllegalStateException('Cannot process a closed '.get_class($this));
@@ -1110,6 +1149,8 @@ class HistoryFile extends CObject {
      * Fuegt der W1-History dieser Instanz weitere Daten hinzu.
      *
      * @param  array $bars - ROST_PRICE_BAR-Daten der Periode M1
+     *
+     * @return void
      */
     private function appendToW1(array $bars) {
         if ($this->closed)                             throw new IllegalStateException('Cannot process a closed '.get_class($this));
@@ -1164,6 +1205,8 @@ class HistoryFile extends CObject {
      * Fuegt der MN1-History dieser Instanz weitere Daten hinzu.
      *
      * @param  array $bars - ROST_PRICE_BAR-Daten der Periode M1
+     *
+     * @return void
      */
     private function appendToMN1(array $bars) {
         if ($this->closed)                             throw new IllegalStateException('Cannot process a closed '.get_class($this));
@@ -1304,6 +1347,8 @@ class HistoryFile extends CObject {
 
     /**
      * Nur zum Debuggen
+     *
+     * @return void
      */
     public function showMetaData($showStored=true, $showFull=true, $showFile=true) {
         $Pxx = periodDescription($this->period);

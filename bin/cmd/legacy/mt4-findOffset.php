@@ -38,27 +38,30 @@ $quietMode  = false;
 // -- Start -----------------------------------------------------------------------------------------------------------------
 
 
-// (1) Befehlszeilenargumente einlesen und validieren
+// Befehlszeilenargumente einlesen und validieren
 /** @var string[] $args */
 $args = array_slice($_SERVER['argv'], 1);
 
-// (1.1) Optionen parsen
+// Optionen parsen
 foreach ($args as $i => $arg) {
     $arg = strtolower($arg);
-    if ($arg == '-h')   exit(1|help());                                     // Hilfe
+    if ($arg == '-h') { help(); exit(1); }                                  // Hilfe
     if ($arg == '-c') { $byteOffset=true; unset($args[$i]); continue; }     // -c: byte offset
     if ($arg == '-q') { $quietMode =true; unset($args[$i]); continue; }     // -q: quiet mode
 }
 
-// (1.2) Das verbleibende erste Argument muss ein Zeitpunkt sein.
-(sizeof($args) < 2) && exit(1|help());
+// Das verbleibende erste Argument muss ein Zeitpunkt sein.
+if (sizeof($args) < 2) {
+    help();
+    exit(1);
+}
 $sTime = $arg = array_shift($args);
 
 if (strIsQuoted($sTime)) $sTime = trim(strLeft(strRight($sTime, -1), -1));
 !strToTimestamp($sTime, ['Y-m-d', 'Y-m-d H:i', 'Y-m-d H:i:s']) && exit(1|echof('invalid argument datetime = '.$arg));
 $datetime = strtotime($sTime.' GMT');
 
-// (1.2) Das verbleibende zweite Argument muss ein History-File sein.
+// Das verbleibende zweite Argument muss ein History-File sein.
 $fileName = array_shift($args);
 !is_file($fileName) && exit(1|echof('file not found "'.$fileName.'"'));
 
@@ -145,7 +148,9 @@ exit(0);
 /**
  * Hilfefunktion: Zeigt die Syntax des Aufrufs an.
  *
- * @param  string $message [optional] - zusaetzlich zur Syntax anzuzeigende Message (default: keine)
+ * @param  ?string $message [optional] - zusaetzlich zur Syntax anzuzeigende Message (default: keine)
+ *
+ * @return void
  */
 function help($message = null) {
     if (isset($message))

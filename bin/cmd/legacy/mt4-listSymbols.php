@@ -49,7 +49,10 @@ $args = array_slice($_SERVER['argv'], 1);
 
 // Hilfe
 foreach ($args as $arg) {
-    if ($arg == '-h') exit(1|help());
+    if ($arg == '-h') {
+        help();
+        exit(1);
+    }
 }
 
 // Optionen und Argumente parsen
@@ -113,7 +116,10 @@ foreach ($args as $arg) {
     // include specific field
     if (strStartsWith($arg, '+')) {
         $key = substr($arg, 1);
-        if (!strlen($key)) exit(1|help('invalid field specifier: '.$arg));
+        if (!strlen($key)) {
+            help('invalid field specifier: '.$arg);
+            exit(1);
+        }
         unset($fieldArgs['-'.$key]);                                            // drops element if it exists
         if (!in_array('++', $fieldArgs) && !in_array('+'.$key, $fieldArgs))
             $fieldArgs[] = '+'.$key;
@@ -123,7 +129,10 @@ foreach ($args as $arg) {
     // exclude specific field
     if (strStartsWith($arg, '-')) {
         $key = substr($arg, 1);
-        if (!strlen($key)) exit(1|help('invalid field specifier: '.$arg));
+        if (!strlen($key)) {
+            help('invalid field specifier: '.$arg);
+            exit(1);
+        }
         unset($fieldArgs['+'.$key]);                                            // drops element if it exists
         if (in_array('++', $fieldArgs) && !in_array('-'.$key, $fieldArgs))
             $fieldArgs[] = '-'.$key;
@@ -131,7 +140,8 @@ foreach ($args as $arg) {
     }
 
     // unrecognized arguments
-    exit(1|help('invalid argument: '.$arg));
+    help('invalid argument: '.$arg);
+    exit(1);
 }
 
 // ggf. verfuegbare Felder anzeigen und danach abbrechen
@@ -149,7 +159,10 @@ if (isset($options['listFields'])) {
 // Default-Parameter setzen
 if (!$files) {
     $file = 'symbols.raw';
-    if (!is_file($file)) exit(1|help('file not found: '.$file));
+    if (!is_file($file)) {
+        help('file not found: '.$file);
+        exit(1);
+    }
     $files[] = $file;
 }
 
@@ -370,7 +383,9 @@ function compareFileNames($fileA, $fileB) {
 /**
  * Hilfefunktion
  *
- * @param  string $message [optional] - zusaetzlich zur Syntax anzuzeigende Message (default: keine)
+ * @param  ?string $message [optional] - zusaetzlich zur Syntax anzuzeigende Message (default: keine)
+ *
+ * @return void
  */
 function help($message = null) {
     if (is_null($message))

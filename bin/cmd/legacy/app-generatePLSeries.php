@@ -49,23 +49,31 @@ $saveRawRTData = true;                                                 // whethe
 // --- Start ----------------------------------------------------------------------------------------------------------------
 
 
-// (1) parse/validate command line arguments
+// parse/validate command line arguments
 /** @var string[] $args */
 $args = array_slice($_SERVER['argv'], 1);
 foreach ($args as $arg) {
-    if ($arg == '-h') exit(1|help());           // help
+    if ($arg == '-h') {
+        help();
+        exit(1);
+    }
 }
-(sizeof($args) != 1) && exit(1|help());
+if (sizeof($args) != 1) {
+    help();
+    exit(1);
+}
 
 // the only argument must be a test report symbol
 $value = array_shift($args);
 $test = Test::dao()->findByReportingSymbol($value);
-if (!$test) exit(1|help('unknown test report symbol "'.$value.'"'));
+if (!$test) {
+    help('unknown test report symbol "'.$value.'"');
+    exit(1);
+}
 
-
-// (2) load trades and order trade events chronologically
+// load trades and order trade events chronologically
 $trades = $test->getTrades();
-$deals  = [];
+$deals = [];
 $symbol = null;
 foreach ($trades as $trade) {                                           // atm: error out on mixed symbols
     $symbol && $symbol!=$trade->getSymbol() && exit(1|echof('[Error]   Mixed trade histories are not yet supported (found trades in '.$symbol.' and '.$trade->getSymbol().').'));
@@ -97,8 +105,7 @@ usort($deals, function(\stdClass $a, \stdClass $b) {
 });
 $deals = array_values($deals);
 
-
-// (3) cross-check availability of price history
+// cross-check availability of price history
 $firstDeal = reset($deals);
 if      (is_file(getVar('rtFile.compressed', $symbol, $firstDeal->time))) {}
 else if (is_file(getVar('rtFile.raw'       , $symbol, $firstDeal->time))) {}
@@ -110,8 +117,7 @@ else if (is_file(getVar('rtFile.raw'       , $symbol, $lastDeal->time))) {}
 else     exit(1|echof('[Error]   '.$symbol.'  Rosatrader price history for '.gmdate('D, d-M-Y', $lastDeal->time).' not found'));
 echof('[Info]    Processing '.sizeof($trades).' trades of test '.$test->getReportingSymbol().' ('.gmdate('d.m.Y', $firstDeal->time).' - '.gmdate('d.m.Y', $lastDeal->time).')');
 
-
-// (4) calculate total position and price at each deal time
+// calculate total position and price at each deal time
 $sum = $position = 0;
 foreach ($deals as $deal) {
     $position = round($position + $deal->lots, 2);
@@ -129,12 +135,10 @@ foreach ($deals as $deal) {
 }
 if (end($deals)->position) throw new RuntimeException('Unexpected total position after last deal: '.end($deals)->position.' (not flat)');
 
-
-// (5) generate a reporting symbol for the PL series
+// generate a reporting symbol for the PL series
 $reportSymbol = $test->getReportingSymbol();
 
-
-// (6) generate the PL series
+// generate the PL series
 $firstDealDay   = $firstDeal->time - $firstDeal->time % DAY;        // 00:00
 $lastDealDay    = $lastDeal->time - $lastDeal->time % DAY;          // 00:00
 $currentDeal    = reset($deals);
@@ -215,10 +219,8 @@ for ($day=$firstDealDay; $day <= $lastDealDay; $day+=1*DAY) {
     if (!saveBars($reportSymbol, $day, $pipSeries, $partial)) exit(1);
     $pipSeries = [];
 }
+
 echof('[Info]    total pips: '.round($totalPL + $pl, 3));
-
-
-// (7) the ugly end
 exit(0);
 
 
@@ -346,7 +348,9 @@ function getVar($id, $symbol=null, $time=null) {
 /**
  * Show a basic help screen.
  *
- * @param  string $message [optional] - additional status message to show first (default: none)
+ * @param  ?string $message [optional] - additional status message to show first (default: none)
+ *
+ * @return void
  */
 function help($message = null) {
     if (is_null($message))

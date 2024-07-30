@@ -203,6 +203,8 @@ exit(0);
  * @param  array  $barsFrom
  * @param  array  $barsTo
  * @param  array  $errors
+ *
+ * @return void
  */
 function showDirResults($dirName, array $files, array $formats, array $symbols, array $symbolsU, array $periods, array $digits, array $syncMarkers, array $lastSyncTimes, array $bars, array $barsFrom, array $barsTo, array $errors) {
     // Daten sortieren: ORDER by Symbol, Periode (ASC ist default); alle anderen "Spalten" mitsortieren
@@ -238,7 +240,9 @@ function showDirResults($dirName, array $files, array $formats, array $symbols, 
 /**
  * Hilfefunktion: Zeigt die Syntax des Aufrufs an.
  *
- * @param  string $message [optional] - zusaetzlich zur Syntax anzuzeigende Message (default: keine)
+ * @param  ?string $message [optional] - zusaetzlich zur Syntax anzuzeigende Message (default: keine)
+ *
+ * @return void
  */
 function help($message = null) {
     if (isset($message))

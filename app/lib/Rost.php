@@ -134,6 +134,8 @@ class Rost extends StaticClass {
      *
      * @param  string $receiver - Empfaenger (internationales Format)
      * @param  string $message  - Nachricht
+     *
+     * @return void
      */
     public static function sendSMS($receiver, $message) {
         Assert::string($receiver, '$receiver');

@@ -264,10 +264,12 @@ class Dukascopy extends CObject {
      * @param  int             $period - bar period identifier: PERIOD_M1 | PERIOD_D1
      * @param  int             $type   - price type identifier: PRICE_BID | PRICE_ASK
      *
+     * @return void
+     *
      * <pre>
      * Bar format stored in the cache:
      * -------------------------------
-     * Array(
+     * array(
      *     'time'       => (int),       // bar open time in FXT
      *     'time_delta' => (int),       // bar offset to 00:00 FXT in seconds
      *     'open'       => (int),       // open value in point

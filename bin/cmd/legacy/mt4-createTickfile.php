@@ -40,7 +40,10 @@ $args = array_slice($_SERVER['argv'], 1);
 
 // Hilfe
 foreach ($args as $i => $arg) {
-    if ($arg == '-h') exit(1|help());
+    if ($arg == '-h') {
+        help();
+        exit(1);
+    }
 }
 
 // Optionen und Argumente parsen
@@ -51,92 +54,147 @@ foreach ($args as $i => $arg) {
 
     // -s=SYMBOL
     if (strStartsWith($arg, '-s=')) {
-        if (isset($options['symbol'])) exit(1|help('invalid/multiple symbol arguments: -s='.$arg));
+        if (isset($options['symbol'])) {
+            help('invalid/multiple symbol arguments: -s='.$arg);
+            exit(1);
+        }
         $value = $arg = strRight($arg, -3);
-        if (strIsQuoted($value))
+        if (strIsQuoted($value)) {
             $value = strLeft(strRight($value, -1), 1);
-        if (!MT4::isValidSymbol($value)) exit(1|help('invalid symbol: '.$arg));
+        }
+        if (!MT4::isValidSymbol($value)) {
+            help('invalid symbol: '.$arg);
+            exit(1);
+        }
         $options['symbol'] = $value;
         continue;
     }
 
     // -p=PERIOD
     if (strStartsWith($arg, '-p=')) {
-        if (isset($options['period'])) exit(1|help('invalid/multiple period arguments: -p='.$arg));
+        if (isset($options['period'])) {
+            help('invalid/multiple period arguments: -p='.$arg);
+            exit(1);
+        }
         $value = $arg = strRight($arg, -3);
-        if (strIsQuoted($value))
+        if (strIsQuoted($value)) {
             $value = strLeft(strRight($value, -1), 1);
+        }
         if (strIsDigits($value) && $value[0]!='0') {
             $value = (int) $value;
-            if (!MT4::isStdTimeframe($value)) exit(1|help('invalid period: '.$arg));
+            if (!MT4::isStdTimeframe($value)) {
+                help('invalid period: '.$arg);
+                exit(1);
+            }
             $options['period'] = $value;
         }
-        else if (!MT4::isTimeframeDescription($value)) exit(1|help('invalid period: '.$arg));
-        else $options['period'] = MT4::strToTimeframe($value);
+        else if (!MT4::isTimeframeDescription($value)) {
+            help('invalid period: '.$arg);
+            exit(1);
+        }
+        else {
+            $options['period'] = MT4::strToTimeframe($value);
+        }
         continue;
     }
 
     // -from=DATE
     if (strStartsWith($arg, '-from=')) {
-        if (isset($options['startDate'])) exit(1|help('invalid/multiple start date arguments: -from='.$arg));
+        if (isset($options['startDate'])) {
+            help('invalid/multiple start date arguments: -from='.$arg);
+            exit(1);
+        }
         $value = $arg = strRight($arg, -6);
-        if (strIsQuoted($value))
+        if (strIsQuoted($value)) {
             $value = strLeft(strRight($value, -1), 1);
+        }
         $timestamp = strToTimestamp($value, ['Y-m-d', 'Y.m.d', 'd.m.Y', 'd/m/Y']);
-        if (!is_int($timestamp) || $timestamp < 0) exit(1|help('invalid start date: '.$arg));
+        if (!is_int($timestamp) || $timestamp < 0) {
+            help('invalid start date: '.$arg);
+            exit(1);
+        }
         $options['startDate'] = $timestamp;
         if (isset($options['endDate']) && $options['startDate'] > $options['endDate']) {
-            exit(1|help('start date/end date mis-match: '.gmdate('Y.m.d', $options['startDate']).' > '.gmdate('Y.m.d', $options['endDate'])));
+            help('start date/end date mis-match: '.gmdate('Y.m.d', $options['startDate']).' > '.gmdate('Y.m.d', $options['endDate']));
+            exit(1);
         }
         continue;
     }
 
     // -to=DATE
     if (strStartsWith($arg, '-to=')) {
-        if (isset($options['endDate'])) exit(1|help('invalid/multiple end date arguments: -to='.$arg));
+        if (isset($options['endDate'])) {
+            help('invalid/multiple end date arguments: -to='.$arg);
+            exit(1);
+        }
         $value = $arg = strRight($arg, -4);
-        if (strIsQuoted($value))
+        if (strIsQuoted($value)) {
             $value = strLeft(strRight($value, -1), 1);
+        }
         $timestamp = strToTimestamp($value, ['Y-m-d', 'Y.m.d', 'd.m.Y', 'd/m/Y']);
-        if (!is_int($timestamp) || $timestamp<=0) exit(1|help('invalid end date: '.$arg));
+        if (!is_int($timestamp) || $timestamp<=0) {
+            help('invalid end date: '.$arg);
+            exit(1);
+        }
         $options['endDate'] = $timestamp;
         if (isset($options['startDate']) && $options['startDate'] > $options['endDate']) {
-            exit(1|help('start date/end date mis-match: '.gmdate('Y.m.d', $options['startDate']).' > '.gmdate('Y.m.d', $options['endDate'])));
+            help('start date/end date mis-match: '.gmdate('Y.m.d', $options['startDate']).' > '.gmdate('Y.m.d', $options['endDate']));
+            exit(1);
         }
         continue;
     }
 
     // -model=TYPE
     if (strStartsWith($arg, '-model=')) {
-        if (isset($options['model'])) exit(1|help('invalid/multiple model arguments: -model='.$arg));
+        if (isset($options['model'])) {
+            help('invalid/multiple model arguments: -model='.$arg);
+            exit(1);
+        }
         $arg   = strRight($arg, -7);
         $value = strtoupper($arg);
-        if (strIsQuoted($value))
+        if (strIsQuoted($value)) {
             $value = strLeft(strRight($value, -1), 1);
+        }
         if     (strStartsWith('REALTICKS',      $value)) $options['model'] = 'REALTICKS';
         elseif (strStartsWith('SIMULATEDTICKS', $value)) $options['model'] = 'SIMULATEDTICKS';
         elseif (strStartsWith('BAROPEN',        $value)) $options['model'] = 'BAROPEN';
-        else                                    exit(1|help('invalid model type: '.$arg));
+        else {
+            help('invalid model type: '.$arg);
+            exit(1);
+        }
         continue;
     }
 
     // -spread=PIPS
     if (strStartsWith($arg, '-spread=')) {
-        if (isset($options['spread'])) exit(1|help('invalid/multiple spread arguments: -spread='.$arg));
+        if (isset($options['spread'])) {
+            help('invalid/multiple spread arguments: -spread='.$arg);
+            exit(1);
+        }
         $value = $arg = strRight($arg, -8);
-        if (strIsQuoted($value))
+        if (strIsQuoted($value)) {
             $value = strLeft(strRight($value, -1), 1);
-        if (!is_numeric($value) || strStartsWithI($value, '0x')) exit(1|help('invalid spread: '.$arg));
+        }
+        if (!is_numeric($value) || strStartsWithI($value, '0x')) {
+            help('invalid spread: '.$arg);
+            exit(1);
+        }
         $value = (float) $value;
-        if ($value < 0) exit(1|help('invalid spread: '.$arg));
+        if ($value < 0) {
+            help('invalid spread: '.$arg);
+            exit(1);
+        }
         $spread = round($value, 1);
-        if ($spread != $value) exit(1|help('invalid spread: '.$arg));
+        if ($spread != $value) {
+            help('invalid spread: '.$arg);
+            exit(1);
+        }
         $options['spread'] = $spread;
         continue;
     }
 }
-if (!isset($options['symbol'   ])) exit(1|help('missing symbol argument'));
-if (!isset($options['period'   ])) exit(1|help('missing period argument'));
+if (!isset($options['symbol'   ])) { help('missing symbol argument'); exit(1); }
+if (!isset($options['period'   ])) { help('missing period argument'); exit(1); }
 if (!isset($options['startDate'])) $options['startDate'] = 0;
 if (!isset($options['endDate'  ])) $options['endDate'  ] = 0;
 if (!isset($options['model'    ])) $options['model'    ] = 'REALTICKS';
@@ -153,7 +211,9 @@ exit(0);
 /**
  * Hilfefunktion
  *
- * @param  string $message [optional] - zusaetzlich zur Syntax anzuzeigende Message (default: keine)
+ * @param  ?string $message [optional] - zusaetzlich zur Syntax anzuzeigende Message (default: keine)
+ *
+ * @return void
  */
 function help($message = null) {
     if (is_null($message))

@@ -17,29 +17,80 @@ use function rosasurfer\ministruts\strRight;
  */
 class HistoryHeader extends CObject {
 
-    /**
-     * Struct-Size eines HistoryHeaders
-     */
+
+    /** @var int - sizeof(struct HISTORY_HEADER) */
     const SIZE = 148;
 
-    protected /*int   */ $format;
-    protected /*string*/ $copyright    = '';
-    protected /*string*/ $symbol;
-    protected /*int   */ $period;
-    protected /*int   */ $digits;
-    protected /*int   */ $syncMarker   = 0;
-    protected /*int   */ $lastSyncTime = 0;
+    /** @var int */
+    protected $format;
+
+    /** @var string */
+    protected $copyright = '';
+
+    /** @var string */
+    protected $symbol;
+
+    /** @var int */
+    protected $period;
+
+    /** @var int */
+    protected $digits;
+
+    /** @var int */
+    protected $syncMarker = 0;
+
+    /** @var int */
+    protected $lastSyncTime = 0;
 
 
-    // Getter
-    public function getFormat()       { return $this->format;       }
-    public function getCopyright()    { return $this->copyright;    }
-    public function getSymbol()       { return $this->symbol;       }
-    public function getPeriod()       { return $this->period;       }
-    public function getTimeframe()    { return $this->getPeriod();  }    // Alias
-    public function getDigits()       { return $this->digits;       }
-    public function getSyncMarker()   { return $this->syncMarker;   }
-    public function getLastSyncTime() { return $this->lastSyncTime; }
+    /**
+     * @return int
+     */
+    public function getFormat() {
+        return $this->format;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCopyright() {
+        return $this->copyright;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSymbol() {
+        return $this->symbol;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPeriod() {
+        return $this->period;
+    }
+
+    /**
+     * @return int
+     */
+    public function getDigits() {
+        return $this->digits;
+    }
+
+    /**
+     * @return int
+     */
+    public function getSyncMarker() {
+        return $this->syncMarker;
+    }
+
+    /**
+     * @return int
+     */
+    public function getLastSyncTime() {
+        return $this->lastSyncTime;
+    }
 
 
     /**
@@ -88,8 +139,10 @@ class HistoryHeader extends CObject {
      * @param  int     $digits
      * @param  ?int    $syncMarker
      * @param  ?int    $lastSyncTime
+     *
+     * @return void
      */
-    private function __construct_1($format, $copyright, $symbol, $period, $digits, $syncMarker, $lastSyncTime) {
+    private function __construct_1($format, $copyright='', $symbol, $period, $digits, $syncMarker=0, $lastSyncTime=0) {
         Assert::int($format, '$format');
         if ($format!=400 && $format!=401)             throw new MetaTraderException('version.unsupported: Invalid parameter $format: '.$format.' (can be 400 or 401)');
         if (!isset($copyright)) $copyright = '';
@@ -126,6 +179,8 @@ class HistoryHeader extends CObject {
      * Erzeugt eine neue Instanz anhand eines binaer gespeicherten struct HISTORY_HEADER.
      *
      * @param  string $data - gespeichertes struct HISTORY_HEADER
+     *
+     * @return void
      */
     private function __construct_2($data) {
         Assert::string($data);
@@ -149,6 +204,8 @@ class HistoryHeader extends CObject {
      * Setzt den Zeitpunkt der letzten Synchronisation in diesem Header.
      *
      * @param  int $time
+     *
+     * @return void
      */
     public function setLastSyncTime($time) {
         Assert::int($time);
