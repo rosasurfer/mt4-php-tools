@@ -18,7 +18,9 @@ class DukascopySymbolDAO extends DAO {
 
 
     /**
+     * {@inheritdoc}
      *
+     * @return array<string, string|array<scalar[]>>
      */
     public function getMapping() {
         static $mapping; return $mapping ?: ($mapping=$this->parseMapping([
