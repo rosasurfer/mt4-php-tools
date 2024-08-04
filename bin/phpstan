@@ -37,21 +37,23 @@ IS_WINDOWS_PHP=$(php -r "echo (bool)defined('PHP_WINDOWS_VERSION_BUILD');")
 # parse command line arguments and create a new argument set for PHPStan
 ARGS=() && CMD= && CONFIG_OPTION= && CONFIG_FILE= && BASELINE_OPTION= && BASELINE_FILE= && INCLUDE_CONFIG= && VERBOSE_OPTION=
 
-while [[ $# -gt 0 ]]; do
+while [[ "$#" -gt 0 ]]; do
   case "$1" in
     --)                                                   # stop at argument limiter "--"
       break;;
 
     -l|-a|-b)
-      ARGS+=("$1")                                        # skip short option values
-      shift;;
+      ARGS+=("$1")
+      shift                                               # shift to short option value
+      [[ "$#" -gt 0 && "$1" == -* ]] && continue;;        # skip if it's not an option value
     --level|--autoload-file|--error-format|--generate-baseline|--memory-limit)
-      ARGS+=("$1")                                        # skip separate long option values
-      shift;;
+      ARGS+=("$1")
+      shift                                               # shift to long option value
+      [[ "$#" -gt 0 && "$1" == -* ]] && continue;;        # skip if it's not an option value
 
     -c|--configuration)                                   # extract config argument but don't add it to PHPStan args
       CONFIG_OPTION="$1"
-      [[ -n "$2" && "$2" != -* ]] && CONFIG_FILE="$2" && shift
+      [[ "$#" -gt 1 && "$2" != -* ]] && CONFIG_FILE="$2" && shift
       shift
       continue;;
     -c*)
@@ -67,7 +69,7 @@ while [[ $# -gt 0 ]]; do
 
     -u|--use-baseline)                                    # extract baseline argument but don't add it to PHPStan args
       BASELINE_OPTION="$1"
-      [[ -n "$2" && "$2" != -* ]] && BASELINE_FILE="$2" && shift
+      [[ "$#" -gt 1 && "$2" != -* ]] && BASELINE_FILE="$2" && shift
       shift
       continue;;
     -u*)
@@ -94,8 +96,7 @@ while [[ $# -gt 0 ]]; do
     *)                                                    # stop on unknown subcommand
       break;;
   esac
-  ARGS+=("$1")
-  shift
+  [[ "$#" -gt 0 ]] && ARGS+=("$1") && shift
 done
 ARGS+=("$@")
 
