@@ -2,7 +2,7 @@
 use rosasurfer\rt\model\Test;
 
 /** @var Test $test */
-$test   = $form->getTest();
+$test = $form->getTest();
 $trades = $test->getTrades(['order' => 'closeTime, openTime']);
 ?>
 <script src="<?=asset('/js/chartjs/Chart-2.6.0.js')?>"></script>
@@ -37,15 +37,17 @@ var chart = new Chart('canvas', {
             lineTension:     0,
             pointRadius:     0,
             data: [
-                <?foreach ($trades as $i => $trade) {
-                    $time   = gmdate(DATE_ISO8601, strtotime($trade->getCloseTime().' GMT'));   // '2014-09-08T08:02:17-05:00' (ISO 8601)
+                <?php
+                foreach ($trades as $i => $trade) {
+                    $time = gmdate(DATE_ISO8601, strtotime($trade->getCloseTime().' GMT'));   // '2014-09-08T08:02:17-05:00' (ISO 8601)
                     $profit = $trade->getProfit();
                     if ($i++) echo ','.NL;
                     echo '{x: "'.$time.'", y: '.$profit.'}';
                     if ($i > 100) {
                         break;
                     }
-                }?>
+                }
+                ?>
             ],
         }]
     },

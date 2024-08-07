@@ -2,7 +2,7 @@
 use rosasurfer\rt\model\Test;
 
 /** @var Test $test */
-$test   = $form->getTest();
+$test = $form->getTest();
 $trades = $test->getTrades(['order' => 'closeTime, openTime']);
 ?>
 <script src="<?=asset('/js/chartjs/Chart-2.6.0.js')?>"></script>
@@ -39,10 +39,12 @@ var chart = new Chart('canvas', {
             pointBorderColor:     Color.red,
             pointBackgroundColor: Color.red,
             data: [
-                <?foreach ($trades as $i => $trade) {
+                <?php
+                foreach ($trades as $i => $trade) {
                     if ($i++) echo ','.NL;
                     echo '{x: '.$i.', y: '.$trade->getProfit().'}';
-                }?>
+                }
+                ?>
             ]
         }]
     },

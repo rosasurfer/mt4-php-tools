@@ -1,4 +1,7 @@
 
-<?foreach ($request->getActionMessages() as $message) {?>
+<?php
+foreach ($request->getActionMessages() as $message) {?>
     <div class="alert alert-danger textcenter"><p><?=hsc($message)?></p></div>
-<?}?>
+<?php
+}
+?>

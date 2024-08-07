@@ -12,10 +12,12 @@ $tests = Test::dao()->findAll('select * from :Test order by strategy, created, r
 <link href="<?=asset('/css/tablesorter/theme.blue.min.css')?>" id="tablesorter-theme" rel="stylesheet">
 <script src="<?=asset('/js/tablesorter/jquery.tablesorter.combined.js')?>"></script>
 
-<?foreach (Request::getActionMessages() as $message) {?>
+<?php
+foreach (Request::getActionMessages() as $message) {?>
     <div class="alert alert-danger textcenter"><p><?=hsc($message)?></p></div>
-<?}?>
-
+<?php
+}
+?>
 
 Found <?=$size=sizeof($tests)?> test<?=pluralize($size)?>
 
@@ -36,7 +38,7 @@ Found <?=$size=sizeof($tests)?> test<?=pluralize($size)?>
 </thead>
 
 <tbody>
-<?
+<?php
 foreach ($tests as $test) {
     $strategy        = $test->getStrategy();
     $report          = $test->getReportingSymbol();
@@ -64,7 +66,9 @@ foreach ($tests as $test) {
     <td style="vertical-align:middle"><?=rtrim(sprintf('%.4f', $calmar), '.0')?></td>
     <td style="vertical-align:middle"><?=sprintf('%.0f d', $maxRecoveryTime)?></td>
 </tr>
-<?}?>
+<?php
+}
+?>
 
 </tbody>
 </table>
