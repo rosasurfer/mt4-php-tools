@@ -22,8 +22,6 @@ nbactions.xml
 
 # ignore the following folders and files
 /etc/httpd/cgi/php.ini
-/etc/httpd/ssl/www.rosatrader.com.crt
-/etc/httpd/ssl/www.rosatrader.com.key
 /etc/log/*
 /etc/tmp/*
 /etc/phpstan/.tmp/

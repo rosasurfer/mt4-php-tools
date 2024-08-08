@@ -45,7 +45,7 @@ command -v git >/dev/null || { error "ERROR: Git command not found."; exit 1; }
 
 
 # change to the project's toplevel directory
-cd "$(dirname "$(readlink -e "$0")")"
+cd "$(dirname "$(readlink -f "$0")")"
 PROJECT_DIR=$(git rev-parse --show-toplevel)
 cd "$PROJECT_DIR"
 

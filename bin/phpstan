@@ -28,7 +28,7 @@ set -eu -o pipefail
 
 
 # resolve directories and environment
-PROJECT_DIR="$(dirname $(readlink -e "$0"))/.."
+PROJECT_DIR="$(dirname $(readlink -f "$0"))/.."
 BIN_DIR="$PROJECT_DIR/vendor/bin"
 CONFIG_DIR="$PROJECT_DIR/etc/phpstan"
 IS_WINDOWS_PHP=$(php -r "echo (bool)defined('PHP_WINDOWS_VERSION_BUILD');")

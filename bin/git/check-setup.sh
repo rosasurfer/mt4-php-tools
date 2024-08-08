@@ -39,7 +39,7 @@ command -v git >/dev/null || { error "ERROR: Git binary not found."; exit 1; }
 
 
 # resolve directories
-CWD=$(readlink -e "$PWD")
+CWD=$(readlink -f "$PWD")
 SCRIPT_DIR=$(dirname "$0")
 REPO_ROOT_DIR=$(git rev-parse --show-toplevel)
 GIT_HOOK_DIR=$(git rev-parse --git-dir)'/hooks'
