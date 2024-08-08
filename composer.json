@@ -22,9 +22,6 @@
         "ext-sqlite3":           "*",
         "rosasurfer/ministruts": "^0.10"
     },
-    "require-dev": {
-        "phpstan/phpstan": "^1.0"
-    },
     "autoload": {
         "classmap": ["app/"],
         "files":    ["app/helpers.php"]
