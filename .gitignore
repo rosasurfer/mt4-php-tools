@@ -1,17 +1,17 @@
-# do not ignore the following files
+# never ignore the following files
 !.gitattributes
 !.htaccess
 
-# ignore Eclipse directories and files
+# ignore Eclipse folders and files
 /.externalToolBuilders/
 /.settings/
 /.buildpath
 /.project*
 
-# ignore IntelliJ directories and files
+# ignore IntelliJ folders and files
 /.idea/
 
-# ignore NetBeans directories and files
+# ignore NetBeans folders and files
 .nb-gradle/
 nbbuild/
 nbdist/
@@ -20,26 +20,22 @@ nbactions.xml
 /build/
 /dist/
 
+# ignore the following folders and files
+/etc/httpd/cgi/php.ini
+/etc/log/*
+/etc/tmp/*
 
-# ignore the following project directories and files
-vendor/
+/vendor/
 /composer
 /composer.phar
+/composer-*
+
 config*.properties
 !config.dist.properties
 
 /data/
 /data
-
-/etc/httpd/cgi/
-/etc/httpd/local/
-/etc/httpd/ssl/www.rosasurfer.com.crt
-/etc/httpd/ssl/www.rosasurfer.com.key
-/etc/log/*
-/etc/tmp/*
-
-/web/doc/erm/*
-
 /deploy
+/web/doc/erm/*
 *.bi5
 *.bin
