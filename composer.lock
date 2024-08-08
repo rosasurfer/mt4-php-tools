@@ -4,24 +4,24 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7c73e485cc6b5233f488a6971aedb048",
+    "content-hash": "8004149e8735ef028105b10ae0d67186",
     "packages": [
         {
             "name": "psr/container",
-            "version": "1.1.1",
+            "version": "1.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-fig/container.git",
-                "reference": "8622567409010282b7aeebe4bb841fe98b58dcaf"
+                "reference": "513e0666f7216c7459170d56df27dfcefe1689ea"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/container/zipball/8622567409010282b7aeebe4bb841fe98b58dcaf",
-                "reference": "8622567409010282b7aeebe4bb841fe98b58dcaf",
+                "url": "https://api.github.com/repos/php-fig/container/zipball/513e0666f7216c7459170d56df27dfcefe1689ea",
+                "reference": "513e0666f7216c7459170d56df27dfcefe1689ea",
                 "shasum": ""
             },
             "require": {
-                "php": ">=7.2.0"
+                "php": ">=7.4.0"
             },
             "type": "library",
             "autoload": {
@@ -50,9 +50,9 @@
             ],
             "support": {
                 "issues": "https://github.com/php-fig/container/issues",
-                "source": "https://github.com/php-fig/container/tree/1.1.1"
+                "source": "https://github.com/php-fig/container/tree/1.1.2"
             },
-            "time": "2021-03-05T17:36:06+00:00"
+            "time": "2021-11-05T16:50:12+00:00"
         },
         {
             "name": "rosasurfer/ministruts",
@@ -60,12 +60,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/rosasurfer/ministruts.git",
-                "reference": "8afd9cbd17bff2d75911b0e543049bc6cc3b430f"
+                "reference": "989cd2b06af644630d83a246140ee69d2126f95d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/8afd9cbd17bff2d75911b0e543049bc6cc3b430f",
-                "reference": "8afd9cbd17bff2d75911b0e543049bc6cc3b430f",
+                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/989cd2b06af644630d83a246140ee69d2126f95d",
+                "reference": "989cd2b06af644630d83a246140ee69d2126f95d",
                 "shasum": ""
             },
             "require": {
@@ -75,11 +75,8 @@
                 "ext-libxml": "*",
                 "ext-mbstring": "*",
                 "ext-simplexml": "*",
-                "php": "7.3 - 8",
+                "php": "7.4 - 8",
                 "psr/container": "^1.0"
-            },
-            "require-dev": {
-                "phpstan/phpstan": "^1.0"
             },
             "default-branch": true,
             "type": "library",
@@ -107,25 +104,25 @@
             ],
             "description": "MVC micro framework inspired by Java Struts",
             "support": {
-                "source": "https://github.com/rosasurfer/ministruts/tree/master",
+                "source": "https://github.com/rosasurfer/ministruts/tree/0.11",
                 "issues": "https://github.com/rosasurfer/ministruts/issues"
             },
-            "time": "2024-07-31T20:20:52+00:00"
+            "time": "2024-08-08T04:54:40+00:00"
         }
     ],
     "packages-dev": [
         {
             "name": "phpstan/phpstan",
-            "version": "1.11.8",
+            "version": "1.11.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "6adbd118e6c0515dd2f36b06cde1d6da40f1b8ec"
+                "reference": "e370bcddadaede0c1716338b262346f40d296f82"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/6adbd118e6c0515dd2f36b06cde1d6da40f1b8ec",
-                "reference": "6adbd118e6c0515dd2f36b06cde1d6da40f1b8ec",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/e370bcddadaede0c1716338b262346f40d296f82",
+                "reference": "e370bcddadaede0c1716338b262346f40d296f82",
                 "shasum": ""
             },
             "require": {
@@ -170,7 +167,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-07-24T07:01:22+00:00"
+            "time": "2024-08-01T16:25:18+00:00"
         }
     ],
     "aliases": [],
@@ -181,13 +178,13 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": "7.3 - 8",
+        "php": "7.4 - 8",
         "ext-bcmath": "*",
         "ext-sqlite3": "*"
     },
     "platform-dev": [],
     "platform-overrides": {
-        "php": "7.3"
+        "php": "7.4"
     },
     "plugin-api-version": "2.6.0"
 }
