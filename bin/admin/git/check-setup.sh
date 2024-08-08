@@ -39,7 +39,7 @@ command -v git >/dev/null || { error "ERROR: Git binary not found."; exit 1; }
 
 
 # resolve directories
-CWD=$(readlink -e "$PWD")
+CWD=$(readlink -f "$PWD")
 SCRIPT_DIR=$(dirname "$0")
 REPO_ROOT_DIR=$(git rev-parse --show-toplevel)
 GIT_HOOK_DIR=$(git rev-parse --git-dir)'/hooks'
@@ -55,10 +55,10 @@ fi
 
 
 # make sure we run in the repo's root directory (as to not to mess-up nested repos)
-if [ "$CWD" != "$REPO_ROOT_DIR" ]; then
-    error "ERROR: $(basename "$0") must run in the repository's root directory."
-    exit 1
-fi
+#if [ "$CWD" != "$REPO_ROOT_DIR" ]; then
+#    error "ERROR: $(basename "$0") must run in the repository's root directory."
+#    exit 1
+#fi
 
 
 # call copyHook() with the arguments specified in "composer.json"

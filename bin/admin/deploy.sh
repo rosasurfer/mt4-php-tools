@@ -45,7 +45,7 @@ command -v git >/dev/null || { error "ERROR: Git command not found."; exit 1; }
 
 
 # change to the project's toplevel directory
-cd "$(dirname "$(readlink -e "$0")")"
+cd "$(dirname "$(readlink -f "$0")")"
 PROJECT_DIR=$(git rev-parse --show-toplevel)
 cd "$PROJECT_DIR"
 
@@ -143,6 +143,7 @@ if [ ! -e "$TARGET" ]; then
         cp -p etc/httpd/ssl/self-signed.crt "$TARGET"
     fi    
 fi    
+
 TARGET="etc/httpd/ssl//www.rosasurfer.com.key"
 if [ ! -e "$TARGET" ]; then
     if [ -L "$TARGET" ]; then
