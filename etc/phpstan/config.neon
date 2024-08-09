@@ -20,6 +20,7 @@ parameters:
   paths:                                            # paths on the command line override these hardcoded values
     - ../../app
     - ../../bin
+    - ../../config
 
   excludePaths:
     - ../../data/
