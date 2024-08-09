@@ -556,7 +556,7 @@ class Rost extends StaticClass {
         Assert::nullOrString($symbol, '$symbol');
         Assert::nullOrInt($time, '$time');
 
-        static $storageDir; !$storageDir && $storageDir = self::di('config')['app.dir.storage'];
+        static $storageDir; !$storageDir && $storageDir = self::di('config')['app.dir.data'];
 
         if ($id == 'rtDirDate') {                       // $yyyy/$mm/$dd                                                // lokales Pfad-Datum
             if (!$time) throw new InvalidValueException('Invalid parameter $time: '.$time);

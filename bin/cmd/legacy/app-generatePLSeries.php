@@ -305,7 +305,7 @@ function getVar($id, $symbol=null, $time=null) {
     Assert::nullOrInt($time, '$time');
 
     $self = __FUNCTION__;
-    static $storageDir; !$storageDir && $storageDir = Application::getConfig()['app.dir.storage'];
+    static $storageDir; !$storageDir && $storageDir = Application::getConfig()['app.dir.data'];
 
     if ($id == 'rtDirDate') {                   // $yyyy/$mm/$dd                                                // local path date
         if (!$time) throw new InvalidValueException('Invalid parameter $time: '.$time);

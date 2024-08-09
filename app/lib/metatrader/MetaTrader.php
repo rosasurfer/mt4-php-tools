@@ -30,8 +30,8 @@ class MetaTrader extends CObject {
      */
     public function createHistorySet(RosaSymbol $symbol, $format = 400, $directory = null) {
         if (!isset($directory)) {
-            $config    = $this->di('config');
-            $directory = $config['app.dir.storage'].'/history/mt4/'.$config['rt.metatrader.servername'];
+            $config = $this->di('config');
+            $directory = $config['app.dir.data'].'/history/mt4/'.$config['rt.metatrader.servername'];
         }
         FS::mkDir($directory);
         return new HistorySet($symbol, $format, $directory);

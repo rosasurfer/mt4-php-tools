@@ -127,7 +127,7 @@ class Rosatrader extends StaticClass {
         }
 
         // delete existing files
-        $storageDir  = self::di('config')['app.dir.storage'];
+        $storageDir  = self::di('config')['app.dir.data'];
         $storageDir .= '/history/rosatrader/'.$symbol->getType().'/'.$symbol->getName();
         $dir         = $storageDir.'/'.gmdate('Y/m/d', $day);
         $msg         = '[Info]    '.$symbol->getName().'  deleting existing M1 file: ';
@@ -160,7 +160,7 @@ class Rosatrader extends StaticClass {
             $config      = self::di('config');
             $root        = str_replace('\\', '/', $config['app.dir.root'].'/');
             $realRoot    = str_replace('\\', '/', realpath($root).'/');
-            $storage     = str_replace('\\', '/', $config['app.dir.storage'].'/');
+            $storage     = str_replace('\\', '/', $config['app.dir.data'].'/');
             $realStorage = str_replace('\\', '/', realpath($storage).'/');
         }
 

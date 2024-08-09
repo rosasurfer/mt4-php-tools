@@ -230,7 +230,7 @@ class RosaSymbol extends RosatraderModel {
      * </pre>
      */
     public function getHistoryM1($time, $optimized = false) {
-        $storage = $this->di('config')['app.dir.storage'];
+        $storage = $this->di('config')['app.dir.data'];
         $dir = $storage.'/history/rosatrader/'.$this->type.'/'.$this->name.'/'.gmdate('Y/m/d', $time);
 
         if (!is_file($file=$dir.'/M1.bin') && !is_file($file.='.rar'))
@@ -340,7 +340,7 @@ class RosaSymbol extends RosatraderModel {
      * @return bool - success status
      */
     public function synchronizeHistory() {
-        $storageDir  = $this->di('config')['app.dir.storage'];
+        $storageDir  = $this->di('config')['app.dir.data'];
         $storageDir .= '/history/rosatrader/'.$this->type.'/'.$this->name;
         $paddedName  = str_pad($this->name, 6);
         $startDate   = $endDate = null;
