@@ -13,7 +13,6 @@ use rosasurfer\rt\model\RosaSymbol;
 use function rosasurfer\ministruts\echof;
 use function rosasurfer\ministruts\strRightFrom;
 use function rosasurfer\ministruts\strStartsWith;
-use function rosasurfer\ministruts\true;
 
 use const rosasurfer\ministruts\DAY;
 use const rosasurfer\ministruts\HOURS;

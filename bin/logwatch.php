@@ -22,45 +22,50 @@ use const rosasurfer\ministruts\CLI;
 use const rosasurfer\ministruts\NL;
 use const rosasurfer\ministruts\WINDOWS;
 
-require(dirname(realpath(__FILE__)).'/../app/init.php');
+require(__DIR__.'/../app/init.php');
 
 if (!CLI) {
-    stderr('error: This script must be executed from a command line interface.');
+    stderr('error: This script must be executed from the command line.');
     exit(1);
 }
 
 
-// --- Configuration --------------------------------------------------------------------------------------------------------
+// --- Configuration -----------------------------------------------------------------------------------------------------------------------
 
 
-set_time_limit(0);                                          // no time limit for CLI
-$quiet = false;                                             // whether or not "quiet" mode is enabled (e.g. for CRON)
+set_time_limit(0);
+$quiet = false;                                             // e.g. for CRON
 
 
-// --- Parse and validate command line arguments ----------------------------------------------------------------------------
+// --- Parse and validate command line arguments -------------------------------------------------------------------------------------------
 
 
 /** @var string[] $args */
 $args = array_slice($_SERVER['argv'], 1);
 
 foreach ($args as $i => $arg) {
-    if ($arg == '-h') { help(); exit(0);                           }    // help
-    if ($arg == '-q') { $quiet = true; unset($args[$i]); continue; }    // quiet mode
+    if ($arg == '-h') { help(); exit(0);                           }
+    if ($arg == '-q') { $quiet = true; unset($args[$i]); continue; }
 
-    stderr('invalid argument: '.$arg);
-    !$quiet && help();
+    $msg = "invalid argument: $arg";
+
+    if ($quiet) stderr($msg);
+    else        help($msg);
     exit(1);
 }
 
 
-// --- Start ----------------------------------------------------------------------------------------------------------------
+// --- Start -------------------------------------------------------------------------------------------------------------------------------
 
 
 // define the location of the error log
 $errorLog = ini_get('error_log');
 if (empty($errorLog) || $errorLog=='syslog') {              // errors are logged elsewhere
-    if (empty($errorLog)) $quiet || echof('errors are logged elsewhere (stderr)');
-    else                  $quiet || echof('errors are logged elsewhere ('.(WINDOWS ? 'event log':'syslog').')');
+    if (!$quiet) {
+        if (empty($errorLog)) $where = 'STDERR';
+        else                  $where = WINDOWS ? 'event log':'syslog';
+        echof("errors are logged elsewhere ($where)");
+    }
     exit(0);
 }
 
@@ -99,7 +104,7 @@ unlink($tempName);
 exit(0);
 
 
-// --- Functions ------------------------------------------------------------------------------------------------------------
+// --- Functions ---------------------------------------------------------------------------------------------------------------------------
 
 
 /**
@@ -159,12 +164,11 @@ function processEntry($entry) {
  * @return void
  */
 function help($message = null) {
-    if (isset($message))
+    if (isset($message)) {
         echo $message.NL;
-
+    }
     $self = basename($_SERVER['PHP_SELF']);
-
-echo <<<HELP
+    echo <<<HELP
 
  Syntax:  $self [options]
 

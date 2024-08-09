@@ -26,7 +26,7 @@ use function rosasurfer\rt\isWeekend;
 
 use const rosasurfer\ministruts\DAY;
 
-require(dirname(realpath(__FILE__)).'/../../../app/init.php');
+require(__DIR__.'/../../../app/init.php');
 date_default_timezone_set('GMT');
 
 

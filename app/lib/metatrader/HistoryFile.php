@@ -335,7 +335,7 @@ class HistoryFile extends CObject {
 
         // open file and read/validate the header
         $this->hFile     = fopen($fileName, 'r+b');               // FILE_READ|FILE_WRITE
-        $this->hstHeader = new HistoryHeader(fread($this->hFile, HistoryHeader::SIZE));
+        $this->hstHeader = HistoryHeader::fromStruct(fread($this->hFile, HistoryHeader::SIZE));
 
         if (!strCompareI($this->fileName, $this->getSymbol().$this->getTimeframe().'.hst')) throw new MetaTraderException('filename.mis-match: File name/symbol mis-match of "'.$fileName.'": header="'.$this->getSymbol().','.timeframeDescription($this->getTimeframe()).'"');
         $barSize = $this->getVersion()==400 ? MT4::HISTORY_BAR_400_SIZE : MT4::HISTORY_BAR_401_SIZE;
@@ -1346,7 +1346,11 @@ class HistoryFile extends CObject {
 
 
     /**
-     * Nur zum Debuggen
+     * For debugging only.
+     *
+     * @param  bool $showStored
+     * @param  bool $showFull
+     * @param  bool $showFile
      *
      * @return void
      */

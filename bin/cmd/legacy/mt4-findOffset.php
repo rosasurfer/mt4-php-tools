@@ -24,7 +24,7 @@ use function rosasurfer\ministruts\strToTimestamp;
 
 use const rosasurfer\ministruts\NL;
 
-require(dirname(realpath(__FILE__)).'/../../../app/init.php');
+require(__DIR__.'/../../../app/init.php');
 date_default_timezone_set('GMT');
 
 
@@ -80,7 +80,7 @@ if ($fileSize < HistoryHeader::SIZE) {
 $hFile  = fopen($fileName, 'rb');
 $header = null;
 try {
-    $header = new HistoryHeader(fread($hFile, HistoryHeader::SIZE));
+    $header = HistoryHeader::fromStruct(fread($hFile, HistoryHeader::SIZE));
 }
 catch (MetaTraderException $ex) {
     if (strStartsWith($ex->getMessage(), 'version.unsupported')) {

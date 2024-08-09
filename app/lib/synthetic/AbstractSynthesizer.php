@@ -43,7 +43,11 @@ abstract class AbstractSynthesizer extends CObject implements ISynthesizer {
 
 
     /**
+     * {@inheritdoc}
      *
+     * @param  string $format [optional]
+     *
+     * @return string
      */
     public function getHistoryStartTick($format = 'Y-m-d H:i:s') {
         return '0';
@@ -51,7 +55,11 @@ abstract class AbstractSynthesizer extends CObject implements ISynthesizer {
 
 
     /**
+     * {@inheritdoc}
      *
+     * @param  string $format [optional]
+     *
+     * @return string
      */
     public function getHistoryStartM1($format = 'Y-m-d H:i:s') {
         return '0';
@@ -66,15 +74,16 @@ abstract class AbstractSynthesizer extends CObject implements ISynthesizer {
      *                       period is returned.
      *
      * @return array - An empty array if history for the specified bar period and time is not available. Otherwise a
-     *                 timeseries array with each element describing a single price bar as follows:
+     *                 timeseries array with each element describing a single price bar.
+     * @example
      * <pre>
      * Array(
-     *     'time'  => (int),            // bar open time in FXT
-     *     'open'  => (float),          // open value in real terms
-     *     'high'  => (float),          // high value in real terms
-     *     'low'   => (float),          // low value in real terms
-     *     'close' => (float),          // close value in real terms
-     *     'ticks' => (int),            // volume (if available) or number of synthetic ticks
+     *     'time'  => (int),      // bar open time in FXT
+     *     'open'  => (float),    // open value in real terms
+     *     'high'  => (float),    // high value in real terms
+     *     'low'   => (float),    // low value in real terms
+     *     'close' => (float),    // close value in real terms
+     *     'ticks' => (int),      // volume (if available) or number of synthetic ticks
      * )
      * </pre>
      */

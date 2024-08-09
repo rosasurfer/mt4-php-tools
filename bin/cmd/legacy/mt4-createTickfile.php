@@ -21,7 +21,7 @@ use function rosasurfer\ministruts\strStartsWith;
 use function rosasurfer\ministruts\strStartsWithI;
 use function rosasurfer\ministruts\strToTimestamp;
 
-require(dirname(realpath(__FILE__)).'/../../../app/init.php');
+require(__DIR__.'/../../../app/init.php');
 date_default_timezone_set('GMT');
 
 

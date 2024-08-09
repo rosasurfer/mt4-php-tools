@@ -69,7 +69,7 @@ use const rosasurfer\ministruts\DAY;
 use const rosasurfer\ministruts\HOUR;
 use const rosasurfer\ministruts\NL;
 
-require(dirname(realpath(__FILE__)).'/../../../app/init.php');
+require(__DIR__.'/../../../app/init.php');
 date_default_timezone_set('GMT');
 
 
@@ -468,15 +468,16 @@ function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=f
 /**
  * Laedt die in einem komprimierten Dukascopy-Tickfile enthaltenen Ticks.
  *
+ * @param  string  $file
+ * @param  string  $symbol
+ * @param  int     $gmtHour
+ * @param  int     $fxtHour
+ *
  * @return array - Array mit Tickdaten
  */
-function loadCompressedDukascopyTickFile($file, $symbol, $gmtHour, $fxtHour) {
-    Assert::string($file, '$file');
-    Assert::int($fxtHour, '$fxtHour');
-
+function loadCompressedDukascopyTickFile(string $file, string $symbol, int $gmtHour, int $fxtHour) {
     global $verbose;
     if ($verbose > 0) echof('[Info]    '.gmdate('D, d-M-Y H:i', $fxtHour).'  Dukascopy compressed tick file: '.RT::relativePath($file));
-
     return loadCompressedDukascopyTickData(file_get_contents($file), $symbol, $gmtHour, $fxtHour);
 }
 
@@ -484,47 +485,51 @@ function loadCompressedDukascopyTickFile($file, $symbol, $gmtHour, $fxtHour) {
 /**
  * Laedt die in einem komprimierten String enthaltenen Dukascopy-Tickdaten.
  *
+ * @param  string $data
+ * @param  string $symbol
+ * @param  int    $gmtHour
+ * @param  int    $fxtHour
+ *
  * @return array - Array mit Tickdaten
  */
-function loadCompressedDukascopyTickData($data, $symbol, $gmtHour, $fxtHour) {
-    Assert::int($gmtHour, '$gmtHour');
-
+function loadCompressedDukascopyTickData(string $data, string $symbol, int $gmtHour, int $fxtHour) {
     global $saveRawDukascopyFiles;
     $saveAs = $saveRawDukascopyFiles ? getVar('dukaFile.raw', $symbol, $gmtHour) : null;
 
     /** @var Dukascopy $dukascopy */
     $dukascopy = Application::getDi()[Dukascopy::class];
     $rawData = $dukascopy->decompressData($data, $saveAs);
-    return loadRawDukascopyTickData($rawData, $symbol, $gmtHour, $fxtHour);
+    return loadRawDukascopyTickData($rawData, $gmtHour, $fxtHour);
 }
 
 
 /**
  * Laedt die in einem unkomprimierten Dukascopy-Tickfile enthaltenen Ticks.
  *
+ * @param  string $file
+ * @param  string $symbol
+ * @param  int    $gmtHour
+ * @param  int    $fxtHour
+ *
  * @return array - Array mit Tickdaten
  */
-function loadRawDukascopyTickFile($file, $symbol, $gmtHour, $fxtHour) {
-    Assert::string($file, '$file');
-    Assert::int($fxtHour, '$fxtHour');
-
+function loadRawDukascopyTickFile(string $file, string $symbol, int $gmtHour, int $fxtHour) {
     global $verbose;
     if ($verbose > 0) echof('[Info]    '.gmdate('D, d-M-Y H:i', $fxtHour).'  Dukascopy uncompressed tick file: '.RT::relativePath($file));
-
-    return loadRawDukascopyTickData(file_get_contents($file), $symbol, $gmtHour, $fxtHour);
+    return loadRawDukascopyTickData(file_get_contents($file), $gmtHour, $fxtHour);
 }
 
 
 /**
  * Laedt die in einem unkomprimierten String enthaltenen Dukascopy-Tickdaten.
  *
+ * @param  string $data
+ * @param  int    $gmtHour
+ * @param  int    $fxtHour
+ *
  * @return array - Array mit Tickdaten
  */
-function loadRawDukascopyTickData($data, $symbol, $gmtHour, $fxtHour) {
-    Assert::string($data, '$data');
-    Assert::int($gmtHour, '$gmtHour');
-    Assert::int($fxtHour, '$fxtHour');
-
+function loadRawDukascopyTickData(string $data, int $gmtHour, int $fxtHour) {
     // Ticks einlesen
     $ticks = Dukascopy::readTickData($data);
 
@@ -536,7 +541,8 @@ function loadRawDukascopyTickData($data, $symbol, $gmtHour, $fxtHour) {
         $tick['time_gmt']    = $gmtHour + $sec;
         $tick['time_fxt']    = $fxtHour + $sec;
         $tick['time_millis'] = $millis;
-    }; unset($tick);
+    };
+    unset($tick);
     return $ticks;
 }
 

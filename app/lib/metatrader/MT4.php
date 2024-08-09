@@ -41,54 +41,38 @@ use const rosasurfer\rt\TRADE_DIRECTIONS_SHORT;
  */
 class MT4 extends StaticClass {
 
-    /**
-     * Struct-Size des FXT-Headers (Tester-Tickdateien "*.fxt")
-     */
+    /** @var int - Struct-Size des FXT-Headers (Tester-Tickdateien "*.fxt") */
     const FXT_HEADER_SIZE = 728;
 
-    /**
-     * Struct-Size einer History-Bar Version 400 (History-Dateien "*.hst")
-     */
+    /** @var int - Struct-Size einer History-Bar Version 400 (History-Dateien "*.hst") */
     const HISTORY_BAR_400_SIZE = 44;
 
-    /**
-     * Struct-Size einer History-Bar Version 401 (History-Dateien "*.hst")
-     */
+    /** @var int - Struct-Size einer History-Bar Version 401 (History-Dateien "*.hst") */
     const HISTORY_BAR_401_SIZE = 60;
 
-    /**
-     * Struct-Size eine Symbolgruppe (Symbolgruppendatei "symgroups.raw")
-     */
+    /** @var int - Struct-Size eine Symbolgruppe (Symbolgruppendatei "symgroups.raw") */
     const SYMBOL_GROUP_SIZE = 80;
 
-    /**
-     * Struct-Size eines SelectedSymbol (Symboldatei "symbols.sel")
-     */
+    /** @var int - Struct-Size eines SelectedSymbol (Symboldatei "symbols.sel") */
     const SYMBOL_SELECTED_SIZE = 128;
 
-    /**
-     * Hoechstlaenge eines MetaTrader-Symbols
-     */
+    /** @var int - Hoechstlaenge eines MetaTrader-Symbols */
     const MAX_SYMBOL_LENGTH = 11;
 
-    /**
-     * Hoechstlaenge eines MetaTrader-Orderkommentars
-     */
+    /** @var int - Hoechstlaenge eines MetaTrader-Orderkommentars */
     const MAX_ORDER_COMMENT_LENGTH = 27;
 
 
-    /**
-     * MetaTrader Standard-Timeframes
-     */
+    /** @var int[] - MetaTrader Standard-Timeframes */
     public static $timeframes = [PERIOD_M1, PERIOD_M5, PERIOD_M15, PERIOD_M30, PERIOD_H1, PERIOD_H4, PERIOD_D1, PERIOD_W1, PERIOD_MN1];
 
 
     /**
-     * History-Bar v400
+     * @var int[] - History-Bar v400
      *
      * @see  https://github.com/rosasurfer/mt4-expander/blob/master/header/struct/mt4/HistoryBar400.h
      */
-    protected static $tpl_HistoryBar400 = [
+    protected static array $tpl_HistoryBar400 = [
         'time'  => 0,
         'open'  => 0,
         'high'  => 0,
@@ -98,11 +82,11 @@ class MT4 extends StaticClass {
     ];
 
     /**
-     * History-Bar v401
+     * @var int[] - History-Bar v401
      *
      * @see  https://github.com/rosasurfer/mt4-expander/blob/master/header/struct/mt4/HistoryBar401.h
      */
-    protected static $tpl_HistoryBar401 = [
+    protected static array $tpl_HistoryBar401 = [
         'time'   => 0,
         'open'   => 0,
         'high'   => 0,
@@ -115,12 +99,12 @@ class MT4 extends StaticClass {
 
 
     /**
-     * Formatbeschreibung eines struct HISTORY_BAR_400.
+     *  @var string - Formatbeschreibung eines struct HISTORY_BAR_400.
      *
      * @see  https://github.com/rosasurfer/mt4-expander/blob/master/header/struct/mt4/HistoryBar400.h
      * @see  MT4::BAR_getUnpackFormat() zum Verwenden als unpack()-Formatstring
      */
-    protected static $BAR_400_formatStr = '
+    protected static string $BAR_400_formatStr = '
         /V   time            // uint
         /d   open            // double
         /d   low             // double
@@ -131,12 +115,12 @@ class MT4 extends StaticClass {
 
 
     /**
-     * Formatbeschreibung eines struct HISTORY_BAR_401.
+     * @var string - Formatbeschreibung eines struct HISTORY_BAR_401.
      *
      * @see  https://github.com/rosasurfer/mt4-expander/blob/master/header/struct/mt4/HistoryBar401.h
      * @see  MT4::BAR_getUnpackFormat() zum Verwenden als unpack()-Formatstring
      */
-    protected static $BAR_401_formatStr = '
+    protected static string $BAR_401_formatStr = '
         /V   time            // uint (int64)
         /x4
         /d   open            // double
@@ -291,11 +275,14 @@ class MT4 extends StaticClass {
     /**
      * Ob ein String ein gueltiges MetaTrader-Symbol darstellt. Insbesondere darf ein Symbol keine Leerzeichen enthalten.
      *
+     * @param string $string
+     *
      * @return bool
      */
-    public static function isValidSymbol($string) {
+    public static function isValidSymbol(string $string): bool {
         static $pattern = '/^[a-z0-9_.#&\'~-]+$/i';
-        return is_string($string) && strlen($string) && strlen($string) <= self::MAX_SYMBOL_LENGTH && preg_match($pattern, $string);
+        $len = strlen($string);
+        return ($len > 0 && $len <= self::MAX_SYMBOL_LENGTH && preg_match($pattern, $string));
     }
 
 

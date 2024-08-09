@@ -25,7 +25,6 @@ use rosasurfer\rt\model\RosaSymbol;
 use rosasurfer\rt\model\Test;
 
 use function rosasurfer\ministruts\echof;
-use function rosasurfer\ministruts\false;
 use function rosasurfer\ministruts\isLittleEndian;
 use function rosasurfer\ministruts\strCompareI;
 
@@ -37,7 +36,7 @@ use const rosasurfer\ministruts\HOURS;
 use const rosasurfer\ministruts\MINUTE;
 use const rosasurfer\ministruts\MINUTES;
 
-require(dirname(realpath(__FILE__)).'/../../../app/init.php');
+require(__DIR__.'/../../../app/init.php');
 
 
 // --- Configuration --------------------------------------------------------------------------------------------------------

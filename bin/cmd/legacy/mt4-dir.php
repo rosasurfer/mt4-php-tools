@@ -28,7 +28,7 @@ use function rosasurfer\rt\periodDescription;
 
 use const rosasurfer\ministruts\NL;
 
-require(dirname(realpath(__FILE__)).'/../../../app/init.php');
+require(__DIR__.'/../../../app/init.php');
 
 
 // -- Start -----------------------------------------------------------------------------------------------------------------
@@ -121,7 +121,7 @@ foreach ($expandedArgs as $fileName) {
 
     $hFile = fopen($fileName, 'rb');
     try {
-        $header = new HistoryHeader(fread($hFile, HistoryHeader::SIZE));
+        $header = HistoryHeader::fromStruct(fread($hFile, HistoryHeader::SIZE));
 
         // Daten zwischenspeichern
         $formats      [] =            $header->getFormat();

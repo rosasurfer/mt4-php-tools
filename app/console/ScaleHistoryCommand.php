@@ -162,7 +162,7 @@ DOCOPT;
         if ($fileSize < HistoryHeader::SIZE) return $error(1, 'error: invalid or unknown file format (file size < min. size of '.HistoryHeader::SIZE.')');
         $hFile = fopen($file, 'r+b');
         try {
-            $header = new HistoryHeader(fread($hFile, HistoryHeader::SIZE));
+            $header = HistoryHeader::fromStruct(fread($hFile, HistoryHeader::SIZE));
         }
         catch (MetaTraderException $ex) {
             if (strStartsWith($ex->getMessage(), 'version.unsupported')) return $error(1, 'error: unsupported history format in "'.$file.'"');

@@ -9,7 +9,7 @@ use rosasurfer\ministruts\Application;
 use rosasurfer\rt\console\DukascopyHistoryStartCommand;
 
 /** @var Application $app */
-$app = require(dirname(realpath(__FILE__)).'/../../app/init.php');
+$app = require(__DIR__.'/../../app/init.php');
 
 $app->addCommand(new DukascopyHistoryStartCommand());
 $status = $app->run();
