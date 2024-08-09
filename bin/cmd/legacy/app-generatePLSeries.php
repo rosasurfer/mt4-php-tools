@@ -76,7 +76,10 @@ $trades = $test->getTrades();
 $deals = [];
 $symbol = null;
 foreach ($trades as $trade) {                                           // atm: error out on mixed symbols
-    $symbol && $symbol!=$trade->getSymbol() && exit(1|echof('[Error]   Mixed trade histories are not yet supported (found trades in '.$symbol.' and '.$trade->getSymbol().').'));
+    if ($symbol && $symbol!=$trade->getSymbol()) {
+        echof('[Error]   Mixed trade histories are not yet supported (found trades in '.$symbol.' and '.$trade->getSymbol().').');
+        exit(1);
+    }
     $symbol = $trade->getSymbol();
 
     // separate trades into deals
@@ -109,12 +112,18 @@ $deals = array_values($deals);
 $firstDeal = reset($deals);
 if      (is_file(getVar('rtFile.compressed', $symbol, $firstDeal->time))) {}
 else if (is_file(getVar('rtFile.raw'       , $symbol, $firstDeal->time))) {}
-else     exit(1|echof('[Error]   '.$symbol.'  Rosatrader price history for '.gmdate('D, d-M-Y', $firstDeal->time).' not found'));
+else {
+    echof('[Error]   '.$symbol.'  Rosatrader price history for '.gmdate('D, d-M-Y', $firstDeal->time).' not found');
+    exit(1);
+}
 
 $lastDeal = end($deals);
 if      (is_file(getVar('rtFile.compressed', $symbol, $lastDeal->time))) {}
 else if (is_file(getVar('rtFile.raw'       , $symbol, $lastDeal->time))) {}
-else     exit(1|echof('[Error]   '.$symbol.'  Rosatrader price history for '.gmdate('D, d-M-Y', $lastDeal->time).' not found'));
+else {
+    echof('[Error]   '.$symbol.'  Rosatrader price history for '.gmdate('D, d-M-Y', $lastDeal->time).' not found');
+    exit(1);
+}
 echof('[Info]    Processing '.sizeof($trades).' trades of test '.$test->getReportingSymbol().' ('.gmdate('d.m.Y', $firstDeal->time).' - '.gmdate('d.m.Y', $lastDeal->time).')');
 
 // calculate total position and price at each deal time
@@ -159,7 +168,10 @@ for ($day=$firstDealDay; $day <= $lastDealDay; $day+=1*DAY) {
 
     if      (is_file($file=getVar('rtFile.compressed', $symbol, $day))) {}
     else if (is_file($file=getVar('rtFile.raw'       , $symbol, $day))) {}
-    else exit(1|echof('[Error]   '.$symbol.'  Rosatrader price history for '.$shortDate.' not found'));
+    else {
+        echof('[Error]   '.$symbol.'  Rosatrader price history for '.$shortDate.' not found');
+        exit(1);
+    }
 
     $bars    = Rost::readBarFile($file, $symbol);
     $partial = false;
@@ -274,8 +286,10 @@ function saveBars($symbol, $day, array $bars, $partial = false) {
 
     // write binary data
     if ($saveRawRTData) {
-        if (is_file($file=getVar('rtFile.pl.raw', $symbol, $day)))
-            return false(echof('[Error]   PL series '.$symbol.' for '.gmdate('D, d-M-Y', $day).' already exists'));
+        if (is_file($file=getVar('rtFile.pl.raw', $symbol, $day))) {
+            echof('[Error]   PL series '.$symbol.' for '.gmdate('D, d-M-Y', $day).' already exists');
+            return false;
+        }
         FS::mkDir(dirname($file));
         $tmpFile = tempnam(dirname($file), basename($file));    // make sure an existing file can't be corrupt
         file_put_contents($tmpFile, $data);
@@ -305,7 +319,8 @@ function getVar($id, $symbol=null, $time=null) {
     Assert::nullOrInt($time, '$time');
 
     $self = __FUNCTION__;
-    static $storageDir; !$storageDir && $storageDir = Application::getConfig()['app.dir.data'];
+    static $storageDir;
+    $storageDir ??= Application::getDi()['config']['app.dir.data'];
 
     if ($id == 'rtDirDate') {                   // $yyyy/$mm/$dd                                                // local path date
         if (!$time) throw new InvalidValueException('Invalid parameter $time: '.$time);
@@ -338,9 +353,11 @@ function getVar($id, $symbol=null, $time=null) {
     }
 
     $varCache[$key] = $result;
-    (sizeof($varCache) > ($maxEntries=2048)) && echof('cache limit of '.$maxEntries.' entries hit')           // ~200KB
-                                               |echof('memory used: '.strlen(serialize($varCache)).' bytes')
-                                               |exit(1);
+    if (sizeof($varCache) > ($maxEntries=2048)) {
+        echof('cache limit of '.$maxEntries.' entries hit');                                                    // ~200KB
+        echof('memory used: '.strlen(serialize($varCache)).' bytes');
+        exit(1);
+    }
     return $result;
 }
 

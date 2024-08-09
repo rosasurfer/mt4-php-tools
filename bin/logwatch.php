@@ -11,7 +11,7 @@ namespace rosasurfer\rt\bin\logwatch;
 
 use rosasurfer\ministruts\Application;
 use rosasurfer\ministruts\core\assert\Assert;
-use rosasurfer\ministruts\net\mail\Mailer;
+use rosasurfer\ministruts\util\PHPMailer;
 use rosasurfer\ministruts\util\PHP;
 
 use function rosasurfer\ministruts\echof;
@@ -115,7 +115,7 @@ function processEntry($entry) {
     $entry = trim($entry);
     if (!strlen($entry)) return;
 
-    $config = Application::getConfig();
+    $config = Application::getDi()['config'];
     $receivers = [];
 
     foreach (explode(',', $config->get('log.mail.receiver', '')) as $receiver) {
@@ -139,7 +139,7 @@ function processEntry($entry) {
             $sender  = $config->get('mail.profile.'.$name.'.from', null);
             $headers = $config->get('mail.profile.'.$name.'.headers', []);
         }
-        $mailer = Mailer::create($options);
+        $mailer = new PHPMailer($options);
     }
 
     global $quiet;

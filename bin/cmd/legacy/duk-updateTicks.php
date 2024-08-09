@@ -405,7 +405,7 @@ function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=f
     if (!$quiet && $verbose > 1) echof('[Info]    '.$shortDate.'  downloading: '.$url);
 
     // Standard-Browser simulieren
-    $userAgent = Application::getConfig()['rt.http.useragent'];
+    $userAgent = Application::getDi()['config']['rt.http.useragent'];
     $request = (new HttpRequest($url))
                ->setHeader('User-Agent'     , $userAgent                                                       )
                ->setHeader('Accept'         , 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
@@ -564,7 +564,7 @@ function getVar($id, $symbol=null, $time=null) {
     Assert::nullOrInt($time, '$time');
 
     static $storageDir;
-    $storageDir = $storageDir ?: Application::getConfig()['app.dir.data'];
+    $storageDir = $storageDir ?? Application::getDi()['config']['app.dir.data'];
     $self = __FUNCTION__;
 
     if ($id == 'rtDirDate') {                   // $yyyy/$mmL/$dd                                               // lokales Pfad-Datum

@@ -36,7 +36,7 @@ $verbose = 0;                                                                   
 // --- Start ----------------------------------------------------------------------------------------------------------------
 
 
-// (1) read and validate command line arguments
+// read and validate command line arguments
 /** @var string[] $args */
 $args = array_slice($_SERVER['argv'], 1);
 
@@ -50,7 +50,7 @@ if (!$args) {
     exit(1);
 }
 
-// (1.1) remaining arguments must be files
+// remaining arguments must be files
 $files = [];
 foreach ($args as $arg) {
     $value = $arg;
@@ -79,7 +79,7 @@ foreach ($args as $arg) {
     }
 }
 
-// (1.1) check existence of both a test's .ini and .log file
+// check existence of both a test's .ini and .log file
 foreach ($files as $name => &$path) {
     if (is_file($file=$path.DIRECTORY_SEPARATOR.$name.'.ini') && is_file($file=$path.DIRECTORY_SEPARATOR.$name.'.log')) {
         $path .= DIRECTORY_SEPARATOR.$name;
@@ -88,11 +88,14 @@ foreach ($files as $name => &$path) {
         echof('missing file "'.$file.'" (skipping test)');
         unset($files[$name]);
     }
-}; unset($path);
-!$files && exit(1|echof('error: no test result files found'));
+};
+unset($path);
+if (!$files) {
+    echof('error: no test result files found');
+    exit(1);
+}
 
-
-// (2) process the files
+// process the files
 processTestFiles($files) || exit(1);
 
 exit(0);

@@ -80,7 +80,10 @@ foreach ($args as $arg) {
         if (is_file($entry)) $expandedArgs[] = $entry;
     }
 }
-!$expandedArgs && exit(1|echof('no history files found'));
+if (!$expandedArgs) {
+    echof('no history files found');
+    exit(1);
+}
 sort($expandedArgs);                                              // alles sortieren (Dateien im aktuellen Verzeichnis ans Ende)
 
 // gefundene Dateien verzeichnisweise verarbeiten

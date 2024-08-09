@@ -58,25 +58,35 @@ if (sizeof($args) < 2) {
 $sTime = $arg = array_shift($args);
 
 if (strIsQuoted($sTime)) $sTime = trim(strLeft(strRight($sTime, -1), -1));
-!strToTimestamp($sTime, ['Y-m-d', 'Y-m-d H:i', 'Y-m-d H:i:s']) && exit(1|echof('invalid argument datetime = '.$arg));
+if (!strToTimestamp($sTime, ['Y-m-d', 'Y-m-d H:i', 'Y-m-d H:i:s'])) {
+    echof('invalid argument datetime = '.$arg);
+    exit(1);
+}
 $datetime = strtotime($sTime.' GMT');
 
 // Das verbleibende zweite Argument muss ein History-File sein.
 $fileName = array_shift($args);
-!is_file($fileName) && exit(1|echof('file not found "'.$fileName.'"'));
+if (!is_file($fileName)) {
+    echof('file not found "'.$fileName.'"');
+    exit(1);
+}
 
-
-// (2) Datei oeffnen und Header auslesen
+// Datei oeffnen und Header auslesen
 $fileSize = filesize($fileName);
-($fileSize < HistoryHeader::SIZE) && exit(1|echof('invalid or unknown history file format: file size of "'.$fileName.'" < MinFileSize ('.HistoryHeader::SIZE.')'));
+if ($fileSize < HistoryHeader::SIZE) {
+    echof('invalid or unknown history file format: file size of "'.$fileName.'" < MinFileSize ('.HistoryHeader::SIZE.')');
+    exit(1);
+}
 $hFile  = fopen($fileName, 'rb');
 $header = null;
 try {
     $header = new HistoryHeader(fread($hFile, HistoryHeader::SIZE));
 }
 catch (MetaTraderException $ex) {
-    if (strStartsWith($ex->getMessage(), 'version.unsupported'))
-        exit(1|echof('unsupported history format in "'.$fileName.'": '.$ex->getMessage()));
+    if (strStartsWith($ex->getMessage(), 'version.unsupported')) {
+        echof('unsupported history format in "'.$fileName.'": '.$ex->getMessage());
+        exit(1);
+    }
     throw $ex;
 }
 
@@ -84,7 +94,7 @@ if ($header->getFormat() == 400) { $barSize = MT4::HISTORY_BAR_400_SIZE; $barFor
 else                      /*401*/{ $barSize = MT4::HISTORY_BAR_401_SIZE; $barFormat = 'Vtime/x4/dopen/dhigh/dlow/dclose/Vticks/x4/lspread/Vvolume/x4'; }
 
 
-// (3) Anzahl der Bars bestimmen und Beginn- und Endbar auslesen
+// Anzahl der Bars bestimmen und Beginn- und Endbar auslesen
 $i = 0;
 $bars = ($fileSize-HistoryHeader::SIZE)/$barSize;
 if (!is_int($bars)) {
@@ -105,7 +115,7 @@ else {
 }
 
 
-// (4) Zeitfenster von Beginn- und Endbar rekursiv bis zum gesuchten Zeitpunkt verkleinern
+// Zeitfenster von Beginn- und Endbar rekursiv bis zum gesuchten Zeitpunkt verkleinern
 while ($i != -1) {
     if ($barFrom['time'] >= $datetime) {
         $i = $iFrom;
@@ -130,7 +140,7 @@ while ($i != -1) {
 }
 
 
-// (5) Ergebnis ausgeben
+// Ergebnis ausgeben
 if ($i>=0 && $byteOffset) $result = HistoryHeader::SIZE + $i*$barSize;
 else                      $result = $i;
 
