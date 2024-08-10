@@ -17,7 +17,7 @@ class HttpRequest extends \rosasurfer\ministruts\net\http\HttpRequest {
      *
      * Create a new HTTP request for a Dukascopy web resource.
      *
-     * @param  string $url [optional] - url (default: none)
+     * @param  ?string $url [optional] - url (default: none)
      */
     public function __construct($url = null) {
         parent::__construct($url);

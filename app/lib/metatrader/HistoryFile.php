@@ -864,7 +864,7 @@ class HistoryFile extends CObject {
      *                                    the beginning (the oldest bar). If offset is negative then replacing starts that
      *                                    far from the end (the youngest bar). <br>
      *
-     * @param  int   $length [optional] - Number of bars to replace. If length is omitted everything from offset to the end
+     * @param  ?int  $length [optional] - Number of bars to replace. If length is omitted everything from offset to the end
      *                                    of the history (the youngest bar) is replaced. If length is specified and is
      *                                    positive then that many bars starting from offset will be replaced. If length is
      *                                    specified and is negative then all bars starting from offset will be replaced

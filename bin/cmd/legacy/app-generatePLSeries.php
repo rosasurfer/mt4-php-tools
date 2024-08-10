@@ -302,9 +302,9 @@ function saveBars($symbol, $day, array $bars, $partial = false) {
  * Resolve and manage frequently used dynamic variables in a central place. Resolved variables are cached and don't need to
  * get passed countless times through deep function graphs.
  *
- * @param  string $id                - unique variable identifier
- * @param  string $symbol [optional] - symbol (default: NULL)
- * @param  int    $time   [optional] - timestamp (default: NULL)
+ * @param  string  $id                - unique variable identifier
+ * @param  ?string $symbol [optional] - symbol (default: NULL)
+ * @param  ?int    $time   [optional] - timestamp (default: NULL)
  *
  * @return string - resolved variable
  */

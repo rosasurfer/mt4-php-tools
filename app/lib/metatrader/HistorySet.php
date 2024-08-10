@@ -201,8 +201,8 @@ class HistorySet extends CObject {
      * @param  string $symbol          - Symbol der Historydateien
      * @param  string $serverDirectory - Serververzeichnis, in dem die Historydateien gespeichert sind
      *
-     * @return self|null - Instanz oder NULL, wenn keine entsprechenden Historydateien gefunden wurden oder die
-     *                     gefundenen Dateien korrupt sind.
+     * @return ?self - Instanz oder NULL, wenn keine entsprechenden Historydateien gefunden wurden oder die
+     *                 gefundenen Dateien korrupt sind.
      */
     public static function open($symbol, $serverDirectory) {
         Assert::string($symbol, '$symbol');

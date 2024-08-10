@@ -35,6 +35,10 @@ parameters:
     - rosasurfer\ministruts\WINDOWS
     - rosasurfer\ministruts\NUL_DEVICE
 
+  typeAliases:
+    POINT_BAR: 'array{time:int, open:int,   high:int,   low:int,   close:int,   ticks:int}'
+    PRICE_BAR: 'array{time:int, open:float, high:float, low:float, close:float, ticks:int}'
+
   ignoreErrors:
     # tmp. fix until we have a new PHPStan extension 
     - '#^Method rosasurfer\\rt\\model\\[a-zA-Z]+DAO::(find|get)By[a-zA-Z]+\(\) should return rosasurfer\\rt\\model\\[a-zA-Z]+(\|null)? but returns rosasurfer\\ministruts\\db\\orm\\PersistableObject(\|null)?\.$#'

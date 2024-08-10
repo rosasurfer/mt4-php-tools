@@ -35,8 +35,7 @@ class HttpClient extends CurlHttpClient {
      *
      * Create a new instance.
      *
-     * @param  array $options [optional] - additional options
-     *                                     (default: none)
+     * @param  array $options [optional] - additional options (default: none)
      */
     public function __construct(array $options = []) {
         $options[CURLOPT_SSL_VERIFYPEER] = false;               // suppress SSL certificate validation errors
@@ -48,7 +47,7 @@ class HttpClient extends CurlHttpClient {
     /**
      * Download history start data for the specified symbol.
      *
-     * @param  string $symbol [optional] - symbol (default: download data for all symbols)
+     * @param  ?string $symbol [optional] - symbol (default: download data for all symbols)
      *
      * @return string - binary history start data or an empty string in case of errors
      */

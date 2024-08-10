@@ -22,7 +22,7 @@ class MetaTrader extends CObject {
      *
      * @param  RosaSymbol $symbol
      * @param  int        $format    [optional] - history format: 400 | 401 (default: 400)
-     * @param  string     $directory [optional] - history location (default: the configured default server directory)
+     * @param  ?string    $directory [optional] - history location (default: the configured default server directory)
      *
      * @return HistorySet
      *

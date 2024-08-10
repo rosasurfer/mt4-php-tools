@@ -494,7 +494,7 @@ class MT4 extends StaticClass {
      *
      * @param  int $id - bar model id
      *
-     * @return string|null - description or NULL if the parameter is not a valid bar model id
+     * @return ?string - description or NULL if the parameter is not a valid bar model id
      */
     public static function barModelDescription($id) {
         $id = static::strToBarModel($id);
@@ -514,7 +514,7 @@ class MT4 extends StaticClass {
      *
      * @param  int $id - direction id
      *
-     * @return string|null - description or NULL if the parameter is not a valid trade direction id
+     * @return ?string - description or NULL if the parameter is not a valid trade direction id
      */
     public static function tradeDirectionDescription($id) {
         $id = static::strToTradeDirection($id);

@@ -78,7 +78,7 @@ class TestDAO extends DAO {
      *
      * @param  string $symbol - reporting symbol
      *
-     * @return Test|null - Test instance or NULL if no such instance exists
+     * @return ?Test - Test instance or NULL if no such instance exists
      */
     public function findByReportingSymbol($symbol) {
         Assert::string($symbol);

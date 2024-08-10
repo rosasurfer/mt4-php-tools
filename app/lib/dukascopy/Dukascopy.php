@@ -78,9 +78,9 @@ class Dukascopy extends CObject {
     /**
      * Decompress a compressed Dukascopy data file and return its content.
      *
-     * @param  string $compressedFile    - name of the compressed data file
-     * @param  string $saveAs [optional] - if specified the decompressed file is stored in a file with the given name
-     *                                     (default: no additional storage)
+     * @param  string  $compressedFile    - name of the compressed data file
+     * @param  ?string $saveAs [optional] - if specified the decompressed file is stored in a file with the given name
+     *                                      (default: no additional storage)
      *
      * @return string - decompressed file content
      */
@@ -93,9 +93,9 @@ class Dukascopy extends CObject {
     /**
      * Decompress a compressed Dukascopy data string and return it.
      *
-     * @param  string $data              - compressed string with bars or ticks
-     * @param  string $saveAs [optional] - if specified the decompressed data is stored in a file with the given name
-     *                                     (default: no additional storage)
+     * @param  string  $data              - compressed string with bars or ticks
+     * @param  ?string $saveAs [optional] - if specified the decompressed data is stored in a file with the given name
+     *                                      (default: no additional storage)
      *
      * @return string - decompressed data
      */
@@ -711,7 +711,7 @@ class Dukascopy extends CObject {
      *
      * @param  string $data              - binary data
      * @param  int    $offset [optional] - string offset to start     (default: 0)
-     * @param  int    $count  [optional] - number of records to parse (default: until the end of the string)
+     * @param  ?int   $count  [optional] - number of records to parse (default: until the end of the string)
      *
      * @return array - array with variable number of elements each describing history start of a single timeframe
      *                 as follows:

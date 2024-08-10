@@ -112,7 +112,7 @@ const DUKASCOPY_TICK_SIZE = 20;
  * Convert a Unix timestamp (seconds since 1970-01-01 00:00 GMT) to an FXT timestamp (seconds since 1970-01-01 00:00 FXT).
  * Without a parameter the function returns the current FXT timestamp.
  *
- * @param  int|float $unixTime [optional] - timestamp with support for microseconds (default: the current time)
+ * @param  int|float|null $unixTime [optional] - timestamp with support for microseconds (default: the current time)
  *
  * @return int|float - FXT timestamp
  */
@@ -142,8 +142,7 @@ function fxTime($unixTime = null) {
  * Convert an FXT timestamp (seconds since 1970-01-01 00:00 FXT) to a Unix timestamp (seconds since 1970-01-01 00:00 GMT).
  * Without a parameter the function returns the current Unix timestamp (as the PHP function <tt>time()</tt>).
  *
- * @param  int|float $fxTime [optional] - timestamp with support for microseconds
- *                                        (default: the current time)
+ * @param  int|float|null $fxTime [optional] - timestamp with support for microseconds (default: the current time)
  * @return int - Unix timestamp
  */
 function unixTime($fxTime = null) {
@@ -168,7 +167,7 @@ function unixTime($fxTime = null) {
  * applied timezone is FXT.
  *
  * @param  string $format           - format as accepted by <tt>date($format, $timestamp)</tt>
- * @param  int    $time  [optional] - timestamp (default: the current time)
+ * @param  ?int   $time  [optional] - timestamp (default: the current time)
  * @param  bool   $isFxt [optional] - whether the timestamp is an FXT timestamp (default: GMT)
  *
  * @return string - formatted string
@@ -194,12 +193,12 @@ function fxDate($format, $time=null, $isFxt=false) {
 /**
  * Return the FXT offset of a GMT time, and optionally the adjacent DST transition data.
  *
- * @param  int   $time           [optional] - GMT time (default: current time)
- * @param  array $prevTransition [optional] - if specified the array is filled with the data of the previous DST transition
- * @param  array $nextTransition [optional] - if specified the array is filled with the data of the next DST transition
+ * @param  ?int   $time           [optional] - GMT time (default: current time)
+ * @param  ?array $prevTransition [optional] - if specified the array is filled with the data of the previous DST transition
+ * @param  ?array $nextTransition [optional] - if specified the array is filled with the data of the next DST transition
  *
- * @return int - Offset in seconds or NULL if parameter $time is not in the range of the timezone information for FXT.  <br>
- *               Offset is always positive, it follows: FXT = GMT + offset                                              <br>
+ * @return ?int - Offset in seconds or NULL if parameter $time is not in the range of the timezone information for FXT. <br>
+ *                Offset is always positive, it follows: FXT = GMT + offset                                             <br>
  *                                                                                                                      <br>
  * <pre>
  * Transition data is returned as follows:
@@ -300,7 +299,7 @@ function fxtStrToTime($time) {
  * Missing equivalent to PHP's built-in function idate() which formats a time in the local timezone.
  *
  * @param  string $format          - single character format as accepted by <tt>idate($format, $time)</tt>
- * @param  int    $time [optional] - timestamp (default: the current time)
+ * @param  ?int   $time [optional] - timestamp (default: the current time)
  *
  * @return int
  */

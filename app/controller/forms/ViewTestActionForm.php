@@ -35,7 +35,7 @@ class ViewTestActionForm extends ActionForm {
     /**
      * Get the {@link \rosasurfer\rt\model\Test} associated with the submitted parameters.
      *
-     * @return Test|null - Test instance or NULL if an associated test was not found
+     * @return ?Test - Test instance or NULL if an associated test was not found
      */
     public function getTest() {
         if (!isset($this->test) && is_int($this->id)) {

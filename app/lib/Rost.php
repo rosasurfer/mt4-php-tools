@@ -248,7 +248,7 @@ class Rost extends StaticClass {
      *
      * @param  int $id - order type id
      *
-     * @return string|null - description or NULL if the parameter is not a valid order type id
+     * @return ?string - description or NULL if the parameter is not a valid order type id
      */
     public static function orderTypeDescription($id) {
         if (is_int($id)) {

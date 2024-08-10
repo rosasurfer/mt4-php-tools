@@ -38,9 +38,16 @@ class CHFLFX extends AbstractSynthesizer {
 
 
     /**
+     * {@inheritdoc}
      *
+     * @param  int $period
+     * @param  int $time
+     *
+     * @return array<PRICE_BAR> - PRICE_BAR array
+     *
+     * @see    \rosasurfer\rt\PRICE_BAR
      */
-    public function calculateHistory($period, $time) {
+    public function calculateHistory(int $period, int $time): array {
         Assert::int($period, '$period');
         if ($period != PERIOD_M1) throw new UnimplementedFeatureException(__METHOD__.'('.periodToStr($period).') not implemented');
         Assert::int($time, '$time');

@@ -13,18 +13,17 @@ use rosasurfer\rt\lib\Rosatrader as RT;
 use rosasurfer\rt\lib\synthetic\GenericSynthesizer;
 use rosasurfer\rt\lib\synthetic\ISynthesizer;
 
+use function rosasurfer\ministruts\first;
+use function rosasurfer\ministruts\is_class;
+use function rosasurfer\ministruts\last;
+use function rosasurfer\ministruts\pluralize;
+use function rosasurfer\ministruts\strLeftTo;
 use function rosasurfer\ministruts\strRight;
 
 use function rosasurfer\rt\fxTime;
 use function rosasurfer\rt\isGoodFriday;
 use function rosasurfer\rt\isHoliday;
 use function rosasurfer\rt\isWeekend;
-
-use function rosasurfer\ministruts\first;
-use function rosasurfer\ministruts\last;
-use function rosasurfer\ministruts\pluralize;
-use function rosasurfer\ministruts\strLeftTo;
-use function rosasurfer\ministruts\is_class;
 
 use const rosasurfer\ministruts\DAY;
 use const rosasurfer\ministruts\HOURS;
@@ -200,36 +199,15 @@ class RosaSymbol extends RosatraderModel {
      * Get the M1 history for a given day.
      *
      * @param  int  $time                 - FXT timestamp
-     * @param  bool $optimized [optional] - returned bar format (see notes)
+     * @param  bool $optimized [optional] - returned bar format (default: PRICE_BAR)
      *
-     * @return array - An empty array if history for the specified time is not available. Otherwise a timeseries array with
-     *                 each element describing a single price bar as follows:
-     *
-     * <pre>
-     * $optimized => FALSE (default):
-     * ------------------------------
-     * Array(
-     *     'time'  => (int),            // bar open time in FXT
-     *     'open'  => (float),          // open value in real terms
-     *     'high'  => (float),          // high value in real terms
-     *     'low'   => (float),          // low value in real terms
-     *     'close' => (float),          // close value in real terms
-     *     'ticks' => (int),            // volume (if available) or number of synthetic ticks
-     * )
-     *
-     * $optimized => TRUE:
-     * -------------------
-     * Array(
-     *     'time'  => (int),            // bar open time in FXT
-     *     'open'  => (int),            // open value in point
-     *     'high'  => (int),            // high value in point
-     *     'low'   => (int),            // low value in point
-     *     'close' => (int),            // close value in point
-     *     'ticks' => (int),            // volume (if available) or number of synthetic ticks
-     * )
-     * </pre>
+     * @return array<PRICE_BAR|POINT_BAR> - timeseries array or an empty array, if the requested history is not available <br>
+     *                                      $optimized = TRUE:  POINT_BAR[]                                               <br>
+     *                                      $optimized = FALSE: PRICE_BAR[] (default)
+     * @see  \rosasurfer\rt\PRICE_BAR
+     * @see  \rosasurfer\rt\POINT_BAR
      */
-    public function getHistoryM1($time, $optimized = false) {
+    public function getHistoryM1(int $time, bool $optimized = false): array {
         $storage = $this->di('config')['app.dir.data'];
         $dir = $storage.'/history/rosatrader/'.$this->type.'/'.$this->name.'/'.gmdate('Y/m/d', $time);
 
