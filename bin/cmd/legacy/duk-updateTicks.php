@@ -49,25 +49,25 @@ use rosasurfer\ministruts\net\http\HttpRequest;
 use rosasurfer\ministruts\net\http\HttpResponse;
 use rosasurfer\ministruts\process\Process;
 
-use rosasurfer\rt\lib\Rosatrader as RT;
-use rosasurfer\rt\lib\dukascopy\Dukascopy;
-use rosasurfer\rt\lib\dukascopy\DukascopyException;
-use rosasurfer\rt\model\DukascopySymbol;
-use rosasurfer\rt\model\RosaSymbol;
-
 use function rosasurfer\ministruts\echof;
 use function rosasurfer\ministruts\print_p;
 use function rosasurfer\ministruts\stderr;
 use function rosasurfer\ministruts\strRight;
 use function rosasurfer\ministruts\strStartsWithI;
 
-use function rosasurfer\rt\fxtStrToTime;
-use function rosasurfer\rt\fxTimezoneOffset;
-use function rosasurfer\rt\isWeekend;
-
 use const rosasurfer\ministruts\DAY;
 use const rosasurfer\ministruts\HOUR;
 use const rosasurfer\ministruts\NL;
+
+use rosasurfer\rt\Rosatrader as RT;
+use rosasurfer\rt\lib\dukascopy\Dukascopy;
+use rosasurfer\rt\lib\dukascopy\DukascopyException;
+use rosasurfer\rt\model\DukascopySymbol;
+use rosasurfer\rt\model\RosaSymbol;
+
+use function rosasurfer\rt\fxtStrToTime;
+use function rosasurfer\rt\fxTimezoneOffset;
+use function rosasurfer\rt\isWeekend;
 
 require(__DIR__.'/../../../app/init.php');
 date_default_timezone_set('GMT');

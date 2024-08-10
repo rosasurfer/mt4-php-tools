@@ -43,9 +43,11 @@ class GenericSynthesizer extends AbstractSynthesizer {
      * @param  int  $time
      * @param  bool $optimized [optional]
      *
-     * @return array
+     * @return array<PRICE_BAR> - PRICE_BAR array
+     *
+     * @see  \rosasurfer\rt\PRICE_BAR
      */
-    public function calculateHistory($period, $time, $optimized = false) {
+    public function calculateHistory(int $period, int $time, bool $optimized = false): array {
         return [];
     }
 }

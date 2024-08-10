@@ -35,14 +35,22 @@ parameters:
     - rosasurfer\ministruts\WINDOWS
     - rosasurfer\ministruts\NUL_DEVICE
 
+
   typeAliases:
     POINT_BAR: 'array{time:int, open:int,   high:int,   low:int,   close:int,   ticks:int}'
     PRICE_BAR: 'array{time:int, open:float, high:float, low:float, close:float, ticks:int}'
 
+
   ignoreErrors:
+    # intentional duplication (documentation in code is better than a definition only here)  
+    - message:    '#^Type alias (POINT|PRICE)_BAR already exists as a global type alias\.$#' 
+      identifier: typeAlias.duplicate
+      path:       ../../app/Rosatrader.php
+
     # tmp. fix until we have a new PHPStan extension 
     - '#^Method rosasurfer\\rt\\model\\[a-zA-Z]+DAO::(find|get)By[a-zA-Z]+\(\) should return rosasurfer\\rt\\model\\[a-zA-Z]+(\|null)? but returns rosasurfer\\ministruts\\db\\orm\\PersistableObject(\|null)?\.$#'
     - '#^Method rosasurfer\\rt\\[a-z]+\\[a-zA-Z]+(DAO|Command)::[a-zA-Z]+\(\) should return array<rosasurfer\\rt\\model\\[a-zA-Z]+> but returns array<rosasurfer\\ministruts\\db\\orm\\PersistableObject>\.$#'
+
 
   reportUnmatchedIgnoredErrors: false
 

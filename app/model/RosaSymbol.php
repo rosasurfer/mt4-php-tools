@@ -8,11 +8,6 @@ use rosasurfer\ministruts\core\di\proxy\Output;
 use rosasurfer\ministruts\core\exception\RuntimeException;
 use rosasurfer\ministruts\process\Process;
 
-use rosasurfer\rt\lib\IHistorySource;
-use rosasurfer\rt\lib\Rosatrader as RT;
-use rosasurfer\rt\lib\synthetic\GenericSynthesizer;
-use rosasurfer\rt\lib\synthetic\ISynthesizer;
-
 use function rosasurfer\ministruts\first;
 use function rosasurfer\ministruts\is_class;
 use function rosasurfer\ministruts\last;
@@ -20,14 +15,19 @@ use function rosasurfer\ministruts\pluralize;
 use function rosasurfer\ministruts\strLeftTo;
 use function rosasurfer\ministruts\strRight;
 
+use const rosasurfer\ministruts\DAY;
+use const rosasurfer\ministruts\HOURS;
+use const rosasurfer\ministruts\MINUTES;
+
+use rosasurfer\rt\Rosatrader as RT;
+use rosasurfer\rt\lib\IHistorySource;
+use rosasurfer\rt\lib\synthetic\GenericSynthesizer;
+use rosasurfer\rt\lib\synthetic\ISynthesizer;
+
 use function rosasurfer\rt\fxTime;
 use function rosasurfer\rt\isGoodFriday;
 use function rosasurfer\rt\isHoliday;
 use function rosasurfer\rt\isWeekend;
-
-use const rosasurfer\ministruts\DAY;
-use const rosasurfer\ministruts\HOURS;
-use const rosasurfer\ministruts\MINUTES;
 
 use const rosasurfer\rt\PERIOD_M1;
 

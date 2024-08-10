@@ -1,14 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace rosasurfer\rt\lib;
+namespace rosasurfer\rt;
 
 use rosasurfer\ministruts\core\StaticClass;
 use rosasurfer\ministruts\core\assert\Assert;
 use rosasurfer\ministruts\core\exception\RuntimeException;
 use rosasurfer\ministruts\file\FileSystem as FS;
-
-use rosasurfer\rt\model\RosaSymbol;
 
 use function rosasurfer\ministruts\echof;
 use function rosasurfer\ministruts\strRightFrom;
@@ -18,11 +16,16 @@ use const rosasurfer\ministruts\DAY;
 use const rosasurfer\ministruts\HOURS;
 use const rosasurfer\ministruts\MINUTES;
 
-use const rosasurfer\rt\PERIOD_D1;
+use rosasurfer\rt\lib\Rost;
+use rosasurfer\rt\model\RosaSymbol;
 
 
 /**
  * Rosatrader related functionality.
+ *
+ *
+ * @phpstan-type  POINT_BAR  array{time:int, open:int,   high:int,   low:int,   close:int,   ticks:int}
+ * @phpstan-type  PRICE_BAR  array{time:int, open:float, high:float, low:float, close:float, ticks:int}
  */
 class Rosatrader extends StaticClass {
 
