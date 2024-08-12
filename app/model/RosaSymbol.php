@@ -198,16 +198,15 @@ class RosaSymbol extends RosatraderModel {
     /**
      * Get the M1 history for a given day.
      *
-     * @param  int  $time                 - FXT timestamp
-     * @param  bool $optimized [optional] - returned bar format (default: PRICE_BAR)
+     * @param  int  $time               - FXT timestamp
+     * @param  bool $compact [optional] - returned bar format (default: more compact POINT_BAR)
      *
-     * @return array<PRICE_BAR|POINT_BAR> - timeseries array or an empty array, if the requested history is not available <br>
-     *                                      $optimized = TRUE:  POINT_BAR[]                                               <br>
-     *                                      $optimized = FALSE: PRICE_BAR[] (default)
-     * @see  \rosasurfer\rt\PRICE_BAR
+     * @return array<$compact ? POINT_BAR : PRICE_BAR> - history or an empty array, if history for the given day is not available
+     *
      * @see  \rosasurfer\rt\POINT_BAR
+     * @see  \rosasurfer\rt\PRICE_BAR
      */
-    public function getHistoryM1(int $time, bool $optimized = false): array {
+    public function getHistoryM1(int $time, bool $compact = true): array {
         $storage = $this->di('config')['app.dir.data'];
         $dir = $storage.'/history/rosatrader/'.$this->type.'/'.$this->name.'/'.gmdate('Y/m/d', $time);
 
@@ -215,8 +214,7 @@ class RosaSymbol extends RosatraderModel {
             return [];
 
         $bars = RT::readBarFile($file, $this);
-        if ($optimized)
-            return $bars;
+        if ($compact) return $bars;
 
         $point = $this->getPointValue();
 

@@ -146,7 +146,7 @@ abstract class AbstractSynthesizer extends CObject implements ISynthesizer {
         $quotes = [];
         foreach ($symbols as $symbol) {
             $name = $symbol->getName();
-            if (!$quotes[$name] = $symbol->getHistoryM1($day)) {
+            if (!$quotes[$name] = $symbol->getHistoryM1($day, false)) {
                 Output::error('[Error]   '.str_pad($this->symbolName, 6).'  required '.$name.' history for '.gmdate('D, d-M-Y', $day).' not available');
                 return [];
             }
