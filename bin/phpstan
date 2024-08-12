@@ -107,12 +107,18 @@ USE_DEFAULT=
 [ "$CMD" = 'analyze' ] && CMD='analyse'
 
 
-# validate config option
+# validate config options
 if [ -n "$CONFIG_OPTION" ]; then
     [ -z "$CONFIG_FILE" ] && { echo "Option $CONFIG_OPTION needs a value"    && exit 1; }
     [ -f "$CONFIG_FILE" ] || { echo "Config file \"$CONFIG_FILE\" not found" && exit 1; }
+else
+   FILES=('phpstan.neon' 'phpstan.neon.dist' 'phpstan.dist.neon')
+   for file in "${FILES[@]}"; do
+       file="$CONFIG_DIR/$file"
+       [ -f "$file" ] && CONFIG_FILE="$file" && break
+   done
+   [ -z "$CONFIG_FILE" ] && { echo "No config file found in \"$CONFIG_DIR\"" && exit 1; }
 fi
-CONFIG_FILE="${CONFIG_FILE:-$CONFIG_DIR/config.neon}"
 [ -n "$IS_WINDOWS_PHP" ] && CONFIG_FILE=$(cygpath -m "$CONFIG_FILE")          # normalize path if running a Windows PHP version
 
 
