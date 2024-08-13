@@ -27,6 +27,8 @@ use const rosasurfer\rt\PERIOD_M1;
  * GBPFXI = pow(USDCAD * USDCHF * USDJPY / ($AUDUSD * EURUSD), 1/6) * GBPUSD
  * GBPFXI = pow(GBPAUD * GBPCAD * GBPCHF * GBPJPY * GBPUSD / EURGBP, 1/6)
  * </pre>
+ *
+ * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\Rosatrader
  */
 class GBPFXI extends AbstractSynthesizer {
 
@@ -45,9 +47,9 @@ class GBPFXI extends AbstractSynthesizer {
      * @param  int $period
      * @param  int $time
      *
-     * @return array<PRICE_BAR> - PRICE_BAR array
+     * @return PRICE_BAR[] - array with history data
      *
-     * @see    \rosasurfer\rt\PRICE_BAR
+     * @see  \rosasurfer\rt\PRICE_BAR
      */
     public function calculateHistory(int $period, int $time): array {
         Assert::int($period, '$period');

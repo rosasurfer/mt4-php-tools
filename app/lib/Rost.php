@@ -362,11 +362,11 @@ class Rost extends StaticClass {
      *
      * @return int - Offset oder -1, wenn der Offset ausserhalb der Arraygrenzen liegt
      */
-    public static function findTimeOffset(array $series, $time) {
-        Assert::int($time, '$time');
-        $size = sizeof($series); if (!$size) return -1;
+    public static function findTimeOffset(array $series, int $time): int {
+        $size = sizeof($series);
+        if (!$size) return -1;
         Assert::isArray($series[0], '$series[0]');
-        if (!isset($series[0]['time']))  throw new InvalidValueException('Invalid parameter $series[0]: '.gettype($series[0].' (no index "time")'));
+        if (!isset($series[0]['time'])) throw new InvalidValueException('Invalid parameter $series[0]: '.gettype($series[0]).' (no index "time")');
         Assert::int($series[0]['time'], '$series[0][time]');
 
         $i     = -1;

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8004149e8735ef028105b10ae0d67186",
+    "content-hash": "c00279b3c877893d0e76c51e6c2c9f29",
     "packages": [
         {
             "name": "psr/container",
@@ -60,12 +60,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/rosasurfer/ministruts.git",
-                "reference": "03d2a71f5c636c7414c2b8ad1cef6aac13003abf"
+                "reference": "e41543fe0ac126d13f17a7234c5ac5564ce1c8fd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/03d2a71f5c636c7414c2b8ad1cef6aac13003abf",
-                "reference": "03d2a71f5c636c7414c2b8ad1cef6aac13003abf",
+                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/e41543fe0ac126d13f17a7234c5ac5564ce1c8fd",
+                "reference": "e41543fe0ac126d13f17a7234c5ac5564ce1c8fd",
                 "shasum": ""
             },
             "require": {
@@ -78,6 +78,10 @@
                 "php": "7.4 - 8",
                 "psr/container": "^1.0"
             },
+            "require-dev": {
+                "phpstan/phpstan": "^1.11",
+                "phpunit/phpunit": "^9.3"
+            },
             "default-branch": true,
             "type": "library",
             "extra": {
@@ -87,11 +91,17 @@
             },
             "autoload": {
                 "psr-4": {
-                    "rosasurfer\\ministruts\\": "src"
+                    "rosasurfer\\ministruts\\": "src",
+                    "rosasurfer\\ministruts\\phpstan\\extension\\": "etc/phpstan/extension"
                 },
                 "files": [
                     "src/load.php"
                 ]
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "rosasurfer\\ministruts\\test\\": "test"
+                }
             },
             "license": [
                 "WTFPL"
@@ -107,7 +117,7 @@
                 "source": "https://github.com/rosasurfer/ministruts/tree/master",
                 "issues": "https://github.com/rosasurfer/ministruts/issues"
             },
-            "time": "2024-08-10T21:51:25+00:00"
+            "time": "2024-08-13T19:54:55+00:00"
         }
     ],
     "packages-dev": [

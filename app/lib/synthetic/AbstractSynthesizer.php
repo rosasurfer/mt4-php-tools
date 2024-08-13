@@ -13,6 +13,8 @@ use const rosasurfer\ministruts\DAY;
 
 /**
  * AbstractSynthesizer
+ *
+ * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\Rosatrader
  */
 abstract class AbstractSynthesizer extends CObject implements ISynthesizer {
 
@@ -73,7 +75,7 @@ abstract class AbstractSynthesizer extends CObject implements ISynthesizer {
      * @param  int $time   - FXT time to return prices for. If 0 (zero) the oldest available history for the requested bar
      *                       period is returned.
      *
-     * @return array<PRICE_BAR> - PRICE_BAR array or an empty array, if the requested history is not available
+     * @return PRICE_BAR[] - history array or an empty array, if the requested history is not available
      *
      * @see  \rosasurfer\rt\PRICE_BAR
      */

@@ -71,4 +71,5 @@ done
 # print execution status
 [ -z "$STATUS" ] && STATUS="OK" || STATUS="error $STATUS"
 echo "Git hooks: $STATUS"
-exit
+
+exit 0

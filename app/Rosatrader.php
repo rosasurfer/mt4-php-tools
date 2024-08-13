@@ -23,9 +23,8 @@ use rosasurfer\rt\model\RosaSymbol;
 /**
  * Rosatrader related functionality.
  *
- *
- * @phpstan-type  POINT_BAR  array{time:int, open:int,   high:int,   low:int,   close:int,   ticks:int}
- * @phpstan-type  PRICE_BAR  array{time:int, open:float, high:float, low:float, close:float, ticks:int}
+ * @phpstan-type  POINT_BAR array{time:int, open:int,   high:int,   low:int,   close:int,   ticks:int}
+ * @phpstan-type  PRICE_BAR array{time:int, open:float, high:float, low:float, close:float, ticks:int}
  */
 class Rosatrader extends StaticClass {
 

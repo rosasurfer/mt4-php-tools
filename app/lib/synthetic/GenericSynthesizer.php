@@ -8,6 +8,8 @@ namespace rosasurfer\rt\lib\synthetic;
  * GenericSynthesizer
  *
  * A {@link ISynthesizer} to be used if no instrument-specific Synthesizer can be found.
+ *
+ * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\Rosatrader
  */
 class GenericSynthesizer extends AbstractSynthesizer {
 
@@ -43,7 +45,7 @@ class GenericSynthesizer extends AbstractSynthesizer {
      * @param  int  $time
      * @param  bool $optimized [optional]
      *
-     * @return array<PRICE_BAR> - PRICE_BAR array
+     * @return PRICE_BAR[] - history array
      *
      * @see  \rosasurfer\rt\PRICE_BAR
      */

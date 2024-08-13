@@ -23,7 +23,7 @@
         "rosasurfer/ministruts": "^0.11@dev"
     },
     "require-dev": {
-        "phpstan/phpstan": "^1.0"
+        "phpstan/phpstan": "^1.11"
     },
     "autoload": {
         "classmap": ["app/"],

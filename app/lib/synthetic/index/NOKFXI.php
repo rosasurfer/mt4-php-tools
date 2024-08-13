@@ -28,6 +28,8 @@ use const rosasurfer\rt\PERIOD_M1;
  * NOKFXI = 10 * pow(USDCAD * USDCHF * USDJPY / (AUDUSD * EURUSD * GBPUSD), 1/7) / USDNOK
  * NOKFXI = 10 * pow(NOKJPY / (AUDNOK * CADNOK * CHFNOK * EURNOK * GBPNOK * USDNOK), 1/7)
  * </pre>
+ *
+ * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\Rosatrader
  */
 class NOKFXI extends AbstractSynthesizer {
 
@@ -46,9 +48,9 @@ class NOKFXI extends AbstractSynthesizer {
      * @param  int $period
      * @param  int $time
      *
-     * @return array<PRICE_BAR> - PRICE_BAR array
+     * @return PRICE_BAR[] - array with history data
      *
-     * @see    \rosasurfer\rt\PRICE_BAR
+     * @see  \rosasurfer\rt\PRICE_BAR
      */
     public function calculateHistory(int $period, int $time): array {
         Assert::int($period, '$period');

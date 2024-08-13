@@ -6,18 +6,19 @@
 #  @see  https://phpstan.org/config-reference
 #
 parameters:
-  phpVersion: 70499                                 # assume this PHP version if running under a different one
-  level:      7                                     # a rule level on the command line overrides this hardcoded value
+  phpVersion: 70499                             # assume this PHP version if running under a different one
+  level:      7                                 # default rule level, a rule level on the command line overrides this value
 
-  bootstrapFiles:                                   # API stubs of functional code
-    - stubs.php
+  bootstrapFiles:                               # initialize the PHP runtime environment before PHPStan runs
+    - init.php
 
-  scanFiles:                                        # additional non-autoloaded files to scan for symbols
+  scanFiles:                                    # scanned for additional symbols, not analyzed
+    - symbols/project.php
 
-  fileExtensions:                                   # additional files to analyse
+  fileExtensions:                               # additional files to analyse
     - phtml
 
-  paths:                                            # paths on the command line override these hardcoded values
+  paths:                                        # analyzed paths, paths on the command line override these values
     - ../../app
     - ../../bin
     - ../../config
@@ -28,29 +29,17 @@ parameters:
     - ../../vendor
     - ../../web
 
-  dynamicConstantNames:                             # dynamic constants with values depending on the environment
+  dynamicConstantNames:                         # dynamic constants with values depending on the environment
     - rosasurfer\ministruts\CLI
     - rosasurfer\ministruts\LOCALHOST
     - rosasurfer\ministruts\MACOS
     - rosasurfer\ministruts\WINDOWS
     - rosasurfer\ministruts\NUL_DEVICE
 
-
-  typeAliases:
-    POINT_BAR: 'array{time:int, open:int,   high:int,   low:int,   close:int,   ticks:int}'
-    PRICE_BAR: 'array{time:int, open:float, high:float, low:float, close:float, ticks:int}'
-
-
   ignoreErrors:
-    # intentional duplication (documentation in code is better than a definition only here)  
-    - message:    '#^Type alias (POINT|PRICE)_BAR already exists as a global type alias\.$#' 
-      identifier: typeAlias.duplicate
-      path:       ../../app/Rosatrader.php
-
     # tmp. fix until we have a new PHPStan extension 
     - '#^Method rosasurfer\\rt\\model\\[a-zA-Z]+DAO::(find|get)By[a-zA-Z]+\(\) should return rosasurfer\\rt\\model\\[a-zA-Z]+(\|null)? but returns rosasurfer\\ministruts\\db\\orm\\PersistableObject(\|null)?\.$#'
     - '#^Method rosasurfer\\rt\\[a-z]+\\[a-zA-Z]+(DAO|Command)::[a-zA-Z]+\(\) should return array<rosasurfer\\rt\\model\\[a-zA-Z]+> but returns array<rosasurfer\\ministruts\\db\\orm\\PersistableObject>\.$#'
-
 
   reportUnmatchedIgnoredErrors: false
 
@@ -58,3 +47,9 @@ parameters:
     maximumNumberOfProcesses: 4
   tmpDir:       .tmp
   tipsOfTheDay: false
+
+
+services:                                       # must be loadable via Composer
+  - class: rosasurfer\ministruts\phpstan\extension\CoreFunctionReturnType
+    tags:
+      - phpstan.broker.dynamicFunctionReturnTypeExtension

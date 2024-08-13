@@ -26,6 +26,8 @@ use const rosasurfer\rt\PERIOD_M1;
  * EURX = 34.38805726 * EURUSD * pow(USDCHF, 0.1113) * pow(USDJPY, 0.1891) * pow(USDSEK, 0.0785) / pow(GBPUSD, 0.3056)
  * EURX = 34.38805726 * pow(EURCHF, 0.1113) * pow(EURGBP, 0.3056) * pow(EURJPY, 0.1891) * pow(EURSEK, 0.0785) * pow(EURUSD, 0.3155)
  * </pre>
+ *
+ * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\Rosatrader
  */
 class EURX extends AbstractSynthesizer {
 
@@ -43,9 +45,9 @@ class EURX extends AbstractSynthesizer {
      * @param  int $period
      * @param  int $time
      *
-     * @return array<PRICE_BAR> - PRICE_BAR array
+     * @return PRICE_BAR[] - array with history data
      *
-     * @see    \rosasurfer\rt\PRICE_BAR
+     * @see  \rosasurfer\rt\PRICE_BAR
      */
     public function calculateHistory(int $period, int $time): array {
         Assert::int($period, '$period');

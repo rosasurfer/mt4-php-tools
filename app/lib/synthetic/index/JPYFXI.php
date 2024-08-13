@@ -28,6 +28,8 @@ use const rosasurfer\rt\PERIOD_M1;
  * JPYFXI = 100 * pow(USDCAD * USDCHF / (AUDUSD * EURUSD * GBPUSD), 1/6) * USDJPY
  * JPYFXI = 100 * pow(1 / (AUDJPY * CADJPY * CHFJPY * EURJPY * GBPJPY * USDJPY), 1/6)
  * </pre>
+ *
+ * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\Rosatrader
  */
 class JPYFXI extends AbstractSynthesizer {
 
@@ -46,9 +48,9 @@ class JPYFXI extends AbstractSynthesizer {
      * @param  int $period
      * @param  int $time
      *
-     * @return array<PRICE_BAR> - PRICE_BAR array
+     * @return PRICE_BAR[] - array with history data
      *
-     * @see    \rosasurfer\rt\PRICE_BAR
+     * @see  \rosasurfer\rt\PRICE_BAR
      */
     public function calculateHistory(int $period, int $time): array {
         Assert::int($period, '$period');
