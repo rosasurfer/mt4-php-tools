@@ -16,7 +16,7 @@ parameters:
     - ../../app                                     
     - ../../bin                                     
     - ../../config                                  
-    - ../../web                                  
+    - ../../web/index.php                                  
                                                     
   excludePaths:                                     
     - ../../data/                                   
