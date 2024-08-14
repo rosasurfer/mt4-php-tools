@@ -2,16 +2,13 @@
 declare(strict_types=1);
 
 /**
- * IDE support for PHPStan type aliases. The types are used in PHPdoc only, PHP never sees them.
+ * IDE tooltip support for PHPStan type aliases. The types are used in PHPDoc only, PHP never sees them.
  * Add this file to the library path of the project.
- *
- * @phpstan-import-type  POINT_BAR from \rosasurfer\rt\Rosatrader
- * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\Rosatrader
  */
 namespace rosasurfer\rt {
 
     /**
-     * Alias for an array holding a single bar quoted in points.
+     * PHPStan alias for an array holding a single bar quoted in points.
      *
      * <pre>
      * array(
@@ -27,7 +24,7 @@ namespace rosasurfer\rt {
     class POINT_BAR {}
 
     /**
-     * Alias for an array holding a single bar quoted in real prices.
+     * PHPStan alias for an array holding a single bar quoted in real prices.
      *
      * <pre>
      * array(

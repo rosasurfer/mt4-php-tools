@@ -1,28 +1,29 @@
 #!/bin/bash
 #
-# A wrapper script around PHPStan to simplify code analysis and generation/usage of PHPStan baseline files. All arguments are optional.
+# A wrapper script around PHPStan to simplify generation and usage of PHPStan baseline files. All arguments are optional.
 #
 # Usage:
 #   phpstan [COMMAND] [options] [--] [PATH...]
 #
 # Command:
-#   analyse                                 Analyse a custom PATH or the configured paths if none is specified (default).
-#   ...                                     Any other supported PHPStan command (@see `phpstan list`).
+#   analyse                                 Analyse the code base using the configuration in "etc/phpstan/phpstan.neon" (default command).
+#   analyse PATH                            Analyse a custom PATH (default: the configured paths).
 #
 # Options:
-#   -l, --level=0..9                        Analyse using an explicit rule level or the configured level if none is specified (default).
+#   -l, --level=0..9                        Analyse using an explicit rule level (default: the configured rule level).
 #   -b, --generate-baseline=BASELINE_FILE   Analyse and save errors to the specified baseline file.
-#   -u, --use-baseline=BASELINE_FILE        Analyse using the specified baseline file.
+#   -u, --use-baseline=BASELINE_FILE        Analyse using the specified baseline file as a filter.
 #   -v|-vv|-vvv                             Verbose output.
+#   -h                                      Original PHPStan help.
 #
 # Short option name/value separator are zero or more spaces.      e.g. "-l3" or "-l 4"
 # Long option name/value separator are space or equal sign "=".   e.g. "--level 5" or "--level=6"
 #
 # Examples:
-#   phpstan                                 // check the code base with the preconfigured rule level
-#   phpstan --level=1 api/app               // check a single directory with a custom rule level
-#   phpstan --level=9 -b baseline.neon      // check the code base and save the result as file "baseline.neon"
-#   phpstan --level=3 -u baseline.neon      // check the code base and use the baseline filter from file "baseline.neon"
+#   phpstan                                 // analyse the code base with the configured settings
+#   phpstan --level=1 api/app               // analyse a single directory with a custom rule level
+#   phpstan --level=6 -b baseline.neon      // analyse the code base and save the result as file "baseline.neon"
+#   phpstan --level=7 -u baseline.neon      // analyse the code base using file "baseline.neon" as a filter
 #
 set -eu -o pipefail
 

@@ -73,13 +73,14 @@ if (!$test) {
 // load trades and order trade events chronologically
 $trades = $test->getTrades();
 $deals = [];
-$symbol = null;
-foreach ($trades as $trade) {                                           // atm: error out on mixed symbols
-    if ($symbol && $symbol!=$trade->getSymbol()) {
-        echof('[Error]   Mixed trade histories are not yet supported (found trades in '.$symbol.' and '.$trade->getSymbol().').');
+$symbol = $lastSymbol = null;
+
+foreach ($trades as $trade) {
+    $symbol = $trade->getSymbol();
+    if ($lastSymbol && $symbol != $lastSymbol) {                        // error out on mixed symbols
+        echof("[Error]   Mixed trade histories are not yet supported (found trades in $symbol and $lastSymbol).");
         exit(1);
     }
-    $symbol = $trade->getSymbol();
 
     // separate trades into deals
     $openDeal         = new \stdClass();
@@ -98,6 +99,8 @@ foreach ($trades as $trade) {                                           // atm: 
 
     $deals[] = $openDeal;
     $deals[] = $closeDeal;
+
+    $lastSymbol = $symbol;
 }
 usort($deals, function(\stdClass $a, \stdClass $b) {
     if ($a->time < $b->time)  return -1;
@@ -155,6 +158,11 @@ $nextDealMinute = $nextDeal->time - $nextDeal->time % MINUTE;
 $totalPL        = $pl = $lastPositionPrice = 0;
 $prevMonth      = -1;
 
+$oSymbol   = RosaSymbol::dao()->getByName($symbol);
+$digits    = max($oSymbol->getDigits(), 2);                         // treat Digits=1 as 2 (for some indices)
+$pipDigits = $digits & (~1);
+$pip       = 1/(10 ** $pipDigits);
+
 for ($day=$firstDealDay; $day <= $lastDealDay; $day+=1*DAY) {
     $shortDate = gmdate('D, d-M-Y', $day);
     $month     = (int) gmdate('m', $day);
@@ -202,18 +210,18 @@ for ($day=$firstDealDay; $day <= $lastDealDay; $day+=1*DAY) {
 
         $pl = 0;
         if ($currentDeal->position > 0) {
-            $pl = $bar['close']/10 - $currentDeal->positionPrice/PIPS;
+            $pl = $bar['close']/10 - $currentDeal->positionPrice/$pip;
         }
         else if ($currentDeal->position < 0) {
-            $pl = $currentDeal->positionPrice/PIPS - $bar['close']/10;
+            $pl = $currentDeal->positionPrice/$pip - $bar['close']/10;
         }
         else {                                                      // now flat or hedged
             if ($currentDeal->lots < 0) {                           // was long
-                $totalPL += $currentDeal->price/PIPS - $lastPositionPrice/PIPS;
+                $totalPL += $currentDeal->price/$pip - $lastPositionPrice/$pip;
                 $currentDeal->lots = 0;                             // mark deal as processed
             }
             else if ($currentDeal->lots > 0) {                      // was short
-                $totalPL += $lastPositionPrice/PIPS - $currentDeal->price/PIPS;
+                $totalPL += $lastPositionPrice/$pip - $currentDeal->price/$pip;
                 $currentDeal->lots = 0;                             // mark deal as processed
             }
         }
@@ -370,7 +378,7 @@ function getVar($id, $symbol=null, $time=null) {
  */
 function help($message = null) {
     if (is_null($message))
-        $message = 'Generate a profit/loss timeseries for the trade history of a specified test.';
+        $message = 'Generate a profit/loss timeseries for the trade history of the specified test.';
     $self = basename($_SERVER['PHP_SELF']);
 
 echo <<<HELP

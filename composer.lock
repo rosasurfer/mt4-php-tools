@@ -60,12 +60,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/rosasurfer/ministruts.git",
-                "reference": "e41543fe0ac126d13f17a7234c5ac5564ce1c8fd"
+                "reference": "c26dcaf2af88394c9e29f06892f68d4c4c9e6247"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/e41543fe0ac126d13f17a7234c5ac5564ce1c8fd",
-                "reference": "e41543fe0ac126d13f17a7234c5ac5564ce1c8fd",
+                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/c26dcaf2af88394c9e29f06892f68d4c4c9e6247",
+                "reference": "c26dcaf2af88394c9e29f06892f68d4c4c9e6247",
                 "shasum": ""
             },
             "require": {
@@ -91,16 +91,18 @@
             },
             "autoload": {
                 "psr-4": {
-                    "rosasurfer\\ministruts\\": "src",
-                    "rosasurfer\\ministruts\\phpstan\\extension\\": "etc/phpstan/extension"
+                    "rosasurfer\\ministruts\\": "src/"
                 },
+                "classmap": [
+                    "etc/phpstan/ext/"
+                ],
                 "files": [
                     "src/load.php"
                 ]
             },
             "autoload-dev": {
                 "psr-4": {
-                    "rosasurfer\\ministruts\\test\\": "test"
+                    "rosasurfer\\ministruts\\test\\": "test/"
                 }
             },
             "license": [
@@ -114,10 +116,10 @@
             ],
             "description": "MVC micro framework inspired by Java Struts",
             "support": {
-                "source": "https://github.com/rosasurfer/ministruts/tree/master",
+                "source": "https://github.com/rosasurfer/ministruts/tree/0.11",
                 "issues": "https://github.com/rosasurfer/ministruts/issues"
             },
-            "time": "2024-08-13T19:54:55+00:00"
+            "time": "2024-08-14T10:38:47+00:00"
         }
     ],
     "packages-dev": [

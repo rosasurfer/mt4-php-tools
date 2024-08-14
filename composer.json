@@ -27,7 +27,7 @@
     },
     "autoload": {
         "classmap": ["app/"],
-        "files":    ["app/helpers.php"]
+        "files":    ["app/functions.php"]
     },
     "scripts": {
         "post-install-cmd": "bash bin/git/check-setup.sh post-checkout post-merge"
