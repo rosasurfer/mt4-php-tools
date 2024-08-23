@@ -7,7 +7,7 @@ use rosasurfer\ministruts\db\orm\PersistableObject;
 
 
 /**
- * Provides common functionality for all project model classes.
+ * Provides common functionality for all model classes of the project.
  *
  * @method ?int getId() Return the id (primary key) of the instance.
  */

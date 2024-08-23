@@ -99,7 +99,6 @@ class Order extends RosatraderModel {
         $order->created = date('Y-m-d H:i:s');
         $order->test    = $test;
 
-
         $id = $properties['id'];
         Assert::int($id, 'property order.id');
         if ($id)                                              throw new InvalidValueException('Invalid property order.id: '.$id.' (not zero)');
