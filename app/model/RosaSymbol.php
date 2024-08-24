@@ -9,7 +9,6 @@ use rosasurfer\ministruts\core\exception\RuntimeException;
 use rosasurfer\ministruts\process\Process;
 
 use function rosasurfer\ministruts\first;
-use function rosasurfer\ministruts\is_class;
 use function rosasurfer\ministruts\last;
 use function rosasurfer\ministruts\pluralize;
 use function rosasurfer\ministruts\strLeftTo;
@@ -476,8 +475,9 @@ class RosaSymbol extends RosatraderModel {
         if (!$this->isSynthetic()) throw new RuntimeException('Cannot create Synthesizer for non-synthetic instrument');
 
         $customClass = strLeftTo(ISynthesizer::class, '\\', -1).'\\index\\'.$this->name;
-        if (is_class($customClass) && is_a($customClass, ISynthesizer::class, true))
+        if (class_exists($customClass) && is_subclass_of($customClass, ISynthesizer::class)) {
             return new $customClass($this);
+        }
         return new GenericSynthesizer($this);
     }
 }

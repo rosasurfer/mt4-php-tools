@@ -5,50 +5,59 @@
 # File format:
 #  @see  https://phpstan.org/config-reference
 #
-parameters:
-  phpVersion: 70400                                 # assume this PHP version if running under a different one
-  level:      7                                     # default rule level, a rule level on the command line overrides this value
-                                                    
-  bootstrapFiles:                                   # initialize the PHP runtime environment before PHPStan runs
-    - init.php                                      
-                                                    
-  paths:                                            # analyzed paths, paths on the command line override these values
-    - ../../app                                     
-    - ../../bin                                     
-    - ../../config                                  
-    - ../../web/index.php                                  
-                                                    
-  excludePaths:                                     
-    - ../../data/                                   
-    - ../../etc                                     
-    - ../../vendor                                  
-                                                    
-  fileExtensions:                                   # additional files to analyse
-    - phtml                                         
+includes:
+  - include/by-php-version.neon.php                 # fetch PHP version specific settings
 
-  scanFiles:                                        # scanned for symbols only, not analyzed (e.g. legacy code)
+
+parameters:
+  level: 7                                          # default rule level, a rule level on the command line overrides this value
+
+  bootstrapFiles:                                   # initialize the PHP runtime environment before PHPStan runs
+    - init.php
+
+  paths:                                            # analyzed paths, paths on the command line override these values
+    - ../../app
+    - ../../bin
+    - ../../config
+    - ../../web/index.php
+    - .                                             # etc/phpstan itself
+
+  excludePaths:                                     # excludeAnalyze + excludeScan
+    - symbols
+    - ../../data
+    - ../../etc/tmp
+    - ../../vendor
+
+  fileExtensions:                                   # additional files to analyse
+    - phtml
+
+  scanFiles:                                        # scanned for symbols only, not analyzed (for legacy or future code)
+
+  stubFiles:                                        # custom PHPDoc annotations overriding vendor definitions
 
   dynamicConstantNames:                             # changing constants, depending on the environment
     - rosasurfer\ministruts\CLI
-    - rosasurfer\ministruts\LOCALHOST
     - rosasurfer\ministruts\MACOS
     - rosasurfer\ministruts\WINDOWS
     - rosasurfer\ministruts\NUL_DEVICE
 
   ignoreErrors:
-    # tmp. fix until we have a new PHPStan extension 
-    - '#^Method rosasurfer\\rt\\model\\[a-zA-Z]+DAO::(find|get)By[a-zA-Z]+\(\) should return rosasurfer\\rt\\model\\[a-zA-Z]+(\|null)? but returns rosasurfer\\ministruts\\db\\orm\\PersistableObject(\|null)?\.$#'
+    # tmp. fix until we have a new PHPStan extension
     - '#^Method rosasurfer\\rt\\[a-z]+\\[a-zA-Z]+(DAO|Command)::[a-zA-Z]+\(\) should return array<rosasurfer\\rt\\model\\[a-zA-Z]+> but returns array<rosasurfer\\ministruts\\db\\orm\\PersistableObject>\.$#'
 
   reportUnmatchedIgnoredErrors: false
 
   parallel:
     maximumNumberOfProcesses: 4
-  tmpDir:       .tmp
+  tmpDir:       ../../etc/tmp/phpstan
   tipsOfTheDay: false
 
 
-services:                                           # must be loadable via Composer
+services:                                           # services must be loadable via Composer
   - class: rosasurfer\ministruts\phpstan\CoreFunctionReturnType
     tags:
       - phpstan.broker.dynamicFunctionReturnTypeExtension
+
+  - class: rosasurfer\ministruts\phpstan\DaoFindGetReturnType
+    tags:
+      - phpstan.broker.dynamicMethodReturnTypeExtension

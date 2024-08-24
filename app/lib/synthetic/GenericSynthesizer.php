@@ -7,7 +7,7 @@ namespace rosasurfer\rt\lib\synthetic;
 /**
  * GenericSynthesizer
  *
- * A {@link ISynthesizer} to be used if no instrument-specific Synthesizer can be found.
+ * A {@link ISynthesizer} to be used if no instrument-specific ISynthesizer implementation can be found.
  *
  * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\Rosatrader
  */

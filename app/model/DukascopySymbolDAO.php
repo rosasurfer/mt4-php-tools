@@ -74,14 +74,11 @@ class DukascopySymbolDAO extends DAO {
      *
      * @throws NoSuchRecordException if no such instance was found
      */
-    public function getByName($name) {
-        Assert::string($name);
-
+    public function getByName(string $name) {
         $name = $this->escapeLiteral($name);
-
-        $sql = 'select *
+        $sql = "select *
                    from :DukascopySymbol
-                   where name = '.$name;
+                   where name = $name";
         return $this->get($sql);
     }
 }
