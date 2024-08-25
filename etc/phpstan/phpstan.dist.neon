@@ -42,8 +42,6 @@ parameters:
     - rosasurfer\ministruts\NUL_DEVICE
 
   ignoreErrors:
-    # tmp. fix until we have a new PHPStan extension
-    - '#^Method rosasurfer\\rt\\[a-z]+\\[a-zA-Z]+(DAO|Command)::[a-zA-Z]+\(\) should return array<rosasurfer\\rt\\model\\[a-zA-Z]+> but returns array<rosasurfer\\ministruts\\db\\orm\\PersistableObject>\.$#'
 
   reportUnmatchedIgnoredErrors: false
 
@@ -58,6 +56,6 @@ services:                                           # services must be loadable 
     tags:
       - phpstan.broker.dynamicFunctionReturnTypeExtension
 
-  - class: rosasurfer\ministruts\phpstan\DaoFindGetReturnType
+  - class: rosasurfer\ministruts\phpstan\DaoReturnType
     tags:
       - phpstan.broker.dynamicMethodReturnTypeExtension
