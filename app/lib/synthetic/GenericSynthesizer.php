@@ -41,15 +41,15 @@ class GenericSynthesizer extends AbstractSynthesizer {
     /**
      * {@inheritdoc}
      *
-     * @param  int  $period
-     * @param  int  $time
-     * @param  bool $optimized [optional]
+     * @param  int $period
+     * @param  int $time
      *
-     * @return PRICE_BAR[] - history array
+     * @return array[] - PRICE_BAR array with history data
+     * @phpstan-return PRICE_BAR[]
      *
      * @see  \rosasurfer\rt\PRICE_BAR
      */
-    public function calculateHistory(int $period, int $time, bool $optimized = false): array {
+    public function calculateHistory(int $period, int $time): array {
         return [];
     }
 }

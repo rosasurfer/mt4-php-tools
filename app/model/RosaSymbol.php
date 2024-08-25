@@ -201,7 +201,7 @@ class RosaSymbol extends RosatraderModel {
      * Get the M1 history for a given day.
      *
      * @param  int  $time               - FXT timestamp
-     * @param  bool $compact [optional] - returned bar format (default: more compact POINT_BAR)
+     * @param  bool $compact [optional] - returned bar format (default: more compact POINT_BARs)
      *
      * @return array - history or an empty array, if history for the given day is not available
      *

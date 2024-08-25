@@ -2,8 +2,8 @@
 declare(strict_types=1);
 
 /**
- * IDE tooltip support for PHPStan type aliases. The types are used in PHPDoc only, PHP never sees them.
- * Add this file to the library path of the project.
+ * Add this file to the library path to get IDE support for PHPStan type aliases.
+ * Use in PHPStan meta tags only, PHP must not see them.
  */
 namespace rosasurfer\rt {
 
@@ -38,22 +38,4 @@ namespace rosasurfer\rt {
      * </pre>
      */
     class PRICE_BAR {}
-}
-
-namespace rosasurfer\rt\lib\synthetic {
-    /** @see \rosasurfer\rt\PRICE_BAR */
-    class PRICE_BAR extends \rosasurfer\rt\PRICE_BAR {}
-}
-
-namespace rosasurfer\rt\lib\synthetic\index {
-    /** @see \rosasurfer\rt\PRICE_BAR */
-    class PRICE_BAR extends \rosasurfer\rt\PRICE_BAR {}
-}
-
-namespace rosasurfer\rt\model {
-    /** @see \rosasurfer\rt\POINT_BAR */
-    class POINT_BAR extends \rosasurfer\rt\POINT_BAR {}
-
-    /** @see \rosasurfer\rt\PRICE_BAR */
-    class PRICE_BAR extends \rosasurfer\rt\PRICE_BAR {}
 }

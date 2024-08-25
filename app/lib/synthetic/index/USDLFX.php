@@ -43,7 +43,8 @@ class USDLFX extends AbstractSynthesizer {
      * @param  int $period
      * @param  int $time
      *
-     * @return PRICE_BAR[] - array with history data
+     * @return array[] - PRICE_BAR array with history data
+     * @phpstan-return PRICE_BAR[]
      *
      * @see  \rosasurfer\rt\PRICE_BAR
      */

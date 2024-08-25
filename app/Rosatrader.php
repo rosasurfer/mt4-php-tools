@@ -23,8 +23,24 @@ use rosasurfer\rt\model\RosaSymbol;
 /**
  * Rosatrader related functionality.
  *
- * @phpstan-type  POINT_BAR array{time:int, open:int,   high:int,   low:int,   close:int,   ticks:int}
- * @phpstan-type  PRICE_BAR array{time:int, open:float, high:float, low:float, close:float, ticks:int}
+ *
+ * @phpstan-type  POINT_BAR = array{
+ *     time : int,
+ *     open : int,
+ *     high : int,
+ *     low  : int,
+ *     close: int,
+ *     ticks: int,
+ * }
+ *
+ * @phpstan-type  PRICE_BAR = array{
+ *     time : int,
+ *     open : float,
+ *     high : float,
+ *     low  : float,
+ *     close: float,
+ *     ticks: int,
+ * }
  */
 class Rosatrader extends StaticClass {
 
@@ -48,8 +64,7 @@ class Rosatrader extends StaticClass {
      * )
      * </pre>
      */
-    public static function readBarFile($fileName, RosaSymbol $symbol) {
-        Assert::string($fileName, '$fileName');
+    public static function readBarFile(string $fileName, RosaSymbol $symbol) {
         return static::readBarData(file_get_contents($fileName), $symbol);
     }
 

@@ -75,7 +75,8 @@ abstract class AbstractSynthesizer extends CObject implements ISynthesizer {
      * @param  int $time   - FXT time to return prices for. If 0 (zero) the oldest available history for the requested bar
      *                       period is returned.
      *
-     * @return PRICE_BAR[] - history array or an empty array, if the requested history is not available
+     * @return array[] - PRICE_BAR array or an empty array, if the requested history is not available
+     * @phpstan-return PRICE_BAR[]
      *
      * @see  \rosasurfer\rt\PRICE_BAR
      */
