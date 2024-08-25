@@ -35,6 +35,9 @@ use const rosasurfer\rt\PERIOD_D1;
  * @method        int                                     getDigits()     Return the number of fractional digits of symbol prices.
  * @method        \rosasurfer\rt\model\RosaSymbol         getRosaSymbol() Return the Rosatrader symbol this Dukascopy symbol is mapped to.
  * @method static \rosasurfer\rt\model\DukascopySymbolDAO dao()           Return the {@link DukascopySymbolDAO} for the calling class.
+ *
+ * @phpstan-import-type  POINT_BAR from \rosasurfer\rt\Rosatrader
+ * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\Rosatrader
  */
 class DukascopySymbol extends RosatraderModel implements IHistorySource {
 
@@ -215,9 +218,19 @@ class DukascopySymbol extends RosatraderModel implements IHistorySource {
 
 
     /**
+     * {@inheritdoc}
      *
+     * @param  int  $period
+     * @param  int  $time
+     * @param  bool $compact [optional]
+     *
+     * @return array[]
+     * @phpstan-return ($compact is true ? POINT_BAR[] : PRICE_BAR[])
+     *
+     * @see  \rosasurfer\rt\POINT_BAR
+     * @see  \rosasurfer\rt\PRICE_BAR
      */
-    public function getHistory($period, $time, $optimized = false) {
+    public function getHistory(int $period, int $time, bool $compact = true): array {
         Assert::int($period, '$period');
         if ($period != PERIOD_M1) throw new UnimplementedFeatureException(__METHOD__.'('.periodToStr($period).') not implemented');
         Assert::int($time, '$time');
@@ -232,6 +245,6 @@ class DukascopySymbol extends RosatraderModel implements IHistorySource {
         }
         /** @var Dukascopy $dukascopy */
         $dukascopy = $this->di(Dukascopy::class);
-        return $dukascopy->getHistory($this, $period, $time, $optimized);
+        return $dukascopy->getHistory($this, $period, $time, $compact);
     }
 }

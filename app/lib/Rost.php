@@ -276,8 +276,9 @@ class Rost extends StaticClass {
         if (is_string($value)) {
             if (!strIsNumeric($value)) {
                 $value = strtoupper($value);
-                if (strStartsWith($value, 'OP_'))
+                if (strStartsWith($value, 'OP_')) {
                     $value = strRight($value, -3);
+                }
                 switch ($value) {
                     case 'BUY'      : return OP_BUY;
                     case 'SELL'     : return OP_SELL;

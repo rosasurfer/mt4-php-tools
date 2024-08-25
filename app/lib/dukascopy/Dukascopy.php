@@ -42,9 +42,10 @@ use const rosasurfer\rt\PRICE_MEDIAN;
 
 
 /**
- * Dukascopy
- *
  * Functionality for downloading and processing Dukascopy history data.
+ *
+ * @phpstan-import-type  POINT_BAR from \rosasurfer\rt\Rosatrader
+ * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\Rosatrader
  */
 class Dukascopy extends CObject {
 
@@ -121,49 +122,27 @@ class Dukascopy extends CObject {
      * Get history for the specified symbol, bar period and time. The range of the returned data depends on the requested
      * bar period.
      *
-     * @param  DukascopySymbol $symbol               - symbol to get history data for
-     * @param  int             $period               - bar period identifier: PERIOD_M1 | PERIOD_D1
-     * @param  int             $time                 - FXT time
-     * @param  bool            $optimized [optional] - returned bar format (see notes)
+     * @param  DukascopySymbol $symbol             - symbol to get history data for
+     * @param  int             $period             - bar period identifier: PERIOD_M1 | PERIOD_D1
+     * @param  int             $time               - FXT time
+     * @param  bool            $compact [optional] - returned bar format (default: more compact POINT_BARs)
      *
-     * @return array - An empty array if history for the specified bar period and time is not available. Otherwise a
-     *                 timeseries array with each element describing a single price bar as follows:
-     * <pre>
-     * $optimized => FALSE (default):
-     * ------------------------------
-     * Array(
-     *     'time'  => (int),            // bar open time in FXT
-     *     'open'  => (float),          // open value in real terms
-     *     'high'  => (float),          // high value in real terms
-     *     'low'   => (float),          // low value in real terms
-     *     'close' => (float),          // close value in real terms
-     *     'ticks' => (int),            // volume (if available) or number of synthetic ticks
-     * )
+     * @return         array[] - history or an empty array if history for the specified parameters is not available
+     * @phpstan-return ($compact is true ? POINT_BAR[] : PRICE_BAR[])
      *
-     * $optimized => TRUE:
-     * -------------------
-     * Array(
-     *     'time'  => (int),            // bar open time in FXT
-     *     'open'  => (int),            // open value in point
-     *     'high'  => (int),            // high value in point
-     *     'low'   => (int),            // low value in point
-     *     'close' => (int),            // close value in point
-     *     'ticks' => (int),            // volume (if available) or number of synthetic ticks
-     * )
-     * </pre>
+     * @see  \rosasurfer\rt\POINT_BAR
+     * @see  \rosasurfer\rt\PRICE_BAR
      */
-    public function getHistory(DukascopySymbol $symbol, $period, $time, $optimized = false) {
-        Assert::int($period, '$period');
+    public function getHistory(DukascopySymbol $symbol, int $period, int $time, bool $compact = true) {
         if ($period != PERIOD_M1) throw new UnimplementedFeatureException(__METHOD__.'('.periodToStr($period).') not implemented');
-        Assert::int($time, '$time');
         $nameU = strtoupper($symbol->getName());
-        $day   = $time - $time%DAY;                                                         // 00:00 FXT
+        $day = $time - $time%DAY;                                                           // 00:00 FXT
 
         if (!isset($this->history[$nameU][$period][$day][PRICE_MEDIAN])) {
             // load Bid and Ask, calculate Median and store everything in the cache
             if (!$bids = $this->loadHistory($symbol, $period, $day, PRICE_BID)) return [];  // raw
             if (!$asks = $this->loadHistory($symbol, $period, $day, PRICE_ASK)) return [];  // raw
-            $median = $this->calculateMedian($bids, $asks);                                 // optimized
+            $median = $this->calculateMedian($bids, $asks);                                 // POINT_BARs
             $this->history[$nameU][$period][$day][PRICE_MEDIAN] = $median;
         }
 
@@ -173,12 +152,13 @@ class Dukascopy extends CObject {
         $purges = array_diff(array_keys($this->history[$nameU][$period]), [$day-DAY, $day, $day+DAY]);
         foreach ($purges as $stale) unset($this->history[$nameU][$period][$stale]);         // drop old timeseries
 
-        if ($optimized)
-            return $this->history[$nameU][$period][$day][PRICE_MEDIAN];
+        if ($compact) {
+            return $this->history[$nameU][$period][$day][PRICE_MEDIAN];                     // POINT_BARs
+        }
 
         if (!isset($this->history[$nameU][$period][$day]['real'])) {
             $real = $this->calculateReal($symbol, $this->history[$nameU][$period][$day][PRICE_MEDIAN]);
-            $this->history[$nameU][$period][$day]['real'] = $real;
+            $this->history[$nameU][$period][$day]['real'] = $real;                          // PRICE_BARs
         }
         return $this->history[$nameU][$period][$day]['real'];
     }
@@ -368,18 +348,10 @@ class Dukascopy extends CObject {
      * @param  array $bids - Bid bars
      * @param  array $asks - Ask bars
      *
-     * @return array[] - a timeseries array with each element describing a single price bar as follows:
+     * @return array[] - timeseries array (array of POINT_BARs)
+     * @phpstan-return POINT_BAR[]
      *
-     * <pre>
-     * Array(
-     *     'time'  => (int),            // bar open time in FXT
-     *     'open'  => (int),            // open value in point
-     *     'high'  => (int),            // high value in point
-     *     'low'   => (int),            // low value in point
-     *     'close' => (int),            // close value in point
-     *     'ticks' => (int),            // volume (if available) or number of synthetic ticks
-     * )
-     * </pre>
+     * @see  \rosasurfer\rt\POINT_BAR
      */
     protected function calculateMedian(array $bids, array $asks) {
         if (sizeof($bids) != PERIOD_D1) throw new InvalidValueException('Invalid size of parameter $bids: '.($size=sizeof($bids)).' ('.($size > PERIOD_D1 ? 'more':'less').' then a day)');
@@ -416,23 +388,17 @@ class Dukascopy extends CObject {
 
 
     /**
-     * Calculate a real timeseries of the given optimized timeseries.
+     * Convert a POINT_BAR timeseries to a PRICE_BAR timeseries.
      *
-     * @param  DukascopySymbol $symbol  - symbol the timeseries belongs to
-     * @param  array           $history - optimized timeseries
+     * @param          DukascopySymbol $symbol  - symbol the timeseries belongs to
+     * @param          array[]         $history - POINT_BAR timeseries
+     * @phpstan-param  POINT_BAR[]     $history
      *
-     * @return array[] - a timeseries array with each element describing a single price bar as follows:
+     * @return         array[] - PRICE_BAR timeseries
+     * @phpstan-return PRICE_BAR[]
      *
-     * <pre>
-     * Array(
-     *     'time'  => (int),            // bar open time in FXT
-     *     'open'  => (float),          // open value in real terms
-     *     'high'  => (float),          // high value in real terms
-     *     'low'   => (float),          // low value in real terms
-     *     'close' => (float),          // close value in real terms
-     *     'ticks' => (int),            // volume (if available) or number of synthetic ticks
-     * )
-     * </pre>
+     * @see  \rosasurfer\rt\POINT_BAR
+     * @see  \rosasurfer\rt\PRICE_BAR
      */
     protected function calculateReal(DukascopySymbol $symbol, array $history) {
         $point = $symbol->getPointValue();

@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace rosasurfer\rt\model;
 
-use rosasurfer\ministruts\core\assert\Assert;
 use rosasurfer\ministruts\core\exception\InvalidValueException;
 
 use rosasurfer\rt\lib\Rost;
@@ -33,6 +32,8 @@ use function rosasurfer\rt\isWeekend;
  * @method        string                        getComment()     Return the ticket comment.
  * @method        \rosasurfer\rt\model\Test     getTest()        Return the test the ticket belongs to.
  * @method static \rosasurfer\rt\model\OrderDAO dao()            Return the {@link OrderDAO} for the calling class.
+ *
+ * @phpstan-import-type  ORDER_LOG_ENTRY from \rosasurfer\rt\Rosatrader
  */
 class Order extends RosatraderModel {
 
@@ -89,67 +90,59 @@ class Order extends RosatraderModel {
     /**
      * Create a new Order.
      *
-     * @param  Test  $test       - the test the order belongs to
-     * @param  array $properties - order properties as parsed from the test's log file
+     * @param  Test     $test       - the test the order belongs to
+     * @param  scalar[] $properties - order properties as parsed from the test's log file
+     *
+     * @phpstan-param ORDER_LOG_ENTRY $properties
      *
      * @return self
      */
-    public static function create(Test $test, array $properties) {
-        $order          = new self();
+    public static function create(Test $test, array $properties): self {
+        $order = new self();
         $order->created = date('Y-m-d H:i:s');
-        $order->test    = $test;
+        $order->test = $test;
 
         $id = $properties['id'];
-        Assert::int($id, 'property order.id');
         if ($id)                                              throw new InvalidValueException('Invalid property order.id: '.$id.' (not zero)');
         $order->id = null;
 
         $ticket = $properties['ticket'];
-        Assert::int($ticket, 'property order.ticket');
         if ($ticket <= 0)                                     throw new InvalidValueException('Invalid property order.ticket: '.$ticket.' (not positive)');
         $order->ticket = $ticket;
 
         $type = $properties['type'];
-        Assert::int($type, 'property order[%d].type', $ticket);
         if (!Rost::isOrderType($type))                        throw new InvalidValueException('Invalid property order['.$ticket.'].type: '.$type.' (not an order type)');
         $order->type = Rost::orderTypeDescription($type);
 
         $lots = $properties['lots'];
-        Assert::float($lots, 'property order[%d].lots', $ticket);
         if ($lots <= 0)                                       throw new InvalidValueException('Invalid property order['.$ticket.'].lots: '.$lots.' (not positive)');
         if ($lots != round($lots, 2))                         throw new InvalidValueException('Invalid property order['.$ticket.'].lots: '.$lots.' (lot step violation)');
         $order->lots = $lots;
 
         $symbol = $properties['symbol'];
-        Assert::string($symbol, 'property order[%d].symbol', $ticket);
         if ($symbol != trim($symbol))                         throw new InvalidValueException('Invalid property order['.$ticket.'].symbol: "'.$symbol.'" (format violation)');
-        if (!strlen($symbol))                                 throw new InvalidValueException('Invalid property order['.$ticket.'].symbol: "'.$symbol.'" (length violation)');
         if (strlen($symbol) > MT4::MAX_SYMBOL_LENGTH)         throw new InvalidValueException('Invalid property order['.$ticket.'].symbol: "'.$symbol.'" (length violation)');
         $order->symbol = $symbol;
 
         $openPrice = $properties['openPrice'];
-        Assert::float($openPrice, 'property order[%d].openPrice', $ticket);
         $openPrice = round($openPrice, 5);
         if ($openPrice <= 0)                                  throw new InvalidValueException('Invalid property order['.$ticket.'].openPrice: '.$openPrice.' (not positive)');
         $order->openPrice = $openPrice;
 
         $openTime = $properties['openTime'];                  // FXT timestamp
-        Assert::int($openTime, 'property order[%d].openTime', $ticket);
         if ($openTime <= 0)                                   throw new InvalidValueException('Invalid property order['.$ticket.'].openTime: '.$openTime.' (not positive)');
         if (isWeekend($openTime))                             throw new InvalidValueException('Invalid property order['.$ticket.'].openTime: '.$openTime.' (not a weekday)');
         $order->openTime = gmdate('Y-m-d H:i:s', $openTime);
 
         $stopLoss = $properties['stopLoss'];
-        Assert::float($stopLoss, 'property order[%d].stopLoss', $ticket);
         $stopLoss = round($stopLoss, 5);
         if ($stopLoss < 0)                                    throw new InvalidValueException('Invalid property order['.$ticket.'].stopLoss: '.$stopLoss.' (not non-negative)');
-        $order->stopLoss = !$stopLoss ? null : $stopLoss;
+        $order->stopLoss = $stopLoss ?: null;
 
         $takeProfit = $properties['takeProfit'];
-        Assert::float($takeProfit, 'property order[%d].takeProfit', $ticket);
         $takeProfit = round($takeProfit, 5);
         if ($takeProfit < 0)                                  throw new InvalidValueException('Invalid property order['.$ticket.'].takeProfit: '.$takeProfit.' (not non-negative)');
-        $order->takeProfit = !$takeProfit ? null : $takeProfit;
+        $order->takeProfit = $takeProfit ?: null;
 
         if ($stopLoss && $takeProfit) {
             if (Rost::isLongOrderType(Rost::strToOrderType($order->type))) {
@@ -159,13 +152,11 @@ class Order extends RosatraderModel {
         }
 
         $closePrice = $properties['closePrice'];
-        Assert::float($closePrice, 'property order[%d].closePrice', $ticket);
         $closePrice = round($closePrice, 5);
         if ($closePrice < 0)                                  throw new InvalidValueException('Invalid property order['.$ticket.'].closePrice: '.$closePrice.' (not non-negative)');
-        $order->closePrice = !$closePrice ? null : $closePrice;
+        $order->closePrice = $closePrice ?: null;
 
         $closeTime = $properties['closeTime'];                // FXT timestamp
-        Assert::int($closeTime, 'property order[%d].closeTime', $ticket);
         if ($closeTime < 0)                                   throw new InvalidValueException('Invalid property order['.$ticket.'].closeTime: '.$closeTime.' (not positive)');
         if      ($closeTime && !$closePrice)                  throw new InvalidValueException('Invalid properties order['.$ticket.'].closePrice|closeTime: '.$closePrice.'|'.$closeTime.' (mis-match)');
         else if (!$closeTime && $closePrice)                  throw new InvalidValueException('Invalid properties order['.$ticket.'].closePrice|closeTime: '.$closePrice.'|'.$closeTime.' (mis-match)');
@@ -173,27 +164,22 @@ class Order extends RosatraderModel {
             if (isWeekend($closeTime))                        throw new InvalidValueException('Invalid property order['.$ticket.'].closeTime: '.$closeTime.' (not a weekday)');
             if ($closeTime < $openTime)                       throw new InvalidValueException('Invalid properties order['.$ticket.'].openTime|closeTime: '.$openTime.'|'.$closeTime.' (mis-match)');
         }
-        $order->closeTime = !$closeTime ? null : gmdate('Y-m-d H:i:s', $closeTime);
+        $order->closeTime = $closeTime ? gmdate('Y-m-d H:i:s', $closeTime) : null;
 
         $commission = $properties['commission'];
-        Assert::float($commission, 'property order[%d].commission', $ticket);
         $order->commission = round($commission, 2);
 
         $swap = $properties['swap'];
-        Assert::float($swap, 'property order[%d].swap', $ticket);
         $order->swap = round($swap, 2);
 
         $profit = $properties['profit'];
-        Assert::float($profit, 'property order[%d].profit', $ticket);
         $order->profit = round($profit, 2);
 
         $magicNumber = $properties['magicNumber'];
-        Assert::int($magicNumber, 'property order[%d].magicNumber', $ticket);
         if ($magicNumber < 0)                                 throw new InvalidValueException('Invalid property order['.$ticket.'].magicNumber: '.$magicNumber.' (not non-negative)');
-        $order->magicNumber = !$magicNumber ? null : $magicNumber;
+        $order->magicNumber = $magicNumber ?: null;
 
         $comment = $properties['comment'];
-        Assert::string($comment, 'property order[%d].comment', $ticket);
         $comment = trim($comment);
         if (strlen($comment) > MT4::MAX_ORDER_COMMENT_LENGTH) throw new InvalidValueException('Invalid property order['.$ticket.'].comment: "'.$comment.'" (length violation)');
         $order->comment = strlen($comment) ? $comment : null;

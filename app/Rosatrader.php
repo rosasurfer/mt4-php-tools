@@ -41,6 +41,25 @@ use rosasurfer\rt\model\RosaSymbol;
  *     close: float,
  *     ticks: int,
  * }
+ *
+ * @phpstan-type  ORDER_LOG_ENTRY = array{
+ *     id         : int,
+ *     ticket     : int,
+ *     type       : int,
+ *     lots       : float,
+ *     symbol     : non-empty-string,
+ *     openPrice  : float,
+ *     openTime   : int,
+ *     stopLoss   : float,
+ *     takeProfit : float,
+ *     closePrice : float,
+ *     closeTime  : int,
+ *     commission : float,
+ *     swap       : float,
+ *     profit     : float,
+ *     magicNumber: int,
+ *     comment    : string,
+ * }
  */
 class Rosatrader extends StaticClass {
 
@@ -51,20 +70,12 @@ class Rosatrader extends StaticClass {
      * @param  string     $fileName - file name
      * @param  RosaSymbol $symbol   - instrument the data belongs to
      *
-     * @return array[] - array with each element describing a bar as follows:
+     * @return array[] - timeseries array (array of POINT_BARs)
+     * @phpstan-return POINT_BAR[]
      *
-     * <pre>
-     * Array(
-     *     'time'  => (int),            // bar open time in FXT
-     *     'open'  => (int),            // open value in point
-     *     'high'  => (int),            // high value in point
-     *     'low'   => (int),            // low value in point
-     *     'close' => (int),            // close value in point
-     *     'ticks' => (int),            // volume (if available) or number of synthetic ticks
-     * )
-     * </pre>
+     * @see  POINT_BAR
      */
-    public static function readBarFile(string $fileName, RosaSymbol $symbol) {
+    public static function readBarFile(string $fileName, RosaSymbol $symbol): array {
         return static::readBarData(file_get_contents($fileName), $symbol);
     }
 
@@ -75,21 +86,12 @@ class Rosatrader extends StaticClass {
      * @param  string     $data
      * @param  RosaSymbol $symbol - instrument the data belongs to
      *
-     * @return array[] - array with each element describing a bar as follows:
+     * @return array[] - timeseries array (array of POINT_BARs)
+     * @phpstan-return POINT_BAR[]
      *
-     * <pre>
-     * Array(
-     *     'time'  => (int),            // bar open time in FXT
-     *     'open'  => (int),            // open value in point
-     *     'high'  => (int),            // high value in point
-     *     'low'   => (int),            // low value in point
-     *     'close' => (int),            // close value in point
-     *     'ticks' => (int),            // volume (if available) or number of synthetic ticks
-     * )
-     * </pre>
+     * @see  POINT_BAR
      */
-    public static function readBarData($data, RosaSymbol $symbol) {
-        Assert::string($data, '$data');
+    public static function readBarData(string $data, RosaSymbol $symbol): array {
         $lenData = strlen($data);
         if ($lenData % Rost::BAR_SIZE) throw new RuntimeException('Odd length of passed '.$symbol->getName().' data: '.$lenData.' (not an even Rost::BAR_SIZE)');
 

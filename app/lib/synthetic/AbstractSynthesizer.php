@@ -14,6 +14,7 @@ use const rosasurfer\ministruts\DAY;
 /**
  * AbstractSynthesizer
  *
+ * @phpstan-import-type  POINT_BAR from \rosasurfer\rt\Rosatrader
  * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\Rosatrader
  */
 abstract class AbstractSynthesizer extends CObject implements ISynthesizer {
@@ -159,22 +160,35 @@ abstract class AbstractSynthesizer extends CObject implements ISynthesizer {
 
 
     /**
+     * {@inheritdoc}
      *
+     * @param  int  $period
+     * @param  int  $time
+     * @param  bool $compact [optional]
+     *
+     * @return array[]
+     * @phpstan-return ($compact is true ? POINT_BAR[] : PRICE_BAR[])
+     *
+     * @see  \rosasurfer\rt\POINT_BAR
+     * @see  \rosasurfer\rt\PRICE_BAR
      */
-    public final function getHistory($period, $time, $optimized = false) {
-        $time -= $time%DAY;
+    public final function getHistory(int $period, int $time, bool $compact = true): array {
+        $time -= $time % DAY;
 
         // clear cache on different bar period or time
-        if (!isset($this->cache[$period][$time]))
+        if (!isset($this->cache[$period][$time])) {
             unset($this->cache);
+        }
 
         // calculate real prices
-        if (!isset($this->cache[$period][$time]['real']))
+        if (!isset($this->cache[$period][$time]['real'])) {
             $this->cache[$period][$time]['real'] = $this->calculateHistory($period, $time);
+        }
         $realBars = $this->cache[$period][$time]['real'];
 
-        if (!$optimized)
+        if (!$compact) {
             return $realBars;
+        }
 
         if (!isset($this->cache[$period][$time]['optimized'])) {
             // calculate optimized prices

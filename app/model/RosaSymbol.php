@@ -348,6 +348,7 @@ class RosaSymbol extends RosatraderModel {
             $yesterDay = fxTime() - fxTime()%DAY - DAY;
 
             $missMsg = function($missing) use ($paddedName, $yesterDay) {
+                /** @var int[] $missing */
                 if ($misses = sizeof($missing)) {
                     $first = first($missing);
                     $last  = last($missing);

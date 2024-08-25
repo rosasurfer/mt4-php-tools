@@ -8,44 +8,25 @@ namespace rosasurfer\rt\lib;
  * IHistorySource
  *
  * An interface for classes capable of providing the original history for a Rosatrader symbol.
+ *
+ * @phpstan-import-type  POINT_BAR from \rosasurfer\rt\Rosatrader
+ * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\Rosatrader
  */
 interface IHistorySource {
 
-
     /**
-     * Get history for the specified bar period and time.
+     * Get the original history for the specified bar period and time.
      *
-     * @param  int  $period               - bar period identifier: PERIOD_M1 | PERIOD_M5 | PERIOD_M15 etc.
-     * @param  int  $time                 - FXT time to return prices for. If 0 (zero) the oldest available prices for the
-     *                                      requested bar period are returned.
-     * @param  bool $optimized [optional] - returned bar format (see notes)
+     * @param  int  $period             - bar period identifier: PERIOD_M1 | PERIOD_M5 | PERIOD_M15 etc.
+     * @param  int  $time               - FXT time to return prices for. If 0 (zero) the oldest available prices for the
+     *                                    requested bar period are returned.
+     * @param  bool $compact [optional] - returned bar format (default: more compact POINT_BARs)
      *
-     * @return array - An empty array if history for the specified bar period and time is not available. Otherwise a
-     *                 timeseries array with each element describing a single price bar as follows:
+     * @return array[] - history or an empty array if history for the specified parameters is not available
+     * @phpstan-return ($compact is true ? POINT_BAR[] : PRICE_BAR[])
      *
-     * <pre>
-     * $optimized => FALSE (default):
-     * ------------------------------
-     * Array(
-     *     'time'  => (int),            // bar open time in FXT
-     *     'open'  => (float),          // open value in real terms
-     *     'high'  => (float),          // high value in real terms
-     *     'low'   => (float),          // low value in real terms
-     *     'close' => (float),          // close value in real terms
-     *     'ticks' => (int),            // volume (if available) or number of synthetic ticks
-     * )
-     *
-     * $optimized => TRUE:
-     * -------------------
-     * Array(
-     *     'time'  => (int),            // bar open time in FXT
-     *     'open'  => (int),            // open value in point
-     *     'high'  => (int),            // high value in point
-     *     'low'   => (int),            // low value in point
-     *     'close' => (int),            // close value in point
-     *     'ticks' => (int),            // volume (if available) or number of synthetic ticks
-     * )
-     * </pre>
+     * @see  \rosasurfer\rt\POINT_BAR
+     * @see  \rosasurfer\rt\PRICE_BAR
      */
-    public function getHistory($period, $time, $optimized = false);
+    public function getHistory(int $period, int $time, bool $compact = true): array;
 }

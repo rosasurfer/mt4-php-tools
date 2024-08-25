@@ -47,6 +47,8 @@ use const rosasurfer\rt\PERIOD_M1;
  * @method        string                                   getTradeDirections()    Return the enabled trade directions of the test.
  * @method        \rosasurfer\rt\model\Order[]             getTrades()             Return the trade history of the test.
  * @method static \rosasurfer\rt\model\TestDAO             dao()                   Return the DAO for the class.
+ *
+ * @phpstan-import-type  ORDER_LOG_ENTRY from \rosasurfer\rt\Rosatrader
  */
 class Test extends RosatraderModel {
 
@@ -269,12 +271,11 @@ class Test extends RosatraderModel {
      *
      * @param  string $values - test property values from a log file
      *
-     * @return mixed[] - associative array with parsed properties
+     * @return array - associative array with parsed properties
      */
-    protected static function parseTestProperties($values) {
-        Assert::string($values);
+    protected static function parseTestProperties(string $values): array {
         $valuesOrig = $values;
-        $values     = trim($values);
+        $values = trim($values);
         $properties = [];
 
         $oldTimezone = date_default_timezone_get();
@@ -392,12 +393,13 @@ class Test extends RosatraderModel {
      *
      * @param  string $values - order property values from a log file
      *
-     * @return mixed[] - associative array with parsed properties
+     * @return scalar[] - associative array with parsed properties
+     *
+     * @phpstan-return ORDER_LOG_ENTRY
      */
-    protected static function parseOrderProperties($values) {
-        Assert::string($values);
+    protected static function parseOrderProperties(string $values): array {
         $valuesOrig = $values;
-        $values     = trim($values);
+        $values = trim($values);
         $properties = [];
                                                                                             // increase RegExp limit if needed
         static $pcreLimit = null; !$pcreLimit && $pcreLimit = ini_get_int('pcre.backtrack_limit');
@@ -445,7 +447,7 @@ class Test extends RosatraderModel {
         if (preg_match($pattern, $values, $matches, 0, $matches[0][1]+1))  throw new InvalidValueException('Illegal order properties (multiple "lots" occurrences): "'.$valuesOrig.'"');
 
         // symbol
-        $pattern = '/, *symbol *= *"([^"]+)" *,/i';
+        $pattern = '/, *symbol *= *"([^" ]+)" *,/i';
         if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE)) throw new InvalidValueException('Illegal order properties ("symbol" invalid or not found): "'.$valuesOrig.'"');
         $properties['symbol'] = $matches[1][0];
         if (preg_match($pattern, $values, $matches, 0, $matches[0][1]+1))  throw new InvalidValueException('Illegal order properties (multiple "symbol" occurrences): "'.$valuesOrig.'"');
@@ -529,6 +531,7 @@ class Test extends RosatraderModel {
         $properties['comment'] = $matches[1][0];
         if (preg_match($pattern, $values, $matches, 0, $matches[0][1]+1))  throw new InvalidValueException('Illegal order properties (multiple "comment" occurrences): "'.$valuesOrig.'"');
 
+        /** @phpstan-var ORDER_LOG_ENTRY $properties*/
         return $properties;
     }
 
