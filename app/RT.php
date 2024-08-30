@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace rosasurfer\rt;
 
+use rosasurfer\ministruts\config\ConfigInterface as Config;
 use rosasurfer\ministruts\core\StaticClass;
-use rosasurfer\ministruts\core\assert\Assert;
 use rosasurfer\ministruts\core\exception\RuntimeException;
 use rosasurfer\ministruts\file\FileSystem as FS;
 
@@ -21,7 +21,7 @@ use rosasurfer\rt\model\RosaSymbol;
 
 
 /**
- * Rosatrader related functionality.
+ * Common project definitions and functionality.
  *
  *
  * @phpstan-type  POINT_BAR = array{
@@ -77,7 +77,37 @@ use rosasurfer\rt\model\RosaSymbol;
  *     ticks          : int,
  * }
  */
-class Rosatrader extends StaticClass {
+class RT extends StaticClass {
+
+
+    /**
+     * Convert a POINT_BAR timeseries to a PRICE_BAR timeseries.
+     *
+     * @param          array<scalar[]> $pointBars - POINT_BAR timeseries
+     * @phpstan-param  POINT_BAR[]     $pointBars
+     * @param          float           $pointSize - decimal resolution of a price unit, e.g. pointSize(1.00) => 0.01
+     *
+     * @return         array<scalar[]> - PRICE_BAR timeseries
+     * @phpstan-return PRICE_BAR[]
+     *
+     * @see POINT_BAR
+     * @see PRICE_BAR
+     */
+    public static function convertPointToPriceBars(array $pointBars, float $pointSize): array {
+        $priceBars = [];
+
+        foreach ($pointBars as $pointBar) {
+            $priceBar = [];
+            $priceBar['time' ] = $pointBar['time' ];
+            $priceBar['open' ] = $pointBar['open' ] * $pointSize;
+            $priceBar['high' ] = $pointBar['high' ] * $pointSize;
+            $priceBar['low'  ] = $pointBar['low'  ] * $pointSize;
+            $priceBar['close'] = $pointBar['close'] * $pointSize;
+            $priceBar['ticks'] = $pointBar['ticks'];
+            $priceBars[] = $priceBar;
+        }
+        return $priceBars;
+    }
 
 
     /**
@@ -86,7 +116,7 @@ class Rosatrader extends StaticClass {
      * @param  string     $fileName - file name
      * @param  RosaSymbol $symbol   - instrument the data belongs to
      *
-     * @return array[] - timeseries array (array of POINT_BARs)
+     * @return         array[] - timeseries array (array of POINT_BARs)
      * @phpstan-return POINT_BAR[]
      *
      * @see  POINT_BAR
@@ -102,7 +132,7 @@ class Rosatrader extends StaticClass {
      * @param  string     $data
      * @param  RosaSymbol $symbol - instrument the data belongs to
      *
-     * @return array[] - timeseries array (array of POINT_BARs)
+     * @return         array[] - timeseries array (array of POINT_BARs)
      * @phpstan-return POINT_BAR[]
      *
      * @see  POINT_BAR
@@ -122,15 +152,14 @@ class Rosatrader extends StaticClass {
     /**
      * Save a timeseries array with M1 bars of a single day to the file system.
      *
-     * @param  scalar[]   $bars   - bar data (POINT_BARs or PRICE_BARs)
-     * @param  RosaSymbol $symbol - instrument the data belongs to
+     * @param         scalar[]                   $bars   - bar data (POINT_BARs or PRICE_BARs)
+     * @phpstan-param array<POINT_BAR|PRICE_BAR> $bars
+     * @param         RosaSymbol                 $symbol - instrument the data belongs to
      *
      * @return bool - success status
      *
-     * @phpstan-param  array<POINT_BAR|PRICE_BAR> $bars
-     *
-     * @see \rosasurfer\rt\POINT_BAR
-     * @see \rosasurfer\rt\PRICE_BAR
+     * @see POINT_BAR
+     * @see PRICE_BAR
      */
     public static function saveM1Bars(array $bars, RosaSymbol $symbol) {
         // validate bar range
@@ -184,14 +213,59 @@ class Rosatrader extends StaticClass {
 
 
     /**
+     * Return the configured mail addresses of signal receivers by email.
+     *
+     * @return string[] - mail addresses
+     */
+    public static function getMailSignalReceivers(): array {
+        static $addresses;
+        return $addresses ??= (function() {
+            /** @var Config $config */
+            $config = self::di('config');
+            $values = $config->get('mail.signalreceivers', '');
+
+            $addresses = [];
+            foreach (explode(',', $values) as $address) {
+                if ($address = trim($address)) {
+                    $addresses[] = $address;
+                }
+            }
+            return $addresses;
+        });
+    }
+
+
+    /**
+     * Return the configured phone numbers of signal receivers by text message.
+     *
+     * @return string[] - phone numbers
+     */
+    public static function getSmsSignalReceivers(): array {
+        static $numbers;
+        return $numbers ??= (function() {
+            /** @var Config $config */
+            $config = self::di('config');
+            $values = $config->get('sms.signalreceivers', '');
+
+            $numbers = [];
+            foreach (explode(',', $values) as $number) {
+                if ($number = trim($number)) {
+                    $numbers[] = $number;
+                }
+            }
+            return $numbers;
+        });
+    }
+
+
+    /**
      * Convert an absolute file path to a project-relative one.
      *
      * @param  string $path
      *
      * @return string
      */
-    public static function relativePath($path) {
-        Assert::string($path);
+    public static function relativePath(string $path): string {
         $_path = str_replace('\\', '/', $path);
 
         static $root, $realRoot, $storage, $realStorage;

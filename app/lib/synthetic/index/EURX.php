@@ -27,7 +27,7 @@ use const rosasurfer\rt\PERIOD_M1;
  * EURX = 34.38805726 * pow(EURCHF, 0.1113) * pow(EURGBP, 0.3056) * pow(EURJPY, 0.1891) * pow(EURSEK, 0.0785) * pow(EURUSD, 0.3155)
  * </pre>
  *
- * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\Rosatrader
+ * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\RT
  */
 class EURX extends AbstractSynthesizer {
 

@@ -28,7 +28,7 @@ use const rosasurfer\rt\PERIOD_M1;
  * CADFXI = pow(CADCHF * CADJPY / (AUDCAD * EURCAD * GBPCAD * USDCAD), 1/6)
  * </pre>
  *
- * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\Rosatrader
+ * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\RT
  */
 class CADFXI extends AbstractSynthesizer {
 

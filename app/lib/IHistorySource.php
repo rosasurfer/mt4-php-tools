@@ -9,8 +9,8 @@ namespace rosasurfer\rt\lib;
  *
  * An interface for classes capable of providing the original history for a Rosatrader symbol.
  *
- * @phpstan-import-type  POINT_BAR from \rosasurfer\rt\Rosatrader
- * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\Rosatrader
+ * @phpstan-import-type  POINT_BAR from \rosasurfer\rt\RT
+ * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\RT
  */
 interface IHistorySource {
 
@@ -22,7 +22,7 @@ interface IHistorySource {
      *                                    requested bar period are returned.
      * @param  bool $compact [optional] - returned bar format (default: more compact POINT_BARs)
      *
-     * @return array[] - history or an empty array if history for the specified parameters is not available
+     * @return         array[] - history or an empty array if history for the specified parameters is not available
      * @phpstan-return ($compact is true ? POINT_BAR[] : PRICE_BAR[])
      *
      * @see \rosasurfer\rt\POINT_BAR

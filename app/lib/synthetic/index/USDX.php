@@ -26,7 +26,7 @@ use const rosasurfer\rt\PERIOD_M1;
  * USDX = 50.14348112 * pow(USDCAD, 0.091) * pow(USDCHF, 0.036) * pow(USDJPY, 0.136) * pow(USDSEK, 0.042) / (pow(EURUSD, 0.576) * pow(GBPUSD, 0.119))
  * </pre>
  *
- * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\Rosatrader
+ * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\RT
  */
 class USDX extends AbstractSynthesizer {
 

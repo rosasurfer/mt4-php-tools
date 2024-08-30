@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace rosasurfer\rt\lib;
 
-use rosasurfer\ministruts\config\ConfigInterface;
 use rosasurfer\ministruts\core\StaticClass;
 use rosasurfer\ministruts\core\assert\Assert;
 use rosasurfer\ministruts\core\exception\InvalidTypeException;
@@ -41,31 +40,33 @@ use const rosasurfer\rt\PERIOD_W1;
 /**
  * Rosatrader related functionality
  *
- *                                             size        offset      description
- * struct ROST_PRICE_BAR {                     ----        ------      ------------------------------------------------
- *    uint time;                                 4            0        FXT timestamp (seconds since 01.01.1970 FXT)
- *    uint open;                                 4            4        in point
- *    uint high;                                 4            8        in point
- *    uint low;                                  4           12        in point
- *    uint close;                                4           16        in point
- *    uint ticks;                                4           20        volume (if available) or number of synthetic ticks
- * };                                    = 24 byte
+ * <pre>
+ *                             size        offset      description
+ * struct ROST_PRICE_BAR {     ----        ------      --------------------------------------------
+ *    uint time;                 4            0        FXT timestamp (seconds since 01.01.1970 FXT)
+ *    uint open;                 4            4        in point
+ *    uint high;                 4            8        in point
+ *    uint low;                  4           12        in point
+ *    uint close;                4           16        in point
+ *    uint ticks;                4           20        volume (if available) or number of ticks
+ * };                    = 24 byte
  *
- *                                             size        offset      description
- * struct ROST_PIP_BAR {                       ----        ------      ------------------------------------------------
- *    uint   time;                               4            0        FXT timestamp (seconds since 01.01.1970 FXT)
- *    double open;                               8            4        in pip
- *    double high;                               8           12        in pip
- *    double low;                                8           20        in pip
- *    double close;                              8           28        in pip
- * };                                    = 36 byte
+ *                             size        offset      description
+ * struct ROST_PIP_BAR {       ----        ------      --------------------------------------------
+ *    uint   time;               4            0        FXT timestamp (seconds since 01.01.1970 FXT)
+ *    double open;               8            4        in pip
+ *    double high;               8           12        in pip
+ *    double low;                8           20        in pip
+ *    double close;              8           28        in pip
+ * };                    = 36 byte
  *
- *                                             size        offset      description
- * struct ROST_TICK {                          ----        ------      ------------------------------------------------
- *    uint timeDelta;                            4            0        milliseconds since beginning of the hour
- *    uint bid;                                  4            4        in point
- *    uint ask;                                  4            8        in point
- * };                                    = 12 byte
+ *                             size        offset      description
+ * struct ROST_TICK {          ----        ------      --------------------------------------------
+ *    uint timeDelta;            4            0        milliseconds since beginning of the hour
+ *    uint bid;                  4            4        in point
+ *    uint ask;                  4            8        in point
+ * };                    = 12 byte
+ * </pre>
  */
 class Rost extends StaticClass {
 
@@ -82,54 +83,6 @@ class Rost extends StaticClass {
 
 
     /**
-     * Gibt die Mailadressen aller konfigurierten Signalempfaenger per E-Mail zurueck.
-     *
-     * @return string[] - Array mit E-Mailadressen
-     */
-    public static function getMailSignalReceivers() {
-        static $addresses = null;
-
-        if (is_null($addresses)) {
-            /** @var ConfigInterface $config */
-            $config = self::di('config');
-            $values = $config->get('mail.signalreceivers', '');
-
-            foreach (explode(',', $values) as $address) {
-                if ($address = trim($address))
-                    $addresses[] = $address;
-            }
-            if (!$addresses)
-                $addresses = [];
-        }
-        return $addresses;
-    }
-
-
-    /**
-     * Gibt die Rufnummern aller konfigurierten Signalempfaenger per SMS zurueck.
-     *
-     * @return string[] - Array mit Rufnummern
-     */
-    public static function getSmsSignalReceivers() {
-        static $numbers = null;
-
-        if (is_null($numbers)) {
-            /** @var ConfigInterface $config */
-            $config = self::di('config');
-            $values = $config->get('sms.signalreceivers', '');
-
-            foreach (explode(',', $values) as $number) {
-                if ($number=trim($number))
-                    $numbers[] = $number;
-            }
-            if (!$numbers)
-                $numbers = [];
-        }
-        return $numbers;
-    }
-
-
-    /**
      * Verschickt eine SMS.
      *
      * @param  string $receiver - Empfaenger (internationales Format)
@@ -137,14 +90,12 @@ class Rost extends StaticClass {
      *
      * @return void
      */
-    public static function sendSMS($receiver, $message) {
-        Assert::string($receiver, '$receiver');
+    public static function sendSMS(string $receiver, string $message): void {
         $receiver = trim($receiver);
         if (strStartsWith($receiver, '+' )) $receiver = substr($receiver, 1);
         if (strStartsWith($receiver, '00')) $receiver = substr($receiver, 2);
         if (!ctype_digit($receiver)) throw new InvalidValueException('Invalid argument $receiver: "'.$receiver.'"');
 
-        Assert::string($message, '$message');
         $message = trim($message);
         if ($message == '') throw new InvalidValueException('Invalid argument $message: "'.$message.'"');
 
@@ -172,9 +123,7 @@ class Rost extends StaticClass {
      *
      * @return string - Beschreibung
      */
-    public static function operationTypeDescription($type) {
-        Assert::int($type);
-
+    public static function operationTypeDescription(int $type): string {
         static $operationTypes = [
             OP_BUY       => 'Buy'       ,
             OP_SELL      => 'Sell'      ,
@@ -185,9 +134,9 @@ class Rost extends StaticClass {
             OP_BALANCE   => 'Balance'   ,
             OP_CREDIT    => 'Credit'    ,
         ];
-        if (isset($operationTypes[$type]))
+        if (isset($operationTypes[$type])) {
             return $operationTypes[$type];
-
+        }
         throw new InvalidValueException('Invalid parameter $type: '.$type.' (not an operation type)');
     }
 
@@ -199,7 +148,7 @@ class Rost extends StaticClass {
      *
      * @return bool
      */
-    public static function isOrderType($integer) {
+    public static function isOrderType(int $integer): bool {
         $description = static::orderTypeDescription($integer);
         return ($description !== null);
     }

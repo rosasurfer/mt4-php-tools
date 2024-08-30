@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace rosasurfer\rt\lib\synthetic\index;
 
-use rosasurfer\ministruts\core\assert\Assert;
 use rosasurfer\ministruts\core\di\proxy\Output;
 use rosasurfer\ministruts\core\exception\UnimplementedFeatureException;
 
@@ -27,7 +26,7 @@ use const rosasurfer\rt\PERIOD_M1;
  * XAUI = pow(XAUAUD * XAUCAD * XAUCHF * XAUEUR * XAUUSD * XAUGBP * XAUJPY, 1/7)
  * </pre>
  *
- * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\Rosatrader
+ * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\RT
  */
 class XAUI extends AbstractSynthesizer {
 
@@ -51,9 +50,7 @@ class XAUI extends AbstractSynthesizer {
      * @see \rosasurfer\rt\PRICE_BAR
      */
     public function calculateHistory(int $period, int $time): array {
-        Assert::int($period, '$period');
         if ($period != PERIOD_M1) throw new UnimplementedFeatureException(__METHOD__.'('.periodToStr($period).') not implemented');
-        Assert::int($time, '$time');
 
         if (!$symbols = $this->getComponents(first($this->components)))
             return [];

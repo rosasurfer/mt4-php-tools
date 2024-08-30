@@ -18,7 +18,7 @@ use const rosasurfer\ministruts\DAY;
 use const rosasurfer\ministruts\HOURS;
 use const rosasurfer\ministruts\MINUTES;
 
-use rosasurfer\rt\Rosatrader as RT;
+use rosasurfer\rt\RT;
 use rosasurfer\rt\lib\IHistorySource;
 use rosasurfer\rt\lib\synthetic\GenericSynthesizer;
 use rosasurfer\rt\lib\synthetic\ISynthesizer;
@@ -44,8 +44,8 @@ use const rosasurfer\rt\PERIOD_M1;
  * @method        ?\rosasurfer\rt\model\DukascopySymbol getDukascopySymbol() Return the {@link DukascopySymbol} mapped to this Rosatrader symbol.
  * @method static \rosasurfer\rt\model\RosaSymbolDAO    dao()                Return the {@link RosaSymbolDAO} for the calling class.
  *
- * @phpstan-import-type  POINT_BAR from \rosasurfer\rt\Rosatrader
- * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\Rosatrader
+ * @phpstan-import-type  POINT_BAR from \rosasurfer\rt\RT
+ * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\RT
  */
 class RosaSymbol extends RosatraderModel {
 

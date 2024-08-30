@@ -28,7 +28,7 @@ use const rosasurfer\rt\PERIOD_M1;
  * GBPFXI = pow(GBPAUD * GBPCAD * GBPCHF * GBPJPY * GBPUSD / EURGBP, 1/6)
  * </pre>
  *
- * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\Rosatrader
+ * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\RT
  */
 class GBPFXI extends AbstractSynthesizer {
 

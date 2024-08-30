@@ -12,7 +12,7 @@ namespace rosasurfer\rt {
      *
      * <pre>
      * POINT_BAR = array(
-     *   'time'  => (int),      // bar open time in FXT
+     *   'time'  => (int),      // bar open timestamp in FXT
      *   'open'  => (int),      // open price in point
      *   'high'  => (int),      // high price in point
      *   'low'   => (int),      // low price in point
@@ -28,7 +28,7 @@ namespace rosasurfer\rt {
      *
      * <pre>
      * PRICE_BAR = array(
-     *   'time'  => (int),      // bar open time in FXT
+     *   'time'  => (int),      // bar open timestamp in FXT
      *   'open'  => (float),    // open price
      *   'high'  => (float),    // high price
      *   'low'   => (float),    // low price
@@ -71,14 +71,14 @@ namespace rosasurfer\rt {
      * <pre>
      * LOG_TEST = array(
      *   'id'              => (int),
-     *   'time'            => (int),                // creation time (local TZ)
+     *   'time'            => (int),                // creation timestamp (local TZ)
      *   'strategy'        => (non-empty-string),
      *   'reportingId'     => (int),
      *   'reportingSymbol' => (non-empty-string),
      *   'symbol'          => (non-empty-string),
      *   'timeframe'       => (int),
-     *   'startTime'       => (int),                // history start time (FXT)
-     *   'endTime'         => (int),                // history end time (FXT)
+     *   'startTime'       => (int),                // history start timestamp (FXT)
+     *   'endTime'         => (int),                // history end timestamp (FXT)
      *   'barModel'        => 0|1|2,
      *   'spread'          => (float),
      *   'bars'            => (int),

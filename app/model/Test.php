@@ -48,8 +48,8 @@ use const rosasurfer\rt\PERIOD_M1;
  * @method        \rosasurfer\rt\model\Order[]             getTrades()             Return the trade history of the test.
  * @method static \rosasurfer\rt\model\TestDAO             dao()                   Return the DAO for the class.
  *
- * @phpstan-import-type  LOG_ORDER from \rosasurfer\rt\Rosatrader
- * @phpstan-import-type  LOG_TEST  from \rosasurfer\rt\Rosatrader
+ * @phpstan-import-type  LOG_ORDER from \rosasurfer\rt\RT
+ * @phpstan-import-type  LOG_TEST  from \rosasurfer\rt\RT
  */
 class Test extends RosatraderModel {
 

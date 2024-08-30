@@ -27,7 +27,7 @@ use const rosasurfer\rt\PERIOD_M1;
  * AUDLFX = pow(AUDCAD * AUDCHF * AUDJPY * AUDUSD / (EURAUD * GBPAUD), 1/7)
  * </pre>
  *
- * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\Rosatrader
+ * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\RT
  */
 class AUDLFX extends AbstractSynthesizer {
 

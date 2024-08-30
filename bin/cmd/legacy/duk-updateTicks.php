@@ -59,7 +59,7 @@ use const rosasurfer\ministruts\DAY;
 use const rosasurfer\ministruts\HOUR;
 use const rosasurfer\ministruts\NL;
 
-use rosasurfer\rt\Rosatrader as RT;
+use rosasurfer\rt\RT;
 use rosasurfer\rt\lib\dukascopy\Dukascopy;
 use rosasurfer\rt\lib\dukascopy\DukascopyException;
 use rosasurfer\rt\model\DukascopySymbol;

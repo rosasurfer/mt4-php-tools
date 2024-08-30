@@ -28,7 +28,7 @@ use const rosasurfer\rt\PERIOD_M1;
  * NZDFXI = pow(NZDCAD * NZDCHF * NZDJPY * NZDUSD / (AUDNZD * EURNZD * GBPNZD), 1/7)
  * </pre>
  *
- * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\Rosatrader
+ * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\RT
  */
 class NZDFXI extends AbstractSynthesizer {
 

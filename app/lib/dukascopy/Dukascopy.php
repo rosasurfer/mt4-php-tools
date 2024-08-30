@@ -12,6 +12,7 @@ use rosasurfer\ministruts\core\exception\UnimplementedFeatureException;
 use rosasurfer\ministruts\file\FileSystem as FS;
 use rosasurfer\ministruts\log\Logger;
 
+use rosasurfer\rt\RT;
 use rosasurfer\rt\lib\LZMA;
 use rosasurfer\rt\lib\dukascopy\HttpClient as DukascopyClient;
 use rosasurfer\rt\model\DukascopySymbol;
@@ -44,8 +45,8 @@ use const rosasurfer\rt\PRICE_MEDIAN;
 /**
  * Functionality for downloading and processing Dukascopy history data.
  *
- * @phpstan-import-type  POINT_BAR from \rosasurfer\rt\Rosatrader
- * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\Rosatrader
+ * @phpstan-import-type  POINT_BAR from \rosasurfer\rt\RT
+ * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\RT
  */
 class Dukascopy extends CObject {
 
@@ -151,7 +152,7 @@ class Dukascopy extends CObject {
         }
 
         if (!isset($this->history[$nameU][$period][$day]['real'])) {
-            $real = $this->calculateReal($symbol, $this->history[$nameU][$period][$day][PRICE_MEDIAN]);
+            $real = RT::convertPointToPriceBars($this->history[$nameU][$period][$day][PRICE_MEDIAN], $symbol->getPointValue());
             $this->history[$nameU][$period][$day]['real'] = $real;                          // PRICE_BARs
         }
         return $this->history[$nameU][$period][$day]['real'];
@@ -379,37 +380,6 @@ class Dukascopy extends CObject {
 
 
     /**
-     * Convert a POINT_BAR timeseries to a PRICE_BAR timeseries.
-     *
-     * @param          DukascopySymbol $symbol  - symbol the timeseries belongs to
-     * @param          array[]         $history - POINT_BAR timeseries
-     * @phpstan-param  POINT_BAR[]     $history
-     *
-     * @return         array[] - PRICE_BAR timeseries
-     * @phpstan-return PRICE_BAR[]
-     *
-     * @see \rosasurfer\rt\POINT_BAR
-     * @see \rosasurfer\rt\PRICE_BAR
-     */
-    protected function calculateReal(DukascopySymbol $symbol, array $history) {
-        $point = $symbol->getPointValue();
-        $results = [];
-
-        foreach ($history as $bar) {
-            $new = [];
-            $new['time' ] = $bar['time'];
-            $new['open' ] = $bar['open' ] * $point;
-            $new['high' ] = $bar['high' ] * $point;
-            $new['low'  ] = $bar['low'  ] * $point;
-            $new['close'] = $bar['close'] * $point;
-            $new['ticks'] = $bar['ticks'];
-            $results[] = $new;
-        }
-        return $results;
-    }
-
-
-    /**
      * Parse a file with Dukascopy bar data and convert it to a data array.
      *
      * @param  string          $fileName - name of file with Dukascopy bar data
@@ -430,8 +400,7 @@ class Dukascopy extends CObject {
      * )
      * </pre>
      */
-    protected function readBarFile($fileName, DukascopySymbol $symbol, $type, $time) {
-        Assert::string($fileName, '$fileName');
+    protected function readBarFile(string $fileName, DukascopySymbol $symbol, int $type, int $time): array {
         return $this->readBarData(file_get_contents($fileName), $symbol, $type, $time);
     }
 

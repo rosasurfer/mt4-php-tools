@@ -29,7 +29,7 @@ use const rosasurfer\rt\PERIOD_M1;
  * JPYFXI = 100 * pow(1 / (AUDJPY * CADJPY * CHFJPY * EURJPY * GBPJPY * USDJPY), 1/6)
  * </pre>
  *
- * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\Rosatrader
+ * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\RT
  */
 class JPYFXI extends AbstractSynthesizer {
 

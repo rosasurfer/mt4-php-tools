@@ -29,7 +29,7 @@ use const rosasurfer\rt\PERIOD_M1;
  * SEKFXI = 10 * pow(SEKJPY / (AUDSEK * CADSEK * CHFSEK * EURSEK * GBPSEK * USDSEK), 1/7)
  * </pre>
  *
- * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\Rosatrader
+ * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\RT
  */
 class SEKFXI extends AbstractSynthesizer {
 

@@ -26,7 +26,7 @@ use const rosasurfer\rt\PERIOD_M1;
  * USDFXI = pow(USDCAD * USDCHF * USDJPY / (AUDUSD * EURUSD * GBPUSD), 1/6)
  * </pre>
  *
- * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\Rosatrader
+ * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\RT
  */
 class USDFXI extends AbstractSynthesizer {
 
