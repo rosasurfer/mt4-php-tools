@@ -79,7 +79,7 @@ abstract class AbstractSynthesizer extends CObject implements ISynthesizer {
      * @return array[] - PRICE_BAR array or an empty array, if the requested history is not available
      * @phpstan-return PRICE_BAR[]
      *
-     * @see  \rosasurfer\rt\PRICE_BAR
+     * @see \rosasurfer\rt\PRICE_BAR
      */
     abstract public function calculateHistory(int $period, int $time): array;
 
@@ -169,8 +169,8 @@ abstract class AbstractSynthesizer extends CObject implements ISynthesizer {
      * @return array[]
      * @phpstan-return ($compact is true ? POINT_BAR[] : PRICE_BAR[])
      *
-     * @see  \rosasurfer\rt\POINT_BAR
-     * @see  \rosasurfer\rt\PRICE_BAR
+     * @see \rosasurfer\rt\POINT_BAR
+     * @see \rosasurfer\rt\PRICE_BAR
      */
     public final function getHistory(int $period, int $time, bool $compact = true): array {
         $time -= $time % DAY;

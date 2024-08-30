@@ -42,7 +42,7 @@ use rosasurfer\rt\model\RosaSymbol;
  *     ticks: int,
  * }
  *
- * @phpstan-type  ORDER_LOG_ENTRY = array{
+ * @phpstan-type  LOG_ORDER = array{
  *     id         : int,
  *     ticket     : int,
  *     type       : int,
@@ -59,6 +59,22 @@ use rosasurfer\rt\model\RosaSymbol;
  *     profit     : float,
  *     magicNumber: int,
  *     comment    : string,
+ * }
+ *
+ * @phpstan-type  LOG_TEST = array{
+ *     id             : int,
+ *     time           : int,
+ *     strategy       : non-empty-string,
+ *     reportingId    : int,
+ *     reportingSymbol: non-empty-string,
+ *     symbol         : non-empty-string,
+ *     timeframe      : int,
+ *     startTime      : int,
+ *     endTime        : int,
+ *     barModel       : 0|1|2,
+ *     spread         : float,
+ *     bars           : int,
+ *     ticks          : int,
  * }
  */
 class Rosatrader extends StaticClass {
@@ -106,10 +122,15 @@ class Rosatrader extends StaticClass {
     /**
      * Save a timeseries array with M1 bars of a single day to the file system.
      *
-     * @param  array[]    $bars   - bar data
+     * @param  scalar[]   $bars   - bar data (POINT_BARs or PRICE_BARs)
      * @param  RosaSymbol $symbol - instrument the data belongs to
      *
      * @return bool - success status
+     *
+     * @phpstan-param  array<POINT_BAR|PRICE_BAR> $bars
+     *
+     * @see \rosasurfer\rt\POINT_BAR
+     * @see \rosasurfer\rt\PRICE_BAR
      */
     public static function saveM1Bars(array $bars, RosaSymbol $symbol) {
         // validate bar range
@@ -119,7 +140,7 @@ class Rosatrader extends StaticClass {
         if (($size=sizeof($bars)) != PERIOD_D1)                throw new RuntimeException('Invalid number of M1 bars for '.gmdate('D, d-M-Y', $day).': '.$size);
         if ($bars[$size-1]['time']%DAY != 23*HOURS+59*MINUTES) throw new RuntimeException('Invalid daily M1 data, last bar opentime: '.gmdate('D, d-M-Y H:i:s', $bars[$size-1]['time']));
 
-        $optimized = is_int($bars[0]['open']);
+        $isPriceBar = !is_int($bars[0]['open']);
         $point = $symbol->getPointValue();
 
         // concat all bars to a large binary string
@@ -132,12 +153,12 @@ class Rosatrader extends StaticClass {
             $close = $bar['close'];
             $ticks = $bar['ticks'];
 
-            if (!$optimized) {
-                $open  = (int) round($open /$point);    // storing price values in points saves 40% storage place
+            if ($isPriceBar) {
+                $open  = (int) round($open /$point);            // storing POINT_BARs saves 40% storage place compared to PRICE_BARs
                 $high  = (int) round($high /$point);
                 $low   = (int) round($low  /$point);
                 $close = (int) round($close/$point);
-            }                                           // final bar validation
+            }                                                   // final bar validation
             if ($open > $high || $open < $low || $close > $high || $close < $low || !$ticks) {
                 throw new RuntimeException('Illegal M1 bar data for '.gmdate('D, d-M-Y H:i:s', $time).":  O=$open  H=$high  L=$low  C=$close  V=$ticks");
             }
@@ -147,13 +168,13 @@ class Rosatrader extends StaticClass {
         // delete existing files
         $storageDir  = self::di('config')['app.dir.data'];
         $storageDir .= '/history/rosatrader/'.$symbol->getType().'/'.$symbol->getName();
-        $dir         = $storageDir.'/'.gmdate('Y/m/d', $day);
+        $dir         = "$storageDir/".gmdate('Y/m/d', $day);
         $msg         = '[Info]    '.$symbol->getName().'  deleting existing M1 file: ';
         if (is_file($file=$dir.'/M1.bin'    )) { echof($msg.static::relativePath($file)); unlink($file); }
         if (is_file($file=$dir.'/M1.bin.rar')) { echof($msg.static::relativePath($file)); unlink($file); }
 
         // write data to new file
-        $file = $dir.'/M1.bin';
+        $file = "$dir/M1.bin";
         FS::mkDir(dirname($file));
         $tmpFile = tempnam(dirname($file), basename($file));    // make sure an existing file can't be corrupt
         file_put_contents($tmpFile, $data);

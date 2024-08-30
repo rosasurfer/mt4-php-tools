@@ -227,8 +227,8 @@ class DukascopySymbol extends RosatraderModel implements IHistorySource {
      * @return array[]
      * @phpstan-return ($compact is true ? POINT_BAR[] : PRICE_BAR[])
      *
-     * @see  \rosasurfer\rt\POINT_BAR
-     * @see  \rosasurfer\rt\PRICE_BAR
+     * @see \rosasurfer\rt\POINT_BAR
+     * @see \rosasurfer\rt\PRICE_BAR
      */
     public function getHistory(int $period, int $time, bool $compact = true): array {
         Assert::int($period, '$period');

@@ -48,7 +48,8 @@ use const rosasurfer\rt\PERIOD_M1;
  * @method        \rosasurfer\rt\model\Order[]             getTrades()             Return the trade history of the test.
  * @method static \rosasurfer\rt\model\TestDAO             dao()                   Return the DAO for the class.
  *
- * @phpstan-import-type  ORDER_LOG_ENTRY from \rosasurfer\rt\Rosatrader
+ * @phpstan-import-type  LOG_ORDER from \rosasurfer\rt\Rosatrader
+ * @phpstan-import-type  LOG_TEST  from \rosasurfer\rt\Rosatrader
  */
 class Test extends RosatraderModel {
 
@@ -107,15 +108,11 @@ class Test extends RosatraderModel {
      *
      * @return self
      */
-    public static function create($configFile, $resultsFile) {
-        Assert::string($configFile, '$configFile');
-        Assert::string($resultsFile, '$resultsFile');
-
-        $test          = new self();
+    public static function create(string $configFile, string $resultsFile) {
+        $test = new self();
         $test->created = date('Y-m-d H:i:s');
 
-
-        // (1) parse the test results file
+        // parse the test results file
         PHP::ini_set('auto_detect_line_endings', 1);
         $hFile = fopen($resultsFile, 'rb');
         $i = 0;
@@ -129,75 +126,58 @@ class Test extends RosatraderModel {
                 $properties = static::parseTestProperties($line);
 
                 $time = $properties['time'];                  // GMT timestamp
-                Assert::int($time, '$time');
                 if ($time <= 0)                               throw new InvalidValueException('Invalid property "time": '.$time.' (not positive)');
                 $test->created = gmdate('Y-m-d H:i:s', $time);
 
                 $strategy = $properties['strategy'];
-                Assert::string($strategy, '$strategy');
-                if ($strategy != trim($strategy))             throw new InvalidValueException('Invalid property "strategy": "'.$strategy.'" (format violation)');
-                if (!strlen($strategy))                       throw new InvalidValueException('Invalid property "strategy": "'.$strategy.'" (length violation)');
                 if (strlen($strategy) > Windows::MAX_PATH)    throw new InvalidValueException('Invalid property "strategy": "'.$strategy.'" (length violation)');
                 $test->strategy = $strategy;
 
                 $reportingId = $properties['reportingId'];
-                Assert::int($reportingId, '$reportingId');
                 if ($reportingId <= 0)                        throw new InvalidValueException('Invalid property "reportingId": '.$reportingId.' (not positive)');
                 $test->reportingId = $reportingId;
 
                 $symbol = $properties['reportingSymbol'];
-                Assert::string($symbol, '$symbol');
-                if ($symbol != trim($symbol))                 throw new InvalidValueException('Invalid property "reportingSymbol": "'.$symbol.'" (format violation)');
-                if (!strlen($symbol))                         throw new InvalidValueException('Invalid property "reportingSymbol": "'.$symbol.'" (length violation)');
                 if (strlen($symbol) > MT4::MAX_SYMBOL_LENGTH) throw new InvalidValueException('Invalid property "reportingSymbol": "'.$symbol.'" (length violation)');
                 $test->reportingSymbol = $symbol;
 
                 $symbol = $properties['symbol'];
-                Assert::string($symbol, '$symbol');
-                if ($symbol != trim($symbol))                 throw new InvalidValueException('Invalid property "symbol": "'.$symbol.'" (format violation)');
-                if (!strlen($symbol))                         throw new InvalidValueException('Invalid property "symbol": "'.$symbol.'" (length violation)');
                 if (strlen($symbol) > MT4::MAX_SYMBOL_LENGTH) throw new InvalidValueException('Invalid property "symbol": "'.$symbol.'" (length violation)');
                 $test->symbol = $symbol;
 
                 $timeframe = $properties['timeframe'];
-                Assert::int($timeframe, '$timeframe');
                 if (!MT4::isStdTimeframe($timeframe))         throw new InvalidValueException('Invalid property "timeframe": '.$timeframe.' (not a timeframe)');
                 $test->timeframe = $timeframe;
 
                 $startTime = $properties['startTime'];        // FXT timestamp
-                Assert::int($startTime, '$startTime');
                 if ($startTime <= 0)                          throw new InvalidValueException('Invalid property "startTime": '.$startTime.' (not positive)');
                 $test->startTime = gmdate('Y-m-d H:i:s', $startTime);
 
                 $endTime = $properties['endTime'];            // FXT timestamp
-                Assert::int($endTime, '$endTime');
                 if ($endTime <= 0)                            throw new InvalidValueException('Invalid property "endTime": '.$endTime.' (not positive)');
                 if ($startTime > $endTime)                    throw new InvalidValueException('Invalid properties "startTime|endTime": '.$startTime.'|'.$endTime.' (mis-match)');
                 $test->endTime = gmdate('Y-m-d H:i:s', $endTime);
 
                 $barModel = $properties['barModel'];
-                Assert::int($barModel, '$barModel');
                 if (!MT4::isBarModel($barModel))              throw new InvalidValueException('Invalid property "barModel": '.$barModel.' (not a bar model)');
                 $test->barModel = MT4::barModelDescription($barModel);
 
                 $spread = $properties['spread'];
-                Assert::float($spread, '$spread');
                 if ($spread < 0)                              throw new InvalidValueException('Invalid property "spread": '.$spread.' (not non-negative)');
                 if ($spread != round($spread, 1))             throw new InvalidValueException('Invalid property "spread": '.$spread.' (illegal)');
                 $test->spread = $spread;
 
                 $bars = $properties['bars'];
-                Assert::int($bars, '$bars');
                 if ($bars <= 0)                               throw new InvalidValueException('Invalid property "bars": '.$bars.' (not positive)');
                 $test->bars = $bars;
 
                 $ticks = $properties['ticks'];
-                Assert::int($ticks, '$ticks');
                 if ($ticks <= 0)                              throw new InvalidValueException('Invalid property "ticks": '.$ticks.' (not positive)');
                 $test->ticks = $ticks;
 
-                if ($ticks == $bars+1)
+                if ($ticks == $bars+1) {
                     $test->barModel = MT4::barModelDescription(BARMODEL_BAROPEN);
+                }
                 continue;
             }
 
@@ -211,12 +191,16 @@ class Test extends RosatraderModel {
         }
         fclose($hFile);
 
-
-        // (2) parse the test config file
+        // parse the test config file
         $content = normalizeEOL(file_get_contents($configFile));
-                                                                        // increase RegExp limit if needed
-        static $pcreLimit = null; !$pcreLimit && $pcreLimit = ini_get_int('pcre.backtrack_limit');
-        if (strlen($content) > $pcreLimit) PHP::ini_set('pcre.backtrack_limit', $pcreLimit = strlen($content));
+
+        static $pcreLimit = null;
+        if (!$pcreLimit) {
+            $pcreLimit = ini_get_int('pcre.backtrack_limit');
+        }
+        if (strlen($content) > $pcreLimit) {                            // increase RegExp limit if needed
+            PHP::ini_set('pcre.backtrack_limit', $pcreLimit = strlen($content));
+        }
 
         // tradeDirections
         $pattern = '|^\s*<common\s*>\s*\n(?:.*\n)*(\s*positions\s*=\s*(.+)\s*\n)(?:.*\n)*\s*</common>|imU';
@@ -234,8 +218,9 @@ class Test extends RosatraderModel {
             if (strlen($line = trim($line))) {
                 $values = explode('=', $line, 2);
                 if (sizeof($values) < 2) throw new InvalidValueException('Illegal input parameter "'.$params[$i].'" in test config file "'.$configFile.'"');
-                if (strContains($values[0], ','))
+                if (strContains($values[0], ',')) {
                     continue;
+                }
                 $test->strategyParameters[] = StrategyParameter::create($test, $values[0], $values[1]);
             }
         }
@@ -271,7 +256,11 @@ class Test extends RosatraderModel {
      *
      * @param  string $values - test property values from a log file
      *
-     * @return array - associative array with parsed properties
+     * @return scalar[] - LOG_TEST array with test properties
+     *
+     * @phpstan-return LOG_TEST
+     *
+     * @see \rosasurfer\rt\LOG_TEST
      */
     protected static function parseTestProperties(string $values): array {
         $valuesOrig = $values;
@@ -279,9 +268,14 @@ class Test extends RosatraderModel {
         $properties = [];
 
         $oldTimezone = date_default_timezone_get();
-        try {                                                          // increase RegExp limit if needed
-            static $pcreLimit = null; !$pcreLimit && $pcreLimit = ini_get_int('pcre.backtrack_limit');
-            if (strlen($values) > $pcreLimit) PHP::ini_set('pcre.backtrack_limit', $pcreLimit=strlen($values));
+        try {
+            static $pcreLimit = null;
+            if (!$pcreLimit) {
+                $pcreLimit = ini_get_int('pcre.backtrack_limit');
+            }
+            if (strlen($values) > $pcreLimit) {     // increase RegExp limit if needed
+                PHP::ini_set('pcre.backtrack_limit', $pcreLimit = strlen($values));
+            }
 
             // test={id=0, time="Tue, 10-Jan-2017 23:36:38", strategy="MyFX Example MA", reportingId=2, reportingSymbol="MyFXExa.002", symbol="EURUSD", timeframe=PERIOD_M1, startTime="Tue, 01-Dec-2015 00:03:00", endTime="Thu, 31-Dec-2015 23:58:59", barModel=0, spread=0.1, bars=31535, ticks=31536, accountDeposit=100000.00, accountCurrency="USD", tradeDirections=0, visualMode=FALSE, duration=1.544 s, orders=1451}
             if (!strStartsWith($values, 'test=')) throw new InvalidValueException('Unsupported test properties format: "'.$valuesOrig.'"');
@@ -311,7 +305,8 @@ class Test extends RosatraderModel {
             // strategy
             $pattern = '/, *strategy *= *"([^"]+)" *,/i';
             if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE)) throw new InvalidValueException('Illegal test properties ("strategy" invalid or not found): "'.$valuesOrig.'"');
-            $properties['strategy'] = $matches[1][0];
+            $properties['strategy'] = trim($matches[1][0]);
+            if (!strlen($properties['strategy']))                              throw new InvalidValueException('Illegal test properties ("strategy" invalid): "'.$valuesOrig.'"');
             if (preg_match($pattern, $values, $matches, 0, $matches[0][1]+1))  throw new InvalidValueException('Illegal test properties (multiple "strategy" occurrences): "'.$valuesOrig.'"');
 
             // reportingId
@@ -323,13 +318,15 @@ class Test extends RosatraderModel {
             // reportingSymbol
             $pattern = '/, *reportingSymbol *= *"([^"]+)" *,/i';
             if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE)) throw new InvalidValueException('Illegal test properties ("reportingSymbol" invalid or not found): "'.$valuesOrig.'"');
-            $properties['reportingSymbol'] = $matches[1][0];
+            $properties['reportingSymbol'] = trim($matches[1][0]);
+            if (!strlen($properties['reportingSymbol']))                       throw new InvalidValueException('Illegal test properties ("reportingSymbol" invalid): "'.$valuesOrig.'"');
             if (preg_match($pattern, $values, $matches, 0, $matches[0][1]+1))  throw new InvalidValueException('Illegal test properties (multiple "reportingSymbol" occurrences): "'.$valuesOrig.'"');
 
             // symbol
             $pattern = '/, *symbol *= *"([^"]+)" *,/i';
             if (!preg_match($pattern, $values, $matches, PREG_OFFSET_CAPTURE)) throw new InvalidValueException('Illegal test properties ("symbol" invalid or not found): "'.$valuesOrig.'"');
-            $properties['symbol'] = $matches[1][0];
+            $properties['symbol'] = trim($matches[1][0]);
+            if (!strlen($properties['symbol']))                                throw new InvalidValueException('Illegal test properties ("symbol" invalid): "'.$valuesOrig.'"');
             if (preg_match($pattern, $values, $matches, 0, $matches[0][1]+1))  throw new InvalidValueException('Illegal test properties (multiple "symbol" occurrences): "'.$valuesOrig.'"');
 
             // timeframe
@@ -384,6 +381,7 @@ class Test extends RosatraderModel {
         finally {
             date_default_timezone_set($oldTimezone);
         }
+        /** @phpstan-var LOG_TEST $properties*/
         return $properties;
     }
 
@@ -393,9 +391,11 @@ class Test extends RosatraderModel {
      *
      * @param  string $values - order property values from a log file
      *
-     * @return scalar[] - associative array with parsed properties
+     * @return scalar[] - LOG_ORDER array with order properties
      *
-     * @phpstan-return ORDER_LOG_ENTRY
+     * @phpstan-return LOG_ORDER
+     *
+     * @see \rosasurfer\rt\LOG_ORDER
      */
     protected static function parseOrderProperties(string $values): array {
         $valuesOrig = $values;
@@ -531,7 +531,7 @@ class Test extends RosatraderModel {
         $properties['comment'] = $matches[1][0];
         if (preg_match($pattern, $values, $matches, 0, $matches[0][1]+1))  throw new InvalidValueException('Illegal order properties (multiple "comment" occurrences): "'.$valuesOrig.'"');
 
-        /** @phpstan-var ORDER_LOG_ENTRY $properties*/
+        /** @phpstan-var LOG_ORDER $properties*/
         return $properties;
     }
 

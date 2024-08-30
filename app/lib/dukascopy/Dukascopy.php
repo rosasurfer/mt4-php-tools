@@ -51,7 +51,7 @@ class Dukascopy extends CObject {
 
 
     /** @var ?HttpClient */
-    protected $httpClient = null;
+    protected ?HttpClient $httpClient = null;
 
     /** @var array[] - internal cache for single fetched history start data */
     protected $historyStarts;
@@ -68,11 +68,8 @@ class Dukascopy extends CObject {
      *
      * @return HttpClient
      */
-    protected function getHttpClient() {
-        if (!$this->httpClient) {
-            $this->httpClient = new DukascopyClient();
-        }
-        return $this->httpClient;
+    protected function getHttpClient(): HttpClient {
+        return $this->httpClient ??= new DukascopyClient();
     }
 
 
@@ -85,8 +82,7 @@ class Dukascopy extends CObject {
      *
      * @return string - decompressed file content
      */
-    protected function decompressFile($compressedFile, $saveAs = null) {
-        Assert::string($compressedFile, '$compressedFile');
+    protected function decompressFile(string $compressedFile, ?string $saveAs = null) {
         return $this->decompressData(file_get_contents($compressedFile), $saveAs);
     }
 
@@ -100,10 +96,8 @@ class Dukascopy extends CObject {
      *
      * @return string - decompressed data
      */
-    public function decompressData($data, $saveAs = null) {
-        Assert::string($data, '$data');
-        Assert::nullOrString($saveAs, '$saveAs');
-        if (isset($saveAs) && !strlen($saveAs)) throw new InvalidValueException('Invalid parameter $saveAs: ""');
+    public function decompressData(string $data, ?string $saveAs = null): string {
+        if (isset($saveAs) && !strlen($saveAs)) throw new InvalidValueException('Invalid parameter $saveAs: "" (empty)');
 
         $rawData = LZMA::decompressData($data);
 
@@ -130,13 +124,13 @@ class Dukascopy extends CObject {
      * @return         array[] - history or an empty array if history for the specified parameters is not available
      * @phpstan-return ($compact is true ? POINT_BAR[] : PRICE_BAR[])
      *
-     * @see  \rosasurfer\rt\POINT_BAR
-     * @see  \rosasurfer\rt\PRICE_BAR
+     * @see \rosasurfer\rt\POINT_BAR
+     * @see \rosasurfer\rt\PRICE_BAR
      */
     public function getHistory(DukascopySymbol $symbol, int $period, int $time, bool $compact = true) {
         if ($period != PERIOD_M1) throw new UnimplementedFeatureException(__METHOD__.'('.periodToStr($period).') not implemented');
         $nameU = strtoupper($symbol->getName());
-        $day = $time - $time%DAY;                                                           // 00:00 FXT
+        $day = $time - $time % DAY;                                                         // 00:00 FXT
 
         if (!isset($this->history[$nameU][$period][$day][PRICE_MEDIAN])) {
             // load Bid and Ask, calculate Median and store everything in the cache
@@ -186,11 +180,8 @@ class Dukascopy extends CObject {
      * )
      * </pre>
      */
-    protected function loadHistory(DukascopySymbol $symbol, $period, $time, $type) {
-        Assert::int($period, '$period');
+    protected function loadHistory(DukascopySymbol $symbol, int $period, int $time, int $type) {
         if ($period != PERIOD_M1)                     throw new InvalidValueException('Invalid parameter $period: '.periodToStr($period));
-        Assert::int($time, '$time');
-        Assert::int($type, '$type');
         if (!in_array($type, [PRICE_BID, PRICE_ASK])) throw new InvalidValueException('Invalid parameter $type: '.$type);
 
         // Day transition time (Midnight) for Dukascopy data is at 00:00 GMT (~02:00 FXT). Each FXT day requires Dukascopy
@@ -351,7 +342,7 @@ class Dukascopy extends CObject {
      * @return array[] - timeseries array (array of POINT_BARs)
      * @phpstan-return POINT_BAR[]
      *
-     * @see  \rosasurfer\rt\POINT_BAR
+     * @see \rosasurfer\rt\POINT_BAR
      */
     protected function calculateMedian(array $bids, array $asks) {
         if (sizeof($bids) != PERIOD_D1) throw new InvalidValueException('Invalid size of parameter $bids: '.($size=sizeof($bids)).' ('.($size > PERIOD_D1 ? 'more':'less').' then a day)');
@@ -397,8 +388,8 @@ class Dukascopy extends CObject {
      * @return         array[] - PRICE_BAR timeseries
      * @phpstan-return PRICE_BAR[]
      *
-     * @see  \rosasurfer\rt\POINT_BAR
-     * @see  \rosasurfer\rt\PRICE_BAR
+     * @see \rosasurfer\rt\POINT_BAR
+     * @see \rosasurfer\rt\PRICE_BAR
      */
     protected function calculateReal(DukascopySymbol $symbol, array $history) {
         $point = $symbol->getPointValue();
@@ -603,15 +594,16 @@ class Dukascopy extends CObject {
      * )
      * </pre>
      */
-    public function fetchHistoryStarts() {
-        if ($this->allHistoryStarts)
+    public function fetchHistoryStarts(): array {
+        if ($this->allHistoryStarts) {
             return $this->allHistoryStarts;
-
+        }
         Output::out('[Info]    Downloading history start times from Dukascopy...');
 
         $data = $this->getHttpClient()->downloadHistoryStart();
-        if (strlen($data))
+        if (strlen($data)) {
             return $this->allHistoryStarts = $this->readHistoryStarts($data);
+        }
         return [];
     }
 
@@ -638,8 +630,7 @@ class Dukascopy extends CObject {
      * )
      * </pre>
      */
-    protected function readHistoryStarts($data) {
-        Assert::string($data);
+    protected function readHistoryStarts(string $data): array {
         $lenData = strlen($data);
         if (!$lenData) throw new InvalidValueException('Illegal length of history start data: '.$lenData);
 

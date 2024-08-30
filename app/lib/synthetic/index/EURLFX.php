@@ -48,7 +48,7 @@ class EURLFX extends AbstractSynthesizer {
      * @return array[] - PRICE_BAR array with history data
      * @phpstan-return PRICE_BAR[]
      *
-     * @see  \rosasurfer\rt\PRICE_BAR
+     * @see \rosasurfer\rt\PRICE_BAR
      */
     public function calculateHistory(int $period, int $time): array {
         Assert::int($period, '$period');

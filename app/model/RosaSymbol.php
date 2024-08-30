@@ -207,8 +207,8 @@ class RosaSymbol extends RosatraderModel {
      *
      * @phpstan-return ($compact is true ? POINT_BAR[] : PRICE_BAR[])
      *
-     * @see  \rosasurfer\rt\POINT_BAR
-     * @see  \rosasurfer\rt\PRICE_BAR
+     * @see \rosasurfer\rt\POINT_BAR
+     * @see \rosasurfer\rt\PRICE_BAR
      */
     public function getHistoryM1(int $time, bool $compact = true): array {
         $storage = $this->di('config')['app.dir.data'];
