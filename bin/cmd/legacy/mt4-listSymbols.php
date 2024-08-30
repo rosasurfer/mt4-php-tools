@@ -302,7 +302,6 @@ function printData(array $files, array $fields, array $data, array $options) {
     $countSymbols = isset($options['countSymbols']);
     $sizeFiles    = sizeof($files);
 
-
     foreach ($files as $i => $file) {
         // (2) Table-Header ausgeben
         $symbolsSize    = $data[$file]['meta:symbolsSize'];

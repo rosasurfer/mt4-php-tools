@@ -122,7 +122,7 @@ class Rosatrader extends StaticClass {
         $optimized = is_int($bars[0]['open']);
         $point = $symbol->getPointValue();
 
-        // convert all bars to a one large binary string
+        // concat all bars to a large binary string
         $data = '';
         foreach ($bars as $bar) {
             $time  = $bar['time' ];
@@ -138,9 +138,9 @@ class Rosatrader extends StaticClass {
                 $low   = (int) round($low  /$point);
                 $close = (int) round($close/$point);
             }                                           // final bar validation
-            if ($open > $high || $open < $low || $close > $high || $close < $low || !$ticks)
+            if ($open > $high || $open < $low || $close > $high || $close < $low || !$ticks) {
                 throw new RuntimeException('Illegal M1 bar data for '.gmdate('D, d-M-Y H:i:s', $time).":  O=$open  H=$high  L=$low  C=$close  V=$ticks");
-
+            }
             $data .= pack('VVVVVV', $time, $open, $high, $low, $close, $ticks);
         }
 
