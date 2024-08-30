@@ -22,9 +22,9 @@ nbactions.xml
 
 # ignore the following folders and files
 /etc/httpd/cgi/php.ini
-/etc/log/*
 /etc/tmp/*
 /etc/phpstan/.tmp/
+/log/*
 
 /vendor/
 /composer
