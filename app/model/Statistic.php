@@ -1,9 +1,13 @@
 <?php
+declare(strict_types=1);
+
 namespace rosasurfer\rt\model;
 
 use function rosasurfer\rt\stats_calmar_ratio;
 use function rosasurfer\rt\stats_sharpe_ratio;
 use function rosasurfer\rt\stats_sortino_ratio;
+
+use const rosasurfer\ministruts\DAYS;
 
 
 /**
@@ -26,7 +30,7 @@ use function rosasurfer\rt\stats_sortino_ratio;
  * @method        float                             getCommission()      Return the total commission amount of the test.
  * @method        float                             getSwap()            Return the total swap amount of the test.
  * @method        Test                              getTest()            Return the test the statistics record belongs to.
- * @method static \rosasurfer\rt\model\StatisticDAO dao()                Return the {@link DAO} for the calling class.
+ * @method static \rosasurfer\rt\model\StatisticDAO dao()                Return the {@link StatisticDAO} for the calling class.
  */
 class Statistic extends RosatraderModel {
 

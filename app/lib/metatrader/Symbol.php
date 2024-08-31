@@ -1,7 +1,14 @@
 <?php
+declare(strict_types=1);
+
 namespace rosasurfer\rt\lib\metatrader;
 
-use rosasurfer\core\CObject;
+use rosasurfer\ministruts\core\CObject;
+
+use function rosasurfer\ministruts\normalizeEOL;
+use function rosasurfer\ministruts\strLeftTo;
+
+use const rosasurfer\ministruts\EOL_UNIX;
 
 
 /**
@@ -19,15 +26,14 @@ class Symbol extends CObject {
     /** @var string - unpack format description of a struct <tt>SYMBOL</tt> */
     const UNPACK_DEFINITION = '
         /Z12   name                      // szchar
-        /Z54   description               // szchar
-        /Z10   origin                    // szchar (custom field)
+        /Z64   description               // szchar
         /Z12   altName                   // szchar
         /Z12   baseCurrency              // szchar
         /V     group                     // uint
         /V     digits                    // uint
         /V     tradeMode                 // uint
         /V     backgroundColor           // uint
-        /V     arrayKey                  // uint
+        /V     index                     // uint
         /V     id                        // uint
         /x32   unknown1:char32
         /x208  mon:char208
@@ -78,9 +84,10 @@ class Symbol extends CObject {
         static $format = null;
         if (!$format) {
             $lines = explode(EOL_UNIX, normalizeEOL(self::UNPACK_DEFINITION, EOL_UNIX));
-            foreach ($lines as $i => &$line) {
+            foreach ($lines as &$line) {
                 $line = strLeftTo($line, '//');                         // drop line comments
-            }; unset($line);
+            };
+            unset($line);
             $format = join('', $lines);
             $format = preg_replace('/\s/', '', $format);                // remove white space
         }

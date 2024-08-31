@@ -1,18 +1,24 @@
 <?php
+declare(strict_types=1);
+
 namespace rosasurfer\rt\model;
 
-use rosasurfer\console\io\Output;
-use rosasurfer\core\assert\Assert;
-use rosasurfer\core\exception\UnimplementedFeatureException;
+use rosasurfer\ministruts\core\assert\Assert;
+use rosasurfer\ministruts\core\di\proxy\Output;
+use rosasurfer\ministruts\core\exception\UnimplementedFeatureException;
 
-use rosasurfer\rt\lib\IHistorySource;
+use rosasurfer\rt\lib\HistorySource;
 use rosasurfer\rt\lib\dukascopy\Dukascopy;
+
+use function rosasurfer\ministruts\strLeft;
 
 use function rosasurfer\rt\fxDate;
 use function rosasurfer\rt\igmdate;
 use function rosasurfer\rt\periodDescription;
 use function rosasurfer\rt\periodToStr;
 use function rosasurfer\rt\unixTime;
+
+use const rosasurfer\ministruts\DAY;
 
 use const rosasurfer\rt\PERIOD_TICK;
 use const rosasurfer\rt\PERIOD_M1;
@@ -28,9 +34,12 @@ use const rosasurfer\rt\PERIOD_D1;
  * @method        string                                  getName()       Return the symbol name, i.e. the actual symbol.
  * @method        int                                     getDigits()     Return the number of fractional digits of symbol prices.
  * @method        \rosasurfer\rt\model\RosaSymbol         getRosaSymbol() Return the Rosatrader symbol this Dukascopy symbol is mapped to.
- * @method static \rosasurfer\rt\model\DukascopySymbolDAO dao()           Return the {@link DAO} for the calling class.
+ * @method static \rosasurfer\rt\model\DukascopySymbolDAO dao()           Return the {@link DukascopySymbolDAO} for the calling class.
+ *
+ * @phpstan-import-type  POINT_BAR from \rosasurfer\rt\RT
+ * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\RT
  */
-class DukascopySymbol extends RosatraderModel implements IHistorySource {
+class DukascopySymbol extends RosatraderModel implements HistorySource {
 
 
     /** @var string - symbol name */
@@ -39,17 +48,17 @@ class DukascopySymbol extends RosatraderModel implements IHistorySource {
     /** @var int - number of fractional digits of symbol prices */
     protected $digits;
 
-    /** @var string - start time of the available tick history (FXT) */
-    protected $historyStartTick;
+    /** @var ?string - start time of the available tick history (FXT) */
+    protected $historyStartTick = null;
 
-    /** @var string - start time of the available M1 history (FXT) */
-    protected $historyStartM1;
+    /** @var ?string - start time of the available M1 history (FXT) */
+    protected $historyStartM1 = null;
 
-    /** @var string - start time of the available H1 history (FXT) */
-    protected $historyStartH1;
+    /** @var ?string - start time of the available H1 history (FXT) */
+    protected $historyStartH1 = null;
 
-    /** @var string - start time of the available D1 history (FXT) */
-    protected $historyStartD1;
+    /** @var ?string - start time of the available D1 history (FXT) */
+    protected $historyStartD1 = null;
 
     /** @var RosaSymbol [transient] - the Rosatrader symbol this Dukascopy symbol is mapped to */
     protected $rosaSymbol;
@@ -70,7 +79,7 @@ class DukascopySymbol extends RosatraderModel implements IHistorySource {
      *
      * @param  string $format [optional] - format as accepted by <tt>date($format, $timestamp)</tt>
      *
-     * @return string - start time based on an FXT timestamp
+     * @return ?string - start time based on an FXT timestamp
      */
     public function getHistoryStartTick($format = 'Y-m-d H:i:s') {
         if (!isset($this->historyStartTick) || $format=='Y-m-d H:i:s')
@@ -84,7 +93,7 @@ class DukascopySymbol extends RosatraderModel implements IHistorySource {
      *
      * @param  string $format [optional] - format as accepted by <tt>date($format, $timestamp)</tt>
      *
-     * @return string - start time based on an FXT timestamp
+     * @return ?string - start time based on an FXT timestamp
      */
     public function getHistoryStartM1($format = 'Y-m-d H:i:s') {
         if (!isset($this->historyStartM1) || $format=='Y-m-d H:i:s')
@@ -98,7 +107,7 @@ class DukascopySymbol extends RosatraderModel implements IHistorySource {
      *
      * @param  string $format [optional] - format as accepted by <tt>date($format, $timestamp)</tt>
      *
-     * @return string - start time based on an FXT timestamp
+     * @return ?string - start time based on an FXT timestamp
      */
     public function getHistoryStartH1($format = 'Y-m-d H:i:s') {
         if (!isset($this->historyStartH1) || $format=='Y-m-d H:i:s')
@@ -112,7 +121,7 @@ class DukascopySymbol extends RosatraderModel implements IHistorySource {
      *
      * @param  string $format [optional] - format as accepted by <tt>date($format, $timestamp)</tt>
      *
-     * @return string - start time based on an FXT timestamp
+     * @return ?string - start time based on an FXT timestamp
      */
     public function getHistoryStartD1($format = 'Y-m-d H:i:s') {
         if (!isset($this->historyStartD1) || $format=='Y-m-d H:i:s')
@@ -131,9 +140,6 @@ class DukascopySymbol extends RosatraderModel implements IHistorySource {
     public function showHistoryStatus($local = true) {
         Assert::bool($local);
 
-        /** @var Output $output */
-        $output = $this->di(Output::class);
-
         if ($local) {
             $startTick = $this->getHistoryStartTick('D, d-M-Y H:i:s \F\X\T');
             $startM1   = $this->getHistoryStartM1  ('D, d-M-Y H:i:s \F\X\T');
@@ -141,13 +147,13 @@ class DukascopySymbol extends RosatraderModel implements IHistorySource {
             $startD1   = $this->getHistoryStartD1  ('D, d-M-Y H:i:s \F\X\T');
 
             if (!$startTick && !$startM1 && !$startH1 && !$startD1) {
-                $output->out('[Info]    '.$this->name.'  local Dukascopy status not available');
+                Output::out('[Info]    '.$this->name.'  local Dukascopy status not available');
             }
             else {
-                $startTick && $output->out('[Info]    '.$this->name.'  Dukascopy TICK history starts '.$startTick);
-                $startM1   && $output->out('[Info]    '.$this->name.'  Dukascopy M1   history starts '.$startM1  );
-                $startH1   && $output->out('[Info]    '.$this->name.'  Dukascopy H1   history starts '.$startH1  );
-                $startD1   && $output->out('[Info]    '.$this->name.'  Dukascopy D1   history starts '.$startD1  );
+                $startTick && Output::out('[Info]    '.$this->name.'  Dukascopy TICK history starts '.$startTick);
+                $startM1   && Output::out('[Info]    '.$this->name.'  Dukascopy M1   history starts '.$startM1  );
+                $startH1   && Output::out('[Info]    '.$this->name.'  Dukascopy H1   history starts '.$startH1  );
+                $startD1   && Output::out('[Info]    '.$this->name.'  Dukascopy D1   history starts '.$startD1  );
             }
         }
         else {
@@ -161,7 +167,7 @@ class DukascopySymbol extends RosatraderModel implements IHistorySource {
                 $formatted  = $datetime->format('D, d-M-Y H:i'.(is_int($time) ? '':':s.u'));
                 is_float($time) && $formatted = strLeft($formatted, -3);
                 $formatted .= ' FXT';
-                $output->out('[Info]    '.$this->name.'  Dukascopy '.str_pad($period, 4).' history starts '.$formatted);
+                Output::out('[Info]    '.$this->name.'  Dukascopy '.str_pad($period, 4).' history starts '.$formatted);
             }
         }
         return true;
@@ -176,15 +182,12 @@ class DukascopySymbol extends RosatraderModel implements IHistorySource {
      * @return bool - whether at least one of the start times have changed
      */
     public function updateHistoryStart(array $times) {
-        /** @var Output $output */
-        $output = $this->di(Output::class);
-
         $localTime = $this->historyStartTick;
         $remoteTime = isset($times[PERIOD_TICK]) ? fxDate('Y-m-d H:i:s', (int)$times[PERIOD_TICK], true) : null;
         if ($localTime !== $remoteTime) {
             $this->historyStartTick = $remoteTime;
             $this->modified();
-            $output->out('[Info]    '.$this->getName().'  TICK history start changed: '.($remoteTime ?: 'n/a'));
+            Output::out('[Info]    '.$this->getName().'  TICK history start changed: '.($remoteTime ?: 'n/a'));
         }
 
         $localTime = $this->historyStartM1;
@@ -192,7 +195,7 @@ class DukascopySymbol extends RosatraderModel implements IHistorySource {
         if ($localTime !== $remoteTime) {
             $this->historyStartM1 = $remoteTime;
             $this->modified();
-            $output->out('[Info]    '.$this->getName().'  M1   history start changed: '.($remoteTime ?: 'n/a'));
+            Output::out('[Info]    '.$this->getName().'  M1   history start changed: '.($remoteTime ?: 'n/a'));
         }
 
         $localTime = $this->historyStartH1;
@@ -200,7 +203,7 @@ class DukascopySymbol extends RosatraderModel implements IHistorySource {
         if ($localTime !== $remoteTime) {
             $this->historyStartH1 = $remoteTime;
             $this->modified();
-            $output->out('[Info]    '.$this->getName().'  H1   history start changed: '.($remoteTime ?: 'n/a'));
+            Output::out('[Info]    '.$this->getName().'  H1   history start changed: '.($remoteTime ?: 'n/a'));
         }
 
         $localTime = $this->historyStartD1;
@@ -208,7 +211,7 @@ class DukascopySymbol extends RosatraderModel implements IHistorySource {
         if ($localTime !== $remoteTime) {
             $this->historyStartD1 = $remoteTime;
             $this->modified();
-            $output->out('[Info]    '.$this->getName().'  D1   history start changed: '.($remoteTime ?: 'n/a'));
+            Output::out('[Info]    '.$this->getName().'  D1   history start changed: '.($remoteTime ?: 'n/a'));
         }
         return $this->isModified();
     }
@@ -216,24 +219,32 @@ class DukascopySymbol extends RosatraderModel implements IHistorySource {
 
     /**
      * {@inheritdoc}
+     *
+     * @param  int  $period
+     * @param  int  $time
+     * @param  bool $compact [optional]
+     *
+     * @return         array[]
+     * @phpstan-return ($compact is true ? POINT_BAR[] : PRICE_BAR[])
+     *
+     * @see \rosasurfer\rt\POINT_BAR
+     * @see \rosasurfer\rt\PRICE_BAR
      */
-    public function getHistory($period, $time, $optimized = false) {
+    public function getHistory(int $period, int $time, bool $compact = true): array {
         Assert::int($period, '$period');
         if ($period != PERIOD_M1) throw new UnimplementedFeatureException(__METHOD__.'('.periodToStr($period).') not implemented');
         Assert::int($time, '$time');
 
         if (!$time) {
             if (!$time = (int) $this->getHistoryStartM1('U')) {
-                /** @var Output $output */
-                $output = $this->di(Output::class);
-                $output->error('[Error]   '.str_pad($this->name, 6).'  history start for M1 not available');
+                Output::error('[Error]   '.str_pad($this->name, 6).'  history start for M1 not available');
                 return [];
             }
             if (igmdate('d', $time) == igmdate('d', unixTime($time)))       // if history starts at or after 00:00 GMT skip
-                $time += 1*DAY - $time%DAY ;                                // the partial FXT day: it would be incomplete
+                $time += 1*DAY - $time%DAY;                                 // the partial FXT day: it would be incomplete
         }
         /** @var Dukascopy $dukascopy */
         $dukascopy = $this->di(Dukascopy::class);
-        return $dukascopy->getHistory($this, $period, $time, $optimized);
+        return $dukascopy->getHistory($this, $period, $time, $compact);
     }
 }

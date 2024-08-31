@@ -1,9 +1,16 @@
 <?php
+declare(strict_types=1);
+
+use rosasurfer\ministruts\core\di\facade\Form;
 use rosasurfer\rt\model\Test;
 
+use function rosasurfer\ministruts\asset;
+
+use const rosasurfer\ministruts\NL;
+
 /** @var Test $test */
-$test = $form->getTest();
-$trades = $test->getTrades(['order' => 'closeTime, openTime']);
+$test = Form::get('test');
+$trades = $test->getTrades();
 ?>
 <script src="<?=asset('/js/chartjs/Chart-2.6.0.js')?>"></script>
 
@@ -39,7 +46,7 @@ var chart = new Chart('canvas', {
             data: [
                 <?php
                 foreach ($trades as $i => $trade) {
-                    $time = gmdate(DATE_ISO8601, strtotime($trade->getCloseTime().' GMT'));   // '2014-09-08T08:02:17-05:00' (ISO 8601)
+                    $time   = gmdate(DATE_ISO8601, strtotime($trade->getCloseTime().' GMT'));   // '2014-09-08T08:02:17-05:00' (ISO 8601)
                     $profit = $trade->getProfit();
                     if ($i++) echo ','.NL;
                     echo '{x: "'.$time.'", y: '.$profit.'}';

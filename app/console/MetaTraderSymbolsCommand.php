@@ -1,12 +1,12 @@
 <?php
+declare(strict_types=1);
+
 namespace rosasurfer\rt\console;
 
-use rosasurfer\console\Command;
-use rosasurfer\console\io\Input;
-use rosasurfer\console\io\Output;
-use rosasurfer\process\Process;
+use rosasurfer\ministruts\console\Command;
+use rosasurfer\ministruts\console\io\Input;
+use rosasurfer\ministruts\console\io\Output;
 
-use rosasurfer\rt\lib\metatrader\MetaTrader;
 use rosasurfer\rt\lib\metatrader\Symbol;
 
 
@@ -19,13 +19,12 @@ class MetaTraderSymbolsCommand extends Command {
 
 
     /** @var string */
-    const DOCOPT = <<<'DOCOPT'
-
+    const DOCOPT = <<<DOCOPT
 Create, modify or display MetaTrader symbol definitions ("symbols.raw" files).
 
 Usage:
-  rt-metatrader-symbol  split SYMBOLS_RAW [-h]
-  rt-metatrader-symbol  join  SYMBOL... [-h]
+  {:cmd:}  split SYMBOLS_RAW [-h]
+  {:cmd:}  join  SYMBOL... [-h]
 
 Commands:
   split        Split a "symbols.raw" file into separate files per symbol. Files are stored in the current working directory.
@@ -42,22 +41,12 @@ DOCOPT;
 
 
     /**
-     * {@inheritdoc}
-     *
-     * @return $this
-     */
-    protected function configure() {
-        $this->setDocoptDefinition(self::DOCOPT);
-        return $this;
-    }
-
-
-    /**
-     * {@inheritdoc}
+     * @param  Input  $input
+     * @param  Output $output
      *
      * @return int - execution status (0 for success)
      */
-    protected function execute(Input $input, Output $output) {
+    protected function execute(Input $input, Output $output): int {
         if ($input->hasCommand('split')) {
             return $this->splitSymbols();
         }
@@ -76,10 +65,8 @@ DOCOPT;
      * @return int - execution status (0 for success)
      */
     protected function splitSymbols() {
-        /** @var Input $input */
-        $input = $this->di(Input::class);
-        /** @var Output $output */
-        $output = $this->di(Output::class);
+        $input  = $this->input;
+        $output = $this->output;
 
         $sourceFile = $input->getArgument('SYMBOLS_RAW');
         if (!is_file($sourceFile) || !is_readable($sourceFile)) {
@@ -129,6 +116,7 @@ DOCOPT;
      * @return int - execution status (0 for success)
      */
     protected function joinSymbols() {
-        return 0;
+        $this->output->error('error: command "join" not yet implemented');
+        return 1;
     }
 }

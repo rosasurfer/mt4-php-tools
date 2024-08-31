@@ -1,9 +1,11 @@
 <?php
+declare(strict_types=1);
+
 namespace rosasurfer\rt\console;
 
-use rosasurfer\console\Command;
-use rosasurfer\console\io\Input;
-use rosasurfer\console\io\Output;
+use rosasurfer\ministruts\console\Command;
+use rosasurfer\ministruts\console\io\Input;
+use rosasurfer\ministruts\console\io\Output;
 
 use rosasurfer\rt\lib\dukascopy\Dukascopy;
 use rosasurfer\rt\model\DukascopySymbol;
@@ -18,41 +20,30 @@ class DukascopyHistoryStartCommand extends Command {
 
 
     /** @var string */
-    const DOCOPT = <<<'DOCOPT'
-
-Show and update locally stored Dukascopy history start times.
+    const DOCOPT = <<<DOCOPT
+Show and/or update locally stored Dukascopy history start times.
 
 Usage:
-  rt-dukascopy-status  [-r | -u] [-h] [SYMBOL ...]
+  {:cmd:}  [-r | -u] [-h] [SYMBOL ...]
 
 Arguments:
-  SYMBOL         Dukascopy symbols to process (default: all tracked symbols).
+  SYMBOL         One or more Dukascopy symbols to process (default: all tracked symbols).
 
 Options:
-   -r, --remote  Show remote instead of locally stored history start times (connects to Dukascopy).
-   -u, --update  Update locally stored history start times (connects to Dukascopy).
+   -r, --remote  Show remote instead of local history start times (connects to Dukascopy).
+   -u, --update  Update history start times (connects to Dukascopy).
    -h, --help    This help screen.
 
 DOCOPT;
 
 
     /**
-     * {@inheritdoc}
-     *
-     * @return $this
-     */
-    protected function configure() {
-        $this->setDocoptDefinition(self::DOCOPT);
-        return $this;
-    }
-
-
-    /**
-     * {@inheritdoc}
+     * @param  Input  $input
+     * @param  Output $output
      *
      * @return int - execution status (0 for success)
      */
-    protected function execute(Input $input, Output $output) {
+    protected function execute(Input $input, Output $output): int {
         $symbols = $this->resolveSymbols();
         if (!$symbols) return $this->status;
 
@@ -77,7 +68,7 @@ DOCOPT;
                     $i++;
                 }
             }
-            !$i && $output->out('[Info]    All locally tracked symbols up-to-date');
+            !$i && $output->out('[Info]    All local symbols up-to-date');
             return 0;
         }
 
@@ -98,19 +89,16 @@ DOCOPT;
      * @return DukascopySymbol[]
      */
     protected function resolveSymbols() {
-        /** @var Input $input */
-        $input = $this->di(Input::class);
-        /** @var Output $output */
-        $output = $this->di(Output::class);
+        $input  = $this->input;
+        $output = $this->output;
 
         $args = $input->getArguments('SYMBOL');
         $symbols = [];
 
         foreach ($args as $name) {
-            /** @var DukascopySymbol $symbol */
             $symbol = DukascopySymbol::dao()->findByName($name);
             if (!$symbol) {
-                $output->error('Unknown or untracked Dukascopy symbol "'.$name.'"');
+                $output->error('Untracked Dukascopy symbol "'.$name.'"');
                 $this->status = 1;
                 return [];
             }
@@ -118,7 +106,7 @@ DOCOPT;
         }
 
         if (!$symbols && !$symbols = DukascopySymbol::dao()->findAll('select * from :DukascopySymbol order by name'))
-            $output->out('No tracked Dukascopy symbols found.');
+            $output->out('No local Dukascopy symbols found.');
         return $symbols;
     }
 }

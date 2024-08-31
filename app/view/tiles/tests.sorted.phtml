@@ -1,9 +1,19 @@
 <?php
-use rosasurfer\di\proxy\Request;
+declare(strict_types=1);
+
+use rosasurfer\ministruts\core\di\proxy\Request;
 use rosasurfer\rt\model\Test;
+
+use function rosasurfer\ministruts\asset;
+use function rosasurfer\ministruts\hsc;
+use function rosasurfer\ministruts\numf;
+use function rosasurfer\ministruts\pluralize;
+use function rosasurfer\ministruts\route;
 
 use function rosasurfer\rt\periodDescription;
 use function rosasurfer\rt\prettyTimeRange;
+
+use const rosasurfer\ministruts\DAYS;
 
 /** @var Test[] $tests */
 $tests = Test::dao()->findAll('select * from :Test order by strategy, created, reportingsymbol');
@@ -13,11 +23,10 @@ $tests = Test::dao()->findAll('select * from :Test order by strategy, created, r
 <script src="<?=asset('/js/tablesorter/jquery.tablesorter.combined.js')?>"></script>
 
 <?php
-foreach (Request::getActionMessages() as $message) {?>
+foreach (Request::getActionMessages() as $message) { ?>
     <div class="alert alert-danger textcenter"><p><?=hsc($message)?></p></div>
-<?php
-}
-?>
+<?php } ?>
+
 
 Found <?=$size=sizeof($tests)?> test<?=pluralize($size)?>
 
@@ -66,9 +75,7 @@ foreach ($tests as $test) {
     <td style="vertical-align:middle"><?=rtrim(sprintf('%.4f', $calmar), '.0')?></td>
     <td style="vertical-align:middle"><?=sprintf('%.0f d', $maxRecoveryTime)?></td>
 </tr>
-<?php
-}
-?>
+<?php } ?>
 
 </tbody>
 </table>

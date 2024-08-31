@@ -1,13 +1,15 @@
 <?php
+declare(strict_types=1);
+
 namespace rosasurfer\rt\lib\synthetic\index;
 
-use rosasurfer\console\io\Output;
-use rosasurfer\core\assert\Assert;
-use rosasurfer\core\exception\UnimplementedFeatureException;
+use rosasurfer\ministruts\core\assert\Assert;
+use rosasurfer\ministruts\core\di\proxy\Output;
+use rosasurfer\ministruts\core\exception\UnimplementedFeatureException;
 
 use rosasurfer\rt\lib\synthetic\AbstractSynthesizer;
-use rosasurfer\rt\lib\synthetic\ISynthesizer;
 
+use function rosasurfer\ministruts\first;
 use function rosasurfer\rt\periodToStr;
 
 use const rosasurfer\rt\PERIOD_M1;
@@ -16,8 +18,8 @@ use const rosasurfer\rt\PERIOD_M1;
 /**
  * NOKFXI synthesizer
  *
- * A {@link ISynthesizer} for calculating the synthetic Norwegian Krone currency index. Due to the Krone's low value the
- * index is scaled-up by a factor of 10. This adjustment only effects the nominal scala, not the shape of the NOK index chart.
+ * A {@link \rosasurfer\rt\lib\synthetic\ISynthesizer} for calculating the synthetic Norwegian Krone currency index. Due to the Krone's
+ * low value the index is scaled-up by a factor of 10. This adjustment only effects the nominal scala, not the shape of the NOK index chart.
  *
  * <pre>
  * Formulas:
@@ -26,6 +28,8 @@ use const rosasurfer\rt\PERIOD_M1;
  * NOKFXI = 10 * pow(USDCAD * USDCHF * USDJPY / (AUDUSD * EURUSD * GBPUSD), 1/7) / USDNOK
  * NOKFXI = 10 * pow(NOKJPY / (AUDNOK * CADNOK * CHFNOK * EURNOK * GBPNOK * USDNOK), 1/7)
  * </pre>
+ *
+ * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\RT
  */
 class NOKFXI extends AbstractSynthesizer {
 
@@ -40,8 +44,16 @@ class NOKFXI extends AbstractSynthesizer {
 
     /**
      * {@inheritdoc}
+     *
+     * @param  int $period
+     * @param  int $time
+     *
+     * @return array[] - PRICE_BAR array with history data
+     * @phpstan-return PRICE_BAR[]
+     *
+     * @see \rosasurfer\rt\PRICE_BAR
      */
-    public function calculateHistory($period, $time) {
+    public function calculateHistory(int $period, int $time): array {
         Assert::int($period, '$period');
         if ($period != PERIOD_M1) throw new UnimplementedFeatureException(__METHOD__.'('.periodToStr($period).') not implemented');
         Assert::int($time, '$time');
@@ -55,9 +67,7 @@ class NOKFXI extends AbstractSynthesizer {
         if (!$quotes = $this->getComponentsHistory($symbols, $time))
             return [];
 
-        /** @var Output $output */
-        $output = $this->di(Output::class);
-        $output->out('[Info]    '.str_pad($this->symbolName, 6).'  calculating M1 history for '.gmdate('D, d-M-Y', $time));
+        Output::out('[Info]    '.str_pad($this->symbolName, 6).'  calculating M1 history for '.gmdate('D, d-M-Y', $time));
 
         // calculate quotes
         $USDNOK = $quotes['USDNOK'];

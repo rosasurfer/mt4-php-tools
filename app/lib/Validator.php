@@ -1,7 +1,9 @@
 <?php
+declare(strict_types=1);
+
 namespace rosasurfer\rt\lib;
 
-use rosasurfer\core\StaticClass;
+use rosasurfer\ministruts\core\StaticClass;
 use rosasurfer\rt\view\ViewHelper;
 
 use const rosasurfer\rt\OP_CREDIT;
@@ -33,7 +35,7 @@ class Validator extends StaticClass {
      * @return bool
      */
     public static function isMT4OperationType($type) {
-        return (static::isOperationType($type) && $type <= OP_CREDIT);
+        return (self::isOperationType($type) && $type <= OP_CREDIT);
     }
 
 
@@ -45,7 +47,7 @@ class Validator extends StaticClass {
      * @return bool
      */
     public static function isCustomOperationType($type) {
-        return (static::isOperationType($type) && $type > OP_CREDIT);
+        return (self::isOperationType($type) && $type > OP_CREDIT);
     }
 
 

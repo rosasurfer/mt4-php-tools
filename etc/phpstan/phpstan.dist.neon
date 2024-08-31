@@ -1,0 +1,61 @@
+#
+# Usage:
+#  See the PHPStan wrapper "bin/phpstan".
+#
+# File format:
+#  @see  https://phpstan.org/config-reference
+#
+includes:
+  - include/by-php-version.neon.php                 # fetch PHP version specific settings
+
+
+parameters:
+  level: 7                                          # default rule level, a rule level on the command line overrides this value
+
+  bootstrapFiles:                                   # initialize the PHP runtime environment before PHPStan runs
+    - init.php
+
+  paths:                                            # analyzed paths, paths on the command line override these values
+    - ../../app
+    - ../../bin
+    - ../../config
+    - ../../web/index.php
+    - .                                             # etc/phpstan itself
+
+  excludePaths:                                     # excludeAnalyze + excludeScan
+    - symbols
+    - ../../data
+    - ../../etc/tmp
+    - ../../vendor
+
+  fileExtensions:                                   # additional files to analyse
+    - phtml
+
+  scanFiles:                                        # scanned for symbols only, not analyzed (for legacy or future code)
+
+  stubFiles:                                        # custom PHPDoc annotations overriding vendor definitions
+
+  dynamicConstantNames:                             # changing constants, depending on the environment
+    - rosasurfer\ministruts\CLI
+    - rosasurfer\ministruts\MACOS
+    - rosasurfer\ministruts\WINDOWS
+    - rosasurfer\ministruts\NUL_DEVICE
+
+  ignoreErrors:
+
+  reportUnmatchedIgnoredErrors: false
+
+  parallel:
+    maximumNumberOfProcesses: 4
+  tmpDir:       ../../etc/tmp/phpstan
+  tipsOfTheDay: false
+
+
+services:                                           # services must be loadable via Composer
+  - class: rosasurfer\ministruts\phpstan\CoreFunctionReturnType
+    tags:
+      - phpstan.broker.dynamicFunctionReturnTypeExtension
+
+  - class: rosasurfer\ministruts\phpstan\DaoReturnType
+    tags:
+      - phpstan.broker.dynamicMethodReturnTypeExtension

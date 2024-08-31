@@ -1,8 +1,10 @@
 <?php
+declare(strict_types=1);
+
 namespace rosasurfer\rt\lib\metatrader;
 
-use rosasurfer\core\CObject;
-use rosasurfer\file\FileSystem as FS;
+use rosasurfer\ministruts\core\CObject;
+use rosasurfer\ministruts\file\FileSystem as FS;
 
 use rosasurfer\rt\model\RosaSymbol;
 
@@ -20,7 +22,7 @@ class MetaTrader extends CObject {
      *
      * @param  RosaSymbol $symbol
      * @param  int        $format    [optional] - history format: 400 | 401 (default: 400)
-     * @param  string     $directory [optional] - history location (default: the configured default server directory)
+     * @param  ?string    $directory [optional] - history location (default: the configured default server directory)
      *
      * @return HistorySet
      *
@@ -28,8 +30,8 @@ class MetaTrader extends CObject {
      */
     public function createHistorySet(RosaSymbol $symbol, $format = 400, $directory = null) {
         if (!isset($directory)) {
-            $config    = $this->di('config');
-            $directory = $config['app.dir.storage'].'/history/mt4/'.$config['rt.metatrader.servername'];
+            $config = $this->di('config');
+            $directory = $config['app.dir.data'].'/history/mt4/'.$config['rt.metatrader.servername'];
         }
         FS::mkDir($directory);
         return new HistorySet($symbol, $format, $directory);

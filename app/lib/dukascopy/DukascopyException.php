@@ -1,7 +1,9 @@
 <?php
+declare(strict_types=1);
+
 namespace rosasurfer\rt\lib\dukascopy;
 
-use rosasurfer\core\exception\RuntimeException;
+use rosasurfer\ministruts\core\exception\RosasurferException;
 
 
 /**
@@ -9,5 +11,5 @@ use rosasurfer\core\exception\RuntimeException;
  *
  * Exception marking Dukascopy related errors.
  */
-class DukascopyException extends RuntimeException {
+class DukascopyException extends RosasurferException {
 }

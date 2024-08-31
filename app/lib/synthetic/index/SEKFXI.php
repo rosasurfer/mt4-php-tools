@@ -1,13 +1,15 @@
 <?php
+declare(strict_types=1);
+
 namespace rosasurfer\rt\lib\synthetic\index;
 
-use rosasurfer\console\io\Output;
-use rosasurfer\core\assert\Assert;
-use rosasurfer\core\exception\UnimplementedFeatureException;
+use rosasurfer\ministruts\core\assert\Assert;
+use rosasurfer\ministruts\core\di\proxy\Output;
+use rosasurfer\ministruts\core\exception\UnimplementedFeatureException;
 
 use rosasurfer\rt\lib\synthetic\AbstractSynthesizer;
-use rosasurfer\rt\lib\synthetic\ISynthesizer;
 
+use function rosasurfer\ministruts\first;
 use function rosasurfer\rt\periodToStr;
 
 use const rosasurfer\rt\PERIOD_M1;
@@ -16,8 +18,8 @@ use const rosasurfer\rt\PERIOD_M1;
 /**
  * SEKFXI synthesizer
  *
- * A {@link ISynthesizer} for calculating the synthetic Swedish Krona currency index. Due to the Krona's low value the index
- * is scaled-up by a factor of 10. This adjustment only effects the nominal scala, not the shape of the SEK index chart.
+ * A {@link \rosasurfer\rt\lib\synthetic\ISynthesizer} for calculating the synthetic Swedish Krona currency index. Due to the Krona's low
+ * value the index is scaled-up by a factor of 10. This adjustment only effects the nominal scala, not the shape of the SEK index chart.
  *
  * <pre>
  * Formulas:
@@ -26,6 +28,8 @@ use const rosasurfer\rt\PERIOD_M1;
  * SEKFXI = 10 * pow(USDCAD * USDCHF * USDJPY / (AUDUSD * EURUSD * GBPUSD), 1/7) / USDSEK
  * SEKFXI = 10 * pow(SEKJPY / (AUDSEK * CADSEK * CHFSEK * EURSEK * GBPSEK * USDSEK), 1/7)
  * </pre>
+ *
+ * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\RT
  */
 class SEKFXI extends AbstractSynthesizer {
 
@@ -40,8 +44,16 @@ class SEKFXI extends AbstractSynthesizer {
 
     /**
      * {@inheritdoc}
+     *
+     * @param  int $period
+     * @param  int $time
+     *
+     * @return array[] - PRICE_BAR array with history data
+     * @phpstan-return PRICE_BAR[]
+     *
+     * @see \rosasurfer\rt\PRICE_BAR
      */
-    public function calculateHistory($period, $time) {
+    public function calculateHistory(int $period, int $time): array {
         Assert::int($period, '$period');
         if ($period != PERIOD_M1) throw new UnimplementedFeatureException(__METHOD__.'('.periodToStr($period).') not implemented');
         Assert::int($time, '$time');
@@ -55,9 +67,7 @@ class SEKFXI extends AbstractSynthesizer {
         if (!$quotes = $this->getComponentsHistory($symbols, $time))
             return [];
 
-        /** @var Output $output */
-        $output = $this->di(Output::class);
-        $output->out('[Info]    '.str_pad($this->symbolName, 6).'  calculating M1 history for '.gmdate('D, d-M-Y', $time));
+        Output::out('[Info]    '.str_pad($this->symbolName, 6).'  calculating M1 history for '.gmdate('D, d-M-Y', $time));
 
         // calculate quotes
         $USDSEK = $quotes['USDSEK'];

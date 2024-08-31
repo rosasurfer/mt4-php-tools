@@ -9,7 +9,7 @@
     }],
     "config": {
         "platform": {
-            "php": "7.3"
+            "php": "7.4"
         },
         "optimize-autoloader": true
     },
@@ -17,16 +17,19 @@
         { "type": "vcs", "url": "https://github.com/rosasurfer/ministruts" }
     ],
     "require": {
-        "php":                   "5.6 - 8",
+        "php":                   "7.4 - 8",
         "ext-bcmath":            "*",
         "ext-sqlite3":           "*",
-        "rosasurfer/ministruts": "^0.10"
+        "rosasurfer/ministruts": "^0.11@dev"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^1.11"
     },
     "autoload": {
         "classmap": ["app/"],
-        "files":    ["app/helpers.php"]
+        "files":    ["app/functions.php"]
     },
     "scripts": {
-        "post-install-cmd": "bash bin/admin/git/check-setup.sh post-checkout post-merge"
+        "post-install-cmd": "bash bin/git/check-setup.sh post-checkout post-merge"
     }
 }

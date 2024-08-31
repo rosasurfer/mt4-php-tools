@@ -1,10 +1,22 @@
 <?php
+declare(strict_types=1);
+
 namespace rosasurfer\rt\lib\metatrader;
 
-use rosasurfer\core\StaticClass;
-use rosasurfer\core\assert\Assert;
-use rosasurfer\core\exception\IllegalTypeException;
-use rosasurfer\core\exception\RuntimeException;
+use rosasurfer\ministruts\core\StaticClass;
+use rosasurfer\ministruts\core\assert\Assert;
+use rosasurfer\ministruts\core\exception\InvalidTypeException;
+use rosasurfer\ministruts\core\exception\RuntimeException;
+
+use function rosasurfer\ministruts\isLittleEndian;
+use function rosasurfer\ministruts\normalizeEOL;
+use function rosasurfer\ministruts\strIsNumeric;
+use function rosasurfer\ministruts\strLeftTo;
+use function rosasurfer\ministruts\strRight;
+use function rosasurfer\ministruts\strRightFrom;
+use function rosasurfer\ministruts\strStartsWith;
+
+use const rosasurfer\ministruts\EOL_UNIX;
 
 use const rosasurfer\rt\BARMODEL_BAROPEN;
 use const rosasurfer\rt\BARMODEL_CONTROLPOINTS;
@@ -29,54 +41,38 @@ use const rosasurfer\rt\TRADE_DIRECTIONS_SHORT;
  */
 class MT4 extends StaticClass {
 
-    /**
-     * Struct-Size des FXT-Headers (Tester-Tickdateien "*.fxt")
-     */
+    /** @var int - Struct-Size des FXT-Headers (Tester-Tickdateien "*.fxt") */
     const FXT_HEADER_SIZE = 728;
 
-    /**
-     * Struct-Size einer History-Bar Version 400 (History-Dateien "*.hst")
-     */
+    /** @var int - Struct-Size einer History-Bar Version 400 (History-Dateien "*.hst") */
     const HISTORY_BAR_400_SIZE = 44;
 
-    /**
-     * Struct-Size einer History-Bar Version 401 (History-Dateien "*.hst")
-     */
+    /** @var int - Struct-Size einer History-Bar Version 401 (History-Dateien "*.hst") */
     const HISTORY_BAR_401_SIZE = 60;
 
-    /**
-     * Struct-Size eine Symbolgruppe (Symbolgruppendatei "symgroups.raw")
-     */
+    /** @var int - Struct-Size eine Symbolgruppe (Symbolgruppendatei "symgroups.raw") */
     const SYMBOL_GROUP_SIZE = 80;
 
-    /**
-     * Struct-Size eines SelectedSymbol (Symboldatei "symbols.sel")
-     */
+    /** @var int - Struct-Size eines SelectedSymbol (Symboldatei "symbols.sel") */
     const SYMBOL_SELECTED_SIZE = 128;
 
-    /**
-     * Hoechstlaenge eines MetaTrader-Symbols
-     */
+    /** @var int - Hoechstlaenge eines MetaTrader-Symbols */
     const MAX_SYMBOL_LENGTH = 11;
 
-    /**
-     * Hoechstlaenge eines MetaTrader-Orderkommentars
-     */
+    /** @var int - Hoechstlaenge eines MetaTrader-Orderkommentars */
     const MAX_ORDER_COMMENT_LENGTH = 27;
 
 
-    /**
-     * MetaTrader Standard-Timeframes
-     */
+    /** @var int[] - MetaTrader Standard-Timeframes */
     public static $timeframes = [PERIOD_M1, PERIOD_M5, PERIOD_M15, PERIOD_M30, PERIOD_H1, PERIOD_H4, PERIOD_D1, PERIOD_W1, PERIOD_MN1];
 
 
     /**
-     * History-Bar v400
+     * @var int[] - History-Bar v400
      *
-     * @see  Definition in MT4Expander.dll::Expander.h
+     * @see  https://github.com/rosasurfer/mt4-expander/blob/master/header/struct/mt4/HistoryBar400.h
      */
-    private static $tpl_HistoryBar400 = [
+    protected static array $tpl_HistoryBar400 = [
         'time'  => 0,
         'open'  => 0,
         'high'  => 0,
@@ -86,11 +82,11 @@ class MT4 extends StaticClass {
     ];
 
     /**
-     * History-Bar v401
+     * @var int[] - History-Bar v401
      *
-     * @see  Definition in MT4Expander.dll::Expander.h
+     * @see  https://github.com/rosasurfer/mt4-expander/blob/master/header/struct/mt4/HistoryBar401.h
      */
-    private static $tpl_HistoryBar401 = [
+    protected static array $tpl_HistoryBar401 = [
         'time'   => 0,
         'open'   => 0,
         'high'   => 0,
@@ -103,13 +99,13 @@ class MT4 extends StaticClass {
 
 
     /**
-     * Formatbeschreibung eines struct HISTORY_BAR_400.
+     *  @var string - Formatbeschreibung eines struct HISTORY_BAR_400.
      *
-     * @see  Definition in MT4Expander.dll::Expander.h
+     * @see  https://github.com/rosasurfer/mt4-expander/blob/master/header/struct/mt4/HistoryBar400.h
      * @see  MT4::BAR_getUnpackFormat() zum Verwenden als unpack()-Formatstring
      */
-    private static $BAR_400_formatStr = '
-        /V   time            // uint
+    protected static string $BAR_400_formatStr = '
+        /V   time            // uint32
         /d   open            // double
         /d   low             // double
         /d   high            // double
@@ -119,12 +115,12 @@ class MT4 extends StaticClass {
 
 
     /**
-     * Formatbeschreibung eines struct HISTORY_BAR_401.
+     * @var string - Formatbeschreibung eines struct HISTORY_BAR_401.
      *
-     * @see  Definition in MT4Expander.dll::Expander.h
+     * @see  https://github.com/rosasurfer/mt4-expander/blob/master/header/struct/mt4/HistoryBar401.h
      * @see  MT4::BAR_getUnpackFormat() zum Verwenden als unpack()-Formatstring
      */
-    private static $BAR_401_formatStr = '
+    protected static string $BAR_401_formatStr = '
         /V   time            // uint (int64)
         /x4
         /d   open            // double
@@ -177,16 +173,17 @@ class MT4 extends StaticClass {
             $lines = explode("\n", self::${'BAR_'.$version.'_formatStr'});
             foreach ($lines as &$line) {
                 $line = strLeftTo($line, '//');                          // Kommentare entfernen
-            }; unset($line);
+            };
+            unset($line);
 
             $values = explode('/', join('', $lines));                   // in Format-Codes zerlegen
 
             foreach ($values as $i => &$value) {
                 $value = trim($value);
                 $value = strLeftTo($value, ' ');                         // dem Code folgende Bezeichner entfernen
-                if (!strlen($value))
-                    unset($values[$i]);
-            }; unset($value);
+                if (!strlen($value)) unset($values[$i]);
+            };
+            unset($value);
             $format = join('', $values);
             ${'format_'.$version} = $format;
         }
@@ -195,34 +192,36 @@ class MT4 extends StaticClass {
 
 
     /**
-     * Gibt den Formatstring zum Entpacken eines struct HISTORY_BAR_400 oder HISTORY_BAR_401 zurueck.
+     * Return the format string for unpacking a struct HISTORY_BAR_400 or HISTORY_BAR_401.
      *
-     * @param  int $version - Barversion: 400 oder 401
+     * @param  int $version - format version: 400 | 401
      *
-     * @return string - unpack()-Formatstring
+     * @return string - format string to be used by unpack()
      */
-    public static function BAR_getUnpackFormat($version) {
-        Assert::int($version);
+    public static function BAR_getUnpackFormat(int $version): string {
         if ($version!=400 && $version!=401) throw new MetaTraderException('version.unsupported: Invalid parameter $version: '.$version.' (must be 400 or 401)');
 
-        static $format_400 = null;
-        static $format_401 = null;
+        static $format = [
+            400 => null,
+            401 => null,
+        ];
 
-        if (is_null(${'format_'.$version})) {
+        return $format[$version] ??= (function() use ($version): string {
             $lines = explode("\n", self::${'BAR_'.$version.'_formatStr'});
-            foreach ($lines as $i => &$line) {
-                $line = strLeftTo($line, '//');                          // Kommentare entfernen
-            }; unset($line);
+            foreach ($lines as &$line) {
+                $line = strLeftTo($line, '//');                          // drop comments
+            }
+            unset($line);
             $format = join('', $lines);
 
-            // since PHP 5.5.0: The 'a' code now retains trailing NULL bytes, 'Z' replaces the former 'a'.
-            if (PHP_VERSION >= '5.5.0') $format = str_replace('/a', '/Z', $format);
+            if (PHP_VERSION >= '5.5.0') {                               // The 'a' code now retains trailing NULL bytes, 'Z' replaces the former 'a'.
+                $format = str_replace('/a', '/Z', $format);
+            }
 
             $format = preg_replace('/\s/', '', $format);                // remove white space
             if ($format[0] == '/') $format = strRight($format, -1);     // remove leading format separator
-            ${'format_'.$version} = $format;
-        }
-        return ${'format_'.$version};
+            return $format;
+        });
     }
 
 
@@ -267,18 +266,24 @@ class MT4 extends StaticClass {
             $V = strrev(substr($data, 36, 8));
             $data  = $T.$O.$L.$H.$C.$V;
         }
-        return fwrite($hFile, $data);
+
+        $written = fwrite($hFile, $data);
+        if ($written != MT4::HISTORY_BAR_400_SIZE) throw new RuntimeException('Error writing '.strlen($data).' bytes to file ('.$written.' written)');
+        return $written;
     }
 
 
     /**
      * Ob ein String ein gueltiges MetaTrader-Symbol darstellt. Insbesondere darf ein Symbol keine Leerzeichen enthalten.
      *
+     * @param string $string
+     *
      * @return bool
      */
-    public static function isValidSymbol($string) {
+    public static function isValidSymbol(string $string): bool {
         static $pattern = '/^[a-z0-9_.#&\'~-]+$/i';
-        return is_string($string) && strlen($string) && strlen($string) <= self::MAX_SYMBOL_LENGTH && preg_match($pattern, $string);
+        $len = strlen($string);
+        return ($len > 0 && $len <= self::MAX_SYMBOL_LENGTH && preg_match($pattern, $string));
     }
 
 
@@ -399,7 +404,7 @@ class MT4 extends StaticClass {
             }
             return 0;
         }
-        throw new IllegalTypeException('Illegal type of parameter $value: '.gettype($value));
+        throw new InvalidTypeException('Illegal type of parameter $value: '.gettype($value));
     }
 
 
@@ -411,7 +416,7 @@ class MT4 extends StaticClass {
      * @return int - period id or 0 if the value doesn't represent a period
      */
     public static function strToPeriod($value) {
-        return static::strToTimeframe($value);
+        return self::strToTimeframe($value);
     }
 
 
@@ -446,7 +451,7 @@ class MT4 extends StaticClass {
             }
             return -1;
         }
-        throw new IllegalTypeException('Illegal type of parameter $value: '.gettype($value));
+        throw new InvalidTypeException('Illegal type of parameter $value: '.gettype($value));
     }
 
 
@@ -481,7 +486,7 @@ class MT4 extends StaticClass {
             }
             return -1;
         }
-        throw new IllegalTypeException('Illegal type of parameter $value: '.gettype($value));
+        throw new InvalidTypeException('Illegal type of parameter $value: '.gettype($value));
     }
 
 
@@ -490,10 +495,10 @@ class MT4 extends StaticClass {
      *
      * @param  int $id - bar model id
      *
-     * @return string|null - description or NULL if the parameter is not a valid bar model id
+     * @return ?string - description or NULL if the parameter is not a valid bar model id
      */
     public static function barModelDescription($id) {
-        $id = static::strToBarModel($id);
+        $id = self::strToBarModel($id);
         if ($id >= 0) {
             switch ($id) {
                 case BARMODEL_EVERYTICK:     return 'EveryTick';
@@ -510,10 +515,10 @@ class MT4 extends StaticClass {
      *
      * @param  int $id - direction id
      *
-     * @return string|null - description or NULL if the parameter is not a valid trade direction id
+     * @return ?string - description or NULL if the parameter is not a valid trade direction id
      */
     public static function tradeDirectionDescription($id) {
-        $id = static::strToTradeDirection($id);
+        $id = self::strToTradeDirection($id);
         if ($id >= 0) {
             switch ($id) {
                 case TRADE_DIRECTIONS_LONG:  return 'Long';

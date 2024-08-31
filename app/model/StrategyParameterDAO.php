@@ -1,34 +1,39 @@
 <?php
+declare(strict_types=1);
+
 namespace rosasurfer\rt\model;
 
-use rosasurfer\db\orm\DAO;
-
-use const rosasurfer\db\orm\meta\INT;
-use const rosasurfer\db\orm\meta\STRING;
+use rosasurfer\ministruts\db\orm\DAO;
+use rosasurfer\ministruts\db\orm\ORM;
 
 
 /**
  * DAO for accessing {@link StrategyParameter} instances.
+ *
+ * @phpstan-import-type  ORM_ENTITY from \rosasurfer\ministruts\db\orm\ORM
  */
 class StrategyParameterDAO extends DAO {
 
-
     /**
      * {@inheritdoc}
+     *
+     * @return array<string, mixed>
+     * @phpstan-return ORM_ENTITY
      */
-    public function getMapping() {
-        static $mapping; return $mapping ?: ($mapping=$this->parseMapping([
+    public function getMapping(): array {
+        static $mapping;
+        return $mapping ??= $this->parseMapping([
+            'class'      => StrategyParameter::class,
             'connection' => 'rosatrader',
             'table'      => 't_strategyparameter',
-            'class'      => StrategyParameter::class,
             'properties' => [
-                ['name'=>'id',    'type'=>INT,    'primary'=>true],                                 // db:int
-                ['name'=>'name',  'type'=>STRING,                ],                                 // db:text
-                ['name'=>'value', 'type'=>STRING,                ],                                 // db:text
+                ['name'=>'id',    'type'=>ORM::INT,    'primary-key'=>true],                        // db:int
+                ['name'=>'name',  'type'=>ORM::STRING,                    ],                        // db:text
+                ['name'=>'value', 'type'=>ORM::STRING,                    ],                        // db:text
             ],
             'relations' => [
-                ['name'=>'test', 'assoc'=>'many-to-one', 'type'=>Test::class, 'column'=>'test_id'], // db:int
+                ['name'=>'test', 'type'=>'many-to-one', 'class'=>Test::class, 'column'=>'test_id'], // db:int
             ],
-        ]));
+        ]);
     }
 }

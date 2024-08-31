@@ -1,13 +1,14 @@
 <?php
-namespace rosasurfer\rt\lib\synthetic\index;
+declare(strict_types=1);
 
-use rosasurfer\rt\lib\synthetic\ISynthesizer;
+namespace rosasurfer\rt\lib\synthetic\index;
 
 
 /**
  * NZDLFX synthesizer
  *
- * A {@link ISynthesizer} for calculating the synthetic LiteForex New Zealand Dollar index (an alias of NZDFXI).
+ * A {@link \rosasurfer\rt\lib\synthetic\ISynthesizer} for calculating the synthetic
+ * LiteForex New Zealand Dollar index (alias of NZDFXI).
  */
 class NZDLFX extends NZDFXI {
 }

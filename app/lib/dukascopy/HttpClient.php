@@ -1,17 +1,22 @@
 <?php
+declare(strict_types=1);
+
 namespace rosasurfer\rt\lib\dukascopy;
 
-use rosasurfer\console\io\Input;
-use rosasurfer\console\io\Output;
-use rosasurfer\core\assert\Assert;
-use rosasurfer\core\exception\InvalidArgumentException;
-use rosasurfer\core\exception\RuntimeException;
-use rosasurfer\net\http\CurlHttpClient;
-use rosasurfer\net\http\HttpResponse;
+use rosasurfer\ministruts\core\assert\Assert;
+use rosasurfer\ministruts\core\di\proxy\CliInput as Input;
+use rosasurfer\ministruts\core\di\proxy\Output;
+use rosasurfer\ministruts\core\exception\InvalidValueException;
+use rosasurfer\ministruts\core\exception\RuntimeException;
+use rosasurfer\ministruts\net\http\CurlHttpClient;
+use rosasurfer\ministruts\net\http\HttpResponse;
 
 use rosasurfer\rt\lib\dukascopy\HttpRequest as DukascopyRequest;
 
+use function rosasurfer\ministruts\print_p;
 use function rosasurfer\rt\igmdate;
+
+use const rosasurfer\ministruts\NL;
 
 use const rosasurfer\rt\PRICE_BID;
 use const rosasurfer\rt\PRICE_ASK;
@@ -30,8 +35,7 @@ class HttpClient extends CurlHttpClient {
      *
      * Create a new instance.
      *
-     * @param  array $options [optional] - additional options
-     *                                     (default: none)
+     * @param  array $options [optional] - additional options (default: none)
      */
     public function __construct(array $options = []) {
         $options[CURLOPT_SSL_VERIFYPEER] = false;               // suppress SSL certificate validation errors
@@ -43,7 +47,7 @@ class HttpClient extends CurlHttpClient {
     /**
      * Download history start data for the specified symbol.
      *
-     * @param  string $symbol [optional] - symbol (default: download data for all symbols)
+     * @param  ?string $symbol [optional] - symbol (default: download data for all symbols)
      *
      * @return string - binary history start data or an empty string in case of errors
      */
@@ -58,14 +62,15 @@ class HttpClient extends CurlHttpClient {
         $response = $this->send($request);
 
         $status = $response->getStatus();
-        if ($status!=HttpResponse::SC_OK && $status!=HttpResponse::SC_NOT_FOUND)
-            throw new RuntimeException('Unexpected HTTP response status '.$status.' ('.HttpResponse::$sc[$status].')'.NL.'url: '.$url.NL.printPretty($response, true));
+        if ($status!=HttpResponse::SC_OK && $status!=HttpResponse::SC_NOT_FOUND) {
+            throw new RuntimeException('Unexpected HTTP response status '.$status.' ('.HttpResponse::$statusCodes[$status].')'.NL.'url: '.$url.NL.print_p($response, true));
+        }
 
         // treat an empty response as 404 error (not found)
         $content = $response->getContent();
         if (!strlen($content))
             $status = HttpResponse::SC_NOT_FOUND;
-        if ($status == HttpResponse::SC_NOT_FOUND) $this->di(Output::class)->stderr('[Error]   URL not found (404): '.$url);
+        if ($status == HttpResponse::SC_NOT_FOUND) Output::error('[Error]   URL not found (404): '.$url);
 
         return ($status==HttpResponse::SC_OK) ? $response->getContent() : '';
     }
@@ -82,15 +87,10 @@ class HttpClient extends CurlHttpClient {
      */
     public function downloadHistory($symbol, $day, $type) {
         Assert::string($symbol, '$symbol');
-        if (!strlen($symbol))                         throw new InvalidArgumentException('Invalid parameter $symbol: "'.$symbol.'"');
+        if (!strlen($symbol))                         throw new InvalidValueException('Invalid parameter $symbol: "'.$symbol.'"');
         Assert::int($day, '$day');
         Assert::int($type, '$type');
-        if (!in_array($type, [PRICE_BID, PRICE_ASK])) throw new InvalidArgumentException('Invalid parameter $type: '.$type);
-
-        /** @var Input $input */
-        $input = $this->di(Input::class);
-        /** @var Output $output */
-        $output = $this->di(Output::class);
+        if (!in_array($type, [PRICE_BID, PRICE_ASK])) throw new InvalidValueException('Invalid parameter $type: '.$type);
 
         // url: http://datafeed.dukascopy.com/datafeed/EURUSD/2009/00/31/BID_candles_min_1.bi5
         $symbolU = strtoupper($symbol);
@@ -101,22 +101,23 @@ class HttpClient extends CurlHttpClient {
         $name = ($type==PRICE_BID ? 'BID':'ASK').'_candles_min_1';
         $url  = 'http://datafeed.dukascopy.com/datafeed/'.$symbolU.'/'.$date.'/'.$name.'.bi5';
 
-        if (!$input->getOption('--quiet')) {
-            $output->out('[Info]    '.gmdate('D, d-M-Y', $day).'  downloading: '.$url);
+        if (!Input::getOption('--quiet')) {
+            Output::out('[Info]    '.gmdate('D, d-M-Y', $day).'  downloading: '.$url);
         }
 
         $request = new DukascopyRequest($url);
         $response = $this->send($request);
 
         $status = $response->getStatus();
-        if ($status!=HttpResponse::SC_OK && $status!=HttpResponse::SC_NOT_FOUND)
-            throw new RuntimeException('Unexpected HTTP response status '.$status.' ('.HttpResponse::$sc[$status].')'.NL.'url: '.$url.NL.printPretty($response, true));
+        if ($status!=HttpResponse::SC_OK && $status!=HttpResponse::SC_NOT_FOUND) {
+            throw new RuntimeException('Unexpected HTTP response status '.$status.' ('.HttpResponse::$statusCodes[$status].')'.NL.'url: '.$url.NL.print_p($response, true));
+        }
 
         // treat an empty response as 404 error (not found)
         $content = $response->getContent();
         if (!strlen($content))
             $status = HttpResponse::SC_NOT_FOUND;
-        if ($status == HttpResponse::SC_NOT_FOUND) $output->error('[Error]   URL not found (404): '.$url);
+        if ($status == HttpResponse::SC_NOT_FOUND) Output::error('[Error]   URL not found (404): '.$url);
 
         return ($status==HttpResponse::SC_OK) ? $response->getContent() : '';
     }

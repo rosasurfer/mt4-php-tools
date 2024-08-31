@@ -1,14 +1,18 @@
 <?php
+declare(strict_types=1);
+
 namespace rosasurfer\rt\console;
 
-use rosasurfer\console\Command;
-use rosasurfer\console\io\Input;
-use rosasurfer\console\io\Output;
-use rosasurfer\core\exception\IllegalStateException;
-use rosasurfer\process\Process;
+use rosasurfer\ministruts\console\Command;
+use rosasurfer\ministruts\console\io\Input;
+use rosasurfer\ministruts\console\io\Output;
+use rosasurfer\ministruts\core\exception\IllegalStateException;
+use rosasurfer\ministruts\process\Process;
 
 use rosasurfer\rt\lib\metatrader\MetaTrader;
 use rosasurfer\rt\model\RosaSymbol;
+
+use const rosasurfer\ministruts\DAY;
 
 
 /**
@@ -20,12 +24,11 @@ class MetaTraderHistoryCommand extends Command {
 
 
     /** @var string */
-    const DOCOPT = <<<'DOCOPT'
-
+    const DOCOPT = <<<DOCOPT
 Create new MetaTrader history files.
 
 Usage:
-  rt-metatrader-history  create SYMBOL [options]
+  {:cmd:}  create SYMBOL [options]
 
 Commands:
   create       Create new MetaTrader history files (all standard timeframes) for the specified symbol.
@@ -37,26 +40,15 @@ Options:
    -h, --help  This help screen.
 
 DOCOPT;
-//Create, update or show status of MetaTrader history files.
 
 
     /**
-     * {@inheritdoc}
-     *
-     * @return $this
-     */
-    protected function configure() {
-        $this->setDocoptDefinition(self::DOCOPT);
-        return $this;
-    }
-
-
-    /**
-     * {@inheritdoc}
+     * @param  Input  $input
+     * @param  Output $output
      *
      * @return int - execution status (0 for success)
      */
-    protected function execute(Input $input, Output $output) {
+    protected function execute(Input $input, Output $output): int {
         $symbol = $this->resolveSymbol();
         if (!$symbol) return $this->status;
 
@@ -80,8 +72,9 @@ DOCOPT;
                 $lastMonth = $month;
             }
             if ($symbol->isTradingDay($day)) {
-                if (!$bars = $symbol->getHistoryM1($day, $optimized=true))
+                if (!$bars = $symbol->getHistoryM1($day)) {
                     return 1;
+                }
                 $historySet->appendBars($bars);
                 Process::dispatchSignals();                     // check for Ctrl-C
             }
@@ -99,10 +92,8 @@ DOCOPT;
      * @return RosaSymbol|null
      */
     protected function resolveSymbol() {
-        /** @var Input $input */
-        $input = $this->di(Input::class);
-        /** @var Output $output */
-        $output = $this->di(Output::class);
+        $input  = $this->input;
+        $output = $this->output;
 
         $name = $input->getArgument('SYMBOL');
 

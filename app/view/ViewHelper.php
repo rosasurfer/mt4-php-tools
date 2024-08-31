@@ -1,7 +1,9 @@
 <?php
+declare(strict_types=1);
+
 namespace rosasurfer\rt\view;
 
-use rosasurfer\core\StaticClass;
+use rosasurfer\ministruts\core\StaticClass;
 
 use const rosasurfer\rt\OP_BUY;
 use const rosasurfer\rt\OP_SELL;

@@ -1,13 +1,15 @@
 <?php
+declare(strict_types=1);
+
 namespace rosasurfer\rt\lib\synthetic\index;
 
-use rosasurfer\console\io\Output;
-use rosasurfer\core\assert\Assert;
-use rosasurfer\core\exception\UnimplementedFeatureException;
+use rosasurfer\ministruts\core\assert\Assert;
+use rosasurfer\ministruts\core\di\proxy\Output;
+use rosasurfer\ministruts\core\exception\UnimplementedFeatureException;
 
 use rosasurfer\rt\lib\synthetic\AbstractSynthesizer;
-use rosasurfer\rt\lib\synthetic\ISynthesizer;
 
+use function rosasurfer\ministruts\first;
 use function rosasurfer\rt\periodToStr;
 
 use const rosasurfer\rt\PERIOD_M1;
@@ -16,7 +18,7 @@ use const rosasurfer\rt\PERIOD_M1;
 /**
  * EURLFX synthesizer
  *
- * A {@link ISynthesizer} for calculating the synthetic LiteForex Euro index.
+ * A {@link \rosasurfer\rt\lib\synthetic\ISynthesizer} for calculating the synthetic LiteForex Euro index.
  *
  * <pre>
  * Formulas:
@@ -24,6 +26,8 @@ use const rosasurfer\rt\PERIOD_M1;
  * EURLFX = USDLFX * EURUSD
  * EURLFX = pow(EURAUD * EURCAD * EURCHF * EURGBP * EURJPY * EURUSD, 1/7)
  * </pre>
+ *
+ * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\RT
  */
 class EURLFX extends AbstractSynthesizer {
 
@@ -37,8 +41,16 @@ class EURLFX extends AbstractSynthesizer {
 
     /**
      * {@inheritdoc}
+     *
+     * @param  int $period
+     * @param  int $time
+     *
+     * @return array[] - PRICE_BAR array with history data
+     * @phpstan-return PRICE_BAR[]
+     *
+     * @see \rosasurfer\rt\PRICE_BAR
      */
-    public function calculateHistory($period, $time) {
+    public function calculateHistory(int $period, int $time): array {
         Assert::int($period, '$period');
         if ($period != PERIOD_M1) throw new UnimplementedFeatureException(__METHOD__.'('.periodToStr($period).') not implemented');
         Assert::int($time, '$time');
@@ -52,9 +64,7 @@ class EURLFX extends AbstractSynthesizer {
         if (!$quotes = $this->getComponentsHistory($symbols, $time))
             return [];
 
-        /** @var Output $output */
-        $output = $this->di(Output::class);
-        $output->out('[Info]    '.str_pad($this->symbolName, 6).'  calculating M1 history for '.gmdate('D, d-M-Y', $time));
+        Output::out('[Info]    '.str_pad($this->symbolName, 6).'  calculating M1 history for '.gmdate('D, d-M-Y', $time));
 
         // calculate quotes
         $EURUSD = $quotes['EURUSD'];

@@ -1,16 +1,27 @@
 <?php
+declare(strict_types=1);
+
 namespace rosasurfer\rt\model;
 
-use rosasurfer\console\io\Output;
-use rosasurfer\core\assert\Assert;
-use rosasurfer\core\exception\RuntimeException;
-use rosasurfer\process\Process;
+use rosasurfer\ministruts\core\assert\Assert;
+use rosasurfer\ministruts\core\di\proxy\Output;
+use rosasurfer\ministruts\core\exception\RuntimeException;
+use rosasurfer\ministruts\process\Process;
 
-use rosasurfer\rt\lib\IHistorySource;
-use rosasurfer\rt\lib\Rosatrader as RT;
-use rosasurfer\rt\lib\dukascopy\Dukascopy;
+use function rosasurfer\ministruts\first;
+use function rosasurfer\ministruts\last;
+use function rosasurfer\ministruts\pluralize;
+use function rosasurfer\ministruts\strLeftTo;
+use function rosasurfer\ministruts\strRight;
+
+use const rosasurfer\ministruts\DAY;
+use const rosasurfer\ministruts\HOURS;
+use const rosasurfer\ministruts\MINUTES;
+
+use rosasurfer\rt\RT;
+use rosasurfer\rt\lib\HistorySource;
 use rosasurfer\rt\lib\synthetic\GenericSynthesizer;
-use rosasurfer\rt\lib\synthetic\ISynthesizer;
+use rosasurfer\rt\lib\synthetic\ISynthesizer as Synthesizer;
 
 use function rosasurfer\rt\fxTime;
 use function rosasurfer\rt\isGoodFriday;
@@ -23,15 +34,18 @@ use const rosasurfer\rt\PERIOD_M1;
 /**
  * Represents a Rosatrader symbol.
  *
- * @method        string                               getType()            Return the instrument type (forex|metals|synthetic).
- * @method        int                                  getGroup()           Return the symbol's group id.
- * @method        string                               getName()            Return the symbol name, i.e. the actual symbol.
- * @method        string                               getDescription()     Return the symbol description.
- * @method        int                                  getDigits()          Return the number of fractional digits of symbol prices.
- * @method        int                                  getUpdateOrder()     Return the symbol's update order value.
- * @method        string                               getFormula()         Return a synthetic instrument's calculation formula (LaTeX).
- * @method        \rosasurfer\rt\model\DukascopySymbol getDukascopySymbol() Return the {@link DukascopySymbol} mapped to this Rosatrader symbol.
- * @method static \rosasurfer\rt\model\RosaSymbolDAO   dao()                Return the {@link DAO} for the calling class.
+ * @method        string                                getType()            Return the instrument type (forex|metals|synthetic).
+ * @method        int                                   getGroup()           Return the symbol's group id.
+ * @method        string                                getName()            Return the symbol name, i.e. the actual symbol.
+ * @method        string                                getDescription()     Return the symbol description.
+ * @method        int                                   getDigits()          Return the number of fractional digits of symbol prices.
+ * @method        int                                   getUpdateOrder()     Return the symbol's update order value.
+ * @method        string                                getFormula()         Return a synthetic instrument's calculation formula (LaTeX).
+ * @method        ?\rosasurfer\rt\model\DukascopySymbol getDukascopySymbol() Return the {@link DukascopySymbol} mapped to this Rosatrader symbol.
+ * @method static \rosasurfer\rt\model\RosaSymbolDAO    dao()                Return the {@link RosaSymbolDAO} for the calling class.
+ *
+ * @phpstan-import-type  POINT_BAR from \rosasurfer\rt\RT
+ * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\RT
  */
 class RosaSymbol extends RosatraderModel {
 
@@ -67,23 +81,23 @@ class RosaSymbol extends RosatraderModel {
     /** @var string - LaTeX formula for calculation of synthetic instruments */
     protected $formula;
 
-    /** @var string - start time of the available tick history (FXT) */
-    protected $historyStartTick;
+    /** @var ?string - start time of the available tick history (FXT) */
+    protected $historyStartTick = null;
 
-    /** @var string - end time of the available tick history (FXT) */
-    protected $historyEndTick;
+    /** @var ?string - end time of the available tick history (FXT) */
+    protected $historyEndTick = null;
 
-    /** @var string - start time of the available M1 history (FXT) */
-    protected $historyStartM1;
+    /** @var ?string - start time of the available M1 history (FXT) */
+    protected $historyStartM1 = null;
 
-    /** @var string - end time of the available M1 history (FXT) */
-    protected $historyEndM1;
+    /** @var ?string - end time of the available M1 history (FXT) */
+    protected $historyEndM1 = null;
 
-    /** @var string - start time of the available D1 history (FXT) */
-    protected $historyStartD1;
+    /** @var ?string - start time of the available D1 history (FXT) */
+    protected $historyStartD1 = null;
 
-    /** @var string - end time of the available D1 history (FXT) */
-    protected $historyEndD1;
+    /** @var ?string - end time of the available D1 history (FXT) */
+    protected $historyEndD1 = null;
 
     /** @var DukascopySymbol [transient] - the Dukascopy symbol mapped to this Rosatrader symbol */
     protected $dukascopySymbol;
@@ -104,7 +118,7 @@ class RosaSymbol extends RosatraderModel {
      *
      * @param  string $format [optional] - format as accepted by <tt>date($format, $timestamp)</tt>
      *
-     * @return string - start time based on an FXT timestamp
+     * @return ?string - start time based on an FXT timestamp
      */
     public function getHistoryStartTick($format = 'Y-m-d H:i:s') {
         if (!isset($this->historyStartTick) || $format=='Y-m-d H:i:s')
@@ -118,7 +132,7 @@ class RosaSymbol extends RosatraderModel {
      *
      * @param  string $format [optional] - format as accepted by <tt>date($format, $timestamp)</tt>
      *
-     * @return string - end time based on an FXT timestamp
+     * @return ?string - end time based on an FXT timestamp
      */
     public function getHistoryEndTick($format = 'Y-m-d H:i:s') {
         if (!isset($this->historyEndTick) || $format=='Y-m-d H:i:s')
@@ -132,7 +146,7 @@ class RosaSymbol extends RosatraderModel {
      *
      * @param  string $format [optional] - format as accepted by <tt>date($format, $timestamp)</tt>
      *
-     * @return string - start time based on an FXT timestamp
+     * @return ?string - start time based on an FXT timestamp
      */
     public function getHistoryStartM1($format = 'Y-m-d H:i:s') {
         if (!isset($this->historyStartM1) || $format=='Y-m-d H:i:s')
@@ -146,7 +160,7 @@ class RosaSymbol extends RosatraderModel {
      *
      * @param  string $format [optional] - format as accepted by <tt>date($format, $timestamp)</tt>
      *
-     * @return string - end time based on an FXT timestamp
+     * @return ?string - end time based on an FXT timestamp
      */
     public function getHistoryEndM1($format = 'Y-m-d H:i:s') {
         if (!isset($this->historyEndM1) || $format=='Y-m-d H:i:s')
@@ -160,7 +174,7 @@ class RosaSymbol extends RosatraderModel {
      *
      * @param  string $format [optional] - format as accepted by <tt>date($format, $timestamp)</tt>
      *
-     * @return string - start time based on an FXT timestamp
+     * @return ?string - start time based on an FXT timestamp
      */
     public function getHistoryStartD1($format = 'Y-m-d H:i:s') {
         if (!isset($this->historyStartD1) || $format=='Y-m-d H:i:s')
@@ -174,7 +188,7 @@ class RosaSymbol extends RosatraderModel {
      *
      * @param  string $format [optional] - format as accepted by <tt>date($format, $timestamp)</tt>
      *
-     * @return string - end time based on an FXT timestamp
+     * @return ?string - end time based on an FXT timestamp
      */
     public function getHistoryEndD1($format = 'Y-m-d H:i:s') {
         if (!isset($this->historyEndD1) || $format=='Y-m-d H:i:s')
@@ -186,50 +200,29 @@ class RosaSymbol extends RosatraderModel {
     /**
      * Get the M1 history for a given day.
      *
-     * @param  int  $time                 - FXT timestamp
-     * @param  bool $optimized [optional] - returned bar format (see notes)
+     * @param  int  $time               - FXT timestamp
+     * @param  bool $compact [optional] - returned bar format (default: more compact POINT_BARs)
      *
-     * @return array - An empty array if history for the specified time is not available. Otherwise a timeseries array with
-     *                 each element describing a single price bar as follows:
+     * @return array - history or an empty array, if history for the given day is not available
      *
-     * <pre>
-     * $optimized => FALSE (default):
-     * ------------------------------
-     * Array(
-     *     'time'  => (int),            // bar open time in FXT
-     *     'open'  => (float),          // open value in real terms
-     *     'high'  => (float),          // high value in real terms
-     *     'low'   => (float),          // low value in real terms
-     *     'close' => (float),          // close value in real terms
-     *     'ticks' => (int),            // volume (if available) or number of synthetic ticks
-     * )
+     * @phpstan-return ($compact is true ? POINT_BAR[] : PRICE_BAR[])
      *
-     * $optimized => TRUE:
-     * -------------------
-     * Array(
-     *     'time'  => (int),            // bar open time in FXT
-     *     'open'  => (int),            // open value in point
-     *     'high'  => (int),            // high value in point
-     *     'low'   => (int),            // low value in point
-     *     'close' => (int),            // close value in point
-     *     'ticks' => (int),            // volume (if available) or number of synthetic ticks
-     * )
-     * </pre>
+     * @see \rosasurfer\rt\POINT_BAR
+     * @see \rosasurfer\rt\PRICE_BAR
      */
-    public function getHistoryM1($time, $optimized = false) {
-        $storage = $this->di('config')['app.dir.storage'];
+    public function getHistoryM1(int $time, bool $compact = true): array {
+        $storage = $this->di('config')['app.dir.data'];
         $dir = $storage.'/history/rosatrader/'.$this->type.'/'.$this->name.'/'.gmdate('Y/m/d', $time);
 
         if (!is_file($file=$dir.'/M1.bin') && !is_file($file.='.rar'))
             return [];
 
         $bars = RT::readBarFile($file, $this);
-        if ($optimized)
-            return $bars;
+        if ($compact) return $bars;
 
         $point = $this->getPointValue();
 
-        foreach ($bars as $i => $bar) {
+        foreach ($bars as $i => $v) {
             $bars[$i]['open' ] *= $point;
             $bars[$i]['high' ] *= $point;
             $bars[$i]['low'  ] *= $point;
@@ -311,14 +304,12 @@ class RosaSymbol extends RosatraderModel {
      * @return bool - success status
      */
     public function showHistoryStatus() {
-        /** @var Output $output */
-        $output     = $this->di(Output::class);
         $start      = $this->getHistoryStartM1('D, d-M-Y');
         $end        = $this->getHistoryEndM1  ('D, d-M-Y');
         $paddedName = str_pad($this->name, 6);
 
-        if ($start) $output->out('[Info]    '.$paddedName.'  M1 local history from '.$start.' to '.$end);
-        else        $output->out('[Info]    '.$paddedName.'  M1 local history empty');
+        if ($start) Output::out('[Info]    '.$paddedName.'  M1 local history from '.$start.' to '.$end);
+        else        Output::out('[Info]    '.$paddedName.'  M1 local history empty');
         return true;
     }
 
@@ -329,9 +320,7 @@ class RosaSymbol extends RosatraderModel {
      * @return bool - success status
      */
     public function synchronizeHistory() {
-        /** @var Output $output */
-        $output      = $this->di(Output::class);
-        $storageDir  = $this->di('config')['app.dir.storage'];
+        $storageDir  = $this->di('config')['app.dir.data'];
         $storageDir .= '/history/rosatrader/'.$this->type.'/'.$this->name;
         $paddedName  = str_pad($this->name, 6);
         $startDate   = $endDate = null;
@@ -358,13 +347,14 @@ class RosaSymbol extends RosatraderModel {
             $delMsg    = '[Info]    '.$paddedName.'  deleting non-trading day M1 file: ';
             $yesterDay = fxTime() - fxTime()%DAY - DAY;
 
-            $missMsg = function($missing) use ($output, $paddedName, $yesterDay) {
+            $missMsg = function($missing) use ($paddedName, $yesterDay) {
+                /** @var int[] $missing */
                 if ($misses = sizeof($missing)) {
-                    $first     = first($missing);
-                    $last      = last($missing);
-                    $output->out('[Info]    '.$paddedName.'  '.$misses.' missing history file'.pluralize($misses)
-                                             .($misses==1 ? ' for '.gmdate('D, d-M-Y', $first)
-                                                          : ' from '.gmdate('D, d-M-Y', $first).' until '.($last==$yesterDay? 'now' : gmdate('D, d-M-Y', $last))));
+                    $first = first($missing);
+                    $last  = last($missing);
+                    Output::out('[Info]    '.$paddedName.'  '.$misses.' missing history file'.pluralize($misses)
+                                            .($misses==1 ? ' for '.gmdate('D, d-M-Y', $first)
+                                                         : ' from '.gmdate('D, d-M-Y', $first).' until '.($last==$yesterDay? 'now' : gmdate('D, d-M-Y', $last))));
                 }
             };
 
@@ -384,16 +374,22 @@ class RosaSymbol extends RosatraderModel {
                     }
                 }
                 else {
-                    is_file($file=$dir.'/M1.bin'    ) && true($output->out($delMsg.RT::relativePath($file))) && unlink($file);
-                    is_file($file=$dir.'/M1.bin.rar') && true($output->out($delMsg.RT::relativePath($file))) && unlink($file);
+                    if (is_file($file = $dir . '/M1.bin')) {
+                        Output::out($delMsg . RT::relativePath($file));
+                        unlink($file);
+                    }
+                    if (is_file($file = $dir . '/M1.bin.rar')) {
+                        Output::out($delMsg.RT::relativePath($file));
+                        unlink($file);
+                    }
                 }
             }
-            $missing && $missMsg($missing);
+            if ($missing) $missMsg($missing);
         }
 
         // update the database
         if ($startDate != $this->getHistoryStartM1('U')) {
-            $output->out('[Info]    '.$paddedName.'  updating history start time to '.($startDate ? gmdate('D, d-M-Y H:i', $startDate) : '(empty)'));
+            Output::out('[Info]    '.$paddedName.'  updating history start time to '.($startDate ? gmdate('D, d-M-Y H:i', $startDate) : '(empty)'));
             $this->historyStartM1 = $startDate ? gmdate('Y-m-d H:i:s', $startDate) : null;
             $this->modified();
         }
@@ -402,14 +398,14 @@ class RosaSymbol extends RosatraderModel {
             $endDate += 23*HOURS + 59*MINUTES;          // adjust to the last minute as the database always holds full days
         }
         if ($endDate != $this->getHistoryEndM1('U')) {
-            $output->out('[Info]    '.$paddedName.'  updating history end time to: '.($endDate ? gmdate('D, d-M-Y H:i', $endDate) : '(empty)'));
+            Output::out('[Info]    '.$paddedName.'  updating history end time to: '.($endDate ? gmdate('D, d-M-Y H:i', $endDate) : '(empty)'));
             $this->historyEndM1 = $endDate ? gmdate('Y-m-d H:i:s', $endDate) : null;
             $this->modified();
         }
         $this->save();
 
-        !$missing && $output->out('[Info]    '.$paddedName.'  '.($startDate ? 'ok':'empty'));
-        $output->out('---------------------------------------------------------------------------------------');
+        !$missing && Output::out('[Info]    '.$paddedName.'  '.($startDate ? 'ok':'empty'));
+        Output::out('---------------------------------------------------------------------------------------');
         return true;
     }
 
@@ -422,11 +418,11 @@ class RosaSymbol extends RosatraderModel {
      * @return bool - success status
      */
     public function updateHistory($period = PERIOD_M1) {
-        /** @var Output $output */
-        $output = $this->di(Output::class);
-
         $provider = $this->getHistorySource();
-        if (!$provider) return false($output->error('[Error]   '.str_pad($this->name, 6).'  no history provider found'));
+        if (!$provider) {
+            Output::error('[Error]   '.str_pad($this->name, 6).'  no history provider found');
+            return false;
+        }
 
         $historyEnd = (int) $this->getHistoryEndM1('U');
         $updateFrom = $historyEnd ? $historyEnd + 1*DAY : 0;                        // the day after history ends
@@ -436,10 +432,13 @@ class RosaSymbol extends RosatraderModel {
         for ($day=$updateFrom; $day < $today; $day+=1*DAY) {
             if ($day && !$this->isTradingDay($day))                                 // skip non-trading days
                 continue;
-            !$status && $output->out($status='[Info]    '.str_pad($this->name, 6).'  updating M1 history since '.($day ? gmdate('D, d-M-Y', $historyEnd) : 'start'));
+            !$status && Output::out($status='[Info]    '.str_pad($this->name, 6).'  updating M1 history since '.($day ? gmdate('D, d-M-Y', $historyEnd) : 'start'));
 
-            $bars = $provider->getHistory($period, $day, $optimized=true);
-            if (!$bars) return false && false($output->error('[Error]   '.str_pad($this->name, 6).'  M1 history '.($day ? ' for '.gmdate('D, d-M-Y', $day) : '').' not available'));
+            $bars = $provider->getHistory($period, $day, true);
+            if (!$bars) {
+                Output::error('[Error]   '.str_pad($this->name, 6).'  M1 history '.($day ? ' for '.gmdate('D, d-M-Y', $day) : '').' not available');
+                return false;
+            }
             RT::saveM1Bars($bars, $this);
 
             if (!$day) {                                                            // If $day was zero (full update since start)
@@ -451,15 +450,15 @@ class RosaSymbol extends RosatraderModel {
 
             Process::dispatchSignals();
         }
-        $output->out('[Ok]      '.$this->name);
+        Output::out('[Ok]      '.$this->name);
         return true;
     }
 
 
     /**
-     * Return a {@link IHistorySource} for the symbol.
+     * Return a {@link HistorySource} for the symbol.
      *
-     * @return IHistorySource|null
+     * @return HistorySource|null
      */
     public function getHistorySource() {
         if ($this->isSynthetic())
@@ -469,16 +468,17 @@ class RosaSymbol extends RosatraderModel {
 
 
     /**
-     * Look-up and instantiate a {@link ISynthesizer} to calculate quotes of a synthetic instrument.
+     * Look-up and instantiate a {@link Synthesizer} to calculate quotes of a synthetic instrument.
      *
-     * @return ISynthesizer
+     * @return Synthesizer
      */
     protected function getSynthesizer() {
         if (!$this->isSynthetic()) throw new RuntimeException('Cannot create Synthesizer for non-synthetic instrument');
 
-        $customClass = strLeftTo(ISynthesizer::class, '\\', -1).'\\index\\'.$this->name;
-        if (is_class($customClass) && is_a($customClass, ISynthesizer::class, $allowString=true))
+        $customClass = strLeftTo(Synthesizer::class, '\\', -1).'\\index\\'.$this->name;
+        if (class_exists($customClass) && is_subclass_of($customClass, Synthesizer::class)) {
             return new $customClass($this);
+        }
         return new GenericSynthesizer($this);
     }
 }

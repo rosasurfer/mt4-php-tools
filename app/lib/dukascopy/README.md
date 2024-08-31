@@ -1,4 +1,9 @@
 
+##### This package and its subpackages operate on history data in Dukascopy format.
+
+---
+
+
 ### Dukascopy historical data feed  
 
 Dukascopy provides history with separate bid and ask timeseries in GMT covering weekends and holidays. Data of the current
@@ -15,8 +20,12 @@ day is available the earliest at the next day (`GMT`). In Rosatrader bid and ask
     <td colspan="2"> <b>Web site</b> </td>
 </tr>
 <tr>
-    <td> Historical data feed </td>
+    <td> Historical data feed (1) </td>
     <td> https://www.dukascopy.com/swiss/english/marketwatch/historical/ </td>
+</tr>
+<tr>
+    <td> Historical data feed (2) </td>
+    <td> https://www.dukascopy.com/trading-tools/widgets/quotes/historical_data_feed </td>
 </tr>
 <tr>
     <td colspan="2"><br></td>
@@ -59,7 +68,7 @@ Data is [LZMA](https://en.wikipedia.org/wiki/Lempel%E2%80%93Ziv%E2%80%93Markov_c
 
 ### Data structures
 
-`DUKASCOPY_HISTORY_START` defines the storage format of history start times of all timeframes available for a symbol:
+Structure `DUKASCOPY_HISTORY_START` describes the storage format of history start times of all timeframes available for a symbol:
 ```C++
 // big-endian
 struct DUKASCOPY_HISTORY_START {     // -- offset --- size --- description -----------------------------------------------
@@ -76,18 +85,18 @@ struct DUKASCOPY_HISTORY_START {     // -- offset --- size --- description -----
 ```
 ---
 
-`DUKASCOPY_TIMEFRAME_START` defines the storage format of the history start time of a single timeframe:
+Structure `DUKASCOPY_TIMEFRAME_START` describes the storage format of the history start time of a single timeframe:
 ```C++
 // big-endian
 struct DUKASCOPY_TIMEFRAME_START {   // -- offset --- size --- description -----------------------------------------------
-    int64 timeframe;                 //         0        8     period in minutes as a Java timestamp: 0|-1 = PERIOD_TICK
-    int64 time;                      //         8        8     start time as a Java timestamp:        INT_MAX = n/a
+    int64 timeframe;                 //         0        8     period in minutes as a Java timestamp (0 or -1: tick data)
+    int64 time;                      //         8        8     start time as a Java timestamp (INT_MAX: no data avaliable)
 };                                   // ----------------------------------------------------------------------------------
                                      //               = 16
 ```
 ---
 
-`DUKASCOPY_BAR` defines the storage format of a single price bar:
+Structure `DUKASCOPY_BAR` describes the storage format of a single price bar:
 ```C++
 // big-endian
 struct DUKASCOPY_BAR {               // -- offset --- size --- description -----------------------------------------------
@@ -102,7 +111,7 @@ struct DUKASCOPY_BAR {               // -- offset --- size --- description -----
 ```
 ---
 
-`DUKASCOPY_TICK` defines the storage format of a tick:
+Structure `DUKASCOPY_TICK` describes the storage format of a tick:
 ```C++
 // big-endian
 struct DUKASCOPY_TICK {              // -- offset --- size --- description -----------------------------------------------
@@ -119,11 +128,10 @@ struct DUKASCOPY_TICK {              // -- offset --- size --- description -----
 
 ### Timezones
 
-Internally Rosatrader uses everywhere a virtual timezone called `FXT` (Forex standard time). By default all history and times
-are stored and displayed in that timezone. `FXT` essentially is the timezone `America/New_York` shifted eastward by 7 hours.
-In this timezone trading days start and end always at Midnight, no matter of the current DST (daylight saving time) status.
-It is used by major brokerage companies and is the only timezone suitable for trading without DST irregularities and the
-infamous Sunday candles. If a time is displayed without timezone identifier it is assumed to be in `FXT`.
+Internally Rosatrader uses a timezone called `FXT` (Forex standard time) which is a synonym for `America/New_York+0700`. All
+history data and times are stored and displayed in it. In this timezone trading days start and end always at Midnight, no
+matter of the current DST (daylight saving time) status. It's the only trading related timezone without DST irregularities
+and without so called Sunday candles. If a time is displayed without timezone identifier it is assumed to be in `FXT`.
 ```
         +------------++------------+------------+------------+------------+------------++------------+------------++------------+
 GMT:    |   Sunday   ||   Monday   |  Tuesday   | Wednesday  |  Thursday  |   Friday   ||  Saturday  |   Sunday   ||   Monday   |

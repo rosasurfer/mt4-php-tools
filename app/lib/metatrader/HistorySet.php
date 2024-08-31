@@ -1,16 +1,19 @@
 <?php
+declare(strict_types=1);
+
 namespace rosasurfer\rt\lib\metatrader;
 
-use rosasurfer\core\CObject;
-use rosasurfer\core\assert\Assert;
-use rosasurfer\core\debug\ErrorHandler;
-use rosasurfer\core\exception\IllegalStateException;
-use rosasurfer\core\exception\InvalidArgumentException;
-use rosasurfer\core\exception\RuntimeException;
-use rosasurfer\log\Logger;
+use rosasurfer\ministruts\core\CObject;
+use rosasurfer\ministruts\core\assert\Assert;
+use rosasurfer\ministruts\core\error\ErrorHandler;
+use rosasurfer\ministruts\core\exception\IllegalStateException;
+use rosasurfer\ministruts\core\exception\InvalidValueException;
+use rosasurfer\ministruts\core\exception\RuntimeException;
+use rosasurfer\ministruts\log\Logger;
 
-use rosasurfer\rt\lib\metatrader\MT4;
 use rosasurfer\rt\model\RosaSymbol;
+
+use const rosasurfer\ministruts\L_WARN;
 
 use const rosasurfer\rt\PERIOD_M1;
 use const rosasurfer\rt\PERIOD_M5;
@@ -48,7 +51,7 @@ class HistorySet extends CObject {
     /** @var bool - whether the set is closed and resources are disposed */
     protected $closed = false;
 
-    /** @var HistoryFile[] - the history files of the set */
+    /** @var (?HistoryFile)[] - the history files of the set */
     protected $historyFiles = [
         PERIOD_M1  => null,
         PERIOD_M5  => null,
@@ -75,13 +78,13 @@ class HistorySet extends CObject {
      * new HistorySet(RosaSymbol $symbol, int $format, string $serverDirectory)
      * </pre>
      *
-     * @param  array ...$params
+     * @param  mixed ...$params
      */
-    public function __construct(...$params) {
+    final public function __construct(...$params) {
         $argc = sizeof($params);
         if      ($argc == 1) $this->__construct1(...$params);
         else if ($argc == 3) $this->__construct2(...$params);
-        else                 throw new InvalidArgumentException('Invalid number of arguments: '.$argc);
+        else                 throw new InvalidValueException('Invalid number of arguments: '.$argc);
     }
 
 
@@ -91,8 +94,10 @@ class HistorySet extends CObject {
      * Erzeugt eine neue Instanz. Vorhandene Daten werden nicht geloescht.
      *
      * @param  HistoryFile $file - existierende History-Datei
+     *
+     * @return void
      */
-    protected function __construct1(HistoryFile $file) {
+    final protected function __construct1(HistoryFile $file) {
         $this->symbol          = $file->getSymbol();
         $this->digits          = $file->getDigits();
         $this->serverName      = $file->getServerName();
@@ -142,10 +147,12 @@ class HistorySet extends CObject {
      *                                       400: MetaTrader <= Build 509
      *                                       401: MetaTrader  > Build 509
      * @param  string     $serverDirectory - Serververzeichnis der Historydateien des Sets
+     *
+     * @return void
      */
-    protected function __construct2(RosaSymbol $symbol, $format, $serverDirectory) {
+    final protected function __construct2(RosaSymbol $symbol, $format, $serverDirectory) {
         Assert::string($serverDirectory, '$serverDirectory');
-        if (!is_dir($serverDirectory)) throw new InvalidArgumentException('Directory "'.$serverDirectory.'" not found');
+        if (!is_dir($serverDirectory)) throw new InvalidValueException('Directory "'.$serverDirectory.'" not found');
 
         $this->symbol          = $symbol->getName();
         $this->digits          = $symbol->getDigits();
@@ -178,8 +185,9 @@ class HistorySet extends CObject {
         try {
             $this->close();
         }
-        catch (\Throwable $ex) { throw ErrorHandler::handleDestructorException($ex); }
-        catch (\Exception $ex) { throw ErrorHandler::handleDestructorException($ex); }
+        catch (\Throwable $ex) {
+            throw ErrorHandler::handleDestructorException($ex);
+        }
     }
 
 
@@ -193,14 +201,14 @@ class HistorySet extends CObject {
      * @param  string $symbol          - Symbol der Historydateien
      * @param  string $serverDirectory - Serververzeichnis, in dem die Historydateien gespeichert sind
      *
-     * @return self|null - Instanz oder NULL, wenn keine entsprechenden Historydateien gefunden wurden oder die
-     *                     gefundenen Dateien korrupt sind.
+     * @return ?self - Instanz oder NULL, wenn keine entsprechenden Historydateien gefunden wurden oder die
+     *                 gefundenen Dateien korrupt sind.
      */
     public static function open($symbol, $serverDirectory) {
         Assert::string($symbol, '$symbol');
-        if (!strlen($symbol))          throw new InvalidArgumentException('Invalid parameter $symbol: ""');
+        if (!strlen($symbol))          throw new InvalidValueException('Invalid parameter $symbol: ""');
         Assert::string($serverDirectory, '$serverDirectory');
-        if (!is_dir($serverDirectory)) throw new InvalidArgumentException('Directory "'.$serverDirectory.'" not found');
+        if (!is_dir($serverDirectory)) throw new InvalidValueException('Directory "'.$serverDirectory.'" not found');
         $serverDirectory = realpath($serverDirectory);
 
         // existierende Instanzen durchsuchen und bei Erfolg die entsprechende Instanz zurueckgeben
@@ -297,7 +305,7 @@ class HistorySet extends CObject {
                 if ($file->getDigits() != $this->getDigits()) throw new RuntimeException('Digits mis-match in "'.$fileName.'": file.digits='.$file->getDigits().' instead of set.digits='.$this->getDigits());
             }
 
-            if (!$file) $file = new HistoryFile($this->symbol, $timeframe, $this->digits, $format=400, $this->serverDirectory);
+            if (!$file) $file = new HistoryFile($this->symbol, $timeframe, $this->digits, 400, $this->serverDirectory);
             $this->historyFiles[$timeframe] = $file;
         }
         return $this->historyFiles[$timeframe];
@@ -353,6 +361,8 @@ class HistorySet extends CObject {
      * werden ersetzt. Vorhandene Bars, die sich mit den uebergebenen Bars nicht ueberschneiden, bleiben unveraendert.
      *
      * @param  int[][] $bars - ROST_PRICE_BAR Daten der Periode M1
+     *
+     * @return void
      */
     public function synchronize(array $bars) {
         if ($this->closed) throw new IllegalStateException('Cannot process a closed '.get_class($this));

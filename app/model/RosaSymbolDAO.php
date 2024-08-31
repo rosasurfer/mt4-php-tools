@@ -1,51 +1,56 @@
 <?php
+declare(strict_types=1);
+
 namespace rosasurfer\rt\model;
 
-use rosasurfer\core\assert\Assert;
-use rosasurfer\db\NoSuchRecordException;
-use rosasurfer\db\orm\DAO;
-
-use const rosasurfer\db\orm\meta\INT;
-use const rosasurfer\db\orm\meta\STRING;
+use rosasurfer\ministruts\core\assert\Assert;
+use rosasurfer\ministruts\db\NoSuchRecordException;
+use rosasurfer\ministruts\db\orm\DAO;
+use rosasurfer\ministruts\db\orm\ORM;
 
 
 /**
  * DAO for accessing {@link RosaSymbol} instances.
+ *
+ * @phpstan-import-type  ORM_ENTITY from \rosasurfer\ministruts\db\orm\ORM
  */
 class RosaSymbolDAO extends DAO {
 
-
     /**
      * {@inheritdoc}
+     *
+     * @return array<string, mixed>
+     * @phpstan-return ORM_ENTITY
      */
-    public function getMapping() {
-        static $mapping; return $mapping ?: ($mapping=$this->parseMapping([
+    public function getMapping(): array {
+        static $mapping;
+        return $mapping ??= $this->parseMapping([
+            'class'      => RosaSymbol::class,
             'connection' => 'rosatrader',
             'table'      => 't_rosasymbol',
-            'class'      => RosaSymbol::class,
             'properties' => [
-                ['name'=>'id',                                              'type'=>INT,    'primary'=>true],   // db:int
-                ['name'=>'created',                                         'type'=>STRING,                ],   // db:text[datetime] GMT
-                ['name'=>'modified',                                        'type'=>STRING, 'version'=>true],   // db:text[datetime] GMT
+                ['name'=>'id',                                              'type'=>ORM::INT,    'primary-key'=>true],              // db:int
+                ['name'=>'created',                                         'type'=>ORM::STRING,                    ],              // db:text[datetime] GMT
+                ['name'=>'modified',                                        'type'=>ORM::STRING, 'version'=>true    ],              // db:text[datetime] GMT
 
-                ['name'=>'type',                                            'type'=>STRING,                ],   // db:text forex|metals|synthetic
-                ['name'=>'group',            'column'=>'groupid',           'type'=>INT,                   ],   // db:int
-                ['name'=>'name',                                            'type'=>STRING,                ],   // db:text
-                ['name'=>'description',                                     'type'=>STRING,                ],   // db:text
-                ['name'=>'digits',                                          'type'=>INT,                   ],   // db:int
-                ['name'=>'updateOrder',      'column'=>'updateorder',       'type'=>INT,                   ],   // db:int
-                ['name'=>'formula',                                         'type'=>STRING,                ],   // db:text
-                ['name'=>'historyStartTick', 'column'=>'historystart_tick', 'type'=>STRING,                ],   // db:text[datetime] FXT
-                ['name'=>'historyEndTick',   'column'=>'historyend_tick',   'type'=>STRING,                ],   // db:text[datetime] FXT
-                ['name'=>'historyStartM1',   'column'=>'historystart_m1',   'type'=>STRING,                ],   // db:text[datetime] FXT
-                ['name'=>'historyEndM1',     'column'=>'historyend_m1',     'type'=>STRING,                ],   // db:text[datetime] FXT
-                ['name'=>'historyStartD1',   'column'=>'historystart_d1',   'type'=>STRING,                ],   // db:text[datetime] FXT
-                ['name'=>'historyEndD1',     'column'=>'historyend_d1',     'type'=>STRING,                ],   // db:text[datetime] FXT
+                ['name'=>'type',                                            'type'=>ORM::STRING,                    ],              // db:text forex|metals|synthetic
+                ['name'=>'group',            'column'=>'groupid',           'type'=>ORM::INT,                       ],              // db:int
+                ['name'=>'name',                                            'type'=>ORM::STRING,                    ],              // db:text
+                ['name'=>'description',                                     'type'=>ORM::STRING,                    ],              // db:text
+                ['name'=>'digits',                                          'type'=>ORM::INT,                       ],              // db:int
+                ['name'=>'updateOrder',      'column'=>'updateorder',       'type'=>ORM::INT,                       ],              // db:int
+                ['name'=>'formula',                                         'type'=>ORM::STRING,                    ],              // db:text
+                ['name'=>'historyStartTick', 'column'=>'historystart_tick', 'type'=>ORM::STRING,                    ],              // db:text[datetime] FXT
+                ['name'=>'historyEndTick',   'column'=>'historyend_tick',   'type'=>ORM::STRING,                    ],              // db:text[datetime] FXT
+                ['name'=>'historyStartM1',   'column'=>'historystart_m1',   'type'=>ORM::STRING,                    ],              // db:text[datetime] FXT
+                ['name'=>'historyEndM1',     'column'=>'historyend_m1',     'type'=>ORM::STRING,                    ],              // db:text[datetime] FXT
+                ['name'=>'historyStartD1',   'column'=>'historystart_d1',   'type'=>ORM::STRING,                    ],              // db:text[datetime] FXT
+                ['name'=>'historyEndD1',     'column'=>'historyend_d1',     'type'=>ORM::STRING,                    ],              // db:text[datetime] FXT
             ],
             'relations' => [
-                ['name'=>'dukascopySymbol', 'assoc'=>'one-to-one', 'type'=>DukascopySymbol::class, 'ref-column'=>'rosasymbol_id'],  // db:int
+                ['name'=>'dukascopySymbol', 'type'=>'one-to-one', 'class'=>DukascopySymbol::class, 'ref-column'=>'rosasymbol_id'],  // db:int
             ],
-        ]));
+        ]);
     }
 
 
@@ -76,13 +81,11 @@ class RosaSymbolDAO extends DAO {
      *
      * @throws NoSuchRecordException if no such instance was found
      */
-    public function getByName($name) {
-        Assert::string($name);
-
+    public function getByName(string $name): RosaSymbol {
         $name = $this->escapeLiteral($name);
-        $sql = 'select *
+        $sql = "select *
                    from :RosaSymbol
-                   where name = '.$name;
+                   where name = $name";
         return $this->get($sql);
     }
 

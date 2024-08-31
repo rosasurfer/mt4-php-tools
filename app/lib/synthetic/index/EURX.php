@@ -1,13 +1,15 @@
 <?php
+declare(strict_types=1);
+
 namespace rosasurfer\rt\lib\synthetic\index;
 
-use rosasurfer\console\io\Output;
-use rosasurfer\core\assert\Assert;
-use rosasurfer\core\exception\UnimplementedFeatureException;
+use rosasurfer\ministruts\core\assert\Assert;
+use rosasurfer\ministruts\core\di\proxy\Output;
+use rosasurfer\ministruts\core\exception\UnimplementedFeatureException;
 
 use rosasurfer\rt\lib\synthetic\AbstractSynthesizer;
-use rosasurfer\rt\lib\synthetic\ISynthesizer;
 
+use function rosasurfer\ministruts\first;
 use function rosasurfer\rt\periodToStr;
 
 use const rosasurfer\rt\PERIOD_M1;
@@ -16,7 +18,7 @@ use const rosasurfer\rt\PERIOD_M1;
 /**
  * EURX synthesizer
  *
- * A {@link ISynthesizer} for calculating the official ICE Euro index.
+ * A {@link \rosasurfer\rt\lib\synthetic\ISynthesizer} for calculating the official ICE Euro index.
  *
  * <pre>
  * Formula:
@@ -24,6 +26,8 @@ use const rosasurfer\rt\PERIOD_M1;
  * EURX = 34.38805726 * EURUSD * pow(USDCHF, 0.1113) * pow(USDJPY, 0.1891) * pow(USDSEK, 0.0785) / pow(GBPUSD, 0.3056)
  * EURX = 34.38805726 * pow(EURCHF, 0.1113) * pow(EURGBP, 0.3056) * pow(EURJPY, 0.1891) * pow(EURSEK, 0.0785) * pow(EURUSD, 0.3155)
  * </pre>
+ *
+ * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\RT
  */
 class EURX extends AbstractSynthesizer {
 
@@ -37,8 +41,16 @@ class EURX extends AbstractSynthesizer {
 
     /**
      * {@inheritdoc}
+     *
+     * @param  int $period
+     * @param  int $time
+     *
+     * @return array[] - PRICE_BAR array with history data
+     * @phpstan-return PRICE_BAR[]
+     *
+     * @see \rosasurfer\rt\PRICE_BAR
      */
-    public function calculateHistory($period, $time) {
+    public function calculateHistory(int $period, int $time): array {
         Assert::int($period, '$period');
         if ($period != PERIOD_M1) throw new UnimplementedFeatureException(__METHOD__.'('.periodToStr($period).') not implemented');
         Assert::int($time, '$time');
@@ -52,9 +64,7 @@ class EURX extends AbstractSynthesizer {
         if (!$quotes = $this->getComponentsHistory($symbols, $time))
             return [];
 
-        /** @var Output $output */
-        $output = $this->di(Output::class);
-        $output->out('[Info]    '.str_pad($this->symbolName, 6).'  calculating M1 history for '.gmdate('D, d-M-Y', $time));
+        Output::out('[Info]    '.str_pad($this->symbolName, 6).'  calculating M1 history for '.gmdate('D, d-M-Y', $time));
 
         // calculate quotes
         $EURUSD = $quotes['EURUSD'];

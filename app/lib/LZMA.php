@@ -1,13 +1,19 @@
 <?php
+declare(strict_types=1);
+
 namespace rosasurfer\rt\lib;
 
-use rosasurfer\core\StaticClass;
-use rosasurfer\core\assert\Assert;
-use rosasurfer\core\exception\FileNotFoundException;
-use rosasurfer\core\exception\InfrastructureException;
-use rosasurfer\core\exception\InvalidArgumentException;
-use rosasurfer\core\exception\RuntimeException;
-use rosasurfer\util\PHP;
+use rosasurfer\ministruts\core\StaticClass;
+use rosasurfer\ministruts\core\assert\Assert;
+use rosasurfer\ministruts\core\exception\FileNotFoundException;
+use rosasurfer\ministruts\core\exception\InfrastructureException;
+use rosasurfer\ministruts\core\exception\InvalidValueException;
+use rosasurfer\ministruts\core\exception\RuntimeException;
+use rosasurfer\ministruts\util\PHP;
+
+use const rosasurfer\ministruts\NL;
+use const rosasurfer\ministruts\NUL_DEVICE;
+use const rosasurfer\ministruts\WINDOWS;
 
 
 /**
@@ -25,16 +31,16 @@ class LZMA extends StaticClass {
      */
     public static function decompressData($data) {
         Assert::string($data);
-        if (!strlen($data)) throw new InvalidArgumentException('Invalid parameter $data: "" (not compressed)');
+        if (!strlen($data)) throw new InvalidValueException('Invalid parameter $data: "" (not compressed)');
 
         // Unter Windows blockiert das Schreiben nach STDIN bei Datenmengen ab 8193 Bytes, stream_set_blocking() scheint dort
         // jedoch nicht zu funktionieren (Windows 7). Daher wird der String in eine temporaere Datei geschrieben und diese
         // decodiert.
 
-        $tmpFile = tempnam(null, 'php');
+        $tmpFile = tempnam('', 'php');
         file_put_contents($tmpFile, $data);
 
-        $content = static::decompressFile($tmpFile);
+        $content = self::decompressFile($tmpFile);
         unlink($tmpFile);
 
         return $content;
@@ -51,16 +57,15 @@ class LZMA extends StaticClass {
     public static function decompressFile($file) {
         Assert::string($file);
         if (!is_file($file))  throw new FileNotFoundException('File not found "'.$file.'"');
-        if (!filesize($file)) throw new InvalidArgumentException('Invalid file "'.$file.'" (not compressed)');
+        if (!filesize($file)) throw new InvalidValueException('Invalid file "'.$file.'" (not compressed)');
 
-        $cmd     = static::getDecompressFileCmd();
+        $cmd     = self::getDecompressFileCmd();
         $file    = str_replace('/', DIRECTORY_SEPARATOR, str_replace('\\', '/', $file));
         $cmdLine = sprintf($cmd, $file);
         $stderr  = null;
         $stdout  = PHP::execProcess($cmdLine, $stderr);
 
         if (!strlen($stdout)) throw new RuntimeException('Decoding of file "'.$file.'" failed (decoded size=0),'.NL.'STDERR: '.$stderr);
-
         return $stdout;
     }
 
@@ -97,7 +102,7 @@ class LZMA extends StaticClass {
                 exec('"'.$appRoot.'/bin/win32/xz" -V 2> '.NUL_DEVICE, $output, $error);         // search xz in project
                 if (!$error) return $cmd = '"'.$appRoot.'/bin/win32/xz" -dc "%s"';
             }
-            throw new InfrastructureException('No LZMA decoder found.');
+            throw new InfrastructureException('LZMA decoder not found.');
         }
         return $cmd;
     }

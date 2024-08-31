@@ -1,12 +1,15 @@
 <?php
+declare(strict_types=1);
+
 namespace rosasurfer\rt\console;
 
-use rosasurfer\console\Command;
-use rosasurfer\console\io\Input;
-use rosasurfer\console\io\Output;
-use rosasurfer\process\Process;
+use rosasurfer\ministruts\console\Command;
+use rosasurfer\ministruts\console\io\Input;
+use rosasurfer\ministruts\console\io\Output;
+use rosasurfer\ministruts\process\Process;
 
 use rosasurfer\rt\model\RosaSymbol;
+
 use function rosasurfer\rt\strToPeriod;
 
 
@@ -19,14 +22,13 @@ class RosatraderHistoryCommand extends Command {
 
 
     /** @var string */
-    const DOCOPT = <<<'DOCOPT'
-
+    const DOCOPT = <<<DOCOPT
 Command line application to work with the Rosatrader history.
 
 Usage:
-  rt-history  status      [SYMBOL ...] [-h]
-  rt-history  synchronize [SYMBOL ...] [-h]
-  rt-history  update      [SYMBOL ...] [-p PERIOD] [-h]
+  {:cmd:}  status      [SYMBOL ...] [-h]
+  {:cmd:}  synchronize [SYMBOL ...] [-h]
+  {:cmd:}  update      [SYMBOL ...] [-p PERIOD] [-h]
 
 Commands:
   status           Show history status information.
@@ -46,20 +48,12 @@ DOCOPT;
     /**
      * {@inheritdoc}
      *
-     * @return $this
-     */
-    protected function configure() {
-        $this->setDocoptDefinition(self::DOCOPT);
-        return $this;
-    }
-
-
-    /**
-     * {@inheritdoc}
+     * @param  Input  $input
+     * @param  Output $output
      *
      * @return int - execution status (0 for success)
      */
-    protected function execute(Input $input, Output $output) {
+    protected function execute(Input $input, Output $output): int {
         $symbols = $this->resolveSymbols();
         if (!$symbols) return $this->status;
 
@@ -86,16 +80,13 @@ DOCOPT;
      * @return RosaSymbol[]
      */
     protected function resolveSymbols() {
-        /** @var Input $input */
-        $input = $this->di(Input::class);
-        /** @var Output $output */
-        $output = $this->di(Output::class);
+        $input  = $this->input;
+        $output = $this->output;
 
         $args = $input->getArguments('SYMBOL');
         $symbols = [];
 
         foreach ($args as $name) {
-            /** @var RosaSymbol $symbol */
             $symbol = RosaSymbol::dao()->findByName($name);
             if (!$symbol) {
                 $output->error('Unknown Rosatrader symbol "'.$name.'"');
@@ -126,10 +117,9 @@ DOCOPT;
      * @return int - execution status (0 for success)
      */
     protected function showStatus(array $symbols) {
-        /** @var Output $output */
-        $output = $this->di(Output::class);
+        $output = $this->output;
         $output->out('[Info]    Local history status');
-        $output->out($separator='---------------------------------------------------------------------------------------');
+        $output->out('---------------------------------------------------------------------------------------');
 
         foreach ($symbols as $symbol) {
             $symbol->showHistoryStatus();
@@ -147,10 +137,9 @@ DOCOPT;
      * @return int - execution status (0 for success)
      */
     protected function synchronizeStatus(array $symbols) {
-        /** @var Output $output */
-        $output = $this->di(Output::class);
+        $output = $this->output;
         $output->out('[Info]    Synchronizing history...');
-        $output->out($separator='---------------------------------------------------------------------------------------');
+        $output->out('---------------------------------------------------------------------------------------');
 
         foreach ($symbols as $symbol) {
             $symbol->synchronizeHistory();
@@ -168,10 +157,8 @@ DOCOPT;
      * @return int - execution status (0 for success)
      */
     protected function updateHistory(array $symbols) {
-        /** @var Input $input */
-        $input = $this->di(Input::class);
-        /** @var Output $output */
-        $output = $this->di(Output::class);
+        $input  = $this->input;
+        $output = $this->output;
         $output->out('[Info]    Updating history...');
 
         /** @var string $value */

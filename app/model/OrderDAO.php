@@ -1,51 +1,55 @@
 <?php
+declare(strict_types=1);
+
 namespace rosasurfer\rt\model;
 
-use rosasurfer\db\orm\DAO;
-
-use const rosasurfer\db\orm\meta\FLOAT;
-use const rosasurfer\db\orm\meta\INT;
-use const rosasurfer\db\orm\meta\STRING;
+use rosasurfer\ministruts\db\orm\DAO;
+use rosasurfer\ministruts\db\orm\ORM;
 
 
 /**
  * DAO for accessing {@link Order} instances.
+ *
+ * @phpstan-import-type  ORM_ENTITY from \rosasurfer\ministruts\db\orm\ORM
  */
 class OrderDAO extends DAO {
 
-
     /**
      * {@inheritdoc}
+     *
+     * @return array<string, mixed>
+     * @phpstan-return ORM_ENTITY
      */
-    public function getMapping() {
-        static $mapping; return $mapping ?: ($mapping=$this->parseMapping([
+    public function getMapping(): array {
+        static $mapping;
+        return $mapping ??= $this->parseMapping([
+            'class'      => Order::class,
             'connection' => 'rosatrader',
             'table'      => 't_order',
-            'class'      => Order::class,
             'properties' => [
-                ['name'=>'id',          'type'=>INT,    'primary'=>true],                           // db:int
-                ['name'=>'created',     'type'=>STRING,                ],                           // db:text[datetime] GMT
-                ['name'=>'modified',    'type'=>STRING, 'version'=>true],                           // db:text[datetime] GMT
+                ['name'=>'id',          'type'=>ORM::INT,    'primary-key'=>true],                  // db:int
+                ['name'=>'created',     'type'=>ORM::STRING,                    ],                  // db:text[datetime] GMT
+                ['name'=>'modified',    'type'=>ORM::STRING, 'version'=>true    ],                  // db:text[datetime] GMT
 
-                ['name'=>'ticket',      'type'=>INT,                   ],                           // db:int
-                ['name'=>'type',        'type'=>STRING,                ],                           // db:string[enum] references enum_ordertype(type)
-                ['name'=>'lots',        'type'=>FLOAT,                 ],                           // db:float
-                ['name'=>'symbol',      'type'=>STRING,                ],                           // db:text
-                ['name'=>'openPrice',   'type'=>FLOAT,                 ],                           // db:float
-                ['name'=>'openTime',    'type'=>STRING,                ],                           // db:text[datetime] FXT
-                ['name'=>'stopLoss',    'type'=>FLOAT,                 ],                           // db:float
-                ['name'=>'takeProfit',  'type'=>FLOAT,                 ],                           // db:float
-                ['name'=>'closePrice',  'type'=>FLOAT,                 ],                           // db:float
-                ['name'=>'closeTime',   'type'=>STRING,                ],                           // db:text[datetime] FXT
-                ['name'=>'commission',  'type'=>FLOAT,                 ],                           // db:float
-                ['name'=>'swap',        'type'=>FLOAT,                 ],                           // db:float
-                ['name'=>'profit',      'type'=>FLOAT,                 ],                           // db:float
-                ['name'=>'magicNumber', 'type'=>INT,                   ],                           // db:int
-                ['name'=>'comment',     'type'=>STRING,                ],                           // db:text
+                ['name'=>'ticket',      'type'=>ORM::INT,                       ],                  // db:int
+                ['name'=>'type',        'type'=>ORM::STRING,                    ],                  // db:string[enum] references enum_ordertype(type)
+                ['name'=>'lots',        'type'=>ORM::FLOAT,                     ],                  // db:float
+                ['name'=>'symbol',      'type'=>ORM::STRING,                    ],                  // db:text
+                ['name'=>'openPrice',   'type'=>ORM::FLOAT,                     ],                  // db:float
+                ['name'=>'openTime',    'type'=>ORM::STRING,                    ],                  // db:text[datetime] FXT
+                ['name'=>'stopLoss',    'type'=>ORM::FLOAT,                     ],                  // db:float
+                ['name'=>'takeProfit',  'type'=>ORM::FLOAT,                     ],                  // db:float
+                ['name'=>'closePrice',  'type'=>ORM::FLOAT,                     ],                  // db:float
+                ['name'=>'closeTime',   'type'=>ORM::STRING,                    ],                  // db:text[datetime] FXT
+                ['name'=>'commission',  'type'=>ORM::FLOAT,                     ],                  // db:float
+                ['name'=>'swap',        'type'=>ORM::FLOAT,                     ],                  // db:float
+                ['name'=>'profit',      'type'=>ORM::FLOAT,                     ],                  // db:float
+                ['name'=>'magicNumber', 'type'=>ORM::INT,                       ],                  // db:int
+                ['name'=>'comment',     'type'=>ORM::STRING,                    ],                  // db:text
             ],
             'relations' => [
-                ['name'=>'test', 'assoc'=>'many-to-one', 'type'=>Test::class, 'column'=>'test_id'], // db:int
+                ['name'=>'test', 'type'=>'many-to-one', 'class'=>Test::class, 'column'=>'test_id'], // db:int
             ],
-        ]));
+        ]);
     }
 }

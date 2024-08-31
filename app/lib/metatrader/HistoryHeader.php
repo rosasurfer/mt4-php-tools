@@ -1,9 +1,15 @@
 <?php
+declare(strict_types=1);
+
 namespace rosasurfer\rt\lib\metatrader;
 
-use rosasurfer\core\CObject;
-use rosasurfer\core\assert\Assert;
-use rosasurfer\core\exception\InvalidArgumentException;
+use rosasurfer\ministruts\core\CObject;
+use rosasurfer\ministruts\core\assert\Assert;
+use rosasurfer\ministruts\core\exception\InvalidValueException;
+
+use function rosasurfer\ministruts\strLeft;
+use function rosasurfer\ministruts\strLeftTo;
+use function rosasurfer\ministruts\strRight;
 
 
 /**
@@ -11,38 +17,89 @@ use rosasurfer\core\exception\InvalidArgumentException;
  */
 class HistoryHeader extends CObject {
 
-    /**
-     * Struct-Size eines HistoryHeaders
-     */
+
+    /** @var int - sizeof(struct HISTORY_HEADER) */
     const SIZE = 148;
 
-    protected /*int   */ $format;
-    protected /*string*/ $copyright    = '';
-    protected /*string*/ $symbol;
-    protected /*int   */ $period;
-    protected /*int   */ $digits;
-    protected /*int   */ $syncMarker   = 0;
-    protected /*int   */ $lastSyncTime = 0;
+    /** @var int */
+    protected $format;
 
+    /** @var string */
+    protected $copyright = '';
 
-    // Getter
-    public function getFormat()       { return $this->format;       }
-    public function getCopyright()    { return $this->copyright;    }
-    public function getSymbol()       { return $this->symbol;       }
-    public function getPeriod()       { return $this->period;       }
-    public function getTimeframe()    { return $this->getPeriod();  }    // Alias
-    public function getDigits()       { return $this->digits;       }
-    public function getSyncMarker()   { return $this->syncMarker;   }
-    public function getLastSyncTime() { return $this->lastSyncTime; }
+    /** @var string */
+    protected $symbol;
+
+    /** @var int */
+    protected $period;
+
+    /** @var int */
+    protected $digits;
+
+    /** @var int */
+    protected $syncMarker = 0;
+
+    /** @var int */
+    protected $lastSyncTime = 0;
 
 
     /**
-     * Formatbeschreibung eines struct HISTORY_HEADER.
+     * @return int
+     */
+    public function getFormat() {
+        return $this->format;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCopyright() {
+        return $this->copyright;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSymbol() {
+        return $this->symbol;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPeriod() {
+        return $this->period;
+    }
+
+    /**
+     * @return int
+     */
+    public function getDigits() {
+        return $this->digits;
+    }
+
+    /**
+     * @return int
+     */
+    public function getSyncMarker() {
+        return $this->syncMarker;
+    }
+
+    /**
+     * @return int
+     */
+    public function getLastSyncTime() {
+        return $this->lastSyncTime;
+    }
+
+
+    /**
+     * @var string - Formatbeschreibung eines struct HISTORY_HEADER.
      *
-     * @see  Definition in MT4Expander.dll::Expander.h
+     * @see  https://github.com/rosasurfer/mt4-expander/blob/master/header/struct/mt4/HistoryHeader.h
      * @see  self::unpackFormat() zum Verwenden als unpack()-Formatstring
      */
-    private static $formatStr = '
+    private static string $formatStr = '
         /V    format            // uint
         /a64  copyright         // szchar
         /a12  symbol            // szchar
@@ -55,55 +112,29 @@ class HistoryHeader extends CObject {
 
 
     /**
-     * Ueberladener Constructor.
+     * Create a new instance from the passed parameters.
      *
-     * Signaturen:
-     * -----------
-     * new HistoryHeader(int $format, string $copyright, string $symbol, int $period, int $digits, int $syncMarker, int $lastSyncTime)
-     * new HistoryHeader(string $data)
+     * @param  int     $format    - [400 | 401]
+     * @param  ?string $copyright
+     * @param  string  $symbol
+     * @param  int     $period
+     * @param  int     $digits
+     * @param  ?int    $syncMarker
+     * @param  ?int    $lastSyncTime
      */
-    public function __construct($arg1=null, $arg2=null, $arg3=null, $arg4=null, $arg5=null, $arg6=null, $arg7=null) {
-        $argc = func_num_args();
-        if      ($argc == 7) $this->__construct_1($arg1, $arg2, $arg3, $arg4, $arg5, $arg6, $arg7);
-        else if ($argc == 1) $this->__construct_2($arg1);
-        else throw new InvalidArgumentException('Invalid number of arguments: '.$argc);
-    }
-
-
-    /**
-     * Constructor 1
-     *
-     * Erzeugt eine neue Instanz anhand der uebergebenen Parameter.
-     *
-     * @param  int    $format       - unterstuetzte Formate: 400 und 401
-     * @param  string $copyright
-     * @param  string $symbol
-     * @param  int    $period
-     * @param  int    $digits
-     * @param  int    $syncMarker
-     * @param  int    $lastSyncTime
-     */
-    private function __construct_1($format, $copyright, $symbol, $period, $digits, $syncMarker, $lastSyncTime) {
-        Assert::int($format, '$format');
+    public function __construct(int $format, ?string $copyright='', string $symbol, int $period, int $digits, ?int $syncMarker=0, ?int $lastSyncTime=0) {
         if ($format!=400 && $format!=401)             throw new MetaTraderException('version.unsupported: Invalid parameter $format: '.$format.' (can be 400 or 401)');
         if (!isset($copyright)) $copyright = '';
-        Assert::string($copyright, '$copyright');
         $copyright = strLeft($copyright, 63);
-        Assert::string($symbol, '$symbol');
-        if (!strlen($symbol))                         throw new InvalidArgumentException('Invalid parameter $symbol: ""');
-        if (strlen($symbol) > MT4::MAX_SYMBOL_LENGTH) throw new InvalidArgumentException('Invalid parameter $symbol: "'.$symbol.'" (max '.MT4::MAX_SYMBOL_LENGTH.' characters)');
-        Assert::int($period, '$period');
-        if ($period <= 0)                             throw new InvalidArgumentException('Invalid parameter $period: '.$period);
-        Assert::int($digits, '$digits');
-        if ($digits < 0)                              throw new InvalidArgumentException('Invalid parameter $digits: '.$digits);
+        if (!strlen($symbol))                         throw new InvalidValueException('Invalid parameter $symbol: ""');
+        if (strlen($symbol) > MT4::MAX_SYMBOL_LENGTH) throw new InvalidValueException('Invalid parameter $symbol: "'.$symbol.'" (max '.MT4::MAX_SYMBOL_LENGTH.' characters)');
+        if ($period <= 0)                             throw new InvalidValueException('Invalid parameter $period: '.$period);
+        if ($digits < 0)                              throw new InvalidValueException('Invalid parameter $digits: '.$digits);
         if (!isset($syncMarker)) $syncMarker = 0;
-        Assert::int($syncMarker, '$syncMarker');
-        if ($syncMarker < 0)                          throw new InvalidArgumentException('Invalid parameter $syncMarker: '.$syncMarker);
+        if ($syncMarker < 0)                          throw new InvalidValueException('Invalid parameter $syncMarker: '.$syncMarker);
         if (!isset($lastSyncTime)) $lastSyncTime = 0;
-        Assert::int($lastSyncTime, '$lastSyncTime');
-        if ($lastSyncTime < 0)                        throw new InvalidArgumentException('Invalid parameter $lastSyncTime: '.$lastSyncTime);
+        if ($lastSyncTime < 0)                        throw new InvalidValueException('Invalid parameter $lastSyncTime: '.$lastSyncTime);
 
-        // Daten speichern
         $this->format       = $format;
         $this->copyright    = $copyright;
         $this->symbol       = $symbol;
@@ -115,27 +146,27 @@ class HistoryHeader extends CObject {
 
 
     /**
-     * Constructor 2
+     * Create a new instance from a binary struct HISTORY_HEADER.
      *
-     * Erzeugt eine neue Instanz anhand eines binaer gespeicherten struct HISTORY_HEADER.
+     * @param  string $struct - struct HISTORY_HEADER
      *
-     * @param  string $data - gespeichertes struct HISTORY_HEADER
+     * @return self
      */
-    private function __construct_2($data) {
-        Assert::string($data);
-        if (strlen($data) != self::SIZE) throw new InvalidArgumentException('Invalid length of parameter $data: '.strlen($data).' (not '.__CLASS__.'::SIZE)');
+    public static function fromStruct(string $struct): self {
+        if (strlen($struct) != self::SIZE) throw new InvalidValueException('Invalid length of parameter $struct: '.strlen($struct).' (expected '.__CLASS__.'::SIZE)');
 
-        $header = unpack(static::unpackFormat(), $data);
-        if ($header['format']!=400 && $header['format']!=401) throw new MetaTraderException('version.unsupported: Invalid or unsupported history format version: '.$header['format']);
+        $header = unpack(self::unpackFormat(), $struct);
+        if ($header['format']!=400 && $header['format']!=401) throw new MetaTraderException("version.unsupported: Invalid or unsupported history format version: $header[format]");
 
-        // Daten speichern
-        $this->format       = $header['format'      ];
-        $this->copyright    = $header['copyright'   ];
-        $this->symbol       = $header['symbol'      ];
-        $this->period       = $header['period'      ];
-        $this->digits       = $header['digits'      ];
-        $this->syncMarker   = $header['syncMarker'  ];
-        $this->lastSyncTime = $header['lastSyncTime'];
+        $format       = $header['format'      ];
+        $copyright    = $header['copyright'   ];
+        $symbol       = $header['symbol'      ];
+        $period       = $header['period'      ];
+        $digits       = $header['digits'      ];
+        $syncMarker   = $header['syncMarker'  ];
+        $lastSyncTime = $header['lastSyncTime'];
+
+        return new self($format, $copyright, $symbol, $period, $digits, $syncMarker, $lastSyncTime);
     }
 
 
@@ -143,10 +174,12 @@ class HistoryHeader extends CObject {
      * Setzt den Zeitpunkt der letzten Synchronisation in diesem Header.
      *
      * @param  int $time
+     *
+     * @return void
      */
     public function setLastSyncTime($time) {
         Assert::int($time);
-        if ($time < 0) throw new InvalidArgumentException('Invalid parameter $time: '.$time);
+        if ($time < 0) throw new InvalidValueException('Invalid parameter $time: '.$time);
 
         $this->lastSyncTime = $time;
     }
@@ -190,9 +223,10 @@ class HistoryHeader extends CObject {
 
         if (is_null($format)) {
             $lines = explode("\n", self::$formatStr);
-            foreach ($lines as $i => &$line) {
+            foreach ($lines as &$line) {
                 $line = strLeftTo($line, '//');                          // Kommentare entfernen
-            }; unset($line);
+            };
+            unset($line);
             $format = join('', $lines);
 
             // since PHP 5.5.0: The 'a' code now retains trailing NULL bytes, 'Z' replaces the former 'a'.

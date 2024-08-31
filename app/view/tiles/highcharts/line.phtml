@@ -1,9 +1,14 @@
 <?php
+declare(strict_types=1);
+
+use rosasurfer\ministruts\core\di\facade\Form;
 use rosasurfer\rt\model\Test;
 
+use function rosasurfer\ministruts\asset;
+
 /** @var Test $test */
-$test = $form->getTest();
-$trades = $test->getTrades(['order' => 'closeTime, openTime']);
+$test = Form::get('test');
+$test->getTrades();
 ?>
 <script src="<?=asset('/js/highstock/highstock.js')?>"></script>
 
