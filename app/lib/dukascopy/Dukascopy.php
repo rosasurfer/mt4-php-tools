@@ -47,10 +47,7 @@ use const rosasurfer\rt\PRICE_MEDIAN;
 /**
  * Functionality for processing Dukascopy history data.
  *
- *
- * @phpstan-type  DUKASCOPY_TIMEFRAME_START = array{
- *   int
- * }
+ * @phpstan-type         DUKASCOPY_HISTORYSTART_RECORD = array{int}
  * @phpstan-import-type  POINT_BAR from \rosasurfer\rt\RT
  * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\RT
  */
@@ -59,11 +56,11 @@ class Dukascopy extends CObject {
     /** @var int - size of a struct DUKASCOPY_BAR in byte */
     const DUKASCOPY_BAR_size = 12;
 
+    /** @var int - size of a struct DUKASCOPY_HISTORYSTART_RECORD in byte */
+    const DUKASCOPY_HISTORYSTART_RECORD_size = 16;
+
     /** @var int - size of a struct DUKASCOPY_TICK in byte */
     const DUKASCOPY_TICK_size = 20;
-
-    /** @var int - size of a struct DUKASCOPY_TIMEFRAME_START in byte */
-    const DUKASCOPY_TIMEFRAME_START_size = 16;
 
 
     /** @var ?HttpClient */
@@ -617,81 +614,85 @@ class Dukascopy extends CObject {
         if (!$lenData) throw new InvalidValueException('Illegal length of history start data: '.$lenData);
 
         $symbols = [];
-        $start = $length = $high = $count = null;
+        $start = $length = $highPart = $count = null;
         $symbol = '';
         $offset = 0;
 
+        // unpack() format codes: https://www.php.net/manual/en/function.pack.php#refsect1-function.pack-parameters
         while ($offset < $lenData) {
+            /** @var array{start:int, length:int} $vars */
             $vars = unpack("@$offset/Cstart/Clength", $data);
             extract($vars);
-            if ($start)                     throw new RuntimeException('Unexpected data format in DUKASCOPY_HISTORY_START at offset '.$offset.': start='.$start);                           // @phpstan-ignore if.alwaysFalse (extract sets)
+            if ($start)                     throw new RuntimeException('Unexpected data format in DUKASCOPY_HISTORY_START at offset '.$offset.': start='.$start);
             $offset += 2;
-            $vars = unpack("@$offset/A${length}symbol/Nhigh/Ncount", $data);
+
+            /** @var array{symbol:string, highPart:int, count:int} $vars */
+            $vars = unpack("@$offset/A${length}symbol/NhighPart/Ncount", $data);
             extract($vars);
-            if (strlen($symbol) != $length) throw new RuntimeException('Unexpected data format in DUKASCOPY_HISTORY_START at offset '.$offset.': symbol="'.$symbol.'"  length='.$length);   // @phpstan-ignore if.alwaysFalse (extract sets)
-            if ($high)                      throw new RuntimeException('Unexpected data format in DUKASCOPY_HISTORY_START at offset '.($offset+$length).': highInt='.$high);                // @phpstan-ignore if.alwaysFalse (extract sets)
-            if ($count != 4)                throw new RuntimeException('Unexpected data format in DUKASCOPY_HISTORY_START at offset '.($offset+$length+1).': count='.$count);               // @phpstan-ignore if.alwaysTrue  (extract sets)
-            $offset += $length + 8;                                             // @phpstan-ignore deadCode.unreachable (reachable because of extract)
+            if (strlen($symbol) != $length) throw new RuntimeException("Unexpected data format in DUKASCOPY_HISTORY_START at offset $offset: symbol=\"$symbol\"  length=$length");
+            if ($highPart)                  throw new RuntimeException('Unexpected data format in DUKASCOPY_HISTORY_START at offset '.($offset+$length).": highPart=$highPart");
+            if ($count != 4)                throw new RuntimeException('Unexpected data format in DUKASCOPY_HISTORY_START at offset '.($offset+$length+1).": count=$count");
+            $offset += $length + 8;
 
             $timeframes = $this->readHistoryStartSection($data, $offset, $count);
             if ($timeframes) {                                                  // skip symbols without history
-                ksort($timeframes);
                 $symbols[strtoupper($symbol)] = $timeframes;
             }
-            $offset += $count*16;
+            $offset += $count * self::DUKASCOPY_HISTORYSTART_RECORD_size;
         }
-        ksort($symbols);                                                        // @phpstan-ignore deadCode.unreachable (reachable because of extract)
+
+        ksort($symbols);
         return $symbols;
     }
 
 
     /**
-     * Parse a binary string with a history start section (consecutive history start records).
+     * Parse a binary string and return a list of history start records.
      *
-     * @param  string $data              - binary data
-     * @param  int    $offset [optional] - string offset to start     (default: 0)
-     * @param  int    $count  [optional] - number of records to parse (default: until the end of the string)
+     * @param  string $data   - binary data
+     * @param  int    $offset - string offset to start reading
+     * @param  int    $count  - number of records to read
      *
-     * @return         array[] - array with variable number of DUKASCOPY_TIMEFRAME_START records
-     * @phpstan-return DUKASCOPY_TIMEFRAME_START[]
+     * @return         array[] - array of DUKASCOPY_HISTORYSTART_RECORDs
+     * @phpstan-return DUKASCOPY_HISTORYSTART_RECORD[]
      *
      * <pre>
      * Array(
      *     [{timeframe-id}] => [{timestamp}],           // e.g.: PERIOD_TICK => Mon, 04-Aug-2003 10:03:02.837,
      *     [{timeframe-id}] => [{timestamp}],           //       PERIOD_M1   => Mon, 04-Aug-2003 10:03:00,
-     *     [{timeframe-id}] => [{timestamp}],           //       PERIOD_H1   => Mon, 04-Aug-2003 10:00:00,
-     *     ...                                          //       PERIOD_D1   => Mon, 25-Nov-1991 00:00:00,
+     *     ...
      * )
      * </pre>
      */
-    protected function readHistoryStartSection(string $data, int $offset = 0, int $count = PHP_INT_MAX): array {
+    protected function readHistoryStartSection(string $data, int $offset, int $count): array {
         $lenData = strlen($data);
         if ($offset < 0)         throw new InvalidValueException("Invalid parameter \$offset: $offset (expected non-negative value)");
-        if ($offset >= $lenData) throw new InvalidValueException("Invalid parameters \$offset/\$lenData: $offset/$lenData (expected offset < lenData)");
-        if ($count < 0)          throw new InvalidValueException("Invalid parameter \$count: $count (expected non-negative)");
+        if ($offset >= $lenData) throw new InvalidValueException("Invalid parameter \$offset: $offset (out of range)");
+        if ($count <= 0)         throw new InvalidValueException("Invalid parameter \$count: $count (expected positive value)");
 
         $timeframes = [];
 
         while ($offset < $lenData && $count) {
-            $timeframes[] = $this->readHistoryStartRecord($data, $offset);
-            $offset += self::DUKASCOPY_TIMEFRAME_START_size;
+            $timeframes += $this->readHistoryStartRecord($data, $offset);
+            $offset += self::DUKASCOPY_HISTORYSTART_RECORD_size;
             $count--;
         }
+        ksort($timeframes);
         return $timeframes;
     }
 
 
     /**
-     * Parse a DUKASCOPY_TIMEFRAME_START record at the given offset of a binary string.
+     * Read and return a single DUKASCOPY_HISTORYSTART_RECORD.
      *
-     * @param  string $data   - binary data
-     * @param  int    $offset - offset
+     * @param  string $data   - binary string containing the record
+     * @param  int    $offset - string offset to read the record from
      *
-     * @return array - a key-value pair [{period-id} => {timestamp}] or an empty array if history of the given timeframe
-     *                 is not available
+     * @return         array - a record [{period-id} => {timestamp}] or an empty array if the record indicates "no history available".
+     * @phpstan-return DUKASCOPY_HISTORYSTART_RECORD
      */
     protected function readHistoryStartRecord(string $data, int $offset): array {
-        // @link  https://www.php.net/manual/en/function.pack.php#refsect1-function.pack-parameters
+        // @see  https://www.php.net/manual/en/function.pack.php#refsect1-function.pack-parameters
 
         // check platform
         if (PHP_INT_SIZE == 8) {
@@ -701,8 +702,9 @@ class Dukascopy extends CObject {
                 $record[1] = 0;
             }
             $timeframe = $record[1] / 1000 / MINUTES;
-            if (!is_int($timeframe) || (string)$timeframe==periodToStr($timeframe)) throw new RuntimeException('Unexpected Dukascopy timeframe identifier: '.$record[1]);
-
+            if (!is_int($timeframe) || (string)$timeframe==periodToStr($timeframe)) {
+                throw new RuntimeException("Unexpected Dukascopy timeframe identifier: $record[1]");
+            }
             $record[1] = $timeframe;
             if ($record[2] < 0) throw new RangeException('Invalid Java timestamp: '.sprintf('%u', $record[2]).' (out of range)');
             if ($record[2] == PHP_INT_MAX) {                                    // int64_max = no history available
@@ -724,8 +726,9 @@ class Dukascopy extends CObject {
                 $record[1] = '0';
             }
             $timeframe = ((int)bcdiv($record[1], '1000', 0)) / MINUTES;
-            if (!is_int($timeframe) || (string)$timeframe==periodToStr($timeframe)) throw new RuntimeException('Unexpected Dukascopy timeframe identifier: '.$record[1]);
-
+            if (!is_int($timeframe) || (string)$timeframe==periodToStr($timeframe)) {
+                throw new RuntimeException('Unexpected Dukascopy timeframe identifier: '.$record[1]);
+            }
             $record[1] = $timeframe;
             if ($record[2] == '9223372036854775807') {                          // int64_max = no history available
                 return [];
