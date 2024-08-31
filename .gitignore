@@ -23,7 +23,6 @@ nbactions.xml
 # ignore the following folders and files
 /etc/httpd/cgi/php.ini
 /etc/tmp/*
-/etc/phpstan/.tmp/
 /log/*
 
 /vendor/
