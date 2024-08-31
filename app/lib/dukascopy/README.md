@@ -71,55 +71,57 @@ Data is [LZMA](https://en.wikipedia.org/wiki/Lempel%E2%80%93Ziv%E2%80%93Markov_c
 Structure `DUKASCOPY_HISTORY_START` describes the history start times of all available timeframes of a symbol:
 ```C++
 // big-endian
-struct DUKASCOPY_HISTORY_START {     // -- offset --- size --- description -----------------------------------------------
-    char      start;                 //         0        1     symbol start marker (always NULL)
-    char      length;                //         1        1     length of the following symbol name
-    char      symbol[length];        //         2 {length}     symbol name (no terminating NULL character)
-    int64     count;                 //  variable        8     number of timeframe start records to follow
-    DUKASCOPY_TIMEFRAME_START;       //  variable       16     zero or more timeframe start structures
-    ...                              //  
-};                                   // ----------------------------------------------------------------------------------
-                                     //                = 2 + {length} + {count} * sizeof(DUKASCOPY_TIMEFRAME_START)
+struct DUKASCOPY_HISTORY_START {        // -- offset --- size --- description -------------------------------------------------------
+    char      start;                    //         0        1     struct start marker (always NULL)
+    char      length;                   //         1        1     length of the following symbol name
+    char      symbol[length];           //         2 {length}     symbol name w/o terminating NULL character
+    int64     count;                    //  variable        8     number of history start records to follow (always 4)
+    DUKASCOPY_HISTORYSTART_RECORD;      //  variable       16     PERIOD_TICK
+    DUKASCOPY_HISTORYSTART_RECORD;      //  variable       16     PERIOD_M1
+    DUKASCOPY_HISTORYSTART_RECORD;      //  variable       16     PERIOD_H1
+    DUKASCOPY_HISTORYSTART_RECORD;      //  variable       16     PERIOD_D1
+};                                      // ------------------------------------------------------------------------------------------
+                                        //                = 2 + {length} + {count} * sizeof(DUKASCOPY_HISTORYSTART_RECORD)
 ```
 ---
 
-Structure `DUKASCOPY_TIMEFRAME_START` describes the history start time of a single timeframe:
+Structure `DUKASCOPY_HISTORYSTART_RECORD` describes the history start time of a single timeframe:
 ```C++
 // big-endian
-struct DUKASCOPY_TIMEFRAME_START {   // -- offset --- size --- description -----------------------------------------------
-    int64 timeframe;                 //         0        8     period in minutes as a Java timestamp (0 or -1: tick data)
-    int64 time;                      //         8        8     start time as a Java timestamp (INT_MAX: no data avaliable)
-};                                   // ----------------------------------------------------------------------------------
-                                     //               = 16
+struct DUKASCOPY_HISTORYSTART_RECORD {  // -- offset --- size --- description -------------------------------------------------------
+    int64 timeframe;                    //         0        8     period in msec (-1: same as 0 = PERIOD_TICK)
+    int64 time;                         //         8        8     start time as a Java timestamp (INT_MAX: no history avaliable)
+};                                      // ------------------------------------------------------------------------------------------
+                                        //               = 16
 ```
 ---
 
 Structure `DUKASCOPY_BAR` describes a single history bar:
 ```C++
 // big-endian
-struct DUKASCOPY_BAR {               // -- offset --- size --- description -----------------------------------------------
-    uint  timeDelta;                 //         0        4     time difference in seconds since 00:00 GMT of the day
-    uint  open;                      //         4        4     in point
-    uint  close;                     //         8        4     in point
-    uint  low;                       //        12        4     in point
-    uint  high;                      //        16        4     in point
-    float volume;                    //        20        4     in traded units
-};                                   // ----------------------------------------------------------------------------------
-                                     //               = 24
+struct DUKASCOPY_BAR {                  // -- offset --- size --- description -------------------------------------------------------
+    uint  timeDelta;                    //         0        4     time difference in seconds since 00:00 GMT of the day
+    uint  open;                         //         4        4     in point
+    uint  close;                        //         8        4     in point
+    uint  low;                          //        12        4     in point
+    uint  high;                         //        16        4     in point
+    float volume;                       //        20        4     in traded units
+};                                      // ------------------------------------------------------------------------------------------
+                                        //               = 24
 ```
 ---
 
 Structure `DUKASCOPY_TICK` describes a single tick:
 ```C++
 // big-endian
-struct DUKASCOPY_TICK {              // -- offset --- size --- description -----------------------------------------------
-    uint  timeDelta;                 //         0        4     time difference in msec since start of the hour
-    uint  ask;                       //         4        4     in point
-    uint  bid;                       //         8        4     in point
-    float askSize;                   //        12        4     cumulated ask size in lot (min. 1)
-    float bidSize;                   //        16        4     cumulated bid size in lot (min. 1)
-};                                   // ----------------------------------------------------------------------------------
-                                     //               = 20
+struct DUKASCOPY_TICK {                 // -- offset --- size --- description -------------------------------------------------------
+    uint  timeDelta;                    //         0        4     time difference in msec since start of the hour
+    uint  ask;                          //         4        4     in point
+    uint  bid;                          //         8        4     in point
+    float askSize;                      //        12        4     cumulated ask size in lot (min. 1)
+    float bidSize;                      //        16        4     cumulated bid size in lot (min. 1)
+};                                      // ------------------------------------------------------------------------------------------
+                                        //               = 20
 ```
 ---
 
