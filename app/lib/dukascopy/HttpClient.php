@@ -33,9 +33,7 @@ class HttpClient extends CurlHttpClient {
     /**
      * Constructor
      *
-     * Create a new instance.
-     *
-     * @param  array $options [optional] - additional options (default: none)
+     * @param  mixed[] $options [optional] - additional options (default: none)
      */
     public function __construct(array $options = []) {
         $options[CURLOPT_SSL_VERIFYPEER] = false;               // suppress SSL certificate validation errors
@@ -51,11 +49,10 @@ class HttpClient extends CurlHttpClient {
      *
      * @return string - binary history start data or an empty string in case of errors
      */
-    public function downloadHistoryStart($symbol = null) {
-        Assert::nullOrString($symbol);
-        if (strlen($symbol))
-            $symbol .= '/';
-        $symbol = strtoupper($symbol);
+    public function downloadHistoryStart(?string $symbol = null): string {
+        if (strlen($symbol)) {
+            $symbol = strtoupper("$symbol/");
+        }
         $url = 'http://datafeed.dukascopy.com/datafeed/'.$symbol.'metadata/HistoryStart.bi5';
 
         $request = new DukascopyRequest($url);
@@ -63,16 +60,18 @@ class HttpClient extends CurlHttpClient {
 
         $status = $response->getStatus();
         if ($status!=HttpResponse::SC_OK && $status!=HttpResponse::SC_NOT_FOUND) {
-            throw new RuntimeException('Unexpected HTTP response status '.$status.' ('.HttpResponse::$statusCodes[$status].')'.NL.'url: '.$url.NL.print_p($response, true));
+            throw new RuntimeException("Unexpected HTTP response status $status (".HttpResponse::$statusCodes[$status].')'.NL."url: $url".NL.print_p($response, true));
         }
 
         // treat an empty response as 404 error (not found)
         $content = $response->getContent();
-        if (!strlen($content))
+        if (!strlen($content)) {
             $status = HttpResponse::SC_NOT_FOUND;
-        if ($status == HttpResponse::SC_NOT_FOUND) Output::error('[Error]   URL not found (404): '.$url);
-
-        return ($status==HttpResponse::SC_OK) ? $response->getContent() : '';
+        }
+        if ($status == HttpResponse::SC_NOT_FOUND) {
+            Output::error("[Error]   URL not found (404): $url");
+        }
+        return ($status==HttpResponse::SC_OK) ? $content : '';
     }
 
 

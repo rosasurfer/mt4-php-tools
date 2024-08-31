@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace rosasurfer\rt\lib\dukascopy;
 
+use RangeException;
+
 use rosasurfer\ministruts\core\CObject;
 use rosasurfer\ministruts\core\assert\Assert;
 use rosasurfer\ministruts\core\di\proxy\Output;
@@ -43,12 +45,25 @@ use const rosasurfer\rt\PRICE_MEDIAN;
 
 
 /**
- * Functionality for downloading and processing Dukascopy history data.
+ * Functionality for processing Dukascopy history data.
  *
+ *
+ * @phpstan-type  DUKASCOPY_TIMEFRAME_START = array{
+ *   int
+ * }
  * @phpstan-import-type  POINT_BAR from \rosasurfer\rt\RT
  * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\RT
  */
 class Dukascopy extends CObject {
+
+    /** @var int - size of a struct DUKASCOPY_BAR in byte */
+    const DUKASCOPY_BAR_size = 12;
+
+    /** @var int - size of a struct DUKASCOPY_TICK in byte */
+    const DUKASCOPY_TICK_size = 20;
+
+    /** @var int - size of a struct DUKASCOPY_TIMEFRAME_START in byte */
+    const DUKASCOPY_TIMEFRAME_START_size = 16;
 
 
     /** @var ?HttpClient */
@@ -65,7 +80,7 @@ class Dukascopy extends CObject {
 
 
     /**
-     * Return a Dukascopy specific HTTP client. The instance is kept to enable "keep-alive" connections.
+     * Return a Dukascopy specific HTTP client. The instance is kept in memory to support "keep-alive" connections.
      *
      * @return HttpClient
      */
@@ -83,7 +98,7 @@ class Dukascopy extends CObject {
      *
      * @return string - decompressed file content
      */
-    protected function decompressFile(string $compressedFile, ?string $saveAs = null) {
+    protected function decompressFile(string $compressedFile, ?string $saveAs = null): string {
         return $this->decompressData(file_get_contents($compressedFile), $saveAs);
     }
 
@@ -105,7 +120,8 @@ class Dukascopy extends CObject {
         if (isset($saveAs)) {
             FS::mkDir(dirname($saveAs));
             $tmpFile = tempnam(dirname($saveAs), basename($saveAs));
-            file_put_contents($tmpFile, $rawData);              // make sure an existing file can't be corrupt
+            // write to a tmp file to make sure an existing final file can't be corrupt
+            file_put_contents($tmpFile, $rawData);
             if (is_file($saveAs)) unlink($saveAs);
             rename($tmpFile, $saveAs);
         }
@@ -512,7 +528,7 @@ class Dukascopy extends CObject {
      *
      * @param  DukascopySymbol $symbol
      *
-     * @return array - history start times per timeframe or an empty value in case of errors
+     * @return array - history start times per timeframe or an empty array in case of errors
      *
      * <pre>
      * Array(
@@ -524,20 +540,18 @@ class Dukascopy extends CObject {
      * </pre>
      */
     public function fetchHistoryStart(DukascopySymbol $symbol) {
-        $name  = $symbol->getName();
-        $nameU = strtoupper($name);
+        $symbolU = strtoupper($symbol->getName());
 
-        if (isset($this->allHistoryStarts[$nameU]))
-            return $this->allHistoryStarts[$nameU];
-        if (isset($this->historyStarts[$nameU]))
-            return $this->historyStarts[$nameU];
+        return $this->allHistoryStarts[$symbolU] ?? $this->historyStarts[$symbolU] ?? (function() use ($symbol, $symbolU) {
+            $name = $symbol->getName();
+            Output::out('[Info]    '.str_pad($name, 6).'  downloading history start times from Dukascopy...');
 
-        Output::out('[Info]    '.str_pad($name, 6).'  downloading history start times from Dukascopy...');
-
-        $data = $this->getHttpClient()->downloadHistoryStart($name);
-        if (strlen($data))
-            return $this->historyStarts[$nameU] = $this->readHistoryStartSection($data);
-        return [];
+            $data = $this->getHttpClient()->downloadHistoryStart($name);
+            if (strlen($data)) {
+                $this->historyStarts[$symbolU] = $this->readHistoryStartSection($data);
+            }
+            return $this->historyStarts[$symbolU] ?? [];
+        });
     }
 
 
@@ -636,34 +650,33 @@ class Dukascopy extends CObject {
      *
      * @param  string $data              - binary data
      * @param  int    $offset [optional] - string offset to start     (default: 0)
-     * @param  ?int   $count  [optional] - number of records to parse (default: until the end of the string)
+     * @param  int    $count  [optional] - number of records to parse (default: until the end of the string)
      *
-     * @return array - array with variable number of elements each describing history start of a single timeframe
-     *                 as follows:
+     * @return         array[] - array with variable number of DUKASCOPY_TIMEFRAME_START records
+     * @phpstan-return DUKASCOPY_TIMEFRAME_START[]
+     *
      * <pre>
      * Array(
-     *     [{period-id}] => [{timestamp}],              // e.g.: PERIOD_TICK => Mon, 04-Aug-2003 10:03:02.837,
-     *     [{period-id}] => [{timestamp}],              //       PERIOD_M1   => Mon, 04-Aug-2003 10:03:00,
-     *     [{period-id}] => [{timestamp}],              //       PERIOD_H1   => Mon, 04-Aug-2003 10:00:00,
+     *     [{timeframe-id}] => [{timestamp}],           // e.g.: PERIOD_TICK => Mon, 04-Aug-2003 10:03:02.837,
+     *     [{timeframe-id}] => [{timestamp}],           //       PERIOD_M1   => Mon, 04-Aug-2003 10:03:00,
+     *     [{timeframe-id}] => [{timestamp}],           //       PERIOD_H1   => Mon, 04-Aug-2003 10:00:00,
      *     ...                                          //       PERIOD_D1   => Mon, 25-Nov-1991 00:00:00,
      * )
      * </pre>
      */
-    protected function readHistoryStartSection($data, $offset = 0, $count = null) {
+    protected function readHistoryStartSection(string $data, int $offset = 0, int $count = PHP_INT_MAX): array {
         $lenData = strlen($data);
-        if (!is_int($offset) || $offset < 0)    throw new InvalidValueException('Invalid parameter $offset: '.$offset.' ('.gettype($offset).')');
-        if ($offset >= $lenData)                throw new InvalidValueException('Invalid parameters, mis-matching $offset/$lenData: '.$offset.'/'.$lenData);
-        if (!isset($count)) $count = PHP_INT_MAX;
-        elseif (!is_int($count) || $count <= 0) throw new InvalidValueException('Invalid parameter $count: '.$count.' ('.gettype($count).')');
+        if ($offset < 0)         throw new InvalidValueException("Invalid parameter \$offset: $offset (expected non-negative value)");
+        if ($offset >= $lenData) throw new InvalidValueException("Invalid parameters \$offset/\$lenData: $offset/$lenData (expected offset < lenData)");
+        if ($count < 0)          throw new InvalidValueException("Invalid parameter \$count: $count (expected non-negative)");
 
         $timeframes = [];
 
         while ($offset < $lenData && $count) {
-            $timeframes += $this->readHistoryStartRecord($data, $offset);
-            $offset += 16;
+            $timeframes[] = $this->readHistoryStartRecord($data, $offset);
+            $offset += self::DUKASCOPY_TIMEFRAME_START_size;
             $count--;
         }
-        ksort($timeframes);
         return $timeframes;
     }
 
@@ -677,24 +690,29 @@ class Dukascopy extends CObject {
      * @return array - a key-value pair [{period-id} => {timestamp}] or an empty array if history of the given timeframe
      *                 is not available
      */
-    protected function readHistoryStartRecord($data, $offset) {
+    protected function readHistoryStartRecord(string $data, int $offset): array {
+        // @link  https://www.php.net/manual/en/function.pack.php#refsect1-function.pack-parameters
+
         // check platform
         if (PHP_INT_SIZE == 8) {
-            // 64-bit integers and format codes are supported
+            // 64-bit: 64-bit format codes are supported
             $record = unpack("@$offset/J2", $data);
-            if ($record[1] == -1)                                               // uint64_max: sometimes used as tickdata identifier
+            if ($record[1] == -1) {                                             // reset uint64_max (sometimes used as tickdata identifier)
                 $record[1] = 0;
+            }
             $timeframe = $record[1] / 1000 / MINUTES;
             if (!is_int($timeframe) || (string)$timeframe==periodToStr($timeframe)) throw new RuntimeException('Unexpected Dukascopy timeframe identifier: '.$record[1]);
+
             $record[1] = $timeframe;
-            if ($record[2] < 0) throw new \RangeException('Invalid Java timestamp: '.sprintf('%u', $record[2]).' (out of range)');
-            if ($record[2] == PHP_INT_MAX)
-                return [];                                                      // int64_max: no history available
+            if ($record[2] < 0) throw new RangeException('Invalid Java timestamp: '.sprintf('%u', $record[2]).' (out of range)');
+            if ($record[2] == PHP_INT_MAX) {                                    // int64_max = no history available
+                return [];
+            }
             if ($record[2] % 1000) $record[2] = round($record[2]/1000, 3);
             else                   $record[2] = (int)($record[2]/1000);
         }
         else {
-            // 32-bit integers: 64-bit format codes are not supported
+            // 32-bit: 64-bit format codes are not supported
             $ints = unpack("@$offset/N4", $data);
             $record = [];
             foreach ($ints as $i => $int) {
@@ -702,14 +720,16 @@ class Dukascopy extends CObject {
                 if ($i % 2) $record[($i+1)/2] = bcmul($int, '4294967296', 0);   // 2 ^ 32
                 else        $record[ $i=$i/2] = bcadd($record[$i], $int, 0);
             }
-            if ($record[1] == '18446744073709551615')                           // uint64_max: sometimes used as tickdata identifier
+            if ($record[1] == '18446744073709551615') {                         // reset uint64_max (sometimes used as tickdata identifier)
                 $record[1] = '0';
-            /** @var int $timeframe */
-            $timeframe = ((int) bcdiv($record[1], '1000', 0)) / MINUTES;
+            }
+            $timeframe = ((int)bcdiv($record[1], '1000', 0)) / MINUTES;
             if (!is_int($timeframe) || (string)$timeframe==periodToStr($timeframe)) throw new RuntimeException('Unexpected Dukascopy timeframe identifier: '.$record[1]);
+
             $record[1] = $timeframe;
-            if ($record[2] == '9223372036854775807')                            // int64_max: no history available
+            if ($record[2] == '9223372036854775807') {                          // int64_max = no history available
                 return [];
+            }
             if (!bcmod($record[2], '1000')) $record[2] =   (int) bcdiv($record[2], '1000', 0);
             else                            $record[2] = (float) bcdiv($record[2], '1000', 3);
         }

@@ -60,7 +60,7 @@ day is available the earliest at the next day (`GMT`). In Rosatrader bid and ask
 </table>
 
 M1 history is available one file per calendar day since history start. During trade breaks data indicates the last available
-close price (OHLC) and a volume of zero (V=0). Months are counted starting with zero (January = 00).
+close price (OHLC) and a volume of zero (V=0). Months are counted starting from zero (January = 00).
 Data is [LZMA](https://en.wikipedia.org/wiki/Lempel%E2%80%93Ziv%E2%80%93Markov_chain_algorithm) compressed.
 
 ---
@@ -68,7 +68,7 @@ Data is [LZMA](https://en.wikipedia.org/wiki/Lempel%E2%80%93Ziv%E2%80%93Markov_c
 
 ### Data structures
 
-Structure `DUKASCOPY_HISTORY_START` describes the storage format of history start times of all timeframes available for a symbol:
+Structure `DUKASCOPY_HISTORY_START` describes the history start times of all available timeframes of a symbol:
 ```C++
 // big-endian
 struct DUKASCOPY_HISTORY_START {     // -- offset --- size --- description -----------------------------------------------
@@ -76,16 +76,14 @@ struct DUKASCOPY_HISTORY_START {     // -- offset --- size --- description -----
     char      length;                //         1        1     length of the following symbol name
     char      symbol[length];        //         2 {length}     symbol name (no terminating NULL character)
     int64     count;                 //  variable        8     number of timeframe start records to follow
-    DUKASCOPY_TIMEFRAME_START;       //  variable       16     timeframe start structure
-    DUKASCOPY_TIMEFRAME_START;       //  variable       16     timeframe start structure
-    ...                              //  variable       16     timeframe start structure
-    DUKASCOPY_TIMEFRAME_START;       //  variable       16     timeframe start structure
+    DUKASCOPY_TIMEFRAME_START;       //  variable       16     zero or more timeframe start structures
+    ...                              //  
 };                                   // ----------------------------------------------------------------------------------
-                                     //                = 2 + {length} + {count}*16
+                                     //                = 2 + {length} + {count} * sizeof(DUKASCOPY_TIMEFRAME_START)
 ```
 ---
 
-Structure `DUKASCOPY_TIMEFRAME_START` describes the storage format of the history start time of a single timeframe:
+Structure `DUKASCOPY_TIMEFRAME_START` describes the history start time of a single timeframe:
 ```C++
 // big-endian
 struct DUKASCOPY_TIMEFRAME_START {   // -- offset --- size --- description -----------------------------------------------
@@ -96,22 +94,22 @@ struct DUKASCOPY_TIMEFRAME_START {   // -- offset --- size --- description -----
 ```
 ---
 
-Structure `DUKASCOPY_BAR` describes the storage format of a single price bar:
+Structure `DUKASCOPY_BAR` describes a single history bar:
 ```C++
 // big-endian
 struct DUKASCOPY_BAR {               // -- offset --- size --- description -----------------------------------------------
-    uint  timeDelta;                 //         0        4     time difference in seconds since 00:00 GMT
+    uint  timeDelta;                 //         0        4     time difference in seconds since 00:00 GMT of the day
     uint  open;                      //         4        4     in point
     uint  close;                     //         8        4     in point
     uint  low;                       //        12        4     in point
     uint  high;                      //        16        4     in point
-    float volume;                    //        20        4
+    float volume;                    //        20        4     in traded units
 };                                   // ----------------------------------------------------------------------------------
                                      //               = 24
 ```
 ---
 
-Structure `DUKASCOPY_TICK` describes the storage format of a tick:
+Structure `DUKASCOPY_TICK` describes a single tick:
 ```C++
 // big-endian
 struct DUKASCOPY_TICK {              // -- offset --- size --- description -----------------------------------------------

@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace rosasurfer\rt\lib;
 
 use rosasurfer\ministruts\core\StaticClass;
-use rosasurfer\ministruts\core\assert\Assert;
 use rosasurfer\ministruts\core\exception\FileNotFoundException;
 use rosasurfer\ministruts\core\exception\InfrastructureException;
 use rosasurfer\ministruts\core\exception\InvalidValueException;
@@ -29,9 +28,8 @@ class LZMA extends StaticClass {
      *
      * @return string - unkompromierter String
      */
-    public static function decompressData($data) {
-        Assert::string($data);
-        if (!strlen($data)) throw new InvalidValueException('Invalid parameter $data: "" (not compressed)');
+    public static function decompressData(string $data): string {
+        if (!strlen($data)) throw new InvalidValueException('Invalid parameter $data: "" (empty)');
 
         // Unter Windows blockiert das Schreiben nach STDIN bei Datenmengen ab 8193 Bytes, stream_set_blocking() scheint dort
         // jedoch nicht zu funktionieren (Windows 7). Daher wird der String in eine temporaere Datei geschrieben und diese
@@ -54,10 +52,9 @@ class LZMA extends StaticClass {
      *
      * @return string - unkomprimierter Dateiinhalt
      */
-    public static function decompressFile($file) {
-        Assert::string($file);
-        if (!is_file($file))  throw new FileNotFoundException('File not found "'.$file.'"');
-        if (!filesize($file)) throw new InvalidValueException('Invalid file "'.$file.'" (not compressed)');
+    public static function decompressFile(string $file): string {
+        if (!is_file($file))  throw new FileNotFoundException('File not found: "'.$file.'"');
+        if (!filesize($file)) throw new InvalidValueException('Invalid file "'.$file.'" (size: 0 byte)');
 
         $cmd     = self::getDecompressFileCmd();
         $file    = str_replace('/', DIRECTORY_SEPARATOR, str_replace('\\', '/', $file));
