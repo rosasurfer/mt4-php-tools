@@ -13,7 +13,7 @@ use rosasurfer\rt\lib\metatrader\Symbol;
 /**
  * MetaTraderSymbolsCommand
  *
- * A {@link \rosasurfer\console\Command} to process MetaTrader "symbols.raw" files.
+ * A {@link Command} to process MetaTrader "symbols.raw" files.
  */
 class MetaTraderSymbolsCommand extends Command {
 
@@ -46,7 +46,7 @@ DOCOPT;
      *
      * @return int - execution status (0 for success)
      */
-    protected function execute(Input $input, Output $output) {
+    protected function execute(Input $input, Output $output): int {
         if ($input->hasCommand('split')) {
             return $this->splitSymbols();
         }

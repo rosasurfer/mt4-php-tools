@@ -8,8 +8,8 @@ use rosasurfer\ministruts\core\exception\InvalidValueException;
 use rosasurfer\ministruts\util\PHP;
 use rosasurfer\ministruts\util\Windows;
 
-use rosasurfer\rt\lib\Rost;
 use rosasurfer\rt\lib\metatrader\MT4;
+use rosasurfer\rt\lib\rosatrader\Rost;
 
 use function rosasurfer\ministruts\ini_get_int;
 use function rosasurfer\ministruts\normalizeEOL;
@@ -123,7 +123,7 @@ class Test extends RosatraderModel {
 
             if (!$test->startTime) {
                 // first line: test properties
-                $properties = static::parseTestProperties($line);
+                $properties = self::parseTestProperties($line);
 
                 $time = $properties['time'];                  // GMT timestamp
                 if ($time <= 0)                               throw new InvalidValueException('Invalid property "time": '.$time.' (not positive)');
@@ -183,7 +183,7 @@ class Test extends RosatraderModel {
 
             // all further lines: trades (order properties)
             if (!strStartsWith($line, 'order.')) throw new InvalidValueException('Unsupported file format in line '.$i.' of "'.$resultsFile.'"');
-            $order = Order::create($test, static::parseOrderProperties($line));
+            $order = Order::create($test, self::parseOrderProperties($line));
 
             if ($order->isClosedPosition()) {                           // open positions are skipped
                 $test->trades[] = $order;

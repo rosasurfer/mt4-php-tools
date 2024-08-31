@@ -155,7 +155,7 @@ class HistoryHeader extends CObject {
     public static function fromStruct(string $struct): self {
         if (strlen($struct) != self::SIZE) throw new InvalidValueException('Invalid length of parameter $struct: '.strlen($struct).' (expected '.__CLASS__.'::SIZE)');
 
-        $header = unpack(static::unpackFormat(), $struct);
+        $header = unpack(self::unpackFormat(), $struct);
         if ($header['format']!=400 && $header['format']!=401) throw new MetaTraderException("version.unsupported: Invalid or unsupported history format version: $header[format]");
 
         $format       = $header['format'      ];

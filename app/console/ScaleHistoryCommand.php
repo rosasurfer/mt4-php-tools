@@ -23,7 +23,7 @@ use const rosasurfer\ministruts\NL;
 /**
  * ScaleHistoryCommand
  *
- * A {@link \rosasurfer\console\Command} to scale the bars of a MetaTrader4 history file.
+ * A {@link Command} to scale the bars of a MetaTrader4 history file.
  */
 class ScaleHistoryCommand extends Command {
 
@@ -147,7 +147,7 @@ DOCOPT;
      *
      * @return int - execution status (0 for success)
      */
-    protected function execute(Input $input, Output $output) {
+    protected function execute(Input $input, Output $output): int {
         $stdout    = function($message)          use ($output) { $output->out($message); };
         $error     = function($status, $message) use ($output) { $output->error($message); return $status; };
         $file      = $this->file;

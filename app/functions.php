@@ -97,7 +97,7 @@ const BARMODEL_CONTROLPOINTS = 1;
 const BARMODEL_BAROPEN       = 2;
 
 
-// trade directions, may be used as flags
+// trade directions, can be combined
 const TRADE_DIRECTIONS_LONG  = 1;
 const TRADE_DIRECTIONS_SHORT = 2;
 const TRADE_DIRECTIONS_BOTH  = 3;
@@ -109,8 +109,8 @@ const DUKASCOPY_TICK_SIZE = 20;
 
 
 /**
- * Convert a Unix timestamp (seconds since 1970-01-01 00:00 GMT) to an FXT timestamp (seconds since 1970-01-01 00:00 FXT).
- * Without a parameter the function returns the current FXT timestamp.
+ * Convert a GMT timestamp (seconds since 1970-01-01 00:00 GMT) to an FXT timestamp (seconds since 1970-01-01 00:00 FXT).
+ * Without the parameter the function returns the current FXT time.
  *
  * @param  int|float|null $unixTime [optional] - timestamp with support for microseconds (default: the current time)
  *
@@ -129,21 +129,22 @@ function fxTime($unixTime = null) {
     finally { date_default_timezone_set($currentTZ); }
 
     // Calculating the offset by switching default timezones is 3-10 times faster then using an OOP approach. Only on HHVM
-    // OOP speed becomes better but is still 1.5 times lower:
+    // OOP speed becomes better but is still 1.5 times slower:
     //
-    // $localTime = new \DateTime();
-    // $timezone  = new \DateTimeZone('America/New_York');
+    // $localTime = new DateTime();
+    // $timezone  = new DateTimeZone('America/New_York');
     // $offset    = $timezone->getOffset($localTime);
     // $fxTime    = $localTime->getTimestamp() + $offset + 7*HOURS;
 }
 
 
 /**
- * Convert an FXT timestamp (seconds since 1970-01-01 00:00 FXT) to a Unix timestamp (seconds since 1970-01-01 00:00 GMT).
- * Without a parameter the function returns the current Unix timestamp (as the PHP function <tt>time()</tt>).
+ * Convert an FXT timestamp (seconds since 1970-01-01 00:00 FXT) to a GMT timestamp (seconds since 1970-01-01 00:00 GMT).
+ * Without the parameter the function returns the current GMT timestamp (same as the PHP function {@link \time()}).
  *
  * @param  int|float|null $fxTime [optional] - timestamp with support for microseconds (default: the current time)
- * @return int - Unix timestamp
+ *
+ * @return int - GMT timestamp
  */
 function unixTime($fxTime = null) {
     if      (!func_num_args())                       $fxTime = fxTime();
@@ -203,9 +204,9 @@ function fxDate($format, $time=null, $isFxt=false) {
  * <pre>
  * Transition data is returned as follows:
  * ---------------------------------------
- * Array(
- *     'time'   => {timestamp},    // GMT timestamp of the previous|next DST transition
- *     'offset' => {offset},       // FXT offset before|after that DST transition
+ * array(
+ *     'time'   => (int),       // GMT timestamp of the previous|next DST transition
+ *     'offset' => (int),       // FXT offset before|after that DST transition
  * )
  * </pre>
  */
@@ -315,14 +316,14 @@ function igmdate($format, $time = null) {
 
 
 /**
- * Whether a time is on a Good Friday in the standard timezone of the timestamp.
+ * Whether a time is on a Good Friday (Karfreitag). Good Friday is 2 days before Easter Sunday
+ * and a day where many exchanges operate at limited opening times.
  *
- * @param  int $time - Unix or FXT timestamp
+ * @param  int $time - GMT or FXT timestamp
  *
  * @return bool
  */
-function isGoodFriday($time) {
-    Assert::int($time);
+function isGoodFriday(int $time): bool {
     if (!$time) return false;
 
     $dow = (int) gmdate('w', $time);
@@ -339,18 +340,17 @@ function isGoodFriday($time) {
 
 
 /**
- * Whether a time is on a common Holiday in the standard timezone of the timestamp.
+ * Whether a time is on a common Christmas or New Year Holiday.
  *
- * @param  int $time - Unix or FXT timestamp
+ * @param  int $time - GMT or FXT timestamp
  *
  * @return bool
  */
-function isHoliday($time) {
-    Assert::int($time);
+function isHoliday(int $time): bool {
     if (!$time) return false;
 
-    $m   = (int) gmdate('n', $time);            // month
-    $dom = (int) gmdate('j', $time);            // day of month
+    $m   = (int)gmdate('n', $time);             // month
+    $dom = (int)gmdate('j', $time);             // day of month
 
     if ($dom==1 && $m==1)                       // 1. January
         return true;
@@ -361,17 +361,16 @@ function isHoliday($time) {
 
 
 /**
- * Whether a time is on a Saturday or Sunday in the standard timezone of the timestamp.
+ * Whether a time is on a Saturday or Sunday.
  *
- * @param  int $time - Unix or FXT timestamp
+ * @param  int $time - GMT or FXT timestamp
  *
  * @return bool
  */
-function isWeekend($time) {
-    Assert::int($time);
+function isWeekend(int $time): bool {
     if (!$time) return false;
 
-    $dow = (int) gmdate('w', $time);
+    $dow = (int)gmdate('w', $time);
     return ($dow==SATURDAY || $dow==SUNDAY);
 }
 
@@ -383,9 +382,7 @@ function isWeekend($time) {
  *
  * @return string
  */
-function periodToStr($value) {
-    Assert::int($value);
-
+function periodToStr(int $value): string {
     switch ($value) {
         case PERIOD_TICK: return 'PERIOD_TICK';         //      0 = no period
         case PERIOD_M1  : return 'PERIOD_M1';           //      1 = 1 minute
@@ -624,7 +621,7 @@ function stats_sharpe_ratio(array $returns, $growth=false, $sample=false) {
 
 
 /**
- * Calculate the Sortino ratio of the given returns (the Sharpe ratio of the negative returns = risk).
+ * Calculate the Sortino ratio of the given returns (the Sharpe ratio of the negative returns, i.e. of the risk).
  *
  * @param  array $returns
  * @param  bool  $growth [optional] - whether the returns are growth rates or absolute values

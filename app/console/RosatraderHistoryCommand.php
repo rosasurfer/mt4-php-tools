@@ -16,7 +16,7 @@ use function rosasurfer\rt\strToPeriod;
 /**
  * RosatraderHistoryCommand
  *
- * A {@link \rosasurfer\console\Command} to work with the Rosatrader history.
+ * A {@link Command} to work with the Rosatrader history.
  */
 class RosatraderHistoryCommand extends Command {
 
@@ -46,12 +46,14 @@ DOCOPT;
 
 
     /**
+     * {@inheritdoc}
+     *
      * @param  Input  $input
      * @param  Output $output
      *
      * @return int - execution status (0 for success)
      */
-    protected function execute(Input $input, Output $output) {
+    protected function execute(Input $input, Output $output): int {
         $symbols = $this->resolveSymbols();
         if (!$symbols) return $this->status;
 

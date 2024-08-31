@@ -43,7 +43,7 @@ DOCOPT;
      *
      * @return int - execution status (0 for success)
      */
-    protected function execute(Input $input, Output $output) {
+    protected function execute(Input $input, Output $output): int {
         $symbols = $this->resolveSymbols();
         if (!$symbols) return $this->status;
 

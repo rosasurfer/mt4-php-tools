@@ -469,9 +469,8 @@ class Dukascopy extends CObject {
      *
      * @return array - DUKASCOPY_TICK[] data
      */
-    public static function readTickFile($fileName) {
-        Assert::string($fileName, '$fileName');
-        return static::readTickData(file_get_contents($fileName));
+    public static function readTickFile(string $fileName) {
+        return self::readTickData(file_get_contents($fileName));
     }
 
 

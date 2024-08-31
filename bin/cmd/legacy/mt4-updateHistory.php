@@ -13,9 +13,9 @@ namespace rosasurfer\rt\cmd\mt4_update_history;
 use rosasurfer\ministruts\Application;
 use rosasurfer\ministruts\process\Process;
 
-use rosasurfer\rt\lib\Rost;
 use rosasurfer\rt\lib\metatrader\HistorySet;
 use rosasurfer\rt\lib\metatrader\MetaTrader;
+use rosasurfer\rt\lib\rosatrader\Rost;
 use rosasurfer\rt\model\RosaSymbol;
 
 use function rosasurfer\ministruts\echof;

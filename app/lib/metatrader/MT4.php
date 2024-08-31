@@ -105,7 +105,7 @@ class MT4 extends StaticClass {
      * @see  MT4::BAR_getUnpackFormat() zum Verwenden als unpack()-Formatstring
      */
     protected static string $BAR_400_formatStr = '
-        /V   time            // uint
+        /V   time            // uint32
         /d   open            // double
         /d   low             // double
         /d   high            // double
@@ -192,35 +192,36 @@ class MT4 extends StaticClass {
 
 
     /**
-     * Gibt den Formatstring zum Entpacken eines struct HISTORY_BAR_400 oder HISTORY_BAR_401 zurueck.
+     * Return the format string for unpacking a struct HISTORY_BAR_400 or HISTORY_BAR_401.
      *
-     * @param  int $version - Barversion: 400 oder 401
+     * @param  int $version - format version: 400 | 401
      *
-     * @return string - unpack()-Formatstring
+     * @return string - format string to be used by unpack()
      */
-    public static function BAR_getUnpackFormat($version) {
-        Assert::int($version);
+    public static function BAR_getUnpackFormat(int $version): string {
         if ($version!=400 && $version!=401) throw new MetaTraderException('version.unsupported: Invalid parameter $version: '.$version.' (must be 400 or 401)');
 
-        static $format_400 = null;
-        static $format_401 = null;
+        static $format = [
+            400 => null,
+            401 => null,
+        ];
 
-        if (is_null(${'format_'.$version})) {
+        return $format[$version] ??= (function() use ($version): string {
             $lines = explode("\n", self::${'BAR_'.$version.'_formatStr'});
             foreach ($lines as &$line) {
-                $line = strLeftTo($line, '//');                          // Kommentare entfernen
-            };
+                $line = strLeftTo($line, '//');                          // drop comments
+            }
             unset($line);
             $format = join('', $lines);
 
-            // since PHP 5.5.0: The 'a' code now retains trailing NULL bytes, 'Z' replaces the former 'a'.
-            if (PHP_VERSION >= '5.5.0') $format = str_replace('/a', '/Z', $format);
+            if (PHP_VERSION >= '5.5.0') {                               // The 'a' code now retains trailing NULL bytes, 'Z' replaces the former 'a'.
+                $format = str_replace('/a', '/Z', $format);
+            }
 
             $format = preg_replace('/\s/', '', $format);                // remove white space
             if ($format[0] == '/') $format = strRight($format, -1);     // remove leading format separator
-            ${'format_'.$version} = $format;
-        }
-        return ${'format_'.$version};
+            return $format;
+        });
     }
 
 
@@ -415,7 +416,7 @@ class MT4 extends StaticClass {
      * @return int - period id or 0 if the value doesn't represent a period
      */
     public static function strToPeriod($value) {
-        return static::strToTimeframe($value);
+        return self::strToTimeframe($value);
     }
 
 
@@ -497,7 +498,7 @@ class MT4 extends StaticClass {
      * @return ?string - description or NULL if the parameter is not a valid bar model id
      */
     public static function barModelDescription($id) {
-        $id = static::strToBarModel($id);
+        $id = self::strToBarModel($id);
         if ($id >= 0) {
             switch ($id) {
                 case BARMODEL_EVERYTICK:     return 'EveryTick';
@@ -517,7 +518,7 @@ class MT4 extends StaticClass {
      * @return ?string - description or NULL if the parameter is not a valid trade direction id
      */
     public static function tradeDirectionDescription($id) {
-        $id = static::strToTradeDirection($id);
+        $id = self::strToTradeDirection($id);
         if ($id >= 0) {
             switch ($id) {
                 case TRADE_DIRECTIONS_LONG:  return 'Long';

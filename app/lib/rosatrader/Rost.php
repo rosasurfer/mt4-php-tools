@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace rosasurfer\rt\lib;
+namespace rosasurfer\rt\lib\rosatrader;
 
 use rosasurfer\ministruts\core\StaticClass;
 use rosasurfer\ministruts\core\assert\Assert;
@@ -41,7 +41,7 @@ use const rosasurfer\rt\PERIOD_W1;
  * Rosatrader related functionality
  *
  * <pre>
- *                             size        offset      description
+ *                             size        offset      description (@phpstan-type POINT_BAR)
  * struct ROST_PRICE_BAR {     ----        ------      --------------------------------------------
  *    uint time;                 4            0        FXT timestamp (seconds since 01.01.1970 FXT)
  *    uint open;                 4            4        in point
@@ -67,6 +67,8 @@ use const rosasurfer\rt\PERIOD_W1;
  *    uint ask;                  4            8        in point
  * };                    = 12 byte
  * </pre>
+ *
+ * @phpstan-import-type  POINT_BAR from \rosasurfer\rt\RT
  */
 class Rost extends StaticClass {
 
@@ -149,7 +151,7 @@ class Rost extends StaticClass {
      * @return bool
      */
     public static function isOrderType(int $integer): bool {
-        $description = static::orderTypeDescription($integer);
+        $description = self::orderTypeDescription($integer);
         return ($description !== null);
     }
 
@@ -263,12 +265,14 @@ class Rost extends StaticClass {
      * @param  string $data   - String mit ROST_PRICE_BAR-Daten
      * @param  string $symbol - Meta-Information fuer eine evt. Fehlermeldung (falls die Daten fehlerhaft sind)
      *
-     * @return array - ROST_PRICE_BAR-Daten
+     * @return         array[] - ROST_PRICE_BAR-Daten
+     * @phpstan-return POINT_BAR[]
+     *
+     * @see \rosasurfer\rt\POINT_BAR
      */
-    public static function readBarData($data, $symbol) {
-        Assert::string($data, '$data');
-
-        $lenData = strlen($data); if ($lenData % self::BAR_SIZE) throw new RuntimeException('Odd length of passed '.$symbol.' data: '.$lenData.' (not an even Rost::BAR_SIZE)');
+    public static function readBarData(string $data, string $symbol): array {
+        $lenData = strlen($data);
+        if ($lenData % self::BAR_SIZE) throw new RuntimeException("Invalid length of data for $symbol: $lenData (not on a Rost::BAR_SIZE boundary)");
         $bars = [];
 
         for ($offset=0; $offset < $lenData; $offset += self::BAR_SIZE) {
@@ -282,13 +286,15 @@ class Rost extends StaticClass {
      * Interpretiert die Bardaten einer RT-Datei und liest sie in ein Array ein.
      *
      * @param  string $fileName - Name der Datei mit ROST_PRICE_BAR-Daten
-     * @param  string $symbol   - Meta-Information fuer eine evt. Fehlermeldung (falls die Daten fehlerhaft sind)
+     * @param  string $symbol   - Meta-Information fuer eine evt. Fehlermeldung
      *
-     * @return array - ROST_PRICE_BAR-Daten
+     * @return         array[] - ROST_PRICE_BAR-Daten
+     * @phpstan-return POINT_BAR[]
+     *
+     * @see \rosasurfer\rt\POINT_BAR
      */
-    public static function readBarFile($fileName, $symbol) {
-        Assert::string($fileName, '$fileName');
-        return static::readBarData(file_get_contents($fileName), $symbol);
+    public static function readBarFile(string $fileName, string $symbol): array {
+        return self::readBarData(file_get_contents($fileName), $symbol);
     }
 
 
@@ -297,9 +303,12 @@ class Rost extends StaticClass {
      *
      * @param  string $fileName - Name der Datei mit ROST_PRICE_BAR-Daten
      *
-     * @return array - ROST_PRICE_BAR-Daten
+     * @return         array[] - ROST_PRICE_BAR-Daten
+     * @phpstan-return POINT_BAR[]
+     *
+     * @see \rosasurfer\rt\POINT_BAR
      */
-    public static function readCompressedBarFile($fileName) {
+    public static function readCompressedBarFile(string $fileName): array {
         throw new UnimplementedFeatureException(__METHOD__);
     }
 
@@ -311,6 +320,8 @@ class Rost extends StaticClass {
      * @param  int   $time   - Zeitpunkt
      *
      * @return int - Offset oder -1, wenn der Offset ausserhalb der Arraygrenzen liegt
+     *
+     * @todo  merge with HistoryFile::findTimeOffset()
      */
     public static function findTimeOffset(array $series, int $time): int {
         $size = sizeof($series);
@@ -360,10 +371,10 @@ class Rost extends StaticClass {
         if (!$size)
             return -1;
 
-        $offset = static::findTimeOffset($bars, $time);
+        $offset = self::findTimeOffset($bars, $time);
 
         if ($offset < 0) {                                                         // Zeitpunkt liegt nach der juengsten bar[openTime]
-            $closeTime = static::periodCloseTime($bars[$size-1]['time'], $period);
+            $closeTime = self::periodCloseTime($bars[$size-1]['time'], $period);
             if ($time < $closeTime)                                                 // Zeitpunkt liegt innerhalb der juengsten Bar
                 return $size-1;
             return -1;
@@ -376,7 +387,7 @@ class Rost extends StaticClass {
             return -1;
 
         $offset--;
-        $closeTime = static::periodCloseTime($bars[$offset]['time'], $period);
+        $closeTime = self::periodCloseTime($bars[$offset]['time'], $period);
         if ($time < $closeTime)                                                    // Zeitpunkt liegt in der vorhergehenden Bar
             return $offset;
         return -1;                                                                 // Zeitpunkt liegt nicht in der vorhergehenden Bar,
@@ -402,7 +413,7 @@ class Rost extends StaticClass {
         if (!$size)
             return -1;
 
-        $offset = static::findTimeOffset($bars, $time);
+        $offset = self::findTimeOffset($bars, $time);
 
         if ($offset < 0)                                                           // Zeitpunkt liegt nach der juengsten bar[openTime]
             return $size-1;
@@ -431,10 +442,10 @@ class Rost extends StaticClass {
         $sizeOfBars = sizeof($bars);
         if (!$sizeOfBars) return -1;
 
-        $offset = static::findTimeOffset($bars, $time);
+        $offset = self::findTimeOffset($bars, $time);
 
         if ($offset < 0) {                                                          // Zeitpunkt liegt nach der juengsten bar[openTime]
-            $closeTime = static::periodCloseTime($bars[$sizeOfBars-1]['time'], $period);
+            $closeTime = self::periodCloseTime($bars[$sizeOfBars-1]['time'], $period);
             return ($closeTime > $time) ? $sizeOfBars-1 : -1;
         }
         if ($offset == 0) {                                                         // Zeitpunkt liegt vor oder exakt auf der ersten Bar
@@ -445,7 +456,7 @@ class Rost extends StaticClass {
             return $offset;
         $offset--;                                                                  // Zeitpunkt liegt in der vorherigen oder zwischen der
                                                                                     // vorherigen und der TimeOffset-Bar
-        $closeTime = static::periodCloseTime($bars[$offset]['time'], $period);
+        $closeTime = self::periodCloseTime($bars[$offset]['time'], $period);
         if ($closeTime > $time)                                                     // Zeitpunkt liegt innerhalb dieser vorherigen Bar
             return $offset;
         return ($offset+1 < $sizeOfBars) ? $offset+1 : -1;                          // Zeitpunkt liegt nach bar[closeTime], also Luecke...
@@ -515,15 +526,15 @@ class Rost extends StaticClass {
         else if ($id == 'rtDir') {                      // $dataDir/history/rosatrader/$type/$symbol/$rtDirDate         // lokales Verzeichnis
             if (!$symbol) throw new InvalidValueException('Invalid parameter $symbol: '.$symbol);
             $type      = RosaSymbol::dao()->getByName($symbol)->getType();
-            $rtDirDate = static::{__FUNCTION__}('rtDirDate', null, $time);
+            $rtDirDate = self::{__FUNCTION__}('rtDirDate', null, $time);
             $result    = $storageDir.'/history/rosatrader/'.$type.'/'.$symbol.'/'.$rtDirDate;
         }
         else if ($id == 'rtFile.M1.raw') {              // $rtDir/M1.bin                                                // RT-M1-Datei ungepackt
-            $rtDir  = static::{__FUNCTION__}('rtDir' , $symbol, $time);
+            $rtDir  = self::{__FUNCTION__}('rtDir' , $symbol, $time);
             $result = $rtDir.'/M1.bin';
         }
         else if ($id == 'rtFile.M1.compressed') {       // $rtDir/M1.rar                                                // RT-M1-Datei gepackt
-            $rtDir  = static::{__FUNCTION__}('rtDir', $symbol, $time);
+            $rtDir  = self::{__FUNCTION__}('rtDir', $symbol, $time);
             $result = $rtDir.'/M1.rar';
         }
         else throw new InvalidValueException('Unknown variable identifier "'.$id.'"');

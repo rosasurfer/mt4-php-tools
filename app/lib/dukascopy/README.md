@@ -1,4 +1,9 @@
 
+##### This package and its subpackages operate on history data in Dukascopy format.
+
+---
+
+
 ### Dukascopy historical data feed  
 
 Dukascopy provides history with separate bid and ask timeseries in GMT covering weekends and holidays. Data of the current
@@ -63,7 +68,7 @@ Data is [LZMA](https://en.wikipedia.org/wiki/Lempel%E2%80%93Ziv%E2%80%93Markov_c
 
 ### Data structures
 
-`DUKASCOPY_HISTORY_START` describes the storage format of history start times of all timeframes available for a symbol:
+Structure `DUKASCOPY_HISTORY_START` describes the storage format of history start times of all timeframes available for a symbol:
 ```C++
 // big-endian
 struct DUKASCOPY_HISTORY_START {     // -- offset --- size --- description -----------------------------------------------
@@ -80,7 +85,7 @@ struct DUKASCOPY_HISTORY_START {     // -- offset --- size --- description -----
 ```
 ---
 
-`DUKASCOPY_TIMEFRAME_START` describes the storage format of the history start time of a single timeframe:
+Structure `DUKASCOPY_TIMEFRAME_START` describes the storage format of the history start time of a single timeframe:
 ```C++
 // big-endian
 struct DUKASCOPY_TIMEFRAME_START {   // -- offset --- size --- description -----------------------------------------------
@@ -91,7 +96,7 @@ struct DUKASCOPY_TIMEFRAME_START {   // -- offset --- size --- description -----
 ```
 ---
 
-`DUKASCOPY_BAR` describes the storage format of a single price bar:
+Structure `DUKASCOPY_BAR` describes the storage format of a single price bar:
 ```C++
 // big-endian
 struct DUKASCOPY_BAR {               // -- offset --- size --- description -----------------------------------------------
@@ -106,7 +111,7 @@ struct DUKASCOPY_BAR {               // -- offset --- size --- description -----
 ```
 ---
 
-`DUKASCOPY_TICK` describes the storage format of a tick:
+Structure `DUKASCOPY_TICK` describes the storage format of a tick:
 ```C++
 // big-endian
 struct DUKASCOPY_TICK {              // -- offset --- size --- description -----------------------------------------------

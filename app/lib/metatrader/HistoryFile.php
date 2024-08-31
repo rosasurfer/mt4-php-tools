@@ -14,7 +14,7 @@ use rosasurfer\ministruts\core\exception\RuntimeException;
 use rosasurfer\ministruts\core\exception\UnimplementedFeatureException;
 use rosasurfer\ministruts\file\FileSystem as FS;
 
-use rosasurfer\rt\lib\Rost;
+use rosasurfer\rt\lib\rosatrader\Rost;
 
 use function rosasurfer\ministruts\echof;
 use function rosasurfer\ministruts\strCompareI;
@@ -42,6 +42,8 @@ use const rosasurfer\rt\PERIOD_MN1;
 
 /**
  * Object wrapping a single MT4 history file ("*.hst").
+ *
+ * @phpstan-import-type  POINT_BAR from \rosasurfer\rt\RT
  */
 class HistoryFile extends CObject {
 
@@ -84,8 +86,13 @@ class HistoryFile extends CObject {
     /** @var int - bar size in bytes according to the data format */
     protected $barSize = 0;
 
-    /** @var array[] - internal write buffer (ROST_PRICE_BAR[]) */
-    public $barBuffer = [];
+    /**
+     * @var         array[] - internal write buffer
+     * @phpstan-var POINT_BAR[] with FXT times
+     *
+     * @see \rosasurfer\rt\POINT_BAR
+     */
+    public array $barBuffer = [];
 
     /** @var int - internal write buffer default size */
     protected $barBufferSize = 10000;
@@ -292,10 +299,10 @@ class HistoryFile extends CObject {
 
 
     /**
-     * Overloaded constructor with the following method signatures:
+     * Overloaded constructor with the following signatures:
      *
-     *  new HistoryFile($fileName)                                               <br>
-     *  new HistoryFile($symbol, $timeframe, $digits, $format, $serverDirectory) <br>
+     * new HistoryFile($fileName)                                               <br>
+     * new HistoryFile($symbol, $timeframe, $digits, $format, $serverDirectory) <br>
      *
      * @param  mixed ...$args
      */
@@ -313,11 +320,8 @@ class HistoryFile extends CObject {
      * Create a new instance from an existing MT4 history file. Existing data is kept.
      *
      * @param  string $fileName - MT4 history file name
-     *
-     * @return void
      */
-    private function __construct1($fileName) {
-        Assert::string($fileName);
+    private function __construct1(string $fileName): void {
         if (!is_file($fileName)) throw new FileNotFoundException('Invalid parameter $fileName: "'.$fileName.'" (file not found)');
 
         // resolve directory, file and server name
@@ -329,11 +333,11 @@ class HistoryFile extends CObject {
         // validate the file size
         $fileSize = filesize($fileName);
         if ($fileSize < HistoryHeader::SIZE) throw new MetaTraderException(
-            'Invalid or unsupported format of "'.$fileName.'": filesize='.$fileSize.' (minFileSize='.HistoryHeader::SIZE.')',
+            "Invalid file format of \"$fileName\": filesize = $fileSize (min. filezize: ".HistoryHeader::SIZE.')',
             MetaTraderException::ERR_FILESIZE_INSUFFICIENT
         );
 
-        // open file and read/validate the header
+        // open file and validate the header
         $this->hFile     = fopen($fileName, 'r+b');               // FILE_READ|FILE_WRITE
         $this->hstHeader = HistoryHeader::fromStruct(fread($this->hFile, HistoryHeader::SIZE));
 
@@ -354,7 +358,7 @@ class HistoryFile extends CObject {
      * @param  string $symbol          - symbol
      * @param  int    $timeframe       - timeframe
      * @param  int    $digits          - digits
-     * @param  int    $format          - file format: 400=MT4 <= build 509; 401=MT4 > build 509
+     * @param  int    $format          - file format: 400|401
      * @param  string $serverDirectory - full server directory (storage location)
      *
      * @return void
@@ -503,13 +507,9 @@ class HistoryFile extends CObject {
      * @return array|null - ROST_PRICE_BAR if the bar was not yet stored and is returned from the write buffer
      *                      HISTORY_BAR    if the bar was stored and is returned from the history file
      *                      NULL           if no such bar exists (offset is larger than the file's number of bars)
-     *
-     * @see  HistoryFile::getRosatraderBar()
-     * @see  HistoryFile::getHistoryBar()
      */
-    public function getBar($offset) {
-        Assert::int($offset);
-        if ($offset < 0) throw new InvalidValueException('Invalid parameter $offset: '.$offset);
+    public function getBar(int $offset): ?array {
+        if ($offset < 0) throw new InvalidValueException("Invalid parameter \$offset: $offset");
 
         if ($offset >= $this->full_bars)                                        // bar[$offset] does not exist
             return null;
@@ -524,17 +524,17 @@ class HistoryFile extends CObject {
 
 
     /**
-     * Return the offset of the bar matching the specified open time. This is the bar position a bar with the specified open
-     * time would be inserted.
+     * Return the offset of the bar matching the specified open time. This is the bar position where
+     * a bar with the specified open time would be inserted.
      *
      * @param  int $time - time
      *
      * @return int - Offset or -1 if the time is younger than the youngest bar. To write a bar at offset -1 the history file
      *               has to be expanded.
+     *
+     * @todo  merge with Rost::findTimeOffset()
      */
-    public function findTimeOffset($time) {
-        Assert::int($time);
-
+    public function findTimeOffset(int $time) {
         $size    = $this->full_bars; if (!$size)                 return -1;
         $iFrom   = 0;
         $iTo     = $size-1; if ($this->full_to_openTime < $time) return -1;

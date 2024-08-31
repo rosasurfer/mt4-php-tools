@@ -23,7 +23,7 @@ class ViewTestActionForm extends ActionForm {
 
 
     /**
-     * Return the submitted {@link \rosasurfer\rt\model\Test} id.
+     * Return the submitted {@link Test} id.
      *
      * @return string|int|null
      */
@@ -33,7 +33,7 @@ class ViewTestActionForm extends ActionForm {
 
 
     /**
-     * Get the {@link \rosasurfer\rt\model\Test} associated with the submitted parameters.
+     * Get the {@link Test} associated with the submitted parameters.
      *
      * @return ?Test - Test instance or NULL if an associated test was not found
      */

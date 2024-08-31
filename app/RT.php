@@ -16,7 +16,7 @@ use const rosasurfer\ministruts\DAY;
 use const rosasurfer\ministruts\HOURS;
 use const rosasurfer\ministruts\MINUTES;
 
-use rosasurfer\rt\lib\Rost;
+use rosasurfer\rt\lib\rosatrader\Rost;
 use rosasurfer\rt\model\RosaSymbol;
 
 
@@ -122,7 +122,7 @@ class RT extends StaticClass {
      * @see  POINT_BAR
      */
     public static function readBarFile(string $fileName, RosaSymbol $symbol): array {
-        return static::readBarData(file_get_contents($fileName), $symbol);
+        return self::readBarData(file_get_contents($fileName), $symbol);
     }
 
 
@@ -199,8 +199,8 @@ class RT extends StaticClass {
         $storageDir .= '/history/rosatrader/'.$symbol->getType().'/'.$symbol->getName();
         $dir         = "$storageDir/".gmdate('Y/m/d', $day);
         $msg         = '[Info]    '.$symbol->getName().'  deleting existing M1 file: ';
-        if (is_file($file=$dir.'/M1.bin'    )) { echof($msg.static::relativePath($file)); unlink($file); }
-        if (is_file($file=$dir.'/M1.bin.rar')) { echof($msg.static::relativePath($file)); unlink($file); }
+        if (is_file($file=$dir.'/M1.bin'    )) { echof($msg.self::relativePath($file)); unlink($file); }
+        if (is_file($file=$dir.'/M1.bin.rar')) { echof($msg.self::relativePath($file)); unlink($file); }
 
         // write data to new file
         $file = "$dir/M1.bin";

@@ -7,7 +7,7 @@ use rosasurfer\ministruts\core\assert\Assert;
 use rosasurfer\ministruts\core\di\proxy\Output;
 use rosasurfer\ministruts\core\exception\UnimplementedFeatureException;
 
-use rosasurfer\rt\lib\IHistorySource;
+use rosasurfer\rt\lib\HistorySource;
 use rosasurfer\rt\lib\dukascopy\Dukascopy;
 
 use function rosasurfer\ministruts\strLeft;
@@ -39,7 +39,7 @@ use const rosasurfer\rt\PERIOD_D1;
  * @phpstan-import-type  POINT_BAR from \rosasurfer\rt\RT
  * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\RT
  */
-class DukascopySymbol extends RosatraderModel implements IHistorySource {
+class DukascopySymbol extends RosatraderModel implements HistorySource {
 
 
     /** @var string - symbol name */

@@ -18,7 +18,7 @@ use const rosasurfer\ministruts\DAY;
 /**
  * MetaTraderHistoryCommand
  *
- * A {@link \rosasurfer\console\Command} to work with MetaTrader history files.
+ * A {@link Command} to work with MetaTrader history files.
  */
 class MetaTraderHistoryCommand extends Command {
 
@@ -48,7 +48,7 @@ DOCOPT;
      *
      * @return int - execution status (0 for success)
      */
-    protected function execute(Input $input, Output $output) {
+    protected function execute(Input $input, Output $output): int {
         $symbol = $this->resolveSymbol();
         if (!$symbol) return $this->status;
 

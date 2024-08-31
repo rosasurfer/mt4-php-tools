@@ -20,7 +20,7 @@ use rosasurfer\ministruts\core\exception\InvalidValueException;
 use rosasurfer\ministruts\core\exception\RuntimeException;
 use rosasurfer\ministruts\file\FileSystem as FS;
 
-use rosasurfer\rt\lib\Rost;
+use rosasurfer\rt\lib\rosatrader\Rost;
 use rosasurfer\rt\model\RosaSymbol;
 use rosasurfer\rt\model\Test;
 

@@ -40,7 +40,7 @@ class LZMA extends StaticClass {
         $tmpFile = tempnam('', 'php');
         file_put_contents($tmpFile, $data);
 
-        $content = static::decompressFile($tmpFile);
+        $content = self::decompressFile($tmpFile);
         unlink($tmpFile);
 
         return $content;
@@ -59,7 +59,7 @@ class LZMA extends StaticClass {
         if (!is_file($file))  throw new FileNotFoundException('File not found "'.$file.'"');
         if (!filesize($file)) throw new InvalidValueException('Invalid file "'.$file.'" (not compressed)');
 
-        $cmd     = static::getDecompressFileCmd();
+        $cmd     = self::getDecompressFileCmd();
         $file    = str_replace('/', DIRECTORY_SEPARATOR, str_replace('\\', '/', $file));
         $cmdLine = sprintf($cmd, $file);
         $stderr  = null;
@@ -102,7 +102,7 @@ class LZMA extends StaticClass {
                 exec('"'.$appRoot.'/bin/win32/xz" -V 2> '.NUL_DEVICE, $output, $error);         // search xz in project
                 if (!$error) return $cmd = '"'.$appRoot.'/bin/win32/xz" -dc "%s"';
             }
-            throw new InfrastructureException('No LZMA decoder found.');
+            throw new InfrastructureException('LZMA decoder not found.');
         }
         return $cmd;
     }

@@ -60,12 +60,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/rosasurfer/ministruts.git",
-                "reference": "4d9b73dfb413a2e14d11ad5415c14c1e5ef5f2d4"
+                "reference": "9f220b91bd7829fd53c8b8ebcf0d3d3d3abf813a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/4d9b73dfb413a2e14d11ad5415c14c1e5ef5f2d4",
-                "reference": "4d9b73dfb413a2e14d11ad5415c14c1e5ef5f2d4",
+                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/9f220b91bd7829fd53c8b8ebcf0d3d3d3abf813a",
+                "reference": "9f220b91bd7829fd53c8b8ebcf0d3d3d3abf813a",
                 "shasum": ""
             },
             "require": {
@@ -117,10 +117,10 @@
             ],
             "description": "MVC micro framework inspired by Java Struts",
             "support": {
-                "source": "https://github.com/rosasurfer/ministruts/tree/master",
+                "source": "https://github.com/rosasurfer/ministruts/tree/0.11",
                 "issues": "https://github.com/rosasurfer/ministruts/issues"
             },
-            "time": "2024-08-30T15:12:05+00:00"
+            "time": "2024-08-31T07:07:57+00:00"
         }
     ],
     "packages-dev": [

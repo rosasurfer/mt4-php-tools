@@ -19,9 +19,9 @@ use const rosasurfer\ministruts\HOURS;
 use const rosasurfer\ministruts\MINUTES;
 
 use rosasurfer\rt\RT;
-use rosasurfer\rt\lib\IHistorySource;
+use rosasurfer\rt\lib\HistorySource;
 use rosasurfer\rt\lib\synthetic\GenericSynthesizer;
-use rosasurfer\rt\lib\synthetic\ISynthesizer;
+use rosasurfer\rt\lib\synthetic\ISynthesizer as Synthesizer;
 
 use function rosasurfer\rt\fxTime;
 use function rosasurfer\rt\isGoodFriday;
@@ -456,9 +456,9 @@ class RosaSymbol extends RosatraderModel {
 
 
     /**
-     * Return a {@link \rosasurfer\rt\lib\IHistorySource} for the symbol.
+     * Return a {@link HistorySource} for the symbol.
      *
-     * @return IHistorySource|null
+     * @return HistorySource|null
      */
     public function getHistorySource() {
         if ($this->isSynthetic())
@@ -468,15 +468,15 @@ class RosaSymbol extends RosatraderModel {
 
 
     /**
-     * Look-up and instantiate a {@link \rosasurfer\rt\lib\synthetic\ISynthesizer} to calculate quotes of a synthetic instrument.
+     * Look-up and instantiate a {@link Synthesizer} to calculate quotes of a synthetic instrument.
      *
-     * @return ISynthesizer
+     * @return Synthesizer
      */
     protected function getSynthesizer() {
         if (!$this->isSynthetic()) throw new RuntimeException('Cannot create Synthesizer for non-synthetic instrument');
 
-        $customClass = strLeftTo(ISynthesizer::class, '\\', -1).'\\index\\'.$this->name;
-        if (class_exists($customClass) && is_subclass_of($customClass, ISynthesizer::class)) {
+        $customClass = strLeftTo(Synthesizer::class, '\\', -1).'\\index\\'.$this->name;
+        if (class_exists($customClass) && is_subclass_of($customClass, Synthesizer::class)) {
             return new $customClass($this);
         }
         return new GenericSynthesizer($this);

@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace rosasurfer\rt\lib\synthetic;
 
-use rosasurfer\rt\lib\IHistorySource;
+use rosasurfer\rt\lib\HistorySource;
 use rosasurfer\rt\model\RosaSymbol;
 
 
@@ -19,7 +19,7 @@ use rosasurfer\rt\model\RosaSymbol;
  * Performance can be considerably increased by providing an instrument-specific Synthesizer implementation. If no instrument-
  * specific implementation is found calculations are processed by a {@link GenericSynthesizer}.
  */
-interface ISynthesizer extends IHistorySource {
+interface ISynthesizer extends HistorySource {
 
 
     /**

@@ -5,14 +5,14 @@ namespace rosasurfer\rt\lib;
 
 
 /**
- * IHistorySource
+ * HistorySource
  *
- * An interface for classes capable of providing the original history for a Rosatrader symbol.
+ * An interface for classes which can provide the original history for an application symbol.
  *
  * @phpstan-import-type  POINT_BAR from \rosasurfer\rt\RT
  * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\RT
  */
-interface IHistorySource {
+interface HistorySource {
 
     /**
      * Get the original history for the specified bar period and time.
