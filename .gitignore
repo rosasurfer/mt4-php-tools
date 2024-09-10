@@ -1,5 +1,6 @@
 # never ignore the following files
 !.gitattributes
+!.gitkeep
 !.htaccess
 
 # ignore Eclipse folders and files
