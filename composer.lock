@@ -60,12 +60,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/rosasurfer/ministruts.git",
-                "reference": "9f220b91bd7829fd53c8b8ebcf0d3d3d3abf813a"
+                "reference": "d6f3b7944d6676b121c0794dff940e9e4f22942e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/9f220b91bd7829fd53c8b8ebcf0d3d3d3abf813a",
-                "reference": "9f220b91bd7829fd53c8b8ebcf0d3d3d3abf813a",
+                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/d6f3b7944d6676b121c0794dff940e9e4f22942e",
+                "reference": "d6f3b7944d6676b121c0794dff940e9e4f22942e",
                 "shasum": ""
             },
             "require": {
@@ -120,22 +120,22 @@
                 "source": "https://github.com/rosasurfer/ministruts/tree/0.11",
                 "issues": "https://github.com/rosasurfer/ministruts/issues"
             },
-            "time": "2024-08-31T07:07:57+00:00"
+            "time": "2024-09-15T18:50:46+00:00"
         }
     ],
     "packages-dev": [
         {
             "name": "phpstan/phpstan",
-            "version": "1.12.0",
+            "version": "1.12.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "384af967d35b2162f69526c7276acadce534d0e1"
+                "reference": "0fcbf194ab63d8159bb70d9aa3e1350051632009"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/384af967d35b2162f69526c7276acadce534d0e1",
-                "reference": "384af967d35b2162f69526c7276acadce534d0e1",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/0fcbf194ab63d8159bb70d9aa3e1350051632009",
+                "reference": "0fcbf194ab63d8159bb70d9aa3e1350051632009",
                 "shasum": ""
             },
             "require": {
@@ -180,7 +180,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-08-27T09:18:05+00:00"
+            "time": "2024-09-09T08:10:35+00:00"
         }
     ],
     "aliases": [],
