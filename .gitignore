@@ -26,6 +26,8 @@ nbactions.xml
 
 # ignore the following folders and files
 /etc/httpd/cgi/php.ini
+/etc/httpd/include-custom.conf
+/etc/httpd/ssl/*.pem
 /etc/tmp
 /log
 
