@@ -1,8 +1,8 @@
 {
     "name":        "rosasurfer/mt4-php-tools",
-    "description": "PHP tools for the MetaTrader4 MQL framework",
+    "description": "PHP tools for the MetaTrader MQL framework",
     "type":        "project",
-    "license":     "WTFPL",
+    "license":     "Unlicense",
     "authors": [{
         "name":  "Peter Walther",
         "email": "mt4-php-tools@rosasurfer.com"
@@ -13,17 +13,15 @@
         },
         "optimize-autoloader": true
     },
-    "repositories": [
-        { "type": "vcs", "url": "https://github.com/rosasurfer/ministruts" }
-    ],
     "require": {
         "php":                   "7.4 - 8",
         "ext-bcmath":            "*",
         "ext-sqlite3":           "*",
-        "rosasurfer/ministruts": "^0.11@dev"
+        "rosasurfer/ministruts": "^0.11"
     },
     "require-dev": {
-        "phpstan/phpstan": "^1.11"
+        "phpstan/phpstan": "^1.0",
+        "phpunit/phpunit": "^9.5"
     },
     "autoload": {
         "classmap": ["app/"],
