@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# A wrapper script around PHPStan to simplify generation and usage of PHPStan baseline files. All arguments are optional.
+# A wrapper around PHPStan to simplify working with PHPStan baseline files. All arguments are optional.
 #
 # Usage:
 #   phpstan [COMMAND] [options] [--] [PATH...]
@@ -28,35 +28,41 @@
 #   phpstan --level=7 -u baseline.neon      // analyse the code base using file "baseline.neon" as a filter
 #   PHP=php81 phpstan                       // run PHPStan using PHP interpreter "php81" instead of the standard "php"
 #
-set -eu -o pipefail
+set -eEuo pipefail
+
+
+# determine the PHP interpreter to use
+php=${PHP:-php}
 
 
 # resolve directories and environment
-PROJECT_DIR="$(dirname $(readlink -f "$0"))/.."
+PROJECT_DIR="$(dirname "$(realpath "$(type -p "$0")")")/.."
 CONFIG_DIR="$PROJECT_DIR/etc/phpstan"
-IS_WINDOWS_PHP=$(php -r "echo (bool)defined('PHP_WINDOWS_VERSION_BUILD');")
+IS_WINDOWS_PHP="$($php -r "echo (int)(PHP_OS_FAMILY == 'Windows');")"
 phpstan="$PROJECT_DIR/vendor/bin/phpstan"
-[ -f "$phpstan" ] || { echo "PHPStan executable not found: vendor/bin/phpstan" && exit 1; }
+[[ -f "$phpstan" ]] || { echo "PHPStan executable not found: vendor/bin/phpstan"; exit 1; }
+((IS_WINDOWS_PHP)) && phpstan="$(cygpath -m "$phpstan")"  # normalize path if running a Windows PHP version
 
 
 # parse command line arguments and create a new argument set for PHPStan
 ARGS=() && CMD= && CONFIG_OPTION= && CONFIG_FILE= && BASELINE_OPTION= && BASELINE_FILE= && INCLUDE_CONFIG= && VERBOSE_OPTION=
 
-while [[ "$#" -gt 0 ]]; do
+while (("$#")); do
   case "$1" in
-    --)                                                   # stop at argument limiter "--"
+    --)                                                           # stop at argument delimiter "--"
       break;;
 
     -l|-a|-b)
       ARGS+=("$1")
-      shift                                               # shift to short option value
-      [[ "$#" -gt 0 && "$1" == -* ]] && continue;;        # skip if it's not an option value
+      shift                                                       # shift to short option value
+      [[ "$#" -gt 0 && "$1" == -* ]] && continue;;                # skip if it's not an option value
+
     --level|--autoload-file|--error-format|--generate-baseline|--memory-limit)
       ARGS+=("$1")
-      shift                                               # shift to long option value
-      [[ "$#" -gt 0 && "$1" == -* ]] && continue;;        # skip if it's not an option value
+      shift                                                       # shift to long option value
+      [[ "$#" -gt 0 && "$1" == -* ]] && continue;;                # skip if it's not an option value
 
-    -c|--configuration)                                   # extract config argument but don't add it to PHPStan args
+    -c|--configuration)                                           # extract config argument but don't add it to PHPStan args
       CONFIG_OPTION="$1"
       [[ "$#" -gt 1 && "$2" != -* ]] && CONFIG_FILE="$2" && shift
       shift
@@ -72,7 +78,7 @@ while [[ "$#" -gt 0 ]]; do
       shift
       continue;;
 
-    -u|--use-baseline)                                    # extract baseline argument but don't add it to PHPStan args
+    -u|--use-baseline)                                            # extract baseline argument but don't add it to PHPStan args
       BASELINE_OPTION="$1"
       [[ "$#" -gt 1 && "$2" != -* ]] && BASELINE_FILE="$2" && shift
       shift
@@ -88,73 +94,73 @@ while [[ "$#" -gt 0 ]]; do
       shift
       continue;;
 
-    -v*)                                                  # extract verbose options
+    -v*)                                                          # extract verbose options
       VERBOSE_OPTION="$1";;
 
     -*)
-      ;;                                                  # skip all other options
+      ;;                                                          # skip all other options
 
     analyse|analyze|clear-result-cache|completion|dump-parameters|help|list|worker|fixer:worker)
-      CMD="$1"                                            # 1st non-option must be the subcommand
+      CMD="$1"                                                    # 1st non-option must be the subcommand
       break;;
 
-    *)                                                    # stop on unknown subcommand
+    *)                                                            # stop on unknown subcommand
       break;;
   esac
-  [[ "$#" -gt 0 ]] && ARGS+=("$1") && shift
+  (("$#")) && ARGS+=("$1") && shift
 done
 ARGS+=("$@")
 
 
 # sanitize the resolved command
 USE_DEFAULT=
-[ -z "$CMD" ] && CMD='analyse' && USE_DEFAULT=1           # default: analyse
-[ "$CMD" = 'analyze' ] && CMD='analyse'
+[[ -z "$CMD" ]] && CMD='analyse' && USE_DEFAULT=1                               # default: analyse
+[[ "$CMD" == analyze ]] && CMD='analyse'
 
 
 # validate config options
-if [ -n "$CONFIG_OPTION" ]; then
-    [ -z "$CONFIG_FILE" ] && { echo "Option $CONFIG_OPTION needs a value"    && exit 1; }
-    [ -f "$CONFIG_FILE" ] || { echo "Config file \"$CONFIG_FILE\" not found" && exit 1; }
+if [[ -n "$CONFIG_OPTION" ]]; then
+    [[ -z "$CONFIG_FILE" ]] && { echo "Option $CONFIG_OPTION needs a value"; exit 1; }
+    [[ -f "$CONFIG_FILE" ]] || { echo "Config file \"$CONFIG_FILE\" not found"; exit 1; }
 else
    FILES=('phpstan.neon' 'phpstan.neon.dist' 'phpstan.dist.neon')
    for file in "${FILES[@]}"; do
        file="$CONFIG_DIR/$file"
-       [ -f "$file" ] && CONFIG_FILE="$file" && break
+       [[ -f "$file" ]] && CONFIG_FILE="$file" && break
    done
-   [ -z "$CONFIG_FILE" ] && { echo "No config file found in \"$CONFIG_DIR\"" && exit 1; }
+   [[ -z "$CONFIG_FILE" ]] && { echo "No config file found in \"$CONFIG_DIR\""; exit 1; }
 fi
-[ -n "$IS_WINDOWS_PHP" ] && CONFIG_FILE=$(cygpath -m "$CONFIG_FILE")          # normalize path if running a Windows PHP version
+((IS_WINDOWS_PHP)) && CONFIG_FILE="$(cygpath -m "$CONFIG_FILE")"                # normalize path if running a Windows PHP version
 
 
 # include a specified user baseline
-if [ -n "$BASELINE_OPTION" ]; then
-  if [ "$CMD" != 'analyse' ]; then
-    [ -n "$BASELINE_FILE" ] && ARGS=("$BASELINE_FILE" "${ARGS[@]}")           # non-analyse: pass-through -u
+if [[ -n "$BASELINE_OPTION" ]]; then
+  if [[ "$CMD" != analyse ]]; then
+    [[ -n "$BASELINE_FILE" ]] && ARGS=("$BASELINE_FILE" "${ARGS[@]}")           # non-analyse: pass-through -u
     ARGS=("$BASELINE_OPTION" "${ARGS[@]}")
   else
     # validate baseline option
-    [ -z "$BASELINE_FILE" ] && { echo "Option $BASELINE_OPTION needs a value"      && exit 1; }
-    [ -f "$BASELINE_FILE" ] || { echo "Baseline file \"$BASELINE_FILE\" not found" && exit 1; }
+    [[ -z "$BASELINE_FILE" ]] && { echo "Option $BASELINE_OPTION needs a value"; exit 1; }
+    [[ -f "$BASELINE_FILE" ]] || { echo "Baseline file \"$BASELINE_FILE\" not found"; exit 1; }
 
-    INCLUDE_CONFIG=$(mktemp --suffix .neon include.XXX)                       # create tmp file and register it for automatic deletion
+    INCLUDE_CONFIG="$(mktemp --suffix .neon include.XXX)"                       # create tmp file and register it for automatic deletion
     trap "rm -f '$INCLUDE_CONFIG'" EXIT
 
-    [ -n "$IS_WINDOWS_PHP" ] && BASELINE_FILE=$(cygpath -m "$BASELINE_FILE")  # normalize path if running a Windows PHP version
+    ((IS_WINDOWS_PHP)) && BASELINE_FILE="$(cygpath -m "$BASELINE_FILE")"        # normalize path if running a Windows PHP version
     echo "includes:"           > "$INCLUDE_CONFIG"
-    echo "  - $CONFIG_FILE"   >> "$INCLUDE_CONFIG"                            # include specified or default config
-    echo "  - $BASELINE_FILE" >> "$INCLUDE_CONFIG"                            # include user baseline
+    echo "  - $CONFIG_FILE"   >> "$INCLUDE_CONFIG"                              # include specified or default config
+    echo "  - $BASELINE_FILE" >> "$INCLUDE_CONFIG"                              # include user baseline
   fi
 fi
 
 
 # complete PHPStan arguments
-if [[ "$CMD" = 'analyse' || "$CMD" = 'analyze' || "$CMD" = 'clear-result-cache' || "$CMD" = 'dump-parameters' || "$CMD" = 'worker' || "$CMD" = 'fixer:worker' ]]; then
-  ARGS=('--memory-limit=-1' "${ARGS[@]}")                                     # prepend memory option
+if [[ "$CMD" == 'analyse' || "$CMD" == 'analyze' || "$CMD" == 'clear-result-cache' || "$CMD" == 'dump-parameters' || "$CMD" == 'worker' || "$CMD" == 'fixer:worker' ]]; then
+  ARGS=('--memory-limit=-1' "${ARGS[@]}")                                       # prepend memory option
   CONFIG_FILE="${INCLUDE_CONFIG:-$CONFIG_FILE}"
-  ARGS=("--configuration=$CONFIG_FILE" "${ARGS[@]}")                          # prepend config file
+  ARGS=("--configuration=$CONFIG_FILE" "${ARGS[@]}")                            # prepend config file
 fi
-[ -n "$USE_DEFAULT" ] && ARGS=("$CMD" "${ARGS[@]}")                           # prepend default command if empty
+[[ -n "$USE_DEFAULT" ]] && ARGS=("$CMD" "${ARGS[@]}")                           # prepend default command if empty
 
 
 # rebuild all positional arguments
@@ -162,15 +168,11 @@ set -- "${ARGS[@]}"
 
 
 # verbose output
-[ -n "$VERBOSE_OPTION" ] && {
+[[ -n "$VERBOSE_OPTION" ]] && {
   echo "CMD: vendor/bin/phpstan" "$@"
   [[ "$VERBOSE_OPTION" == -vv* && -n "$INCLUDE_CONFIG" ]] && cat "$INCLUDE_CONFIG"
 }
 
 
-# determine the PHP interpreter to use
-PHP=${PHP:-php}
-
-
 # call PHPStan
-"$PHP" "$phpstan" "$@" --ansi
+"$php" "$phpstan" --ansi "$@"

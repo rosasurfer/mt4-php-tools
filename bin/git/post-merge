@@ -16,12 +16,12 @@
 #
 # From the Git hooks documentation:
 # ---------------------------------
-# This hook is invoked by git merge, which happens when a git pull is done on a local repository. The hook takes a single 
-# parameter, a status flag specifying whether or not the merge being done was a squash merge. This hook cannot affect the 
+# This hook is invoked by git merge, which happens when a git pull is done on a local repository. The hook takes a single
+# parameter, a status flag specifying whether or not the merge being done was a squash merge. This hook cannot affect the
 # outcome of git merge and is not executed, if the merge failed due to conflicts.
 #
 #
-set -e
+set -eEu
 
 
 # --- functions -------------------------------------------------------------------------------------------------------------
@@ -29,7 +29,7 @@ set -e
 
 # print a message to stderr
 function error() {
-    echo "error: $@" 1>&2
+  echo "error: $*" >&2
 }
 
 
@@ -37,26 +37,33 @@ function error() {
 
 
 # execute an existing user hook
-[ -x "$0.user" ] && "$0.user" "$@"
+[[ -x "$0.user" ]] && "$0.user" "$@"
 
 
 # find Composer
-COMPOSER=$(type -P composer)
-COMPOSER=${COMPOSER:-$(type -P composer.phar)}
-[ -z "$COMPOSER" ] && { error "ERROR: could not find Composer"; exit 1; }
+COMPOSER="$(type -P composer)"
+COMPOSER="${COMPOSER:-"$(type -P composer.phar)"}"
+[[ -z "$COMPOSER" ]] && { error "ERROR: could not find Composer"; exit 1; }
 
 
 # get the changed files from Git
-CHANGED_FILES=$(git diff-tree -r --name-only --no-commit-id HEAD@{1} HEAD)
+CHANGED_FILES="$(git diff-tree -r --name-only --no-commit-id 'HEAD@{1}' HEAD)"
 
 
 # check "composer.lock" for modifications and run the according Composer command
 LOCKFILE='composer.lock'
 
+<<<<<<< Upstream, based on c0153e03266f49d022b9058e80e26b715ede5fcf
+if [[ -f "$LOCKFILE" ]] && echo "$CHANGED_FILES" | grep -qFx "$LOCKFILE"; then
+  echo " * changes detected in $LOCKFILE"
+  echo " * running composer install"
+  COMPOSER_ALLOW_SUPERUSER=1 "$COMPOSER" install --ignore-platform-reqs --no-dev
+=======
 if [[ -f "$LOCKFILE" && $(echo "$CHANGED_FILES" | grep -Fx "$LOCKFILE") ]]; then
     echo " * changes detected in $LOCKFILE"
     echo " * running composer install"
-    COMPOSER_ALLOW_SUPERUSER=1 $COMPOSER install --ignore-platform-reqs --no-dev --no-suggest
+    COMPOSER_ALLOW_SUPERUSER=1 $COMPOSER install --ignore-platform-reqs --no-dev
+>>>>>>> df712f4 update Git hooks
 else
-    COMPOSER_ALLOW_SUPERUSER=1 $COMPOSER dump-autoload
+  COMPOSER_ALLOW_SUPERUSER=1 "$COMPOSER" dump-autoload
 fi
