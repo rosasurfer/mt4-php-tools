@@ -21,6 +21,8 @@ use const rosasurfer\ministruts\SATURDAY;
 use const rosasurfer\ministruts\SUNDAY;
 use const rosasurfer\ministruts\WEEKS;
 
+define('APP_ROOT', dirname(__DIR__));
+
 
 /**
  * Timezones and timezone ids
