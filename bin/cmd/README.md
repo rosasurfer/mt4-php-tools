@@ -16,7 +16,6 @@
 
 legacy
  ------
-  - app-generatePLSeries.php        Generates a PnL timeseries of the specified test.
   - app-updateSyntheticBars.php     Updates M1 history of synthetic symbols.
   - duk-updateTicks.php             Updates local Dukascopy tickdata (stored in Rosatrader format).
   - mt4-createTickfile.php          Creates an FXT tick file for the tester.

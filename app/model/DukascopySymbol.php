@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace rosasurfer\rt\model;
 
+use DateTime;
+
 use rosasurfer\ministruts\core\assert\Assert;
 use rosasurfer\ministruts\core\di\proxy\Output;
 use rosasurfer\ministruts\core\exception\UnimplementedFeatureException;
@@ -36,8 +38,8 @@ use const rosasurfer\rt\PERIOD_D1;
  * @method        \rosasurfer\rt\model\RosaSymbol         getRosaSymbol() Return the Rosatrader symbol this Dukascopy symbol is mapped to.
  * @method static \rosasurfer\rt\model\DukascopySymbolDAO dao()           Return the {@link DukascopySymbolDAO} for the calling class.
  *
- * @phpstan-import-type  POINT_BAR from \rosasurfer\rt\RT
- * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\RT
+ * @phpstan-import-type RT_POINT_BAR from \rosasurfer\rt\phpstan\CustomTypes
+ * @phpstan-import-type RT_PRICE_BAR from \rosasurfer\rt\phpstan\CustomTypes
  */
 class DukascopySymbol extends RosatraderModel implements HistorySource {
 
@@ -162,9 +164,9 @@ class DukascopySymbol extends RosatraderModel implements HistorySource {
             $historyStart = $dukascopy->fetchHistoryStart($this);
 
             foreach ($historyStart as $timeframe => $time) {
-                $period     = periodDescription($timeframe);
-                $datetime   = \DateTime::createFromFormat(is_int($time) ? 'U':'U.u', is_int($time) ? (string)$time : number_format($time, 6, '.', ''));
-                $formatted  = $datetime->format('D, d-M-Y H:i'.(is_int($time) ? '':':s.u'));
+                $period = periodDescription($timeframe);
+                $datetime = DateTime::createFromFormat(is_int($time) ? 'U':'U.u', is_int($time) ? (string)$time : number_format($time, 6, '.', ''));
+                $formatted = $datetime->format('D, d-M-Y H:i'.(is_int($time) ? '':':s.u'));
                 is_float($time) && $formatted = strLeft($formatted, -3);
                 $formatted .= ' FXT';
                 Output::out('[Info]    '.$this->name.'  Dukascopy '.str_pad($period, 4).' history starts '.$formatted);
@@ -177,11 +179,11 @@ class DukascopySymbol extends RosatraderModel implements HistorySource {
     /**
      * Update locally stored history start times with the passed data.
      *
-     * @param  array $times - array with start times per timeframe
+     * @param array<int|float> $times - array with start times per timeframe
      *
      * @return bool - whether at least one of the start times have changed
      */
-    public function updateHistoryStart(array $times) {
+    public function updateHistoryStart(array $times): bool {
         $localTime = $this->historyStartTick;
         $remoteTime = isset($times[PERIOD_TICK]) ? fxDate('Y-m-d H:i:s', (int)$times[PERIOD_TICK], true) : null;
         if ($localTime !== $remoteTime) {
@@ -220,20 +222,13 @@ class DukascopySymbol extends RosatraderModel implements HistorySource {
     /**
      * {@inheritdoc}
      *
-     * @param  int  $period
-     * @param  int  $time
-     * @param  bool $compact [optional]
+     * @phpstan-return ($compact is true ? RT_POINT_BAR[] : RT_PRICE_BAR[])
      *
-     * @return         array[]
-     * @phpstan-return ($compact is true ? POINT_BAR[] : PRICE_BAR[])
-     *
-     * @see \rosasurfer\rt\POINT_BAR
-     * @see \rosasurfer\rt\PRICE_BAR
+     * @see \rosasurfer\rt\phpstan\RT_POINT_BAR
+     * @see \rosasurfer\rt\phpstan\RT_PRICE_BAR
      */
     public function getHistory(int $period, int $time, bool $compact = true): array {
-        Assert::int($period, '$period');
         if ($period != PERIOD_M1) throw new UnimplementedFeatureException(__METHOD__.'('.periodToStr($period).') not implemented');
-        Assert::int($time, '$time');
 
         if (!$time) {
             if (!$time = (int) $this->getHistoryStartM1('U')) {

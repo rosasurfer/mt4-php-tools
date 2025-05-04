@@ -43,7 +43,7 @@ use const rosasurfer\rt\PERIOD_MN1;
 /**
  * Object wrapping a single MT4 history file ("*.hst").
  *
- * @phpstan-import-type  POINT_BAR from \rosasurfer\rt\RT
+ * @phpstan-import-type RT_POINT_BAR from \rosasurfer\rt\phpstan\CustomTypes
  */
 class HistoryFile extends CObject {
 
@@ -81,21 +81,21 @@ class HistoryFile extends CObject {
     protected $barPackFormat;
 
     /** @var string - unpack() format string */
-    protected $barUnpackFormat;
+    protected string $barUnpackFormat;
 
     /** @var int - bar size in bytes according to the data format */
     protected $barSize = 0;
 
     /**
      * @var         array[] - internal write buffer
-     * @phpstan-var POINT_BAR[] with FXT times
+     * @phpstan-var RT_POINT_BAR[]
      *
-     * @see \rosasurfer\rt\POINT_BAR
+     * @see \rosasurfer\rt\phpstan\RT_POINT_BAR
      */
     public array $barBuffer = [];
 
     /** @var int - internal write buffer default size */
-    protected $barBufferSize = 10000;
+    protected int $barBufferSize = 10000;
 
 
     // Metadata of stored bars
@@ -500,26 +500,27 @@ class HistoryFile extends CObject {
 
 
     /**
-     * Return the bar at the specified bar offset.
+     * Return the bar time at the specified offset.
      *
      * @param  int $offset
      *
-     * @return array|null - ROST_PRICE_BAR if the bar was not yet stored and is returned from the write buffer
-     *                      HISTORY_BAR    if the bar was stored and is returned from the history file
-     *                      NULL           if no such bar exists (offset is larger than the file's number of bars)
+     * @return int|null - bar time or NULL if no such bar exists (offset exceeds the number of existing bars)
      */
-    public function getBar(int $offset): ?array {
+    public function iTime(int $offset): ?int {
         if ($offset < 0) throw new InvalidValueException("Invalid parameter \$offset: $offset");
 
-        if ($offset >= $this->full_bars)                                        // bar[$offset] does not exist
+        if ($offset >= $this->full_bars) {              // bar does not exist
             return null;
+        }
+        if ($offset > $this->stored_to_offset) {        // bar is a buffered bar
+            $bar = $this->barBuffer[$offset - $this->stored_to_offset - 1];
+            return $bar['time'];
+        }
 
-        if ($offset > $this->stored_to_offset)                                  // bar[$offset] is a buffered bar (ROST_PRICE_BAR)
-            return $this->barBuffer[$offset-$this->stored_to_offset-1];
-
-        fflush($this->hFile);
-        fseek($this->hFile, HistoryHeader::SIZE + $offset*$this->barSize);      // bar[$offset] is a stored bar (HISTORY_BAR)
-        return unpack($this->barUnpackFormat, fread($this->hFile, $this->barSize));
+        fflush($this->hFile);                           // bar is a stored bar
+        fseek($this->hFile, HistoryHeader::SIZE + $offset * $this->barSize);
+        $bar = unpack($this->barUnpackFormat, fread($this->hFile, $this->barSize));
+        return $bar['time'];
     }
 
 
@@ -529,18 +530,21 @@ class HistoryFile extends CObject {
      *
      * @param  int $time - time
      *
-     * @return int - Offset or -1 if the time is younger than the youngest bar. To write a bar at offset -1 the history file
-     *               has to be expanded.
+     * @return int - Offset or -1 if the time is younger than the youngest bar. To write a bar at offset -1
+     *               the history file has to be expanded.
      *
      * @todo  merge with Rost::findTimeOffset()
      */
-    public function findTimeOffset(int $time) {
-        $size    = $this->full_bars; if (!$size)                 return -1;
-        $iFrom   = 0;
-        $iTo     = $size-1; if ($this->full_to_openTime < $time) return -1;
+    public function findTimeOffset(int $time): int {
+        $size = $this->full_bars;
+        if (!$size)                          return -1;
+        if ($this->full_to_openTime < $time) return -1;
+
         $barFrom = ['time' => $this->full_from_openTime];
         $barTo   = ['time' => $this->full_to_openTime  ];
-        $i       = -1;
+        $iFrom = 0;
+        $iTo = $size - 1;
+        $i = -1;
 
         while (true) {                                              // walk through the bar range and recursively reduce the
             if ($barFrom['time'] >= $time) {                        // bar range
@@ -554,10 +558,16 @@ class HistoryFile extends CObject {
 
             $midSize = (int) ceil($size/2);                         // cut remaining range into halves
             $iMid    = $iFrom + $midSize - 1;
-            $barMid  = $this->getBar($iMid);
+            $midTime = $this->iTime($iMid);
 
-            if ($barMid['time'] <= $time) { $barFrom = $barMid; $iFrom = $iMid; }
-            else                          { $barTo   = $barMid; $iTo   = $iMid; }
+            if ($midTime <= $time) {
+                $barFrom['time'] = $midTime;
+                $iFrom = $iMid;
+            }
+            else {
+                $barTo['time'] = $midTime;
+                $iTo = $iMid;
+            }
             $size = $iTo - $iFrom + 1;
         }
         return $i;
@@ -571,9 +581,7 @@ class HistoryFile extends CObject {
      *
      * @return int - offset or -1 if no such bar exists
      */
-    public function findBarOffset($time) {
-        Assert::int($time);
-
+    public function findBarOffset(int $time): int {
         $size = $this->full_bars;
         if (!$size) return -1;
 
@@ -593,13 +601,14 @@ class HistoryFile extends CObject {
             return -1;                                              // time is older than the oldest bar
         }
 
-        $bar = $this->getBar($offset);
-        if ($bar['time'] == $time)                                  // time exactly matches the resolved bar
+        $barTime = $this->iTime($offset);
+        if ($barTime == $time) {                                    // time matches the resolved bar exactly
             return $offset;
+        }
         $offset--;
 
-        $bar       = $this->getBar($offset);
-        $closeTime = Rost::periodCloseTime($bar['time'], $this->period);
+        $barTime = $this->iTime($offset);
+        $closeTime = Rost::periodCloseTime($barTime, $this->period);
 
         if ($time < $closeTime)                                     // time is covered by the previous bar
             return $offset;
@@ -615,21 +624,17 @@ class HistoryFile extends CObject {
      *
      * @return int - offset oder -1 if no such bar exists (i.e. time is older than the oldest bar)
      */
-    public function findBarOffsetPrevious($time) {
-        Assert::int($time);
-
+    public function findBarOffsetPrevious(int $time): int {
         $size = $this->full_bars;
-        if (!$size)
-            return -1;
+        if (!$size) return -1;
 
         $offset = $this->findTimeOffset($time);
-        if ($offset < 0)                                            // time is younger than the youngest bar[openTime]
+        if ($offset < 0) {                                          // time is younger than the youngest bar[openTime]
             return $size-1;
-
-        $bar = $this->getBar($offset);
-
-        if ($bar['time'] == $time)                                  // time exactly matches the resolved bar
+        }
+        if ($time == $this->iTime($offset)) {                       // time matches the resolved bar exactly
             return $offset;
+        }
         return $offset - 1;                                         // time is older than the resolved bar
     }
 
@@ -642,12 +647,9 @@ class HistoryFile extends CObject {
      *
      * @return int - offset or -1 if no such bar exists (i.e. time is younger than the youngest bar)
      */
-    public function findBarOffsetNext($time) {
-        Assert::int($time);
-
+    public function findBarOffsetNext(int $time): int {
         $size = $this->full_bars;
-        if (!$size)
-            return -1;
+        if (!$size) return -1;
 
         $offset = $this->findTimeOffset($time);
 
@@ -655,41 +657,41 @@ class HistoryFile extends CObject {
             $closeTime = $this->full_to_closeTime;
             return ($closeTime > $time) ? $size-1 : -1;
         }
-        if ($offset == 0)                                           // time is older than or exactly matches the first bar
+        if ($offset == 0) {                                         // time is older than or exactly matches the first bar
             return 0;
-
-        $bar = $this->getBar($offset);
-        if ($bar['time'] == $time)                                  // time exactly matches bar[openTime]
+        }
+        if ($time == $this->iTime($offset)) {                       // time matches bar[openTime] exactly
             return $offset;
-
+        }
         $offset--;                                                  // time is within the previous bar or between the
-        $bar = $this->getBar($offset);                              // previous and the findTimeOffset() bar
+        $barTime = $this->iTime($offset);                           // previous and the findTimeOffset() bar
+        $closeTime = Rost::periodCloseTime($barTime, $this->period);
 
-        $closeTime = Rost::periodCloseTime($bar['time'], $this->period);
-        if ($closeTime > $time)                                     // time is within the previous bar
+        if ($closeTime > $time) {                                   // time is within the previous bar
             return $offset;
+        }
         return ($offset+1 < $size) ? $offset+1 : -1;                // time is younger than bar[closeTime] which means there
     }                                                               // is a gap between the previous and the following bar
 
 
     /**
-     * Remove a part of the HistoryFile and adjust its file size. If replacement bars are specified the removed bars are
-     * replaced by those bars.
+     * Remove a part of the HistoryFile and adjust the file size. If replacement bars are specified the removed bars
+     * are replaced by those bars.
      *
-     * @param  int   $offset             - Start offset of the bars to remove with 0 (zero) pointing to the first bar from
-     *                                     the beginning (the oldest bar). If offset is negative then removing starts that
-     *                                     far from the end (the youngest bar). <br>
+     * @param int   $offset               - Start offset of the bars to remove with 0 (zero) pointing to the first bar from the beginning
+     *                                      (the oldest bar). If offset is negative then removing starts that far from the end
+     *                                      (the youngest bar). <br>
      *
-     * @param  int   $length  [optional] - Number of bars to remove. If length is omitted everything from offset to the end
-     *                                     of the history (the youngest bar) is removed. If length is specified and is
-     *                                     positive then that many bars starting from offset will be removed. If length is
-     *                                     specified and is negative then all bars starting from offset will be removed
-     *                                     except length bars at the end of the history. <br>
+     * @param int   $length [optional]    - Number of bars to remove. If length is omitted everything from offset to the end of the history
+     *                                      (the youngest bar) is removed. If length is specified and is positive then that many bars
+     *                                      starting from offset will be removed. If length is specified and is negative then all bars
+     *                                      starting from offset will be removed except length bars at the end of the history. <br>
      *
-     * @param  array $replace [optional] - ROST_PRICE_BAR data. If replacement bars are specified then the removed bars are
-     *                                     replaced with these bars. If offset and length are such that nothing is removed
-     *                                     then the replacement bars are inserted at the specified offset. If offset is one
-     *                                     greater than the greatest existing offset the replacement bars are appended. <br>
+     * @param array[] $replace [optional] - Replacement bars. If specified removed bars are replaced with these bars. If offset and length
+     *                                      are such that nothing is removed then the replacement bars are inserted at the specified offset.
+     *                                      If offset is one greater than the greatest existing offset the replacement bars are appended.
+     * @phpstan-param RT_POINT_BAR[] $replace
+     *
      * @return void
      *
      * @example
@@ -698,11 +700,10 @@ class HistoryFile extends CObject {
      *  HistoryFile::spliceBars(-1)         // remove the last bar
      *  HistoryFile::spliceBars(0, -2)      // remove all except the last two bars
      * </pre>
+     *
+     * @see \rosasurfer\rt\phpstan\RT_POINT_BAR
      */
-    public function spliceBars($offset, $length=0, array $replace=[]) {
-        Assert::int($offset, '$offset');
-        Assert::int($length, '$length');
-
+    public function spliceBars(int $offset, int $length = 0, array $replace = []): void {
         // determine absolute start offset: max. value for appending is one position after history end
         if ($offset >= 0) {
             if ($offset > $this->full_bars)   throw new InvalidValueException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
@@ -742,9 +743,7 @@ class HistoryFile extends CObject {
         if      (!$replace) $this->removeBars($fromOffset, $length);
         else if (!$length)  $this->insertBars($fromOffset, $replace);
         else {
-            $hstFromBar = $this->getBar($fromOffset);
-            $hstToBar   = $this->getBar($toOffset);
-            Output::out(__METHOD__.'()  replacing '.$length.' bar(s) from offset '.$fromOffset.' ('.gmdate('d-M-Y H:i:s', $hstFromBar['time']).') to offset '.$toOffset.' ('.gmdate('d-M-Y H:i:s', $hstToBar['time']).') with '.($size=sizeof($replace)).' bars from '.gmdate('d-M-Y H:i:s', $replace[0]['time']).' to '.gmdate('d-M-Y H:i:s', $replace[$size-1]['time']));
+            Output::out(__METHOD__.'()  replacing '.$length.' bar(s) from offset '.$fromOffset.' ('.gmdate('d-M-Y H:i:s', $this->iTime($fromOffset)).') to offset '.$toOffset.' ('.gmdate('d-M-Y H:i:s', $this->iTime($toOffset)).') with '.($size=sizeof($replace)).' bars from '.gmdate('d-M-Y H:i:s', $replace[0]['time']).' to '.gmdate('d-M-Y H:i:s', $replace[$size-1]['time']));
             $this->removeBars($fromOffset, $length);
             $this->insertBars($fromOffset, $replace);
         }
@@ -765,10 +764,7 @@ class HistoryFile extends CObject {
      *                                  the end of the history. <br>
      * @return void
      */
-    public function removeBars($offset, $length=0) {
-        Assert::int($offset, '$offset');
-        Assert::int($length, '$length');
-
+    public function removeBars(int $offset, int $length = 0): void {
         // determine absolute start offset: max. value for appending is one position after history end
         if ($offset >= 0) {
             if ($offset >= $this->full_bars)  throw new InvalidValueException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
@@ -798,27 +794,25 @@ class HistoryFile extends CObject {
             Output::out(__METHOD__.'()  $fromOffset='.$fromOffset.'  $toOffset='.$toOffset.'  $length='.$length.'  (nothing to do)');
             return;
         }
-
-        $hstFromBar = $this->getBar($fromOffset);
-        $hstToBar   = $this->getBar($toOffset);
-        Output::out(__METHOD__.'()  removing '.$length.' bar(s) from offset '.$fromOffset.' ('.gmdate('d-M-Y H:i:s', $hstFromBar['time']).') to offset '.$toOffset.' ('.gmdate('d-M-Y H:i:s', $hstToBar['time']).')');
+        Output::out(__METHOD__.'()  removing '.$length.' bar(s) from offset '.$fromOffset.' ('.gmdate('d-M-Y H:i:s', $this->iTime($fromOffset)).') to offset '.$toOffset.' ('.gmdate('d-M-Y H:i:s', $this->iTime($toOffset)).')');
     }
 
 
     /**
-     * Insert bars at the specified offset of the HistoryFile and increase its file size.
+     * Insert bars at the specified offset of the HistoryFile and increase the file size.
      *
      * @param  int $offset - Bar offset to insert bars at with with 0 (zero) pointing to the first bar from the beginning
      *                       (the oldest bar). If offset is negative then the bars are inserted that far from the end
      *                       (the youngest bar). <br>
      *
-     * @param  array $bars - bars to insert (ROST_PRICE_BAR[])
+     * @param         array[]        $bars - bars to insert
+     * @phpstan-param RT_POINT_BAR[] $bars
      *
      * @return void
+     *
+     * @see \rosasurfer\rt\phpstan\RT_POINT_BAR
      */
-    public function insertBars($offset, array $bars) {
-        Assert::int($offset, '$offset');
-
+    public function insertBars(int $offset, array $bars): void {
         // determine absolute start offset: max. value for appending is one position after history end
         if ($offset >= 0) {
             if ($offset > $this->full_bars)   throw new InvalidValueException('Invalid parameter $offset: '.$offset.' ('.$this->full_bars.' bars in history)');
@@ -831,9 +825,7 @@ class HistoryFile extends CObject {
             Output::out(__METHOD__.'()  $fromOffset='.$fromOffset.'  $bars=0  (nothing to do)');
             return;
         }
-
-        $hstFromBar = $this->getBar($fromOffset);
-        Output::out(__METHOD__.'()  inserting '.($size=sizeof($bars)).' bar(s) from '.gmdate('d-M-Y H:i:s', $bars[0]['time']).' to '.gmdate('d-M-Y H:i:s', $bars[$size-1]['time']).' at offset '.$fromOffset.' ('.gmdate('d-M-Y H:i:s', $hstFromBar['time']).')');
+        Output::out(__METHOD__.'()  inserting '.($size=sizeof($bars)).' bar(s) from '.gmdate('d-M-Y H:i:s', $bars[0]['time']).' to '.gmdate('d-M-Y H:i:s', $bars[$size-1]['time']).' at offset '.$fromOffset.' ('.gmdate('d-M-Y H:i:s', $this->iTime($fromOffset)).')');
 
         /*
         $array = [0, 1, 2, 3, 4, 5];
@@ -858,35 +850,41 @@ class HistoryFile extends CObject {
     /**
      * Replace a part of the HistoryFile with the specified bars and adjust its file size.
      *
-     * @param  array $bars              - replacement bars (ROST_PRICE_BAR[])
+     * @param  array[] $bars           - replacement bars
      *
-     * @param  int   $offset            - Start offset of the bars to replace with 0 (zero) pointing to the first bar from
-     *                                    the beginning (the oldest bar). If offset is negative then replacing starts that
-     *                                    far from the end (the youngest bar). <br>
+     * @param  int $offset             - Start offset of the bars to replace with 0 (zero) pointing to the first bar from the beginning
+     *                                   (the oldest bar). If offset is negative then replacing starts that far from the end
+     *                                   (the youngest bar). <br>
      *
-     * @param  ?int  $length [optional] - Number of bars to replace. If length is omitted everything from offset to the end
-     *                                    of the history (the youngest bar) is replaced. If length is specified and is
-     *                                    positive then that many bars starting from offset will be replaced. If length is
-     *                                    specified and is negative then all bars starting from offset will be replaced
-     *                                    except length bars at the end of the history. <br>
+     * @param  ?int $length [optional] - Number of bars to replace. If length is omitted everything from offset to the end of the history
+     *                                   (the youngest bar) is replaced. If length is specified and is positive then that many bars
+     *                                   starting from offset will be replaced. If length is specified and is negative then all bars
+     *                                   starting from offset will be replaced except length bars at the end of the history. <br>
+     * @phpstan-param RT_POINT_BAR[] $bars
+     *
      * @return void
+     *
+     * @see \rosasurfer\rt\phpstan\RT_POINT_BAR
      */
-    public function replaceBars(array $bars, $offset, $length = null) {
+    public function replaceBars(array $bars, int $offset, int $length = null): void {
         throw new UnimplementedFeatureException(__METHOD__.'not yet implemented');
     }
 
 
     /**
-     * Merge the passed bars into the HistoryFile. Existing bars after the last synchronization time overlapping passed bars
-     * are replaced. Existing bars not overlapping passed bars are kept.
+     * Merge the passed bars into the HistoryFile. Existing bars after the last synchronization time which overlap
+     * passed bars are replaced. Existing bars not overlapping passed bars are kept.
      *
-     * @param  array $bars - M1 bars, will be converted to the HistoryFile's timeframe (ROST_PRICE_BAR[])
+     * @param         array[]        $bars - M1 bars, will be converted to the HistoryFile's timeframe
+     * @phpstan-param RT_POINT_BAR[] $bars
      *
      * @return void
      *
+     * @see \rosasurfer\rt\phpstan\RT_POINT_BAR
+     *
      * @todo   rename to mergeBars...()
      */
-    public function synchronize(array $bars) {
+    public function synchronize(array $bars): void {
         switch ($this->period) {
             case PERIOD_M1:  $this->synchronizeM1 ($bars); break;
             case PERIOD_M5:  $this->synchronizeM5 ($bars); break;
@@ -906,11 +904,14 @@ class HistoryFile extends CObject {
     /**
      * Synchronisiert die M1-History dieser Instanz.
      *
-     * @param  array $bars - ROST_PRICE_BAR-Daten der Periode M1
+     * @param         array          $bars - bars of PERIOD_M1
+     * @phpstan-param RT_POINT_BAR[] $bars
      *
      * @return void
+     *
+     * @see \rosasurfer\rt\phpstan\RT_POINT_BAR
      */
-    private function synchronizeM1(array $bars) {
+    private function synchronizeM1(array $bars): void {
         if ($this->closed) throw new IllegalStateException('Cannot process a closed '.get_class($this));
         if (!$bars) return;
 
@@ -941,11 +942,14 @@ class HistoryFile extends CObject {
     /**
      * Synchronisiert die M5-History dieser Instanz.
      *
-     * @param  array $bars - ROST_PRICE_BAR-Daten der Periode M5
+     * @param         array          $bars - bars of PERIOD_M1
+     * @phpstan-param RT_POINT_BAR[] $bars
      *
      * @return void
+     *
+     * @see \rosasurfer\rt\phpstan\RT_POINT_BAR
      */
-    private function synchronizeM5(array $bars) {
+    private function synchronizeM5(array $bars): void {
         throw new UnimplementedFeatureException(__METHOD__.'() not yet implemented');
     }
 
@@ -953,11 +957,14 @@ class HistoryFile extends CObject {
     /**
      * Synchronisiert die M15-History dieser Instanz.
      *
-     * @param  array $bars - ROST_PRICE_BAR-Daten der Periode M15
+     * @param         array          $bars - bars of PERIOD_M1
+     * @phpstan-param RT_POINT_BAR[] $bars
      *
      * @return void
+     *
+     * @see \rosasurfer\rt\phpstan\RT_POINT_BAR
      */
-    private function synchronizeM15(array $bars) {
+    private function synchronizeM15(array $bars): void {
         throw new UnimplementedFeatureException(__METHOD__.'() not yet implemented');
     }
 
@@ -965,11 +972,14 @@ class HistoryFile extends CObject {
     /**
      * Synchronisiert die M30-History dieser Instanz.
      *
-     * @param  array $bars - ROST_PRICE_BAR-Daten der Periode M30
+     * @param         array          $bars - bars of PERIOD_M1
+     * @phpstan-param RT_POINT_BAR[] $bars
      *
      * @return void
+     *
+     * @see \rosasurfer\rt\phpstan\RT_POINT_BAR
      */
-    private function synchronizeM30(array $bars) {
+    private function synchronizeM30(array $bars): void {
         throw new UnimplementedFeatureException(__METHOD__.'() not yet implemented');
     }
 
@@ -977,11 +987,14 @@ class HistoryFile extends CObject {
     /**
      * Synchronisiert die H1-History dieser Instanz.
      *
-     * @param  array $bars - ROST_PRICE_BAR-Daten der Periode H1
+     * @param         array          $bars - bars of PERIOD_M1
+     * @phpstan-param RT_POINT_BAR[] $bars
      *
      * @return void
+     *
+     * @see \rosasurfer\rt\phpstan\RT_POINT_BAR
      */
-    private function synchronizeH1(array $bars) {
+    private function synchronizeH1(array $bars): void {
         throw new UnimplementedFeatureException(__METHOD__.'() not yet implemented');
     }
 
@@ -989,11 +1002,14 @@ class HistoryFile extends CObject {
     /**
      * Synchronisiert die H4-History dieser Instanz.
      *
-     * @param  array $bars - ROST_PRICE_BAR-Daten der Periode H4
+     * @param         array          $bars - bars of PERIOD_M1
+     * @phpstan-param RT_POINT_BAR[] $bars
      *
      * @return void
+     *
+     * @see \rosasurfer\rt\phpstan\RT_POINT_BAR
      */
-    private function synchronizeH4(array $bars) {
+    private function synchronizeH4(array $bars): void {
         throw new UnimplementedFeatureException(__METHOD__.'() not yet implemented');
     }
 
@@ -1001,11 +1017,14 @@ class HistoryFile extends CObject {
     /**
      * Synchronisiert die D1-History dieser Instanz.
      *
-     * @param  array $bars - ROST_PRICE_BAR-Daten der Periode D1
+     * @param         array          $bars - bars of PERIOD_M1
+     * @phpstan-param RT_POINT_BAR[] $bars
      *
      * @return void
+     *
+     * @see \rosasurfer\rt\phpstan\RT_POINT_BAR
      */
-    private function synchronizeD1(array $bars) {
+    private function synchronizeD1(array $bars): void {
         throw new UnimplementedFeatureException(__METHOD__.'() not yet implemented');
     }
 
@@ -1013,11 +1032,14 @@ class HistoryFile extends CObject {
     /**
      * Synchronisiert die W1-History dieser Instanz.
      *
-     * @param  array $bars - ROST_PRICE_BAR-Daten der Periode W1
+     * @param         array          $bars - bars of PERIOD_M1
+     * @phpstan-param RT_POINT_BAR[] $bars
      *
      * @return void
+     *
+     * @see \rosasurfer\rt\phpstan\RT_POINT_BAR
      */
-    private function synchronizeW1(array $bars) {
+    private function synchronizeW1(array $bars): void {
         throw new UnimplementedFeatureException(__METHOD__.'() not yet implemented');
     }
 
@@ -1025,11 +1047,14 @@ class HistoryFile extends CObject {
     /**
      * Synchronisiert die MN1-History dieser Instanz.
      *
-     * @param  array $bars - ROST_PRICE_BAR-Daten der Periode MN1
+     * @param         array          $bars - bars of PERIOD_M1
+     * @phpstan-param RT_POINT_BAR[] $bars
      *
      * @return void
+     *
+     * @see \rosasurfer\rt\phpstan\RT_POINT_BAR
      */
-    private function synchronizeMN1(array $bars) {
+    private function synchronizeMN1(array $bars): void {
         throw new UnimplementedFeatureException(__METHOD__.'() not yet implemented');
     }
 
@@ -1037,11 +1062,14 @@ class HistoryFile extends CObject {
     /**
      * Fuegt der Historydatei dieser Instanz Bardaten hinzu. Die Daten werden ans Ende der Zeitreihe angefuegt.
      *
-     * @param  array $bars - ROST_PRICE_BAR-Daten der Periode M1
+     * @param         array[]        $bars - bars of PERIOD_M1
+     * @phpstan-param RT_POINT_BAR[] $bars
      *
      * @return void
+     *
+     * @see \rosasurfer\rt\phpstan\RT_POINT_BAR
      */
-    public function appendBars(array $bars) {
+    public function appendBars(array $bars): void {
         switch ($this->period) {
             case PERIOD_M1:  $this->appendToM1($bars); break;
             case PERIOD_M5:
@@ -1053,7 +1081,7 @@ class HistoryFile extends CObject {
             case PERIOD_W1:  $this->appendToW1       ($bars); break;
             case PERIOD_MN1: $this->appendToMN1      ($bars); break;
             default:
-                throw new RuntimeException('Unsupported timeframe $this->period='.$this->period);
+                throw new RuntimeException("Unsupported timeframe \$this->period: $this->period");
         }
     }
 
@@ -1061,17 +1089,20 @@ class HistoryFile extends CObject {
     /**
      * Fuegt der M1-History dieser Instanz weitere Daten hinzu.
      *
-     * @param  array $bars - ROST_PRICE_BAR-Daten der Periode M1
+     * @param         array[]        $bars - bars of PERIOD_M1
+     * @phpstan-param RT_POINT_BAR[] $bars
      *
      * @return void
+     *
+     * @see \rosasurfer\rt\phpstan\RT_POINT_BAR
      */
-    private function appendToM1(array $bars) {
+    private function appendToM1(array $bars): void {
         if ($this->closed)                             throw new IllegalStateException('Cannot process a closed '.get_class($this));
         if (!$bars) return;
         if ($bars[0]['time'] <= $this->lastM1DataTime) throw new IllegalStateException('Cannot append bar(s) of '.gmdate('D, d-M-Y H:i:s', $bars[0]['time']).' to history ending at '.gmdate('D, d-M-Y H:i:s', $this->lastM1DataTime));
 
         $this->barBuffer = array_merge($this->barBuffer, $bars);
-        $bufferSize      = sizeof($this->barBuffer);
+        $bufferSize = sizeof($this->barBuffer);
 
         if (!$this->full_bars) {                                          // History ist noch leer
             $this->full_from_offset    = 0;
@@ -1086,19 +1117,23 @@ class HistoryFile extends CObject {
         $this->lastM1DataTime    = $bars[sizeof($bars)-1]['time'];
         $this->full_lastSyncTime = $this->lastM1DataTime + 1*MINUTE;
 
-        if ($bufferSize > $this->barBufferSize)
+        if ($bufferSize > $this->barBufferSize) {
             $this->flush($this->barBufferSize);
+        }
     }
 
 
     /**
      * Fuegt der History dieser Instanz weitere Daten hinzu.
      *
-     * @param  array $bars - ROST_PRICE_BAR-Daten der Periode M1
+     * @param         array[]        $bars - bars of PERIOD_M1
+     * @phpstan-param RT_POINT_BAR[] $bars
      *
      * @return void
+     *
+     * @see \rosasurfer\rt\phpstan\RT_POINT_BAR
      */
-    private function appendToTimeframe(array $bars) {
+    private function appendToTimeframe(array $bars): void {
         if ($this->closed)                             throw new IllegalStateException('Cannot process a closed '.get_class($this));
         if (!$bars) return;
         if ($bars[0]['time'] <= $this->lastM1DataTime) throw new IllegalStateException('Cannot append bar(s) of '.gmdate('D, d-M-Y H:i:s', $bars[0]['time']).' to history ending at '.gmdate('D, d-M-Y H:i:s', $this->lastM1DataTime));
@@ -1148,11 +1183,14 @@ class HistoryFile extends CObject {
     /**
      * Fuegt der W1-History dieser Instanz weitere Daten hinzu.
      *
-     * @param  array $bars - ROST_PRICE_BAR-Daten der Periode M1
+     * @param         array[]        $bars - bars of PERIOD_M1
+     * @phpstan-param RT_POINT_BAR[] $bars
      *
      * @return void
+     *
+     * @see \rosasurfer\rt\phpstan\RT_POINT_BAR
      */
-    private function appendToW1(array $bars) {
+    private function appendToW1(array $bars): void {
         if ($this->closed)                             throw new IllegalStateException('Cannot process a closed '.get_class($this));
         if (!$bars) return;
         if ($bars[0]['time'] <= $this->lastM1DataTime) throw new IllegalStateException('Cannot append bar(s) of '.gmdate('D, d-M-Y H:i:s', $bars[0]['time']).' to history ending at '.gmdate('D, d-M-Y H:i:s', $this->lastM1DataTime));
@@ -1204,11 +1242,14 @@ class HistoryFile extends CObject {
     /**
      * Fuegt der MN1-History dieser Instanz weitere Daten hinzu.
      *
-     * @param  array $bars - ROST_PRICE_BAR-Daten der Periode M1
+     * @param         array[]        $bars - bars of PERIOD_M1
+     * @phpstan-param RT_POINT_BAR[] $bars
      *
      * @return void
+     *
+     * @see \rosasurfer\rt\phpstan\RT_POINT_BAR
      */
-    private function appendToMN1(array $bars) {
+    private function appendToMN1(array $bars): void {
         if ($this->closed)                             throw new IllegalStateException('Cannot process a closed '.get_class($this));
         if (!$bars) return;
         if ($bars[0]['time'] <= $this->lastM1DataTime) throw new IllegalStateException('Cannot append bar(s) of '.gmdate('D, d-M-Y H:i:s', $bars[0]['time']).' to history ending at '.gmdate('D, d-M-Y H:i:s', $this->lastM1DataTime));
@@ -1259,27 +1300,24 @@ class HistoryFile extends CObject {
 
 
     /**
-     * Schreibt eine Anzahl ROST_PRICE_BARs aus dem Barbuffer in die History-Datei.
+     * Schreibt eine Anzahl Bars aus dem Barbuffer in die History-Datei.
      *
-     * @param  int $count - Anzahl zu schreibender Bars (default: alle Bars)
+     * @param  int $count - Anzahl zu schreibender Bars (default: alle)
      *
      * @return int - Anzahl der geschriebenen und aus dem Buffer geloeschten Bars
      */
-    public function flush($count = PHP_INT_MAX) {
+    public function flush(int $count = PHP_INT_MAX): int {
         if ($this->closed) throw new IllegalStateException('Cannot process a closed '.get_class($this));
-        Assert::int($count);
-        if ($count < 0)    throw new InvalidValueException('Invalid parameter $count: '.$count);
+        if ($count < 0)    throw new InvalidValueException("Invalid parameter \$count: $count");
 
         $bufferSize = sizeof($this->barBuffer);
-        $todo       = min($bufferSize, $count);
+        $todo = min($bufferSize, $count);
         if (!$todo) return 0;
 
+        // FilePointer setzen
+        fseek($this->hFile, HistoryHeader::SIZE + ($this->stored_to_offset+1) * $this->barSize);
 
-        // (1) FilePointer setzen
-        fseek($this->hFile, HistoryHeader::SIZE + ($this->stored_to_offset+1)*$this->barSize);
-
-
-        // (2) Bars schreiben
+        // Bars schreiben
         $i = 0;
         foreach ($this->barBuffer as $i => $bar) {
             $T = $bar['time' ];
@@ -1290,13 +1328,11 @@ class HistoryFile extends CObject {
             $V = $bar['ticks'];
 
             MT4::writeHistoryBar400($this->hFile, $this->getDigits(), $T, $O, $H, $L, $C, $V);
-            if ($i+1 == $todo)
-                break;
+            if ($i+1 == $todo) break;
         }
         //if ($this->period==PERIOD_M1) echof(__METHOD__.'()  wrote '.$todo.' bars, lastBar.time='.gmdate('D, d-M-Y H:i:s', $this->barBuffer[$todo-1]['time']));
 
-
-        // (3) Metadaten aktualisieren
+        // Metadaten aktualisieren
         if (!$this->stored_bars) {                                           // Datei war vorher leer
             $this->stored_from_offset    = 0;
             $this->stored_from_openTime  = $this->barBuffer[0]['time'];
@@ -1312,13 +1348,11 @@ class HistoryFile extends CObject {
 
         //$this->full* aendert sich nicht
 
-
-        // (4) HistoryHeader aktualisieren
+        // HistoryHeader aktualisieren
         $this->hstHeader->setLastSyncTime($this->stored_lastSyncTime);
         $this->writeHistoryHeader();
 
-
-        // (5) Barbuffer um die geschriebenen Bars kuerzen
+        // Barbuffer um die geschriebenen Bars kuerzen
         if ($todo == $bufferSize) $this->barBuffer = [];
         else                      $this->barBuffer = array_slice($this->barBuffer, $todo);
 

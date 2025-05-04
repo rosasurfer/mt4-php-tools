@@ -6,7 +6,6 @@ namespace rosasurfer\rt\lib\dukascopy;
 use RangeException;
 
 use rosasurfer\ministruts\core\CObject;
-use rosasurfer\ministruts\core\assert\Assert;
 use rosasurfer\ministruts\core\di\proxy\Output;
 use rosasurfer\ministruts\core\exception\InvalidValueException;
 use rosasurfer\ministruts\core\exception\RuntimeException;
@@ -24,7 +23,7 @@ use function rosasurfer\ministruts\isLittleEndian;
 use function rosasurfer\ministruts\last;
 
 use function rosasurfer\rt\fxTime;
-use function rosasurfer\rt\fxTimezoneOffset;
+use function rosasurfer\rt\fxtOffset;
 use function rosasurfer\rt\periodDescription;
 use function rosasurfer\rt\periodToStr;
 use function rosasurfer\rt\priceTypeDescription;
@@ -47,33 +46,44 @@ use const rosasurfer\rt\PRICE_MEDIAN;
 /**
  * Functionality for processing Dukascopy history data.
  *
- * @phpstan-type         DUKASCOPY_HISTORYSTART_RECORD = array{int}
- * @phpstan-import-type  POINT_BAR from \rosasurfer\rt\RT
- * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\RT
+ * @phpstan-import-type DUKASCOPY_BAR_RAW  from \rosasurfer\rt\phpstan\CustomTypes
+ * @phpstan-import-type DUKASCOPY_BAR      from \rosasurfer\rt\phpstan\CustomTypes
+ * @phpstan-import-type DUKASCOPY_TICK_RAW from \rosasurfer\rt\phpstan\CustomTypes
+ * @phpstan-import-type RT_POINT_BAR       from \rosasurfer\rt\phpstan\CustomTypes
+ * @phpstan-import-type RT_PRICE_BAR       from \rosasurfer\rt\phpstan\CustomTypes
  */
 class Dukascopy extends CObject {
 
-    /** @var int - size of a struct DUKASCOPY_BAR in byte */
+    /** @var int - size of the C++ struct DUKASCOPY_BAR in byte */
     const DUKASCOPY_BAR_size = 12;
 
-    /** @var int - size of a struct DUKASCOPY_HISTORYSTART_RECORD in byte */
-    const DUKASCOPY_HISTORYSTART_RECORD_size = 16;
+    /** @var int - size of the C++ struct DUKASCOPY_TIMEFRAME in byte */
+    const DUKASCOPY_TIMEFRAME_size = 16;
 
-    /** @var int - size of a struct DUKASCOPY_TICK in byte */
+    /** @var int - size of the C++ struct DUKASCOPY_TICK in byte */
     const DUKASCOPY_TICK_size = 20;
 
 
     /** @var ?HttpClient */
     protected ?HttpClient $httpClient = null;
 
-    /** @var array[] - internal cache for single fetched history start data */
-    protected $historyStarts;
+    /** @var array<string, array<int|float>> - internal cache for history start times (fetched per symbol) */
+    protected array $historyStarts;
 
-    /** @var array[] - internal cache for all fetched history start data */
-    protected $allHistoryStarts;
+    /** @var array<string, array<int|float>> - internal cache for all history start records (fetched together) */
+    protected array $allHistoryStarts;
 
-    /** @var array[] */
-    protected $history;
+    /**
+     * @var array[] - internal cache for downloaded Dukascopy data
+     *                PRICE_BID|PRICE_ASK: DUKASCOPY_BAR
+     *                PRICE_MEDIAN:        RT_POINT_BAR
+     *
+     * @phpstan-var array<string, array<array<array<array<DUKASCOPY_BAR|RT_POINT_BAR>>>>>
+     *
+     * @see \rosasurfer\rt\phpstan\DUKASCOPY_BAR
+     * @see \rosasurfer\rt\phpstan\RT_POINT_BAR
+     */
+    protected array $history;
 
 
     /**
@@ -133,15 +143,15 @@ class Dukascopy extends CObject {
      * @param  DukascopySymbol $symbol             - symbol to get history data for
      * @param  int             $period             - bar period identifier: PERIOD_M1 | PERIOD_D1
      * @param  int             $time               - FXT time
-     * @param  bool            $compact [optional] - returned bar format (default: more compact POINT_BARs)
+     * @param  bool            $compact [optional] - returned bar format (default: more compact RT_POINT_BARs)
      *
-     * @return         array[] - history or an empty array if history for the specified parameters is not available
-     * @phpstan-return ($compact is true ? POINT_BAR[] : PRICE_BAR[])
+     * @return         array<array<int|float>> - history or an empty array if history for the specified parameters is not available
+     * @phpstan-return ($compact is true ? RT_POINT_BAR[] : RT_PRICE_BAR[])
      *
-     * @see \rosasurfer\rt\POINT_BAR
-     * @see \rosasurfer\rt\PRICE_BAR
+     * @see \rosasurfer\rt\phpstan\RT_POINT_BAR
+     * @see \rosasurfer\rt\phpstan\RT_PRICE_BAR
      */
-    public function getHistory(DukascopySymbol $symbol, int $period, int $time, bool $compact = true) {
+    public function getHistory(DukascopySymbol $symbol, int $period, int $time, bool $compact = true): array {
         if ($period != PERIOD_M1) throw new UnimplementedFeatureException(__METHOD__.'('.periodToStr($period).') not implemented');
         $nameU = strtoupper($symbol->getName());
         $day = $time - $time % DAY;                                                         // 00:00 FXT
@@ -150,7 +160,7 @@ class Dukascopy extends CObject {
             // load Bid and Ask, calculate Median and store everything in the cache
             if (!$bids = $this->loadHistory($symbol, $period, $day, PRICE_BID)) return [];  // raw
             if (!$asks = $this->loadHistory($symbol, $period, $day, PRICE_ASK)) return [];  // raw
-            $median = $this->calculateMedian($bids, $asks);                                 // POINT_BARs
+            $median = $this->calculateMedian($bids, $asks);                                 // RT_POINT_BARs
             $this->history[$nameU][$period][$day][PRICE_MEDIAN] = $median;
         }
 
@@ -161,7 +171,7 @@ class Dukascopy extends CObject {
         foreach ($purges as $stale) unset($this->history[$nameU][$period][$stale]);         // drop old timeseries
 
         if ($compact) {
-            return $this->history[$nameU][$period][$day][PRICE_MEDIAN];                     // POINT_BARs
+            return $this->history[$nameU][$period][$day][PRICE_MEDIAN];                     // RT_POINT_BARs
         }
 
         if (!isset($this->history[$nameU][$period][$day]['real'])) {
@@ -180,21 +190,12 @@ class Dukascopy extends CObject {
      * @param  int             $time   - FXT time
      * @param  int             $type   - price type identifier: PRICE_BID | PRICE_ASK
      *
-     * @return array - An empty array if history for the specified bar period and time is not available. Otherwise a
-     *                 timeseries array with each element describing a single price bar as follows:
-     * <pre>
-     * Array(
-     *     'time'       => (int),       // bar open time in FXT
-     *     'time_delta' => (int),       // bar offset to 00:00 FXT in seconds
-     *     'open'       => (int),       // open value in point
-     *     'high'       => (int),       // high value in point
-     *     'low'        => (int),       // low value in point
-     *     'close'      => (int),       // close value in point
-     *     'volume'     => (float),     // volume
-     * )
-     * </pre>
+     * @return         array - array of DUKASCOPY_BARs or an empty array if history for the specified bar period/time is not available
+     * @phpstan-return DUKASCOPY_BAR[]
+     *
+     * @see \rosasurfer\rt\phpstan\DUKASCOPY_BAR
      */
-    protected function loadHistory(DukascopySymbol $symbol, int $period, int $time, int $type) {
+    protected function loadHistory(DukascopySymbol $symbol, int $period, int $time, int $type): array {
         if ($period != PERIOD_M1)                     throw new InvalidValueException('Invalid parameter $period: '.periodToStr($period));
         if (!in_array($type, [PRICE_BID, PRICE_ASK])) throw new InvalidValueException('Invalid parameter $type: '.$type);
 
@@ -210,28 +211,28 @@ class Dukascopy extends CObject {
 
         $name  = $symbol->getName();
         $nameU = strtoupper($name);
-        $day          = $time - $time%DAY;                                          // 00:00 FXT
-        $previousDay  = $day - 1*DAY;                                               // 00:00 FXT
+        $day          = $time - $time%DAY;                                              // 00:00 FXT
+        $previousDay  = $day - 1*DAY;                                                   // 00:00 FXT
         $currentDayOk = $previousDayOk = false;
 
         if (isset($this->history[$nameU][$period][$day][$type])) {
-            if (sizeof($this->history[$nameU][$period][$day][$type]) == PERIOD_D1)  // that's if data of the day is complete
+            if (sizeof($this->history[$nameU][$period][$day][$type]) == PERIOD_D1) {    // that's if data of the day is complete
                 return $this->history[$nameU][$period][$day][$type];
+            }
+            $first = first($this->history[$nameU][$period][$day][$type]);               // if cached data starts with 00:00, the
+            $previousDayOk = ($first['time_delta'] === 0);                              // previous GMT day was already loaded
 
-            $first = first($this->history[$nameU][$period][$day][$type]);           // if cached data starts with 00:00, the
-            $previousDayOk = ($first['time_delta'] === 0);                          // previous GMT day was already loaded
-
-            $last = last($this->history[$nameU][$period][$day][$type]);             // if cached data ends with 23:59, the
-            $currentDayOk = ($last['time_delta'] === 23*HOURS+59*MINUTES);          // current GMT day was already loaded
+            $last = last($this->history[$nameU][$period][$day][$type]);                 // if cached data ends with 23:59, the
+            $currentDayOk = ($last['time_delta'] === 23*HOURS+59*MINUTES);              // current GMT day was already loaded
         }
 
         // download and convert missing data
-        foreach ([$previousDay=>$previousDayOk, $day=>$currentDayOk] as $day => $dayOk) {
+        foreach ([$previousDay => $previousDayOk, $day => $currentDayOk] as $day => $dayOk) {
             if (!$dayOk) {
-                $data = $this->getHttpClient()->downloadHistory($name, $day, $type);// here 00:00 FXT can be used as GMT
-                if (!$data) return [];                                              // that's if data is not available
+                $data = $this->getHttpClient()->downloadHistory($name, $day, $type);    // here 00:00 FXT can be used as GMT
+                if (!$data) return [];                                                  // that's if data is not available
                 $data = $this->decompressData($data);
-                $this->parseBarData($data, $symbol, $day, $period, $type);          // here 00:00 FXT can be used as GMT
+                $this->parseBarData($data, $symbol, $day, $period, $type);              // here 00:00 FXT can be used as GMT
             }
         }
         // now downloaded data is complete and stored on FXT boundaries
@@ -249,32 +250,16 @@ class Dukascopy extends CObject {
      * @param  int             $period - bar period identifier: PERIOD_M1 | PERIOD_D1
      * @param  int             $type   - price type identifier: PRICE_BID | PRICE_ASK
      *
-     * @return void
+     * @return void - bar format in the cache: DUKASCOPY_BAR
      *
-     * <pre>
-     * Bar format stored in the cache:
-     * -------------------------------
-     * array(
-     *     'time'       => (int),       // bar open time in FXT
-     *     'time_delta' => (int),       // bar offset to 00:00 FXT in seconds
-     *     'open'       => (int),       // open value in point
-     *     'high'       => (int),       // high value in point
-     *     'low'        => (int),       // low value in point
-     *     'close'      => (int),       // close value in point
-     *     'volume'     => (float)      // volume
-     * )
-     * </pre>
+     * @see \rosasurfer\rt\phpstan\DUKASCOPY_BAR
      */
-    protected function parseBarData($data, DukascopySymbol $symbol, $day, $period, $type) {
-        Assert::string($data, '$data');
-        Assert::int($day, '$day');
-        Assert::int($period, '$period');
+    protected function parseBarData(string $data, DukascopySymbol $symbol, int $day, int $period, int $type): void {
         if ($period != PERIOD_M1)                     throw new InvalidValueException('Invalid parameter $period: '.periodToStr($period));
-        Assert::int($type, '$type');
         if (!in_array($type, [PRICE_BID, PRICE_ASK])) throw new InvalidValueException('Invalid parameter $type: '.$type);
 
         $symbolU = strtoupper($symbol->getName());
-        $day -= $day%DAY;                                           // 00:00 GMT
+        $day -= $day % DAY;                                         // 00:00 GMT
 
         // read bars
         $bars = $this->readBarData($data, $symbol, $type, $day);
@@ -291,15 +276,17 @@ class Dukascopy extends CObject {
 
         // drop GMT and add FXT data
         $prev = $next = null;
-        $fxtOffset = fxTimezoneOffset($day, $prev, $next);
-        foreach ($bars as &$bar) {
+        $fxtOffset = fxtOffset($day, $prev, $next);
+        foreach ($bars as $i => $bar) {
             $timeGMT = $day + $bar['timeDelta'];
-            if ($timeGMT >= $next['time'])                          // If $day = "Sun, 00:00 GMT" bars may cover a DST transition.
+            if ($timeGMT >= $next['time']) {                        // If $day = "Sun, 00:00 GMT" bars may cover a DST transition.
                 $fxtOffset = $next['offset'];                       // In this case $fxtOffset must be updated during the loop.
-            $bar['time'      ] = $timeGMT + $fxtOffset;             // FXT
-            $bar['time_delta'] = $bar['time'] % DAY;                // offset to 00:00 FXT
-            unset($bar['timeDelta']);
-        }; unset($bar);
+            }
+            $time = $timeGMT + $fxtOffset;
+            $bars[$i]['time'      ] = $time;                        // FXT
+            $bars[$i]['time_delta'] = $time % DAY;                  // offset to 00:00 FXT
+            unset($bars[$i]['timeDelta']);
+        }
 
         // resolve array offset of 00:00 FXT
         $newDayOffset = PERIOD_D1 - $fxtOffset/MINUTES;
@@ -348,17 +335,21 @@ class Dukascopy extends CObject {
 
 
     /**
-     * Derive a PRICE_MEDIAN timeseries array from the specified Bid and Ask history.
+     * Calculate a PRICE_MEDIAN timeseries from the passed Bid and Ask history.
      *
-     * @param  array $bids - Bid bars
-     * @param  array $asks - Ask bars
+     * @param          array<array<int|float>> $bids - Bid bars
+     * @phpstan-param  DUKASCOPY_BAR[]         $bids
      *
-     * @return array[] - timeseries array (array of POINT_BARs)
-     * @phpstan-return POINT_BAR[]
+     * @param          array<array<int|float>> $asks - Ask bars
+     * @phpstan-param  DUKASCOPY_BAR[]         $asks
      *
-     * @see \rosasurfer\rt\POINT_BAR
+     * @return         array<int[]> - timeseries array
+     * @phpstan-return RT_POINT_BAR[]
+     *
+     * @see \rosasurfer\rt\phpstan\DUKASCOPY_BAR
+     * @see \rosasurfer\rt\phpstan\RT_POINT_BAR
      */
-    protected function calculateMedian(array $bids, array $asks) {
+    protected function calculateMedian(array $bids, array $asks): array {
         if (sizeof($bids) != PERIOD_D1) throw new InvalidValueException('Invalid size of parameter $bids: '.($size=sizeof($bids)).' ('.($size > PERIOD_D1 ? 'more':'less').' then a day)');
         if (sizeof($asks) != PERIOD_D1) throw new InvalidValueException('Invalid size of parameter $asks: '.($size=sizeof($asks)).' ('.($size > PERIOD_D1 ? 'more':'less').' then a day)');
         $medians = [];
@@ -393,25 +384,17 @@ class Dukascopy extends CObject {
 
 
     /**
-     * Parse a file with Dukascopy bar data and convert it to a data array.
+     * Parse a file with raw Dukascopy bar data and convert it to an array.
      *
      * @param  string          $fileName - name of file with Dukascopy bar data
      * @param  DukascopySymbol $symbol   - symbol the data belongs to
      * @param  int             $type     - price type (for error messages as data may contain errors)
      * @param  int             $time     - time of the bar data (for error messages as data may contain errors)
      *
-     * @return array[] - a PHP representation of struct DUKASCOPY_BAR[], single elements are defined as follows:
+     * @return         array[] - list of arrays each representing a C++ struct DUKASCOPY_BAR
+     * @phpstan-return DUKASCOPY_BAR_RAW[]
      *
-     * <pre>
-     * Array(
-     *     'timeDelta' => (int),        // time difference in seconds since 00:00 GMT
-     *     'open'      => (int),        // open value in point
-     *     'close'     => (int),        // close value in point
-     *     'low'       => (int),        // low value in point
-     *     'high'      => (int),        // high value in point
-     *     'volume'    => (float)       // volume
-     * )
-     * </pre>
+     * @see \rosasurfer\rt\phpstan\DUKASCOPY_BAR_RAW
      */
     protected function readBarFile(string $fileName, DukascopySymbol $symbol, int $type, int $time): array {
         return $this->readBarData(file_get_contents($fileName), $symbol, $type, $time);
@@ -419,32 +402,24 @@ class Dukascopy extends CObject {
 
 
     /**
-     * Parse a string with Dukascopy bar data and convert it to a timeseries array.
+     * Parse a string with raw Dukascopy bar data and convert it to a timeseries array.
      *
      * @param  string          $data   - string with Dukascopy bar data
      * @param  DukascopySymbol $symbol - symbol the data belongs to
      * @param  int             $type   - price type (for error messages as data may contain errors)
      * @param  int             $time   - time of the history (for error messages as data may contain errors)
      *
-     * @return array[] - a PHP representation of struct DUKASCOPY_BAR[], single elements are defined as follows:
+     * @return         array[] - list of arrays each representing a C++ struct DUKASCOPY_BAR
+     * @phpstan-return DUKASCOPY_BAR_RAW[]
      *
-     * <pre>
-     * Array(
-     *     'timeDelta' => (int),        // time difference in seconds since 00:00 GMT
-     *     'open'      => (int),        // open value in point
-     *     'close'     => (int),        // close value in point
-     *     'low'       => (int),        // low value in point
-     *     'high'      => (int),        // high value in point
-     *     'volume'    => (float)       // volume
-     * )
-     * </pre>
+     * @see \rosasurfer\rt\phpstan\DUKASCOPY_BAR_RAW
      */
-    public function readBarData($data, DukascopySymbol $symbol, $type, $time) {
-        Assert::string($data, '$data');
+    public function readBarData(string $data, DukascopySymbol $symbol, int $type, int $time): array {
         $lenData = strlen($data);
-        if (!$lenData || $lenData%DUKASCOPY_BAR_SIZE) throw new RuntimeException('Odd length of passed '.$symbol->getName().' '.priceTypeDescription($type).' data: '.$lenData.' (not an even DUKASCOPY_BAR_SIZE)');
+        if (!$lenData || $lenData % DUKASCOPY_BAR_SIZE) throw new RuntimeException('Odd length of passed '.$symbol->getName().' '.priceTypeDescription($type).' data: '.$lenData.' (not an even DUKASCOPY_BAR_SIZE)');
 
-        static $isLittleEndian; !isset($isLittleEndian) && $isLittleEndian=isLittleEndian();
+        static $isLittleEndian;
+        $isLittleEndian ??= isLittleEndian();
         $point = $symbol->getPointValue();
 
         $bars = [];
@@ -476,33 +451,39 @@ class Dukascopy extends CObject {
 
 
     /**
-     * Parse a file with Dukascopy tick data and convert it to a data array.
+     * Parse a file with Dukascopy tick data and convert it to an array.
      *
      * @param  string $fileName - name of file with Dukascopy tick data
      *
-     * @return array - DUKASCOPY_TICK[] data
+     * @return         array[] - array of DUKASCOPY_TICKs
+     * @phpstan-return DUKASCOPY_TICK_RAW[]
+     *
+     * @see \rosasurfer\rt\phpstan\DUKASCOPY_TICK_RAW
      */
-    public static function readTickFile(string $fileName) {
+    public static function readTickFile(string $fileName): array {
         return self::readTickData(file_get_contents($fileName));
     }
 
 
     /**
-     * Parse a string with Dukascopy tick data and convert it to a data array.
+     * Parse a string with Dukascopy tick data and convert it to an array.
      *
      * @param  string $data - string with Dukascopy tick data
      *
-     * @return array - DUKASCOPY_TICK[] data
+     * @return         array[] - array of DUKASCOPY_TICKs
+     * @phpstan-return DUKASCOPY_TICK_RAW[]
+     *
+     * @see \rosasurfer\rt\phpstan\DUKASCOPY_TICK_RAW
      */
-    public static function readTickData($data) {
-        Assert::string($data);
+    public static function readTickData(string $data): array {
+        $lenData = strlen($data);
+        if (!$lenData || $lenData % DUKASCOPY_TICK_SIZE) throw new RuntimeException('Odd length of passed data: '.$lenData.' (not an even DUKASCOPY_TICK_SIZE)');
+        $offset = 0;
+        $ticks = [];
+        $i = -1;
 
-        $lenData = strlen($data); if (!$lenData || $lenData%DUKASCOPY_TICK_SIZE) throw new RuntimeException('Odd length of passed data: '.$lenData.' (not an even DUKASCOPY_TICK_SIZE)');
-        $offset  = 0;
-        $ticks   = [];
-        $i       = -1;
-
-        static $isLittleEndian = null; is_null($isLittleEndian) && $isLittleEndian=isLittleEndian();
+        static $isLittleEndian = null;
+        $isLittleEndian ??= isLittleEndian();
 
         // unpack doesn't support explicit big-endian floats, on little-endian machines the byte order
         // of fields "bidSize" and "askSize" has to be reversed manually
@@ -521,22 +502,13 @@ class Dukascopy extends CObject {
 
 
     /**
-     * Fetch history start for the specified symbol.
+     * Fetch history start times for the specified symbol.
      *
      * @param  DukascopySymbol $symbol
      *
-     * @return array - history start times per timeframe or an empty array in case of errors
-     *
-     * <pre>
-     * Array(
-     *     [{period-id}] => [{timestamp}],          // e.g.: PERIOD_TICK => Mon, 04-Aug-2003 10:03:02.837,
-     *     [{period-id}] => [{timestamp}],          //       PERIOD_M1   => Mon, 04-Aug-2003 10:03:00,
-     *     [{period-id}] => [{timestamp}],          //       PERIOD_H1   => Mon, 04-Aug-2003 10:00:00,
-     *     ...                                      //       PERIOD_D1   => Mon, 25-Nov-1991 00:00:00,
-     * )
-     * </pre>
+     * @return array<int|float> - history start times per timeframe or an empty array in case of errors
      */
-    public function fetchHistoryStart(DukascopySymbol $symbol) {
+    public function fetchHistoryStart(DukascopySymbol $symbol): array {
         $symbolU = strtoupper($symbol->getName());
 
         return $this->allHistoryStarts[$symbolU] ?? $this->historyStarts[$symbolU] ?? (function() use ($symbol, $symbolU) {
@@ -545,7 +517,7 @@ class Dukascopy extends CObject {
 
             $data = $this->getHttpClient()->downloadHistoryStart($name);
             if (strlen($data)) {
-                $this->historyStarts[$symbolU] = $this->readHistoryStartSection($data);
+                $this->historyStarts[$symbolU] = $this->readTimeframesSection($data, 0, PHP_INT_MAX);
             }
             return $this->historyStarts[$symbolU] ?? [];
         })();
@@ -553,21 +525,17 @@ class Dukascopy extends CObject {
 
 
     /**
-     * Fetch history start times from Dukascopy for all available symbols. Returns a list of arrays with history start times
-     * for each available symbol.
+     * Fetch history start times from Dukascopy for all available symbols.
      *
-     * @return array[] - list of arrays in a format as follows:
+     * @return array<string, array<int|float>> - array with timeframe start times per symbol
      *
      * <pre>
      * Array(
-     *     [{symbol}] => [
-     *         [{period-id}] => [{timestamp}],      // e.g.: PERIOD_TICK => Mon, 04-Aug-2003 10:03:02.837,
-     *         [{period-id}] => [{timestamp}],      //       PERIOD_M1   => Mon, 04-Aug-2003 10:03:00,
-     *         [{period-id}] => [{timestamp}],      //       PERIOD_H1   => Mon, 04-Aug-2003 10:00:00,
-     *         [{period-id}] => [{timestamp}],      //       PERIOD_D1   => Mon, 25-Nov-1991 00:00:00,
-     *     ],
-     *     [{symbol}] => [
-     *         ...
+     *     '{symbol}' => [
+     *         {timeframeId} => {starttime},        // e.g. PERIOD_TICK => Mon, 04-Aug-2003 10:03:02.837,
+     *         {timeframeId} => {starttime},        //      PERIOD_M1   => Mon, 04-Aug-2003 10:03:00,
+     *         {timeframeId} => {starttime},        //      PERIOD_H1   => Mon, 04-Aug-2003 10:00:00,
+     *         {timeframeId} => {starttime},        //      PERIOD_D1   => Mon, 25-Nov-1991 00:00:00,
      *     ],
      *     ...
      * )
@@ -588,22 +556,19 @@ class Dukascopy extends CObject {
 
 
     /**
-     * Parse a string with history start records of multiple symbols.
+     * Parse a string with history start times of multiple symbols.
      *
      * @param  string $data - binary data
      *
-     * @return array[] - associative list of arrays with variable number of elements each describing a symbol's history start
-     *                   of a single timeframe as follows:
+     * @return array<string, array<int|float>> - array with timeframe start times per symbol
+     *
      * <pre>
      * Array(
-     *     [{symbol}] => [
-     *         [{period-id}] => [{timestamp}],          // e.g.: PERIOD_TICK => Mon, 04-Aug-2003 10:03:02.837,
-     *         [{period-id}] => [{timestamp}],          //       PERIOD_M1   => Mon, 04-Aug-2003 10:03:00,
-     *         [{period-id}] => [{timestamp}],          //       PERIOD_H1   => Mon, 04-Aug-2003 10:00:00,
-     *         [{period-id}] => [{timestamp}],          //       PERIOD_D1   => Mon, 25-Nov-1991 00:00:00,
-     *     ],
-     *     [{symbol}] => [
-     *         ...
+     *     '{symbol}' => [
+     *         {timeframeId} => {starttime},        // e.g. PERIOD_TICK => Mon, 04-Aug-2003 10:03:02.837,
+     *         {timeframeId} => {starttime},        //      PERIOD_M1   => Mon, 04-Aug-2003 10:03:00,
+     *         {timeframeId} => {starttime},        //      PERIOD_H1   => Mon, 04-Aug-2003 10:00:00,
+     *         {timeframeId} => {starttime},        //      PERIOD_D1   => Mon, 25-Nov-1991 00:00:00,
      *     ],
      *     ...
      * )
@@ -634,11 +599,11 @@ class Dukascopy extends CObject {
             if ($count != 4)                throw new RuntimeException('Unexpected data format in DUKASCOPY_HISTORY_START at offset '.($offset+$length+1).": count=$count");
             $offset += $length + 8;
 
-            $timeframes = $this->readHistoryStartSection($data, $offset, $count);
+            $timeframes = $this->readTimeframesSection($data, $offset, $count);
             if ($timeframes) {                                                  // skip symbols without history
                 $symbols[strtoupper($symbol)] = $timeframes;
             }
-            $offset += $count * self::DUKASCOPY_HISTORYSTART_RECORD_size;
+            $offset += $count * self::DUKASCOPY_TIMEFRAME_size;
         }
 
         ksort($symbols);
@@ -647,34 +612,28 @@ class Dukascopy extends CObject {
 
 
     /**
-     * Parse a binary string and return a list of history start records.
+     * Parse a binary string and return an array with history start times per timeframe.
      *
      * @param  string $data   - binary data
      * @param  int    $offset - string offset to start reading
      * @param  int    $count  - number of records to read
      *
-     * @return         array[] - array of DUKASCOPY_HISTORYSTART_RECORDs
-     * @phpstan-return DUKASCOPY_HISTORYSTART_RECORD[]
-     *
-     * <pre>
-     * Array(
-     *     [{timeframe-id}] => [{timestamp}],           // e.g.: PERIOD_TICK => Mon, 04-Aug-2003 10:03:02.837,
-     *     [{timeframe-id}] => [{timestamp}],           //       PERIOD_M1   => Mon, 04-Aug-2003 10:03:00,
-     *     ...
-     * )
-     * </pre>
+     * @return array<int|float> - array of timeframe start times
      */
-    protected function readHistoryStartSection(string $data, int $offset, int $count): array {
+    protected function readTimeframesSection(string $data, int $offset, int $count): array {
         $lenData = strlen($data);
         if ($offset < 0)         throw new InvalidValueException("Invalid parameter \$offset: $offset (expected non-negative value)");
         if ($offset >= $lenData) throw new InvalidValueException("Invalid parameter \$offset: $offset (out of range)");
         if ($count <= 0)         throw new InvalidValueException("Invalid parameter \$count: $count (expected positive value)");
 
+        /** @var array<int|float> */
         $timeframes = [];
 
         while ($offset < $lenData && $count) {
-            $timeframes += $this->readHistoryStartRecord($data, $offset);
-            $offset += self::DUKASCOPY_HISTORYSTART_RECORD_size;
+            if ($record = $this->readTimeframeRecord($data, $offset)) {
+                $timeframes += $record;
+            }
+            $offset += self::DUKASCOPY_TIMEFRAME_size;
             $count--;
         }
         ksort($timeframes);
@@ -683,20 +642,19 @@ class Dukascopy extends CObject {
 
 
     /**
-     * Read and return a single DUKASCOPY_HISTORYSTART_RECORD.
+     * Parse and return a timeframe start record.
      *
      * @param  string $data   - binary string containing the record
      * @param  int    $offset - string offset to read the record from
      *
-     * @return         array - a record [{period-id} => {timestamp}] or an empty array if the record indicates "no history available".
-     * @phpstan-return DUKASCOPY_HISTORYSTART_RECORD
+     * @return ?array<int|float> - timeframe start record or NULL if the data indicates "no history available"
      */
-    protected function readHistoryStartRecord(string $data, int $offset): array {
+    protected function readTimeframeRecord(string $data, int $offset): ?array {
         // @see  https://www.php.net/manual/en/function.pack.php#refsect1-function.pack-parameters
 
-        // check platform
+        // check PHP platform
         if (PHP_INT_SIZE == 8) {
-            // 64-bit: 64-bit format codes are supported
+            // x64: 64-bit format codes are supported
             $record = unpack("@$offset/J2", $data);
             if ($record[1] == -1) {                                             // reset uint64_max (sometimes used as tickdata identifier)
                 $record[1] = 0;
@@ -708,13 +666,13 @@ class Dukascopy extends CObject {
             $record[1] = $timeframe;
             if ($record[2] < 0) throw new RangeException('Invalid Java timestamp: '.sprintf('%u', $record[2]).' (out of range)');
             if ($record[2] == PHP_INT_MAX) {                                    // int64_max = no history available
-                return [];
+                return null;
             }
             if ($record[2] % 1000) $record[2] = round($record[2]/1000, 3);
             else                   $record[2] = (int)($record[2]/1000);
         }
         else {
-            // 32-bit: 64-bit format codes are not supported
+            // x32: 64-bit format codes are not supported
             $ints = unpack("@$offset/N4", $data);
             $record = [];
             foreach ($ints as $i => $int) {
@@ -731,7 +689,7 @@ class Dukascopy extends CObject {
             }
             $record[1] = $timeframe;
             if ($record[2] == '9223372036854775807') {                          // int64_max = no history available
-                return [];
+                return null;
             }
             if (!bcmod($record[2], '1000')) $record[2] =   (int) bcdiv($record[2], '1000', 0);
             else                            $record[2] = (float) bcdiv($record[2], '1000', 3);

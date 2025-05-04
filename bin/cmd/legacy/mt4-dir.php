@@ -151,7 +151,7 @@ foreach ($expandedArgs as $fileName) {
 
         if (!strCompareI($basename, $header->getSymbol().$header->getPeriod().'.hst')) {
             $formats [sizeof($formats )-1] = null;
-            $symbols [sizeof($symbols )-1] = ($name=strLeftTo($basename, '.hst'));
+            $symbols [sizeof($symbols )-1] = ($name = strLeftTo($basename, '.hst'));
             $symbolsU[sizeof($symbolsU)-1] = strtoupper($name);
             $periods [sizeof($periods )-1] = null;
             $error = 'file name/data mis-match: data='.$header->getSymbol().','.periodDescription($header->getPeriod());
@@ -164,10 +164,11 @@ foreach ($expandedArgs as $fileName) {
     }
     catch (MetaTraderException $ex) {
         if (!strStartsWith($ex->getMessage(), 'version.unsupported')) throw $ex;
+        $name = strLeftTo($basename, '.hst');
 
         // Fehlermeldung zwischenspeichern
         $formats      [] = null;
-        $symbols      [] = ($name=strLeftTo($basename, '.hst'));
+        $symbols      [] = $name;
         $symbolsU     [] = strtoupper($name);
         $periods      [] = null;
         $digits       [] = null;
@@ -193,23 +194,23 @@ exit(0);
 /**
  * Zeigt das Listing eines Verzeichnisses an.
  *
- * @param  string $dirName
- * @param  array  $files
- * @param  array  $formats
- * @param  array  $symbols
- * @param  array  $symbolsU
- * @param  array  $periods
- * @param  array  $digits
- * @param  array  $syncMarkers
- * @param  array  $lastSyncTimes
- * @param  array  $bars
- * @param  array  $barsFrom
- * @param  array  $barsTo
- * @param  array  $errors
+ * @param  string   $dirName
+ * @param  string[] $files
+ * @param  int[]    $formats
+ * @param  string[] $symbols
+ * @param  string[] $symbolsU
+ * @param  int[]    $periods
+ * @param  int[]    $digits
+ * @param  string[] $syncMarkers
+ * @param  string[] $lastSyncTimes
+ * @param  int[]    $bars
+ * @param  string[] $barsFrom
+ * @param  string[] $barsTo
+ * @param  string[] $errors
  *
  * @return void
  */
-function showDirResults($dirName, array $files, array $formats, array $symbols, array $symbolsU, array $periods, array $digits, array $syncMarkers, array $lastSyncTimes, array $bars, array $barsFrom, array $barsTo, array $errors) {
+function showDirResults($dirName, array $files, array $formats, array $symbols, array $symbolsU, array $periods, array $digits, array $syncMarkers, array $lastSyncTimes, array $bars, array $barsFrom, array $barsTo, array $errors): void {
     // Daten sortieren: ORDER by Symbol, Periode (ASC ist default); alle anderen "Spalten" mitsortieren
     array_multisort($symbolsU, SORT_ASC, $periods, SORT_ASC/*bis_hierher*/, array_keys($symbolsU), $symbols, $files, $formats, $digits, $syncMarkers, $lastSyncTimes, $bars, $barsFrom, $barsTo, $errors);
 

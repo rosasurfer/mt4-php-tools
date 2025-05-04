@@ -44,8 +44,8 @@ use const rosasurfer\rt\PERIOD_M1;
  * @method        ?\rosasurfer\rt\model\DukascopySymbol getDukascopySymbol() Return the {@link DukascopySymbol} mapped to this Rosatrader symbol.
  * @method static \rosasurfer\rt\model\RosaSymbolDAO    dao()                Return the {@link RosaSymbolDAO} for the calling class.
  *
- * @phpstan-import-type  POINT_BAR from \rosasurfer\rt\RT
- * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\RT
+ * @phpstan-import-type RT_POINT_BAR from \rosasurfer\rt\phpstan\CustomTypes
+ * @phpstan-import-type RT_PRICE_BAR from \rosasurfer\rt\phpstan\CustomTypes
  */
 class RosaSymbol extends RosatraderModel {
 
@@ -201,14 +201,14 @@ class RosaSymbol extends RosatraderModel {
      * Get the M1 history for a given day.
      *
      * @param  int  $time               - FXT timestamp
-     * @param  bool $compact [optional] - returned bar format (default: more compact POINT_BARs)
+     * @param  bool $compact [optional] - returned bar format (default: more compact RT_POINT_BARs)
      *
-     * @return array - history or an empty array, if history for the given day is not available
+     * @return array<array<int|float>> - history or an empty array if history for the specified day is not available
      *
-     * @phpstan-return ($compact is true ? POINT_BAR[] : PRICE_BAR[])
+     * @phpstan-return ($compact is true ? RT_POINT_BAR[] : RT_PRICE_BAR[])
      *
-     * @see \rosasurfer\rt\POINT_BAR
-     * @see \rosasurfer\rt\PRICE_BAR
+     * @see \rosasurfer\rt\phpstan\RT_POINT_BAR
+     * @see \rosasurfer\rt\phpstan\RT_PRICE_BAR
      */
     public function getHistoryM1(int $time, bool $compact = true): array {
         $storage = $this->di('config')['app.dir.data'];

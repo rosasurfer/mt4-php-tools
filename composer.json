@@ -13,19 +13,25 @@
         },
         "optimize-autoloader": true
     },
+    "repositories": [
+        { "type": "vcs", "url": "https://github.com/rosasurfer/ministruts" }
+    ],
     "require": {
         "php":                   "7.4 - 8",
         "ext-bcmath":            "*",
         "ext-sqlite3":           "*",
-        "rosasurfer/ministruts": "^0.11"
+        "rosasurfer/ministruts": "^0.11@dev"
     },
     "require-dev": {
-        "phpstan/phpstan": "^1.0",
+        "phpstan/phpstan": "^1.12",
         "phpunit/phpunit": "^9.5"
     },
     "autoload": {
         "classmap": ["app/"],
         "files":    ["app/functions.php"]
+    },
+    "autoload-dev": {
+        "classmap": ["etc/phpstan/symbols/"]        
     },
     "scripts": {
         "post-install-cmd": "bash bin/git/check-setup.sh post-checkout post-merge"

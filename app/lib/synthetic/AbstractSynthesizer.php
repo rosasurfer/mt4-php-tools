@@ -14,26 +14,32 @@ use const rosasurfer\ministruts\DAY;
 /**
  * AbstractSynthesizer
  *
- * @phpstan-import-type  POINT_BAR from \rosasurfer\rt\RT
- * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\RT
+ * @phpstan-import-type RT_POINT_BAR from \rosasurfer\rt\phpstan\CustomTypes
+ * @phpstan-import-type RT_PRICE_BAR from \rosasurfer\rt\phpstan\CustomTypes
  */
 abstract class AbstractSynthesizer extends CObject implements ISynthesizer {
 
 
     /** @var RosaSymbol */
-    protected $symbol;
+    protected RosaSymbol $symbol;
 
     /** @var string */
-    protected $symbolName;
+    protected string $symbolName;
 
     /** @var string[][] - one or more sets of component names */
-    protected $components = [];
+    protected array $components = [];
 
     /** @var RosaSymbol[] - loaded symbols */
-    protected $loadedSymbols = [];
+    protected array $loadedSymbols = [];
 
-    /** @var array[] - cached bars */
-    private $cache = [];
+    /**
+     * @var         array<array<array<string, array<array<int|float>>>>> - cached bars
+     * @phpstan-var array<array<array<string, array<RT_POINT_BAR|RT_PRICE_BAR>>>>
+     *
+     * @see \rosasurfer\rt\phpstan\RT_POINT_BAR
+     * @see \rosasurfer\rt\phpstan\RT_PRICE_BAR
+     */
+    private array $cache = [];
 
 
     /**
@@ -47,24 +53,16 @@ abstract class AbstractSynthesizer extends CObject implements ISynthesizer {
 
     /**
      * {@inheritdoc}
-     *
-     * @param  string $format [optional]
-     *
-     * @return string
      */
-    public function getHistoryStartTick($format = 'Y-m-d H:i:s') {
+    public function getHistoryStartTick(string $format = 'Y-m-d H:i:s'): string {
         return '0';
     }
 
 
     /**
      * {@inheritdoc}
-     *
-     * @param  string $format [optional]
-     *
-     * @return string
      */
-    public function getHistoryStartM1($format = 'Y-m-d H:i:s') {
+    public function getHistoryStartM1(string $format = 'Y-m-d H:i:s'): string {
         return '0';
     }
 
@@ -76,10 +74,10 @@ abstract class AbstractSynthesizer extends CObject implements ISynthesizer {
      * @param  int $time   - FXT time to return prices for. If 0 (zero) the oldest available history for the requested bar
      *                       period is returned.
      *
-     * @return         array[] - PRICE_BAR array or an empty array, if the requested history is not available
-     * @phpstan-return PRICE_BAR[]
+     * @return         array[] - price bar array or an empty array, if the requested history is not available
+     * @phpstan-return RT_PRICE_BAR[]
      *
-     * @see \rosasurfer\rt\PRICE_BAR
+     * @see \rosasurfer\rt\phpstan\RT_PRICE_BAR
      */
     abstract public function calculateHistory(int $period, int $time): array;
 
@@ -133,20 +131,15 @@ abstract class AbstractSynthesizer extends CObject implements ISynthesizer {
     /**
      * Get the history of all components for the specified day.
      *
-     * @param RosaSymbol[] $symbols
-     * @param int          $day
+     * @param  RosaSymbol[] $symbols
+     * @param  int          $day
      *
-     * @return array[] - array of history timeseries per symbol:
+     * @return         array<string, array<array<int|float>>> - timeseries per symbol
+     * @phpstan-return array<string, RT_PRICE_BAR[]>
      *
-     * <pre>
-     * Array(
-     *     {symbol-name} => {timeseries},
-     *     {symbol-name} => {timeseries},
-     *     ...
-     * )
-     * </pre>
+     * @see \rosasurfer\rt\phpstan\RT_PRICE_BAR
      */
-    protected function getComponentsHistory($symbols, $day) {
+    protected function getComponentsHistory(array $symbols, int $day): array {
         $quotes = [];
         foreach ($symbols as $symbol) {
             $name = $symbol->getName();
@@ -162,15 +155,10 @@ abstract class AbstractSynthesizer extends CObject implements ISynthesizer {
     /**
      * {@inheritdoc}
      *
-     * @param  int  $period
-     * @param  int  $time
-     * @param  bool $compact [optional]
+     * @phpstan-return ($compact is true ? RT_POINT_BAR[] : RT_PRICE_BAR[])
      *
-     * @return         array[]
-     * @phpstan-return ($compact is true ? POINT_BAR[] : PRICE_BAR[])
-     *
-     * @see \rosasurfer\rt\POINT_BAR
-     * @see \rosasurfer\rt\PRICE_BAR
+     * @see \rosasurfer\rt\phpstan\RT_POINT_BAR
+     * @see \rosasurfer\rt\phpstan\RT_PRICE_BAR
      */
     public final function getHistory(int $period, int $time, bool $compact = true): array {
         $time -= $time % DAY;
@@ -180,28 +168,28 @@ abstract class AbstractSynthesizer extends CObject implements ISynthesizer {
             unset($this->cache);
         }
 
-        // calculate real prices
-        if (!isset($this->cache[$period][$time]['real'])) {
-            $this->cache[$period][$time]['real'] = $this->calculateHistory($period, $time);
+        // calculate PRICE_BARs
+        if (!isset($this->cache[$period][$time]['price'])) {
+            $this->cache[$period][$time]['price'] = $this->calculateHistory($period, $time);
         }
-        $realBars = $this->cache[$period][$time]['real'];
+        $priceBars = $this->cache[$period][$time]['price'];
 
         if (!$compact) {
-            return $realBars;
+            return $priceBars;
         }
 
-        if (!isset($this->cache[$period][$time]['optimized'])) {
-            // calculate optimized prices
-            $optBars = $realBars;
+        if (!isset($this->cache[$period][$time]['point'])) {
+            // calculate RT_POINT_BARs
+            $pointBars = $priceBars;
             $point   = $this->symbol->getPointValue();
-            foreach ($optBars as $i => $bar) {
-                $optBars[$i]['open' ] = (int) round($bar['open' ]/$point);
-                $optBars[$i]['high' ] = (int) round($bar['high' ]/$point);
-                $optBars[$i]['low'  ] = (int) round($bar['low'  ]/$point);
-                $optBars[$i]['close'] = (int) round($bar['close']/$point);
+            foreach ($pointBars as $i => $bar) {
+                $pointBars[$i]['open' ] = (int) round($bar['open' ]/$point);
+                $pointBars[$i]['high' ] = (int) round($bar['high' ]/$point);
+                $pointBars[$i]['low'  ] = (int) round($bar['low'  ]/$point);
+                $pointBars[$i]['close'] = (int) round($bar['close']/$point);
             }
-            $this->cache[$period][$time]['optimized'] = $optBars;
+            $this->cache[$period][$time]['point'] = $pointBars;
         }
-        return $this->cache[$period][$time]['optimized'];
+        return $this->cache[$period][$time]['point'];
     }
 }

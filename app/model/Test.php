@@ -48,8 +48,8 @@ use const rosasurfer\rt\PERIOD_M1;
  * @method        \rosasurfer\rt\model\Order[]             getTrades()             Return the trade history of the test.
  * @method static \rosasurfer\rt\model\TestDAO             dao()                   Return the DAO for the class.
  *
- * @phpstan-import-type  LOG_ORDER from \rosasurfer\rt\RT
- * @phpstan-import-type  LOG_TEST  from \rosasurfer\rt\RT
+ * @phpstan-import-type LOG_ORDER from \rosasurfer\rt\phpstan\CustomTypes
+ * @phpstan-import-type LOG_TEST  from \rosasurfer\rt\phpstan\CustomTypes
  */
 class Test extends RosatraderModel {
 
@@ -256,11 +256,10 @@ class Test extends RosatraderModel {
      *
      * @param  string $values - test property values from a log file
      *
-     * @return scalar[] - LOG_TEST array with test properties
-     *
+     * @return         scalar[] - LOG_TEST array with test properties
      * @phpstan-return LOG_TEST
      *
-     * @see \rosasurfer\rt\LOG_TEST
+     * @see \rosasurfer\rt\phpstan\LOG_TEST
      */
     protected static function parseTestProperties(string $values): array {
         $valuesOrig = $values;
@@ -391,11 +390,10 @@ class Test extends RosatraderModel {
      *
      * @param  string $values - order property values from a log file
      *
-     * @return scalar[] - LOG_ORDER array with order properties
-     *
+     * @return         scalar[] - LOG_ORDER array with order properties
      * @phpstan-return LOG_ORDER
      *
-     * @see \rosasurfer\rt\LOG_ORDER
+     * @see \rosasurfer\rt\phpstan\LOG_ORDER
      */
     protected static function parseOrderProperties(string $values): array {
         $valuesOrig = $values;

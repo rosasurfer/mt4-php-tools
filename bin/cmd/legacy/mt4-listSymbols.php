@@ -171,14 +171,15 @@ $allFieldsLower = array_change_key_case(array_flip($allFields), CASE_LOWER);    
 $usedFields     = array_flip($allFields);                                       // real-name  => (int)
 foreach ($usedFields as &$value) {
     $value = null;                                                              // real-name  => (null)       default: alle Felder OFF
-};
+}
 unset($value);
 
 foreach ($fieldArgs as $arg) {
     if ($arg == '++') {
         foreach ($usedFields as $name => &$value) {
             $value = $name;                                                     // real-name  => print-name   alle Felder ON
-        }; unset($value);
+        }
+        unset($value);
         continue;
     }
     if ($arg[0] == '+') {
@@ -225,14 +226,14 @@ exit(0);
 /**
  * Erfasst die Informationen einer Symboldatei.
  *
- * @param  string $file      [in    ] - Name der Symboldatei
- * @param  array  $fields    [in_out] - reference to zu erfassende Felder (Laengen werden im Array gespeichert)
- * @param  array  $data      [in_out] - reference to Array zum Zwischenspeichern der erfassten Daten
- * @param  bool   $countOnly [in    ] - whether symbols should only be counted
+ * @param  string                                    $file      [in]     - Name der Symboldatei
+ * @param  array<string, array<string, int|string>>  $fields    [in_out] - reference to zu erfassende Felder (Laengen werden im Array gespeichert)
+ * @param  array<string, mixed>                      $data      [in_out] - reference to Array zum Zwischenspeichern der erfassten Daten
+ * @param  bool                                      $countOnly [in]     - whether symbols should only be counted
  *
  * @return bool - Erfolgsstatus
  */
-function collectData($file, array &$fields, array &$data, bool $countOnly) {
+function collectData(string $file, array &$fields, array &$data, bool $countOnly): bool {
     // Dateigroesse pruefen
     $fileSize = filesize($file);
     if ($fileSize < Symbol::SIZE) {
@@ -284,14 +285,14 @@ function collectData($file, array &$fields, array &$data, bool $countOnly) {
 /**
  * Gibt die eingelesenen Informationen aller Symboldateien aus.
  *
- * @param  string[] $files   - Symboldateien
- * @param  array    $fields  - auszugebende Felder
- * @param  array    $data    - auszugebende Daten
- * @param  array    $options - Programmoptionen
+ * @param  string[]                                 $files   - Symboldateien
+ * @param  array<string, array<string, int|string>> $fields  - auszugebende Felder
+ * @param  array<string, mixed>                     $data    - auszugebende Daten
+ * @param  array<string, bool>                      $options - Programmoptionen
  *
  * @return bool - Erfolgsstatus
  */
-function printData(array $files, array $fields, array $data, array $options) {
+function printData(array $files, array $fields, array $data, array $options): bool {
     $tableHeader = $tableSeparator = $fileSeparator = '';
 
     // (1) Tabellen-Header definieren

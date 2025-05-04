@@ -196,30 +196,26 @@ function fxDate($format, $time=null, $isFxt=false) {
 /**
  * Return the FXT offset of a GMT time, and optionally the adjacent DST transition data.
  *
- * @param  ?int   $time           [optional] - GMT time (default: current time)
- * @param  ?array $prevTransition [optional] - if specified the array is filled with the data of the previous DST transition
- * @param  ?array $nextTransition [optional] - if specified the array is filled with the data of the next DST transition
+ * @param  int    $time                      - GMT time
+ * @param  ?int[] $prevTransition [optional] - if specified the array is filled with the data of the previous DST transition
+ * @param  ?int[] $nextTransition [optional] - if specified the array is filled with the data of the next DST transition
  *
  * @return ?int - Offset in seconds or NULL if parameter $time is not in the range of the timezone information for FXT. <br>
- *                Offset is always positive, it follows: FXT = GMT + offset                                             <br>
+ *                Offset is always positive, it holds: GMT + offset = FXT                                               <br>
  *                                                                                                                      <br>
  * <pre>
  * Transition data is returned as follows:
  * ---------------------------------------
  * array(
  *     'time'   => (int),       // GMT timestamp of the previous|next DST transition
- *     'offset' => (int),       // FXT offset before|after that DST transition
+ *     'offset' => (int),       // FXT offset before|after that transition
  * )
  * </pre>
  */
-function fxTimezoneOffset($time=null, array &$prevTransition=null, array &$nextTransition=null) {
-    if (!isset($time)) $time = time();
-    else Assert::int($time, '$time');
-
-    static $transitions = null;
+function fxtOffset(int $time, array &$prevTransition=null, array &$nextTransition=null): ?int {
+    static $transitions;
     if (!$transitions) {
-        $timezone    = new \DateTimeZone('America/New_York');
-        $transitions = $timezone->getTransitions();
+        $transitions = (new \DateTimeZone('America/New_York'))->getTransitions();
     }
 
     $i = -2;
@@ -547,12 +543,12 @@ function prettyRecoveryTime($duration) {
 /**
  * User-land implementation of PECL::stats_standard_deviation()
  *
- * @param  array $values
- * @param  bool  $sample [optional] - whether values represent a sample or an entire population (default: entire population)
+ * @param  float[] $values
+ * @param  bool    $sample [optional] - whether values represent a sample or an entire population (default: entire population)
  *
  * @return float - standard deviation
  */
-function stats_standard_deviation(array $values, $sample = false) {
+function stats_standard_deviation(array $values, bool $sample = false): float {
     if (function_exists('stats_standard_deviation')) {
         $result = \stats_standard_deviation($values, $sample);
         if (!is_float($result)) throw new RuntimeException('stats_standard_deviation returned an error: '.$result.' ('.gettype($result).')');
@@ -581,17 +577,15 @@ function stats_standard_deviation(array $values, $sample = false) {
 /**
  * Calculate the Sharpe ratio of the given returns (the average return divided by the standard deviation).      // wrong: it's the total return
  *
- * @param  array $returns
- * @param  bool  $growth  [optional] - whether the returns are growth rates or absolute values
- *                                     (default: absolute values)
- * @param  bool  $sample  [optional] - whether the values represent just a sample
- *                                     (default: total population)
+ * @param  float[] $returns
+ * @param  bool    $growth  [optional] - whether the returns are growth rates or absolute values (default: absolute values)
+ * @param  bool    $sample  [optional] - whether the values represent just a sample (default: total population)
  *
  * @return float - over-simplified and non-normalized Sharpe ratio
  *
  * @see    https://www.mql5.com/en/forum/289927#comment_9807456
  */
-function stats_sharpe_ratio(array $returns, $growth=false, $sample=false) {
+function stats_sharpe_ratio(array $returns, bool $growth=false, bool $sample=false): float {
     $n = sizeof($returns);
     if ($n==0           ) throw new InvalidValueException('Illegal number of returns: 0 (not a population)');
     if ($n==1 && $sample) throw new InvalidValueException('Illegal number of returns: 1 (not a sample)');
@@ -625,17 +619,15 @@ function stats_sharpe_ratio(array $returns, $growth=false, $sample=false) {
 /**
  * Calculate the Sortino ratio of the given returns (the Sharpe ratio of the negative returns, i.e. of the risk).
  *
- * @param  array $returns
- * @param  bool  $growth [optional] - whether the returns are growth rates or absolute values
- *                                    (default: absolute values)
- * @param  bool  $sample [optional] - whether the values represent just a sample
- *                                    (default: total population)
+ * @param  float[] $returns
+ * @param  bool    $growth [optional] - whether the returns are growth rates or absolute values (default: absolute values)
+ * @param  bool    $sample [optional] - whether the values represent just a sample (default: total population)
  *
  * @return float - over-simplified and non-normalized Sortino ratio
  *
  * @see    https://www.mql5.com/en/forum/289927#comment_9807456
  */
-function stats_sortino_ratio(array $returns, $growth=false, $sample=false) {
+function stats_sortino_ratio(array $returns, bool $growth=false, bool $sample=false): float {
     $n = sizeof($returns);
     if ($n==0           ) throw new InvalidValueException('Illegal number of returns: 0 (not a population)');
     if ($n==1 && $sample) throw new InvalidValueException('Illegal number of returns: 1 (not a sample)');
@@ -663,13 +655,13 @@ function stats_sortino_ratio(array $returns, $growth=false, $sample=false) {
 /**
  * Calculate the Calmar ratio of the given profits (the average return divided by the maximum drawdown)
  *
- * @param  string $from   - start date of the data series
- * @param  string $to     - end date of the data series
- * @param  array  $values - absolute profit values (not growth rates)
+ * @param  string  $from   - start date of the data series
+ * @param  string  $to     - end date of the data series
+ * @param  float[] $values - absolute profit values (not growth rates)
  *
  * @return float - over-simplified monthly Calmar ratio
  */
-function stats_calmar_ratio($from, $to, array $values) {
+function stats_calmar_ratio(string $from, string $to, array $values): float {
     $total = $maxDrawdown = 0;
     $high  = PHP_INT_MIN;
 

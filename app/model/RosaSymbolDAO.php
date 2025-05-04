@@ -12,7 +12,7 @@ use rosasurfer\ministruts\db\orm\ORM;
 /**
  * DAO for accessing {@link RosaSymbol} instances.
  *
- * @phpstan-import-type  ORM_ENTITY from \rosasurfer\ministruts\db\orm\ORM
+ * @phpstan-import-type ORM_ENTITY from \rosasurfer\ministruts\phpstan\CustomTypes
  */
 class RosaSymbolDAO extends DAO {
 

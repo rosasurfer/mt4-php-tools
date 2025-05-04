@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3b71be1de36489633f58842e9b055752",
+    "content-hash": "1c1151bf3ce4189257e9bdee4e0f1fb6",
     "packages": [
         {
             "name": "psr/container",
@@ -56,16 +56,16 @@
         },
         {
             "name": "rosasurfer/ministruts",
-            "version": "0.11.3",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rosasurfer/ministruts.git",
-                "reference": "29b58f93909677be61236b6110859036bb371330"
+                "reference": "d574a14d42a3c2cab2441aad9664dc6b6d88371e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/29b58f93909677be61236b6110859036bb371330",
-                "reference": "29b58f93909677be61236b6110859036bb371330",
+                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/d574a14d42a3c2cab2441aad9664dc6b6d88371e",
+                "reference": "d574a14d42a3c2cab2441aad9664dc6b6d88371e",
                 "shasum": ""
             },
             "require": {
@@ -80,8 +80,9 @@
             },
             "require-dev": {
                 "phpstan/phpstan": "^1.0",
-                "phpunit/phpunit": "^9.3"
+                "phpunit/phpunit": "^9.5"
             },
+            "default-branch": true,
             "type": "library",
             "extra": {
                 "branch-alias": {
@@ -89,18 +90,22 @@
                 }
             },
             "autoload": {
-                "files": [
-                    "src/load.php"
-                ],
                 "psr-4": {
                     "rosasurfer\\ministruts\\": "src/"
                 },
                 "classmap": [
                     "etc/phpstan/extension/",
-                    "etc/phpstan/symbols/php8/"
+                    "etc/phpstan/symbols/"
+                ],
+                "files": [
+                    "src/load.php"
                 ]
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "autoload-dev": {
+                "psr-4": {
+                    "rosasurfer\\ministruts\\test\\": "test/"
+                }
+            },
             "license": [
                 "Unlicense"
             ],
@@ -110,12 +115,12 @@
                     "email": "ministruts@rosasurfer.com"
                 }
             ],
-            "description": "MVC micro framework inspired by Java Struts",
+            "description": "MVC micro framework for PHP inspired by Java Struts",
             "support": {
-                "issues": "https://github.com/rosasurfer/ministruts/issues",
-                "source": "https://github.com/rosasurfer/ministruts/tree/0.11.3"
+                "source": "https://github.com/rosasurfer/ministruts/tree/master",
+                "issues": "https://github.com/rosasurfer/ministruts/issues"
             },
-            "time": "2025-04-06T06:53:13+00:00"
+            "time": "2025-05-05T09:59:32+00:00"
         }
     ],
     "packages-dev": [
@@ -1929,7 +1934,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {},
+    "stability-flags": {
+        "rosasurfer/ministruts": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

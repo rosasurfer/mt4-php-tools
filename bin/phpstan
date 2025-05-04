@@ -100,7 +100,7 @@ while (("$#")); do
     -*)
       ;;                                                          # skip all other options
 
-    analyse|analyze|clear-result-cache|completion|dump-parameters|help|list|worker|fixer:worker)
+    analyse|analyze|clear-result-cache|completion|diagnose|dump-parameters|help|list|worker|fixer:worker)
       CMD="$1"                                                    # 1st non-option must be the subcommand
       break;;
 
@@ -155,7 +155,7 @@ fi
 
 
 # complete PHPStan arguments
-if [[ "$CMD" == 'analyse' || "$CMD" == 'analyze' || "$CMD" == 'clear-result-cache' || "$CMD" == 'dump-parameters' || "$CMD" == 'worker' || "$CMD" == 'fixer:worker' ]]; then
+if [[ "$CMD" == 'analyse' || "$CMD" == 'analyze' || "$CMD" == 'clear-result-cache' || "$CMD" == 'diagnose' || "$CMD" == 'dump-parameters' || "$CMD" == 'worker' || "$CMD" == 'fixer:worker' ]]; then
   ARGS=('--memory-limit=-1' "${ARGS[@]}")                                       # prepend memory option
   CONFIG_FILE="${INCLUDE_CONFIG:-$CONFIG_FILE}"
   ARGS=("--configuration=$CONFIG_FILE" "${ARGS[@]}")                            # prepend config file

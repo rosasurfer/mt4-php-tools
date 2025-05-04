@@ -65,8 +65,8 @@ use rosasurfer\rt\lib\dukascopy\DukascopyException;
 use rosasurfer\rt\model\DukascopySymbol;
 use rosasurfer\rt\model\RosaSymbol;
 
+use function rosasurfer\rt\fxtOffset;
 use function rosasurfer\rt\fxtStrToTime;
-use function rosasurfer\rt\fxTimezoneOffset;
 use function rosasurfer\rt\isWeekend;
 
 require(__DIR__.'/../../../app/init.php');
@@ -148,7 +148,7 @@ function updateSymbol(RosaSymbol $symbol) {
     $startTimeFXT = $dukaSymbol->getHistoryStartTick();
     $startTimeGMT = $startTimeFXT ? fxtStrToTime($startTimeFXT) : 0;        // Beginn der Tickdaten des Symbols in GMT
     $prev = $next = null;
-    $fxtOffset    = fxTimezoneOffset($startTimeGMT, $prev, $next);          // es gilt: FXT = GMT + Offset
+    $fxtOffset    = fxtOffset($startTimeGMT, $prev, $next);                 // es gilt: FXT = GMT + Offset
     $startTimeFXT = $startTimeGMT + $fxtOffset;                             // Beginn der Tickdaten in FXT
 
     if ($remainder=$startTimeFXT % DAY) {                                   // Beginn auf den naechsten Forex-Tag 00:00 aufrunden, sodass
@@ -158,7 +158,7 @@ function updateSymbol(RosaSymbol $symbol) {
             $startTimeFXT = $startTimeGMT + $next['offset'];
             if ($remainder=$startTimeFXT % DAY) $diff = 1*DAY - $remainder;
             else                                $diff = 0;
-            $fxtOffset = fxTimezoneOffset($startTimeGMT, $prev, $next);
+            $fxtOffset = fxtOffset($startTimeGMT, $prev, $next);
         }
         $startTimeGMT += $diff;                                             // naechster Forex-Tag 00:00 in GMT
         $startTimeFXT += $diff;                                             // naechster Forex-Tag 00:00 in FXT
@@ -172,7 +172,7 @@ function updateSymbol(RosaSymbol $symbol) {
 
     for ($gmtHour=$startTimeGMT; $gmtHour < $lastHour; $gmtHour+=1*HOUR) {
         if ($gmtHour >= $next['time'])
-            $fxtOffset = fxTimezoneOffset($gmtHour, $prev, $next);          // $fxtOffset on-the-fly aktualisieren
+            $fxtOffset = fxtOffset($gmtHour, $prev, $next);                 // $fxtOffset on-the-fly aktualisieren
         $fxtHour = $gmtHour + $fxtOffset;
 
         if (!checkHistory($symbolName, $gmtHour, $fxtHour)) return false;
@@ -266,12 +266,8 @@ function checkHistory($symbol, $gmtHour, $fxtHour) {
  *
  * @return bool - Erfolgsstatus
  */
-function updateTicks($symbol, $gmtHour, $fxtHour) {
-    Assert::int($gmtHour, '$gmtHour');
-    Assert::int($fxtHour, '$fxtHour');
-
+function updateTicks(string $symbol, int $gmtHour, int $fxtHour): bool {
     // Tickdaten laden
-    /** @var array $ticks */
     $ticks = loadTicks($symbol, $gmtHour, $fxtHour);
     if (!$ticks) return false;
 
@@ -287,12 +283,10 @@ function updateTicks($symbol, $gmtHour, $fxtHour) {
  * @param  int    $gmtHour - GMT-Timestamp der zu ladenden Stunde
  * @param  int    $fxtHour - FXT-Timestamp der zu ladenden Stunde
  *
- * @return array - Array mit Tickdaten oder an empty value in case of errors
+ * @return         array - Array mit Tickdaten oder an empty value in case of errors
+ * @phpstan-return DUKASCOPY_TICK[]
  */
-function loadTicks($symbol, $gmtHour, $fxtHour) {
-    Assert::int($gmtHour, '$gmtHour');
-    Assert::int($fxtHour, '$fxtHour');
-
+function loadTicks(string $symbol, int $gmtHour, int $fxtHour): array {
     // Die Tickdaten der Handelsstunde werden in folgender Reihenfolge gesucht:
     //  - in bereits dekomprimierten Dukascopy-Dateien
     //  - in noch komprimierten Dukascopy-Dateien
@@ -329,21 +323,19 @@ function loadTicks($symbol, $gmtHour, $fxtHour) {
 /**
  * Schreibt die Tickdaten einer Handelsstunde in die lokale RT-Tickdatei.
  *
- * @param  string $symbol  - Symbol
- * @param  int    $gmtHour - GMT-Timestamp der Handelsstunde
- * @param  int    $fxtHour - FXT-Timestamp der Handelsstunde
- * @param  array  $ticks   - zu speichernde Ticks
+ * @param         string           $symbol  - Symbol
+ * @param         int              $gmtHour - GMT-Timestamp der Handelsstunde
+ * @param         int              $fxtHour - FXT-Timestamp der Handelsstunde
+ * @param         array            $ticks   - zu speichernde Ticks
+ * @phpstan-param DUKASCOPY_TICK[] $ticks
  *
  * @return bool - Erfolgsstatus
  */
-function saveTicks($symbol, $gmtHour, $fxtHour, array $ticks) {
-    Assert::int($gmtHour, '$gmtHour');
-    Assert::int($fxtHour, '$fxtHour');
+function saveTicks(string $symbol, int $gmtHour, int $fxtHour, array $ticks): bool {
     $shortDate = gmdate('D, d-M-Y H:i', $fxtHour);
     global $saveRawRTData;
 
-
-    // (1) Tickdaten nochmal pruefen
+    // Tickdaten nochmal pruefen
     if (!$ticks) throw new RuntimeException('No ticks for '.$shortDate);
     $size = sizeof($ticks);
     $fromHour = ($time=$ticks[      0]['time_fxt']) - $time%HOUR;
@@ -351,17 +343,15 @@ function saveTicks($symbol, $gmtHour, $fxtHour, array $ticks) {
     if ($fromHour != $fxtHour) throw new RuntimeException('Ticks for '.$shortDate.' do not match the specified hour: $tick[0]=\''.gmdate('d-M-Y H:i:s \F\X\T', $ticks[0]['time_fxt']).'\'');
     if ($fromHour != $toHour)  throw new RuntimeException('Ticks for '.$shortDate.' span multiple hours from=\''.gmdate('d-M-Y H:i:s \F\X\T', $ticks[0]['time_fxt']).'\' to=\''.gmdate('d-M-Y H:i:s \F\X\T', $ticks[$size-1]['time_fxt']).'\'');
 
-
-    // (2) Ticks binaer packen
+    // Ticks binaer packen
     $data = null;
     foreach ($ticks as $tick) {
         $data .= pack('VVV', $tick['timeDelta'],
-                                    $tick['bid'      ],
-                                    $tick['ask'      ]);
+                             $tick['bid'      ],
+                             $tick['ask'      ]);
     }
 
-
-    // (3) binaere Daten ggf. unkomprimiert speichern
+    // binaere Daten ggf. unkomprimiert speichern
     if ($saveRawRTData) {
         if (is_file($file=getVar('rtFile.raw', $symbol, $fxtHour))) {
             echof('[Error]   '.$symbol.' ticks for '.$shortDate.' already exists');
@@ -373,9 +363,7 @@ function saveTicks($symbol, $gmtHour, $fxtHour, array $ticks) {
         rename($tmpFile, $file);
     }
 
-
-    // (4) binaere Daten ggf. komprimieren und speichern
-
+    // binaere Daten ggf. komprimieren und speichern
     return true;
 }
 
@@ -473,7 +461,8 @@ function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=f
  * @param  int     $gmtHour
  * @param  int     $fxtHour
  *
- * @return array - Array mit Tickdaten
+ * @return         array - Array mit Tickdaten
+ * @phpstan-return DUKASCOPY_TICK[]
  */
 function loadCompressedDukascopyTickFile(string $file, string $symbol, int $gmtHour, int $fxtHour) {
     global $verbose;
@@ -490,7 +479,8 @@ function loadCompressedDukascopyTickFile(string $file, string $symbol, int $gmtH
  * @param  int    $gmtHour
  * @param  int    $fxtHour
  *
- * @return array - Array mit Tickdaten
+ * @return         array - Array mit Tickdaten
+ * @phpstan-return DUKASCOPY_TICK[]
  */
 function loadCompressedDukascopyTickData(string $data, string $symbol, int $gmtHour, int $fxtHour) {
     global $saveRawDukascopyFiles;
@@ -511,9 +501,10 @@ function loadCompressedDukascopyTickData(string $data, string $symbol, int $gmtH
  * @param  int    $gmtHour
  * @param  int    $fxtHour
  *
- * @return array - Array mit Tickdaten
+ * @return         array - Array mit Tickdaten
+ * @phpstan-return DUKASCOPY_TICK[]
  */
-function loadRawDukascopyTickFile(string $file, string $symbol, int $gmtHour, int $fxtHour) {
+function loadRawDukascopyTickFile(string $file, string $symbol, int $gmtHour, int $fxtHour): array {
     global $verbose;
     if ($verbose > 0) echof('[Info]    '.gmdate('D, d-M-Y H:i', $fxtHour).'  Dukascopy uncompressed tick file: '.RT::relativePath($file));
     return loadRawDukascopyTickData(file_get_contents($file), $gmtHour, $fxtHour);
@@ -527,22 +518,21 @@ function loadRawDukascopyTickFile(string $file, string $symbol, int $gmtHour, in
  * @param  int    $gmtHour
  * @param  int    $fxtHour
  *
- * @return array - Array mit Tickdaten
+ * @return         array - Array mit Tickdaten
+ * @phpstan-return DUKASCOPY_TICK[]
  */
-function loadRawDukascopyTickData(string $data, int $gmtHour, int $fxtHour) {
-    // Ticks einlesen
+function loadRawDukascopyTickData(string $data, int $gmtHour, int $fxtHour): array {
     $ticks = Dukascopy::readTickData($data);
 
     // GMT- und FXT-Timestamps hinzufuegen
-    foreach ($ticks as &$tick) {
-        $sec    = (int)($tick['timeDelta'] / 1000);
-        $millis =       $tick['timeDelta'] % 1000;
+    foreach ($ticks as $i => $tick) {
+        $sec = (int)($tick['timeDelta'] / 1000);
+        $millis =    $tick['timeDelta'] % 1000;
 
-        $tick['time_gmt']    = $gmtHour + $sec;
-        $tick['time_fxt']    = $fxtHour + $sec;
-        $tick['time_millis'] = $millis;
-    };
-    unset($tick);
+        $ticks[$i]['time_gmt']    = $gmtHour + $sec;
+        $ticks[$i]['time_fxt']    = $fxtHour + $sec;
+        $ticks[$i]['time_millis'] = $millis;
+    }
     return $ticks;
 }
 

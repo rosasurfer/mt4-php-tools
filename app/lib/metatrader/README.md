@@ -1,4 +1,4 @@
 
-##### This package and its subpackages operate on history data in MT4 format.
+##### Classes in this namespace operate on price data in MetaTrader format.
 
 ---

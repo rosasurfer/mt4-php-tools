@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace rosasurfer\rt\model;
 
-use rosasurfer\ministruts\core\assert\Assert;
 use rosasurfer\ministruts\core\exception\InvalidValueException;
 use rosasurfer\ministruts\db\orm\DAO;
 use rosasurfer\ministruts\db\orm\ORM;
@@ -12,7 +11,7 @@ use rosasurfer\ministruts\db\orm\ORM;
 /**
  * DAO for accessing {@link Test} instances.
  *
- * @phpstan-import-type  ORM_ENTITY from \rosasurfer\ministruts\db\orm\ORM
+ * @phpstan-import-type ORM_ENTITY from \rosasurfer\ministruts\phpstan\CustomTypes
  */
 class TestDAO extends DAO {
 
@@ -62,10 +61,8 @@ class TestDAO extends DAO {
      *
      * @return ?Test - instance or NULL if no such instance was found
      */
-    public function findById($id) {
-        Assert::int($id);
+    public function findById(int $id): ?Test {
         if ($id < 1) throw new InvalidValueException('Invalid argument $id: '.$id);
-
         $sql = 'select *
                    from :Test
                    where id = '.$id;
@@ -80,11 +77,8 @@ class TestDAO extends DAO {
      *
      * @return ?Test - Test instance or NULL if no such instance exists
      */
-    public function findByReportingSymbol($symbol) {
-        Assert::string($symbol);
-
+    public function findByReportingSymbol(string $symbol): ?Test {
         $symbol = $this->escapeLiteral($symbol);
-
         $sql = 'select *
                    from :Test
                    where reportingSymbol = '.$symbol;
