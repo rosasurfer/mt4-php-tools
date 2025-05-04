@@ -199,8 +199,9 @@ class MT4 extends StaticClass {
      * @return string - format string to be used by unpack()
      */
     public static function BAR_getUnpackFormat(int $version): string {
-        if ($version!=400 && $version!=401) throw new MetaTraderException('version.unsupported: Invalid parameter $version: '.$version.' (must be 400 or 401)');
+        if ($version!=400 && $version!=401) throw new MetaTraderException("version.unsupported: Invalid parameter \$version: $version (must be 400 or 401)");
 
+        /** @var string[] */
         static $format = [
             400 => null,
             401 => null,
@@ -209,19 +210,15 @@ class MT4 extends StaticClass {
         return $format[$version] ??= (function() use ($version): string {
             $lines = explode("\n", self::${'BAR_'.$version.'_formatStr'});
             foreach ($lines as &$line) {
-                $line = strLeftTo($line, '//');                          // drop comments
+                $line = strLeftTo($line, '//');                         // drop comments
             }
             unset($line);
+
             $format = join('', $lines);
-
-            if (PHP_VERSION >= '5.5.0') {                               // The 'a' code now retains trailing NULL bytes, 'Z' replaces the former 'a'.
-                $format = str_replace('/a', '/Z', $format);
-            }
-
             $format = preg_replace('/\s/', '', $format);                // remove white space
             if ($format[0] == '/') $format = strRight($format, -1);     // remove leading format separator
             return $format;
-        });
+        })();
     }
 
 

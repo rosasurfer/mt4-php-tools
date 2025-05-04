@@ -231,7 +231,7 @@ class RT extends StaticClass {
                 }
             }
             return $addresses;
-        });
+        })();
     }
 
 
@@ -254,7 +254,7 @@ class RT extends StaticClass {
                 }
             }
             return $numbers;
-        });
+        })();
     }
 
 

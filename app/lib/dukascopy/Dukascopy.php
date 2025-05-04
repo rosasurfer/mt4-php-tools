@@ -548,7 +548,7 @@ class Dukascopy extends CObject {
                 $this->historyStarts[$symbolU] = $this->readHistoryStartSection($data);
             }
             return $this->historyStarts[$symbolU] ?? [];
-        });
+        })();
     }
 
 
