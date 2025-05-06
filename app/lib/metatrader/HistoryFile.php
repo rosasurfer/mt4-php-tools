@@ -363,16 +363,13 @@ class HistoryFile extends CObject {
      *
      * @return void
      */
-    private function __construct2($symbol, $timeframe, $digits, $format, $serverDirectory) {
-        Assert::string($symbol, '$symbol');
+    private function __construct2(string $symbol, int $timeframe, int $digits, int $format, string $serverDirectory): void {
         if (!strlen($symbol))                         throw new InvalidValueException('Invalid parameter $symbol: ""');
         if (strlen($symbol) > MT4::MAX_SYMBOL_LENGTH) throw new InvalidValueException('Invalid parameter $symbol: "'.$symbol.'" (max '.MT4::MAX_SYMBOL_LENGTH.' characters)');
-        Assert::int($timeframe, '$timeframe');
         if (!MT4::isStdTimeframe($timeframe))         throw new InvalidValueException('Invalid parameter $timeframe: '.$timeframe.' (not a MetaTrader standard timeframe)');
-        Assert::string($serverDirectory, '$serverDirectory');
         if (!is_dir($serverDirectory))                throw new InvalidValueException('Directory "'.$serverDirectory.'" not found');
 
-        $this->hstHeader       = new HistoryHeader($format, null, $symbol, $timeframe, $digits, null, null);
+        $this->hstHeader       = new HistoryHeader($format, null, $symbol, $timeframe, $digits);
         $this->serverDirectory = realpath($serverDirectory);
         $this->serverName      = basename($this->serverDirectory);
         $this->fileName        = $symbol.$timeframe.'.hst';

@@ -119,20 +119,18 @@ class HistoryHeader extends CObject {
      * @param  string  $symbol
      * @param  int     $period
      * @param  int     $digits
-     * @param  ?int    $syncMarker
-     * @param  ?int    $lastSyncTime
+     * @param  int     $syncMarker   [optional]
+     * @param  int     $lastSyncTime [optional]
      */
-    public function __construct(int $format, ?string $copyright='', string $symbol, int $period, int $digits, ?int $syncMarker=0, ?int $lastSyncTime=0) {
+    public function __construct(int $format, ?string $copyright, string $symbol, int $period, int $digits, int $syncMarker = 0, int $lastSyncTime = 0) {
         if ($format!=400 && $format!=401)             throw new MetaTraderException('version.unsupported: Invalid parameter $format: '.$format.' (can be 400 or 401)');
-        if (!isset($copyright)) $copyright = '';
+        $copyright ??= '';
         $copyright = strLeft($copyright, 63);
         if (!strlen($symbol))                         throw new InvalidValueException('Invalid parameter $symbol: ""');
         if (strlen($symbol) > MT4::MAX_SYMBOL_LENGTH) throw new InvalidValueException('Invalid parameter $symbol: "'.$symbol.'" (max '.MT4::MAX_SYMBOL_LENGTH.' characters)');
         if ($period <= 0)                             throw new InvalidValueException('Invalid parameter $period: '.$period);
         if ($digits < 0)                              throw new InvalidValueException('Invalid parameter $digits: '.$digits);
-        if (!isset($syncMarker)) $syncMarker = 0;
         if ($syncMarker < 0)                          throw new InvalidValueException('Invalid parameter $syncMarker: '.$syncMarker);
-        if (!isset($lastSyncTime)) $lastSyncTime = 0;
         if ($lastSyncTime < 0)                        throw new InvalidValueException('Invalid parameter $lastSyncTime: '.$lastSyncTime);
 
         $this->format       = $format;
