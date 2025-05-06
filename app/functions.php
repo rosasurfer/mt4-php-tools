@@ -212,7 +212,7 @@ function fxDate($format, $time=null, $isFxt=false) {
  * )
  * </pre>
  */
-function fxtOffset(int $time, array &$prevTransition=null, array &$nextTransition=null): ?int {
+function fxtOffset(int $time, ?array &$prevTransition=null, ?array &$nextTransition=null): ?int {
     static $transitions;
     if (!$transitions) {
         $transitions = (new \DateTimeZone('America/New_York'))->getTransitions();

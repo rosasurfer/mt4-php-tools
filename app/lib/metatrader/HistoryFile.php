@@ -863,7 +863,7 @@ class HistoryFile extends CObject {
      *
      * @see \rosasurfer\rt\phpstan\RT_POINT_BAR
      */
-    public function replaceBars(array $bars, int $offset, int $length = null): void {
+    public function replaceBars(array $bars, int $offset, ?int $length = null): void {
         throw new UnimplementedFeatureException(__METHOD__.'not yet implemented');
     }
 
