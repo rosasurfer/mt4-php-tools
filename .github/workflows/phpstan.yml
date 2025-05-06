@@ -1,5 +1,5 @@
 #
-# Run a PHPStan check. Skipped if the commit message contains "[skip phpstan]".
+# Run a PHPStan check on every supported PHP version. Skipped if the commit message contains "[skip phpstan]".
 #
 name: PHPStan
 
@@ -18,18 +18,19 @@ permissions:
 
 jobs:
   phpstan:
-    name:    PHPStan on PHP ${{ matrix.php }}
+    name:    PHPStan ${{ matrix.phpstan }} on PHP ${{ matrix.php }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php: ['7.4', '8.0', '8.1', '8.2', '8.3', '8.4']
-      fail-fast: false
+        php:     ['7.4', '8.0', '8.1', '8.2', '8.3', '8.4']
+        phpstan: ['1', '2']
+      fail-fast: false                                      # don't cancel remaining jobs if one job fails
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0                                # fetch all branches and history (to access the source branch of PRs)
+          fetch-depth: 0                                    # fetch all branches and history (to access the source branch of PRs)
 
       - name: Check commit message for "[skip phpstan]"
         run: |
@@ -44,13 +45,15 @@ jobs:
           echo "Skip PHPStan: $SKIP_PHPSTAN"
           echo "SKIP_PHPSTAN=$SKIP_PHPSTAN" >> "$GITHUB_ENV"
 
-      - name: Setup PHP ${{ matrix.php }}
+      - name: Setup PHP ${{ matrix.php }} with PHPStan ${{ matrix.phpstan }}
         if:   env.SKIP_PHPSTAN != 'true'
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
+          tools: phpstan:${{ matrix.phpstan }}
         env:
-          fail-fast: true
+          GITHUB_TOKEN: ${{ secrets.GH_OAUTH_TOKEN }}
+          fail-fast: true                                   # don't try to continue on setup errors
 
       - name: Install Composer dependencies
         if:   env.SKIP_PHPSTAN != 'true'
@@ -65,4 +68,4 @@ jobs:
         if:   env.SKIP_PHPSTAN != 'true'
         run: |
           echo "Generating PHPStan report..."
-          bin/phpstan --no-progress -vvv
+          PHPSTAN=phpstan bin/phpstan --no-progress -vvv
