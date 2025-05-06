@@ -29,9 +29,12 @@ use const rosasurfer\rt\PERIOD_MN1;
 /**
  * HistorySet
  *
- * Represents a set of {@link HistoryFile}s for all nine MetaTrader standard timeframes. Data formats in a set may be mixed,
- * e.g. a set may contain files in format HISTORY_BAR_400 (until terminal build 509) and files in format HISTORY_BAR_401
- * (since terminal build > 509).
+ * Represents a set of {@link HistoryFile}s for all nine MT4 standard timeframes. A HistorySet supports mixed history file formats.
+ *
+ * @see \rosasurfer\rt\phpstan\HISTORY_BAR_400
+ * @see \rosasurfer\rt\phpstan\HISTORY_BAR_401
+ *
+ * @phpstan-import-type RT_POINT_BAR from \rosasurfer\rt\phpstan\CustomTypes
  */
 class HistorySet extends CObject {
 
@@ -51,7 +54,7 @@ class HistorySet extends CObject {
     /** @var bool - whether the set is closed and resources are disposed */
     protected $closed = false;
 
-    /** @var (?HistoryFile)[] - the history files of the set */
+    /** @var array<?HistoryFile> - the history files of the set */
     protected $historyFiles = [
         PERIOD_M1  => null,
         PERIOD_M5  => null,
@@ -339,16 +342,19 @@ class HistorySet extends CObject {
     /**
      * Fuegt dem Ende der Zeitreihen des Sets weitere Bardaten hinzu. Vorhandene Daten werden nicht geaendert.
      *
-     * @param  int[][] $bars - ROST_PRICE_BAR Daten der Periode M1
+     * @param         array[]        $bars - bars of PERIOD_M1
+     * @phpstan-param RT_POINT_BAR[] $bars
      *
-     * @return bool - Erfolgsstatus
+     * @return bool - success status
+     *
+     * @see \rosasurfer\rt\phpstan\RT_POINT_BAR
      */
-    public function appendBars(array $bars) {
+    public function appendBars(array $bars): bool {
         if ($this->closed) throw new IllegalStateException('Cannot process a closed '.get_class($this));
         if (!$bars) return false;
 
         foreach ($this->historyFiles as $timeframe => $file) {
-            !$file && $file=$this->getFile($timeframe);
+            $file ??= $this->getFile($timeframe);
             $file->appendBars($bars);
         }
         return true;
@@ -360,11 +366,14 @@ class HistorySet extends CObject {
      * Synchronisationszeitpunkt der Zeitreihe geschrieben wurden und die sich mit den uebergebenen Bars ueberschneiden,
      * werden ersetzt. Vorhandene Bars, die sich mit den uebergebenen Bars nicht ueberschneiden, bleiben unveraendert.
      *
-     * @param  int[][] $bars - ROST_PRICE_BAR Daten der Periode M1
+     * @param         array[]        $bars - bars of PERIOD_M1
+     * @phpstan-param RT_POINT_BAR[] $bars
      *
      * @return void
+     *
+     * @see \rosasurfer\rt\phpstan\RT_POINT_BAR
      */
-    public function synchronize(array $bars) {
+    public function synchronize(array $bars): void {
         if ($this->closed) throw new IllegalStateException('Cannot process a closed '.get_class($this));
         if (!$bars) return;
 

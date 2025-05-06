@@ -10,7 +10,7 @@ use rosasurfer\ministruts\db\orm\ORM;
 /**
  * DAO for accessing {@link Order} instances.
  *
- * @phpstan-import-type  ORM_ENTITY from \rosasurfer\ministruts\db\orm\ORM
+ * @phpstan-import-type ORM_ENTITY from \rosasurfer\ministruts\phpstan\CustomTypes
  */
 class OrderDAO extends DAO {
 

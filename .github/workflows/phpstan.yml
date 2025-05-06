@@ -1,0 +1,68 @@
+#
+# Run a PHPStan check. Skipped if the commit message contains "[skip phpstan]".
+#
+name: PHPStan
+
+on:
+  push:
+    branches:
+      - master
+      - development
+
+  pull_request:
+    branches:
+      - master
+
+permissions:
+  contents: read
+
+jobs:
+  phpstan:
+    name:    PHPStan on PHP ${{ matrix.php }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: ['7.4', '8.0', '8.1', '8.2', '8.3', '8.4']
+      fail-fast: false
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0                                # fetch all branches and history (to access the source branch of PRs)
+
+      - name: Check commit message for "[skip phpstan]"
+        run: |
+          SKIP_PHPSTAN=false
+          REF_NAME=
+          [[ "$GITHUB_EVENT_NAME" == "push"         ]] && REF_NAME="$GITHUB_REF_NAME"
+          [[ "$GITHUB_EVENT_NAME" == "pull_request" ]] && REF_NAME="$GITHUB_HEAD_REF"
+          [[ -z "$REF_NAME" ]] && { echo "ERROR: unsupported CI event: $GITHUB_EVENT_NAME"; exit 1; }
+
+          COMMIT_MSG=$(git log -1 --format="%B" "origin/$REF_NAME")
+          grep -iq '\[skip phpstan\]' <<< "$COMMIT_MSG" && { echo "Magic commit message found: [skip phpstan]"; SKIP_PHPSTAN=true; }
+          echo "Skip PHPStan: $SKIP_PHPSTAN"
+          echo "SKIP_PHPSTAN=$SKIP_PHPSTAN" >> "$GITHUB_ENV"
+
+      - name: Setup PHP ${{ matrix.php }}
+        if:   env.SKIP_PHPSTAN != 'true'
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+        env:
+          fail-fast: true
+
+      - name: Install Composer dependencies
+        if:   env.SKIP_PHPSTAN != 'true'
+        run: |
+          echo "Validating \"composer.json\"..."
+          composer validate --strict
+
+          echo "Installing dependencies..."
+          composer install --no-progress
+
+      - name: Run PHPStan
+        if:   env.SKIP_PHPSTAN != 'true'
+        run: |
+          echo "Generating PHPStan report..."
+          bin/phpstan --no-progress -vvv

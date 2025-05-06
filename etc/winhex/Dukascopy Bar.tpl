@@ -13,7 +13,7 @@
 // };                                   // ----------------------------------------------------------------------------------
 //                                      //               = 24
 
-template    "Dukascopy Bar Data"
+template    "Dukascopy Bar"
 description "Files 'BID|ASK_candles_*.bin'"
 
 applies_to  file

@@ -40,7 +40,7 @@ interface ISynthesizer extends HistorySource {
      *
      * @return string - start time based on an FXT timestamp
      */
-    public function getHistoryStartTick($format = 'Y-m-d H:i:s');
+    public function getHistoryStartTick(string $format = 'Y-m-d H:i:s'): string;
 
 
     /**
@@ -51,5 +51,5 @@ interface ISynthesizer extends HistorySource {
      *
      * @return string - start time based on an FXT timestamp
      */
-    public function getHistoryStartM1($format = 'Y-m-d H:i:s');
+    public function getHistoryStartM1(string $format = 'Y-m-d H:i:s'): string;
 }

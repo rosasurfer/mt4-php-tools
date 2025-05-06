@@ -1,5 +1,5 @@
 //
-// Dukascopy structure DUKASCOPY_TICK (file format "{Hour}h_ticks.bin")
+// Dukascopy struct DUKASCOPY_TICK (file format "{Hour}h_ticks.bin")
 //
 //
 // big-endian
@@ -12,7 +12,7 @@
 // };                                   // ----------------------------------------------------------------------------------
 //                                      //               = 20
 
-template    "Dukascopy Tick Data"
+template    "Dukascopy Tick"
 description "Files '{Hour}h_ticks.bin'"
 
 applies_to  file

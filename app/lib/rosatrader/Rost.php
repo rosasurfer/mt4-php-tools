@@ -40,48 +40,14 @@ use const rosasurfer\rt\PERIOD_W1;
 /**
  * Rosatrader related functionality
  *
- * <pre>
- *                             size        offset      description (@phpstan-type POINT_BAR)
- * struct ROST_PRICE_BAR {     ----        ------      --------------------------------------------
- *    uint time;                 4            0        FXT timestamp (seconds since 01.01.1970 FXT)
- *    uint open;                 4            4        in point
- *    uint high;                 4            8        in point
- *    uint low;                  4           12        in point
- *    uint close;                4           16        in point
- *    uint ticks;                4           20        volume (if available) or number of ticks
- * };                    = 24 byte
- *
- *                             size        offset      description
- * struct ROST_PIP_BAR {       ----        ------      --------------------------------------------
- *    uint   time;               4            0        FXT timestamp (seconds since 01.01.1970 FXT)
- *    double open;               8            4        in pip
- *    double high;               8           12        in pip
- *    double low;                8           20        in pip
- *    double close;              8           28        in pip
- * };                    = 36 byte
- *
- *                             size        offset      description
- * struct ROST_TICK {          ----        ------      --------------------------------------------
- *    uint timeDelta;            4            0        milliseconds since beginning of the hour
- *    uint bid;                  4            4        in point
- *    uint ask;                  4            8        in point
- * };                    = 12 byte
- * </pre>
- *
- * @phpstan-import-type  POINT_BAR from \rosasurfer\rt\RT
+ * @phpstan-import-type RT_POINT_BAR from \rosasurfer\rt\phpstan\CustomTypes
  */
 class Rost extends StaticClass {
 
-
     /**
-     * struct size in bytes of a ROST_PRICE_BAR (format of Rosatrader history files "{PERIOD}.bin")
+     * C++ struct size in bytes of an RT_POINT_BAR (format of Rosatrader history files "{PERIOD}.bin")
      */
-    const BAR_SIZE = 24;
-
-    /**
-     * struct size in bytes of an RT tick (format of Rosatrader tick files "{HOUR}h_ticks.bin")
-     */
-    const TICK_SIZE = 12;
+    const RT_POINT_BAR_SIZE = 24;
 
 
     /**
@@ -259,23 +225,23 @@ class Rost extends StaticClass {
 
 
     /**
-     * Interpretiert die ROST_PRICE_BAR-Daten eines Strings und liest sie in ein Array ein. Die resultierenden Bars werden
+     * Interpretiert die RT_POINT_BAR-Daten eines Strings und liest sie in ein Array ein. Die resultierenden Bars werden
      * beim Lesen validiert.
      *
-     * @param  string $data   - String mit ROST_PRICE_BAR-Daten
+     * @param  string $data   - String mit RT_POINT_BAR-Daten
      * @param  string $symbol - Meta-Information fuer eine evt. Fehlermeldung (falls die Daten fehlerhaft sind)
      *
-     * @return         array[] - ROST_PRICE_BAR-Daten
-     * @phpstan-return POINT_BAR[]
+     * @return         array<int[]> - bar data
+     * @phpstan-return RT_POINT_BAR[]
      *
-     * @see \rosasurfer\rt\POINT_BAR
+     * @see \rosasurfer\rt\phpstan\RT_POINT_BAR
      */
     public static function readBarData(string $data, string $symbol): array {
         $lenData = strlen($data);
-        if ($lenData % self::BAR_SIZE) throw new RuntimeException("Invalid length of data for $symbol: $lenData (not on a Rost::BAR_SIZE boundary)");
+        if ($lenData % self::RT_POINT_BAR_SIZE) throw new RuntimeException("Invalid length of data for $symbol: $lenData (not on a Rost::BAR_SIZE boundary)");
         $bars = [];
 
-        for ($offset=0; $offset < $lenData; $offset += self::BAR_SIZE) {
+        for ($offset=0; $offset < $lenData; $offset += self::RT_POINT_BAR_SIZE) {
             $bars[] = unpack("@$offset/Vtime/Vopen/Vhigh/Vlow/Vclose/Vticks", $data);
         }
         return $bars;
@@ -285,13 +251,13 @@ class Rost extends StaticClass {
     /**
      * Interpretiert die Bardaten einer RT-Datei und liest sie in ein Array ein.
      *
-     * @param  string $fileName - Name der Datei mit ROST_PRICE_BAR-Daten
+     * @param  string $fileName - Name der Datei mit RT_POINT_BAR-Daten
      * @param  string $symbol   - Meta-Information fuer eine evt. Fehlermeldung
      *
-     * @return         array[] - ROST_PRICE_BAR-Daten
-     * @phpstan-return POINT_BAR[]
+     * @return         array<int[]> - bar data
+     * @phpstan-return RT_POINT_BAR[]
      *
-     * @see \rosasurfer\rt\POINT_BAR
+     * @see \rosasurfer\rt\phpstan\RT_POINT_BAR
      */
     public static function readBarFile(string $fileName, string $symbol): array {
         return self::readBarData(file_get_contents($fileName), $symbol);
@@ -301,12 +267,12 @@ class Rost extends StaticClass {
     /**
      * Interpretiert die Bardaten einer komprimierten RT-Datei und liest sie in ein Array ein.
      *
-     * @param  string $fileName - Name der Datei mit ROST_PRICE_BAR-Daten
+     * @param  string $fileName - Name der Datei mit RT_POINT_BAR-Daten
      *
-     * @return         array[] - ROST_PRICE_BAR-Daten
-     * @phpstan-return POINT_BAR[]
+     * @return         array<int[]> - bar data
+     * @phpstan-return RT_POINT_BAR[]
      *
-     * @see \rosasurfer\rt\POINT_BAR
+     * @see \rosasurfer\rt\phpstan\RT_POINT_BAR
      */
     public static function readCompressedBarFile(string $fileName): array {
         throw new UnimplementedFeatureException(__METHOD__);
@@ -316,36 +282,36 @@ class Rost extends StaticClass {
     /**
      * Gibt den Offset eines Zeitpunktes innerhalb einer Zeitreihe zurueck.
      *
-     * @param  array $series - zu durchsuchende Reihe: Arrays mit dem Feld "time"
-     * @param  int   $time   - Zeitpunkt
+     * @param         array[]        $bars - zu durchsuchende Bars
+     * @phpstan-param RT_POINT_BAR[] $bars
+     * @param         int            $time   - Zeitpunkt
      *
      * @return int - Offset oder -1, wenn der Offset ausserhalb der Arraygrenzen liegt
      *
-     * @todo  merge with HistoryFile::findTimeOffset()
+     * @see \rosasurfer\rt\phpstan\RT_POINT_BAR
+     *
+     * @todo merge with HistoryFile::findTimeOffset()
      */
-    public static function findTimeOffset(array $series, int $time): int {
-        $size = sizeof($series);
+    public static function findTimeOffset(array $bars, int $time): int {
+        $size = sizeof($bars);
         if (!$size) return -1;
-        Assert::isArray($series[0], '$series[0]');
-        if (!isset($series[0]['time'])) throw new InvalidValueException('Invalid parameter $series[0]: '.gettype($series[0]).' (no index "time")');
-        Assert::int($series[0]['time'], '$series[0][time]');
 
         $i     = -1;
         $iFrom =  0;
-        $iTo   = $size-1; if ($series[$iTo]['time'] < $time) return -1;
+        $iTo   = $size-1; if ($bars[$iTo]['time'] < $time) return -1;
 
         while (true) {                                              // Zeitfenster von Beginn- und Endbar rekursiv bis zum
-            if ($series[$iFrom]['time'] >= $time) {                 // gesuchten Zeitpunkt verkleinern
+            if ($bars[$iFrom]['time'] >= $time) {                 // gesuchten Zeitpunkt verkleinern
                 $i = $iFrom;
                 break;
             }
-            if ($series[$iTo]['time']==$time || $size==2) {
+            if ($bars[$iTo]['time']==$time || $size==2) {
                 $i = $iTo;
                 break;
             }
             $midSize = (int) ceil($size/2);                         // Fenster halbieren
             $iMid    = $iFrom + $midSize - 1;
-            if ($series[$iMid]['time'] <= $time) $iFrom = $iMid;
+            if ($bars[$iMid]['time'] <= $time) $iFrom = $iMid;
             else                                 $iTo   = $iMid;
             $size = $iTo - $iFrom + 1;
         }
@@ -356,20 +322,20 @@ class Rost extends StaticClass {
     /**
      * Gibt den Offset der Bar zurueck, die den angegebenen Zeitpunkt exakt abdeckt.
      *
-     * @param  array $bars   - zu durchsuchende Bars: ROST_PRICE_BARs oder HISTORY_BARs
-     * @param  int   $period - Barperiode
-     * @param  int   $time   - Zeitpunkt
+     * @param         array[]        $bars   - zu durchsuchende Bars
+     * @phpstan-param RT_POINT_BAR[] $bars
+     * @param         int            $period - Barperiode
+     * @param         int            $time   - Zeitpunkt
      *
      * @return int - Offset oder -1, wenn keine solche Bar existiert
+     *
+     * @see \rosasurfer\rt\phpstan\RT_POINT_BAR
      */
-    public static function findBarOffset(array $bars, $period, $time) {
-        Assert::int($period, '$period');
-        if (!MT4::isStdTimeframe($period)) throw new InvalidValueException('Invalid parameter $period: '.$period.' (not a standard timeframe)');
-        Assert::int($time, '$time');
+    public static function findBarOffset(array $bars, int $period, int $time): int {
+        if (!MT4::isStdTimeframe($period)) throw new InvalidValueException("Invalid parameter \$period: $period (not a standard timeframe)");
 
         $size = sizeof($bars);
-        if (!$size)
-            return -1;
+        if (!$size) return -1;
 
         $offset = self::findTimeOffset($bars, $time);
 
@@ -398,20 +364,20 @@ class Rost extends StaticClass {
      * Gibt den Offset der Bar zurueck, die den angegebenen Zeitpunkt abdeckt. Existiert keine solche Bar, wird der Offset
      * der letzten vorhergehenden Bar zurueckgegeben.
      *
-     * @param  array $bars   - zu durchsuchende Bars: ROST_PRICE_BARs oder HISTORY_BARs
-     * @param  int   $period - Barperiode
-     * @param  int   $time   - Zeitpunkt
+     * @param         array[]        $bars   - zu durchsuchende Bars
+     * @phpstan-param RT_POINT_BAR[] $bars
+     * @param         int            $period - Barperiode
+     * @param         int            $time   - Zeitpunkt
      *
      * @return int - Offset oder -1, wenn keine solche Bar existiert (der Zeitpunkt ist aelter als die aelteste Bar)
+     *
+     * @see \rosasurfer\rt\phpstan\RT_POINT_BAR
      */
-    public static function findBarOffsetPrevious(array $bars, $period, $time) {
-        Assert::int($period, '$period');
+    public static function findBarOffsetPrevious(array $bars, int $period, int $time): int {
         if (!MT4::isStdTimeframe($period)) throw new InvalidValueException('Invalid parameter $period: '.$period.' (not a standard timeframe)');
-        Assert::int($time, '$time');
 
         $size = sizeof($bars);
-        if (!$size)
-            return -1;
+        if (!$size) return -1;
 
         $offset = self::findTimeOffset($bars, $time);
 
@@ -428,16 +394,17 @@ class Rost extends StaticClass {
      * Gibt den Offset der Bar zurueck, die den angegebenen Zeitpunkt abdeckt. Existiert keine solche Bar, wird der Offset
      * der naechstfolgenden Bar zurueckgegeben.
      *
-     * @param  array $bars   - zu durchsuchende Bars: ROST_PRICE_BARs oder HISTORY_BARs
-     * @param  int   $period - Barperiode
-     * @param  int   $time   - Zeitpunkt
+     * @param         array[]        $bars   - zu durchsuchende Bars
+     * @phpstan-param RT_POINT_BAR[] $bars
+     * @param         int            $period - Barperiode
+     * @param         int            $time   - Zeitpunkt
      *
      * @return int - Offset oder -1, wenn keine solche Bar existiert (der Zeitpunkt ist juenger als das Ende der juengsten Bar)
+     *
+     * @see \rosasurfer\rt\phpstan\RT_POINT_BAR
      */
-    public static function findBarOffsetNext(array $bars, $period, $time) {
-        Assert::int($period, '$period');
+    public static function findBarOffsetNext(array $bars, int $period, int $time): int {
         if (!MT4::isStdTimeframe($period)) throw new InvalidValueException('Invalid parameter $period: '.$period.' (not a standard timeframe)');
-        Assert::int($time, '$time');
 
         $sizeOfBars = sizeof($bars);
         if (!$sizeOfBars) return -1;

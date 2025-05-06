@@ -6,13 +6,13 @@
 #  @see  https://phpstan.org/config-reference
 #
 includes:
-  - include/by-php-version.neon.php                 # fetch PHP version specific settings
+  - include/php-version.neon.php                    # fetch PHP version specific settings
 
 
 parameters:
-  level: 7                                          # default rule level, a rule level on the command line overrides this value
+  level: 5                                          # default rule level, a rule level on the command line overrides this value
 
-  bootstrapFiles:                                   # initialize the PHP runtime environment before PHPStan runs
+  bootstrapFiles:                                   # initialize runtime environment before PHPStan runs
     - init.php
 
   paths:                                            # analyzed paths, paths on the command line override these values
@@ -41,6 +41,9 @@ parameters:
     - rosasurfer\ministruts\WINDOWS
     - rosasurfer\ministruts\NUL_DEVICE
 
+  typeAliases:                                      # defined here as long as we have non-OOP code in /bin/cmd/legacy/
+    DUKASCOPY_TICK: 'array{time_gmt: int, time_fxt: int, time_millis: int, timeDelta: int, bid: int, bidSize: float, ask: int, askSize: float}'
+
   ignoreErrors:
 
   reportUnmatchedIgnoredErrors: false
@@ -51,7 +54,7 @@ parameters:
   tipsOfTheDay: false
 
 
-services:                                           # services must be loadable via Composer
+services:                                           # must be loadable via Composer
   - class: rosasurfer\ministruts\phpstan\CoreFunctionReturnType
     tags:
       - phpstan.broker.dynamicFunctionReturnTypeExtension

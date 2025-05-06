@@ -33,7 +33,7 @@ use function rosasurfer\rt\isWeekend;
  * @method        \rosasurfer\rt\model\Test     getTest()        Return the test the ticket belongs to.
  * @method static \rosasurfer\rt\model\OrderDAO dao()            Return the {@link OrderDAO} for the calling class.
  *
- * @phpstan-import-type  LOG_ORDER from \rosasurfer\rt\RT
+ * @phpstan-import-type LOG_ORDER from \rosasurfer\rt\phpstan\CustomTypes
  */
 class Order extends RosatraderModel {
 
@@ -90,14 +90,13 @@ class Order extends RosatraderModel {
     /**
      * Create a new Order.
      *
-     * @param  Test     $test       - the test the order belongs to
-     * @param  scalar[] $properties - order properties as parsed from the test's log file
-     *
+     * @param         Test      $test       - the test the order belongs to
+     * @param         scalar[]  $properties - order properties as parsed from the test's log file
      * @phpstan-param LOG_ORDER $properties
      *
      * @return self
      *
-     * @see \rosasurfer\rt\LOG_ORDER
+     * @see \rosasurfer\rt\phpstan\LOG_ORDER
      */
     public static function create(Test $test, array $properties): self {
         $order = new self();

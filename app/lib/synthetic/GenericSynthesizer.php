@@ -9,19 +9,23 @@ namespace rosasurfer\rt\lib\synthetic;
  *
  * A {@link ISynthesizer} to be used if no instrument-specific ISynthesizer implementation can be found.
  *
- * @phpstan-import-type  PRICE_BAR from \rosasurfer\rt\RT
+ * @phpstan-import-type RT_PRICE_BAR from \rosasurfer\rt\phpstan\CustomTypes
  */
 class GenericSynthesizer extends AbstractSynthesizer {
 
 
     /**
      * {@inheritdoc}
-     *
-     * @param  string $format [optional]
-     *
-     * @return string
      */
-    public function getHistoryStartTick($format = 'Y-m-d H:i:s') {
+    public function getHistoryStartTick(string $format = 'Y-m-d H:i:s'): string {
+        return '0';
+    }
+
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getHistoryStartM1(string $format = 'Y-m-d H:i:s'): string {
         return '0';
     }
 
@@ -29,25 +33,9 @@ class GenericSynthesizer extends AbstractSynthesizer {
     /**
      * {@inheritdoc}
      *
-     * @param  string $format [optional]
+     * @phpstan-return RT_PRICE_BAR[]
      *
-     * @return string
-     */
-    public function getHistoryStartM1($format = 'Y-m-d H:i:s') {
-        return '0';
-    }
-
-
-    /**
-     * {@inheritdoc}
-     *
-     * @param  int $period
-     * @param  int $time
-     *
-     * @return array[] - PRICE_BAR array with history data
-     * @phpstan-return PRICE_BAR[]
-     *
-     * @see \rosasurfer\rt\PRICE_BAR
+     * @see \rosasurfer\rt\phpstan\RT_PRICE_BAR
      */
     public function calculateHistory(int $period, int $time): array {
         return [];
