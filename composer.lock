@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1c1151bf3ce4189257e9bdee4e0f1fb6",
+    "content-hash": "9a49741c6b70cf6ae450f82b63907c6f",
     "packages": [
         {
             "name": "psr/container",
@@ -56,16 +56,16 @@
         },
         {
             "name": "rosasurfer/ministruts",
-            "version": "dev-master",
+            "version": "0.11.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rosasurfer/ministruts.git",
-                "reference": "d574a14d42a3c2cab2441aad9664dc6b6d88371e"
+                "reference": "1fc55d0e4ab668621dcb342f1b6cb546709ac2cf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/d574a14d42a3c2cab2441aad9664dc6b6d88371e",
-                "reference": "d574a14d42a3c2cab2441aad9664dc6b6d88371e",
+                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/1fc55d0e4ab668621dcb342f1b6cb546709ac2cf",
+                "reference": "1fc55d0e4ab668621dcb342f1b6cb546709ac2cf",
                 "shasum": ""
             },
             "require": {
@@ -82,7 +82,6 @@
                 "phpstan/phpstan": "^1.0",
                 "phpunit/phpunit": "^9.5"
             },
-            "default-branch": true,
             "type": "library",
             "extra": {
                 "branch-alias": {
@@ -117,10 +116,10 @@
             ],
             "description": "MVC micro framework for PHP inspired by Java Struts",
             "support": {
-                "source": "https://github.com/rosasurfer/ministruts/tree/master",
+                "source": "https://github.com/rosasurfer/ministruts/tree/0.11.4",
                 "issues": "https://github.com/rosasurfer/ministruts/issues"
             },
-            "time": "2025-05-05T09:59:32+00:00"
+            "time": "2025-05-06T12:58:04+00:00"
         }
     ],
     "packages-dev": [
@@ -1934,9 +1933,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "rosasurfer/ministruts": 20
-    },
+    "stability-flags": {},
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
