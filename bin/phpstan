@@ -35,7 +35,7 @@
 #   phpstan --level=6 -b baseline.neon      # Analyse the code base and save the result to file "baseline.neon".
 #   phpstan --level=7 -u baseline.neon      # Analyse the code base using file "baseline.neon" as a filter.
 #   PHP=php81 phpstan                       # Use a different PHP version instead of the standard `php`.
-#   PHPSTAN=phpstan-2.1.0.phar phpstan      # Run a different PHPStan version instead of the standard installation.
+#   PHPSTAN=phpstan-2.1.0.phar phpstan      # Use a different PHPStan version instead of the standard installation.
 #
 #
 # TODO:
