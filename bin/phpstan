@@ -74,6 +74,7 @@ php="${PHP:-php}"
 PROJECT_DIR="$(dirname "$(realpath "$(type -p "$0")")")/.."
 CONFIG_DIR="$PROJECT_DIR/etc/phpstan"
 IS_WINDOWS_PHP="$("$php" -r "echo (int)(PHP_OS_FAMILY == 'Windows');")"
+AUTOLOAD=
 
 # determine the PHPStan binary to use
 phpstan="${PHPSTAN:-}"
@@ -81,6 +82,14 @@ phpstanCmd="$phpstan"
 
 if [[ -n "$phpstan" ]]; then
   phpstan="$(type -p "$phpstan")" || fail "PHPStan executable not found: $phpstanCmd"
+
+  # if we are not in PROJECT_DIR then "vendor/autoload.php" must be specified manually
+  if [[ "$(pwd -P)" != "$PROJECT_DIR" ]]; then
+    AUTOLOAD="$PROJECT_DIR/vendor/autoload.php"
+    [[ -f "$AUTOLOAD" ]] || fail "vendor/autoload.php not found"
+    ((IS_WINDOWS_PHP)) && AUTOLOAD="$(cygpath -m "$AUTOLOAD")"    # normalize path if running a Windows PHP version
+    AUTOLOAD="--autoload-file=$AUTOLOAD"
+  fi
 else
   phpstanCmd="vendor/bin/phpstan"
   phpstan="$PROJECT_DIR/$phpstanCmd"
@@ -204,8 +213,11 @@ fi
 
 
 # complete PHPStan arguments
-if [[ "$CMD" == 'analyse' || "$CMD" == 'analyze' || "$CMD" == 'clear-result-cache' || "$CMD" == 'diagnose' || "$CMD" == 'dump-parameters' || "$CMD" == 'worker' || "$CMD" == 'fixer:worker' ]]; then
+if [[ "$CMD" == 'analyse' || "$CMD" == 'analyze' ]]; then
   ARGS=('--memory-limit=-1' "${ARGS[@]}")                                       # prepend memory option
+  [[ -n "$AUTOLOAD" ]] && ARGS=("$AUTOLOAD" "${ARGS[@]}")                       # prepend auto-load option
+fi
+if [[ "$CMD" == 'analyse' || "$CMD" == 'analyze' || "$CMD" == 'clear-result-cache' || "$CMD" == 'diagnose' || "$CMD" == 'dump-parameters' || "$CMD" == 'worker' || "$CMD" == 'fixer:worker' ]]; then
   CONFIG_FILE="${INCLUDE_CONFIG:-$CONFIG_FILE}"
   ARGS=("--configuration=$CONFIG_FILE" "${ARGS[@]}")                            # prepend config file
 fi
