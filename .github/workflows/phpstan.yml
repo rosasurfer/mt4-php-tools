@@ -50,7 +50,8 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          tools: phpstan:${{ matrix.phpstan }}
+          coverage: none
+          tools:    phpstan:${{ matrix.phpstan }}
         env:
           GITHUB_TOKEN: ${{ secrets.GH_OAUTH_TOKEN }}
           fail-fast: true                                   # don't try to continue on setup errors

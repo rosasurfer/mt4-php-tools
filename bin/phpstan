@@ -1,10 +1,7 @@
 #!/bin/bash
 #
-# A wrapper around PHPStan to simplify switching between multiple PHP and PHPStan versions and/or baseline files.
-# Allows you to optionally use a globally installed PHPStan to keep the "vendor" directory clean of countless
-# Composer dependencies on development tools.
-#
-# All arguments are optional.
+# Conveniant wrapper of PHPStan. Simplifies configuration and usage of PHPStan baseline files.
+# Supports switching between multiple PHP and/or PHPStan versions. All arguments are optional.
 #
 # Usage:
 #   phpstan [COMMAND] [options] [--] [PATH...]
@@ -71,9 +68,12 @@ function stderr() {
 php="${PHP:-php}"
 
 # resolve directories and environment
-PROJECT_DIR="$(dirname "$(realpath "$(type -p "$0")")")/.."
-CONFIG_DIR="$PROJECT_DIR/etc/phpstan"
 IS_WINDOWS_PHP="$("$php" -r "echo (int)(PHP_OS_FAMILY == 'Windows');")"
+PROJECT_DIR="$(realpath --relative-to=. "$(dirname "$(realpath "$(type -p "$0")")")"/..)"
+[[ "$PROJECT_DIR" == /* ]] && ((IS_WINDOWS_PHP)) && PROJECT_DIR="$(cygpath -m "$PROJECT_DIR")"
+CONFIG_DIR="$PROJECT_DIR/etc/phpstan"
+CONFIG_DIR="${CONFIG_DIR#./}"
+AUTOLOAD=
 
 # determine the PHPStan binary to use
 phpstan="${PHPSTAN:-}"
@@ -81,9 +81,18 @@ phpstanCmd="$phpstan"
 
 if [[ -n "$phpstan" ]]; then
   phpstan="$(type -p "$phpstan")" || fail "PHPStan executable not found: $phpstanCmd"
+
+  # if we are not in PROJECT_DIR then "vendor/autoload.php" must be specified manually
+  if [[ "$(pwd -P)" != "$PROJECT_DIR" ]]; then
+    AUTOLOAD="$PROJECT_DIR/vendor/autoload.php"
+    AUTOLOAD="${AUTOLOAD#./}"
+    [[ -f "$AUTOLOAD" ]] || fail "vendor/autoload.php not found"
+    AUTOLOAD="--autoload-file=$AUTOLOAD"
+  fi
 else
   phpstanCmd="vendor/bin/phpstan"
   phpstan="$PROJECT_DIR/$phpstanCmd"
+  phpstan="${phpstan#./}"
   if [[ ! -f "$phpstan" ]]; then
     phpstanCmd="phpstan" && phpstan="$(type -p "$phpstanCmd")" || {
       phpstanCmd="phpstan.phar" && phpstan="$(type -p "$phpstanCmd")" || fail "PHPStan executable not found"
@@ -169,15 +178,15 @@ USE_DEFAULT=
 
 # validate config options
 if [[ -n "$CONFIG_OPTION" ]]; then
-    [[ -z "$CONFIG_FILE" ]] && fail "Option $CONFIG_OPTION needs a value"
-    [[ -f "$CONFIG_FILE" ]] || fail "Config file \"$CONFIG_FILE\" not found"
+  [[ -z "$CONFIG_FILE" ]] && fail "Option $CONFIG_OPTION needs a value"
+  [[ -f "$CONFIG_FILE" ]] || fail "Config file \"$CONFIG_FILE\" not found"
 else
-   FILES=('phpstan.neon' 'phpstan.neon.dist' 'phpstan.dist.neon')
-   for file in "${FILES[@]}"; do
-       file="$CONFIG_DIR/$file"
-       [[ -f "$file" ]] && CONFIG_FILE="$file" && break
-   done
-   [[ -z "$CONFIG_FILE" ]] && fail "No config file found in \"$CONFIG_DIR\""
+  FILES=('phpstan.neon' 'phpstan.neon.dist' 'phpstan.dist.neon')
+  for file in "${FILES[@]}"; do
+    file="$CONFIG_DIR/$file"
+    [[ -f "$file" ]] && CONFIG_FILE="$file" && break
+  done
+  [[ -z "$CONFIG_FILE" ]] && fail "No config file found in \"$CONFIG_DIR\""
 fi
 ((IS_WINDOWS_PHP)) && CONFIG_FILE="$(cygpath -m "$CONFIG_FILE")"                # normalize path if running a Windows PHP version
 
@@ -204,8 +213,11 @@ fi
 
 
 # complete PHPStan arguments
-if [[ "$CMD" == 'analyse' || "$CMD" == 'analyze' || "$CMD" == 'clear-result-cache' || "$CMD" == 'diagnose' || "$CMD" == 'dump-parameters' || "$CMD" == 'worker' || "$CMD" == 'fixer:worker' ]]; then
+if [[ "$CMD" == 'analyse' || "$CMD" == 'analyze' ]]; then
   ARGS=('--memory-limit=-1' "${ARGS[@]}")                                       # prepend memory option
+  [[ -n "$AUTOLOAD" ]] && ARGS=("$AUTOLOAD" "${ARGS[@]}")                       # prepend auto-load option
+fi
+if [[ "$CMD" == 'analyse' || "$CMD" == 'analyze' || "$CMD" == 'clear-result-cache' || "$CMD" == 'diagnose' || "$CMD" == 'dump-parameters' || "$CMD" == 'worker' || "$CMD" == 'fixer:worker' ]]; then
   CONFIG_FILE="${INCLUDE_CONFIG:-$CONFIG_FILE}"
   ARGS=("--configuration=$CONFIG_FILE" "${ARGS[@]}")                            # prepend config file
 fi
