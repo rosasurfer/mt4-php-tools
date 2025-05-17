@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace rosasurfer\rt\lib\metatrader;
 
 use rosasurfer\ministruts\core\CObject;
-use rosasurfer\ministruts\core\assert\Assert;
 use rosasurfer\ministruts\core\error\ErrorHandler;
 use rosasurfer\ministruts\core\exception\IllegalStateException;
 use rosasurfer\ministruts\core\exception\InvalidValueException;
@@ -153,8 +152,7 @@ class HistorySet extends CObject {
      *
      * @return void
      */
-    final protected function __construct2(RosaSymbol $symbol, $format, $serverDirectory) {
-        Assert::string($serverDirectory, '$serverDirectory');
+    final protected function __construct2(RosaSymbol $symbol, int $format, string $serverDirectory): void {
         if (!is_dir($serverDirectory)) throw new InvalidValueException('Directory "'.$serverDirectory.'" not found');
 
         $this->symbol          = $symbol->getName();
@@ -207,10 +205,8 @@ class HistorySet extends CObject {
      * @return ?self - Instanz oder NULL, wenn keine entsprechenden Historydateien gefunden wurden oder die
      *                 gefundenen Dateien korrupt sind.
      */
-    public static function open($symbol, $serverDirectory) {
-        Assert::string($symbol, '$symbol');
+    public static function open(string $symbol, string $serverDirectory): ?self {
         if (!strlen($symbol))          throw new InvalidValueException('Invalid parameter $symbol: ""');
-        Assert::string($serverDirectory, '$serverDirectory');
         if (!is_dir($serverDirectory)) throw new InvalidValueException('Directory "'.$serverDirectory.'" not found');
         $serverDirectory = realpath($serverDirectory);
 

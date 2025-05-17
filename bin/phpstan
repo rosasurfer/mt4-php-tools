@@ -1,10 +1,7 @@
 #!/bin/bash
 #
-# A wrapper around PHPStan to simplify switching between multiple PHP and PHPStan versions and/or baseline files.
-# Allows you to optionally use a globally installed PHPStan to keep the "vendor" directory clean of countless
-# Composer dependencies on development tools.
-#
-# All arguments are optional.
+# Conveniant wrapper of PHPStan. Simplifies configuration and usage of PHPStan baseline files.
+# Supports switching between multiple PHP and/or PHPStan versions. All arguments are optional.
 #
 # Usage:
 #   phpstan [COMMAND] [options] [--] [PATH...]
@@ -71,9 +68,10 @@ function stderr() {
 php="${PHP:-php}"
 
 # resolve directories and environment
-PROJECT_DIR="$(dirname "$(realpath "$(type -p "$0")")")/.."
-CONFIG_DIR="$PROJECT_DIR/etc/phpstan"
 IS_WINDOWS_PHP="$("$php" -r "echo (int)(PHP_OS_FAMILY == 'Windows');")"
+PROJECT_DIR="$(realpath --relative-to=. "$(dirname "$(realpath "$(type -p "$0")")")"/..)"
+[[ "$PROJECT_DIR" == /* ]] && ((IS_WINDOWS_PHP)) && PROJECT_DIR="$(cygpath -m "$PROJECT_DIR")"
+CONFIG_DIR="$PROJECT_DIR/etc/phpstan"
 AUTOLOAD=
 
 # determine the PHPStan binary to use
@@ -87,7 +85,6 @@ if [[ -n "$phpstan" ]]; then
   if [[ "$(pwd -P)" != "$PROJECT_DIR" ]]; then
     AUTOLOAD="$PROJECT_DIR/vendor/autoload.php"
     [[ -f "$AUTOLOAD" ]] || fail "vendor/autoload.php not found"
-    ((IS_WINDOWS_PHP)) && AUTOLOAD="$(cygpath -m "$AUTOLOAD")"    # normalize path if running a Windows PHP version
     AUTOLOAD="--autoload-file=$AUTOLOAD"
   fi
 else
@@ -178,15 +175,15 @@ USE_DEFAULT=
 
 # validate config options
 if [[ -n "$CONFIG_OPTION" ]]; then
-    [[ -z "$CONFIG_FILE" ]] && fail "Option $CONFIG_OPTION needs a value"
-    [[ -f "$CONFIG_FILE" ]] || fail "Config file \"$CONFIG_FILE\" not found"
+  [[ -z "$CONFIG_FILE" ]] && fail "Option $CONFIG_OPTION needs a value"
+  [[ -f "$CONFIG_FILE" ]] || fail "Config file \"$CONFIG_FILE\" not found"
 else
-   FILES=('phpstan.neon' 'phpstan.neon.dist' 'phpstan.dist.neon')
-   for file in "${FILES[@]}"; do
-       file="$CONFIG_DIR/$file"
-       [[ -f "$file" ]] && CONFIG_FILE="$file" && break
-   done
-   [[ -z "$CONFIG_FILE" ]] && fail "No config file found in \"$CONFIG_DIR\""
+  FILES=('phpstan.neon' 'phpstan.neon.dist' 'phpstan.dist.neon')
+  for file in "${FILES[@]}"; do
+    file="$CONFIG_DIR/$file"
+    [[ -f "$file" ]] && CONFIG_FILE="$file" && break
+  done
+  [[ -z "$CONFIG_FILE" ]] && fail "No config file found in \"$CONFIG_DIR\""
 fi
 ((IS_WINDOWS_PHP)) && CONFIG_FILE="$(cygpath -m "$CONFIG_FILE")"                # normalize path if running a Windows PHP version
 

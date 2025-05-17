@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace rosasurfer\rt\lib\rosatrader;
 
 use rosasurfer\ministruts\core\StaticClass;
-use rosasurfer\ministruts\core\assert\Assert;
 use rosasurfer\ministruts\core\exception\InvalidTypeException;
 use rosasurfer\ministruts\core\exception\InvalidValueException;
 use rosasurfer\ministruts\core\exception\RuntimeException;
@@ -129,13 +128,12 @@ class Rost extends StaticClass {
      *
      * @return bool
      */
-    public static function isLongOrderType($integer) {
-        if (is_int($integer)) {
-            switch ($integer) {
-                case OP_BUY     :
-                case OP_BUYLIMIT:
-                case OP_BUYSTOP : return true;
-            }
+    public static function isLongOrderType(int $integer): bool {
+        switch ($integer) {
+            case OP_BUY:
+            case OP_BUYLIMIT:
+            case OP_BUYSTOP:
+                return true;
         }
         return false;
     }
@@ -148,13 +146,12 @@ class Rost extends StaticClass {
      *
      * @return bool
      */
-    public static function isShortOrderType($integer) {
-        if (is_int($integer)) {
-            switch ($integer) {
-                case OP_SELL     :
-                case OP_SELLLIMIT:
-                case OP_SELLSTOP : return true;
-            }
+    public static function isShortOrderType(int $integer): bool {
+        switch ($integer) {
+            case OP_SELL:
+            case OP_SELLLIMIT:
+            case OP_SELLSTOP:
+                return true;
         }
         return false;
     }
@@ -167,16 +164,14 @@ class Rost extends StaticClass {
      *
      * @return ?string - description or NULL if the parameter is not a valid order type id
      */
-    public static function orderTypeDescription($id) {
-        if (is_int($id)) {
-            switch ($id) {
-                case OP_BUY      : return 'Buy';
-                case OP_SELL     : return 'Sell';
-                case OP_BUYLIMIT : return 'Buy Limit';
-                case OP_SELLLIMIT: return 'Sell Limit';
-                case OP_BUYSTOP  : return 'Buy Stop';
-                case OP_SELLSTOP : return 'Sell Stop';
-            }
+    public static function orderTypeDescription(int $id): ?string {
+        switch ($id) {
+            case OP_BUY:       return 'Buy';
+            case OP_SELL:      return 'Sell';
+            case OP_BUYLIMIT:  return 'Buy Limit';
+            case OP_SELLLIMIT: return 'Sell Limit';
+            case OP_BUYSTOP:   return 'Buy Stop';
+            case OP_SELLSTOP:  return 'Sell Stop';
         }
         return null;
     }
@@ -438,9 +433,7 @@ class Rost extends StaticClass {
      *
      * @return int - Zeit
      */
-    public static function periodCloseTime($time, $period) {
-        Assert::int($time, '$time');
-        Assert::int($period, '$period');
+    public static function periodCloseTime(int $time, int $period): int {
         if (!MT4::isStdTimeframe($period)) throw new InvalidValueException('Invalid parameter $period: '.$period.' (not a standard timeframe)');
 
         if ($period <= PERIOD_D1) {
@@ -470,21 +463,19 @@ class Rost extends StaticClass {
      * aber trotzdem nicht bei jeder Verwendung neu ermittelt werden brauchen.
      *
      * @param  string $id     - eindeutiger Bezeichner der Variable
-     * @param  string $symbol - Symbol oder NULL
-     * @param  int    $time   - Timestamp oder NULL
+     * @param  string $symbol - Symbol
+     * @param  int    $time   - Timestamp
      *
      * @return string - Variable
      */
-    public static function getVar($id, $symbol=null, $time=null) {
+    public static function getVar(string $id, ?string $symbol=null, ?int $time=null): string {
         static $varCache = [];
-        if (array_key_exists(($key=$id.'|'.$symbol.'|'.$time), $varCache))
+        if (array_key_exists(($key=$id.'|'.$symbol.'|'.$time), $varCache)) {
             return $varCache[$key];
+        }
 
-        Assert::string($id, '$id');
-        Assert::nullOrString($symbol, '$symbol');
-        Assert::nullOrInt($time, '$time');
-
-        static $storageDir; !$storageDir && $storageDir = self::di('config')['app.dir.data'];
+        static $storageDir;
+        $storageDir ??= self::di('config')['app.dir.data'];
 
         if ($id == 'rtDirDate') {                       // $yyyy/$mm/$dd                                                // lokales Pfad-Datum
             if (!$time) throw new InvalidValueException('Invalid parameter $time: '.$time);
