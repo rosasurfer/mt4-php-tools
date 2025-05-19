@@ -40,7 +40,6 @@ declare(strict_types=1);
 namespace rosasurfer\rt\cmd\duk_update_ticks;
 
 use rosasurfer\ministruts\Application;
-use rosasurfer\ministruts\core\assert\Assert;
 use rosasurfer\ministruts\core\exception\InvalidValueException;
 use rosasurfer\ministruts\core\exception\RuntimeException;
 use rosasurfer\ministruts\file\FileSystem as FS;
@@ -193,9 +192,7 @@ function updateSymbol(RosaSymbol $symbol) {
  *
  * @return bool - Erfolgsstatus
  */
-function checkHistory($symbol, $gmtHour, $fxtHour) {
-    Assert::int($gmtHour, '$gmtHour');
-    Assert::int($fxtHour, '$fxtHour');
+function checkHistory(string $symbol, int $gmtHour, int $fxtHour): bool {
     $shortDate = gmdate('D, d-M-Y H:i', $fxtHour);
 
     global $verbose, $saveCompressedDukascopyFiles, $saveRawDukascopyFiles, $saveRawRTData;
@@ -380,12 +377,7 @@ function saveTicks(string $symbol, int $gmtHour, int $fxtHour, array $ticks): bo
  *
  * @return string - Content der heruntergeladenen Datei oder Leerstring, wenn die Resource nicht gefunden wurde (404-Fehler).
  */
-function downloadTickdata($symbol, $gmtHour, $fxtHour, $quiet=false, $saveData=false, $saveError=true) {
-    Assert::int($gmtHour, '$gmtHour');
-    Assert::int($fxtHour, '$fxtHour');
-    Assert::bool($quiet, '$quiet');
-    Assert::bool($saveData, '$saveData');
-    Assert::bool($saveError, '$saveError');
+function downloadTickdata(string $symbol, int $gmtHour, int $fxtHour, bool $quiet=false, bool $saveData=false, bool $saveError=true): string {
     global$verbose;
 
     $shortDate = gmdate('D, d-M-Y H:i', $fxtHour);
@@ -544,20 +536,17 @@ function loadRawDukascopyTickData(string $data, int $gmtHour, int $fxtHour): arr
  * da die Variablen nicht global gespeichert oder ueber viele Funktionsaufrufe hinweg weitergereicht werden muessen,
  * aber trotzdem nicht bei jeder Verwendung neu ermittelt werden brauchen.
  *
- * @param  string $id     - eindeutiger Bezeichner der Variable (ID)
- * @param  string $symbol - Symbol oder NULL
- * @param  int    $time   - Timestamp oder NULL
+ * @param  string  $id     - eindeutiger Bezeichner der Variable (ID)
+ * @param  ?string $symbol - Symbol
+ * @param  ?int    $time   - Timestamp
  *
  * @return string - Variable
  */
-function getVar($id, $symbol=null, $time=null) {
+function getVar(string $id, ?string $symbol = null, ?int $time = null): string {
     static $varCache = [];
-    if (array_key_exists(($key=$id.'|'.$symbol.'|'.$time), $varCache))
+    if (array_key_exists(($key=$id.'|'.$symbol.'|'.$time), $varCache)) {
         return $varCache[$key];
-
-    Assert::string($id, '$id');
-    Assert::nullOrString($symbol, '$symbol');
-    Assert::nullOrInt($time, '$time');
+    }
 
     static $storageDir;
     $storageDir = $storageDir ?? Application::getDi()['config']['app.dir.data'];

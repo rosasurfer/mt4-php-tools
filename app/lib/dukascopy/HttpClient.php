@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace rosasurfer\rt\lib\dukascopy;
 
-use rosasurfer\ministruts\core\assert\Assert;
 use rosasurfer\ministruts\core\di\proxy\CliInput as Input;
 use rosasurfer\ministruts\core\di\proxy\Output;
 use rosasurfer\ministruts\core\exception\InvalidValueException;
@@ -84,11 +83,8 @@ class HttpClient extends CurlHttpClient {
      *
      * @return string - binary history data or an empty string in case of errors
      */
-    public function downloadHistory($symbol, $day, $type) {
-        Assert::string($symbol, '$symbol');
+    public function downloadHistory(string $symbol, int $day, int $type): string {
         if (!strlen($symbol))                         throw new InvalidValueException('Invalid parameter $symbol: "'.$symbol.'"');
-        Assert::int($day, '$day');
-        Assert::int($type, '$type');
         if (!in_array($type, [PRICE_BID, PRICE_ASK])) throw new InvalidValueException('Invalid parameter $type: '.$type);
 
         // url: http://datafeed.dukascopy.com/datafeed/EURUSD/2009/00/31/BID_candles_min_1.bi5

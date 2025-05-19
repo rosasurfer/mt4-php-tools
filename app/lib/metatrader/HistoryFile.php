@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace rosasurfer\rt\lib\metatrader;
 
 use rosasurfer\ministruts\core\CObject;
-use rosasurfer\ministruts\core\assert\Assert;
 use rosasurfer\ministruts\core\error\ErrorHandler;
 use rosasurfer\ministruts\core\di\proxy\Output;
 use rosasurfer\ministruts\core\exception\FileNotFoundException;
@@ -487,9 +486,8 @@ class HistoryFile extends CObject {
      *
      * @return void
      */
-    public function setBarBufferSize($size) {
+    public function setBarBufferSize(int $size): void {
         if ($this->closed) throw new IllegalStateException('Cannot process a closed '.get_class($this));
-        Assert::int($size);
         if ($size < 0)     throw new InvalidValueException('Invalid parameter $size: '.$size);
 
         $this->barBufferSize = $size;
