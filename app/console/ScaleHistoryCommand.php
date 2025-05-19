@@ -80,7 +80,7 @@ DOCOPT;
      *
      * @return int - error status (0 for no error)
      */
-    protected function validate(Input $input, Output $output) {
+    protected function validate(Input $input, Output $output): int {
         $error = function($status, $message) use ($input, $output) {
             $usage = $input->getDocoptResult()->getUsage();
             $output->error($message.NL.NL.$usage);

@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace rosasurfer\rt\model;
 
-use rosasurfer\ministruts\core\assert\Assert;
 use rosasurfer\ministruts\core\exception\InvalidValueException;
 
 
@@ -37,10 +36,8 @@ class StrategyParameter extends RosatraderModel {
      *
      * @return self
      */
-    public static function create(Test $test, $name, $value) {
-        Assert::string($name, '$name');
+    public static function create(Test $test, string $name, string $value): self {
         if (!strlen($name)) throw new InvalidValueException('Illegal parameter $name "'.$name.'" (must be non-empty)');
-        Assert::string($value, '$value');
 
         $param = new self();
 

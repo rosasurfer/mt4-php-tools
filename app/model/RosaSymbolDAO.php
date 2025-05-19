@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace rosasurfer\rt\model;
 
-use rosasurfer\ministruts\core\assert\Assert;
 use rosasurfer\ministruts\db\NoSuchRecordException;
 use rosasurfer\ministruts\db\orm\DAO;
 use rosasurfer\ministruts\db\orm\ORM;
@@ -59,11 +58,9 @@ class RosaSymbolDAO extends DAO {
      *
      * @param  string $name
      *
-     * @return RosaSymbol|null
+     * @return ?RosaSymbol
      */
-    public function findByName($name) {
-        Assert::string($name);
-
+    public function findByName(string $name): ?RosaSymbol {
         $name = $this->escapeLiteral($name);
         $sql = 'select *
                    from :RosaSymbol
@@ -138,9 +135,7 @@ class RosaSymbolDAO extends DAO {
      *
      * @return RosaSymbol[] - symbol instances sorted ascending by name
      */
-    public function findAllByType($type) {
-        Assert::string($type);
-
+    public function findAllByType(string $type): array {
         $type = $this->escapeLiteral($type);
         $sql = 'select *
                    from :RosaSymbol
