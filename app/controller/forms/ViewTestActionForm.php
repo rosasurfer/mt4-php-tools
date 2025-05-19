@@ -46,18 +46,18 @@ class ViewTestActionForm extends ActionForm {
 
 
     /**
-     *
+     * {@inheritDoc}
      */
-    protected function populate() {
+    protected function populate(): void {
         $input = $this->request->input();
         $input->has('id') && $this->id = trim($input['id']);
     }
 
 
    /**
-    *
+     * {@inheritDoc}
     */
-    public function validate() {
+    public function validate(): bool {
         $request = $this->request;
         $id = $this->id;
 

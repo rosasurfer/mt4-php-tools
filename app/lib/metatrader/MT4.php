@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace rosasurfer\rt\lib\metatrader;
 
 use rosasurfer\ministruts\core\StaticClass;
-use rosasurfer\ministruts\core\assert\Assert;
 use rosasurfer\ministruts\core\exception\InvalidTypeException;
 use rosasurfer\ministruts\core\exception\RuntimeException;
 
@@ -162,8 +161,7 @@ class MT4 extends StaticClass {
      *
      * @return string - pack()-Formatstring
      */
-    public static function BAR_getPackFormat($version) {
-        Assert::int($version);
+    public static function BAR_getPackFormat(int $version): string {
         if ($version!=400 && $version!=401) throw new MetaTraderException('version.unsupported: Invalid parameter $version: '.$version.' (must be 400 or 401)');
 
         static $format_400 = null;
@@ -201,13 +199,13 @@ class MT4 extends StaticClass {
     public static function BAR_getUnpackFormat(int $version): string {
         if ($version!=400 && $version!=401) throw new MetaTraderException("version.unsupported: Invalid parameter \$version: $version (must be 400 or 401)");
 
-        /** @var string[] */
+        /** @var array<?string> */
         static $format = [
             400 => null,
             401 => null,
         ];
 
-        return $format[$version] ??= (function() use ($version): string {
+        $format[$version] ??= (function() use ($version): string {
             $lines = explode("\n", self::${'BAR_'.$version.'_formatStr'});
             foreach ($lines as &$line) {
                 $line = strLeftTo($line, '//');                         // drop comments
@@ -219,6 +217,8 @@ class MT4 extends StaticClass {
             if ($format[0] == '/') $format = strRight($format, -1);     // remove leading format separator
             return $format;
         })();
+
+        return $format[$version];
     }
 
 
@@ -335,22 +335,20 @@ class MT4 extends StaticClass {
      *
      * @return bool
      */
-    public static function isTimeframeDescription($value) {
-        if (is_string($value)) {
-            if (strStartsWith($value, 'PERIOD_'))
-                $value = strRight($value, -7);
-
-            switch ($value) {
-                case 'M1' : return true;
-                case 'M5' : return true;
-                case 'M15': return true;
-                case 'M30': return true;
-                case 'H1' : return true;
-                case 'H4' : return true;
-                case 'D1' : return true;
-                case 'W1' : return true;
-                case 'MN1': return true;
-            }
+    public static function isTimeframeDescription(string $value): bool {
+        if (strStartsWith($value, 'PERIOD_')) {
+            $value = strRight($value, -7);
+        }
+        switch ($value) {
+            case 'M1' : return true;
+            case 'M5' : return true;
+            case 'M15': return true;
+            case 'M30': return true;
+            case 'H1' : return true;
+            case 'H4' : return true;
+            case 'D1' : return true;
+            case 'W1' : return true;
+            case 'MN1': return true;
         }
         return false;
     }

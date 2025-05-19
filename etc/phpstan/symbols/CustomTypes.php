@@ -119,6 +119,14 @@ namespace rosasurfer\rt\phpstan;
  *     close: float,
  *     ticks: int,
  * }
+ *
+ * @phpstan-type TZ_TRANSITION = array{
+ *     ts    : int,
+ *     time  : string,
+ *     offset: int,
+ *     isdst : bool,
+ *     abbr  : string,
+ * }
  */
 final class CustomTypes {}
 
@@ -317,3 +325,21 @@ final class RT_POINT_BAR {}
  * </pre>
  */
 final class RT_PRICE_BAR {}
+
+
+/**
+ * Custom PHPStan type for an array holding a built-in timezone transition.
+ *
+ * <pre>
+ * TZ_TRANSITION = array(
+ *     ts    : int,         // timestamp
+ *     time  : string,      // time string
+ *     offset: int,         // offset to UTC in seconds
+ *     isdst : bool,        // whether DST is active
+ *     abbr  : string,      // timezone abbreviation
+ * )
+ * </pre>
+ *
+ * @see \DateTimeZone::getTransitions()
+ */
+final class TZ_TRANSITION {}

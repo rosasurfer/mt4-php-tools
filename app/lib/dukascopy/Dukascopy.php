@@ -68,10 +68,10 @@ class Dukascopy extends CObject {
     protected ?HttpClient $httpClient = null;
 
     /** @var array<string, array<int|float>> - internal cache for history start times (fetched per symbol) */
-    protected array $historyStarts;
+    protected array $historyStarts = [];
 
     /** @var array<string, array<int|float>> - internal cache for all history start records (fetched together) */
-    protected array $allHistoryStarts;
+    protected array $allHistoryStarts = [];
 
     /**
      * @var array[] - internal cache for downloaded Dukascopy data
@@ -83,7 +83,7 @@ class Dukascopy extends CObject {
      * @see \rosasurfer\rt\phpstan\DUKASCOPY_BAR
      * @see \rosasurfer\rt\phpstan\RT_POINT_BAR
      */
-    protected array $history;
+    protected array $history = [];
 
 
     /**

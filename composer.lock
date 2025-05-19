@@ -4,26 +4,31 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "dfc5d216f6ea272be6b3351baa27d138",
+    "content-hash": "4c0e5bef63ba8a70b43ccbfe0aee409c",
     "packages": [
         {
             "name": "psr/container",
-            "version": "1.1.2",
+            "version": "2.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-fig/container.git",
-                "reference": "513e0666f7216c7459170d56df27dfcefe1689ea"
+                "reference": "c71ecc56dfe541dbd90c5360474fbc405f8d5963"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/container/zipball/513e0666f7216c7459170d56df27dfcefe1689ea",
-                "reference": "513e0666f7216c7459170d56df27dfcefe1689ea",
+                "url": "https://api.github.com/repos/php-fig/container/zipball/c71ecc56dfe541dbd90c5360474fbc405f8d5963",
+                "reference": "c71ecc56dfe541dbd90c5360474fbc405f8d5963",
                 "shasum": ""
             },
             "require": {
                 "php": ">=7.4.0"
             },
             "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.0.x-dev"
+                }
+            },
             "autoload": {
                 "psr-4": {
                     "Psr\\Container\\": "src/"
@@ -50,22 +55,22 @@
             ],
             "support": {
                 "issues": "https://github.com/php-fig/container/issues",
-                "source": "https://github.com/php-fig/container/tree/1.1.2"
+                "source": "https://github.com/php-fig/container/tree/2.0.2"
             },
-            "time": "2021-11-05T16:50:12+00:00"
+            "time": "2021-11-05T16:47:00+00:00"
         },
         {
             "name": "rosasurfer/ministruts",
-            "version": "0.11.5",
+            "version": "0.12.0-rc.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rosasurfer/ministruts.git",
-                "reference": "d92548dbb18886c54d052a0ada8d2211be8e3a67"
+                "reference": "b7b324c30988e00baf1e3d0ce2a4302f75a2af59"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/d92548dbb18886c54d052a0ada8d2211be8e3a67",
-                "reference": "d92548dbb18886c54d052a0ada8d2211be8e3a67",
+                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/b7b324c30988e00baf1e3d0ce2a4302f75a2af59",
+                "reference": "b7b324c30988e00baf1e3d0ce2a4302f75a2af59",
                 "shasum": ""
             },
             "require": {
@@ -76,16 +81,17 @@
                 "ext-mbstring": "*",
                 "ext-simplexml": "*",
                 "php": "^7.4|^8.0",
-                "psr/container": "^1.0"
+                "psr/container": "^1.0|^2.0"
             },
             "require-dev": {
                 "phpstan/phpstan": "^1.0|^2.0",
-                "phpunit/phpunit": "^9.5"
+                "phpunit/phpunit": "^9.5",
+                "slevomat/coding-standard": "*"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "0.11.x-dev"
+                    "dev-master": "0.12.x-dev"
                 }
             },
             "autoload": {
@@ -116,29 +122,29 @@
             ],
             "description": "MVC micro framework for PHP inspired by Java Struts",
             "support": {
-                "source": "https://github.com/rosasurfer/ministruts/tree/0.11.5",
+                "source": "https://github.com/rosasurfer/ministruts/tree/0.12.0-rc.1",
                 "issues": "https://github.com/rosasurfer/ministruts/issues"
             },
-            "time": "2025-05-19T11:18:45+00:00"
+            "time": "2025-05-20T04:19:00+00:00"
         }
     ],
     "packages-dev": [
         {
             "name": "phpstan/phpstan",
-            "version": "1.12.27",
+            "version": "2.1.17",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "3a6e423c076ab39dfedc307e2ac627ef579db162"
+                "reference": "89b5ef665716fa2a52ecd2633f21007a6a349053"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/3a6e423c076ab39dfedc307e2ac627ef579db162",
-                "reference": "3a6e423c076ab39dfedc307e2ac627ef579db162",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/89b5ef665716fa2a52ecd2633f21007a6a349053",
+                "reference": "89b5ef665716fa2a52ecd2633f21007a6a349053",
                 "shasum": ""
             },
             "require": {
-                "php": "^7.2|^8.0"
+                "php": "^7.4|^8.0"
             },
             "conflict": {
                 "phpstan/phpstan-shim": "*"
@@ -179,12 +185,14 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-05-21T20:51:45+00:00"
+            "time": "2025-05-21T20:55:28+00:00"
         }
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {},
+    "stability-flags": {
+        "rosasurfer/ministruts": 5
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

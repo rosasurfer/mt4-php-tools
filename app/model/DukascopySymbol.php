@@ -5,7 +5,6 @@ namespace rosasurfer\rt\model;
 
 use DateTime;
 
-use rosasurfer\ministruts\core\assert\Assert;
 use rosasurfer\ministruts\core\di\proxy\Output;
 use rosasurfer\ministruts\core\exception\UnimplementedFeatureException;
 
@@ -139,9 +138,7 @@ class DukascopySymbol extends RosatraderModel implements HistorySource {
      *                                  (default: local)
      * @return bool - success status
      */
-    public function showHistoryStatus($local = true) {
-        Assert::bool($local);
-
+    public function showHistoryStatus(bool $local = true): bool {
         if ($local) {
             $startTick = $this->getHistoryStartTick('D, d-M-Y H:i:s \F\X\T');
             $startM1   = $this->getHistoryStartM1  ('D, d-M-Y H:i:s \F\X\T');

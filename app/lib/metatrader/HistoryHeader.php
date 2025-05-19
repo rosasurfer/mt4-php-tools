@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace rosasurfer\rt\lib\metatrader;
 
 use rosasurfer\ministruts\core\CObject;
-use rosasurfer\ministruts\core\assert\Assert;
 use rosasurfer\ministruts\core\exception\InvalidValueException;
 
 use function rosasurfer\ministruts\strLeft;
@@ -175,8 +174,7 @@ class HistoryHeader extends CObject {
      *
      * @return void
      */
-    public function setLastSyncTime($time) {
-        Assert::int($time);
+    public function setLastSyncTime(int $time): void {
         if ($time < 0) throw new InvalidValueException('Invalid parameter $time: '.$time);
 
         $this->lastSyncTime = $time;

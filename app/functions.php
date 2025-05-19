@@ -3,10 +3,10 @@ declare(strict_types=1);
 
 namespace rosasurfer\rt;
 
-use rosasurfer\ministruts\core\assert\Assert;
+use DateTimeZone;
+
 use rosasurfer\ministruts\core\exception\InvalidTypeException;
 use rosasurfer\ministruts\core\exception\InvalidValueException;
-use rosasurfer\ministruts\core\exception\RuntimeException;
 use rosasurfer\ministruts\core\exception\UnimplementedFeatureException;
 
 use function rosasurfer\ministruts\strStartsWith;
@@ -175,13 +175,8 @@ function unixTime($fxTime = null) {
  *
  * @return string - formatted string
  */
-function fxDate($format, $time=null, $isFxt=false) {
-    if (isset($time)) {
-        Assert::int($time, '$time');
-    }
-    else {
-        $time = $isFxt ? fxTime() : time();
-    }
+function fxDate(string $format, ?int $time=null, bool $isFxt=false): string {
+    $time ??= $isFxt ? fxTime() : time();
     if ($isFxt) return gmdate($format, $time);
 
     try {
@@ -189,16 +184,18 @@ function fxDate($format, $time=null, $isFxt=false) {
         date_default_timezone_set('America/New_York');
         return date($format, $time+7*HOURS);
     }
-    finally { date_default_timezone_set($timezone); }
+    finally {
+        date_default_timezone_set($timezone);
+    }
 }
 
 
 /**
  * Return the FXT offset of a GMT time, and optionally the adjacent DST transition data.
  *
- * @param  int    $time                      - GMT time
- * @param  ?int[] $prevTransition [optional] - if specified the array is filled with the data of the previous DST transition
- * @param  ?int[] $nextTransition [optional] - if specified the array is filled with the data of the next DST transition
+ * @param  int                  $time                      - GMT time
+ * @param  ?array<string, ?int> $prevTransition [optional] - if specified the array is filled with the data of the previous DST transition
+ * @param  ?array<string, ?int> $nextTransition [optional] - if specified the array is filled with the data of the next DST transition
  *
  * @return ?int - Offset in seconds or NULL if parameter $time is not in the range of the timezone information for FXT. <br>
  *                Offset is always positive, it holds: GMT + offset = FXT                                               <br>
@@ -213,10 +210,13 @@ function fxDate($format, $time=null, $isFxt=false) {
  * </pre>
  */
 function fxtOffset(int $time, ?array &$prevTransition=null, ?array &$nextTransition=null): ?int {
+    /**
+     * @phpstan-var ?TZ_TRANSITION[] $transitions
+     *
+     * @see \rosasurfer\rt\phpstan\TZ_TRANSITION
+     */
     static $transitions;
-    if (!$transitions) {
-        $transitions = (new \DateTimeZone('America/New_York'))->getTransitions();
-    }
+    $transitions ??= (new DateTimeZone('America/New_York'))->getTransitions();
 
     $i = -2;
     foreach ($transitions as $i => $transition) {
@@ -278,9 +278,7 @@ function fxtOffset(int $time, ?array &$prevTransition=null, ?array &$nextTransit
  *
  * TODO:  Funktion unnoetig: strtotime() ueberladen und um Erkennung der FXT-Zeitzone erweitern
  */
-function fxtStrToTime($time) {
-    Assert::string($time);
-
+function fxtStrToTime(string $time): int {
     $currentTZ = date_default_timezone_get();
     try {
         date_default_timezone_set('America/New_York');
@@ -288,7 +286,9 @@ function fxtStrToTime($time) {
         if ($unixTime === false) throw new InvalidValueException('Invalid argument $time: "'.$time.'"');
         return $unixTime - 7*HOURS;
     }
-    finally { date_default_timezone_set($currentTZ); }
+    finally {
+        date_default_timezone_set($currentTZ);
+    }
 }
 
 
@@ -302,14 +302,16 @@ function fxtStrToTime($time) {
  *
  * @return int
  */
-function igmdate($format, $time = null) {
-    if (!isset($time)) $time = time();
+function igmdate(string $format, ?int $time = null): int {
+    $time ??= time();
     try {
         $currentTZ = date_default_timezone_get();
         date_default_timezone_set('GMT');
         return idate($format, $time);
     }
-    finally { date_default_timezone_set($currentTZ); }
+    finally {
+        date_default_timezone_set($currentTZ);
+    }
 }
 
 
@@ -405,9 +407,7 @@ function periodToStr(int $value): string {
  *
  * @return string
  */
-function periodDescription($value) {
-    Assert::int($value);
-
+function periodDescription(int $value): string {
     switch ($value) {
         case PERIOD_TICK: return 'TICK';                //      0 = no period
         case PERIOD_M1  : return 'M1';                  //      1 = 1 minute
@@ -456,9 +456,7 @@ function timeframeDescription($timeframe) {
  *
  * @return string
  */
-function priceTypeDescription($type) {
-    Assert::int($type);
-
+function priceTypeDescription(int $type): string {
     switch ($type) {
         case PRICE_CLOSE   : return("Close"   );
         case PRICE_OPEN    : return("Open"    );
@@ -550,9 +548,7 @@ function prettyRecoveryTime($duration) {
  */
 function stats_standard_deviation(array $values, bool $sample = false): float {
     if (function_exists('stats_standard_deviation')) {
-        $result = \stats_standard_deviation($values, $sample);
-        if (!is_float($result)) throw new RuntimeException('stats_standard_deviation returned an error: '.$result.' ('.gettype($result).')');
-        return $result;
+        return \stats_standard_deviation($values, $sample);
     }
 
     $n = sizeof($values);
@@ -691,13 +687,11 @@ function stats_calmar_ratio(string $from, string $to, array $values): float {
  *
  * @return int - timeframe id or -1 if the value is not recognized
  */
-function strToPeriod($value) {
-    Assert::string($value);
-
+function strToPeriod(string $value): int {
     $value = strtoupper(trim($value));
-    if (strStartsWith($value, 'PERIOD_'))
+    if (strStartsWith($value, 'PERIOD_')) {
         $value = substr($value, 7);
-
+    }
     switch ($value) {
         case       'M1' :
         case PERIOD_M1  : return(PERIOD_M1);
