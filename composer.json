@@ -8,29 +8,32 @@
         "email": "mt4-php-tools@rosasurfer.com"
     }],
     "config": {
-        "platform": {
-            "php": "7.4"
-        },
         "optimize-autoloader": true
     },
     "repositories": [
-        { "type": "vcs", "url": "https://github.com/rosasurfer/ministruts" }
+        { 
+            "type": "vcs", 
+            "url":  "https://github.com/rosasurfer/ministruts" 
+        }
     ],
     "require": {
-        "php":                   "7.4 - 8",
+        "php":                   "^7.4|^8.0",
         "ext-bcmath":            "*",
         "ext-sqlite3":           "*",
-        "rosasurfer/ministruts": "^0.11"
+        "rosasurfer/ministruts": "^0.11.0"
     },
     "require-dev": {
-        "phpstan/phpstan": "^1.12",
-        "phpunit/phpunit": "^9.5"
+        "phpstan/phpstan": "^1.12"
     },
     "autoload": {
         "classmap": ["app/"],
         "files":    ["app/functions.php"]
     },
     "autoload-dev": {
-        "classmap": ["etc/phpstan/symbols/"]        
+        "classmap": [
+            "etc/phpstan/symbols/",
+            "vendor/rosasurfer/ministruts/etc/phpstan/extension/",
+            "vendor/rosasurfer/ministruts/etc/phpstan/symbols/"
+        ]        
     }
 }
