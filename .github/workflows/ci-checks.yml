@@ -1,59 +1,61 @@
 #
-# Run a PHPStan check. Skipped if the commit message contains "[skip phpstan]".
+# Runs PHPStan on every supported PHP version. Skipped if the commit message contains "[skip phpstan]".
 #
-name: PHPStan
+name: CI checks
 
 on:
   push:
-    branches:
-      - master
-      - development
-
   pull_request:
-    branches:
-      - master
 
 permissions:
   contents: read
 
 jobs:
-  phpstan:
-    name:    PHPStan on PHP ${{ matrix.php }}
+  integration-checks:
+
+    name: PHP ${{ matrix.php }}
+    if:   ${{ !startsWith(github.ref, 'refs/tags/') }}      # skip the job if the push is just a tag
     runs-on: ubuntu-latest
     strategy:
       matrix:
         php: ['7.4', '8.0', '8.1', '8.2', '8.3', '8.4']
-      fail-fast: false
+      fail-fast: false                                      # don't cancel remaining jobs if one job fails
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0                                # fetch all branches and history (to access the source branch of PRs)
+          fetch-depth: 0                                    # fetch all branches and history (to access the source branch of PRs)
 
+      # ------------------------------------------------------------------------------------------------------------------------------------
       - name: Check commit message for "[skip phpstan]"
         run: |
-          SKIP_PHPSTAN=false
           REF_NAME=
-          [[ "$GITHUB_EVENT_NAME" == "push"         ]] && REF_NAME="$GITHUB_REF_NAME"
-          [[ "$GITHUB_EVENT_NAME" == "pull_request" ]] && REF_NAME="$GITHUB_HEAD_REF"
+          [[ "$GITHUB_EVENT_NAME" == "push"         ]] && REF_NAME="$GITHUB_REF"
+          [[ "$GITHUB_EVENT_NAME" == "pull_request" ]] && REF_NAME="origin/$GITHUB_HEAD_REF"
           [[ -z "$REF_NAME" ]] && { echo "ERROR: unsupported CI event: $GITHUB_EVENT_NAME"; exit 1; }
 
-          COMMIT_MSG=$(git log -1 --format="%B" "origin/$REF_NAME")
+          COMMIT_MSG=$(git log -1 --format="%B" "$REF_NAME")
+
+          SKIP_PHPSTAN=false
           grep -iq '\[skip phpstan\]' <<< "$COMMIT_MSG" && { echo "Magic commit message found: [skip phpstan]"; SKIP_PHPSTAN=true; }
           echo "Skip PHPStan: $SKIP_PHPSTAN"
           echo "SKIP_PHPSTAN=$SKIP_PHPSTAN" >> "$GITHUB_ENV"
 
+      # ------------------------------------------------------------------------------------------------------------------------------------
       - name: Setup PHP ${{ matrix.php }}
-        if:   env.SKIP_PHPSTAN != 'true'
+        if:   env.SKIP_PHPSTAN == 'false'
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
+          coverage: none
         env:
-          fail-fast: true
+          GITHUB_TOKEN: ${{ secrets.GH_OAUTH_TOKEN }}
+          fail-fast: true                                   # don't try to continue on setup errors
 
+      # ------------------------------------------------------------------------------------------------------------------------------------
       - name: Install Composer dependencies
-        if:   env.SKIP_PHPSTAN != 'true'
+        if:   env.SKIP_PHPSTAN == 'false'
         run: |
           echo "Validating \"composer.json\"..."
           composer validate --strict
@@ -61,8 +63,11 @@ jobs:
           echo "Installing dependencies..."
           composer install --no-progress
 
+      # ------------------------------------------------------------------------------------------------------------------------------------
       - name: Run PHPStan
-        if:   env.SKIP_PHPSTAN != 'true'
+        if:   env.SKIP_PHPSTAN == 'false'
         run: |
           echo "Generating PHPStan report..."
           bin/phpstan --no-progress -vvv
+
+      # ------------------------------------------------------------------------------------------------------------------------------------
