@@ -1,12 +1,13 @@
 #!/bin/bash
 #
-# A wrapper around PHPStan to simplify working with PHPStan baseline files. All arguments are optional.
+# Conveniant wrapper of PHPStan. Simplifies configuration and usage of PHPStan baseline files.
+# Supports switching between multiple PHP and/or PHPStan versions. All arguments are optional.
 #
 # Usage:
 #   phpstan [COMMAND] [options] [--] [PATH...]
 #
 # Command:
-#   analyse                                 Analyse the code base using the configuration in "etc/phpstan/phpstan.neon" (default command).
+#   analyse                                 Analyse the code base using the configuration in "/etc/phpstan/" (default command).
 #   analyse PATH                            Analyse a custom PATH (default: the configured paths).
 #
 # Options:
@@ -19,29 +20,86 @@
 # Short option name/value separator are zero or more spaces.      e.g. "-l3" or "-l 4"
 # Long option name/value separator are space or equal sign "=".   e.g. "--level 5" or "--level=6"
 #
-# PHPStan can be executed using a non-standard PHP interpreter by setting the environment variable PHP='<php-cmd>'.
+# By default the script looks for a PHPStan binary installed in the "vendor" directory of the project.
+# If PHPStan is not installed in the project the script tries to find a globally installed PHPStan.
+# A custom PHPStan binary can be specified by setting the environment variable PHPSTAN='<phpstan-cmd>'.
+#
+# PHPStan can be executed using a custom PHP interpreter by setting the environment variable PHP='<php-cmd>'.
 #
 # Examples:
-#   phpstan                                 // analyse the code base with the configured settings
-#   phpstan --level=1 api/app               // analyse a single directory with a custom rule level
-#   phpstan --level=6 -b baseline.neon      // analyse the code base and save the result as file "baseline.neon"
-#   phpstan --level=7 -u baseline.neon      // analyse the code base using file "baseline.neon" as a filter
-#   PHP=php81 phpstan                       // run PHPStan using PHP interpreter "php81" instead of the standard "php"
+#   phpstan                                 # Analyse the code base with the configured settings.
+#   phpstan --level=1 api/app               # Analyse a single directory with a custom rule level.
+#   phpstan --level=6 -b baseline.neon      # Analyse the code base and save the result to file "baseline.neon".
+#   phpstan --level=7 -u baseline.neon      # Analyse the code base using file "baseline.neon" as a filter.
+#   PHP=php81 phpstan                       # Use a different PHP version instead of the standard `php`.
+#   PHPSTAN=phpstan-2.1.0.phar phpstan      # Use a different PHPStan version instead of the standard installation.
+#
+#
+# TODO:
+#  - include baseline via dynamic PHP include       @see https://phpstan.org/config-reference#multiple-files
 #
 set -eEuo pipefail
 
+# --- functions ----------------------------------------------------------------------------------------------------------------------------
+
+#
+# Print a message to STDERR and exit the script/subshell.
+#
+# @param $@ - any number of arguments
+#
+function fail() {
+  stderr "$@"
+  exit 127
+}
+
+#
+# Print a message to STDERR but don't exit the script/subshell.
+#
+# @param $@ - any number of arguments
+#
+function stderr() {
+  echo "$@" >&2
+}
+
+# --- end of functions ---------------------------------------------------------------------------------------------------------------------
+
 
 # determine the PHP interpreter to use
-php=${PHP:-php}
-
+php="${PHP:-php}"
 
 # resolve directories and environment
-PROJECT_DIR="$(dirname "$(realpath "$(type -p "$0")")")/.."
+IS_WINDOWS_PHP="$("$php" -r "echo (int)(PHP_OS_FAMILY == 'Windows');")"
+PROJECT_DIR="$(realpath --relative-to=. "$(dirname "$(realpath "$(type -p "$0")")")"/..)"
+[[ "$PROJECT_DIR" == /* ]] && ((IS_WINDOWS_PHP)) && PROJECT_DIR="$(cygpath -m "$PROJECT_DIR")"
 CONFIG_DIR="$PROJECT_DIR/etc/phpstan"
-IS_WINDOWS_PHP="$($php -r "echo (int)(PHP_OS_FAMILY == 'Windows');")"
-phpstan="$PROJECT_DIR/vendor/bin/phpstan"
-[[ -f "$phpstan" ]] || { echo "PHPStan executable not found: vendor/bin/phpstan"; exit 1; }
-((IS_WINDOWS_PHP)) && phpstan="$(cygpath -m "$phpstan")"  # normalize path if running a Windows PHP version
+CONFIG_DIR="${CONFIG_DIR#./}"
+AUTOLOAD=
+
+# determine the PHPStan binary to use
+phpstan="${PHPSTAN:-}"
+phpstanCmd="$phpstan"
+
+if [[ -n "$phpstan" ]]; then
+  phpstan="$(type -p "$phpstan")" || fail "PHPStan executable not found: $phpstanCmd"
+
+  # if we are not in PROJECT_DIR then "vendor/autoload.php" must be specified manually
+  if [[ "$(pwd -P)" != "$PROJECT_DIR" ]]; then
+    AUTOLOAD="$PROJECT_DIR/vendor/autoload.php"
+    AUTOLOAD="${AUTOLOAD#./}"
+    [[ -f "$AUTOLOAD" ]] || fail "vendor/autoload.php not found"
+    AUTOLOAD="--autoload-file=$AUTOLOAD"
+  fi
+else
+  phpstanCmd="vendor/bin/phpstan"
+  phpstan="$PROJECT_DIR/$phpstanCmd"
+  phpstan="${phpstan#./}"
+  if [[ ! -f "$phpstan" ]]; then
+    phpstanCmd="phpstan" && phpstan="$(type -p "$phpstanCmd")" || {
+      phpstanCmd="phpstan.phar" && phpstan="$(type -p "$phpstanCmd")" || fail "PHPStan executable not found"
+    }
+  fi
+fi
+((IS_WINDOWS_PHP)) && phpstan="$(cygpath -m "$phpstan")"          # normalize path if running a Windows PHP version
 
 
 # parse command line arguments and create a new argument set for PHPStan
@@ -120,15 +178,15 @@ USE_DEFAULT=
 
 # validate config options
 if [[ -n "$CONFIG_OPTION" ]]; then
-    [[ -z "$CONFIG_FILE" ]] && { echo "Option $CONFIG_OPTION needs a value"; exit 1; }
-    [[ -f "$CONFIG_FILE" ]] || { echo "Config file \"$CONFIG_FILE\" not found"; exit 1; }
+  [[ -z "$CONFIG_FILE" ]] && fail "Option $CONFIG_OPTION needs a value"
+  [[ -f "$CONFIG_FILE" ]] || fail "Config file \"$CONFIG_FILE\" not found"
 else
-   FILES=('phpstan.neon' 'phpstan.neon.dist' 'phpstan.dist.neon')
-   for file in "${FILES[@]}"; do
-       file="$CONFIG_DIR/$file"
-       [[ -f "$file" ]] && CONFIG_FILE="$file" && break
-   done
-   [[ -z "$CONFIG_FILE" ]] && { echo "No config file found in \"$CONFIG_DIR\""; exit 1; }
+  FILES=('phpstan.neon' 'phpstan.neon.dist' 'phpstan.dist.neon')
+  for file in "${FILES[@]}"; do
+    file="$CONFIG_DIR/$file"
+    [[ -f "$file" ]] && CONFIG_FILE="$file" && break
+  done
+  [[ -z "$CONFIG_FILE" ]] && fail "No config file found in \"$CONFIG_DIR\""
 fi
 ((IS_WINDOWS_PHP)) && CONFIG_FILE="$(cygpath -m "$CONFIG_FILE")"                # normalize path if running a Windows PHP version
 
@@ -140,8 +198,8 @@ if [[ -n "$BASELINE_OPTION" ]]; then
     ARGS=("$BASELINE_OPTION" "${ARGS[@]}")
   else
     # validate baseline option
-    [[ -z "$BASELINE_FILE" ]] && { echo "Option $BASELINE_OPTION needs a value"; exit 1; }
-    [[ -f "$BASELINE_FILE" ]] || { echo "Baseline file \"$BASELINE_FILE\" not found"; exit 1; }
+    [[ -z "$BASELINE_FILE" ]] && fail "Option $BASELINE_OPTION needs a value"
+    [[ -f "$BASELINE_FILE" ]] || fail "Baseline file \"$BASELINE_FILE\" not found"
 
     INCLUDE_CONFIG="$(mktemp --suffix .neon include.XXX)"                       # create tmp file and register it for automatic deletion
     trap "rm -f '$INCLUDE_CONFIG'" EXIT
@@ -155,8 +213,11 @@ fi
 
 
 # complete PHPStan arguments
+if [[ "$CMD" == 'analyse' || "$CMD" == 'analyze' ]]; then
+  ARGS=('--memory-limit=-1' "${ARGS[@]+"${ARGS[@]}"}")                          # prepend memory option
+  [[ -n "$AUTOLOAD" ]] && ARGS=("$AUTOLOAD" "${ARGS[@]}")                       # prepend auto-load option
+fi
 if [[ "$CMD" == 'analyse' || "$CMD" == 'analyze' || "$CMD" == 'clear-result-cache' || "$CMD" == 'diagnose' || "$CMD" == 'dump-parameters' || "$CMD" == 'worker' || "$CMD" == 'fixer:worker' ]]; then
-  ARGS=('--memory-limit=-1' "${ARGS[@]}")                                       # prepend memory option
   CONFIG_FILE="${INCLUDE_CONFIG:-$CONFIG_FILE}"
   ARGS=("--configuration=$CONFIG_FILE" "${ARGS[@]}")                            # prepend config file
 fi
@@ -169,7 +230,7 @@ set -- "${ARGS[@]}"
 
 # verbose output
 [[ -n "$VERBOSE_OPTION" ]] && {
-  echo "CMD: vendor/bin/phpstan" "$@"
+  echo "CMD: $phpstanCmd" "$@"
   [[ "$VERBOSE_OPTION" == -vv* && -n "$INCLUDE_CONFIG" ]] && cat "$INCLUDE_CONFIG"
 }
 

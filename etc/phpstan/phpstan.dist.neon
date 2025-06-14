@@ -24,7 +24,7 @@ parameters:
 
   excludePaths:                                     # excludeAnalyze + excludeScan
     - symbols
-    - ../../data
+    - ../../data (?)
     - ../../etc/tmp
     - ../../vendor
 
@@ -41,6 +41,8 @@ parameters:
     - rosasurfer\ministruts\WINDOWS
     - rosasurfer\ministruts\NUL_DEVICE
 
+  checkUninitializedProperties: true
+
   typeAliases:                                      # defined here as long as we have non-OOP code in /bin/cmd/legacy/
     DUKASCOPY_TICK: 'array{time_gmt: int, time_fxt: int, time_millis: int, timeDelta: int, bid: int, bidSize: float, ask: int, askSize: float}'
 
@@ -54,7 +56,7 @@ parameters:
   tipsOfTheDay: false
 
 
-services:                                           # must be loadable via Composer
+services:                                           # classes must be loadable by Composer
   - class: rosasurfer\ministruts\phpstan\CoreFunctionReturnType
     tags:
       - phpstan.broker.dynamicFunctionReturnTypeExtension
