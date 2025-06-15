@@ -11,7 +11,7 @@ use rosasurfer\ministruts\db\orm\ORM;
 /**
  * DAO for accessing {@link Test} instances.
  *
- * @phpstan-import-type ORM_ENTITY from \rosasurfer\ministruts\phpstan\CustomTypes
+ * @phpstan-import-type ORM_ENTITY from \rosasurfer\ministruts\phpstan\ArrayShapes
  */
 class TestDAO extends DAO {
 

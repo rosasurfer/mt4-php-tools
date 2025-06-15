@@ -74,7 +74,7 @@ foreach ($args as $arg) {
             $files[] = $value;
         }
         else {                                  // Argument existiert nicht, Wildcards expandieren und Ergebnisse pruefen (z.B. unter Windows)
-            strEndsWith($value, ['/', '\\']) && ($value.='symbols.raw');
+            strEndsWith($value, '/', '\\') && ($value.='symbols.raw');
             $entries = glob($value, GLOB_NOESCAPE|GLOB_BRACE|GLOB_ERR);
             $matchesDir = false;
             foreach ($entries as $entry) {

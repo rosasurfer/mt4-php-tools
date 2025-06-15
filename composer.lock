@@ -61,16 +61,16 @@
         },
         {
             "name": "rosasurfer/ministruts",
-            "version": "0.12.0-rc.1",
+            "version": "0.12.0-rc.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rosasurfer/ministruts.git",
-                "reference": "b7b324c30988e00baf1e3d0ce2a4302f75a2af59"
+                "reference": "33ded990083a479f91abaa75106eb47656503a6a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/b7b324c30988e00baf1e3d0ce2a4302f75a2af59",
-                "reference": "b7b324c30988e00baf1e3d0ce2a4302f75a2af59",
+                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/33ded990083a479f91abaa75106eb47656503a6a",
+                "reference": "33ded990083a479f91abaa75106eb47656503a6a",
                 "shasum": ""
             },
             "require": {
@@ -84,7 +84,7 @@
                 "psr/container": "^1.0|^2.0"
             },
             "require-dev": {
-                "phpstan/phpstan": "^1.0|^2.0",
+                "phpstan/phpstan": "^1.11|^2.0",
                 "phpunit/phpunit": "^9.5",
                 "slevomat/coding-standard": "*"
             },
@@ -104,10 +104,10 @@
             },
             "autoload-dev": {
                 "psr-4": {
-                    "rosasurfer\\ministruts\\tests\\": "tests/"
+                    "rosasurfer\\ministruts\\tests\\": "tests/",
+                    "rosasurfer\\ministruts\\phpstan\\": "etc/phpstan/extension/"
                 },
                 "classmap": [
-                    "etc/phpstan/extension/",
                     "etc/phpstan/symbols/"
                 ]
             },
@@ -122,10 +122,10 @@
             ],
             "description": "MVC micro framework for PHP inspired by Java Struts",
             "support": {
-                "source": "https://github.com/rosasurfer/ministruts/tree/0.12.0-rc.1",
+                "source": "https://github.com/rosasurfer/ministruts/tree/0.12.0-rc.2",
                 "issues": "https://github.com/rosasurfer/ministruts/issues"
             },
-            "time": "2025-05-20T04:19:00+00:00"
+            "time": "2025-06-15T16:24:28+00:00"
         }
     ],
     "packages-dev": [

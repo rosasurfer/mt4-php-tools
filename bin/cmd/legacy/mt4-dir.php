@@ -55,7 +55,7 @@ foreach ($args as $arg) {
     }
     else {
         // Argument existiert nicht, Wildcards expandieren und Ergebnisse pruefen (z.B. unter Windows)
-        strEndsWith($value, ['/', '\\']) && ($value.='*');
+        strEndsWith($value, '/', '\\') && ($value.='*');
         $dirName  = dirname($value);
         $basename = basename($value); strEndsWith($basename, '*') && ($basename.='.hst');
 

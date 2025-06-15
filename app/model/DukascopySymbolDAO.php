@@ -11,7 +11,7 @@ use rosasurfer\ministruts\db\orm\ORM;
 /**
  * DAO for accessing {@link DukascopySymbol} instances.
  *
- * @phpstan-import-type ORM_ENTITY from \rosasurfer\ministruts\phpstan\CustomTypes
+ * @phpstan-import-type ORM_ENTITY from \rosasurfer\ministruts\phpstan\ArrayShapes
  */
 class DukascopySymbolDAO extends DAO {
 
