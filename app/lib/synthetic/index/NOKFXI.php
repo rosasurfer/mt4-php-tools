@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace rosasurfer\rt\lib\synthetic\index;
 
-use rosasurfer\ministruts\core\assert\Assert;
 use rosasurfer\ministruts\core\di\proxy\Output;
 use rosasurfer\ministruts\core\exception\UnimplementedFeatureException;
 
@@ -50,9 +49,7 @@ class NOKFXI extends AbstractSynthesizer {
      * @see \rosasurfer\rt\phpstan\RT_PRICE_BAR
      */
     public function calculateHistory(int $period, int $time): array {
-        Assert::int($period, '$period');
         if ($period != PERIOD_M1) throw new UnimplementedFeatureException(__METHOD__.'('.periodToStr($period).') not implemented');
-        Assert::int($time, '$time');
 
         if (!$symbols = $this->getComponents(first($this->components)))
             return [];

@@ -22,8 +22,8 @@ class Validator extends StaticClass {
      *
      * @return bool
      */
-    public static function isOperationType($type) {
-        return (is_int($type) && isset(ViewHelper::$operationTypes[$type]));
+    public static function isOperationType(int $type): bool {
+        return isset(ViewHelper::$operationTypes[$type]);
     }
 
 
@@ -58,7 +58,7 @@ class Validator extends StaticClass {
      *
      * @return bool
      */
-    public static function isInstrument($string) {
-        return (is_string($string) && isset(ViewHelper::$instruments[$string]));
+    public static function isInstrument(string $string): bool {
+        return isset(ViewHelper::$instruments[$string]);
     }
 }

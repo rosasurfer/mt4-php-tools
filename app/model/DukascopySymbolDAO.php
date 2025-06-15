@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace rosasurfer\rt\model;
 
-use rosasurfer\ministruts\core\assert\Assert;
 use rosasurfer\ministruts\db\NoSuchRecordException;
 use rosasurfer\ministruts\db\orm\DAO;
 use rosasurfer\ministruts\db\orm\ORM;
@@ -12,7 +11,7 @@ use rosasurfer\ministruts\db\orm\ORM;
 /**
  * DAO for accessing {@link DukascopySymbol} instances.
  *
- * @phpstan-import-type ORM_ENTITY from \rosasurfer\ministruts\phpstan\CustomTypes
+ * @phpstan-import-type ORM_ENTITY from \rosasurfer\ministruts\phpstan\ArrayShapes
  */
 class DukascopySymbolDAO extends DAO {
 
@@ -52,11 +51,9 @@ class DukascopySymbolDAO extends DAO {
      *
      * @param  string $name
      *
-     * @return DukascopySymbol|null
+     * @return ?DukascopySymbol
      */
-    public function findByName($name) {
-        Assert::string($name);
-
+    public function findByName(string $name): ?DukascopySymbol {
         $name = $this->escapeLiteral($name);
         $sql = 'select *
                    from :DukascopySymbol
@@ -74,7 +71,7 @@ class DukascopySymbolDAO extends DAO {
      *
      * @throws NoSuchRecordException if no such instance was found
      */
-    public function getByName(string $name) {
+    public function getByName(string $name): DukascopySymbol {
         $name = $this->escapeLiteral($name);
         $sql = "select *
                    from :DukascopySymbol

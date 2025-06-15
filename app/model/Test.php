@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace rosasurfer\rt\model;
 
-use rosasurfer\ministruts\core\assert\Assert;
 use rosasurfer\ministruts\core\exception\InvalidValueException;
 use rosasurfer\ministruts\util\PHP;
 use rosasurfer\ministruts\util\Windows;
@@ -541,8 +540,7 @@ class Test extends RosatraderModel {
      *
      * @return $this
      */
-    public function setReportingId($id) {
-        Assert::int($id);
+    public function setReportingId(int $id): self {
         if ($id <= 0) throw new InvalidValueException('Invalid parameter $id: '.$id.' (not positive)');
 
         $this->reportingId = $id;
@@ -552,23 +550,29 @@ class Test extends RosatraderModel {
 
 
     /**
+     * {@inheritDoc}
+     *
      * Make sure the test statistics are calculated.
      */
-    protected function beforeInsert() {
+    protected function beforeInsert(): bool {
         $this->getStats();
         return true;
     }
 
 
     /**
+     * {@inheritDoc}
+     *
      * Insert the related entities as this is not yet automated by the ORM.
      */
-    protected function afterInsert() {
+    protected function afterInsert(): void {
         $objects = array_merge(
             $this->getStrategyParameters(),
             $this->getTrades(),
             [$this->getStats()]
         );
-        foreach ($objects as $object) $object->save();
+        foreach ($objects as $object) {
+            $object->save();
+        }
     }
 }

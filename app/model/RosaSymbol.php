@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace rosasurfer\rt\model;
 
-use rosasurfer\ministruts\core\assert\Assert;
 use rosasurfer\ministruts\core\di\proxy\Output;
 use rosasurfer\ministruts\core\exception\RuntimeException;
 use rosasurfer\ministruts\process\Process;
@@ -269,9 +268,7 @@ class RosaSymbol extends RosatraderModel {
      *
      * @return bool
      */
-    public function isTradingDay($time) {
-        Assert::int($time);
-
+    public function isTradingDay(int $time): bool {
         return ($time && !isWeekend($time) && !$this->isHoliday($time));
     }
 
@@ -283,10 +280,8 @@ class RosaSymbol extends RosatraderModel {
      *
      * @return bool
      */
-    public function isHoliday($time) {
-        Assert::int($time);
-        if (!$time)
-            return false;
+    public function isHoliday(int $time): bool {
+        if (!$time) return false;
 
         if (isHoliday($time))                               // check for common Holidays
             return true;

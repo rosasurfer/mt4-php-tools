@@ -74,7 +74,7 @@ foreach ($args as $arg) {
             $files[] = $value;
         }
         else {                                  // Argument existiert nicht, Wildcards expandieren und Ergebnisse pruefen (z.B. unter Windows)
-            strEndsWith($value, ['/', '\\']) && ($value.='symbols.raw');
+            strEndsWith($value, '/', '\\') && ($value.='symbols.raw');
             $entries = glob($value, GLOB_NOESCAPE|GLOB_BRACE|GLOB_ERR);
             $matchesDir = false;
             foreach ($entries as $entry) {
@@ -109,7 +109,7 @@ foreach ($args as $arg) {
 
     // include all fields
     if ($arg == '++') {
-        $fieldArgs = ['++'];
+        $fieldArgs['++'] = 1;
         continue;
     }
 
@@ -121,8 +121,9 @@ foreach ($args as $arg) {
             exit(1);
         }
         unset($fieldArgs['-'.$key]);                                            // drops element if it exists
-        if (!in_array('++', $fieldArgs) && !in_array('+'.$key, $fieldArgs))
-            $fieldArgs[] = '+'.$key;
+        if (!isset($fieldArgs['++']) && !isset($fieldArgs['+'.$key])) {
+            $fieldArgs['+'.$key] = 1;
+        }
         continue;
     }
 
@@ -134,8 +135,9 @@ foreach ($args as $arg) {
             exit(1);
         }
         unset($fieldArgs['+'.$key]);                                            // drops element if it exists
-        if (in_array('++', $fieldArgs) && !in_array('-'.$key, $fieldArgs))
-            $fieldArgs[] = '-'.$key;
+        if (isset($fieldArgs['++']) && !isset($fieldArgs['-'.$key])) {
+            $fieldArgs['-'.$key] = 1;
+        }
         continue;
     }
 
@@ -143,6 +145,8 @@ foreach ($args as $arg) {
     help('invalid argument: '.$arg);
     exit(1);
 }
+$fieldArgs = \array_keys($fieldArgs);
+
 
 // ggf. verfuegbare Felder anzeigen und danach abbrechen
 $allFields = MT4::SYMBOL_getFields();               // TODO: Feld 'leverage' dynamisch hinzufuegen

@@ -7,10 +7,11 @@
 #
 includes:
   - include/php-version.neon.php                    # fetch PHP version specific settings
+  - ../../vendor/rosasurfer/ministruts/etc/phpstan/extension.neon
 
 
 parameters:
-  level: 5                                          # default rule level, a rule level on the command line overrides this value
+  level: 6                                          # default rule level, a rule level on the command line overrides this value
 
   bootstrapFiles:                                   # initialize runtime environment before PHPStan runs
     - init.php
@@ -24,8 +25,8 @@ parameters:
 
   excludePaths:                                     # excludeAnalyze + excludeScan
     - symbols
-    - ../../data
-    - ../../etc/tmp
+    - ../tmp
+    - ../../data (?)
     - ../../vendor
 
   fileExtensions:                                   # additional files to analyse
@@ -41,8 +42,11 @@ parameters:
     - rosasurfer\ministruts\WINDOWS
     - rosasurfer\ministruts\NUL_DEVICE
 
-  typeAliases:                                      # defined here as long as we have non-OOP code in /bin/cmd/legacy/
+  checkUninitializedProperties: true
+
+  typeAliases:                                      # defined here as long as we have non-OOP code in /app/functions.php and /bin/cmd/legacy/*
     DUKASCOPY_TICK: 'array{time_gmt: int, time_fxt: int, time_millis: int, timeDelta: int, bid: int, bidSize: float, ask: int, askSize: float}'
+    TZ_TRANSITION:  'array{ts: int, time: string, offset: int, isdst : bool, abbr: string}'
 
   ignoreErrors:
 
@@ -50,15 +54,5 @@ parameters:
 
   parallel:
     maximumNumberOfProcesses: 4
-  tmpDir:       ../../etc/tmp/phpstan
+  tmpDir:       ../tmp/phpstan
   tipsOfTheDay: false
-
-
-services:                                           # must be loadable via Composer
-  - class: rosasurfer\ministruts\phpstan\CoreFunctionReturnType
-    tags:
-      - phpstan.broker.dynamicFunctionReturnTypeExtension
-
-  - class: rosasurfer\ministruts\phpstan\DaoReturnType
-    tags:
-      - phpstan.broker.dynamicMethodReturnTypeExtension
