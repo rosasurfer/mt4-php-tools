@@ -194,8 +194,8 @@ fi
 # include a specified user baseline
 if [[ -n "$BASELINE_OPTION" ]]; then
   if [[ "$CMD" != analyse ]]; then
-    [[ -n "$BASELINE_FILE" ]] && ARGS=("$BASELINE_FILE" "${ARGS[@]}")           # non-analyse: pass-through -u
-    ARGS=("$BASELINE_OPTION" "${ARGS[@]}")
+    [[ -n "$BASELINE_FILE" ]] && ARGS=("$BASELINE_FILE" "${ARGS[@]+"${ARGS[@]}"}")  # non-analyse: pass-through -u
+    ARGS=("$BASELINE_OPTION" "${ARGS[@]+"${ARGS[@]}"}")
   else
     # validate baseline option
     [[ -z "$BASELINE_FILE" ]] && fail "Option $BASELINE_OPTION needs a value"
@@ -219,9 +219,9 @@ if [[ "$CMD" == 'analyse' || "$CMD" == 'analyze' ]]; then
 fi
 if [[ "$CMD" == 'analyse' || "$CMD" == 'analyze' || "$CMD" == 'clear-result-cache' || "$CMD" == 'diagnose' || "$CMD" == 'dump-parameters' || "$CMD" == 'worker' || "$CMD" == 'fixer:worker' ]]; then
   CONFIG_FILE="${INCLUDE_CONFIG:-$CONFIG_FILE}"
-  ARGS=("--configuration=$CONFIG_FILE" "${ARGS[@]}")                            # prepend config file
+  ARGS=("--configuration=$CONFIG_FILE" "${ARGS[@]+"${ARGS[@]}"}")               # prepend config file
 fi
-[[ -n "$USE_DEFAULT" ]] && ARGS=("$CMD" "${ARGS[@]}")                           # prepend default command if empty
+[[ -n "$USE_DEFAULT" ]] && ARGS=("$CMD" "${ARGS[@]+"${ARGS[@]}"}")              # prepend default command if empty
 
 
 # rebuild all positional arguments
