@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4c0e5bef63ba8a70b43ccbfe0aee409c",
+    "content-hash": "788fc0d0c683cf22666493c7434a3b60",
     "packages": [
         {
             "name": "psr/container",
@@ -61,16 +61,16 @@
         },
         {
             "name": "rosasurfer/ministruts",
-            "version": "0.12.0-rc.2",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rosasurfer/ministruts.git",
-                "reference": "33ded990083a479f91abaa75106eb47656503a6a"
+                "reference": "467392f342fe42839cad7607b68a887f7aae363f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/33ded990083a479f91abaa75106eb47656503a6a",
-                "reference": "33ded990083a479f91abaa75106eb47656503a6a",
+                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/467392f342fe42839cad7607b68a887f7aae363f",
+                "reference": "467392f342fe42839cad7607b68a887f7aae363f",
                 "shasum": ""
             },
             "require": {
@@ -84,10 +84,12 @@
                 "psr/container": "^1.0|^2.0"
             },
             "require-dev": {
-                "phpstan/phpstan": "^1.11|^2.0",
-                "phpunit/phpunit": "^9.5",
-                "slevomat/coding-standard": "*"
+                "phpstan/phpstan": "^2.0,!=2.1.19",
+                "phpunit/phpunit": "^9.6",
+                "slevomat/coding-standard": "^8.0",
+                "squizlabs/php_codesniffer": "^3.0"
             },
+            "default-branch": true,
             "type": "library",
             "extra": {
                 "branch-alias": {
@@ -95,22 +97,14 @@
                 }
             },
             "autoload": {
-                "psr-4": {
-                    "rosasurfer\\ministruts\\": "src/"
-                },
                 "files": [
                     "src/load.php"
-                ]
-            },
-            "autoload-dev": {
+                ],
                 "psr-4": {
-                    "rosasurfer\\ministruts\\tests\\": "tests/",
-                    "rosasurfer\\ministruts\\phpstan\\": "etc/phpstan/extension/"
-                },
-                "classmap": [
-                    "etc/phpstan/symbols/"
-                ]
+                    "rosasurfer\\ministruts\\": "src/"
+                }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "Unlicense"
             ],
@@ -122,25 +116,25 @@
             ],
             "description": "MVC micro framework for PHP inspired by Java Struts",
             "support": {
-                "source": "https://github.com/rosasurfer/ministruts/tree/0.12.0-rc.2",
-                "issues": "https://github.com/rosasurfer/ministruts/issues"
+                "issues": "https://github.com/rosasurfer/ministruts/issues",
+                "source": "https://github.com/rosasurfer/ministruts/tree/master"
             },
-            "time": "2025-06-15T16:24:28+00:00"
+            "time": "2025-07-27T20:29:38+00:00"
         }
     ],
     "packages-dev": [
         {
             "name": "phpstan/phpstan",
-            "version": "2.1.17",
+            "version": "2.1.22",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "89b5ef665716fa2a52ecd2633f21007a6a349053"
+                "reference": "41600c8379eb5aee63e9413fe9e97273e25d57e4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/89b5ef665716fa2a52ecd2633f21007a6a349053",
-                "reference": "89b5ef665716fa2a52ecd2633f21007a6a349053",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/41600c8379eb5aee63e9413fe9e97273e25d57e4",
+                "reference": "41600c8379eb5aee63e9413fe9e97273e25d57e4",
                 "shasum": ""
             },
             "require": {
@@ -185,13 +179,13 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-05-21T20:55:28+00:00"
+            "time": "2025-08-04T19:17:37+00:00"
         }
     ],
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "rosasurfer/ministruts": 5
+        "rosasurfer/ministruts": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
