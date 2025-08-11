@@ -3,11 +3,12 @@ declare(strict_types=1);
 
 namespace rosasurfer\rt\console;
 
+use DateTime;
+
 use rosasurfer\ministruts\console\Command;
 use rosasurfer\ministruts\console\io\Input;
 use rosasurfer\ministruts\console\io\Output;
 use rosasurfer\ministruts\core\exception\InvalidValueException;
-use rosasurfer\ministruts\util\DateTime;
 
 use rosasurfer\rt\lib\metatrader\HistoryHeader;
 use rosasurfer\rt\lib\metatrader\MetaTraderException;
