@@ -35,6 +35,8 @@
             <forward name="success"  include=".highcharts.line"/>
             <forward name="error"    include=".tests.sorted"/>
         </mapping>
+        
+        <mapping name="download"  path="/download"  action="DownloadAction"/>
     </action-mappings>
     
     
