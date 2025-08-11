@@ -58,16 +58,16 @@ jobs:
         if:   env.SKIP_PHPSTAN == 'false'
         run: |
           echo "Validating \"composer.json\"..."
-          composer validate --strict
+          composer validate --strict --ansi
 
           echo "Installing dependencies..."
-          composer install --no-progress
+          composer install --no-progress --ansi
 
       # ------------------------------------------------------------------------------------------------------------------------------------
       - name: Run PHPStan
         if:   env.SKIP_PHPSTAN == 'false'
         run: |
           echo "Generating PHPStan report..."
-          bin/phpstan --no-progress -vvv
+          DEBUG=1 bin/phpstan --no-progress -vvv
 
       # ------------------------------------------------------------------------------------------------------------------------------------
