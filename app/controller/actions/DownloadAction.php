@@ -70,7 +70,7 @@ class DownloadAction extends Action
 <h1>Not Found</h1>
 <p>The requested URL was not found on this server.</p>
 <hr>
-<address>...lamented the MiniStrutss.</address>
+<address>...lamented the MiniStruts.</address>
 </body></html>
 HTTP_404;
         return null;
