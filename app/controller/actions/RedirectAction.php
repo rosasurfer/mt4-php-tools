@@ -36,7 +36,7 @@ class RedirectAction extends Action
             /** @var Config $config */
             $config = $this->di()['config'];
 
-            $filename = $config->getString($key = 'redirect.mt4-mql-framework');
+            $filename = $config->getString($key = 'download.mt4-mql-framework');
             if (!strlen($filename)) throw new RuntimeException("Invalid config setting $key: \"\" (empty)");
 
             if (isRelativePath($filename)) {
