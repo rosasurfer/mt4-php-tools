@@ -5,6 +5,7 @@ namespace rosasurfer\rt\controller\actions;
 
 use rosasurfer\ministruts\config\ConfigInterface as Config;
 use rosasurfer\ministruts\core\exception\RuntimeException;
+use rosasurfer\ministruts\log\Logger;
 use rosasurfer\ministruts\net\http\HttpResponse;
 use rosasurfer\ministruts\struts\Action;
 use rosasurfer\ministruts\struts\ActionForward;
@@ -12,7 +13,9 @@ use rosasurfer\ministruts\struts\Request;
 use rosasurfer\ministruts\struts\Response;
 
 use function rosasurfer\ministruts\isRelativePath;
+use function rosasurfer\ministruts\strStartsWithI;
 
+use const rosasurfer\ministruts\L_NOTICE;
 use const rosasurfer\ministruts\NL;
 
 /**
@@ -31,7 +34,7 @@ class UpdateProductUrlAction extends Action
         $id = $input->get('id', '');
         $url = $input->get('url', '');
 
-        if ($id == 'rosasurfer/mt4-mql-framework' && filter_var($url, FILTER_VALIDATE_URL)) {
+        if ($id == 'rosasurfer/mt4-mql-framework' && filter_var($url, FILTER_VALIDATE_URL) && strStartsWithI($url, 'http:', 'https:')) {
             /** @var Config $config */
             $config = $this->di()['config'];
 
@@ -44,6 +47,8 @@ class UpdateProductUrlAction extends Action
             }
 
             file_put_contents($filename, trim($url).NL);
+
+            Logger::log("Updated download url for $id to: $url", L_NOTICE);
 
             header('HTTP/1.1 200', true, HttpResponse::SC_OK);
             echo 'success';
