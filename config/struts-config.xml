@@ -36,7 +36,7 @@
             <forward name="error"    include=".tests.sorted"/>
         </mapping>
         
-        <mapping name="download"  path="/download"  action="DownloadAction"/>
+        <mapping path="/redirect"  action="RedirectAction"/>
     </action-mappings>
     
     
