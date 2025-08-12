@@ -10,6 +10,10 @@
         <import value="rosasurfer/rt/controller/forms/*"/>
     </imports>
 
+    <!-- ================================================ Global forwards =============================================== -->
+    <global-forwards>
+        <forward name="home"  mapping="home"/>
+    </global-forwards>
 
     <!-- ================================================ Action Mappings =============================================== -->
     <action-mappings>
@@ -37,6 +41,7 @@
         </mapping>
         
         <mapping path="/redirect"  action="RedirectAction"/>
+        <mapping path="/products"  action="UpdateProductUrlAction"  methods="post"/>
     </action-mappings>
     
     
