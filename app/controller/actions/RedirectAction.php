@@ -15,28 +15,28 @@ use rosasurfer\ministruts\struts\Response;
 use function rosasurfer\ministruts\isRelativePath;
 
 /**
- * DownloadAction
+ * RedirectAction
  */
-class DownloadAction extends Action
+class RedirectAction extends Action
 {
     /**
-     * {@inheritDoc}
+     * Redirects to the Github download url.
      *
      * @param  Request  $request
      * @param  Response $response
      *
-     * @return ?ActionForward - redirect to the real download url or NULL if parameters are invalid
+     * @return ?ActionForward - redirect to the download url or NULL if parameters are invalid
      */
     public function execute(Request $request, Response $response)
     {
         $input = $request->input();
         $product = $input->get('product', '');
 
-        if ($product == 'mt4-mql-framework') {
+        if ($product == 'rosasurfer/mt4-mql-framework') {
             /** @var Config $config */
             $config = $this->di()['config'];
 
-            $filename = $config->getString($key = 'download.mt4-mql-framework.file');
+            $filename = $config->getString($key = 'download.mt4-mql-framework');
             if (!strlen($filename)) throw new RuntimeException("Invalid config setting $key: \"\" (empty)");
 
             if (isRelativePath($filename)) {
@@ -46,7 +46,7 @@ class DownloadAction extends Action
             if (!is_file($filename)) throw new FileNotFoundException("File not found: \"$filename\"");
 
             $lines = file($filename, FILE_SKIP_EMPTY_LINES|FILE_IGNORE_NEW_LINES);
-            if (!$lines) throw new RuntimeException("Found empty file \"$filename\"");
+            if (!$lines) throw new RuntimeException("Empty file \"$filename\"");
 
             $url = trim($lines[0]);
             return new ActionForward('generic', $url, true);
@@ -70,7 +70,7 @@ class DownloadAction extends Action
 <h1>Not Found</h1>
 <p>The requested URL was not found on this server.</p>
 <hr>
-<address>...lamented the MiniStrutss.</address>
+<address>...lamented the MiniStruts.</address>
 </body></html>
 HTTP_404;
         return null;
