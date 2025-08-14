@@ -60,7 +60,7 @@ class ArtifactAction extends Action
         //}
         //
         //file_put_contents($filename, $artifactId.NL);
-        Logger::log("Received new artifact for repository \"$repository\", artifact id: $artifactId", L_NOTICE);
+        Logger::log("Received build notification for repository \"$repository\", artifact id: $artifactId", L_NOTICE);
 
         return $this->sendStatus(HttpResponse::SC_OK, 'success');
     }
