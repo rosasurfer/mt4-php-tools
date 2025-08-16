@@ -38,11 +38,9 @@
 # TODO:
 #  - include baseline via dynamic PHP include           @see https://phpstan.org/config-reference#multiple-files
 #
-# @version 2025.08.11 18:08
-#
 set -eEuo pipefail
 
-exec 3>&1                                                       # duplicate original STDOUT
+exec 3>&1                                               # duplicate original STDOUT
 
 
 # --- functions ----------------------------------------------------------------------------------------------------------------------------
@@ -72,24 +70,23 @@ function stderr() {
 #
 # Read configuration files in isolation and extract the requested variables.
 #
-# @param _InOut_ $1 - named reference to an associative array holding the resulting configuration
-# @param _In_    $2 - named reference to an array holding the configuration files to read
-# @param _In_    $@ - any number of variable names to extract from the configuration
+# @param $1     - name of the array with config files to read
+# @param $2     - name of the associative array with the resulting configuration
+# @param ${@:3} - any number of variable names to read from the config files
 #
 function readConfig() {
-  ((BASH_SUBSHELL)) && fail "${FUNCNAME[0]}() can't write to outer scope from subshell"
-  local -n _config="$1"
-  local -n _files="$2"
-  ((!${#_files[@]})) && fail "${FUNCNAME[0]}() invalid argument '$2' (empty array)"
+  ((BASH_SUBSHELL)) && fail "${FUNCNAME[0]}() can't write to global scope from subshell"
+  local _files="$1[@]" _config="$2" size key value
+  eval "size=\${#$_files}"
+  ((!size)) && fail "${FUNCNAME[0]}() invalid argument \$1: empty array"
   shift 2
-  ((!"$#")) && fail "${FUNCNAME[0]}() missing variable names (empty)"
-  local key value
+  ((!"$#")) && fail "${FUNCNAME[0]}() missing variable names to read"
 
   while IFS='=' read -r key value; do
-    _config["$key"]="$value"
+    eval "${_config}[$key]='$value'"
   done < <(
     unset "$@"
-    for file in "${_files[@]}"; do
+    for file in "${!_files}"; do
       [[ -f "$file" ]] && source "$file" &> /dev/null
     done
     for var in "$@"; do
@@ -122,19 +119,15 @@ function useColors() {
 # --- end of functions ---------------------------------------------------------------------------------------------------------------------
 
 
-# ensure we run Bash v4.3+
-((BASH_VERSINFO[0] < 4 || (BASH_VERSINFO[0] == 4 && BASH_VERSINFO[1] < 3))) && fail "this script requires Bash version 4.3+"
-
-
 # resolve the project root directory
 declare projectDir
 projectDir="$(realpath --relative-to=. "$(dirname "$(realpath "$(type -p "$0")")")"/..)"
 
 
 # read the configuration
-declare -A config; config=()
+declare -A config=()
 declare files=("$projectDir/.env.dist" "$projectDir/.env") exportVars=()
-readConfig 'config' 'files'  PHP  PHP_COMPOSER_VENDOR_DIR  PHPSTAN  PHPSTAN_EXPORT_VARS
+readConfig 'files' 'config' PHP PHP_COMPOSER_VENDOR_DIR PHPSTAN PHPSTAN_EXPORT_VARS
 
 [[ -v PHP                     ]] || PHP="${config[PHP]:-}"
 [[ -v PHP_COMPOSER_VENDOR_DIR ]] || PHP_COMPOSER_VENDOR_DIR="${config[PHP_COMPOSER_VENDOR_DIR]:-}"
@@ -183,7 +176,7 @@ fi
 
 
 # parse command line arguments                                  # symfony/console (and thus PHPStan) supports:
-declare -A options; options=()                                  # -s[ ]VALUE             - optional space separator
+declare -A options=()                                           # -s[ ]VALUE             - optional space separator
 declare args=() arg cmd=''                                      # --long-option[= ]VALUE - mandatory equal or space separator
 
 
@@ -346,7 +339,7 @@ if [[ -v options['--use-baseline'] ]]; then
   [[ "$configWrapper" == /* ]] && ((isWindowsPhp)) && configWrapper="$(cygpath -m "$configWrapper")"
   trap "rm -f '$configWrapper'" EXIT
 
-  echo "includes:"                        > "$configWrapper"
+  echo 'includes:'                        > "$configWrapper"
   echo "  - ${options[--configuration]}" >> "$configWrapper"    # include user or default config
   echo "  - ${options[--use-baseline]}"  >> "$configWrapper"    # include user baseline
   options['--configuration']="$configWrapper"
