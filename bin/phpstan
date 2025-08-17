@@ -77,16 +77,16 @@ function stderr() {
 function readConfig() {
   local _files_="$1[@]" name value
   (("$#" < 3)) && fail "${FUNCNAME[0]}() missing arguments (min. 3)"
+  [[ "$1" == '_files_' ]] && fail "${FUNCNAME[0]}() invalid argument \$1: illegal name '$1'"
   eval "((!\${#$_files_}))" && fail "${FUNCNAME[0]}() invalid argument \$1: empty"
   for name in "${@:3}"; do
-    [[ "$name" == '_file_' || "$name" == '_name_' ]] && fail "${FUNCNAME[0]}() illegal var name \"$name\""
+    [[ "$name" == '_file_' || "$name" == '_name_' ]] && fail "${FUNCNAME[0]}() illegal argument name '$name'"
   done
-  
+
   while IFS='=' read -r name value; do
     eval "$2[$name]='$value'"
   done < <(
-    shift 2
-    unset "$@"
+    unset "${@:3}"
     for _file_ in "${!_files_}"; do
       [[ -f "$_file_" ]] && source "$_file_" &> /dev/null
     done
