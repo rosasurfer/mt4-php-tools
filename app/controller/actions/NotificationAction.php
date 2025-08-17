@@ -20,11 +20,11 @@ use const rosasurfer\ministruts\L_NOTICE;
 use const rosasurfer\ministruts\NL;
 
 /**
- * ArtifactAction
+ * NotificationAction
  *
- * Downloads and manages build artifacts for the rosasurfer/mt4-mql-framework.
+ * Handles notifications of new build artifacts.
  */
-class ArtifactAction extends Action
+class NotificationAction extends Action
 {
     /**
      * {@inheritDoc}
@@ -42,7 +42,7 @@ class ArtifactAction extends Action
             return $this->sendStatus(HttpResponse::SC_BAD_REQUEST, 'invalid parameter "artifact-id"');
         }
         if ($repository != 'rosasurfer/mt4-mql-framework') {
-            return $this->sendStatus(HttpResponse::SC_BAD_REQUEST, 'unsupported repository');
+            return $this->sendStatus(HttpResponse::SC_OK, 'unsupported repository');
         }
 
         // fetch artifact data
