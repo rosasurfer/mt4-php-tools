@@ -86,7 +86,8 @@ function readConfig() {
   while IFS='=' read -r name value; do
     eval "$2[$name]='$value'"
   done < <(
-    unset "${@:3}"
+    shift 2
+    unset "$@"
     for _file_ in "${!_files_}"; do
       [[ -f "$_file_" ]] && source "$_file_" &> /dev/null
     done
@@ -94,6 +95,30 @@ function readConfig() {
       [[ -v "$_name_" ]] && echo "$_name_=${!_name_}"
     done
   )
+}
+
+
+#
+# Finds a specified command in the PATH and makes sure it's not this script itself. Prints the found command.
+#
+# @param $1 - command
+#
+function findCommand() {
+  local lines line path
+  readarray -t lines < <(type -a "$1" 2>/dev/null || :)
+
+  for line in "${lines[@]+"${lines[@]}"}"; do
+    case "$line" in
+      *' is a'*) ;;
+      *)
+        path="${line#* is }"
+        [[ "$(realpath "$path")" == "$self" ]] && continue
+        [[ "$(stat -c '%d:%i' "$path")" == "$(stat -c '%d:%i' "$self")" ]] && continue
+        echo "$path"
+        return 0;;
+    esac
+  done
+  return 1
 }
 
 
@@ -121,8 +146,9 @@ function useColors() {
 
 
 # resolve the project root directory
-declare projectDir
-projectDir="$(realpath --relative-to=. "$(dirname "$(realpath "$(type -p "$0")")")"/..)"
+declare self projectDir
+self="$(realpath "$(type -p "$0")")"
+projectDir="$(realpath --relative-to=. "$(dirname "$self")"/..)"
 
 
 # read the configuration
@@ -152,15 +178,15 @@ declare phpstan phpstanCmd isExternalPhpstan=0
 
 if [[ -n "$PHPSTAN" ]]; then                                    # a user-specified command
   phpstanCmd="$PHPSTAN"
-  phpstan="$(type -p "$PHPSTAN")" || fail "PHPStan executable not found: $PHPSTAN"
-  isExternalPhpstan=1
+  phpstan="$(findCommand "$PHPSTAN")" || fail "PHPStan executable not found: $PHPSTAN"
+  isExternalPhpstan=1                                           # TODO: make sure phpstan is not this script itself
 else
   phpstanCmd='vendor/bin/phpstan'
   phpstan="$vendorDir/bin/phpstan"                              # search vendor directory
   phpstan="${phpstan#./}"
-  if [[ ! -f "$phpstan" ]]; then
-    phpstanCmd='phpstan' && phpstan="$(type -p phpstan)" || {   # search PATH for: phpstan, phpstan.phar
-      phpstanCmd='phpstan.phar' && phpstan="$(type -p phpstan.phar)" || fail "PHPStan executable not found"
+  if [[ ! -f "$phpstan" ]]; then                                # TODO: make sure phpstan is not this script itself
+    phpstanCmd='phpstan' && phpstan="$(findCommand phpstan)" || {
+      phpstanCmd='phpstan.phar' && phpstan="$(findCommand phpstan.phar)" || fail "PHPStan executable not found"
     }
     isExternalPhpstan=1
   fi
