@@ -16,6 +16,9 @@ parameters:
   bootstrapFiles:                                   # initialize runtime environment before PHPStan runs
     - init.php
 
+  fileExtensions:                                   # additional file extensions to analyse (default: "php")
+    - phtml
+
   paths:                                            # analyzed paths, paths on the command line override these values
     - ../../app
     - ../../bin
@@ -28,9 +31,6 @@ parameters:
     - ../tmp
     - ../../data (?)
     - ../../vendor
-
-  fileExtensions:                                   # additional files to analyse
-    - phtml
 
   scanFiles:                                        # scanned for symbols only, not analyzed (for legacy or future code)
 
