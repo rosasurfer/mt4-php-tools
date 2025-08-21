@@ -40,7 +40,7 @@ class RedirectAction extends Action
             if (!strlen($filename)) throw new RuntimeException("Invalid config setting $key: \"\" (empty)");
 
             if (isRelativePath($filename)) {
-                $rootDir = $config['app.dir.root'];
+                $rootDir = $config->getString('app.dir.root');
                 $filename = str_replace('\\', '/', "$rootDir/$filename");
             }
             if (!is_file($filename)) throw new FileNotFoundException("File not found: \"$filename\"");
