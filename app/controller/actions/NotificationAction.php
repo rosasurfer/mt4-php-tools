@@ -16,13 +16,13 @@ use rosasurfer\ministruts\struts\Response;
 use GuzzleHttp\Client as HttpClient;
 use GuzzleHttp\Exception\GuzzleException;
 
-use function rosasurfer\ministruts\echof;
 use function rosasurfer\ministruts\isRelativePath;
 use function rosasurfer\ministruts\strIsDigits;
 use function rosasurfer\ministruts\strRight;
 use function rosasurfer\ministruts\strRightFrom;
 use function rosasurfer\ministruts\strStartsWith;
 
+use const rosasurfer\ministruts\JSON_PRETTY_ALL;
 use const rosasurfer\ministruts\L_ERROR;
 use const rosasurfer\ministruts\L_NOTICE;
 use const rosasurfer\ministruts\NL;
@@ -45,14 +45,13 @@ class NotificationAction extends Action
         if ($error) {
             return $this->sendStatus($error, $errorMsg);
         }
-        Logger::log("Received build notification for repository \"$repository\", artifact id: $artifactId", L_NOTICE);
 
-        [$error, $errorMsg, $content] = $this->queryGithubAPI($repository, $artifactId);
+        [$error, $errorMsg, $response] = $this->queryGithubAPI($repository, $artifactId);
         if ($error) {
             return $this->sendStatus($error, $errorMsg);
         }
 
-        [$error, $errorMsg, $fileName, $fileSize, $fileDigest, $downloadUrl] = $this->validateGithubResult($content);
+        [$error, $errorMsg, $fileName, $fileSize, $fileDigest, $downloadUrl] = $this->validateGithubResult($response);
         if ($error) {
             return $this->sendStatus($error, $errorMsg);
         }
@@ -62,15 +61,9 @@ class NotificationAction extends Action
             return $this->sendStatus($error, $errorMsg);
         }
 
-        $duration = sprintf("%.3f", microtime(true) - $starttime);
-        Logger::log('Github response:'.NL.json_encode(json_decode($content), JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES).NL.NL.<<<MSG
-        name:     $fileName
-        size:     $fileSize
-        digest:   $fileDigest
-        url:      $downloadUrl
-        download: $download
-        time:     $duration sec
-        MSG, L_NOTICE);
+        $metaData = json_encode(json_decode($response), JSON_PRETTY_ALL);
+        $duration = sprintf('%.3f', microtime(true) - $starttime);
+        Logger::log("Received build notification for repository \"$repository\", artifact id: $artifactId".NL.$metaData.NL."time: $duration sec", L_NOTICE);
 
         // store download and meta data locally
 
@@ -213,32 +206,47 @@ class NotificationAction extends Action
         /** @var Config $config */
         $config = $this->di()['config'];
         $tmpDir = $config->getString('app.dir.tmp');
-        $tmpName = "$tmpDir/$fileName";
+        $fileName = "$tmpDir/$fileName";
         $githubToken = $config->getString('github-api.token');
 
-        try {
-            $response = (new HttpClient())->request('GET', $url, [
-                'connect_timeout' => 10,
-                'sink' => $tmpName,
-                'headers' => [
-                    'Authorization' => "Bearer $githubToken",
-                ],
-            ]);
+        if (!is_file($fileName)) {
+            try {
+                $response = (new HttpClient())->request('GET', $url, [
+                    'connect_timeout' => 10,
+                    'sink' => $fileName,
+                    'headers' => [
+                        'Authorization' => "Bearer $githubToken",
+                    ],
+                ]);
 
-            $status = $response->getStatusCode();
-            if ($status != 200) {
-                throw new RuntimeException("error downloading Github artifact: HTTP status $status");
+                $status = $response->getStatusCode();
+                if ($status != 200) {
+                    throw new RuntimeException("error downloading Github artifact: HTTP status $status");
+                }
+            }
+            catch (GuzzleException|RuntimeException $ex) {
+                Logger::log($errorMsg = 'error downloading Github artifact: '.get_class($ex), L_ERROR, ['exception' => $ex]);
+                return [HttpResponse::SC_INTERNAL_SERVER_ERROR, $errorMsg] + $empty;
             }
         }
-        catch (GuzzleException|RuntimeException $ex) {
-            Logger::log($errorMsg = 'error downloading Github artifact: '.get_class($ex), L_ERROR, ['exception' => $ex]);
+
+        // validate the file size
+        $actualSize = filesize($fileName);
+        if ($actualSize !== $fileSize) {
+            //unlink($fileName);
+            Logger::log($errorMsg = "file size mis-match of downloaded Github artifact: expected=$fileSize vs. actual=$actualSize", L_ERROR);
             return [HttpResponse::SC_INTERNAL_SERVER_ERROR, $errorMsg] + $empty;
         }
 
-        // validate file size
-        // validate file digest
+        // validate the file hash
+        $hash = hash_file('sha256', $fileName);
+        if ($hash !== $fileDigest) {
+            //unlink($fileName);
+            Logger::log($errorMsg = "file hash mis-match of downloaded Github artifact: expected=sha256:$fileDigest vs. actual=$hash", L_ERROR);
+            return [HttpResponse::SC_INTERNAL_SERVER_ERROR, $errorMsg] + $empty;
+        }
 
-        return [$error, $errorMsg, $tmpName];
+        return [$error, $errorMsg, $fileName];
     }
 
 
