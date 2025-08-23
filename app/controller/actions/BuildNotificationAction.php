@@ -28,11 +28,11 @@ use const rosasurfer\ministruts\L_NOTICE;
 use const rosasurfer\ministruts\NL;
 
 /**
- * NotificationAction
+ * BuildNotificationAction
  *
- * Handles notifications of new build artifacts.
+ * Handles notifications about new build artifacts.
  */
-class NotificationAction extends Action
+class BuildNotificationAction extends Action
 {
     /**
      * {@inheritDoc}

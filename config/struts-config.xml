@@ -40,7 +40,7 @@
             <forward name="error"    include=".tests.sorted"/>
         </mapping>
         
-        <mapping path="/mt4-mql/build-notification"  action="NotificationAction"  methods="post"/>
+        <mapping path="/mt4-mql/build-notification"  action="BuildNotificationAction"  methods="get,post"/>
         <mapping path="/mt4-mql/builds"              action="RedirectAction"/>
     </action-mappings>
     
