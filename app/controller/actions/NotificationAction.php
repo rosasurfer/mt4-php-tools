@@ -206,14 +206,14 @@ class NotificationAction extends Action
         /** @var Config $config */
         $config = $this->di()['config'];
         $tmpDir = $config->getString('app.dir.tmp');
-        $fileName = "$tmpDir/$fileName";
+        $tmpFileName = "$tmpDir/$fileName";
         $githubToken = $config->getString('github-api.token');
 
-        if (!is_file($fileName)) {
+        if (!is_file($tmpFileName)) {
             try {
                 $response = (new HttpClient())->request('GET', $url, [
                     'connect_timeout' => 10,
-                    'sink' => $fileName,
+                    'sink' => $tmpFileName,
                     'headers' => [
                         'Authorization' => "Bearer $githubToken",
                     ],
@@ -231,22 +231,22 @@ class NotificationAction extends Action
         }
 
         // validate the file size
-        $actualSize = filesize($fileName);
+        $actualSize = filesize($tmpFileName);
         if ($actualSize !== $fileSize) {
-            //unlink($fileName);
+            unlink($tmpFileName);
             Logger::log($errorMsg = "file size mis-match of downloaded Github artifact: expected=$fileSize vs. actual=$actualSize", L_ERROR);
             return [HttpResponse::SC_INTERNAL_SERVER_ERROR, $errorMsg] + $empty;
         }
 
         // validate the file hash
-        $hash = hash_file('sha256', $fileName);
+        $hash = hash_file('sha256', $tmpFileName);
         if ($hash !== $fileDigest) {
-            //unlink($fileName);
+            unlink($tmpFileName);
             Logger::log($errorMsg = "file hash mis-match of downloaded Github artifact: expected=sha256:$fileDigest vs. actual=$hash", L_ERROR);
             return [HttpResponse::SC_INTERNAL_SERVER_ERROR, $errorMsg] + $empty;
         }
 
-        return [$error, $errorMsg, $fileName];
+        return [$error, $errorMsg, $tmpFileName];
     }
 
 
