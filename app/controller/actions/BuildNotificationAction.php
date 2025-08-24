@@ -51,7 +51,7 @@ class BuildNotificationAction extends Action
             return $this->sendStatus($error, $errorMsg);
         }
 
-        [$error, $errorMsg, $fileName, $fileSize, $fileDigest, $downloadUrl] = $this->validateGithubResult($response);
+        [$error, $errorMsg, $fileName, $fileSize, $fileDigest, $downloadUrl, $branch] = $this->parseGithubResult($response);
         if ($error) {
             return $this->sendStatus($error, $errorMsg);
         }
@@ -61,11 +61,11 @@ class BuildNotificationAction extends Action
             return $this->sendStatus($error, $errorMsg);
         }
 
+        // store download and meta data locally
+
         $metaData = json_encode(json_decode($response), JSON_PRETTY_ALL);
         $duration = sprintf('%.3f', microtime(true) - $starttime);
         Logger::log("Received build notification for repository \"$repository\", artifact id: $artifactId".NL.$metaData.NL."time: $duration sec", L_NOTICE);
-
-        // store download and meta data locally
 
         return $this->sendStatus(HttpResponse::SC_OK, 'success');
     }
@@ -143,15 +143,15 @@ class BuildNotificationAction extends Action
 
 
     /**
-     * Validate the result of the Github API query.
+     * Parse and validate the result of the Github API query.
      *
      * @param  string $response - received response
      *
-     * @return array{int, string, string, int, string, string} - parsed artifact meta data or an error description
+     * @return array{int, string, string, int, string, string, string} - parsed artifact meta data or an error description
      */
-    protected function validateGithubResult(string $response): array
+    protected function parseGithubResult(string $response): array
     {
-        [$error, $errorMsg, $fileName, $fileSize, $fileDigest, $downloadUrl] = $empty = [0, '', '', 0, '', ''];
+        [$error, $errorMsg, $fileName, $fileSize, $fileDigest, $downloadUrl, $branch] = $empty = [0, '', '', 0, '', '', ''];
 
         $data = json_decode($response, true);
         if (json_last_error() || !is_array($data)) {
@@ -177,14 +177,14 @@ class BuildNotificationAction extends Action
         $fileName .= '.'.strRightFrom($downloadUrl, '/', -1);
         $fileDigest = strRight($fileDigest, -7);
 
-        $validate = fn($v) => is_string($v) && $v === 'master';
-        if (!$validate($value = $data['workflow_run']['head_branch'] ?? null)) {
+        if (is_string($value = $data['workflow_run']['head_branch'] ?? null)) {
             $msg = 'missing or invalid field "workflow_run/head_branch"';
             Logger::log('unexpected JSON response from Github: '.$msg.NL.print_r($data, true), L_ERROR);
             return [HttpResponse::SC_INTERNAL_SERVER_ERROR, $msg] + $empty;
         }
+        $branch = $value;
 
-        return [$error, $errorMsg, $fileName, $fileSize, $fileDigest, $downloadUrl];
+        return [$error, $errorMsg, $fileName, $fileSize, $fileDigest, $downloadUrl, $branch];
     }
 
 
