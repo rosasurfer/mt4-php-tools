@@ -38,6 +38,7 @@
 # TODO:
 #  - include baseline via dynamic PHP include           @see https://phpstan.org/config-reference#multiple-files
 #
+shopt -s inherit_errexit 2>/dev/null || :
 set -eEuo pipefail
 
 exec 3>&1                                               # duplicate original STDOUT
@@ -104,19 +105,14 @@ function readConfig() {
 # @param $1 - command
 #
 function findCommand() {
-  local lines line path
-  readarray -t lines < <(type -a "$1" 2>/dev/null || :)
+  local lines path
+  readarray -t lines < <(type -ap "$1" 2>/dev/null || :)
 
-  for line in "${lines[@]+"${lines[@]}"}"; do
-    case "$line" in
-      *' is a'*) ;;
-      *)
-        path="${line#* is }"
-        [[ "$(realpath "$path")" == "$self" ]] && continue
-        [[ "$(stat -c '%d:%i' "$path")" == "$(stat -c '%d:%i' "$self")" ]] && continue
-        echo "$path"
-        return 0;;
-    esac
+  for path in "${lines[@]+"${lines[@]}"}"; do
+    [[ "$(realpath "$path")" == "$self" ]] && continue
+    [[ "$(stat -c '%d:%i' "$path")" == "$(stat -c '%d:%i' "$self")" ]] && continue
+    echo "$path"
+    return 0
   done
   return 1
 }
