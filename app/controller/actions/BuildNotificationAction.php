@@ -177,7 +177,8 @@ class BuildNotificationAction extends Action
         $fileName .= '.'.strRightFrom($downloadUrl, '/', -1);
         $fileDigest = strRight($fileDigest, -7);
 
-        if (is_string($value = $data['workflow_run']['head_branch'] ?? null)) {
+        $value = $data['workflow_run']['head_branch'] ?? null;
+        if (!is_string($value)) {
             $msg = 'missing or invalid field "workflow_run/head_branch"';
             Logger::log('unexpected JSON response from Github: '.$msg.NL.print_r($data, true), L_ERROR);
             return [HttpResponse::SC_INTERNAL_SERVER_ERROR, $msg] + $empty;
