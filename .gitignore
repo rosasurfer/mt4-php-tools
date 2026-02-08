@@ -43,5 +43,6 @@ config*.properties
 /data
 /deploy
 /web/doc/erm
+/web/doc/filter*
 *.bi5
 *.bin
