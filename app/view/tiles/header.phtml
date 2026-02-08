@@ -4,7 +4,6 @@ declare(strict_types=1);
 use function rosasurfer\ministruts\route;
 use function rosasurfer\ministruts\url;
 ?>
-
 <nav class="navbar navbar-default navbar-custom">
    <div class="container-fluid">
       <div class="navbar-header">
@@ -46,6 +45,8 @@ use function rosasurfer\ministruts\url;
                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Help <span class="caret"></span></a>
                <ul class="dropdown-menu">
                   <li><a href="<?=url('/doc/erm/MImage.html')?>" target="erm">Database Model</a></li>
+                  <li><a href="<?=url('/doc/filter-en/')?>"      target="dfg">Digital Filter Generator Help (en)</a></li>
+                  <li><a href="<?=url('/doc/filter-ru/')?>"      target="dfg">Digital Filter Generator Help (ru)</a></li>
                   <li role="separator" class="divider"></li>
                   <li><a href="<?=route('about')?>">About</a></li>
                </ul>
