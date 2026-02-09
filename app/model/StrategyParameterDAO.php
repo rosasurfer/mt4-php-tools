@@ -10,7 +10,7 @@ use rosasurfer\ministruts\db\orm\ORM;
 /**
  * DAO for accessing {@link StrategyParameter} instances.
  *
- * @phpstan-import-type ORM_ENTITY from \rosasurfer\ministruts\phpstan\ArrayShapes
+ * @phpstan-import-type ORM_ENTITY from \rosasurfer\ministruts\phpstan\UserTypes
  */
 class StrategyParameterDAO extends DAO {
 

@@ -14,10 +14,11 @@
     "php":                   "^7.4|^8.0",
     "ext-bcmath":            "*",
     "ext-sqlite3":           "*",
-    "rosasurfer/ministruts": "^0.12@dev"
+    "guzzlehttp/guzzle":     "^7.0",
+    "rosasurfer/ministruts": "^0.12"
   },
   "require-dev": {
-    "phpstan/phpstan": "^1.11|^2.1.20"
+    "phpstan/phpstan": "^2.1.20"
   },
   "autoload": {
     "classmap": ["app/"],

@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace rosasurfer\rt\lib\synthetic;
 
 use rosasurfer\ministruts\core\CObject;
-use rosasurfer\ministruts\core\di\proxy\Output;
+use rosasurfer\ministruts\core\proxy\Output;
 
 use rosasurfer\rt\model\RosaSymbol;
 

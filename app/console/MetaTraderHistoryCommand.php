@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace rosasurfer\rt\console;
 
+use rosasurfer\ministruts\Application;
 use rosasurfer\ministruts\console\Command;
 use rosasurfer\ministruts\console\io\Input;
 use rosasurfer\ministruts\console\io\Output;
@@ -61,7 +62,7 @@ DOCOPT;
         if (!$end) throw new IllegalStateException('Rosatrader history start/end time mis-match for '.$symbol->getName().':  start='.$start.'  end='.$end);
 
         /** @var MetaTrader $metatrader */
-        $metatrader = $this->di(MetaTrader::class);
+        $metatrader = Application::service(MetaTrader::class);
         $historySet = $metatrader->createHistorySet($symbol);
 
         // iterate over existing history

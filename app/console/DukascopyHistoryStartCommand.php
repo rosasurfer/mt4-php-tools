@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace rosasurfer\rt\console;
 
+use rosasurfer\ministruts\Application;
 use rosasurfer\ministruts\console\Command;
 use rosasurfer\ministruts\console\io\Input;
 use rosasurfer\ministruts\console\io\Output;
@@ -53,7 +54,7 @@ DOCOPT;
 
         if ($remote || $update) {
             /** @var Dukascopy $dukascopy */
-            $dukascopy = $this->di(Dukascopy::class);
+            $dukascopy = Application::service(Dukascopy::class);
             $remoteTimes = $dukascopy->fetchHistoryStarts();
         }
 

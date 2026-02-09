@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace rosasurfer\rt\lib\synthetic\index;
 
-use rosasurfer\ministruts\core\di\proxy\Output;
 use rosasurfer\ministruts\core\exception\UnimplementedFeatureException;
+use rosasurfer\ministruts\core\proxy\Output;
 
 use rosasurfer\rt\lib\synthetic\AbstractSynthesizer;
 

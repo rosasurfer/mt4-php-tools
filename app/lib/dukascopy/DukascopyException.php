@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace rosasurfer\rt\lib\dukascopy;
 
-use rosasurfer\ministruts\core\exception\RosasurferException;
+use rosasurfer\ministruts\core\exception\Exception as RosasurferException;
 
 
 /**

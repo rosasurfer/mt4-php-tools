@@ -5,8 +5,9 @@ namespace rosasurfer\rt\model;
 
 use DateTime;
 
-use rosasurfer\ministruts\core\di\proxy\Output;
+use rosasurfer\ministruts\Application;
 use rosasurfer\ministruts\core\exception\UnimplementedFeatureException;
+use rosasurfer\ministruts\core\proxy\Output;
 
 use rosasurfer\rt\lib\HistorySource;
 use rosasurfer\rt\lib\dukascopy\Dukascopy;
@@ -157,7 +158,7 @@ class DukascopySymbol extends RosatraderModel implements HistorySource {
         }
         else {
             /** @var Dukascopy $dukascopy */
-            $dukascopy = $this->di(Dukascopy::class);
+            $dukascopy = Application::service(Dukascopy::class);
             $historyStart = $dukascopy->fetchHistoryStart($this);
 
             foreach ($historyStart as $timeframe => $time) {
@@ -236,7 +237,7 @@ class DukascopySymbol extends RosatraderModel implements HistorySource {
                 $time += 1*DAY - $time%DAY;                                 // the partial FXT day: it would be incomplete
         }
         /** @var Dukascopy $dukascopy */
-        $dukascopy = $this->di(Dukascopy::class);
+        $dukascopy = Application::service(Dukascopy::class);
         return $dukascopy->getHistory($this, $period, $time, $compact);
     }
 }

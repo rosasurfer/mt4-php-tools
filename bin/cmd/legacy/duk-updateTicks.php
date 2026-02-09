@@ -385,7 +385,7 @@ function downloadTickdata(string $symbol, int $gmtHour, int $fxtHour, bool $quie
     if (!$quiet && $verbose > 1) echof('[Info]    '.$shortDate.'  downloading: '.$url);
 
     // Standard-Browser simulieren
-    $userAgent = Application::getDi()['config']['rt.http.useragent'];
+    $userAgent = Application::service('config')['rt.http.useragent'];
     $request = (new HttpRequest($url))
                ->setHeader('User-Agent'     , $userAgent                                                       )
                ->setHeader('Accept'         , 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
@@ -479,7 +479,7 @@ function loadCompressedDukascopyTickData(string $data, string $symbol, int $gmtH
     $saveAs = $saveRawDukascopyFiles ? getVar('dukaFile.raw', $symbol, $gmtHour) : null;
 
     /** @var Dukascopy $dukascopy */
-    $dukascopy = Application::getDi()[Dukascopy::class];
+    $dukascopy = Application::service(Dukascopy::class);
     $rawData = $dukascopy->decompressData($data, $saveAs);
     return loadRawDukascopyTickData($rawData, $gmtHour, $fxtHour);
 }
@@ -549,7 +549,7 @@ function getVar(string $id, ?string $symbol = null, ?int $time = null): string {
     }
 
     static $storageDir;
-    $storageDir = $storageDir ?? Application::getDi()['config']['app.dir.data'];
+    $storageDir = $storageDir ?? Application::service('config')['app.dir.data'];
     $self = __FUNCTION__;
 
     if ($id == 'rtDirDate') {                   // $yyyy/$mmL/$dd                                               // lokales Pfad-Datum

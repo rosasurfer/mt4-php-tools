@@ -1,12 +1,10 @@
 <?php
 declare(strict_types=1);
 
-use rosasurfer\ministruts\core\di\proxy\Request;
+use rosasurfer\ministruts\core\proxy\Request;
 
 use function rosasurfer\ministruts\hsc;
 
 foreach (Request::getActionMessages() as $message) { ?>
     <div class="alert alert-danger textcenter"><p><?=hsc($message)?></p></div>
-<?php
-}
-?>
+<?php } ?>
