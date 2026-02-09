@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "21aa187a3ef9f1b34e2c13268de17281",
+    "content-hash": "c9dd5acbfef763c5d6e3dff9a74d3d2f",
     "packages": [
         {
             "name": "guzzlehttp/guzzle",
@@ -672,16 +672,16 @@
         },
         {
             "name": "rosasurfer/ministruts",
-            "version": "dev-master",
+            "version": "0.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rosasurfer/ministruts.git",
-                "reference": "75ae49a1e991b64aaddd03d636b881499f273160"
+                "reference": "e3472813e33efb841983b83dd7bf1df38de7a320"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/75ae49a1e991b64aaddd03d636b881499f273160",
-                "reference": "75ae49a1e991b64aaddd03d636b881499f273160",
+                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/e3472813e33efb841983b83dd7bf1df38de7a320",
+                "reference": "e3472813e33efb841983b83dd7bf1df38de7a320",
                 "shasum": ""
             },
             "require": {
@@ -701,7 +701,6 @@
                 "slevomat/coding-standard": "^8.0",
                 "squizlabs/php_codesniffer": "^3.0"
             },
-            "default-branch": true,
             "type": "library",
             "extra": {
                 "branch-alias": {
@@ -729,9 +728,9 @@
             "description": "MVC micro framework for PHP inspired by Java Struts",
             "support": {
                 "issues": "https://github.com/rosasurfer/ministruts/issues",
-                "source": "https://github.com/rosasurfer/ministruts/tree/master"
+                "source": "https://github.com/rosasurfer/ministruts/tree/0.12"
             },
-            "time": "2026-02-09T05:51:53+00:00"
+            "time": "2026-02-09T14:10:10+00:00"
         },
         {
             "name": "symfony/deprecation-contracts",
@@ -858,9 +857,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "rosasurfer/ministruts": 20
-    },
+    "stability-flags": {},
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

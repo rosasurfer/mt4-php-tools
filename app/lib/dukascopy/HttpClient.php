@@ -3,10 +3,10 @@ declare(strict_types=1);
 
 namespace rosasurfer\rt\lib\dukascopy;
 
-use rosasurfer\ministruts\core\di\proxy\CliInput as Input;
-use rosasurfer\ministruts\core\di\proxy\Output;
 use rosasurfer\ministruts\core\exception\InvalidValueException;
 use rosasurfer\ministruts\core\exception\RuntimeException;
+use rosasurfer\ministruts\core\proxy\CliInput as Input;
+use rosasurfer\ministruts\core\proxy\Output;
 use rosasurfer\ministruts\net\http\CurlHttpClient;
 use rosasurfer\ministruts\net\http\HttpResponse;
 

@@ -3,8 +3,9 @@ declare(strict_types=1);
 
 namespace rosasurfer\rt\model;
 
-use rosasurfer\ministruts\core\di\proxy\Output;
+use rosasurfer\ministruts\Application;
 use rosasurfer\ministruts\core\exception\RuntimeException;
+use rosasurfer\ministruts\core\proxy\Output;
 use rosasurfer\ministruts\process\Process;
 
 use function rosasurfer\ministruts\first;
@@ -210,7 +211,7 @@ class RosaSymbol extends RosatraderModel {
      * @see \rosasurfer\rt\phpstan\RT_PRICE_BAR
      */
     public function getHistoryM1(int $time, bool $compact = true): array {
-        $storage = $this->di('config')['app.dir.data'];
+        $storage = Application::service('config')['app.dir.data'];
         $dir = $storage.'/history/rosatrader/'.$this->type.'/'.$this->name.'/'.gmdate('Y/m/d', $time);
 
         if (!is_file($file=$dir.'/M1.bin') && !is_file($file.='.rar'))
@@ -315,7 +316,7 @@ class RosaSymbol extends RosatraderModel {
      * @return bool - success status
      */
     public function synchronizeHistory() {
-        $storageDir  = $this->di('config')['app.dir.data'];
+        $storageDir  = Application::service('config')['app.dir.data'];
         $storageDir .= '/history/rosatrader/'.$this->type.'/'.$this->name;
         $paddedName  = str_pad($this->name, 6);
         $startDate   = $endDate = null;

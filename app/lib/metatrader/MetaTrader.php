@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace rosasurfer\rt\lib\metatrader;
 
+use rosasurfer\ministruts\Application;
+use rosasurfer\ministruts\config\ConfigInterface as Config;
 use rosasurfer\ministruts\core\CObject;
 use rosasurfer\ministruts\file\FileSystem as FS;
 
@@ -30,7 +32,8 @@ class MetaTrader extends CObject {
      */
     public function createHistorySet(RosaSymbol $symbol, $format = 400, $directory = null) {
         if (!isset($directory)) {
-            $config = $this->di('config');
+            /** @var Config $config */
+            $config = Application::service('config');
             $directory = $config['app.dir.data'].'/history/mt4/'.$config['rt.metatrader.servername'];
         }
         FS::mkDir($directory);

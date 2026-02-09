@@ -5,6 +5,7 @@ namespace rosasurfer\rt\controller\actions;
 
 use RuntimeException;
 
+use rosasurfer\ministruts\Application;
 use rosasurfer\ministruts\config\ConfigInterface as Config;
 use rosasurfer\ministruts\log\Logger;
 use rosasurfer\ministruts\net\http\HttpResponse;
@@ -116,7 +117,7 @@ class BuildNotificationAction extends Action
         [$error, $errorMsg, $content] = $empty = [0, '', ''];
 
         /** @var Config $config */
-        $config = $this->di()['config'];
+        $config = Application::service('config');
         $githubToken = $config->getString('github-api.token');
 
         try {
@@ -205,7 +206,7 @@ class BuildNotificationAction extends Action
         [$error, $errorMsg, $tmpName] = $empty = [0, '', ''];
 
         /** @var Config $config */
-        $config = $this->di()['config'];
+        $config = Application::service('config');
         $tmpDir = $config->getString('app.dir.tmp');
         $tmpFileName = "$tmpDir/$fileName";
         $githubToken = $config->getString('github-api.token');

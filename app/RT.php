@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace rosasurfer\rt;
 
+use rosasurfer\ministruts\Application;
 use rosasurfer\ministruts\config\ConfigInterface as Config;
 use rosasurfer\ministruts\core\StaticClass;
 use rosasurfer\ministruts\core\exception\RuntimeException;
@@ -144,7 +145,7 @@ class RT extends StaticClass {
         }
 
         // delete existing files
-        $storageDir  = self::di('config')['app.dir.data'];
+        $storageDir  = Application::service('config')['app.dir.data'];
         $storageDir .= '/history/rosatrader/'.$symbol->getType().'/'.$symbol->getName();
         $dir         = "$storageDir/".gmdate('Y/m/d', $day);
         $msg         = '[Info]    '.$symbol->getName().'  deleting existing M1 file: ';
@@ -170,7 +171,7 @@ class RT extends StaticClass {
         static $addresses;
         return $addresses ??= (function() {
             /** @var Config $config */
-            $config = self::di('config');
+            $config = Application::service('config');
             $values = $config->get('mail.signalreceivers', '');
 
             $addresses = [];
@@ -193,7 +194,7 @@ class RT extends StaticClass {
         static $numbers;
         return $numbers ??= (function() {
             /** @var Config $config */
-            $config = self::di('config');
+            $config = Application::service('config');
             $values = $config->get('sms.signalreceivers', '');
 
             $numbers = [];
@@ -219,7 +220,7 @@ class RT extends StaticClass {
 
         static $root, $realRoot, $storage, $realStorage;
         if (!$root) {
-            $config      = self::di('config');
+            $config      = Application::service('config');
             $root        = str_replace('\\', '/', $config['app.dir.root'].'/');
             $realRoot    = str_replace('\\', '/', realpath($root).'/');
             $storage     = str_replace('\\', '/', $config['app.dir.data'].'/');

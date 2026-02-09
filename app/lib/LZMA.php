@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace rosasurfer\rt\lib;
 
+use rosasurfer\ministruts\Application;
 use rosasurfer\ministruts\core\StaticClass;
 use rosasurfer\ministruts\core\exception\FileNotFoundException;
 use rosasurfer\ministruts\core\exception\InfrastructureException;
@@ -91,7 +92,7 @@ class LZMA extends StaticClass {
             if (!$error) return $cmd = 'xzdec "%s"';
 
             if (WINDOWS) {
-                $appRoot = str_replace('\\', '/', self::di('config')['app.dir.root']);
+                $appRoot = str_replace('\\', '/', Application::service('config')['app.dir.root']);
 
                 exec('"'.$appRoot.'/bin/win32/lzmadec" -V 2> '.NUL_DEVICE, $output, $error);    // search lzmadec in project
                 if (!$error) return $cmd = '"'.$appRoot.'/bin/win32/lzmadec" "%s"';

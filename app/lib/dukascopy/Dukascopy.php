@@ -6,7 +6,7 @@ namespace rosasurfer\rt\lib\dukascopy;
 use RangeException;
 
 use rosasurfer\ministruts\core\CObject;
-use rosasurfer\ministruts\core\di\proxy\Output;
+use rosasurfer\ministruts\core\proxy\Output;
 use rosasurfer\ministruts\core\exception\InvalidValueException;
 use rosasurfer\ministruts\core\exception\RuntimeException;
 use rosasurfer\ministruts\core\exception\UnimplementedFeatureException;

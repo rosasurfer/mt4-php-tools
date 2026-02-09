@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace rosasurfer\rt\lib\rosatrader;
 
+use rosasurfer\ministruts\Application;
 use rosasurfer\ministruts\core\StaticClass;
 use rosasurfer\ministruts\core\exception\InvalidTypeException;
 use rosasurfer\ministruts\core\exception\InvalidValueException;
@@ -66,7 +67,7 @@ class Rost extends StaticClass {
         $message = trim($message);
         if ($message == '') throw new InvalidValueException('Invalid argument $message: "'.$message.'"');
 
-        $config   = self::di('config')['sms.clickatell'];
+        $config   = Application::service('config')['sms.clickatell'];
         $username = $config['username'];
         $password = $config['password'];
         $api_id   = $config['api_id'  ];
@@ -475,7 +476,7 @@ class Rost extends StaticClass {
         }
 
         static $storageDir;
-        $storageDir ??= self::di('config')['app.dir.data'];
+        $storageDir ??= Application::service('config')['app.dir.data'];
 
         if ($id == 'rtDirDate') {                       // $yyyy/$mm/$dd                                                // lokales Pfad-Datum
             if (!$time) throw new InvalidValueException('Invalid parameter $time: '.$time);

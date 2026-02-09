@@ -5,12 +5,12 @@ namespace rosasurfer\rt\lib\metatrader;
 
 use rosasurfer\ministruts\core\CObject;
 use rosasurfer\ministruts\core\error\ErrorHandler;
-use rosasurfer\ministruts\core\di\proxy\Output;
 use rosasurfer\ministruts\core\exception\FileNotFoundException;
 use rosasurfer\ministruts\core\exception\IllegalStateException;
 use rosasurfer\ministruts\core\exception\InvalidValueException;
 use rosasurfer\ministruts\core\exception\RuntimeException;
 use rosasurfer\ministruts\core\exception\UnimplementedFeatureException;
+use rosasurfer\ministruts\core\proxy\Output;
 use rosasurfer\ministruts\file\FileSystem as FS;
 
 use rosasurfer\rt\lib\rosatrader\Rost;

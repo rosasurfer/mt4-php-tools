@@ -85,7 +85,7 @@ exit(0);
 function updateHistory(RosaSymbol $symbol) {
     global $verbose;
     $symbolName   = $symbol->getName();
-    $config       = Application::getDi()['config'];
+    $config       = Application::service('config');
     $directory    = $config['app.dir.data'].'/history/mt4/'.$config['rt.metatrader.servername'];
     $lastSyncTime = null;
     echof('[Info]    '.$symbolName);
@@ -96,7 +96,7 @@ function updateHistory(RosaSymbol $symbol) {
     }
     else {
         /** @var MetaTrader $mt */
-        $mt = Application::getDi()[MetaTrader::class];
+        $mt = Application::service(MetaTrader::class);
         $history = $mt->createHistorySet($symbol);
     }
 
