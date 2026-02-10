@@ -2,27 +2,26 @@
 <!DOCTYPE struts-config SYSTEM "struts-config.dtd">
 
 <struts-config>
-
-    <!-- ==================================================== Imports =================================================== -->
+    <!-- ======================================================== Imports ============================================================== -->              
     <imports>
         <import value="rosasurfer/rt/controller/*"/>
         <import value="rosasurfer/rt/controller/actions/*"/>
         <import value="rosasurfer/rt/controller/forms/*"/>
     </imports>
 
-    <!-- ================================================ Global forwards =============================================== -->
+    <!-- ==================================================== Global forwards ========================================================== -->
     <global-forwards>
         <forward name="home"  mapping="home"/>
     </global-forwards>
 
-    <!-- ================================================ Action Mappings =============================================== -->
+    <!-- ==================================================== Action Mappings ========================================================== -->
     <action-mappings>
         <mapping name="home"     path="/"         include=".home"/>
         <mapping name="symbols"  path="/symbols"  include=".home"/>
         <mapping name="history"  path="/history"  include=".home"/>
         <mapping name="login"    path="/login"    include=".home"/>
         <mapping name="about"    path="/about"    include=".home"/>
-                                                          
+
         <mapping name="tests.sorted"  path="/sorted"  include=".tests.sorted"/>
 
         <mapping name="chartjs.bar"   path="/chartjs/bar"  include=".chartjs.bar"/>
@@ -34,32 +33,30 @@
             <forward name="success"  include=".chartjs.scatter"/>
             <forward name="error"    include=".tests.sorted"/>
         </mapping>
-        
+
         <mapping name="highcharts.line"  path="/highcharts/equity"  form="ViewTestActionForm">
             <forward name="success"  include=".highcharts.line"/>
             <forward name="error"    include=".tests.sorted"/>
         </mapping>
-        
-        <mapping path="/mt4-mql/build-notification"  action="BuildNotificationAction"  methods="get,post"/>
+
+        <mapping path="/mt4-mql/builds/notification" action="BuildNotificationAction" form="BuildNotificationActionForm" methods="post"/>
         <mapping path="/mt4-mql/builds"              action="RedirectAction"/>
     </action-mappings>
-    
-    
-    <!-- ===================================================== Tiles ==================================================== -->
+
+
+    <!-- ========================================================= Tiles =============================================================== -->
     <tiles>
-    
         <!-- default layout -->
         <tile name=".default.layout" file="layouts/default.phtml">
-            <include name="navigation"  value="tiles/header.phtml"/>                                  
+            <include name="navigation"  value="tiles/header.phtml"/>
             <include name="content"/>
         </tile>
 
-        
         <!-- views -->
         <tile name=".home"           extends=".default.layout">
            <include name="content"   value="tiles/home.phtml"/>
-        </tile>                      
-                                     
+        </tile>
+
         <tile name=".tests.sorted"   extends=".default.layout">
             <include name="content"  value="tiles/tests.sorted.phtml"/>
         </tile>
@@ -67,18 +64,17 @@
         <!-- Chart.js -->
         <tile name=".chartjs.bar"    extends=".default.layout">
             <include name="content"  value="tiles/chartjs/bar.phtml"/>
-        </tile>                         
+        </tile>
         <tile name=".chartjs.line"   extends=".default.layout">
             <include name="content"  value="tiles/chartjs/line.phtml"/>
-        </tile>                      
+        </tile>
         <tile name=".chartjs.scatter"  extends=".default.layout">
             <include name="content"  value="tiles/chartjs/scatter.phtml"/>
         </tile>
-                              
+
         <!-- Highcharts -->
         <tile name=".highcharts.line"  extends=".default.layout">
             <include name="content"  value="tiles/highcharts/line.phtml"/>
-        </tile>                      
+        </tile>
     </tiles>
-
 </struts-config>
