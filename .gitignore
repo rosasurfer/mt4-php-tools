@@ -25,10 +25,10 @@ nbactions.xml
 /.vscode
 
 # ignore the following folders and files
-/etc/download*
 /etc/httpd/cgi/php.ini
 /etc/httpd/include-custom.conf
 /etc/httpd/ssl/*.pem
+/etc/mt4-mql
 /etc/tmp
 /log
 

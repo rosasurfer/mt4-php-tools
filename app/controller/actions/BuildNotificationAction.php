@@ -5,13 +5,14 @@ namespace rosasurfer\rt\controller\actions;
 
 use rosasurfer\ministruts\Application;
 use rosasurfer\ministruts\config\ConfigInterface as Config;
-use rosasurfer\ministruts\file\FileSystem;
 use rosasurfer\ministruts\log\Logger;
 use rosasurfer\ministruts\net\http\HttpResponse;
 use rosasurfer\ministruts\struts\Action;
 use rosasurfer\ministruts\struts\ActionForward;
 use rosasurfer\ministruts\struts\Request;
 use rosasurfer\ministruts\struts\Response;
+
+use rosasurfer\rt\controller\forms\BuildNotificationActionForm;
 
 use function rosasurfer\ministruts\isRelativePath;
 
@@ -32,6 +33,7 @@ class BuildNotificationAction extends Action
     {
         Logger::log('GitHub build notification', L_NOTICE);
 
+        /** @var BuildNotificationActionForm $form */
         $form = $this->form;
         if (!$form->validate()) {
             $errors = join(NL, $request->getActionErrors());
@@ -40,20 +42,17 @@ class BuildNotificationAction extends Action
 
         // store artifact details
         $time = time();
-        $repository = $form['repository'];
-        $artifactId = $form['artifactId'];
+        $repository = $form->repository;
+        $artifactId = $form->artifactId;
         $data = "$time;$repository;$artifactId".NL;
 
         /** @var Config $config */
         $config = Application::service('config');
 
-        $filename = $config->getString('download.mt4-mql-framework');
+        $filename = $config->getString('github.build-notifications');
         if (isRelativePath($filename)) {
             $rootDir = $config->getString('app.dir.root');
             $filename = "$rootDir/$filename";
-        }
-        if (!is_file($filename)) {
-            FileSystem::mkDir(dirname($filename));
         }
         file_put_contents($filename, $data, FILE_APPEND|LOCK_EX);
 

@@ -42,7 +42,7 @@ class RedirectAction extends Action
 
             if (isRelativePath($filename)) {
                 $rootDir = $config->getString('app.dir.root');
-                $filename = str_replace('\\', '/', "$rootDir/$filename");
+                $filename = "$rootDir/$filename";
             }
             if (!is_file($filename)) throw new FileNotFoundException("File not found: \"$filename\"");
 
@@ -64,16 +64,16 @@ class RedirectAction extends Action
 
         // otherwise generate one
         echo <<<HTTP_404
-<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-<html><head>
-<title>404 Not Found</title>
-</head><body>
-<h1>Not Found</h1>
-<p>The requested URL was not found on this server.</p>
-<hr>
-<address>...lamented the MiniStruts.</address>
-</body></html>
-HTTP_404;
+        <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+        <html><head>
+        <title>404 Not Found</title>
+        </head><body>
+        <h1>Not Found</h1>
+        <p>The requested URL was not found on this server.</p>
+        <hr>
+        <address>...lamented the MiniStruts.</address>
+        </body></html>
+        HTTP_404;
         return null;
     }
 }

@@ -9,13 +9,13 @@ use function rosasurfer\ministruts\strIsDigits;
 
 /**
  * BuildNotificationActionForm
+ *
+ * @property-read string $repository repository name
+ * @property-read string $artifactId build artifact id
  */
 class BuildNotificationActionForm extends ActionForm
 {
-    /** @var string - repository name */
     protected string $repository;
-
-    /** @var string - build artifact id */
     protected string $artifactId;
 
     /**
