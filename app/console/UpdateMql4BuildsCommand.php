@@ -6,6 +6,7 @@ namespace rosasurfer\rt\console;
 use JsonException;
 use RuntimeException;
 use stdClass;
+use Throwable;
 
 use rosasurfer\ministruts\Application;
 use rosasurfer\ministruts\config\ConfigInterface as Config;
@@ -15,7 +16,6 @@ use rosasurfer\ministruts\console\io\Output;
 use rosasurfer\ministruts\log\Logger;
 
 use GuzzleHttp\Client as HttpClient;
-use GuzzleHttp\Exception\GuzzleException;
 
 use function rosasurfer\ministruts\echof;
 use function rosasurfer\ministruts\isRelativePath;
@@ -55,20 +55,19 @@ class UpdateMql4BuildsCommand extends Command
         // read existing notifications
         $notifications = $this->updateNotifications();
 
-        // process new notifications
         $processed = [];
         try {
-            foreach ($notifications as $notification) {         // format: "{repository};{artifact-id}"
+            // process new notifications
+            foreach ($notifications as $notification) {     // format: "{repository};{artifact-id}"
                 [$repository, $artifactId] = explode(';', $notification) + ['', ''];
 
                 if (!$response = $this->queryGithubApi($repository, $artifactId)) return 1;
-                if (!$artifact = $this->parseGithubResponse($response))           return 1;
-                if (!$download = $this->downloadBuildArtifact($artifact))         return 1;
+                if (!$artifact = $this->parseGithubResponse($response)) return 1;
+                if (!$filepath = $this->downloadBuildArtifact($artifact->url, $artifact->name, $artifact->size, $artifact->digest)) return 1;
 
                 echof(toString($response));
                 echof($artifact);
-                echof($download);
-
+                echof($filepath);
 
                 // store build
                 $processed[] = $notification;
@@ -81,18 +80,7 @@ class UpdateMql4BuildsCommand extends Command
             }
         }
 
-
-
-        // --- old -------------------------------------------------------------------------------------------------------------------------
-        //
-        //[$error, $errorMsg, $download] = $this->downloadArtifact($downloadUrl, $fileName, $fileSize, $fileDigest);
-        //if ($error) {
-        //    return $this->sendStatus($error, $errorMsg);
-        //}
-        //
-        // store download and meta data locally
-
-        //$output->out('[Ok]');
+        $output->out('[Ok]');
         return 0;
     }
 
@@ -136,9 +124,10 @@ class UpdateMql4BuildsCommand extends Command
         $githubToken = $config->getString('github.api-token');
 
         try {
-            $response = (new HttpClient())->request('GET', "https://api.github.com/repos/$repository/actions/artifacts/$artifactId", [
+            $url = "https://api.github.com/repos/$repository/actions/artifacts/$artifactId";
+            $response = (new HttpClient())->request('GET', $url, [
                 'connect_timeout' => 10,
-                'headers' => [
+                'headers'         => [
                     'Accept'        => 'application/json',
                     'Authorization' => "Bearer $githubToken",
                 ],
@@ -149,8 +138,8 @@ class UpdateMql4BuildsCommand extends Command
             }
             return $response->getBody()->getContents();
         }
-        catch (GuzzleException|RuntimeException $ex) {
-            Logger::log('error querying GitHub API: '.get_class($ex), L_ERROR, ['exception' => $ex]);
+        catch (Throwable $ex) {
+            Logger::log('error querying GitHub API: '.get_class($ex).NL."url: $url", L_ERROR, ['exception' => $ex]);
         }
         return null;
     }
@@ -160,7 +149,7 @@ class UpdateMql4BuildsCommand extends Command
      *
      * @param  string $response - received response
      *
-     * @return ?stdClass - parsed artifact meta data or NULL on error
+     * @return ?stdClass - artifact meta data or NULL on error
      */
     protected function parseGithubResponse(string $response): ?stdClass
     {
@@ -179,15 +168,15 @@ class UpdateMql4BuildsCommand extends Command
           'digest'               => ['digest', fn($v) => is_string($v) && strStartsWith($v, 'sha256:') && strlen($v) == 71],
           'archive_download_url' => ['url',    fn($v) => is_string($v) && strRightFrom($v, '/', -1) != '' && filter_var($v, FILTER_VALIDATE_URL)],
         ];
-        foreach ($rules as $field => [$property, $validate]) {
-            if (!$validate($value = $data->$field ?? null)) {
+        foreach ($rules as $field => [$property, $validator]) {
+            if (!$validator($value = $data->$field ?? null)) {
                 Logger::log("unexpected JSON response from GitHub: missing or invalid field \"$field\"".NL.toString($data), L_ERROR);
                 return null;
             }
             $artifact->$property = $value;
         }
-        $artifact->name .= '.'.strRightFrom($artifact->url, '/', -1);       // prepend file extension
-        $artifact->digest  = strRight($artifact->digest, -7);               // cut-off algo identifier
+        $artifact->name .= '.'.strRightFrom($artifact->url, '/', -1);   // prepend file extension
+        $artifact->digest = strRight($artifact->digest, -7);            // cut-off algo identifier
 
         $branch = $data->workflow_run->head_branch ?? null;
         if (!is_string($branch)) {
@@ -200,64 +189,63 @@ class UpdateMql4BuildsCommand extends Command
     }
 
     /**
-     * Download and validate the new Guthub artifact.
+     * Download and validate a GitHub artifact.
      *
      * @param  string $url
      * @param  string $fileName
      * @param  int    $fileSize
      * @param  string $fileDigest
      *
-     * @return array{int, string, string} - full path of the downloaded file or an error description
+     * @return ?string - path of the downloaded file or NULL on error
      */
-    protected function downloadArtifact(string $url, string $fileName, int $fileSize, string $fileDigest): array
+    protected function downloadBuildArtifact(string $url, string $fileName, int $fileSize, string $fileDigest): ?string
     {
-        [$error, $errorMsg, $tmpName] = $empty = [0, '', ''];
+        /** @var Config $config */
+        $config = Application::service('config');
+        $githubToken = $config->getString('github.api-token');
 
-        ///** @var Config $config */
-        //$config = Application::service('config');
-        //$tmpDir = $config->getString('app.dir.tmp');
-        //$tmpFileName = "$tmpDir/$fileName";
-        //$githubToken = $config->getString('github-api.token');
-        //
-        //if (!is_file($tmpFileName)) {
-        //    try {
-        //        $response = (new HttpClient())->request('GET', $url, [
-        //            'connect_timeout' => 10,
-        //            'sink' => $tmpFileName,
-        //            'headers' => [
-        //                'Authorization' => "Bearer $githubToken",
-        //            ],
-        //        ]);
-        //
-        //        $status = $response->getStatusCode();
-        //        if ($status != 200) {
-        //            throw new RuntimeException("error downloading Github artifact: HTTP status $status");
-        //        }
-        //    }
-        //    catch (GuzzleException|RuntimeException $ex) {
-        //        Logger::log($errorMsg = 'error downloading Github artifact: '.get_class($ex), L_ERROR, ['exception' => $ex]);
-        //        return [HttpResponse::SC_INTERNAL_SERVER_ERROR, $errorMsg] + $empty;
-        //    }
-        //}
-        //
-        //// validate the file size
-        //$actualSize = filesize($tmpFileName);
-        //if ($actualSize !== $fileSize) {
-        //    unlink($tmpFileName);
-        //    Logger::log($errorMsg = "file size mis-match of downloaded Github artifact: expected=$fileSize vs. actual=$actualSize", L_ERROR);
-        //    return [HttpResponse::SC_INTERNAL_SERVER_ERROR, $errorMsg] + $empty;
-        //}
-        //
-        //// validate the file hash
-        //$hash = hash_file('sha256', $tmpFileName);
-        //if ($hash !== $fileDigest) {
-        //    unlink($tmpFileName);
-        //    Logger::log($errorMsg = "file hash mis-match of downloaded Github artifact: expected=sha256:$fileDigest vs. actual=$hash", L_ERROR);
-        //    return [HttpResponse::SC_INTERNAL_SERVER_ERROR, $errorMsg] + $empty;
-        //}
+        $tmpDir = $config->getString('app.dir.tmp');
+        $tmpFileName = "$tmpDir/$fileName";
+        if (is_file($tmpFileName)) {
+            //unlink($tmpFileName);
+        }
 
-        return [$error, $errorMsg, $tmpName];
+        if (!is_file($tmpFileName)) {
+            // download the file
+            try {
+                $response = (new HttpClient())->request('GET', $url, [
+                    'connect_timeout' => 10,
+                    'sink'            => $tmpFileName,              // @todo add progress indicator
+                    'headers'         => [
+                        'Authorization' => "Bearer $githubToken",
+                    ],
+                ]);
+                $status = $response->getStatusCode();
+                if ($status != 200) {
+                    throw new RuntimeException("error downloading GitHub artifact: HTTP status $status");
+                }
+            }
+            catch (Throwable $ex) {
+                Logger::log('error downloading GitHub artifact: '.get_class($ex).NL."url: $url", L_ERROR, ['exception' => $ex]);
+                return null;
+            }
+        }
+
+        // validate the file size
+        $actualSize = filesize($tmpFileName);
+        if ($actualSize !== $fileSize) {
+            unlink($tmpFileName);
+            Logger::log("file size mis-match of downloaded GitHub artifact: expected=$fileSize vs. actual=$actualSize", L_ERROR);
+            return null;
+        }
+
+        // validate the file hash
+        $hash = hash_file('sha256', $tmpFileName);
+        if ($hash !== $fileDigest) {
+            unlink($tmpFileName);
+            Logger::log("file hash mis-match of downloaded GitHub artifact: SHA256 expected=$fileDigest vs. actual=$hash", L_ERROR);
+            return null;
+        }
+        return $tmpFileName;
     }
-
-
 }
