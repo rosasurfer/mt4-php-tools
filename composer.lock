@@ -676,12 +676,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/rosasurfer/ministruts.git",
-                "reference": "8727cfedeb5a8faab1a91c24925798acdb3a8d6c"
+                "reference": "3f2540b8c43f87c93f801f8952d4b33a2277d96e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/8727cfedeb5a8faab1a91c24925798acdb3a8d6c",
-                "reference": "8727cfedeb5a8faab1a91c24925798acdb3a8d6c",
+                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/3f2540b8c43f87c93f801f8952d4b33a2277d96e",
+                "reference": "3f2540b8c43f87c93f801f8952d4b33a2277d96e",
                 "shasum": ""
             },
             "require": {
@@ -731,7 +731,7 @@
                 "issues": "https://github.com/rosasurfer/ministruts/issues",
                 "source": "https://github.com/rosasurfer/ministruts/tree/master"
             },
-            "time": "2026-02-11T07:05:57+00:00"
+            "time": "2026-02-11T17:14:48+00:00"
         },
         {
             "name": "symfony/deprecation-contracts",
@@ -804,11 +804,11 @@
     "packages-dev": [
         {
             "name": "phpstan/phpstan",
-            "version": "2.1.38",
+            "version": "2.1.39",
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/dfaf1f530e1663aa167bc3e52197adb221582629",
-                "reference": "dfaf1f530e1663aa167bc3e52197adb221582629",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/c6f73a2af4cbcd99c931d0fb8f08548cc0fa8224",
+                "reference": "c6f73a2af4cbcd99c931d0fb8f08548cc0fa8224",
                 "shasum": ""
             },
             "require": {
@@ -853,7 +853,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-01-30T17:12:46+00:00"
+            "time": "2026-02-11T14:48:56+00:00"
         }
     ],
     "aliases": [],
@@ -869,5 +869,5 @@
         "ext-sqlite3": "*"
     },
     "platform-dev": {},
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.9.0"
 }

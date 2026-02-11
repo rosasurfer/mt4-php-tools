@@ -201,12 +201,12 @@ declare phpstan phpstanCmd isExternalPhpstan=0
 if [[ -n "$PHPSTAN" ]]; then                                    # a user-specified command
   phpstanCmd="$PHPSTAN"
   phpstan="$(findCommand "$PHPSTAN")" || fail "PHPStan executable not found: $PHPSTAN"
-  isExternalPhpstan=1                                           # TODO: make sure phpstan is not this script itself
+  isExternalPhpstan=1
 else
   phpstanCmd='vendor/bin/phpstan'
   phpstan="$vendorDir/bin/phpstan"                              # search vendor directory
   phpstan="${phpstan#./}"
-  if [[ ! -f "$phpstan" ]]; then                                # TODO: make sure phpstan is not this script itself
+  if [[ ! -f "$phpstan" ]]; then
     phpstanCmd='phpstan' && phpstan="$(findCommand phpstan)" || {
       phpstanCmd='phpstan.phar' && phpstan="$(findCommand phpstan.phar)" || fail "PHPStan executable not found"
     }
@@ -403,6 +403,4 @@ fi
 
 
 # call PHPStan
-"$php" "$phpstan" "$@" || exit $?
-
-exit 0
+"$php" "$phpstan" "$@"
