@@ -3,15 +3,15 @@
 declare(strict_types=1);
 
 /**
- * Console command to scale the bars of a MetaTrader4 history file.
+ * Console command to update locally stored builds of rosasurfer/mt4-mql-framework.
  */
 use rosasurfer\ministruts\Application;
-use rosasurfer\rt\console\ScaleHistoryCommand;
+use rosasurfer\rt\console\UpdateMql4BuildsCommand;
 
 /** @var Application $app */
 $app = require(__DIR__.'/../../app/init.php');
 
-$app->addCommand(new ScaleHistoryCommand());
+$app->addCommand(new UpdateMql4BuildsCommand());
 $status = $app->run();
 
 exit($status);
