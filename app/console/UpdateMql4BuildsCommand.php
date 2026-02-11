@@ -3,9 +3,30 @@ declare(strict_types=1);
 
 namespace rosasurfer\rt\console;
 
+use JsonException;
+use RuntimeException;
+use stdClass;
+
+use rosasurfer\ministruts\Application;
+use rosasurfer\ministruts\config\ConfigInterface as Config;
 use rosasurfer\ministruts\console\Command;
 use rosasurfer\ministruts\console\io\Input;
 use rosasurfer\ministruts\console\io\Output;
+use rosasurfer\ministruts\log\Logger;
+
+use GuzzleHttp\Client as HttpClient;
+use GuzzleHttp\Exception\GuzzleException;
+
+use function rosasurfer\ministruts\echof;
+use function rosasurfer\ministruts\isRelativePath;
+use function rosasurfer\ministruts\json_decode_or_throw;
+use function rosasurfer\ministruts\strRight;
+use function rosasurfer\ministruts\strRightFrom;
+use function rosasurfer\ministruts\strStartsWith;
+use function rosasurfer\ministruts\toString;
+
+use const rosasurfer\ministruts\L_ERROR;
+use const rosasurfer\ministruts\NL;
 
 /**
  * UpdateMql4BuildsCommand
@@ -27,25 +48,42 @@ class UpdateMql4BuildsCommand extends Command
     DOCOPT;
 
     /**
-     * @param  Input  $input
-     * @param  Output $output
-     *
-     * @return int - execution status (0 for success)
+     * {@inheritDoc}
      */
     protected function execute(Input $input, Output $output): int
     {
-        $output->out('[Ok]');
+        // read existing notifications
+        $notifications = $this->updateNotifications();
+
+        // process new notifications
+        $processed = [];
+        try {
+            foreach ($notifications as $notification) {         // format: "{repository};{artifact-id}"
+                [$repository, $artifactId] = explode(';', $notification) + ['', ''];
+
+                if (!$response = $this->queryGithubApi($repository, $artifactId)) return 1;
+                if (!$artifact = $this->parseGithubResponse($response))           return 1;
+                if (!$download = $this->downloadBuildArtifact($artifact))         return 1;
+
+                echof(toString($response));
+                echof($artifact);
+                echof($download);
+
+
+                // store build
+                $processed[] = $notification;
+            }
+        }
+        finally {
+            // remove processed notifications
+            if ($processed) {
+                $this->updateNotifications($processed);
+            }
+        }
+
+
 
         // --- old -------------------------------------------------------------------------------------------------------------------------
-        //[$error, $errorMsg, $response] = $this->queryGithubAPI($repository, $artifactId);
-        //if ($error) {
-        //    return $this->sendStatus($error, $errorMsg);
-        //}
-        //
-        //[$error, $errorMsg, $fileName, $fileSize, $fileDigest, $downloadUrl, $branch] = $this->parseGithubResult($response);
-        //if ($error) {
-        //    return $this->sendStatus($error, $errorMsg);
-        //}
         //
         //[$error, $errorMsg, $download] = $this->downloadArtifact($downloadUrl, $fileName, $fileSize, $fileDigest);
         //if ($error) {
@@ -54,7 +92,33 @@ class UpdateMql4BuildsCommand extends Command
         //
         // store download and meta data locally
 
+        //$output->out('[Ok]');
         return 0;
+    }
+
+    /**
+     * Read/update existing build notifications.
+     *
+     * @param  string[] $processed [optional] - already processed notifications to be deleted (default: none)
+     *
+     * @return string[] - new notifications
+     */
+    protected function updateNotifications(array $processed = []): array
+    {
+        /** @var Config $config */
+        $config = Application::service('config');
+
+        $filename = $config->getString('github.build-notifications');
+        if (isRelativePath($filename)) {
+            $rootDir = $config->getString('app.dir.root');
+            $filename = "$rootDir/$filename";
+        }
+
+        $lines = [];
+        if (is_file($filename)) {
+            $lines = file($filename, FILE_IGNORE_NEW_LINES|FILE_SKIP_EMPTY_LINES);
+        }
+        return $lines;
     }
 
     /**
@@ -63,83 +127,76 @@ class UpdateMql4BuildsCommand extends Command
      * @param  string $repository
      * @param  string $artifactId
      *
-     * @return array{int, string, string} - the raw Github response or an error description
+     * @return ?string - the raw GitHub response or NULL on error
      */
-    protected function queryGithubAPI(string $repository, string $artifactId): array
+    protected function queryGithubApi(string $repository, string $artifactId): ?string
     {
-        [$error, $errorMsg, $content] = $empty = [0, '', ''];
+        /** @var Config $config */
+        $config = Application::service('config');
+        $githubToken = $config->getString('github.api-token');
 
-        ///** @var Config $config */
-        //$config = Application::service('config');
-        //$githubToken = $config->getString('github-api.token');
-        //
-        //try {
-        //    $response = (new HttpClient())->request('GET', "https://api.github.com/repos/$repository/actions/artifacts/$artifactId", [
-        //        'connect_timeout' => 10,
-        //        'headers' => [
-        //            'Accept'        => 'application/json',
-        //            'Authorization' => "Bearer $githubToken",
-        //        ],
-        //    ]);
-        //
-        //    $status = $response->getStatusCode();
-        //    if ($status != 200) {
-        //        throw new RuntimeException("error querying Github API: HTTP status $status");
-        //    }
-        //    $content = $response->getBody()->getContents();
-        //}
-        //catch (GuzzleException|RuntimeException $ex) {
-        //    Logger::log($errorMsg = 'error querying Github API: '.get_class($ex), L_ERROR, ['exception' => $ex]);
-        //    return [HttpResponse::SC_INTERNAL_SERVER_ERROR, $errorMsg] + $empty;
-        //}
-
-        return [$error, $errorMsg, $content];
+        try {
+            $response = (new HttpClient())->request('GET', "https://api.github.com/repos/$repository/actions/artifacts/$artifactId", [
+                'connect_timeout' => 10,
+                'headers' => [
+                    'Accept'        => 'application/json',
+                    'Authorization' => "Bearer $githubToken",
+                ],
+            ]);
+            $status = $response->getStatusCode();
+            if ($status != 200) {
+                throw new RuntimeException("error querying GitHub API: HTTP status $status");
+            }
+            return $response->getBody()->getContents();
+        }
+        catch (GuzzleException|RuntimeException $ex) {
+            Logger::log('error querying GitHub API: '.get_class($ex), L_ERROR, ['exception' => $ex]);
+        }
+        return null;
     }
 
     /**
-     * Parse and validate the result of the Github API query.
+     * Parse the response of a GitHub API query.
      *
      * @param  string $response - received response
      *
-     * @return array{int, string, string, int, string, string, string} - parsed artifact meta data or an error description
+     * @return ?stdClass - parsed artifact meta data or NULL on error
      */
-    protected function parseGithubResult(string $response): array
+    protected function parseGithubResponse(string $response): ?stdClass
     {
-        [$error, $errorMsg, $fileName, $fileSize, $fileDigest, $downloadUrl, $branch] = $empty = [0, '', '', 0, '', '', ''];
+        try {
+            $data = json_decode_or_throw($response);
+        }
+        catch (JsonException $ex) {
+            Logger::log('error parsing GitHub response: '.get_class($ex), L_ERROR, ['exception' => $ex]);
+            return null;
+        }
 
-        //$data = json_decode($response, true);
-        //if (json_last_error() || !is_array($data)) {
-        //    Logger::log('error reading artifact meta data from Github: '.json_last_error().' ('.json_last_error_msg().')', L_ERROR);
-        //    return [HttpResponse::SC_INTERNAL_SERVER_ERROR, 'error reading artifact meta data from Github (unexpected response)'] + $empty;
-        //}
-        //
-        //$rules = [
-        //  'name'                 => [&$fileName,    fn($v) => is_string($v) && $v !== ''],
-        //  'size_in_bytes'        => [&$fileSize,    fn($v) => is_int($v) && $v > 0 ],
-        //  'digest'               => [&$fileDigest,  fn($v) => is_string($v) && strStartsWith($v, 'sha256:') && strlen($v) == 71],
-        //  'archive_download_url' => [&$downloadUrl, fn($v) => is_string($v) && strRightFrom($v, '/', -1) !== '' && filter_var($v, FILTER_VALIDATE_URL)],
-        //];
-        //
-        //foreach ($rules as $k => [&$var, $validate]) {
-        //    if (!$validate($value = $data[$k] ?? null)) {
-        //        $msg = "missing or invalid field \"$k\"";
-        //        Logger::log('unexpected JSON response from Github: '.$msg.NL.print_r($data, true), L_ERROR);
-        //        return [HttpResponse::SC_INTERNAL_SERVER_ERROR, $msg] + $empty;
-        //    }
-        //    $var = $value;
-        //}
-        //$fileName .= '.'.strRightFrom($downloadUrl, '/', -1);
-        //$fileDigest = strRight($fileDigest, -7);
-        //
-        //$value = $data['workflow_run']['head_branch'] ?? null;
-        //if (!is_string($value)) {
-        //    $msg = 'missing or invalid field "workflow_run/head_branch"';
-        //    Logger::log('unexpected JSON response from Github: '.$msg.NL.print_r($data, true), L_ERROR);
-        //    return [HttpResponse::SC_INTERNAL_SERVER_ERROR, $msg] + $empty;
-        //}
-        //$branch = $value;
+        $artifact = new stdClass();
+        $rules = [
+          'name'                 => ['name',   fn($v) => is_string($v) && $v != ''],
+          'size_in_bytes'        => ['size',   fn($v) => is_int($v) && $v > 0 ],
+          'digest'               => ['digest', fn($v) => is_string($v) && strStartsWith($v, 'sha256:') && strlen($v) == 71],
+          'archive_download_url' => ['url',    fn($v) => is_string($v) && strRightFrom($v, '/', -1) != '' && filter_var($v, FILTER_VALIDATE_URL)],
+        ];
+        foreach ($rules as $field => [$property, $validate]) {
+            if (!$validate($value = $data->$field ?? null)) {
+                Logger::log("unexpected JSON response from GitHub: missing or invalid field \"$field\"".NL.toString($data), L_ERROR);
+                return null;
+            }
+            $artifact->$property = $value;
+        }
+        $artifact->name .= '.'.strRightFrom($artifact->url, '/', -1);       // prepend file extension
+        $artifact->digest  = strRight($artifact->digest, -7);               // cut-off algo identifier
 
-        return [$error, $errorMsg, $fileName, $fileSize, $fileDigest, $downloadUrl, $branch];
+        $branch = $data->workflow_run->head_branch ?? null;
+        if (!is_string($branch)) {
+            Logger::log('unexpected JSON response from GitHub: missing or invalid field "workflow_run/head_branch"'.NL.toString($data), L_ERROR);
+            return null;
+        }
+        $artifact->branch = $branch;
+
+        return $artifact;
     }
 
     /**

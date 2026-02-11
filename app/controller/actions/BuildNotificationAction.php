@@ -41,10 +41,9 @@ class BuildNotificationAction extends Action
         }
 
         // store artifact details
-        $time = time();
         $repository = $form->repository;
         $artifactId = $form->artifactId;
-        $data = "$time;$repository;$artifactId".NL;
+        $data = "$repository;$artifactId".NL;
 
         /** @var Config $config */
         $config = Application::service('config');
