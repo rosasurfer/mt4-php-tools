@@ -3,10 +3,9 @@ declare(strict_types=1);
 
 namespace rosasurfer\rt\controller\actions;
 
-use rosasurfer\ministruts\Application;
-use rosasurfer\ministruts\config\ConfigInterface as Config;
 use rosasurfer\ministruts\core\exception\FileNotFoundException;
 use rosasurfer\ministruts\core\exception\RuntimeException;
+use rosasurfer\ministruts\core\proxy\Config;
 use rosasurfer\ministruts\net\http\HttpResponse;
 use rosasurfer\ministruts\struts\Action;
 use rosasurfer\ministruts\struts\ActionForward;
@@ -34,14 +33,11 @@ class RedirectAction extends Action
         $product = $input->get('product', '');
 
         if ($product == 'rosasurfer/mt4-mql-framework') {
-            /** @var Config $config */
-            $config = Application::service('config');
-
-            $filename = $config->getString($key = 'download.mt4-mql-framework');
+            $filename = Config::getString($key = 'download.mt4-mql-framework');
             if (!strlen($filename)) throw new RuntimeException("Invalid config setting $key: \"\" (empty)");
 
             if (isRelativePath($filename)) {
-                $rootDir = $config->getString('app.dir.root');
+                $rootDir = Config::getString('app.dir.root');
                 $filename = "$rootDir/$filename";
             }
             if (!is_file($filename)) throw new FileNotFoundException("File not found: \"$filename\"");

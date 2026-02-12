@@ -8,11 +8,10 @@ use RuntimeException;
 use stdClass;
 use Throwable;
 
-use rosasurfer\ministruts\Application;
-use rosasurfer\ministruts\config\ConfigInterface as Config;
 use rosasurfer\ministruts\console\Command;
 use rosasurfer\ministruts\console\io\Input;
 use rosasurfer\ministruts\console\io\Output;
+use rosasurfer\ministruts\core\proxy\Config;
 use rosasurfer\ministruts\file\FileSystem;
 use rosasurfer\ministruts\log\Logger;
 
@@ -94,12 +93,9 @@ class UpdateMql4BuildsCommand extends Command
      */
     protected function updateNotifications(array $processed = []): array
     {
-        /** @var Config $config */
-        $config = Application::service('config');
-
-        $filename = $config->getString('github.build-notifications');
+        $filename = Config::getString('github.build-notifications');
         if (isRelativePath($filename)) {
-            $rootDir = $config->getString('app.dir.root');
+            $rootDir = Config::getString('app.dir.root');
             $filename = "$rootDir/$filename";
         }
 
@@ -120,9 +116,7 @@ class UpdateMql4BuildsCommand extends Command
      */
     protected function queryGithubApi(string $repository, string $artifactId): ?string
     {
-        /** @var Config $config */
-        $config = Application::service('config');
-        $githubToken = $config->getString('github.api-token');
+        $githubToken = Config::getString('github.api-token');
 
         try {
             $response = (new HttpClient())->request('GET', "https://api.github.com/repos/$repository/actions/artifacts/$artifactId", [
@@ -200,15 +194,12 @@ class UpdateMql4BuildsCommand extends Command
      */
     protected function downloadBuildArtifact(string $url, string $fileName, int $fileSize, string $fileDigest): ?string
     {
-        /** @var Config $config */
-        $config = Application::service('config');
-        $githubToken = $config->getString('github.api-token');
-
-        $tmpDir = $config->getString('app.dir.tmp');
+        $tmpDir = Config::getString('app.dir.tmp');
         $tmpFileName = "$tmpDir/$fileName";
         if (is_file($tmpFileName)) {
             unlink($tmpFileName);
         }
+        $githubToken = Config::getString('github.api-token');
 
         try {
             // download the file
@@ -220,6 +211,8 @@ class UpdateMql4BuildsCommand extends Command
                 'sink'     => $tmpFileName,
                 'progress' => fn(int ...$bytes) => $this->onDownloadProgress($fileName, ...$bytes),
             ]);
+            $this->output->out(NL);
+
             $status = $response->getStatusCode();
             if ($status != 200) {
                 throw new RuntimeException("error downloading GitHub artifact: HTTP status $status");
@@ -259,22 +252,10 @@ class UpdateMql4BuildsCommand extends Command
      */
     protected function onDownloadProgress(string $fileName, int $totalSize, int $downloaded): void
     {
-        static $lastDownloaded = 0;
-        static $finished = false;
-
-        if ($downloaded < $lastDownloaded) {    // reset flag for every new download
-            $finished = false;
+        if ($totalSize > 0) {
+            $percent = (int) round($downloaded / $totalSize * 100);
+            stdout("\rdownloading: $fileName => {$percent}%");
         }
-        if ($totalSize > 0 && !$finished) {
-            $percent = (int)round($downloaded / $totalSize * 100);
-            stdout("\rdownloading: {$fileName} => {$percent}%");
-
-            if ($percent >= 100) {
-                stdout(NL);
-                $finished = true;
-            }
-        }
-        $lastDownloaded = $downloaded;
     }
 
     /**
@@ -288,12 +269,9 @@ class UpdateMql4BuildsCommand extends Command
      */
     protected function storeBuildArtifact(string $name, string $branch, string $tmpFile): ?string
     {
-        /** @var Config $config */
-        $config = Application::service('config');
-
-        $storageDir = $config->getString('github.storage-dir');
+        $storageDir = Config::getString('github.storage-dir');
         if (isRelativePath($storageDir)) {
-            $rootDir = $config->getString('app.dir.root');
+            $rootDir = Config::getString('app.dir.root');
             $storageDir = "$rootDir/$storageDir";
         }
         if ($branch != 'master') {

@@ -42,14 +42,14 @@ parameters:
     - rosasurfer\ministruts\WINDOWS
     - rosasurfer\ministruts\NUL_DEVICE
 
-  checkUninitializedProperties: true
-
   additionalConstructors:
     - rosasurfer\ministruts\struts\ActionForm::populate
+
+  checkUninitializedProperties: true
   
-  typeAliases:                                      # defined here as long as we have non-OOP code in /app/functions.php and /bin/cmd/legacy/*
-    DUKASCOPY_TICK: 'array{time_gmt: int, time_fxt: int, time_millis: int, timeDelta: int, bid: int, bidSize: float, ask: int, askSize: float}'
-    TZ_TRANSITION:  'array{ts: int, time: string, offset: int, isdst : bool, abbr: string}'
+  typeAliases:                                      # defined here as long as we have non-OOP code in /app/functions.php and /bin/cmd/legacy
+    DUKASCOPY_TICK: 'array{time_gmt:int, time_fxt:int, time_millis:int, timeDelta:int, bid:int, bidSize:float, ask:int, askSize:float}'
+    TZ_TRANSITION:  'array{ts:int, time:string, offset:int, isdst:bool, abbr:string}'
 
   ignoreErrors:
 
@@ -59,3 +59,6 @@ parameters:
     maximumNumberOfProcesses: 4
   tmpDir:       ../tmp/phpstan
   tipsOfTheDay: false
+  tips:
+    discoveringSymbols:        false
+    treatPhpDocTypesAsCertain: false

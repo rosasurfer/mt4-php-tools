@@ -676,12 +676,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/rosasurfer/ministruts.git",
-                "reference": "3f2540b8c43f87c93f801f8952d4b33a2277d96e"
+                "reference": "b1477b2f04aa0dc6b5ca71fac4a637178622d184"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/3f2540b8c43f87c93f801f8952d4b33a2277d96e",
-                "reference": "3f2540b8c43f87c93f801f8952d4b33a2277d96e",
+                "url": "https://api.github.com/repos/rosasurfer/ministruts/zipball/b1477b2f04aa0dc6b5ca71fac4a637178622d184",
+                "reference": "b1477b2f04aa0dc6b5ca71fac4a637178622d184",
                 "shasum": ""
             },
             "require": {
@@ -731,7 +731,7 @@
                 "issues": "https://github.com/rosasurfer/ministruts/issues",
                 "source": "https://github.com/rosasurfer/ministruts/tree/master"
             },
-            "time": "2026-02-11T17:14:48+00:00"
+            "time": "2026-02-12T10:35:37+00:00"
         },
         {
             "name": "symfony/deprecation-contracts",

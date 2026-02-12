@@ -3,8 +3,7 @@ declare(strict_types=1);
 
 namespace rosasurfer\rt\controller\actions;
 
-use rosasurfer\ministruts\Application;
-use rosasurfer\ministruts\config\ConfigInterface as Config;
+use rosasurfer\ministruts\core\proxy\Config;
 use rosasurfer\ministruts\log\Logger;
 use rosasurfer\ministruts\net\http\HttpResponse;
 use rosasurfer\ministruts\struts\Action;
@@ -45,12 +44,9 @@ class BuildNotificationAction extends Action
         $artifactId = $form->artifactId;
         $data = "$repository;$artifactId".NL;
 
-        /** @var Config $config */
-        $config = Application::service('config');
-
-        $filename = $config->getString('github.build-notifications');
+        $filename = Config::getString('github.build-notifications');
         if (isRelativePath($filename)) {
-            $rootDir = $config->getString('app.dir.root');
+            $rootDir = Config::getString('app.dir.root');
             $filename = "$rootDir/$filename";
         }
         file_put_contents($filename, $data, FILE_APPEND|LOCK_EX);
