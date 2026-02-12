@@ -20,6 +20,7 @@ use GuzzleHttp\Client as HttpClient;
 use function rosasurfer\ministruts\echof;
 use function rosasurfer\ministruts\isRelativePath;
 use function rosasurfer\ministruts\json_decode_or_throw;
+use function rosasurfer\ministruts\stdout;
 use function rosasurfer\ministruts\strRight;
 use function rosasurfer\ministruts\strRightFrom;
 use function rosasurfer\ministruts\strStartsWith;
@@ -64,13 +65,14 @@ class UpdateMql4BuildsCommand extends Command
                 if (!$response = $this->queryGithubApi($repository, $artifactId)) return 1;
                 if (!$artifact = $this->parseGithubResponse($response)) return 1;
                 if (!$filepath = $this->downloadBuildArtifact($artifact->url, $artifact->name, $artifact->size, $artifact->digest)) return 1;
+                if (!$success  = $this->storeBuildArtifact($artifact->name, $filepath)) return 1;
 
                 echof(toString($response));
                 echof($artifact);
                 echof($filepath);
 
-                // store build
                 $processed[] = $notification;
+                $output->out('[Ok]');
             }
         }
         finally {
@@ -79,8 +81,6 @@ class UpdateMql4BuildsCommand extends Command
                 $this->updateNotifications($processed);
             }
         }
-
-        $output->out('[Ok]');
         return 0;
     }
 
@@ -215,10 +215,11 @@ class UpdateMql4BuildsCommand extends Command
             try {
                 $response = (new HttpClient())->request('GET', $url, [
                     'connect_timeout' => 10,
-                    'sink'            => $tmpFileName,              // @todo add progress indicator
-                    'headers'         => [
+                    'headers' => [
                         'Authorization' => "Bearer $githubToken",
                     ],
+                    'sink'     => $tmpFileName,
+                    'progress' => fn(int ...$bytes) => $this->onDownloadProgress($fileName, ...$bytes),
                 ]);
                 $status = $response->getStatusCode();
                 if ($status != 200) {
@@ -247,5 +248,57 @@ class UpdateMql4BuildsCommand extends Command
             return null;
         }
         return $tmpFileName;
+    }
+
+    /**
+     * Callback function for the download progress.
+     *
+     * @param  string $fileName
+     * @param  int    $totalSize
+     * @param  int    $downloaded
+     *
+     * @return void
+     */
+    protected function onDownloadProgress(string $fileName, int $totalSize, int $downloaded): void
+    {
+        static $lastDownloaded = 0;
+        static $finished = false;
+
+        if ($downloaded < $lastDownloaded) {    // reset flag for every new download
+            $finished = false;
+        }
+        if ($totalSize > 0 && !$finished) {
+            $percent = (int)round($downloaded / $totalSize * 100);
+            stdout("\rdownloading: {$fileName} => {$percent}%");
+
+            if ($percent >= 100) {
+                stdout(NL);
+                $finished = true;
+            }
+        }
+        $lastDownloaded = $downloaded;
+    }
+
+    /**
+     * Store a downloaded GitHub artifact.
+     *
+     * @param  string $name    - articfact name
+     * @param  string $tmpFile - tmp. path of the downloaded file
+     *
+     * @return bool - success status
+     */
+    protected function storeBuildArtifact(string $name, string $tmpFile): bool
+    {
+        /** @var Config $config */
+        $config = Application::service('config');
+
+        $storageDir = $config->getString('github.storage-dir');
+        if (isRelativePath($storageDir)) {
+            $rootDir = $config->getString('app.dir.root');
+            $storageDir = "$rootDir/$storageDir";
+        }
+        $targetFile = "$storageDir/$name";
+
+        return rename($tmpFile, $targetFile);
     }
 }
