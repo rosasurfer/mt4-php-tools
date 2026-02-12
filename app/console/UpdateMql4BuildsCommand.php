@@ -92,8 +92,6 @@ class UpdateMql4BuildsCommand extends Command
      */
     protected function updateNotifications(array $processed = []): array
     {
-        $this->output->out(__FUNCTION__.': size($processed) = '.sizeof($processed));
-
         $filename = Config::getString('github.build-notifications');
         if (isRelativePath($filename)) {
             $rootDir = Config::getString('app.dir.root');
@@ -102,14 +100,27 @@ class UpdateMql4BuildsCommand extends Command
 
         $lines = [];
         if (is_file($filename)) {
-            $lines = file($filename, FILE_IGNORE_NEW_LINES|FILE_SKIP_EMPTY_LINES);
-        }
-        if ($processed) {
-            $diff = array_diff($lines, $processed);
-            if (sizeof($diff) != sizeof($lines)) {
-                $data = $diff ? join(NL, $diff).NL : '';
-                file_put_contents($filename, $data);
-                $lines = $diff;
+            $hFile = fopen($filename, 'c+b');
+            flock($hFile, LOCK_EX);                         // exclusive read/write
+
+            while (($line = fgets($hFile)) !== false) {     // read existing content
+                $line = trim($line);
+                if ($line == '') continue;
+                $lines[] = $line;
+            }
+            if ($processed) {
+                $diff = array_diff($lines, $processed);
+                if (sizeof($diff) != sizeof($lines)) {
+                    $data = $diff ? join(NL, $diff).NL : '';
+                    ftruncate($hFile, 0);                   // write updated content
+                    rewind($hFile);
+                    fwrite($hFile, $data);
+                    $lines = $diff;
+                }
+            }
+            fclose($hFile);
+            if (!$lines) {
+                unlink($filename);
             }
         }
         return $lines;
