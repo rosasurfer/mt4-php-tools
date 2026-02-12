@@ -13,6 +13,7 @@ use rosasurfer\ministruts\config\ConfigInterface as Config;
 use rosasurfer\ministruts\console\Command;
 use rosasurfer\ministruts\console\io\Input;
 use rosasurfer\ministruts\console\io\Output;
+use rosasurfer\ministruts\file\FileSystem;
 use rosasurfer\ministruts\log\Logger;
 
 use GuzzleHttp\Client as HttpClient;
@@ -32,7 +33,7 @@ use const rosasurfer\ministruts\NL;
 /**
  * UpdateMql4BuildsCommand
  *
- * The command processes new build notifications from GitHub CI pipelines and updates the locally stored builds.
+ * The command processes all existing build notifications from the GitHub CI pipeline and updates locally stored builds.
  */
 class UpdateMql4BuildsCommand extends Command
 {
@@ -62,14 +63,14 @@ class UpdateMql4BuildsCommand extends Command
             foreach ($notifications as $notification) {     // format: "{repository};{artifact-id}"
                 [$repository, $artifactId] = explode(';', $notification) + ['', ''];
 
-                if (!$response = $this->queryGithubApi($repository, $artifactId)) return 1;
-                if (!$artifact = $this->parseGithubResponse($response)) return 1;
-                if (!$filepath = $this->downloadBuildArtifact($artifact->url, $artifact->name, $artifact->size, $artifact->digest)) return 1;
-                if (!$success  = $this->storeBuildArtifact($artifact->name, $filepath)) return 1;
+                if (!$response  = $this->queryGithubApi($repository, $artifactId)) return 1;
+                if (!$artifact  = $this->parseGithubResponse($response)) return 1;
+                if (!$tmpPath   = $this->downloadBuildArtifact($artifact->url, $artifact->name, $artifact->size, $artifact->digest)) return 1;
+                if (!$storePath = $this->storeBuildArtifact($artifact->name, $artifact->branch, $tmpPath)) return 1;
 
                 echof(toString($response));
                 echof($artifact);
-                echof($filepath);
+                echof($storePath);
 
                 $processed[] = $notification;
                 $output->out('[Ok]');
@@ -207,29 +208,27 @@ class UpdateMql4BuildsCommand extends Command
         $tmpDir = $config->getString('app.dir.tmp');
         $tmpFileName = "$tmpDir/$fileName";
         if (is_file($tmpFileName)) {
-            //unlink($tmpFileName);
+            unlink($tmpFileName);
         }
 
-        if (!is_file($tmpFileName)) {
+        try {
             // download the file
-            try {
-                $response = (new HttpClient())->request('GET', $url, [
-                    'connect_timeout' => 10,
-                    'headers' => [
-                        'Authorization' => "Bearer $githubToken",
-                    ],
-                    'sink'     => $tmpFileName,
-                    'progress' => fn(int ...$bytes) => $this->onDownloadProgress($fileName, ...$bytes),
-                ]);
-                $status = $response->getStatusCode();
-                if ($status != 200) {
-                    throw new RuntimeException("error downloading GitHub artifact: HTTP status $status");
-                }
+            $response = (new HttpClient())->request('GET', $url, [
+                'connect_timeout' => 10,
+                'headers' => [
+                    'Authorization' => "Bearer $githubToken",
+                ],
+                'sink'     => $tmpFileName,
+                'progress' => fn(int ...$bytes) => $this->onDownloadProgress($fileName, ...$bytes),
+            ]);
+            $status = $response->getStatusCode();
+            if ($status != 200) {
+                throw new RuntimeException("error downloading GitHub artifact: HTTP status $status");
             }
-            catch (Throwable $ex) {
-                Logger::log('error downloading GitHub artifact: '.get_class($ex).NL."url: $url", L_ERROR, ['exception' => $ex]);
-                return null;
-            }
+        }
+        catch (Throwable $ex) {
+            Logger::log('error downloading GitHub artifact: '.get_class($ex).NL."url: $url", L_ERROR, ['exception' => $ex]);
+            return null;
         }
 
         // validate the file size
@@ -283,11 +282,12 @@ class UpdateMql4BuildsCommand extends Command
      * Store a downloaded GitHub artifact.
      *
      * @param  string $name    - articfact name
+     * @param  string $branch  - branch name
      * @param  string $tmpFile - tmp. path of the downloaded file
      *
-     * @return bool - success status
+     * @return ?string - final storage path or NULL on error
      */
-    protected function storeBuildArtifact(string $name, string $tmpFile): bool
+    protected function storeBuildArtifact(string $name, string $branch, string $tmpFile): ?string
     {
         /** @var Config $config */
         $config = Application::service('config');
@@ -297,8 +297,15 @@ class UpdateMql4BuildsCommand extends Command
             $rootDir = $config->getString('app.dir.root');
             $storageDir = "$rootDir/$storageDir";
         }
-        $targetFile = "$storageDir/$name";
+        if ($branch != 'master') {
+            $storageDir .= "/$branch";
+            if (!is_dir($storageDir)) {
+                FileSystem::mkDir($storageDir);
+            }
+        }
+        $storagePath = "$storageDir/$name";
 
-        return rename($tmpFile, $targetFile);
+        $success = rename($tmpFile, $storagePath);
+        return $success ? $storagePath : null;
     }
 }
