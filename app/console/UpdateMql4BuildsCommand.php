@@ -125,8 +125,7 @@ class UpdateMql4BuildsCommand extends Command
         $githubToken = $config->getString('github.api-token');
 
         try {
-            $url = "https://api.github.com/repos/$repository/actions/artifacts/$artifactId";
-            $response = (new HttpClient())->request('GET', $url, [
+            $response = (new HttpClient())->request('GET', "https://api.github.com/repos/$repository/actions/artifacts/$artifactId", [
                 'connect_timeout' => 10,
                 'headers'         => [
                     'Accept'        => 'application/json',
@@ -303,9 +302,12 @@ class UpdateMql4BuildsCommand extends Command
                 FileSystem::mkDir($storageDir);
             }
         }
-        $storagePath = "$storageDir/$name";
+        $targetPath = "$storageDir/$name";
 
-        $success = rename($tmpFile, $storagePath);
-        return $success ? $storagePath : null;
+        if (rename($tmpFile, $targetPath)) {
+            return $targetPath;
+        }
+        @unlink($tmpFile);
+        return null;
     }
 }
