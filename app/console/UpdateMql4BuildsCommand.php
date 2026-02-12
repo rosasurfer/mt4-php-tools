@@ -54,28 +54,28 @@ class UpdateMql4BuildsCommand extends Command
      */
     protected function execute(Input $input, Output $output): int
     {
-        // read existing notifications
-        $notifications = $this->updateNotifications();
-
         $processed = [];
         try {
             // process new notifications
-            foreach ($notifications as $notification) {     // format: "{repository};{artifact-id}"
-                [$repository, $artifactId] = explode(';', $notification) + ['', ''];
+            while ($notifications = $this->updateNotifications($processed)) {
+                $processed = [];
+                foreach ($notifications as $notification) {
+                    [$repository, $artifactId] = explode(';', $notification) + ['', ''];    // format: "{repository};{artifact-id}"
 
-                if (!$response  = $this->queryGithubApi($repository, $artifactId)) return 1;
-                $output->out(toString($response));
+                    if (!$response  = $this->queryGithubApi($repository, $artifactId)) return 1;
+                    $output->out(toString($response));
 
-                if (!$artifact  = $this->parseGithubResponse($response))           return 1;
-                if (!$tmpPath   = $this->downloadBuildArtifact($artifact))         return 1;
-                if (!$storePath = $this->storeBuildArtifact($artifact, $tmpPath))  return 1;
-                $output->out("stored at: $storePath");
+                    if (!$artifact  = $this->parseGithubResponse($response))           return 1;
+                    if (!$tmpPath   = $this->downloadBuildArtifact($artifact))         return 1;
+                    if (!$storePath = $this->storeBuildArtifact($artifact, $tmpPath))  return 1;
+                    $output->out("stored at: $storePath");
 
-                $processed[] = $notification;
+                    $processed[] = $notification;
+                }
+                break;
             }
         }
         finally {
-            // remove processed notifications
             if ($processed) {
                 $this->updateNotifications($processed);
             }
@@ -86,12 +86,14 @@ class UpdateMql4BuildsCommand extends Command
     /**
      * Read/update existing build notifications.
      *
-     * @param  string[] $processed [optional] - already processed notifications to be deleted (default: none)
+     * @param  string[] $processed [optional] - processed notifications to be deleted (default: none)
      *
      * @return string[] - new notifications
      */
     protected function updateNotifications(array $processed = []): array
     {
+        $this->output->out(__FUNCTION__.': size($processed) = '.sizeof($processed));
+
         $filename = Config::getString('github.build-notifications');
         if (isRelativePath($filename)) {
             $rootDir = Config::getString('app.dir.root');
@@ -101,6 +103,14 @@ class UpdateMql4BuildsCommand extends Command
         $lines = [];
         if (is_file($filename)) {
             $lines = file($filename, FILE_IGNORE_NEW_LINES|FILE_SKIP_EMPTY_LINES);
+        }
+        if ($processed) {
+            $diff = array_diff($lines, $processed);
+            if (sizeof($diff) != sizeof($lines)) {
+                $data = $diff ? join(NL, $diff).NL : '';
+                file_put_contents($filename, $data);
+                $lines = $diff;
+            }
         }
         return $lines;
     }
