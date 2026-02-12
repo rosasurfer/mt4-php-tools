@@ -17,9 +17,9 @@ use rosasurfer\ministruts\log\Logger;
 
 use GuzzleHttp\Client as HttpClient;
 
-use function rosasurfer\ministruts\echof;
 use function rosasurfer\ministruts\isRelativePath;
 use function rosasurfer\ministruts\json_decode_or_throw;
+use function rosasurfer\ministruts\realpath;
 use function rosasurfer\ministruts\stdout;
 use function rosasurfer\ministruts\strRight;
 use function rosasurfer\ministruts\strRightFrom;
@@ -27,6 +27,7 @@ use function rosasurfer\ministruts\strStartsWith;
 use function rosasurfer\ministruts\toString;
 
 use const rosasurfer\ministruts\L_ERROR;
+use const rosasurfer\ministruts\L_NOTICE;
 use const rosasurfer\ministruts\NL;
 
 /**
@@ -63,16 +64,14 @@ class UpdateMql4BuildsCommand extends Command
                 [$repository, $artifactId] = explode(';', $notification) + ['', ''];
 
                 if (!$response  = $this->queryGithubApi($repository, $artifactId)) return 1;
-                if (!$artifact  = $this->parseGithubResponse($response)) return 1;
-                if (!$tmpPath   = $this->downloadBuildArtifact($artifact->url, $artifact->name, $artifact->size, $artifact->digest)) return 1;
-                if (!$storePath = $this->storeBuildArtifact($artifact->name, $artifact->branch, $tmpPath)) return 1;
+                $output->out(toString($response));
 
-                echof(toString($response));
-                echof($artifact);
-                echof($storePath);
+                if (!$artifact  = $this->parseGithubResponse($response))           return 1;
+                if (!$tmpPath   = $this->downloadBuildArtifact($artifact))         return 1;
+                if (!$storePath = $this->storeBuildArtifact($artifact, $tmpPath))  return 1;
+                $output->out("stored at: $storePath");
 
                 $processed[] = $notification;
-                $output->out('[Ok]');
             }
         }
         finally {
@@ -183,33 +182,49 @@ class UpdateMql4BuildsCommand extends Command
     }
 
     /**
-     * Download and validate a GitHub artifact.
+     * Download and validate a GitHub artifact. If the artifact already exists locally it is re-validated and the download skipped.
      *
-     * @param  string $url
-     * @param  string $fileName
-     * @param  int    $fileSize
-     * @param  string $fileDigest
+     * @param  stdClass $artifact - artifact meta data
      *
-     * @return ?string - path of the downloaded file or NULL on error
+     * @return ?string - temporary or final path of the local file; or NULL on error
      */
-    protected function downloadBuildArtifact(string $url, string $fileName, int $fileSize, string $fileDigest): ?string
+    protected function downloadBuildArtifact(stdClass $artifact): ?string
     {
-        $tmpDir = Config::getString('app.dir.tmp');
-        $tmpFileName = "$tmpDir/$fileName";
-        if (is_file($tmpFileName)) {
-            unlink($tmpFileName);
+        // check local file in storage path
+        $storagePath = $this->resolveStoragePath($artifact);
+        if (is_file($storagePath)) {
+            if (!$error = $this->verifyArtifactFile($artifact, $storagePath)) {
+                $this->output->out('stored file exists');
+                return $storagePath;
+            }
+            $this->output->out(sprintf($error, 'stored '));
+            unlink($storagePath);
         }
-        $githubToken = Config::getString('github.api-token');
 
+        // check local file in tmp. download path
+        $tmpPath = $this->resolveDownloadPath($artifact);
+        if (is_file($tmpPath)) {
+            if (!$error = $this->verifyArtifactFile($artifact, $tmpPath)) {
+                $this->output->out('downloaded file exists');
+                return $tmpPath;
+            }
+            Logger::log(sprintf($error, 'temporary '), L_NOTICE);
+            unlink($tmpPath);
+        }
+        else {
+            FileSystem::mkDir(dirname($tmpPath));
+        }
+
+        // download the file
+        $githubToken = Config::getString('github.api-token');
         try {
-            // download the file
-            $response = (new HttpClient())->request('GET', $url, [
+            $response = (new HttpClient())->request('GET', $artifact->url, [
                 'connect_timeout' => 10,
                 'headers' => [
                     'Authorization' => "Bearer $githubToken",
                 ],
-                'sink'     => $tmpFileName,
-                'progress' => fn(int ...$bytes) => $this->onDownloadProgress($fileName, ...$bytes),
+                'sink'     => $tmpPath,
+                'progress' => fn(int ...$bytes) => $this->onDownloadProgress($artifact->name, ...$bytes),
             ]);
             $this->output->out(NL);
 
@@ -223,22 +238,13 @@ class UpdateMql4BuildsCommand extends Command
             return null;
         }
 
-        // validate the file size
-        $actualSize = filesize($tmpFileName);
-        if ($actualSize !== $fileSize) {
-            unlink($tmpFileName);
-            Logger::log("file size mis-match of downloaded GitHub artifact: expected=$fileSize vs. actual=$actualSize", L_ERROR);
+        // verify the download
+        if ($error = $this->verifyArtifactFile($artifact, $tmpPath)) {
+            unlink($tmpPath);
+            Logger::log(sprintf($error, 'downloaded '), L_ERROR);
             return null;
         }
-
-        // validate the file hash
-        $hash = hash_file('sha256', $tmpFileName);
-        if ($hash !== $fileDigest) {
-            unlink($tmpFileName);
-            Logger::log("file hash mis-match of downloaded GitHub artifact: SHA256 expected=$fileDigest vs. actual=$hash", L_ERROR);
-            return null;
-        }
-        return $tmpFileName;
+        return $tmpPath;
     }
 
     /**
@@ -261,31 +267,93 @@ class UpdateMql4BuildsCommand extends Command
     /**
      * Store a downloaded GitHub artifact.
      *
-     * @param  string $name    - articfact name
-     * @param  string $branch  - branch name
-     * @param  string $tmpFile - tmp. path of the downloaded file
+     * @param  stdClass $artifact - artifact meta data
+     * @param  string   $tmpPath  - tmp. path of the downloaded file
      *
      * @return ?string - final storage path or NULL on error
      */
-    protected function storeBuildArtifact(string $name, string $branch, string $tmpFile): ?string
+    protected function storeBuildArtifact(stdClass $artifact, string $tmpPath): ?string
+    {
+        $storagePath = $this->resolveStoragePath($artifact);
+
+        if (is_file($storagePath) && realpath($storagePath) == realpath($tmpPath)) {
+            return $storagePath;            // nothing to do
+        }
+
+        FileSystem::mkDir(dirname($storagePath));
+
+        if (rename($tmpPath, $storagePath)) {
+            return $storagePath;
+        }
+        @unlink($tmpPath);
+        return null;
+    }
+
+    /**
+     * Resolve the temporary download path of a GitHub artifact.
+     *
+     * @param  stdClass $artifact - artifact meta data
+     *
+     * @return string - temporary download path
+     */
+    protected function resolveDownloadPath(stdClass $artifact): string
+    {
+        $tmpDir = Config::getString('app.dir.tmp');
+        if (isRelativePath($tmpDir)) {
+            $rootDir = Config::getString('app.dir.root');
+            $tmpDir = "$rootDir/$tmpDir";
+        }
+        return "$tmpDir/$artifact->name";
+    }
+
+    /**
+     * Resolve the final storage path of a GitHub artifact.
+     *
+     * @param  stdClass $artifact - artifact meta data
+     *
+     * @return string - final storage path
+     */
+    protected function resolveStoragePath(stdClass $artifact): string
     {
         $storageDir = Config::getString('github.storage-dir');
         if (isRelativePath($storageDir)) {
             $rootDir = Config::getString('app.dir.root');
             $storageDir = "$rootDir/$storageDir";
         }
-        if ($branch != 'master') {
-            $storageDir .= "/$branch";
-            if (!is_dir($storageDir)) {
-                FileSystem::mkDir($storageDir);
-            }
+        if ($artifact->branch != 'master') {
+            $storageDir .= "/$artifact->branch";
         }
-        $targetPath = "$storageDir/$name";
+        return "$storageDir/$artifact->name";
+    }
 
-        if (rename($tmpFile, $targetPath)) {
-            return $targetPath;
+    /**
+     * Verify a GitHub artifact file.
+     *
+     * @param  stdClass $artifact - artifact meta data
+     * @param  string   $filepath - artifact file
+     *
+     * @return ?string - NULL on success or an error message on error
+     */
+    protected function verifyArtifactFile(stdClass $artifact, string $filepath): ?string
+    {
+        if (!is_file($filepath)) {
+            return "%sfile not found: \"$filepath\"";
         }
-        @unlink($tmpFile);
+
+        // verify the file size
+        $expected = $artifact->size;
+        $actual = filesize($filepath);
+        if ($expected !== $actual) {
+            return "file size mis-match of %sGitHub artifact: expected=$expected vs. actual=$actual";
+        }
+
+        // verify the file hash
+        $expected = $artifact->digest;
+        $actual = hash_file('sha256', $filepath);
+        if ($expected != $actual) {
+            return "file hash mis-match of %sGitHub artifact: SHA256 expected=$expected vs. actual=$actual";
+        }
+
         return null;
     }
 }
