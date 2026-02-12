@@ -140,7 +140,7 @@ class UpdateMql4BuildsCommand extends Command
             return $response->getBody()->getContents();
         }
         catch (Throwable $ex) {
-            Logger::log('error querying GitHub API: '.get_class($ex).NL."url: $url", L_ERROR, ['exception' => $ex]);
+            Logger::log('error querying GitHub API: '.get_class($ex), L_ERROR, ['exception' => $ex]);
         }
         return null;
     }
@@ -227,7 +227,7 @@ class UpdateMql4BuildsCommand extends Command
             }
         }
         catch (Throwable $ex) {
-            Logger::log('error downloading GitHub artifact: '.get_class($ex).NL."url: $url", L_ERROR, ['exception' => $ex]);
+            Logger::log('error downloading GitHub artifact: '.get_class($ex), L_ERROR, ['exception' => $ex]);
             return null;
         }
 
