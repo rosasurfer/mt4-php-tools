@@ -111,7 +111,7 @@ class UpdateMql4BuildsCommand extends Command
                 }
                 if ($processed) {
                     $diff = array_diff($lines, $processed);
-                    if (sizeof($diff) != sizeof($lines)) {
+                    if (sizeof($diff) < sizeof($lines)) {
                         $data = $diff ? join(NL, $diff).NL : '';
                         ftruncate($hFile, 0);                   // write updated content
                         rewind($hFile);

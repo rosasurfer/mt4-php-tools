@@ -4,15 +4,15 @@ declare(strict_types=1);
 namespace rosasurfer\rt\controller\actions;
 
 use rosasurfer\ministruts\core\proxy\Config;
-use rosasurfer\ministruts\log\Logger;
 use rosasurfer\ministruts\net\http\HttpResponse;
 use rosasurfer\ministruts\struts\Action;
 use rosasurfer\ministruts\struts\ActionForward;
 use rosasurfer\ministruts\struts\Request;
 use rosasurfer\ministruts\struts\Response;
-
+use rosasurfer\ministruts\util\PHP;
 use rosasurfer\rt\controller\forms\BuildNotificationActionForm;
 
+use function rosasurfer\ministruts\ddd;
 use function rosasurfer\ministruts\isRelativePath;
 
 use const rosasurfer\ministruts\L_NOTICE;
@@ -30,7 +30,7 @@ class BuildNotificationAction extends Action
      */
     public function execute(Request $request, Response $response): ?ActionForward
     {
-        Logger::log('GitHub build notification', L_NOTICE);
+        //Logger::log('GitHub build notification', L_NOTICE);
 
         /** @var BuildNotificationActionForm $form */
         $form = $this->form;
@@ -51,7 +51,48 @@ class BuildNotificationAction extends Action
         }
         file_put_contents($filename, $data, FILE_APPEND|LOCK_EX);
 
-        // run UpdateMql4BuildsCommand
+
+        // @todo run UpdateMql4BuildsCommand
+
+
+        // Windows: detaches but no error if command not found
+        if (false) {
+            $cmd = 'start "" /b calc.exe';
+            ddd('popen: '.$cmd);
+            pclose(popen($cmd, 'rb'));
+            ddd('popen() returned');
+        }
+
+        // Windows: detaches but hangs if command not found
+        if (false) {
+            $cmd = 'cmd.exe /c start "" /b calc.exe';
+            ddd('execProcess: '.$cmd);
+            $s = PHP::execProcess($cmd);
+            ddd('execProcess() returned');
+        }
+
+
+        $cmd = 'radegast';
+        $cmd = 'cmd /c radegast';
+        $cmd = 'set';
+        $cmd = 'start "" /b calc.exe';
+        $cmd = 'start "" /b calc.exe <NUL >NUL 2>&1';
+        $cmd = 'start "" /b calc';
+        $cmd = 'start "" /b cmd /c "calc.exe <NUL >NUL 2>&1" <NUL >NUL 2>&1';
+        //$cmd = 'cmd /c start "" /b calc.exe <NUL >NUL 2>&1';
+        //$cmd = 'start "" /b calc.exe <NUL >NUL 2>&1';
+        //$cmd = 'cmd /c start "" /b cmd /c "calc.exe <NUL >NUL 2>&1"';
+        //$cmd = 'cmd /c start "" /b cmd /c "calc.exe <NUL >NUL 2>&1" <NUL >NUL 2>&1';
+
+        //ddd('calling exec('.$cmd.')...');
+        //$stdout = $status = null;
+        //$s = exec($cmd, $stdout, $status);
+        //if ($s === false) {
+        //    ddd('exec() failed, $status='.$status);
+        //}
+        //else {
+        //    ddd('exec() success, $status='.$status.NL.join(NL, $stdout));
+        //}
 
         return $this->sendStatus(HttpResponse::SC_OK, 'success');
     }
