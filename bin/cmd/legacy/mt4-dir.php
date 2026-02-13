@@ -133,7 +133,7 @@ foreach ($expandedArgs as $fileName) {
         $lastSyncTimes[] =            $header->getLastSyncTime() ? gmdate('Y.m.d H:i:s', $header->getLastSyncTime()) : null;
 
         $barVersion = $header->getFormat();
-        $barSize    = ($barVersion==400) ? MT4::HISTORY_BAR_400_SIZE : MT4::HISTORY_BAR_401_SIZE;
+        $barSize    = $barVersion == 400 ? MT4::HISTORY_BAR_400_SIZE : MT4::HISTORY_BAR_401_SIZE;
         $iBars      = (int) floor(($fileSize-HistoryHeader::SIZE)/$barSize);
 
         $barFrom = $barTo = [];
