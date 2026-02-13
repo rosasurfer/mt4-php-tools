@@ -101,27 +101,26 @@ class UpdateMql4BuildsCommand extends Command
         $lines = [];
         if (is_file($filename)) {
             $hFile = fopen($filename, 'c+b');
-            flock($hFile, LOCK_EX);                         // exclusive read/write
+            flock($hFile, LOCK_EX);                             // exclusive read/write
 
-            while (($line = fgets($hFile)) !== false) {     // read existing content
-                $line = trim($line);
-                if ($line == '') continue;
-                $lines[] = $line;
-            }
-            if ($processed) {
-                $diff = array_diff($lines, $processed);
-                if (sizeof($diff) != sizeof($lines)) {
-                    $data = $diff ? join(NL, $diff).NL : '';
-                    ftruncate($hFile, 0);                   // write updated content
-                    rewind($hFile);
-                    fwrite($hFile, $data);
-                    $lines = $diff;
+            if (filesize($filename) > 0) {
+                while (($line = fgets($hFile)) !== false) {     // read existing content
+                    $line = trim($line);
+                    if ($line == '') continue;
+                    $lines[] = $line;
+                }
+                if ($processed) {
+                    $diff = array_diff($lines, $processed);
+                    if (sizeof($diff) != sizeof($lines)) {
+                        $data = $diff ? join(NL, $diff).NL : '';
+                        ftruncate($hFile, 0);                   // write updated content
+                        rewind($hFile);
+                        fwrite($hFile, $data);
+                        $lines = $diff;
+                    }
                 }
             }
             fclose($hFile);
-            if (!$lines) {
-                unlink($filename);
-            }
         }
         return $lines;
     }
