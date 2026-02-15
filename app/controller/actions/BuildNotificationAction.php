@@ -56,7 +56,7 @@ class BuildNotificationAction extends Action
         $logfile = "$rootDir/log/".basename($cmd, '.php').'.log';
 
         if (WINDOWS) $cmd = 'start "" /b calc.exe';
-        else         $cmd = "php '$cmd' </dev/null >'$logfile' 2>&1 &";
+        else         $cmd = "php '$cmd' --no-progress </dev/null >'$logfile' 2>&1 &";
         pclose(popen($cmd, 'rb'));
 
         return $this->sendStatus(HttpResponse::SC_OK, 'success');

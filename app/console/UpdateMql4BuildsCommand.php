@@ -39,13 +39,14 @@ class UpdateMql4BuildsCommand extends Command
 {
     /** @var string */
     const DOCOPT = <<<DOCOPT
-    Process new GitHub build notifications and update locally stored builds.
+    Process all existing GitHub build notifications and update the locally stored builds.
     
     Usage:
       {:cmd:}  [options]
     
     Options:
-       -h, --help  This help screen.
+       -n, --no-progress  Don't display download progress.
+       -h, --help         This help screen.
     
     DOCOPT;
 
@@ -247,7 +248,11 @@ class UpdateMql4BuildsCommand extends Command
                 'sink'     => $tmpPath,
                 'progress' => fn(int ...$bytes) => $this->onDownloadProgress($artifact->name, ...$bytes),
             ]);
-            $this->output->out(NL);
+
+            $progress = !$this->input->getOption('--no-progress');
+            if ($progress) {
+                $this->output->out(NL);
+            }
 
             $status = $response->getStatusCode();
             if ($status != 200) {
@@ -279,6 +284,9 @@ class UpdateMql4BuildsCommand extends Command
      */
     protected function onDownloadProgress(string $fileName, int $totalSize, int $downloaded): void
     {
+        if ($this->input->getOption('--no-progress')) {
+            return;
+        }
         if ($totalSize > 0) {
             $percent = (int) round($downloaded / $totalSize * 100);
             stdout("\rdownloading: $fileName => {$percent}%");
