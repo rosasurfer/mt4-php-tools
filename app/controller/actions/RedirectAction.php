@@ -33,11 +33,11 @@ class RedirectAction extends Action
         $product = $input->get('product', '');
 
         if ($product == 'rosasurfer/mt4-mql-framework') {
-            $filename = Config::getString($key = 'download.mt4-mql-framework');
+            $filename = Config::string($key = 'download.mt4-mql-framework');
             if (!strlen($filename)) throw new RuntimeException("Invalid config setting $key: \"\" (empty)");
 
             if (isRelativePath($filename)) {
-                $rootDir = Config::getString('app.dir.root');
+                $rootDir = Config::string('app.dir.root');
                 $filename = "$rootDir/$filename";
             }
             if (!is_file($filename)) throw new FileNotFoundException("File not found: \"$filename\"");

@@ -1,7 +1,7 @@
 #!/bin/bash
 #
-# Conveniant wrapper for PHPStan. Sets default values and adds command-line support for using baseline files
-# (a feature PHPStan lacks). Also supports switching between multiple PHP and/or PHPStan versions.
+# Conveniant wrapper for PHPStan. Sets default values and adds command-line support for including baseline files.
+# Also supports switching between multiple PHP and/or PHPStan versions.
 #
 # Usage:                                   All arguments are optional.
 #   phpstan [COMMAND] [options] [--] [PATH...]

@@ -144,7 +144,7 @@ class RT extends StaticClass {
         }
 
         // delete existing files
-        $storageDir  = Config::getString('app.dir.data');
+        $storageDir  = Config::string('app.dir.data');
         $storageDir .= '/history/rosatrader/'.$symbol->getType().'/'.$symbol->getName();
         $dir         = "$storageDir/".gmdate('Y/m/d', $day);
         $msg         = '[Info]    '.$symbol->getName().'  deleting existing M1 file: ';
@@ -169,7 +169,7 @@ class RT extends StaticClass {
     public static function getMailSignalReceivers(): array {
         static $addresses;
         $addresses ??= (static function() {
-            $values = Config::get('mail.signalreceivers', '');
+            $values = Config::string('mail.signalreceivers', '');
             $list = [];
             foreach (explode(',', $values) as $address) {
                 if ($address = trim($address)) {
@@ -190,7 +190,7 @@ class RT extends StaticClass {
     public static function getSmsSignalReceivers(): array {
         static $numbers;
         $numbers ??= (static function() {
-            $values = Config::getString('sms.signalreceivers', '');
+            $values = Config::string('sms.signalreceivers', '');
             $list = [];
             foreach (explode(',', $values) as $number) {
                 if ($number = trim($number)) {
@@ -215,9 +215,9 @@ class RT extends StaticClass {
 
         static $root, $realRoot, $storage, $realStorage;
         if (!$root) {
-            $root        = str_replace('\\', '/', Config::getString('app.dir.root').'/');
+            $root        = str_replace('\\', '/', Config::string('app.dir.root').'/');
             $realRoot    = str_replace('\\', '/', realpath($root).'/');
-            $storage     = str_replace('\\', '/', Config::getString('app.dir.data').'/');
+            $storage     = str_replace('\\', '/', Config::string('app.dir.data').'/');
             $realStorage = str_replace('\\', '/', realpath($storage).'/');
         }
 

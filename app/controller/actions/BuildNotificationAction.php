@@ -44,9 +44,9 @@ class BuildNotificationAction extends Action
         $artifactId = $form->artifactId;
         $data = "$repository;$artifactId".NL;
 
-        $filename = Config::getString('github.build-notifications');
+        $filename = Config::string('github.build-notifications');
         if (isRelativePath($filename)) {
-            $rootDir = Config::getString('app.dir.root');
+            $rootDir = Config::string('app.dir.root');
             $filename = "$rootDir/$filename";
         }
         file_put_contents($filename, $data, FILE_APPEND|LOCK_EX);
@@ -56,7 +56,7 @@ class BuildNotificationAction extends Action
 
 
         // Windows: detaches but no error if command not found
-        if (false) {
+        if (false) {                                                // @phpstan-ignore if.alwaysFalse
             $cmd = 'start "" /b calc.exe';
             ddd('popen: '.$cmd);
             pclose(popen($cmd, 'rb'));
@@ -64,7 +64,7 @@ class BuildNotificationAction extends Action
         }
 
         // Windows: detaches but hangs if command not found
-        if (false) {
+        if (false) {                                                // @phpstan-ignore if.alwaysFalse
             $cmd = 'cmd.exe /c start "" /b calc.exe';
             ddd('execProcess: '.$cmd);
             $s = PHP::execProcess($cmd);

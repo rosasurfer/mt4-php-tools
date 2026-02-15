@@ -92,9 +92,9 @@ class UpdateMql4BuildsCommand extends Command
      */
     protected function updateNotifications(array $processed = []): array
     {
-        $filename = Config::getString('github.build-notifications');
+        $filename = Config::string('github.build-notifications');
         if (isRelativePath($filename)) {
-            $rootDir = Config::getString('app.dir.root');
+            $rootDir = Config::string('app.dir.root');
             $filename = "$rootDir/$filename";
         }
 
@@ -135,7 +135,7 @@ class UpdateMql4BuildsCommand extends Command
      */
     protected function queryGithubApi(string $repository, string $artifactId): ?string
     {
-        $githubToken = Config::getString('github.api-token');
+        $githubToken = Config::string('github.api-token');
 
         try {
             $response = (new HttpClient())->request('GET', "https://api.github.com/repos/$repository/actions/artifacts/$artifactId", [
@@ -236,7 +236,7 @@ class UpdateMql4BuildsCommand extends Command
         }
 
         // download the file
-        $githubToken = Config::getString('github.api-token');
+        $githubToken = Config::string('github.api-token');
         try {
             $response = (new HttpClient())->request('GET', $artifact->url, [
                 'connect_timeout' => 10,
@@ -318,9 +318,9 @@ class UpdateMql4BuildsCommand extends Command
      */
     protected function resolveDownloadPath(stdClass $artifact): string
     {
-        $tmpDir = Config::getString('app.dir.tmp');
+        $tmpDir = Config::string('app.dir.tmp');
         if (isRelativePath($tmpDir)) {
-            $rootDir = Config::getString('app.dir.root');
+            $rootDir = Config::string('app.dir.root');
             $tmpDir = "$rootDir/$tmpDir";
         }
         return "$tmpDir/$artifact->name";
@@ -335,9 +335,9 @@ class UpdateMql4BuildsCommand extends Command
      */
     protected function resolveStoragePath(stdClass $artifact): string
     {
-        $storageDir = Config::getString('github.storage-dir');
+        $storageDir = Config::string('github.storage-dir');
         if (isRelativePath($storageDir)) {
-            $rootDir = Config::getString('app.dir.root');
+            $rootDir = Config::string('app.dir.root');
             $storageDir = "$rootDir/$storageDir";
         }
         if ($artifact->branch != 'master') {
