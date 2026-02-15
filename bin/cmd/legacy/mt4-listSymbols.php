@@ -15,7 +15,6 @@ namespace rosasurfer\rt\cmd\mt4_list_symbols;
 use rosasurfer\rt\lib\metatrader\MT4;
 use rosasurfer\rt\lib\metatrader\Symbol;
 
-use function rosasurfer\ministruts\echof;
 use function rosasurfer\ministruts\numf;
 use function rosasurfer\ministruts\pluralize;
 use function rosasurfer\ministruts\stderr;

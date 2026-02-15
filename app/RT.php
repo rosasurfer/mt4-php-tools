@@ -7,18 +7,15 @@ use rosasurfer\ministruts\core\StaticClass;
 use rosasurfer\ministruts\core\exception\RuntimeException;
 use rosasurfer\ministruts\core\proxy\Config;
 use rosasurfer\ministruts\file\FileSystem;
+use rosasurfer\rt\lib\rosatrader\Rost;
+use rosasurfer\rt\model\RosaSymbol;
 
-use function rosasurfer\ministruts\echof;
 use function rosasurfer\ministruts\strRightFrom;
 use function rosasurfer\ministruts\strStartsWith;
 
 use const rosasurfer\ministruts\DAY;
 use const rosasurfer\ministruts\HOURS;
 use const rosasurfer\ministruts\MINUTES;
-
-use rosasurfer\rt\lib\rosatrader\Rost;
-use rosasurfer\rt\model\RosaSymbol;
-
 
 /**
  * Another class with common functionality.

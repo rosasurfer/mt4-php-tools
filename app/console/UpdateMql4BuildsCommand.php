@@ -18,7 +18,6 @@ use rosasurfer\ministruts\process\Process;
 
 use GuzzleHttp\Client as HttpClient;
 
-use function rosasurfer\ministruts\ddd;
 use function rosasurfer\ministruts\isRelativePath;
 use function rosasurfer\ministruts\json_decode_or_throw;
 use function rosasurfer\ministruts\realpath;
@@ -26,7 +25,6 @@ use function rosasurfer\ministruts\stdout;
 use function rosasurfer\ministruts\strRight;
 use function rosasurfer\ministruts\strRightFrom;
 use function rosasurfer\ministruts\strStartsWith;
-use function rosasurfer\ministruts\toString;
 
 use const rosasurfer\ministruts\L_ERROR;
 use const rosasurfer\ministruts\L_NOTICE;
@@ -64,15 +62,13 @@ class UpdateMql4BuildsCommand extends Command
                 foreach ($notifications as $notification) {
                     [$repository, $artifactId] = explode(';', $notification) + ['', ''];    // format: "{repository};{artifact-id}"
 
-                    if (!$response  = $this->queryGithubApi($repository, $artifactId)) return 1;
-                    $output->out($s = toString($response));
-                    ddd($s);
+                    if (!$response = $this->queryGithubApi($repository, $artifactId)) return 1;
+                    $output->out(toString($response));
 
-                    if (!$artifact  = $this->parseGithubResponse($response))           return 1;
-                    if (!$tmpPath   = $this->downloadBuildArtifact($artifact))         return 1;
-                    if (!$storePath = $this->storeBuildArtifact($artifact, $tmpPath))  return 1;
-                    $output->out($s = "stored at: $storePath");
-                    ddd($s);
+                    if (!$artifact  = $this->parseGithubResponse($response))          return 1;
+                    if (!$tmpPath   = $this->downloadBuildArtifact($artifact))        return 1;
+                    if (!$storePath = $this->storeBuildArtifact($artifact, $tmpPath)) return 1;
+                    $output->out("stored at: $storePath");
 
                     $processed[] = $notification;
                     Process::dispatchSignals();
@@ -219,12 +215,10 @@ class UpdateMql4BuildsCommand extends Command
         $storagePath = $this->resolveStoragePath($artifact);
         if (is_file($storagePath)) {
             if (!$error = $this->verifyArtifactFile($artifact, $storagePath)) {
-                $this->output->out($s = 'stored file exists');
-                ddd($s);
+                $this->output->out('stored file exists');
                 return $storagePath;
             }
-            $this->output->out($s = sprintf($error, 'stored '));
-            ddd($s);
+            $this->output->out(sprintf($error, 'stored '));
             unlink($storagePath);
         }
 
@@ -232,8 +226,7 @@ class UpdateMql4BuildsCommand extends Command
         $tmpPath = $this->resolveDownloadPath($artifact);
         if (is_file($tmpPath)) {
             if (!$error = $this->verifyArtifactFile($artifact, $tmpPath)) {
-                $this->output->out($s = 'downloaded file exists');
-                ddd($s);
+                $this->output->out('downloaded file exists');
                 return $tmpPath;
             }
             Logger::log(sprintf($error, 'temporary '), L_NOTICE);
@@ -254,7 +247,7 @@ class UpdateMql4BuildsCommand extends Command
                 'sink'     => $tmpPath,
                 'progress' => fn(int ...$bytes) => $this->onDownloadProgress($artifact->name, ...$bytes),
             ]);
-            $this->output->out($s = NL);
+            $this->output->out(NL);
 
             $status = $response->getStatusCode();
             if ($status != 200) {

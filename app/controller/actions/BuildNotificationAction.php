@@ -12,7 +12,6 @@ use rosasurfer\ministruts\struts\Request;
 use rosasurfer\ministruts\struts\Response;
 use rosasurfer\rt\controller\forms\BuildNotificationActionForm;
 
-use function rosasurfer\ministruts\ddd;
 use function rosasurfer\ministruts\isRelativePath;
 
 use const rosasurfer\ministruts\L_NOTICE;
@@ -52,9 +51,12 @@ class BuildNotificationAction extends Action
         }
         file_put_contents($filename, $data, FILE_APPEND|LOCK_EX);
 
-        // launch downloader in background (detached from web server)
+        // launch download in background (detached from web server)
+        $cmd = "$rootDir/bin/cmd/updateMql4Builds.php";
+        $logfile = "$rootDir/log/".basename($cmd, '.php').'.log';
+
         if (WINDOWS) $cmd = 'start "" /b calc.exe';
-        else         $cmd = "php '$rootDir/bin/cmd/updateMql4Builds.php' </dev/null >/dev/null 2>&1 &";
+        else         $cmd = "php '$cmd' </dev/null >'$logfile' 2>&1 &";
         pclose(popen($cmd, 'rb'));
 
         return $this->sendStatus(HttpResponse::SC_OK, 'success');

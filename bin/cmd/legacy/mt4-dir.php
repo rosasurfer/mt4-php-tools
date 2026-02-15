@@ -14,7 +14,6 @@ use rosasurfer\rt\lib\metatrader\HistoryHeader;
 use rosasurfer\rt\lib\metatrader\MetaTraderException;
 use rosasurfer\rt\lib\metatrader\MT4;
 
-use function rosasurfer\ministruts\echof;
 use function rosasurfer\ministruts\numf;
 use function rosasurfer\ministruts\strCompareI;
 use function rosasurfer\ministruts\strEndsWith;

@@ -12,7 +12,6 @@ namespace rosasurfer\rt\cmd\mt4_import_test;
 
 use rosasurfer\rt\model\Test;
 
-use function rosasurfer\ministruts\echof;
 use function rosasurfer\ministruts\numf;
 use function rosasurfer\ministruts\strIsQuoted;
 use function rosasurfer\ministruts\strLeft;
