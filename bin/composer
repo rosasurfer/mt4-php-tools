@@ -4,8 +4,8 @@
 #
 # - The PHP interpreter can be configured by setting the environment variable PHP or editing config file "/.env".
 # - The Composer executable can be configured by setting the environment variable PHPCOMPOSER or editing config file "/.env".
-# - If environment variable DEBUG is set, the script displays the final command to be executed.
-# - If environment variable TRACE is set, the script shows the location of the last error (if any).
+# - If environment variable DEBUG is set the script displays the final command to be executed.
+# - If environment variable TRACE is set the script shows the location of the last error (if any).
 #
 # Examples:
 #  PHP=php81 composer             Use a different PHP version instead of the standard `php`.
