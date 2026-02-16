@@ -55,7 +55,7 @@ class BuildNotificationAction extends Action
         $cmd = "$rootDir/bin/cmd/updateMql4Builds.php";
         $logfile = "$rootDir/log/".basename($cmd, '.php').'.log';
 
-        if (WINDOWS) $cmd = 'start "" /b calc.exe';
+        if (WINDOWS) $cmd = "start \"\" /b php \"$cmd\" --no-progress <NUL >\"$logfile\" 2>&1";
         else         $cmd = "php '$cmd' --no-progress </dev/null >'$logfile' 2>&1 &";
         pclose(popen($cmd, 'rb'));
 

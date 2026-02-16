@@ -72,6 +72,8 @@ class UpdateMql4BuildsCommand extends Command
                     $output->out("stored at: $storePath");
 
                     $processed[] = $notification;
+
+                    Logger::log("GitHub build downloaded:".NL.toString($response)."stored at: $storePath", L_NOTICE);
                     Process::dispatchSignals();
                 }
                 break;
