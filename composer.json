@@ -27,7 +27,10 @@
   },
   "autoload": {
     "classmap": ["app/"],
-    "files":    ["app/functions.php"]
+    "files": [
+      "app/functions.php",
+      "app/helpers.php"
+    ]
   },
   "autoload-dev": {
     "classmap": [
