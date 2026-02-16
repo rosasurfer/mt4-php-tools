@@ -1,0 +1,184 @@
+#!/bin/bash
+#
+# Conveniant wrapper for PHPCodeSniffer. Simplifies switching between multiple PHP/PHPCS versions.
+#
+# PHPCS can be executed using a custom PHP interpreter by setting the environment variable PHP='<php-cmd>'.
+#
+# Examples:
+#  PHP=php81 phpcs                    Use a different PHP version instead of the standard `php`.
+#
+#
+# @version 2025.08.16 17:35
+#
+set -eEuo pipefail
+
+exec 3>&1                                                       # duplicate original STDOUT
+
+# --- functions ----------------------------------------------------------------------------------------------------------------------------
+
+#
+# Print a message to STDERR and exit the script/subshell.
+#
+# @param $@ - any number of arguments
+#
+function fail() {
+  stderr "ERROR: $*"
+  exit 127
+}
+
+#
+# Print a message to STDERR but don't exit the script/subshell.
+#
+# @param $@ - any number of arguments
+#
+function stderr() {
+  echo "$@" >&2
+}
+
+#
+# Whether to colorize the output in the current context.
+#
+function useColors() {
+  local color isTerminal=0 isPipe=0
+
+  case "${FORCE_COLOR:-}" in
+    always|yes|true|1) color=1;;
+    never|no|false|0)  color=0;;
+    *)                                                          # lowest priority: auto-detection
+      [[ -t 3 && "${TERM:-}" != 'dumb' ]] && isTerminal=1       # whether STDOUT is an interactive and color-capable terminal
+      [[ -p /proc/self/fd/3 ]] && isPipe=1                      # whether STDOUT is a pipe
+      color=$((isTerminal || isPipe));;
+  esac
+  [[ -n "${NO_COLOR:-}" ]] && color=0                           # highest priority
+
+  return $((!color))
+}
+
+#
+# Swap report ids "source" and "summary".
+#
+# @param _InOut_ $1 - named reference to the passed report id
+#
+function swapReportIds() {
+  ((BASH_SUBSHELL)) && fail "${FUNCNAME[0]}() can't write to outer scope from subshell"
+  local -n inout="$1"
+  local ids i
+  readarray -t ids < <(printf '%s\n' "${inout//,/$'\n'}")
+
+  for i in "${!ids[@]}"; do                                     # swap ids
+    if [[ "${ids[i]}" == 'summary' ]]; then
+      ids[i]='source'
+    elif [[ "${ids[i]}" == 'source' ]]; then
+      ids[i]='summary'
+    elif [[ "${ids[i]}" == '' ]]; then
+      unset 'ids[i]'
+    fi
+  done
+
+  inout=$(printf '%s,' "${ids[@]}")
+  inout="${inout%,}"                                            # remove trailing comma
+}
+
+# --- end of functions ---------------------------------------------------------------------------------------------------------------------
+
+
+# determine the PHP interpreter to use
+declare php="${PHP:-php}"
+
+
+# resolve project root and config directory
+declare isWindowsPhp projectDir configDir
+isWindowsPhp="$("$php" -r "echo (int)(PHP_OS_FAMILY == 'Windows');")"
+projectDir="$(realpath --relative-to=. "$(dirname "$(realpath "$(type -p "$0")")")"/..)"
+[[ "$projectDir" == /* ]] && ((isWindowsPhp)) && projectDir="$(cygpath -m "$projectDir")"
+configDir="$projectDir/etc/phpcs"
+configDir="${configDir#./}"
+
+
+# determine the PHPCS executable to use
+declare phpcs="$projectDir/vendor/bin/phpcs"
+phpcs="${phpcs#./}"
+[[ -f "$phpcs" ]] || fail "PHPCS executable not found"
+
+
+declare args=() arg
+args+=('-d')                                                    # always increase the memory limit
+args+=('memory_limit=-1')
+
+declare -A options=()
+
+
+# parse arguments
+while (("$#")); do
+  case "$1" in
+    --report|--report=*)
+      arg="${1#--report}"
+      arg="${arg:1}"
+      swapReportIds 'arg'
+      [[ -z "$arg" ]] && fail "missing value for option $1"
+      if [[ -z "${options['--report']:-}" ]]; then
+        options['--report']="--report=$arg"
+      else
+        options['--report']="${options['--report']},$arg"       # concatenate ids of multiple options
+      fi
+      shift
+      continue;;
+
+    --standard|--standard=*)
+      [[ -n "${options['--standard']:-}" ]] && fail 'multiple --standard options detected'
+      arg="${1#--standard}"
+      arg="${arg:1}"
+      [[ -z "$arg" ]] && fail 'missing value for option --standard=<name-or-file>'
+      options['--standard']="--standard=$arg"
+      shift
+      continue;;
+
+    --color|--colors)                                           # standard and PHPCS syntax
+      options['--color']='--colors'
+      shift
+      continue;;
+
+    --no-color|--no-colors)                                     # standard and PHPCS syntax
+      options['--color']='--no-colors'
+      shift
+      continue;;
+
+    -d)                                                         # a "php.ini" setting
+      args+=("$1")
+      shift
+      ((!"$#")) && fail 'missing value for option -d'
+  esac
+  args+=("$1")
+  shift
+done
+
+
+# define the rules to use
+if [[ -z "${options['--standard']:-}" ]]; then
+  declare rulesFile="$configDir/slevomat.xml"
+  [[ -f "$rulesFile" ]] || fail "file not found \"$rulesFile\""
+  options['--standard']="--standard=$rulesFile"
+fi
+
+
+# always provide a color option (PHP can't resolve it correctly)
+if [[ -z "${options['--color']:-}" ]]; then
+  useColors && options['--color']='--colors' || options['--color']='--no-colors'
+fi
+
+
+# rebuild all arguments
+args=("${options[@]}" "${args[@]+"${args[@]}"}")
+set -- "${args[@]}"
+
+
+# on DEBUG: show the final command
+if [[ "${DEBUG:-0}" != "0" ]]; then
+  declare phpBin=''
+  [[ "$php" != 'php' ]] && phpBin="$php "
+  echo "CMD: ${phpBin}${phpcs} $*"
+fi
+
+
+# call PHPCS
+"$php" "$phpcs" "$@"

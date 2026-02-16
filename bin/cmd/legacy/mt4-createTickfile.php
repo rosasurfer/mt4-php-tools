@@ -12,7 +12,6 @@ namespace rosasurfer\rt\cmd\mt4_create_tick_file;
 
 use rosasurfer\rt\lib\metatrader\MT4;
 
-use function rosasurfer\ministruts\echof;
 use function rosasurfer\ministruts\strIsDigits;
 use function rosasurfer\ministruts\strIsQuoted;
 use function rosasurfer\ministruts\strLeft;

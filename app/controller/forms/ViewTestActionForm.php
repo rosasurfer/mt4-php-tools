@@ -50,7 +50,7 @@ class ViewTestActionForm extends ActionForm {
      */
     protected function populate(): void {
         $input = $this->request->input();
-        $input->has('id') && $this->id = trim($input['id']);
+        $this->id = trim($input->get('id', ''));
     }
 
 

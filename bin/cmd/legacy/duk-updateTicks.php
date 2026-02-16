@@ -48,25 +48,23 @@ use rosasurfer\ministruts\net\http\HttpRequest;
 use rosasurfer\ministruts\net\http\HttpResponse;
 use rosasurfer\ministruts\process\Process;
 
-use function rosasurfer\ministruts\echof;
-use function rosasurfer\ministruts\print_p;
-use function rosasurfer\ministruts\stderr;
-use function rosasurfer\ministruts\strRight;
-use function rosasurfer\ministruts\strStartsWithI;
-
-use const rosasurfer\ministruts\DAY;
-use const rosasurfer\ministruts\HOUR;
-use const rosasurfer\ministruts\NL;
-
 use rosasurfer\rt\RT;
 use rosasurfer\rt\lib\dukascopy\Dukascopy;
 use rosasurfer\rt\lib\dukascopy\DukascopyException;
 use rosasurfer\rt\model\DukascopySymbol;
 use rosasurfer\rt\model\RosaSymbol;
 
+use function rosasurfer\ministruts\stderr;
+use function rosasurfer\ministruts\strRight;
+use function rosasurfer\ministruts\strStartsWithI;
+
 use function rosasurfer\rt\fxtOffset;
 use function rosasurfer\rt\fxtStrToTime;
 use function rosasurfer\rt\isWeekend;
+
+use const rosasurfer\ministruts\DAY;
+use const rosasurfer\ministruts\HOUR;
+use const rosasurfer\ministruts\NL;
 
 require(__DIR__.'/../../../app/init.php');
 date_default_timezone_set('GMT');
@@ -401,9 +399,9 @@ function downloadTickdata(string $symbol, int $gmtHour, int $fxtHour, bool $quie
     static $httpClient = null;
     !$httpClient && $httpClient = new CurlHttpClient($options);         // Instanz fuer KeepAlive-Connections wiederverwenden
 
-    $response = $httpClient->send($request);                            // TODO: CURL-Fehler wie bei SimpleTrader behandeln
+    $response = $httpClient->send($request);                            // @todo CURL-Fehler wie bei SimpleTrader behandeln
     $status   = $response->getStatus();
-    if ($status!=200 && $status!=404) throw new RuntimeException('Unexpected HTTP status '.$status.' ('.HttpResponse::$statusCodes[$status].') for url "'.$url.'"'.NL.print_p($response, true));
+    if ($status!=200 && $status!=404) throw new RuntimeException('Unexpected HTTP status '.$status.' ('.HttpResponse::$statusCodes[$status].') for url "'.$url.'"'.NL.toString($response));
 
     // eine leere Antwort ist moeglich und wird als Fehler behandelt
     $content = $response->getContent();

@@ -3,23 +3,19 @@ declare(strict_types=1);
 
 namespace rosasurfer\rt;
 
-use rosasurfer\ministruts\Application;
-use rosasurfer\ministruts\config\ConfigInterface as Config;
 use rosasurfer\ministruts\core\StaticClass;
 use rosasurfer\ministruts\core\exception\RuntimeException;
-use rosasurfer\ministruts\file\FileSystem as FS;
+use rosasurfer\ministruts\core\proxy\Config;
+use rosasurfer\ministruts\file\FileSystem;
+use rosasurfer\rt\lib\rosatrader\Rost;
+use rosasurfer\rt\model\RosaSymbol;
 
-use function rosasurfer\ministruts\echof;
 use function rosasurfer\ministruts\strRightFrom;
 use function rosasurfer\ministruts\strStartsWith;
 
 use const rosasurfer\ministruts\DAY;
 use const rosasurfer\ministruts\HOURS;
 use const rosasurfer\ministruts\MINUTES;
-
-use rosasurfer\rt\lib\rosatrader\Rost;
-use rosasurfer\rt\model\RosaSymbol;
-
 
 /**
  * Another class with common functionality.
@@ -145,7 +141,7 @@ class RT extends StaticClass {
         }
 
         // delete existing files
-        $storageDir  = Application::service('config')['app.dir.data'];
+        $storageDir  = Config::string('app.dir.data');
         $storageDir .= '/history/rosatrader/'.$symbol->getType().'/'.$symbol->getName();
         $dir         = "$storageDir/".gmdate('Y/m/d', $day);
         $msg         = '[Info]    '.$symbol->getName().'  deleting existing M1 file: ';
@@ -154,7 +150,7 @@ class RT extends StaticClass {
 
         // write data to new file
         $file = "$dir/M1.bin";
-        FS::mkDir(dirname($file));
+        FileSystem::mkDir(dirname($file));
         $tmpFile = tempnam(dirname($file), basename($file));    // make sure an existing file can't be corrupt
         file_put_contents($tmpFile, $data);
         rename($tmpFile, $file);
@@ -169,19 +165,17 @@ class RT extends StaticClass {
      */
     public static function getMailSignalReceivers(): array {
         static $addresses;
-        return $addresses ??= (function() {
-            /** @var Config $config */
-            $config = Application::service('config');
-            $values = $config->get('mail.signalreceivers', '');
-
-            $addresses = [];
+        $addresses ??= (static function() {
+            $values = Config::string('mail.signalreceivers', '');
+            $list = [];
             foreach (explode(',', $values) as $address) {
                 if ($address = trim($address)) {
-                    $addresses[] = $address;
+                    $list[] = $address;
                 }
             }
-            return $addresses;
+            return $list;
         })();
+        return $addresses;
     }
 
 
@@ -192,19 +186,17 @@ class RT extends StaticClass {
      */
     public static function getSmsSignalReceivers(): array {
         static $numbers;
-        return $numbers ??= (function() {
-            /** @var Config $config */
-            $config = Application::service('config');
-            $values = $config->get('sms.signalreceivers', '');
-
-            $numbers = [];
+        $numbers ??= (static function() {
+            $values = Config::string('sms.signalreceivers', '');
+            $list = [];
             foreach (explode(',', $values) as $number) {
                 if ($number = trim($number)) {
-                    $numbers[] = $number;
+                    $list[] = $number;
                 }
             }
-            return $numbers;
+            return $list;
         })();
+        return $numbers;
     }
 
 
@@ -220,10 +212,9 @@ class RT extends StaticClass {
 
         static $root, $realRoot, $storage, $realStorage;
         if (!$root) {
-            $config      = Application::service('config');
-            $root        = str_replace('\\', '/', $config['app.dir.root'].'/');
+            $root        = str_replace('\\', '/', Config::string('app.dir.root').'/');
             $realRoot    = str_replace('\\', '/', realpath($root).'/');
-            $storage     = str_replace('\\', '/', $config['app.dir.data'].'/');
+            $storage     = str_replace('\\', '/', Config::string('app.dir.data').'/');
             $realStorage = str_replace('\\', '/', realpath($storage).'/');
         }
 

@@ -8,7 +8,10 @@
     "email": "mt4-php-tools@rosasurfer.com"
   }],
   "config": {
-    "optimize-autoloader": true
+    "optimize-autoloader": true,
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": false
+    }
   },
   "require": {
     "php":                   "^7.4|^8.0",
@@ -18,11 +21,16 @@
     "rosasurfer/ministruts": "^0.12@dev"
   },
   "require-dev": {
-    "phpstan/phpstan": "^2.1.20"
+    "phpstan/phpstan":           "^2.1.20",
+    "slevomat/coding-standard":  "^8.0",
+    "squizlabs/php_codesniffer": "^3.0"
   },
   "autoload": {
     "classmap": ["app/"],
-    "files":    ["app/functions.php"]
+    "files": [
+      "app/functions.php",
+      "app/helpers.php"
+    ]
   },
   "autoload-dev": {
     "classmap": [

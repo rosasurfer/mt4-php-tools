@@ -42,6 +42,7 @@ config*.properties
 
 /data
 /deploy
+/web/devtools
 /web/doc/erm
 /web/doc/filter*
 *.bi5

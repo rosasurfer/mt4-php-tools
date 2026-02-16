@@ -15,7 +15,6 @@ use rosasurfer\rt\lib\metatrader\HistoryHeader;
 use rosasurfer\rt\lib\metatrader\MetaTraderException;
 use rosasurfer\rt\lib\metatrader\MT4;
 
-use function rosasurfer\ministruts\echof;
 use function rosasurfer\ministruts\strIsQuoted;
 use function rosasurfer\ministruts\strLeft;
 use function rosasurfer\ministruts\strRight;
