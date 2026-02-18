@@ -23,9 +23,8 @@ use const rosasurfer\ministruts\MINUTES;
  * @phpstan-import-type RT_POINT_BAR from \rosasurfer\rt\phpstan\CustomTypes
  * @phpstan-import-type RT_PRICE_BAR from \rosasurfer\rt\phpstan\CustomTypes
  */
-class RT extends StaticClass {
-
-
+class RT extends StaticClass
+{
     /**
      * Convert a point bar timeseries to a price bar timeseries.
      *

@@ -10,7 +10,7 @@ use rosasurfer\ministruts\core\exception\Exception as RosasurferException;
  *
  * Exception marking MetaTrader related errors.
  */
-class MetaTraderException extends RosasurferException {
-
+class MetaTraderException extends RosasurferException
+{
     const ERR_FILESIZE_INSUFFICIENT = 1;
 }

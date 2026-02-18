@@ -40,6 +40,8 @@
     <rule ref="SlevomatCodingStandard">
       <!-- exclude broken/deprecated/unwanted sniffs -->
       <exclude name="SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys.IncorrectKeyOrder"/>                                <!-- unwanted -->
+      <exclude name="SlevomatCodingStandard.Arrays.SingleLineArrayWhitespace.SpaceAfterComma"/>                                   <!-- unwanted -->
+      <exclude name="SlevomatCodingStandard.Arrays.SingleLineArrayWhitespace.SpaceBeforeArrayClose"/>                             <!-- unwanted -->
       <exclude name="SlevomatCodingStandard.Classes.RequireAbstractOrFinal.ClassNeitherAbstractNorFinal"/>                        <!-- unwanted -->
       <exclude name="SlevomatCodingStandard.Commenting.DocCommentSpacing.IncorrectLinesCountBetweenDifferentAnnotationsTypes"/>   <!-- inflexible configuration -->
       <exclude name="SlevomatCodingStandard.ControlStructures.EarlyExit"/>                                                        <!-- broken: https://github.com/slevomat/coding-standard/issues/365 -->
@@ -50,15 +52,11 @@
       <exclude name="SlevomatCodingStandard.TypeHints.UnionTypeHintFormat"/>                                                      <!-- deprecated: replaced by DNFTypeHintFormat -->
 
 
-
       <!-- everything above is confirmed
       -->
 
+
       <!-- exclude opinionated sniffs -->
-      <exclude name="SlevomatCodingStandard.Arrays.SingleLineArrayWhitespace.SpaceAfterComma"/>
-      <exclude name="SlevomatCodingStandard.Arrays.SingleLineArrayWhitespace.SpaceBeforeArrayClose"/>
-      <exclude name="SlevomatCodingStandard.Classes.EmptyLinesAroundClassBraces.IncorrectEmptyLinesBeforeClosingBrace"/>
-      <exclude name="SlevomatCodingStandard.Classes.EmptyLinesAroundClassBraces.NoEmptyLineAfterOpeningBrace"/>
       <exclude name="SlevomatCodingStandard.Classes.ModernClassNameReference.ClassNameReferencedViaMagicConstant"/>
       <exclude name="SlevomatCodingStandard.Classes.ParentCallSpacing.IncorrectLinesCountAfterControlStructure"/>
       <exclude name="SlevomatCodingStandard.Classes.ParentCallSpacing.IncorrectLinesCountBeforeControlStructure"/>
@@ -67,7 +65,6 @@
       <exclude name="SlevomatCodingStandard.Classes.SuperfluousInterfaceNaming.SuperfluousSuffix"/>
       <exclude name="SlevomatCodingStandard.Classes.SuperfluousTraitNaming.SuperfluousSuffix"/>
       <exclude name="SlevomatCodingStandard.Classes.TraitUseDeclaration.MultipleTraitsPerDeclaration"/>
-      <exclude name="SlevomatCodingStandard.Classes.TraitUseSpacing.IncorrectLinesCountAfterLastUse"/>
       <exclude name="SlevomatCodingStandard.Commenting.DisallowCommentAfterCode.DisallowedCommentAfterCode"/>
       <exclude name="SlevomatCodingStandard.Commenting.DisallowOneLinePropertyDocComment.OneLinePropertyComment"/>
       <exclude name="SlevomatCodingStandard.Commenting.EmptyComment.EmptyComment"/>
@@ -184,6 +181,7 @@
 
     <rule ref="SlevomatCodingStandard.Classes.EmptyLinesAroundClassBraces">
       <properties>
+        <property name="linesCountAfterOpeningBrace"  value="0"/>
         <property name="linesCountBeforeClosingBrace" value="0"/>
       </properties>
     </rule>
@@ -200,6 +198,13 @@
         <property name="minLineLength"                value="155"/>
         <property name="withPromotedProperties"       value="true"/>
         <property name="withParametersWithAttributes" value="true"/>
+      </properties>
+    </rule>
+
+    <rule ref="SlevomatCodingStandard.Classes.TraitUseSpacing">
+      <properties>
+        <property name="linesCountBeforeFirstUseWhenFirstInClass" value="0"/>
+        <property name="linesCountAfterLastUseWhenLastInClass"    value="0"/>
       </properties>
     </rule>
 

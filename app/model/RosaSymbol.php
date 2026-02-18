@@ -46,9 +46,8 @@ use const rosasurfer\rt\PERIOD_M1;
  * @phpstan-import-type RT_POINT_BAR from \rosasurfer\rt\phpstan\CustomTypes
  * @phpstan-import-type RT_PRICE_BAR from \rosasurfer\rt\phpstan\CustomTypes
  */
-class RosaSymbol extends RosatraderModel {
-
-
+class RosaSymbol extends RosatraderModel
+{
     /** @var string */
     const TYPE_FOREX = 'forex';
 

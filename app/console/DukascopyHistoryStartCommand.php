@@ -16,25 +16,24 @@ use rosasurfer\rt\model\DukascopySymbol;
  *
  * Show and update locally stored Dukascopy history start times.
  */
-class DukascopyHistoryStartCommand extends Command {
-
-
+class DukascopyHistoryStartCommand extends Command
+{
     /** @var string */
     const DOCOPT = <<<DOCOPT
-Show and/or update locally stored Dukascopy history start times.
-
-Usage:
-  {:cmd:}  [-r | -u] [-h] [SYMBOL ...]
-
-Arguments:
-  SYMBOL         One or more Dukascopy symbols to process (default: all tracked symbols).
-
-Options:
-   -r, --remote  Show remote instead of local history start times (connects to Dukascopy).
-   -u, --update  Update history start times (connects to Dukascopy).
-   -h, --help    This help screen.
-
-DOCOPT;
+    Show and/or update locally stored Dukascopy history start times.
+    
+    Usage:
+      {:cmd:}  [-r | -u] [-h] [SYMBOL ...]
+    
+    Arguments:
+      SYMBOL         One or more Dukascopy symbols to process (default: all tracked symbols).
+    
+    Options:
+       -r, --remote  Show remote instead of local history start times (connects to Dukascopy).
+       -u, --update  Update history start times (connects to Dukascopy).
+       -h, --help    This help screen.
+    
+    DOCOPT;
 
 
     /**

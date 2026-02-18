@@ -31,9 +31,8 @@ use const rosasurfer\ministruts\DAYS;
  * @method        Test         getTest()            Return the test the statistics record belongs to.
  * @method static StatisticDAO dao()                Return the {@link StatisticDAO} for the calling class.
  */
-class Statistic extends RosatraderModel {
-
-
+class Statistic extends RosatraderModel
+{
     /** @var int */
     protected $trades;
 

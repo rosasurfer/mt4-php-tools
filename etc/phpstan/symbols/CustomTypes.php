@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace rosasurfer\rt\phpstan;
 
-
 /**
  * Custom PHPStan type definitions and matching classes to enable IntelliSense and code completion.
  * Add this file to the project's library path and use the types in PHPStan annotations only.
@@ -128,8 +127,9 @@ namespace rosasurfer\rt\phpstan;
  *     abbr  : string,
  * }
  */
-final class CustomTypes {}
-
+final class CustomTypes
+{
+}
 
 /**
  * Custom PHPStan type for an array holding a normalized Dukascopy price bar.
@@ -149,8 +149,9 @@ final class CustomTypes {}
  *
  * @see \rosasurfer\rt\phpstan\DUKASCOPY_BAR_RAW
  */
-final class DUKASCOPY_BAR {}
-
+final class DUKASCOPY_BAR
+{
+}
 
 /**
  * Custom PHPStan type for an array holding a raw Dukascopy price bar.
@@ -167,8 +168,9 @@ final class DUKASCOPY_BAR {}
  * )
  * </pre>
  */
-final class DUKASCOPY_BAR_RAW {}
-
+final class DUKASCOPY_BAR_RAW
+{
+}
 
 /**
  * Custom PHPStan type for an array holding a normalized Dukascopy tick.
@@ -186,8 +188,9 @@ final class DUKASCOPY_BAR_RAW {}
  * )
  * </pre>
  */
-final class DUKASCOPY_TICK {}
-
+final class DUKASCOPY_TICK
+{
+}
 
 /**
  * Custom PHPStan type for an array holding a raw Dukascopy tick.
@@ -203,8 +206,9 @@ final class DUKASCOPY_TICK {}
  * )
  * </pre>
  */
-final class DUKASCOPY_TICK_RAW {}
-
+final class DUKASCOPY_TICK_RAW
+{
+}
 
 /**
  * Custom PHPStan type for an array holding a raw MT4 price bar in format 400.
@@ -220,8 +224,9 @@ final class DUKASCOPY_TICK_RAW {}
  * )
  * </pre>
  */
-final class HISTORY_BAR_400 {}
-
+final class HISTORY_BAR_400
+{
+}
 
 /**
  * Custom PHPStan type for an array holding a raw MT4 price bar in format 401.
@@ -239,8 +244,9 @@ final class HISTORY_BAR_400 {}
  * )
  * </pre>
  */
-final class HISTORY_BAR_401 {}
-
+final class HISTORY_BAR_401
+{
+}
 
 /**
  * Custom PHPStan type for a logfile entry holding the properties of an order.
@@ -266,8 +272,9 @@ final class HISTORY_BAR_401 {}
  * )
  * </pre>
  */
-final class LOG_ORDER {}
-
+final class LOG_ORDER
+{
+}
 
 /**
  * Custom PHPStan type for a logfile entry holding the properties of a test.
@@ -290,8 +297,9 @@ final class LOG_ORDER {}
  * )
  * </pre>
  */
-final class LOG_TEST {}
-
+final class LOG_TEST
+{
+}
 
 /**
  * Custom PHPStan type for an array holding a price bar quoted in integer values.
@@ -307,8 +315,9 @@ final class LOG_TEST {}
  * )
  * </pre>
  */
-final class RT_POINT_BAR {}
-
+final class RT_POINT_BAR
+{
+}
 
 /**
  * Custom PHPStan type for an array holding a price bar quoted in float values (real prices).
@@ -324,8 +333,9 @@ final class RT_POINT_BAR {}
  * )
  * </pre>
  */
-final class RT_PRICE_BAR {}
-
+final class RT_PRICE_BAR
+{
+}
 
 /**
  * Custom PHPStan type for an array holding a built-in timezone transition.
@@ -342,4 +352,6 @@ final class RT_PRICE_BAR {}
  *
  * @see \DateTimeZone::getTransitions()
  */
-final class TZ_TRANSITION {}
+final class TZ_TRANSITION
+{
+}

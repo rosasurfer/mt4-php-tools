@@ -47,9 +47,8 @@ use const rosasurfer\rt\BARMODEL_BAROPEN;
  * @phpstan-import-type LOG_ORDER from \rosasurfer\rt\phpstan\CustomTypes
  * @phpstan-import-type LOG_TEST  from \rosasurfer\rt\phpstan\CustomTypes
  */
-class Test extends RosatraderModel {
-
-
+class Test extends RosatraderModel
+{
     /** @var string - strategy name */
     protected $strategy;
 

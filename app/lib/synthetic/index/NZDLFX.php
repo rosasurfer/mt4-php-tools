@@ -9,5 +9,6 @@ namespace rosasurfer\rt\lib\synthetic\index;
  * A {@link \rosasurfer\rt\lib\synthetic\ISynthesizer} for calculating the synthetic
  * LiteForex New Zealand Dollar index (alias of NZDFXI).
  */
-class NZDLFX extends NZDFXI {
+class NZDLFX extends NZDFXI
+{
 }

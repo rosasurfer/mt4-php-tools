@@ -11,8 +11,8 @@ namespace rosasurfer\rt\lib;
  * @phpstan-import-type RT_POINT_BAR from \rosasurfer\rt\phpstan\CustomTypes
  * @phpstan-import-type RT_PRICE_BAR from \rosasurfer\rt\phpstan\CustomTypes
  */
-interface HistorySource {
-
+interface HistorySource
+{
     /**
      * Get the history for the specified bar period and time.
      *

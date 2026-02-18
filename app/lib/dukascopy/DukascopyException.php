@@ -10,5 +10,6 @@ use rosasurfer\ministruts\core\exception\Exception as RosasurferException;
  *
  * Exception marking Dukascopy related errors.
  */
-class DukascopyException extends RosasurferException {
+class DukascopyException extends RosasurferException
+{
 }

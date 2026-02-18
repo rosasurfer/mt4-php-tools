@@ -28,9 +28,8 @@ use const rosasurfer\rt\PERIOD_M1;
  *
  * @phpstan-import-type RT_PRICE_BAR from \rosasurfer\rt\phpstan\CustomTypes
  */
-class NZDFXI extends Synthesizer {
-
-
+class NZDFXI extends Synthesizer
+{
     /** @var string[][] */
     protected array $components = [
         'fast'    => ['NZDUSD', 'USDLFX'],

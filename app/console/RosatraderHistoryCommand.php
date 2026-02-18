@@ -17,31 +17,30 @@ use function rosasurfer\rt\strToPeriod;
  *
  * A {@link Command} to work with the Rosatrader history.
  */
-class RosatraderHistoryCommand extends Command {
-
-
+class RosatraderHistoryCommand extends Command
+{
     /** @var string */
     const DOCOPT = <<<DOCOPT
-Command line application to work with the Rosatrader history.
-
-Usage:
-  {:cmd:}  status      [SYMBOL ...] [-h]
-  {:cmd:}  synchronize [SYMBOL ...] [-h]
-  {:cmd:}  update      [SYMBOL ...] [-p PERIOD] [-h]
-
-Commands:
-  status           Show history status information.
-  synchronize      Synchronize history status in the database with history stored in the file system.
-  update           Update locally stored history (connects to remote services).
-
-Arguments:
-  SYMBOL           One or more symbols to process (default: all symbols).
-
-Options:
-  -p, --period=ID  Timeframe period to update: TICK | M1 [default: M1].
-  -h, --help       This help screen.
-
-DOCOPT;
+    Command line application to work with the Rosatrader history.
+    
+    Usage:
+      {:cmd:}  status      [SYMBOL ...] [-h]
+      {:cmd:}  synchronize [SYMBOL ...] [-h]
+      {:cmd:}  update      [SYMBOL ...] [-p PERIOD] [-h]
+    
+    Commands:
+      status           Show history status information.
+      synchronize      Synchronize history status in the database with history stored in the file system.
+      update           Update locally stored history (connects to remote services).
+    
+    Arguments:
+      SYMBOL           One or more symbols to process (default: all symbols).
+    
+    Options:
+      -p, --period=ID  Timeframe period to update: TICK | M1 [default: M1].
+      -h, --help       This help screen.
+    
+    DOCOPT;
 
 
     /**

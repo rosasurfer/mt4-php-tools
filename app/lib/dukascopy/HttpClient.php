@@ -25,9 +25,8 @@ use const rosasurfer\rt\PRICE_ASK;
  *
  * An HttpClient handling CURL requests for Dukascopy web resources. Performs login, authorization and session handling.
  */
-class HttpClient extends CurlHttpClient {
-
-
+class HttpClient extends CurlHttpClient
+{
     /**
      * Constructor
      *

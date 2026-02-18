@@ -51,8 +51,8 @@ use const rosasurfer\rt\PRICE_MEDIAN;
  * @phpstan-import-type RT_POINT_BAR       from \rosasurfer\rt\phpstan\CustomTypes
  * @phpstan-import-type RT_PRICE_BAR       from \rosasurfer\rt\phpstan\CustomTypes
  */
-class Dukascopy extends CObject {
-
+class Dukascopy extends CObject
+{
     /** @var int - size of the C++ struct DUKASCOPY_BAR in byte */
     const DUKASCOPY_BAR_size = 12;
 

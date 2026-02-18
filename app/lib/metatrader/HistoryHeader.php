@@ -13,9 +13,8 @@ use function rosasurfer\ministruts\strRight;
 /**
  * HistoryHeader eines HistoryFiles ("*.hst")
  */
-class HistoryHeader extends CObject {
-
-
+class HistoryHeader extends CObject
+{
     /** @var int - sizeof(struct HISTORY_HEADER) */
     const SIZE = 148;
 

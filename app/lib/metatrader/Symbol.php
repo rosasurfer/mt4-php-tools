@@ -16,9 +16,8 @@ use const rosasurfer\ministruts\EOL_UNIX;
  *
  * @see  https://github.com/rosasurfer/mt4-expander/blob/master/header/struct/mt4/Symbol.h
  */
-class Symbol extends CObject {
-
-
+class Symbol extends CObject
+{
     /** @var int - struct size of a symbol in bytes */
     const SIZE = 1936;
 

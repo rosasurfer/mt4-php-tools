@@ -29,9 +29,8 @@ use const rosasurfer\rt\PERIOD_M1;
  *
  * @phpstan-import-type RT_PRICE_BAR from \rosasurfer\rt\phpstan\CustomTypes
  */
-class JPYFXI extends Synthesizer {
-
-
+class JPYFXI extends Synthesizer
+{
     /** @var string[][] */
     protected array $components = [
         'fast'    => ['USDJPY', 'USDLFX'],

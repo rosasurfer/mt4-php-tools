@@ -41,8 +41,8 @@ use const rosasurfer\rt\PERIOD_W1;
  *
  * @phpstan-import-type RT_POINT_BAR from \rosasurfer\rt\phpstan\CustomTypes
  */
-class Rost extends StaticClass {
-
+class Rost extends StaticClass
+{
     /**
      * C++ struct size in bytes of an RT_POINT_BAR (format of Rosatrader history files "{PERIOD}.bin")
      */

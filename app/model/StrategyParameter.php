@@ -13,9 +13,8 @@ use rosasurfer\ministruts\core\exception\InvalidValueException;
  * @method        Test                 getTest()  Return the test this input parameter belongs to.
  * @method static StrategyParameterDAO dao()      Return the {@link StrategyParameterDAO} for the calling class.
  */
-class StrategyParameter extends RosatraderModel {
-
-
+class StrategyParameter extends RosatraderModel
+{
     /** @var string */
     protected $name;
 

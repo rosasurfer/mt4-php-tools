@@ -37,8 +37,8 @@ use const rosasurfer\rt\TRADE_DIRECTIONS_SHORT;
 /**
  * MetaTrader related functionality
  */
-class MT4 extends StaticClass {
-
+class MT4 extends StaticClass
+{
     /** @var int - Struct-Size des FXT-Headers (Tester-Tickdateien "*.fxt") */
     const FXT_HEADER_SIZE = 728;
 

@@ -10,9 +10,8 @@ use rosasurfer\ministruts\Application;
  *
  * An HttpRequest for a Dukascopy web resource.
  */
-class HttpRequest extends \rosasurfer\ministruts\net\http\HttpRequest {
-
-
+class HttpRequest extends \rosasurfer\ministruts\net\http\HttpRequest
+{
     /**
      * Constructor
      *

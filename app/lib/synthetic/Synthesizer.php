@@ -16,9 +16,8 @@ use const rosasurfer\ministruts\DAY;
  * @phpstan-import-type RT_POINT_BAR from \rosasurfer\rt\phpstan\CustomTypes
  * @phpstan-import-type RT_PRICE_BAR from \rosasurfer\rt\phpstan\CustomTypes
  */
-abstract class Synthesizer extends CObject implements ISynthesizer {
-
-
+abstract class Synthesizer extends CObject implements ISynthesizer
+{
     /** @var RosaSymbol */
     protected RosaSymbol $symbol;
 

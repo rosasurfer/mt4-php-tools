@@ -19,9 +19,8 @@ use const rosasurfer\rt\OP_VENDOR;
 /**
  * ViewHelper
  */
-class ViewHelper extends StaticClass {
-
-
+class ViewHelper extends StaticClass
+{
     /** @var string[] - operation types */
     public static array $operationTypes = [
         OP_BUY       => 'buy'       ,   // 0

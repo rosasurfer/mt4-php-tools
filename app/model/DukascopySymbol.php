@@ -40,9 +40,8 @@ use const rosasurfer\rt\PERIOD_D1;
  * @phpstan-import-type RT_POINT_BAR from \rosasurfer\rt\phpstan\CustomTypes
  * @phpstan-import-type RT_PRICE_BAR from \rosasurfer\rt\phpstan\CustomTypes
  */
-class DukascopySymbol extends RosatraderModel implements HistorySource {
-
-
+class DukascopySymbol extends RosatraderModel implements HistorySource
+{
     /** @var string - symbol name */
     protected $name;
 

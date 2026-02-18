@@ -40,9 +40,8 @@ use const rosasurfer\rt\PERIOD_MN1;
  *
  * @phpstan-import-type RT_POINT_BAR from \rosasurfer\rt\phpstan\CustomTypes
  */
-class HistoryFile extends CObject {
-
-
+class HistoryFile extends CObject
+{
     /** @var ?resource - handle of an open history file */
     protected $hFile = null;
 

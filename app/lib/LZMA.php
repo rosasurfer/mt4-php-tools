@@ -18,9 +18,8 @@ use const rosasurfer\ministruts\WINDOWS;
 /**
  * LZMA related functionality
  */
-class LZMA extends StaticClass {
-
-
+class LZMA extends StaticClass
+{
     /**
      * Entpackt einen LZMA-komprimierten binaeren String und gibt seinen Inhalt zurueck.
      *

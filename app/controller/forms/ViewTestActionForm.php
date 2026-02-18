@@ -11,9 +11,8 @@ use function rosasurfer\ministruts\strIsDigits;
 /**
  * ViewTestActionForm
  */
-class ViewTestActionForm extends ActionForm {
-
-
+class ViewTestActionForm extends ActionForm
+{
     /** @var string|int - submitted Test id */
     protected $id;
 

@@ -34,9 +34,8 @@ use function rosasurfer\rt\isWeekend;
  *
  * @phpstan-import-type LOG_ORDER from \rosasurfer\rt\phpstan\CustomTypes
  */
-class Order extends RosatraderModel {
-
-
+class Order extends RosatraderModel
+{
      /** @var int - ticket number */
     protected $ticket;
 

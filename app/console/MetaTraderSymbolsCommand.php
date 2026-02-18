@@ -14,29 +14,28 @@ use rosasurfer\rt\lib\metatrader\Symbol;
  *
  * A {@link Command} to process MetaTrader "symbols.raw" files.
  */
-class MetaTraderSymbolsCommand extends Command {
-
-
+class MetaTraderSymbolsCommand extends Command
+{
     /** @var string */
     const DOCOPT = <<<DOCOPT
-Create, modify or display MetaTrader symbol definitions ("symbols.raw" files).
-
-Usage:
-  {:cmd:}  split SYMBOLS_RAW [-h]
-  {:cmd:}  join  SYMBOL... [-h]
-
-Commands:
-  split        Split a "symbols.raw" file into separate files per symbol. Files are stored in the current working directory.
-  join         Create a new "symbols.raw" file from one or more separate symbol definition files.
-
-Arguments:
-  SYMBOLS_RAW  The file to split by symbol.
-  SYMBOL       Symbol definition file(s) to join into one "symbols.raw" file. May contain wildcards.
-
-Options:
-   -h, --help  This help screen.
-
-DOCOPT;
+    Create, modify or display MetaTrader symbol definitions ("symbols.raw" files).
+    
+    Usage:
+      {:cmd:}  split SYMBOLS_RAW [-h]
+      {:cmd:}  join  SYMBOL... [-h]
+    
+    Commands:
+      split        Split a "symbols.raw" file into separate files per symbol. Files are stored in the current working directory.
+      join         Create a new "symbols.raw" file from one or more separate symbol definition files.
+    
+    Arguments:
+      SYMBOLS_RAW  The file to split by symbol.
+      SYMBOL       Symbol definition file(s) to join into one "symbols.raw" file. May contain wildcards.
+    
+    Options:
+       -h, --help  This help screen.
+    
+    DOCOPT;
 
 
     /**

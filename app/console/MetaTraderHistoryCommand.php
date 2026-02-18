@@ -20,26 +20,25 @@ use const rosasurfer\ministruts\DAY;
  *
  * A {@link Command} to work with MetaTrader history files.
  */
-class MetaTraderHistoryCommand extends Command {
-
-
+class MetaTraderHistoryCommand extends Command
+{
     /** @var string */
     const DOCOPT = <<<DOCOPT
-Create new MetaTrader history files.
-
-Usage:
-  {:cmd:}  create SYMBOL [options]
-
-Commands:
-  create       Create new MetaTrader history files (all standard timeframes) for the specified symbol.
-
-Arguments:
-  SYMBOL       The symbol to process history for.
-
-Options:
-   -h, --help  This help screen.
-
-DOCOPT;
+    Create new MetaTrader history files.
+    
+    Usage:
+      {:cmd:}  create SYMBOL [options]
+    
+    Commands:
+      create       Create new MetaTrader history files (all standard timeframes) for the specified symbol.
+    
+    Arguments:
+      SYMBOL       The symbol to process history for.
+    
+    Options:
+       -h, --help  This help screen.
+    
+    DOCOPT;
 
 
     /**

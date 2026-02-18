@@ -18,9 +18,8 @@ use rosasurfer\rt\model\RosaSymbol;
  * Performance can be considerably increased by providing an instrument-specific Synthesizer implementation. If no instrument-
  * specific implementation is found calculations are processed by a {@link GenericSynthesizer}.
  */
-interface ISynthesizer extends HistorySource {
-
-
+interface ISynthesizer extends HistorySource
+{
     /**
      * Constructor
      *

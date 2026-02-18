@@ -12,8 +12,8 @@ use rosasurfer\ministruts\db\orm\ORM;
  *
  * @phpstan-import-type ORM_ENTITY from \rosasurfer\ministruts\phpstan\UserTypes
  */
-class DukascopySymbolDAO extends DAO {
-
+class DukascopySymbolDAO extends DAO
+{
     /**
      * {@inheritdoc}
      *

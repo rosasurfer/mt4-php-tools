@@ -15,9 +15,8 @@ use rosasurfer\rt\model\RosaSymbol;
  *
  * Functionality for performing MetaTrader related tasks.
  */
-class MetaTrader extends CObject {
-
-
+class MetaTrader extends CObject
+{
     /**
      * Create a new history set for the given symbol.
      *

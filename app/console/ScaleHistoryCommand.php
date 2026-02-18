@@ -25,33 +25,32 @@ use const rosasurfer\ministruts\NL;
  *
  * A {@link Command} to scale the bars of a MetaTrader4 history file.
  */
-class ScaleHistoryCommand extends Command {
-
-
+class ScaleHistoryCommand extends Command
+{
     /** @var string */
     const DOCOPT = <<<DOCOPT
-Scale bar data of a MetaTrader4 history file.
-
-Usage:
-  {:cmd:}  FILE (+|-|*|/) <value> [--from=<datetime>] [--to=<datetime>] [--fix-bars] [--help]
-
-Arguments:
-  FILE               History file to process.
-  operator           Arithmetic operation to use (* must be quoted).
-  <value>            Numeric operand to use.
-
-Options:
-  --from=<datetime>  Processing start time (default: start of file).
-  --to=<datetime>    Processing end time (default: end of file).
-  --fix-bars         Fix invalid ranges of modified bars (e.g. high/low mis-matches)
-  --help, -h         This help screen.
-
-Examples:
-  {:cmd:}  EURUSD1.hst + 0.5012                                             # add 0.5012 to all bars
-  {:cmd:}  EURUSD1.hst '*' 1.1                                              # scale up all bars by 10%
-  {:cmd:}  EURUSD1.hst / 0.9 --from=2022.01.03 --to='2022.01.06 17:55'      # scale down a bar range by 10%
-
-DOCOPT;
+    Scale bar data of a MetaTrader4 history file.
+    
+    Usage:
+      {:cmd:}  FILE (+|-|*|/) <value> [--from=<datetime>] [--to=<datetime>] [--fix-bars] [--help]
+    
+    Arguments:
+      FILE               History file to process.
+      operator           Arithmetic operation to use (* must be quoted).
+      <value>            Numeric operand to use.
+    
+    Options:
+      --from=<datetime>  Processing start time (default: start of file).
+      --to=<datetime>    Processing end time (default: end of file).
+      --fix-bars         Fix invalid ranges of modified bars (e.g. high/low mis-matches)
+      --help, -h         This help screen.
+    
+    Examples:
+      {:cmd:}  EURUSD1.hst + 0.5012                                             # add 0.5012 to all bars
+      {:cmd:}  EURUSD1.hst '*' 1.1                                              # scale up all bars by 10%
+      {:cmd:}  EURUSD1.hst / 0.9 --from=2022.01.03 --to='2022.01.06 17:55'      # scale down a bar range by 10%
+    
+    DOCOPT;
 
     /** @var string - history file to process */
     protected $file;

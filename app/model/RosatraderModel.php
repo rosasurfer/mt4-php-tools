@@ -10,9 +10,8 @@ use rosasurfer\ministruts\db\orm\PersistableObject;
  *
  * @method ?int getId() Return the id (primary key) of the instance.
  */
-abstract class RosatraderModel extends PersistableObject {
-
-
+abstract class RosatraderModel extends PersistableObject
+{
     /** @var ?int - primary key */
     protected $id = null;
 

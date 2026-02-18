@@ -11,9 +11,8 @@ use const rosasurfer\rt\OP_CREDIT;
 /**
  * Validator
  */
-class Validator extends StaticClass {
-
-
+class Validator extends StaticClass
+{
     /**
      * Ob der uebergebene Wert ein gueltiger OperationType-Identifier ist.
      *

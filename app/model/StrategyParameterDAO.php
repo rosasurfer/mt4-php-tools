@@ -11,8 +11,8 @@ use rosasurfer\ministruts\db\orm\ORM;
  *
  * @phpstan-import-type ORM_ENTITY from \rosasurfer\ministruts\phpstan\UserTypes
  */
-class StrategyParameterDAO extends DAO {
-
+class StrategyParameterDAO extends DAO
+{
     /**
      * {@inheritdoc}
      *

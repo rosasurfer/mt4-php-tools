@@ -34,9 +34,8 @@ use const rosasurfer\rt\PERIOD_MN1;
  *
  * @phpstan-import-type RT_POINT_BAR from \rosasurfer\rt\phpstan\CustomTypes
  */
-class HistorySet extends CObject {
-
-
+class HistorySet extends CObject
+{
     /** @var string */
     protected $symbol;
 
