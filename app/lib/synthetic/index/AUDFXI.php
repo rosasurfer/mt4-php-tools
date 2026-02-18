@@ -6,7 +6,7 @@ namespace rosasurfer\rt\lib\synthetic\index;
 use rosasurfer\ministruts\core\exception\UnimplementedFeatureException;
 use rosasurfer\ministruts\core\proxy\Output;
 
-use rosasurfer\rt\lib\synthetic\AbstractSynthesizer;
+use rosasurfer\rt\lib\synthetic\Synthesizer;
 
 use function rosasurfer\ministruts\first;
 use function rosasurfer\rt\periodToStr;
@@ -29,7 +29,7 @@ use const rosasurfer\rt\PERIOD_M1;
  *
  * @phpstan-import-type RT_PRICE_BAR from \rosasurfer\rt\phpstan\CustomTypes
  */
-class AUDFXI extends AbstractSynthesizer {
+class AUDFXI extends Synthesizer {
 
 
     /** @var string[][] */

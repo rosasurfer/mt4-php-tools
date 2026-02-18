@@ -11,7 +11,7 @@ namespace rosasurfer\rt\lib\synthetic;
  *
  * @phpstan-import-type RT_PRICE_BAR from \rosasurfer\rt\phpstan\CustomTypes
  */
-class GenericSynthesizer extends AbstractSynthesizer {
+class GenericSynthesizer extends Synthesizer {
 
 
     /**
