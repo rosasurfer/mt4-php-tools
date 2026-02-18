@@ -11,7 +11,6 @@ use rosasurfer\ministruts\console\io\Output;
 use rosasurfer\rt\lib\dukascopy\Dukascopy;
 use rosasurfer\rt\model\DukascopySymbol;
 
-
 /**
  * DukascopyHistoryStartCommand
  *

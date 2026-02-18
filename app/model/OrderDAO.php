@@ -6,7 +6,6 @@ namespace rosasurfer\rt\model;
 use rosasurfer\ministruts\db\orm\DAO;
 use rosasurfer\ministruts\db\orm\ORM;
 
-
 /**
  * DAO for accessing {@link Order} instances.
  *

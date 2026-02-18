@@ -9,7 +9,6 @@ use rosasurfer\ministruts\console\io\Output;
 
 use rosasurfer\rt\lib\metatrader\Symbol;
 
-
 /**
  * MetaTraderSymbolsCommand
  *

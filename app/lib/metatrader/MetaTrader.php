@@ -10,7 +10,6 @@ use rosasurfer\ministruts\file\FileSystem;
 
 use rosasurfer\rt\model\RosaSymbol;
 
-
 /**
  * MetaTrader
  *

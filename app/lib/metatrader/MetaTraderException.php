@@ -5,7 +5,6 @@ namespace rosasurfer\rt\lib\metatrader;
 
 use rosasurfer\ministruts\core\exception\Exception as RosasurferException;
 
-
 /**
  * MetaTraderException
  *

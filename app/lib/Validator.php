@@ -8,7 +8,6 @@ use rosasurfer\rt\view\ViewHelper;
 
 use const rosasurfer\rt\OP_CREDIT;
 
-
 /**
  * Validator
  */

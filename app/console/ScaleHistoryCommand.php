@@ -20,7 +20,6 @@ use function rosasurfer\ministruts\strStartsWith;
 use const rosasurfer\ministruts\DAY;
 use const rosasurfer\ministruts\NL;
 
-
 /**
  * ScaleHistoryCommand
  *

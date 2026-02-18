@@ -20,7 +20,6 @@ use const rosasurfer\ministruts\NL;
 use const rosasurfer\rt\PRICE_BID;
 use const rosasurfer\rt\PRICE_ASK;
 
-
 /**
  * HttpClient
  *

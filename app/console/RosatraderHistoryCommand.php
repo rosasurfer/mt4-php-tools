@@ -12,7 +12,6 @@ use rosasurfer\rt\model\RosaSymbol;
 
 use function rosasurfer\rt\strToPeriod;
 
-
 /**
  * RosatraderHistoryCommand
  *

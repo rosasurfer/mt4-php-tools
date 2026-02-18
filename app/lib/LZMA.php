@@ -15,7 +15,6 @@ use const rosasurfer\ministruts\NL;
 use const rosasurfer\ministruts\NUL_DEVICE;
 use const rosasurfer\ministruts\WINDOWS;
 
-
 /**
  * LZMA related functionality
  */

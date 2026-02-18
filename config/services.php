@@ -4,7 +4,6 @@ declare(strict_types=1);
 use rosasurfer\rt\lib\dukascopy\Dukascopy;
 use rosasurfer\rt\lib\metatrader\MetaTrader;
 
-
 /**
  * Service configuration
  *

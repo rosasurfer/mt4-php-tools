@@ -6,7 +6,6 @@ namespace rosasurfer\rt\lib\synthetic;
 use rosasurfer\rt\lib\HistorySource;
 use rosasurfer\rt\model\RosaSymbol;
 
-
 /**
  * ISynthesizer
  *

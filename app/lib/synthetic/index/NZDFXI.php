@@ -13,7 +13,6 @@ use function rosasurfer\rt\periodToStr;
 
 use const rosasurfer\rt\PERIOD_M1;
 
-
 /**
  * NZDFXI synthesizer
  *

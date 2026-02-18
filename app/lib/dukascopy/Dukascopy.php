@@ -42,7 +42,6 @@ use const rosasurfer\rt\PRICE_BID;
 use const rosasurfer\rt\PRICE_ASK;
 use const rosasurfer\rt\PRICE_MEDIAN;
 
-
 /**
  * Functionality for processing Dukascopy history data.
  *

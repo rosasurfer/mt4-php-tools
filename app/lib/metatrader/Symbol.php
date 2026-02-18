@@ -10,7 +10,6 @@ use function rosasurfer\ministruts\strLeftTo;
 
 use const rosasurfer\ministruts\EOL_UNIX;
 
-
 /**
  * A PHP representation of a MetaTrader symbol definition. The file "symbols.raw" is a concatenation of C++ structs of such
  * symbols. For the C++ definition see the following link.

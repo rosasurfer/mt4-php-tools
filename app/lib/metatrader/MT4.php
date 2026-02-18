@@ -34,7 +34,6 @@ use const rosasurfer\rt\TRADE_DIRECTIONS_BOTH;
 use const rosasurfer\rt\TRADE_DIRECTIONS_LONG;
 use const rosasurfer\rt\TRADE_DIRECTIONS_SHORT;
 
-
 /**
  * MetaTrader related functionality
  */

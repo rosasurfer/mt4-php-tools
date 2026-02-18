@@ -45,6 +45,7 @@
       <exclude name="SlevomatCodingStandard.ControlStructures.EarlyExit"/>                                                        <!-- broken: https://github.com/slevomat/coding-standard/issues/365 -->
       <exclude name="SlevomatCodingStandard.ControlStructures.RequireMultiLineTernaryOperator.MultiLineTernaryOperatorNotUsed"/>  <!-- broken: https://github.com/slevomat/coding-standard/issues/1835 -->
       <exclude name="SlevomatCodingStandard.Functions.UnusedParameter.UnusedParameter"/>                                          <!-- broken: false-positives -->
+      <exclude name="SlevomatCodingStandard.Namespaces.AlphabeticallySortedUses"/>                                                <!-- broken: invalid ordering of namespaces -->
       <exclude name="SlevomatCodingStandard.TypeHints.PropertyTypeHint.UselessAnnotation"/>                                       <!-- unwanted -->
       <exclude name="SlevomatCodingStandard.TypeHints.UnionTypeHintFormat"/>                                                      <!-- deprecated: replaced by DNFTypeHintFormat -->
 
@@ -53,9 +54,7 @@
       <!-- everything above is confirmed
       -->
 
-      <exclude name="SlevomatCodingStandard.Namespaces.AlphabeticallySortedUses"/>
-
-      <!-- exclude broken/deprecated/opinionated/questionable sniffs -->
+      <!-- exclude opinionated sniffs -->
       <exclude name="SlevomatCodingStandard.Arrays.SingleLineArrayWhitespace.SpaceAfterComma"/>
       <exclude name="SlevomatCodingStandard.Arrays.SingleLineArrayWhitespace.SpaceBeforeArrayClose"/>
       <exclude name="SlevomatCodingStandard.Classes.EmptyLinesAroundClassBraces.IncorrectEmptyLinesBeforeClosingBrace"/>

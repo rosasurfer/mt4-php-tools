@@ -16,7 +16,6 @@ use const rosasurfer\rt\OP_CREDIT;
 use const rosasurfer\rt\OP_TRANSFER;
 use const rosasurfer\rt\OP_VENDOR;
 
-
 /**
  * ViewHelper
  */

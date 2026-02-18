@@ -10,7 +10,6 @@ use function rosasurfer\ministruts\strLeft;
 use function rosasurfer\ministruts\strLeftTo;
 use function rosasurfer\ministruts\strRight;
 
-
 /**
  * HistoryHeader eines HistoryFiles ("*.hst")
  */

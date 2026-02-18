@@ -7,7 +7,6 @@ use rosasurfer\ministruts\core\exception\InvalidValueException;
 use rosasurfer\ministruts\db\orm\DAO;
 use rosasurfer\ministruts\db\orm\ORM;
 
-
 /**
  * DAO for accessing {@link Test} instances.
  *

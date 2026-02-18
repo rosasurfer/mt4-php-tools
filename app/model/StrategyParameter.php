@@ -5,7 +5,6 @@ namespace rosasurfer\rt\model;
 
 use rosasurfer\ministruts\core\exception\InvalidValueException;
 
-
 /**
  * Represents a single input parameter of a tested strategy.
  *

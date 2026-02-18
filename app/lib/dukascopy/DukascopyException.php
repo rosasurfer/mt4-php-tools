@@ -5,7 +5,6 @@ namespace rosasurfer\rt\lib\dukascopy;
 
 use rosasurfer\ministruts\core\exception\Exception as RosasurferException;
 
-
 /**
  * DukascopyException
  *

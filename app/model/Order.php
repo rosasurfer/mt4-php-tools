@@ -11,7 +11,6 @@ use rosasurfer\rt\lib\rosatrader\Rost;
 use function rosasurfer\ministruts\strCompareI;
 use function rosasurfer\rt\isWeekend;
 
-
 /**
  * Represents a MetaTrader order ticket.
  *

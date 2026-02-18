@@ -10,7 +10,6 @@ use rosasurfer\rt\model\RosaSymbol;
 
 use const rosasurfer\ministruts\DAY;
 
-
 /**
  * Synthesizer
  *

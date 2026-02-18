@@ -8,7 +8,6 @@ use rosasurfer\rt\model\Test;
 
 use function rosasurfer\ministruts\strIsDigits;
 
-
 /**
  * ViewTestActionForm
  */

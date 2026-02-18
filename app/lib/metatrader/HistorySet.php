@@ -24,7 +24,6 @@ use const rosasurfer\rt\PERIOD_D1;
 use const rosasurfer\rt\PERIOD_W1;
 use const rosasurfer\rt\PERIOD_MN1;
 
-
 /**
  * HistorySet
  *

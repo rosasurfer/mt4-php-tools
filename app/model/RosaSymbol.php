@@ -30,7 +30,6 @@ use function rosasurfer\rt\isWeekend;
 
 use const rosasurfer\rt\PERIOD_M1;
 
-
 /**
  * Represents a Rosatrader symbol.
  *

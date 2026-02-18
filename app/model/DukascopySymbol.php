@@ -27,7 +27,6 @@ use const rosasurfer\rt\PERIOD_M1;
 use const rosasurfer\rt\PERIOD_H1;
 use const rosasurfer\rt\PERIOD_D1;
 
-
 /**
  * DukascopySymbol
  *
