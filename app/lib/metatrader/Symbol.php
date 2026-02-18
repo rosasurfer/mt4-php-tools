@@ -86,7 +86,7 @@ class Symbol extends CObject {
             $lines = explode(EOL_UNIX, normalizeEOL(self::UNPACK_DEFINITION, EOL_UNIX));
             foreach ($lines as &$line) {
                 $line = strLeftTo($line, '//');                         // drop line comments
-            };
+            }
             unset($line);
             $format = join('', $lines);
             $format = preg_replace('/\s/', '', $format);                // remove white space

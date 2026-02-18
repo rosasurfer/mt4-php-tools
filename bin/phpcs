@@ -7,12 +7,8 @@
 # Examples:
 #  PHP=php81 phpcs                    Use a different PHP version instead of the standard `php`.
 #
-#
-# @version 2025.08.16 17:35
-#
+shopt -s inherit_errexit 2>/dev/null || :
 set -eEuo pipefail
-
-exec 3>&1                                                       # duplicate original STDOUT
 
 # --- functions ----------------------------------------------------------------------------------------------------------------------------
 
@@ -35,6 +31,7 @@ function stderr() {
   echo "$@" >&2
 }
 
+exec 3>&1                                                       # duplicate STDOUT to fd3
 #
 # Whether to colorize the output in the current context.
 #

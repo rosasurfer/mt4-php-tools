@@ -147,7 +147,8 @@ class MT4 extends StaticClass {
                 $line = strRightFrom(trim($line), ' ', -1);                 // Format-Code entfernen
                 if (!strlen($line) || strStartsWith($line, '_alignment'))   // Leerzeilen und Alignment-Felder loeschen
                     unset($lines[$i]);
-            }; unset($line);
+            }
+            unset($line);
             $fields = array_values($lines);                                 // Indizes neuordnen
         }
         return $fields;
@@ -171,7 +172,7 @@ class MT4 extends StaticClass {
             $lines = explode("\n", self::${'BAR_'.$version.'_formatStr'});
             foreach ($lines as &$line) {
                 $line = strLeftTo($line, '//');                          // Kommentare entfernen
-            };
+            }
             unset($line);
 
             $values = explode('/', join('', $lines));                   // in Format-Codes zerlegen
@@ -180,7 +181,7 @@ class MT4 extends StaticClass {
                 $value = trim($value);
                 $value = strLeftTo($value, ' ');                         // dem Code folgende Bezeichner entfernen
                 if (!strlen($value)) unset($values[$i]);
-            };
+            }
             unset($value);
             $format = join('', $values);
             ${'format_'.$version} = $format;
@@ -199,7 +200,7 @@ class MT4 extends StaticClass {
     public static function BAR_getUnpackFormat(int $version): string {
         if ($version!=400 && $version!=401) throw new MetaTraderException("version.unsupported: Invalid parameter \$version: $version (must be 400 or 401)");
 
-        /** @var array<?string> */
+        /** @var array<?string> $format */
         static $format = [
             400 => null,
             401 => null,
@@ -265,7 +266,7 @@ class MT4 extends StaticClass {
         }
 
         $written = fwrite($hFile, $data);
-        if ($written != MT4::HISTORY_BAR_400_SIZE) throw new RuntimeException('Error writing '.strlen($data).' bytes to file ('.$written.' written)');
+        if ($written != self::HISTORY_BAR_400_SIZE) throw new RuntimeException('Error writing '.strlen($data).' bytes to file ('.$written.' written)');
         return $written;
     }
 

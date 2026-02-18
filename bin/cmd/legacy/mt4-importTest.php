@@ -87,7 +87,7 @@ foreach ($files as $name => &$path) {
         echof('missing file "'.$file.'" (skipping test)');
         unset($files[$name]);
     }
-};
+}
 unset($path);
 if (!$files) {
     echof('error: no test result files found');

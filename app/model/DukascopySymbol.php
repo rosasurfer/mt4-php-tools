@@ -33,10 +33,10 @@ use const rosasurfer\rt\PERIOD_D1;
  *
  * Represents a Dukascopy symbol.
  *
- * @method        string                                  getName()       Return the symbol name, i.e. the actual symbol.
- * @method        int                                     getDigits()     Return the number of fractional digits of symbol prices.
- * @method        \rosasurfer\rt\model\RosaSymbol         getRosaSymbol() Return the Rosatrader symbol this Dukascopy symbol is mapped to.
- * @method static \rosasurfer\rt\model\DukascopySymbolDAO dao()           Return the {@link DukascopySymbolDAO} for the calling class.
+ * @method        string             getName()       Return the symbol name, i.e. the actual symbol.
+ * @method        int                getDigits()     Return the number of fractional digits of symbol prices.
+ * @method        RosaSymbol         getRosaSymbol() Return the Rosatrader symbol this Dukascopy symbol is mapped to.
+ * @method static DukascopySymbolDAO dao()           Return the {@link DukascopySymbolDAO} for the calling class.
  *
  * @phpstan-import-type RT_POINT_BAR from \rosasurfer\rt\phpstan\CustomTypes
  * @phpstan-import-type RT_PRICE_BAR from \rosasurfer\rt\phpstan\CustomTypes
@@ -62,7 +62,7 @@ class DukascopySymbol extends RosatraderModel implements HistorySource {
     /** @var ?string - start time of the available D1 history (FXT) */
     protected $historyStartD1 = null;
 
-    /** @var RosaSymbol [transient] - the Rosatrader symbol this Dukascopy symbol is mapped to */
+    /** @var RosaSymbol - the Rosatrader symbol this Dukascopy symbol is mapped to */
     protected $rosaSymbol;
 
 

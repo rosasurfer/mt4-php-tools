@@ -83,7 +83,7 @@ class HistoryFile extends CObject {
     protected $barSize = 0;
 
     /**
-     * @var         array[] - internal write buffer
+     * @var int[][] - internal write buffer
      * @phpstan-var RT_POINT_BAR[]
      *
      * @see \rosasurfer\rt\phpstan\RT_POINT_BAR
@@ -330,7 +330,7 @@ class HistoryFile extends CObject {
         $fileSize = filesize($fileName);
         if ($fileSize < HistoryHeader::SIZE) throw new MetaTraderException(
             "Invalid file format of \"$fileName\": filesize = $fileSize (min. filezize: ".HistoryHeader::SIZE.')',
-            MetaTraderException::ERR_FILESIZE_INSUFFICIENT
+            MetaTraderException::ERR_FILESIZE_INSUFFICIENT,
         );
 
         // open file and validate the header

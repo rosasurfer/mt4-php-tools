@@ -121,7 +121,8 @@ class HistoryHeader extends CObject {
      * @param  int     $syncMarker   [optional]
      * @param  int     $lastSyncTime [optional]
      */
-    public function __construct(int $format, ?string $copyright, string $symbol, int $period, int $digits, int $syncMarker = 0, int $lastSyncTime = 0) {
+    public function __construct(int $format, ?string $copyright, string $symbol, int $period, int $digits, int $syncMarker = 0, int $lastSyncTime = 0)
+    {
         if ($format!=400 && $format!=401)             throw new MetaTraderException('version.unsupported: Invalid parameter $format: '.$format.' (can be 400 or 401)');
         $copyright ??= '';
         $copyright = strLeft($copyright, 63);
@@ -193,7 +194,8 @@ class HistoryHeader extends CObject {
             $lines = explode("\n", self::$formatStr);
             foreach ($lines as &$line) {
                 $line = strLeftTo($line, '//');                          // Kommentare entfernen
-            }; unset($line);
+            }
+            unset($line);
 
             $values = explode('/', join('', $lines));                   // in Format-Codes zerlegen
 
@@ -202,7 +204,8 @@ class HistoryHeader extends CObject {
                 $value = strLeftTo($value, ' ');                         // dem Code folgende Bezeichner entfernen
                 if (!strlen($value))
                     unset($values[$i]);
-            }; unset($value);
+            }
+            unset($value);
             $format = join('', $values);
         }
         return $format;
@@ -221,7 +224,7 @@ class HistoryHeader extends CObject {
             $lines = explode("\n", self::$formatStr);
             foreach ($lines as &$line) {
                 $line = strLeftTo($line, '//');                          // Kommentare entfernen
-            };
+            }
             unset($line);
             $format = join('', $lines);
 

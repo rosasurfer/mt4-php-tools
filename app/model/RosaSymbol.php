@@ -34,15 +34,15 @@ use const rosasurfer\rt\PERIOD_M1;
 /**
  * Represents a Rosatrader symbol.
  *
- * @method        string                                getType()            Return the instrument type (forex|metals|synthetic).
- * @method        int                                   getGroup()           Return the symbol's group id.
- * @method        string                                getName()            Return the symbol name, i.e. the actual symbol.
- * @method        string                                getDescription()     Return the symbol description.
- * @method        int                                   getDigits()          Return the number of fractional digits of symbol prices.
- * @method        int                                   getUpdateOrder()     Return the symbol's update order value.
- * @method        string                                getFormula()         Return a synthetic instrument's calculation formula (LaTeX).
- * @method        ?\rosasurfer\rt\model\DukascopySymbol getDukascopySymbol() Return the {@link DukascopySymbol} mapped to this Rosatrader symbol.
- * @method static \rosasurfer\rt\model\RosaSymbolDAO    dao()                Return the {@link RosaSymbolDAO} for the calling class.
+ * @method        string           getType()            Return the instrument type (forex|metals|synthetic).
+ * @method        int              getGroup()           Return the symbol's group id.
+ * @method        string           getName()            Return the symbol name, i.e. the actual symbol.
+ * @method        string           getDescription()     Return the symbol description.
+ * @method        int              getDigits()          Return the number of fractional digits of symbol prices.
+ * @method        int              getUpdateOrder()     Return the symbol's update order value.
+ * @method        string           getFormula()         Return a synthetic instrument's calculation formula (LaTeX).
+ * @method        ?DukascopySymbol getDukascopySymbol() Return the {@link DukascopySymbol} mapped to this Rosatrader symbol.
+ * @method static RosaSymbolDAO    dao()                Return the {@link RosaSymbolDAO} for the calling class.
  *
  * @phpstan-import-type RT_POINT_BAR from \rosasurfer\rt\phpstan\CustomTypes
  * @phpstan-import-type RT_PRICE_BAR from \rosasurfer\rt\phpstan\CustomTypes
@@ -99,7 +99,7 @@ class RosaSymbol extends RosatraderModel {
     /** @var ?string - end time of the available D1 history (FXT) */
     protected $historyEndD1 = null;
 
-    /** @var DukascopySymbol [transient] - the Dukascopy symbol mapped to this Rosatrader symbol */
+    /** @var DukascopySymbol - the Dukascopy symbol mapped to this Rosatrader symbol */
     protected $dukascopySymbol;
 
 

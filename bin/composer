@@ -13,9 +13,7 @@
 shopt -s inherit_errexit 2>/dev/null || :
 set -eEuo pipefail
 
-
 # --- functions ----------------------------------------------------------------------------------------------------------------------------
-
 
 #
 # Print a message to STDERR and exit the script/subshell.
@@ -27,7 +25,6 @@ function fail() {
   exit 127
 }
 
-
 #
 # Print a message to STDERR but don't exit the script/subshell.
 #
@@ -36,7 +33,6 @@ function fail() {
 function stderr() {
   echo "$@" >&2
 }
-
 
 #
 # Error handler. Shows the location of the last error if env variable TRACE is set to a non-zero value.
@@ -60,7 +56,6 @@ function onError() {
   return "$exitStatus"
 }
 trap onError ERR
-
 
 #
 # Read configuration files in isolation and extract the requested variables.
@@ -92,7 +87,6 @@ function readConfig() {
   )
 }
 
-
 #
 # Finds a specified command in the PATH and makes sure it's not this script itself. Prints the found command.
 #
@@ -110,7 +104,6 @@ function findCommand() {
   done
   return 1
 }
-
 
 # --- end of functions ---------------------------------------------------------------------------------------------------------------------
 

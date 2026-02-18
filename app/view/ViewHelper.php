@@ -24,7 +24,7 @@ class ViewHelper extends StaticClass {
 
 
     /** @var string[] - operation types */
-    public static $operationTypes = [
+    public static array $operationTypes = [
         OP_BUY       => 'buy'       ,   // 0
         OP_SELL      => 'sell'      ,   // 1
         OP_BUYLIMIT  => 'buy limit' ,   // 2
@@ -38,7 +38,7 @@ class ViewHelper extends StaticClass {
     ];
 
     /** @var string[] - instruments and their names */
-    public static $instruments = [
+    public static array $instruments = [
         'AUDCAD' => 'AUD/CAD',
         'AUDCHF' => 'AUD/CHF',
         'AUDJPY' => 'AUD/JPY',

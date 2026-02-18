@@ -131,7 +131,8 @@ class HistorySet extends CObject {
                     if ($file->getDigits() != $this->getDigits()) throw new RuntimeException('Digits mis-match in "'.$fileName.'": file.digits='.$file->getDigits().' instead of set.digits='.$this->getDigits());
                 }
             }
-        }; unset($file);
+        }
+        unset($file);
 
         self::$instances[$thisId] = $this;
     }
@@ -170,7 +171,8 @@ class HistorySet extends CObject {
         // alle HistoryFiles initialisieren
         foreach ($this->historyFiles as $timeframe => &$file) {
             $file = new HistoryFile($this->symbol, $timeframe, $this->digits, $format, $serverDirectory);
-        }; unset($file);
+        }
+        unset($file);
 
         // Instanz speichern
         self::$instances[$thisId] = $this;

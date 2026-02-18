@@ -27,10 +27,10 @@
 
 
     <!-- runtime options -->
-    <arg name="report" value="full"/>                   <!-- detailed display per issue                  -->
-    <arg name="basepath" value="../.."/>                <!-- base path to strip from reported file names -->
-    <arg name="cache" value="../tmp/phpcs-cache.json"/> <!-- use result cache if possible                -->
-    <arg value="p"/>                                    <!-- show progress                               -->
+    <arg name="report"   value="full"/>                     <!-- detailed display per issue                  -->
+    <arg name="basepath" value="../.."/>                    <!-- base path to strip from reported file names -->
+    <arg name="cache"    value="../tmp/phpcs-cache.json"/>  <!-- use result cache if possible                -->
+    <arg value="p"/>                                        <!-- show progress                               -->
 
 
     <!-- register Slevomat rules (path relative to the PHPCS binary) =================================================================== -->
@@ -45,6 +45,7 @@
       <exclude name="SlevomatCodingStandard.ControlStructures.EarlyExit"/>                                                        <!-- broken: https://github.com/slevomat/coding-standard/issues/365 -->
       <exclude name="SlevomatCodingStandard.ControlStructures.RequireMultiLineTernaryOperator.MultiLineTernaryOperatorNotUsed"/>  <!-- broken: https://github.com/slevomat/coding-standard/issues/1835 -->
       <exclude name="SlevomatCodingStandard.Functions.UnusedParameter.UnusedParameter"/>                                          <!-- broken: false-positives -->
+      <exclude name="SlevomatCodingStandard.TypeHints.PropertyTypeHint.UselessAnnotation"/>                                       <!-- unwanted -->
       <exclude name="SlevomatCodingStandard.TypeHints.UnionTypeHintFormat"/>                                                      <!-- deprecated: replaced by DNFTypeHintFormat -->
 
 
@@ -103,7 +104,6 @@
       <exclude name="SlevomatCodingStandard.TypeHints.DisallowArrayTypeHintSyntax.DisallowedArrayTypeHintSyntax"/>
       <exclude name="SlevomatCodingStandard.TypeHints.ParameterTypeHint.UselessAnnotation"/>
       <exclude name="SlevomatCodingStandard.TypeHints.ParameterTypeHintSpacing.MultipleSpacesBetweenTypeHintAndParameter"/>
-      <exclude name="SlevomatCodingStandard.TypeHints.PropertyTypeHint.UselessAnnotation"/>
       <exclude name="SlevomatCodingStandard.TypeHints.ReturnTypeHint.UselessAnnotation"/>
       <exclude name="SlevomatCodingStandard.TypeHints.UselessConstantTypeHint.UselessDocComment"/>
       <exclude name="SlevomatCodingStandard.Whitespaces.DuplicateSpaces.DuplicateSpaces"/>
@@ -198,7 +198,9 @@
 
     <rule ref="SlevomatCodingStandard.Classes.RequireMultiLineMethodSignature">
       <properties>
-        <property name="minLineLength" value="141"/>
+        <property name="minLineLength"                value="155"/>
+        <property name="withPromotedProperties"       value="true"/>
+        <property name="withParametersWithAttributes" value="true"/>
       </properties>
     </rule>
 
@@ -230,12 +232,12 @@
 
     <rule ref="SlevomatCodingStandard.Namespaces.ReferenceUsedNamesOnly">
       <properties>
-        <property name="searchAnnotations" value="true"/>
-        <property name="allowFullyQualifiedNameForCollidingClasses" value="true"/>
+        <property name="searchAnnotations"                            value="true"/>
+        <property name="allowFullyQualifiedNameForCollidingClasses"   value="true"/>
         <property name="allowFullyQualifiedNameForCollidingFunctions" value="true"/>
         <property name="allowFullyQualifiedNameForCollidingConstants" value="true"/>
-        <property name="allowFullyQualifiedGlobalFunctions" value="true"/>
-        <property name="allowFullyQualifiedGlobalConstants" value="true"/>
+        <property name="allowFullyQualifiedGlobalFunctions"           value="true"/>
+        <property name="allowFullyQualifiedGlobalConstants"           value="true"/>
       </properties>
     </rule>
 
@@ -253,7 +255,7 @@
 
     <rule ref="SlevomatCodingStandard.TypeHints.DeclareStrictTypes">
       <properties>
-        <property name="linesCountBeforeDeclare" value="0"/>
+        <property name="linesCountBeforeDeclare"     value="0"/>
         <property name="spacesCountAroundEqualsSign" value="0"/>
       </properties>
     </rule>

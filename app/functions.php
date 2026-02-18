@@ -558,7 +558,7 @@ function stats_standard_deviation(array $values, bool $sample = false): float {
     foreach ($values as $value) {           // The denominator's reduction by 1 for calculating the variance of a sample
         $diff = $value - $mean;             // tries to correct the "mean error" caused by unknown out-of-sample values.
         $sqrSum += $diff * $diff;           // Think of it as an arbitrary correction when you don't know outliers.
-    };                                      //
+    }                                       //
                                             // standard deviation:
     if ($sample) $n--;                      // @see http://www.mathsisfun.com/data/standard-deviation.html
     $variance = $sqrSum / $n;               //

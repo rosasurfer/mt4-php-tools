@@ -9,10 +9,10 @@ use rosasurfer\ministruts\core\exception\InvalidValueException;
 /**
  * Represents a single input parameter of a tested strategy.
  *
- * @method        string                                    getName()  Return the name of the input parameter.
- * @method        string                                    getValue() Return the value of the input parameter.
- * @method        \rosasurfer\rt\model\Test                 getTest()  Return the test this input parameter belongs to.
- * @method static \rosasurfer\rt\model\StrategyParameterDAO dao()      Return the {@link StrategyParameterDAO} for the calling class.
+ * @method        string               getName()  Return the name of the input parameter.
+ * @method        string               getValue() Return the value of the input parameter.
+ * @method        Test                 getTest()  Return the test this input parameter belongs to.
+ * @method static StrategyParameterDAO dao()      Return the {@link StrategyParameterDAO} for the calling class.
  */
 class StrategyParameter extends RosatraderModel {
 
@@ -23,7 +23,7 @@ class StrategyParameter extends RosatraderModel {
     /** @var string */
     protected $value;
 
-    /** @var Test [transient] */
+    /** @var Test */
     protected $test;
 
 

@@ -74,7 +74,7 @@ class Dukascopy extends CObject {
     protected array $allHistoryStarts = [];
 
     /**
-     * @var array[] - internal cache for downloaded Dukascopy data
+     * @var mixed[] - internal cache for downloaded Dukascopy data
      *                PRICE_BID|PRICE_ASK: DUKASCOPY_BAR
      *                PRICE_MEDIAN:        RT_POINT_BAR
      *
@@ -310,7 +310,7 @@ class Dukascopy extends CObject {
 
         if (isset($this->history[$symbolU][$period][$day1][$type])) {
             // make sure bars to merge match
-            $cache =& $this->history[$symbolU][$period][$day1][$type];
+            $cache = &$this->history[$symbolU][$period][$day1][$type];
             $lastBarTime = last($cache)['time'];
             $nextBarTime = $bars1[0]['time'];
             if ($lastBarTime + 1*MINUTE != $nextBarTime) throw new RuntimeException('Bar time mis-match, bars to merge: '.priceTypeDescription($type).', $lastBarTime='.$lastBarTime.', $nextBarTime='.$nextBarTime);
@@ -322,7 +322,7 @@ class Dukascopy extends CObject {
 
         if (isset($this->history[$symbolU][$period][$day2][$type])) {
             // make sure bars to merge match
-            $cache =& $this->history[$symbolU][$period][$day2][$type];
+            $cache = &$this->history[$symbolU][$period][$day2][$type];
             $lastBarTime = last($bars2)['time'];
             $nextBarTime = $cache[0]['time'];
             if ($lastBarTime + 1*MINUTE != $nextBarTime) throw new RuntimeException('Bar time mis-match, bars to merge: '.priceTypeDescription($type).', $lastBarTime='.$lastBarTime.', $nextBarTime='.$nextBarTime);
@@ -626,7 +626,7 @@ class Dukascopy extends CObject {
         if ($offset >= $lenData) throw new InvalidValueException("Invalid parameter \$offset: $offset (out of range)");
         if ($count <= 0)         throw new InvalidValueException("Invalid parameter \$count: $count (expected positive value)");
 
-        /** @var array<int|float> */
+        /** @var array<int|float> $timeframes */
         $timeframes = [];
 
         while ($offset < $lenData && $count) {
