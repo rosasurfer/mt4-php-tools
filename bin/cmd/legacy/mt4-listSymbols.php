@@ -87,9 +87,8 @@ foreach ($args as $arg) {
                 stderr('file(s) not found: '.$arg.($matchesDir ? ' (enter a trailing slash "/" to search directories)':''));
                 exit(1);
             }
-            usort($files, function($a, $b) {    // Datei-/Verzeichnisnamen lassen sich mit den existierenden Funktionen nicht natuerlich sortieren
-                return compareFileNames($a, $b);
-            });
+            // file/dir names can't be sorted naturally using built-in functions
+            usort($files, static fn(string $a, string $b): int => compareFileNames($a, $b));
         }
         continue;
     }
@@ -352,7 +351,7 @@ function printData(array $files, array $fields, array $data, array $options): bo
  *               negativer Wert, wenn $fileA vor $fileB einsortiert wird;
  *               0, wenn beide Dateinamen gleich sind
  */
-function compareFileNames($fileA, $fileB) {
+function compareFileNames(string $fileA, string $fileB): int {
     if ($fileA === $fileB)
         return 0;
     $lenA = strlen($fileA);

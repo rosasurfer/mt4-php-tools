@@ -547,7 +547,7 @@ function getVar(string $id, ?string $symbol = null, ?int $time = null): string {
     }
 
     static $storageDir;
-    $storageDir = $storageDir ?? Application::service('config')['app.dir.data'];
+    $storageDir ??= Application::service('config')['app.dir.data'];
     $self = __FUNCTION__;
 
     if ($id == 'rtDirDate') {                   // $yyyy/$mmL/$dd                                               // lokales Pfad-Datum

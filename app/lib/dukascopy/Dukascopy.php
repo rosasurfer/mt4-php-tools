@@ -592,7 +592,7 @@ class Dukascopy extends CObject {
             $offset += 2;
 
             /** @var array{symbol:string, highPart:int, count:int} $vars */
-            $vars = unpack("@$offset/A${length}symbol/NhighPart/Ncount", $data);
+            $vars = unpack("@{$offset}/A{$length}symbol/NhighPart/Ncount", $data);
             extract($vars);
             if (strlen($symbol) != $length) throw new RuntimeException("Unexpected data format in DUKASCOPY_HISTORY_START at offset $offset: symbol=\"$symbol\"  length=$length");
             if ($highPart)                  throw new RuntimeException('Unexpected data format in DUKASCOPY_HISTORY_START at offset '.($offset+$length).": highPart=$highPart");
