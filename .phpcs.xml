@@ -1,8 +1,8 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="utf-8"?>
 
 <ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="https://github.com/PHPCSStandards/PHP_CodeSniffer/raw/refs/heads/master/phpcs.xsd"
-         name="rosasurfer/rt">
+         xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/PHPCSStandards/PHP_CodeSniffer/refs/heads/4.x/phpcs.xsd"
+         name="rosasurfer">
 
     <rule ref="etc/phpcs/slevomat.xml"/>
 </ruleset>

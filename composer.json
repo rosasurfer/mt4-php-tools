@@ -21,9 +21,8 @@
     "rosasurfer/ministruts": "^0.12@dev"
   },
   "require-dev": {
-    "phpstan/phpstan":           "^2.1.20",
-    "slevomat/coding-standard":  "^8.0",
-    "squizlabs/php_codesniffer": "^3.0"
+    "phpstan/phpstan":          "^2.1.20",
+    "slevomat/coding-standard": "^8.0"
   },
   "autoload": {
     "classmap": ["app/"],
