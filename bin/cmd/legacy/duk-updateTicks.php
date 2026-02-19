@@ -392,12 +392,13 @@ function downloadTickdata(string $symbol, int $gmtHour, int $fxtHour, bool $quie
                ->setHeader('Connection'     , 'keep-alive'                                                     )
                ->setHeader('Cache-Control'  , 'max-age=0'                                                      )
                ->setHeader('Referer'        , 'http://www.dukascopy.com/free/candelabrum/'                     );
-    $options[CURLOPT_SSL_VERIFYPEER] = false;                           // falls HTTPS verwendet wird
-    //$options[CURLOPT_VERBOSE     ] = true;
 
     // HTTP-Request abschicken und auswerten
-    static $httpClient = null;
-    !$httpClient && $httpClient = new CurlHttpClient($options);         // Instanz fuer KeepAlive-Connections wiederverwenden
+    static $httpClient;
+    $httpClient ??= new CurlHttpClient([                                // Instanz fuer KeepAlive-Connections wiederverwenden
+        CURLOPT_SSL_VERIFYPEER => false,                                // falls HTTPS verwendet wird
+        //CURLOPT_VERBOSE      => true,
+    ]);
 
     $response = $httpClient->send($request);                            // @todo CURL-Fehler wie bei SimpleTrader behandeln
     $status   = $response->getStatus();

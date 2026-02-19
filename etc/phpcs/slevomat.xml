@@ -38,17 +38,30 @@
 
 
     <rule ref="SlevomatCodingStandard">
-      <!-- exclude broken/deprecated/unwanted sniffs -->
-      <exclude name="SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys.IncorrectKeyOrder"/>                                <!-- unwanted -->
-      <exclude name="SlevomatCodingStandard.Arrays.SingleLineArrayWhitespace.SpaceAfterComma"/>                                   <!-- unwanted -->
-      <exclude name="SlevomatCodingStandard.Arrays.SingleLineArrayWhitespace.SpaceBeforeArrayClose"/>                             <!-- unwanted -->
-      <exclude name="SlevomatCodingStandard.Classes.RequireAbstractOrFinal.ClassNeitherAbstractNorFinal"/>                        <!-- unwanted -->
+      <!-- exclude deprecated/not wanted/broken sniffs -->
+      <exclude name="SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys.IncorrectKeyOrder"/>                                <!-- not wanted -->
+      <exclude name="SlevomatCodingStandard.Arrays.SingleLineArrayWhitespace.SpaceAfterComma"/>                                   <!-- not wanted -->
+      <exclude name="SlevomatCodingStandard.Arrays.SingleLineArrayWhitespace.SpaceBeforeArrayClose"/>                             <!-- not wanted -->
+      <exclude name="SlevomatCodingStandard.Classes.ModernClassNameReference.ClassNameReferencedViaMagicConstant"/>               <!-- not wanted -->
+      <exclude name="SlevomatCodingStandard.Classes.ParentCallSpacing.IncorrectLinesCountBeforeControlStructure"/>                <!-- not wanted -->
+      <exclude name="SlevomatCodingStandard.Classes.ParentCallSpacing.IncorrectLinesCountBeforeFirstControlStructure"/>           <!-- not wanted -->
+      <exclude name="SlevomatCodingStandard.Classes.ParentCallSpacing.IncorrectLinesCountAfterControlStructure"/>                 <!-- not wanted -->
+      <exclude name="SlevomatCodingStandard.Classes.ParentCallSpacing.IncorrectLinesCountAfterLastControlStructure"/>             <!-- not wanted -->
+      <exclude name="SlevomatCodingStandard.Classes.RequireAbstractOrFinal.ClassNeitherAbstractNorFinal"/>                        <!-- not wanted -->
+      <exclude name="SlevomatCodingStandard.Classes.SuperfluousErrorNaming.SuperfluousSuffix"/>                                   <!-- not wanted -->
+      <exclude name="SlevomatCodingStandard.Classes.SuperfluousExceptionNaming.SuperfluousSuffix"/>                               <!-- not wanted -->
+      <exclude name="SlevomatCodingStandard.Classes.SuperfluousInterfaceNaming.SuperfluousSuffix"/>                               <!-- not wanted -->
+      <exclude name="SlevomatCodingStandard.Classes.SuperfluousTraitNaming.SuperfluousSuffix"/>                                   <!-- not wanted -->
+      <exclude name="SlevomatCodingStandard.Classes.TraitUseDeclaration.MultipleTraitsPerDeclaration"/>                           <!-- not wanted -->
+      <exclude name="SlevomatCodingStandard.Commenting.DisallowCommentAfterCode.DisallowedCommentAfterCode"/>                     <!-- not wanted -->
+      <exclude name="SlevomatCodingStandard.Commenting.DisallowOneLinePropertyDocComment.OneLinePropertyComment"/>                <!-- not wanted -->
       <exclude name="SlevomatCodingStandard.Commenting.DocCommentSpacing.IncorrectLinesCountBetweenDifferentAnnotationsTypes"/>   <!-- inflexible configuration -->
+      <exclude name="SlevomatCodingStandard.Commenting.RequireOneLineDocComment.MultiLineDocComment"/>                            <!-- not wanted -->
       <exclude name="SlevomatCodingStandard.ControlStructures.EarlyExit"/>                                                        <!-- broken: https://github.com/slevomat/coding-standard/issues/365 -->
       <exclude name="SlevomatCodingStandard.ControlStructures.RequireMultiLineTernaryOperator.MultiLineTernaryOperatorNotUsed"/>  <!-- broken: https://github.com/slevomat/coding-standard/issues/1835 -->
-      <exclude name="SlevomatCodingStandard.Functions.UnusedParameter.UnusedParameter"/>                                          <!-- broken: false-positives -->
+      <exclude name="SlevomatCodingStandard.Functions.UnusedParameter.UnusedParameter"/>                                          <!-- broken: invalid handling of methods -->
       <exclude name="SlevomatCodingStandard.Namespaces.AlphabeticallySortedUses"/>                                                <!-- broken: invalid ordering of namespaces -->
-      <exclude name="SlevomatCodingStandard.TypeHints.PropertyTypeHint.UselessAnnotation"/>                                       <!-- unwanted -->
+      <exclude name="SlevomatCodingStandard.TypeHints.PropertyTypeHint.UselessAnnotation"/>                                       <!-- not wanted -->
       <exclude name="SlevomatCodingStandard.TypeHints.UnionTypeHintFormat"/>                                                      <!-- deprecated: replaced by DNFTypeHintFormat -->
 
 
@@ -57,19 +70,6 @@
 
 
       <!-- exclude opinionated sniffs -->
-      <exclude name="SlevomatCodingStandard.Classes.ModernClassNameReference.ClassNameReferencedViaMagicConstant"/>
-      <exclude name="SlevomatCodingStandard.Classes.ParentCallSpacing.IncorrectLinesCountAfterControlStructure"/>
-      <exclude name="SlevomatCodingStandard.Classes.ParentCallSpacing.IncorrectLinesCountBeforeControlStructure"/>
-      <exclude name="SlevomatCodingStandard.Classes.SuperfluousErrorNaming.SuperfluousSuffix"/>
-      <exclude name="SlevomatCodingStandard.Classes.SuperfluousExceptionNaming.SuperfluousSuffix"/>
-      <exclude name="SlevomatCodingStandard.Classes.SuperfluousInterfaceNaming.SuperfluousSuffix"/>
-      <exclude name="SlevomatCodingStandard.Classes.SuperfluousTraitNaming.SuperfluousSuffix"/>
-      <exclude name="SlevomatCodingStandard.Classes.TraitUseDeclaration.MultipleTraitsPerDeclaration"/>
-      <exclude name="SlevomatCodingStandard.Commenting.DisallowCommentAfterCode.DisallowedCommentAfterCode"/>
-      <exclude name="SlevomatCodingStandard.Commenting.DisallowOneLinePropertyDocComment.OneLinePropertyComment"/>
-      <exclude name="SlevomatCodingStandard.Commenting.EmptyComment.EmptyComment"/>
-      <exclude name="SlevomatCodingStandard.Commenting.RequireOneLineDocComment.MultiLineDocComment"/>
-      <exclude name="SlevomatCodingStandard.Commenting.UselessFunctionDocComment.UselessDocComment"/>
       <exclude name="SlevomatCodingStandard.Commenting.UselessInheritDocComment.UselessInheritDocComment"/>
       <exclude name="SlevomatCodingStandard.ControlStructures.BlockControlStructureSpacing.IncorrectLinesCountAfterControlStructure"/>
       <exclude name="SlevomatCodingStandard.ControlStructures.BlockControlStructureSpacing.IncorrectLinesCountBeforeControlStructure"/>

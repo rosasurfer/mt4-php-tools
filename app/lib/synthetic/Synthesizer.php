@@ -41,7 +41,9 @@ abstract class Synthesizer extends CObject implements ISynthesizer
 
 
     /**
+     * Constructor
      *
+     * @param RosaSymbol $symbol
      */
     public function __construct(RosaSymbol $symbol) {
         $this->symbol     = $symbol;

@@ -49,10 +49,10 @@ class HistorySet extends CObject
     protected $serverDirectory;
 
     /** @var bool - whether the set is closed and resources are disposed */
-    protected $closed = false;
+    protected bool $closed = false;
 
     /** @var array<?HistoryFile> - the history files of the set */
-    protected $historyFiles = [
+    protected array $historyFiles = [
         PERIOD_M1  => null,
         PERIOD_M5  => null,
         PERIOD_M15 => null,
@@ -61,11 +61,11 @@ class HistorySet extends CObject
         PERIOD_H4  => null,
         PERIOD_D1  => null,
         PERIOD_W1  => null,
-        PERIOD_MN1 => null
+        PERIOD_MN1 => null,
     ];
 
     /** @var HistorySet[] - all instances of this class */
-    private static $instances = [];
+    private static array $instances = [];
 
 
     /**

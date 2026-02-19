@@ -195,8 +195,8 @@ class Dukascopy extends CObject
      * @see \rosasurfer\rt\phpstan\DUKASCOPY_BAR
      */
     protected function loadHistory(DukascopySymbol $symbol, int $period, int $time, int $type): array {
-        if ($period != PERIOD_M1)                     throw new InvalidValueException('Invalid parameter $period: '.periodToStr($period));
-        if (!in_array($type, [PRICE_BID, PRICE_ASK])) throw new InvalidValueException('Invalid parameter $type: '.$type);
+        if ($period != PERIOD_M1)                           throw new InvalidValueException('Invalid parameter $period: '.periodToStr($period));
+        if (!in_array($type, [PRICE_BID, PRICE_ASK], true)) throw new InvalidValueException('Invalid parameter $type: '.$type);
 
         // Day transition time (Midnight) for Dukascopy data is at 00:00 GMT (~02:00 FXT). Each FXT day requires Dukascopy
         // data of the current and the previous GMT day. If data is present in the internal cache the method doesn't connect
@@ -254,8 +254,8 @@ class Dukascopy extends CObject
      * @see \rosasurfer\rt\phpstan\DUKASCOPY_BAR
      */
     protected function parseBarData(string $data, DukascopySymbol $symbol, int $day, int $period, int $type): void {
-        if ($period != PERIOD_M1)                     throw new InvalidValueException('Invalid parameter $period: '.periodToStr($period));
-        if (!in_array($type, [PRICE_BID, PRICE_ASK])) throw new InvalidValueException('Invalid parameter $type: '.$type);
+        if ($period != PERIOD_M1)                           throw new InvalidValueException('Invalid parameter $period: '.periodToStr($period));
+        if (!in_array($type, [PRICE_BID, PRICE_ASK], true)) throw new InvalidValueException('Invalid parameter $type: '.$type);
 
         $symbolU = strtoupper($symbol->getName());
         $day -= $day % DAY;                                         // 00:00 GMT

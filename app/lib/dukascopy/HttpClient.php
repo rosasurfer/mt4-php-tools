@@ -82,8 +82,8 @@ class HttpClient extends CurlHttpClient
      * @return string - binary history data or an empty string in case of errors
      */
     public function downloadHistory(string $symbol, int $day, int $type): string {
-        if (!strlen($symbol))                         throw new InvalidValueException('Invalid parameter $symbol: "'.$symbol.'"');
-        if (!in_array($type, [PRICE_BID, PRICE_ASK])) throw new InvalidValueException('Invalid parameter $type: '.$type);
+        if (!strlen($symbol))                               throw new InvalidValueException('Invalid parameter $symbol: "'.$symbol.'"');
+        if (!in_array($type, [PRICE_BID, PRICE_ASK], true)) throw new InvalidValueException('Invalid parameter $type: '.$type);
 
         // url: http://datafeed.dukascopy.com/datafeed/EURUSD/2009/00/31/BID_candles_min_1.bi5
         $symbolU = strtoupper($symbol);

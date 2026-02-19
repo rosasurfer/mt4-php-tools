@@ -62,7 +62,7 @@ class MT4 extends StaticClass
 
 
     /** @var int[] - MetaTrader Standard-Timeframes */
-    public static $timeframes = [PERIOD_M1, PERIOD_M5, PERIOD_M15, PERIOD_M30, PERIOD_H1, PERIOD_H4, PERIOD_D1, PERIOD_W1, PERIOD_MN1];
+    public static array $timeframes = [PERIOD_M1, PERIOD_M5, PERIOD_M15, PERIOD_M30, PERIOD_H1, PERIOD_H4, PERIOD_D1, PERIOD_W1, PERIOD_MN1];
 
 
     /**
@@ -76,7 +76,7 @@ class MT4 extends StaticClass
         'high'  => 0,
         'low'   => 0,
         'close' => 0,
-        'ticks' => 0
+        'ticks' => 0,
     ];
 
     /**
@@ -92,7 +92,7 @@ class MT4 extends StaticClass
         'close'  => 0,
         'ticks'  => 0,
         'spread' => 0,
-        'volume' => 0
+        'volume' => 0,
     ];
 
 

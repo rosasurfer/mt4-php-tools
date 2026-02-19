@@ -65,9 +65,9 @@ const PERIOD_Q1    = 129600;                // a quarter (3 months)
 
 // operation types
 const OP_BUY       =       0;               //    MT4: long position
-const OP_LONG      =  OP_BUY;               //
+const OP_LONG      =  OP_BUY;               //         .
 const OP_SELL      =       1;               //         short position
-const OP_SHORT     = OP_SELL;               //
+const OP_SHORT     = OP_SELL;               //         .
 const OP_BUYLIMIT  =       2;               //         buy limit order
 const OP_SELLLIMIT =       3;               //         sell limit order
 const OP_BUYSTOP   =       4;               //         stop buy order
@@ -558,10 +558,10 @@ function stats_standard_deviation(array $values, bool $sample = false): float {
     foreach ($values as $value) {           // The denominator's reduction by 1 for calculating the variance of a sample
         $diff = $value - $mean;             // tries to correct the "mean error" caused by unknown out-of-sample values.
         $sqrSum += $diff * $diff;           // Think of it as an arbitrary correction when you don't know outliers.
-    }                                       //
+    }                                       // .
                                             // standard deviation:
     if ($sample) $n--;                      // @see http://www.mathsisfun.com/data/standard-deviation.html
-    $variance = $sqrSum / $n;               //
+    $variance = $sqrSum / $n;               // .
                                             // Bessel's correction:
     return sqrt($variance);                 // @see https://en.wikipedia.org/wiki/Bessel%27s_correction
 }
@@ -595,7 +595,7 @@ function stats_sharpe_ratio(array $returns, bool $growth=false, bool $sample=fal
     //    If we start from monthly growth rates in %, std-deviation is the expected (Sigma=1) deviation in % from the average monthly rate.
     //
     //  - Summary: Parameter $growth can be fully discarded.
-    //
+
     if ($growth) {
         throw new UnimplementedFeatureException('Validation of growth rates not yet implemented');
         // all values must be non-negative and non-zero (no return = zero growth = 1)
