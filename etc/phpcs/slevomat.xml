@@ -57,6 +57,7 @@
       <exclude name="SlevomatCodingStandard.Commenting.DisallowOneLinePropertyDocComment.OneLinePropertyComment"/>                <!-- not wanted -->
       <exclude name="SlevomatCodingStandard.Commenting.DocCommentSpacing.IncorrectLinesCountBetweenDifferentAnnotationsTypes"/>   <!-- inflexible configuration -->
       <exclude name="SlevomatCodingStandard.Commenting.RequireOneLineDocComment.MultiLineDocComment"/>                            <!-- not wanted -->
+      <exclude name="SlevomatCodingStandard.Commenting.ThrowsAnnotationsOrder.IncorrectOrder"/>                                   <!-- not wanted -->
       <exclude name="SlevomatCodingStandard.ControlStructures.EarlyExit"/>                                                        <!-- broken: https://github.com/slevomat/coding-standard/issues/365 -->
       <exclude name="SlevomatCodingStandard.ControlStructures.RequireMultiLineTernaryOperator.MultiLineTernaryOperatorNotUsed"/>  <!-- broken: https://github.com/slevomat/coding-standard/issues/1835 -->
       <exclude name="SlevomatCodingStandard.Functions.UnusedParameter.UnusedParameter"/>                                          <!-- broken: invalid handling of methods -->
